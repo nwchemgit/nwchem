@@ -12,7 +12,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d,triplet)
-C$Id: grid_quadvc.F,v 1.14 2002-03-22 02:37:37 sohirata Exp $
+C$Id: grid_quadvc.F,v 1.15 2003-01-03 22:43:14 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -35,6 +35,9 @@ c
       integer lbas_cent_info, ibas_cent_info,
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset,i_iscratch,l_iscratch
+      integer ncontrsetx,lbas_cent_xinfo, ibas_cent_xinfo,
+     &        lbas_cset_xinfo, ibas_cset_xinfo,
+     .     ldocsetx, idocsetx
       logical buffwrite
       logical donewbf           !!! !!!! *** temp
       logical l3d
@@ -53,6 +56,23 @@ c
      &     call errquit('grid_quadv0c: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
+      if (xcfit) then
+         if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &        lbas_cent_xinfo, ibas_cent_xinfo))
+     &        call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+      if (.not.bas_numcont(AO_bas_han, ncontrsetx))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_info',
+     &     lbas_cset_xinfo, ibas_cset_xinfo))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+      if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docset',
+     &     ldocsetx, idocsetx))
+     &     call errquit('grid_quadv0a: cannot allocate docset',
+     .     ncontrset)
+      call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
+     &     int_mb(ibas_cset_xinfo), natoms)
+      endif
+
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
@@ -92,7 +112,9 @@ c
      '        log_mb(idocset),rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        donewbf,l3d,triplet)
+     ,        donewbf,l3d,triplet,
+     .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
+     .        log_mb(idocsetx))
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1
@@ -117,20 +139,8 @@ cedo            nwrbuf=1
       if(n.lt.nq) goto 30            
 !      write(0,*) ' endc ',nwrbuf+1,nq,nq_out
  100  continue
-      if (.not.MA_Pop_Stack(ldocset)) then
-      write(6,'(A,i10,A,3i10)') ' fme ',ga_nodeid(),
-     .     ' ld id lgth ',ldocset,idocset,ncontrset
-         call MA_summarize_allocated_blocks()
-          call errquit('grid_quadvc: pop stack failed.',3)
-       endif
-      if (.not.MA_Pop_Stack(l_iscratch)) 
-     .    call errquit('grid_quadv0a: pop stack failed.',3)
-      if(donewbf) then
-      if (.not.MA_Pop_Stack(lbas_cset_info))
-     &     call errquit('grid_quadvc: pop stack failed.',2)
-      if (.not.MA_Pop_Stack(lbas_cent_info))
+      if (.not.MA_chop_Stack(lbas_cent_info))
      &     call errquit('grid_quadvc: pop stack failed.',1)
-      endif
 c
       return
       end

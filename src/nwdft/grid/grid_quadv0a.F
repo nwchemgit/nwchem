@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d,triplet)
 c
-c$Id: grid_quadv0a.F,v 1.30 2002-03-22 02:37:37 sohirata Exp $
+c$Id: grid_quadv0a.F,v 1.31 2003-01-03 22:43:14 edo Exp $
 c
       implicit none
 c
@@ -32,6 +32,9 @@ c
       integer lbas_cent_info, ibas_cent_info,
      &        lbas_cset_info, ibas_cset_info,
      &        ldocset, idocset,i_iscratch,l_iscratch
+      integer ncontrsetx,lbas_cent_xinfo, ibas_cent_xinfo,
+     &        lbas_cset_xinfo, ibas_cset_xinfo,
+     .     ldocsetx, idocsetx
 
       logical grid_file_rewind
       external grid_file_rewind
@@ -64,6 +67,22 @@ c
      &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
+      if (xcfit) then
+         if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &        lbas_cent_xinfo, ibas_cent_xinfo))
+     &        call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+      if (.not.bas_numcont(AO_bas_han, ncontrsetx))
+     &     call errquit('Exiting in grid_quadv0a',0)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_info',
+     &     lbas_cset_xinfo, ibas_cset_xinfo))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+      if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docset',
+     &     ldocsetx, idocsetx))
+     &     call errquit('grid_quadv0a: cannot allocate docset',
+     .     ncontrset)
+      call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
+     &     int_mb(ibas_cset_xinfo), natoms)
+      endif
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
@@ -104,7 +123,9 @@ c
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,           donewbf,l3d,triplet)
+     ,           donewbf,l3d,triplet,
+     .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
+     .           log_mb(idocsetx))
             ntot_cube=ntot_cube+1
          endif
       enddo

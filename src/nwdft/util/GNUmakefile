@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.62 2002-08-16 00:39:53 edo Exp $
+#$Id: GNUmakefile,v 1.63 2003-01-03 22:43:16 edo Exp $
 
 	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o
 
@@ -13,7 +13,6 @@
 	get_col.o \
 	movecs_log.o \
 	nbf_to_mbf.o \
-	new_eval_gb.o \
 	sca_lab_mat.o dft_utilmap.o
 
 
