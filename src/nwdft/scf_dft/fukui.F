@@ -1,16 +1,16 @@
       Subroutine fukui(g_movecs, k_eval, tol2e, rtdb,
      &                 nExc, iVxc_opt, g_xcinv, IOLGC, g_wght,
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
-     &                 icntoce, icntobfr, icetobfr, natoms)
+     &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
+c     $Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
      &        g_movecs(2), isp, k_eval(2), g_s,
      &        me, l_temp_vec, i_temp_vec,
      &        g_dens(2), noc_aux_1, noc_aux_2, noc_test
-      integer irdens_atom, icntoce, icntobfr, icetobfr
+      integer irdens_atom, icetobfr
 c
       integer nExc
       integer iVxc_opt
@@ -242,8 +242,8 @@ c
       Ecoul = 0.0d00
       call xc_pot(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens,
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             dbl_mb(irdens_atom), int_mb(icntoce),
-     &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &             dbl_mb(irdens_atom), 
+     &             int_mb(icetobfr), natoms)
       Exc_zero = Exc(1)
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
@@ -288,8 +288,8 @@ c
       end do
       call xc_pot(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens,
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             dbl_mb(irdens_atom), int_mb(icntoce),
-     &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &             dbl_mb(irdens_atom),
+     &             int_mb(icetobfr), natoms)
       Exc_pert = Exc(1)
       diff_Exc = Exc_pert - Exc_zero
       ion_pot = ion_pot + diff_Exc
@@ -340,8 +340,8 @@ c
       end do
       call xc_pot(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens,
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             dbl_mb(irdens_atom), int_mb(icntoce),
-     &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &             dbl_mb(irdens_atom),
+     &             int_mb(icetobfr), natoms)
       Exc_pert = Exc(1)
       diff_Exc = Exc_pert - Exc_zero
       ele_afi = ele_afi - diff_Exc
@@ -392,8 +392,8 @@ c
         end do
         call xc_pot(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens,
      &               g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &               dbl_mb(irdens_atom), int_mb(icntoce),
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &               dbl_mb(irdens_atom), 
+     &               int_mb(icetobfr), natoms)
         Exc_pert = Exc(1)
         diff_Exc = Exc_pert - Exc_zero
         high_mult = high_mult + diff_Exc
@@ -442,8 +442,8 @@ c
         end do
         call xc_pot(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens,
      &               g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &               dbl_mb(irdens_atom), int_mb(icntoce),
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &               dbl_mb(irdens_atom), 
+     &               int_mb(icetobfr), natoms)
         Exc_pert = Exc(1)
         diff_Exc = Exc_pert - Exc_zero
         low_mult = low_mult + diff_Exc
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
+C$Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -653,10 +653,10 @@ c
 
       Subroutine xc_pot(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
-     &                   wght_GA, rho_n, rdens_atom, cntoce,
-     &                   cntobfr, cetobfr, natoms)
+     &                   wght_GA, rho_n, rdens_atom, 
+     &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
+C$Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
 c
       implicit none
 #include "stdio.fh"
@@ -677,8 +677,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 c
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
       integer g_jk(4), g_d(4)
@@ -873,8 +872,8 @@ c           compute the integrated density (numerical)
 c 
 c
             call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
-     &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
-     &                     cntobfr, cetobfr, natoms)
+     &                     wght_GA, Exc, rho_n, rdens_atom, 
+     &                     cetobfr, natoms)
          elseif (iVxc_opt.eq.1 )then
 c         
 c           Option B:  Compute via a LSQ fitting procedure.
@@ -882,7 +881,7 @@ c
 c
 c
             call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &                     rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
+     &                     rho_n, rdens_atom, cetobfr, 
      &                     natoms)
          endif
       endif

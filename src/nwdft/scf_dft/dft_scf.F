@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.158 2000-04-24 18:50:45 edo Exp $
+c     $Id: dft_scf.F,v 1.159 2000-04-24 19:37:15 edo Exp $
 c     
       implicit none
 c
@@ -573,7 +573,7 @@ c
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
      ,     dbl_mb(k_eval(1)), dbl_mb(irdens_atom),
      ,     dbl_mb(k_3ceri),int_mb(k_3cwhat),
-     ,     int_mb(icntoce), int_mb(icntobfr), int_mb(icetobfr),
+     ,     int_mb(icetobfr),
      ,     iter, ecore, ecoul,exc,noc,rho_n,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
@@ -1001,12 +1001,11 @@ c
 c     Jorge Garza / Begin
       if (test_sic.eq.1) then
          call localize_sic(g_movecs, noc)
-         call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
-     &                    g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq,
+         call xc_sic_pert(rtdb, nExc, iVxc_opt,
+     &                    g_wght, g_xyz, g_nq,
      &                    wght_GA, dbl_mb(irdens_atom),
-     &                    int_mb(icntoce), int_mb(icntobfr),
      &                    int_mb(icetobfr), natoms,
-     &                    g_movecs, noc, k_eval, totsic)
+     &                    g_movecs, noc, totsic)
          if (me.eq.0.and.oprint_sic)then
             write(LuOut,*) ' SIC after localization',totsic
          endif
@@ -1073,7 +1072,7 @@ c
       if (condfukui.eq.1) then
          call fukui(g_movecs, k_eval, tol2e, rtdb, nExc, iVxc_opt, 
      &              g_xcinv, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
-     &              rho_n, irdens_atom, icntoce, icntobfr, 
+     &              rho_n, irdens_atom,
      &              icetobfr, natoms)
       endif
 c

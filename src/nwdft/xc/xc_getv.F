@@ -1,9 +1,9 @@
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
-     &                   wght_GA, rho_n, rdens_atom, cntoce,
-     &                   cntobfr, cetobfr, natoms)
+     &                   wght_GA, rho_n, rdens_atom,
+     &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.34 2000-04-21 19:21:30 edo Exp $
+C$Id: xc_getv.F,v 1.35 2000-04-24 19:37:16 edo Exp $
 c
       implicit none
 c      
@@ -23,8 +23,7 @@ c
 #include "util.fh"
 #include "sym.fh"
 c
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
       integer g_jk(4), g_d(4)
@@ -199,8 +198,8 @@ c
 c     
                call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,
      /              g_xyz,g_nq, 
-     &              wght_GA, Exc, rho_n, rdens_atom, cntoce,
-     &              cntobfr, cetobfr, natoms)
+     &              wght_GA, Exc, rho_n, rdens_atom, 
+     &              cetobfr, natoms)
                
             else
 c     
@@ -214,7 +213,7 @@ c
 c     
 c     
                call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &              rho_n, rdens_atom, cntoce, cntobfr, cetobfr, 
+     &              rho_n, rdens_atom, cetobfr, 
      &              natoms)
             endif
          endif

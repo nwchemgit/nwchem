@@ -4,13 +4,13 @@
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
      ,     evals, rdens_atom,dd3ceri,ii3cwhat,
-     ,     cetobfr, cntoce,cntobfr,
+     ,     cetobfr,
      ,     iter, ecore, ecoul,exc,noc, rho_n,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.2 2000-04-24 18:37:24 edo Exp $
+c     $Id: dft_fockbld.F,v 1.3 2000-04-24 19:37:15 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -29,7 +29,7 @@ c
       double precision rdens_atom(*)
       double precision dd3ceri(*)
       integer ii3cwhat(*)
-      integer cetobfr(*),cntobfr(*),cntoce(*)
+      integer cetobfr(*)
       logical oprint_time ![in]
       integer iter ! [in]
       integer noc(2)
@@ -162,8 +162,7 @@ c
 c
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             rdens_atom, cntoce, 
-     &             cntobfr, cetobfr, natoms)
+     &             rdens_atom, cetobfr, natoms)
 c
       if (exact_pot.eq.1) then
         call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, noc, g_rho_exact,
@@ -180,10 +179,9 @@ c
             call localize_sic(g_movecs, noc)
           end if
           call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
-     &                g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
-     &                rdens_atom, cntoce, 
-     &                cntobfr, cetobfr, natoms,
-     &                g_movecs, noc, evals, totsic, i_degen)
+     &                g_vxc,  g_wght, g_xyz, g_nq, wght_GA,
+     &                rdens_atom, cetobfr, natoms,
+     &                g_movecs, noc, totsic, i_degen)
           Exc(1) = Exc(1) + totsic
         end if
       end if

@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf_so.F,v 1.3 2000-04-24 19:10:35 edo Exp $
+c     $Id: dft_scf_so.F,v 1.4 2000-04-24 19:37:16 edo Exp $
 c     
       implicit none
 c     
@@ -27,7 +27,7 @@ c     so
       integer info 
       integer lbuff, ibuff
       integer nbf_mo 
-      logical edo, modiag
+      logical modiag
       logical numerical 
 c
 c     declarations for fractional occupation 
@@ -974,8 +974,8 @@ c
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             dbl_mb(irdens_atom), int_mb(icntoce), 
-     &             int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &             dbl_mb(irdens_atom), 
+     &             int_mb(icetobfr), natoms)
       call ga_sync
       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
      &                                     1, nbf_ao, 

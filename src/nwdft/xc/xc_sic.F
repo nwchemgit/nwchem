@@ -1,10 +1,10 @@
       Subroutine xc_sic(rtdb, nExc, iVxc_opt, g_xcinv,
-     &                  g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
-     &                  wght_GA, rdens_atom, cntoce,
-     &                  cntobfr, cetobfr, natoms,
-     &                  g_movecs, noc, k_eval, totsic, i_degen)
+     &                  g_dens, g_vxc,  g_wght, g_xyz,g_nq, 
+     &                  wght_GA, rdens_atom, 
+     &                  cetobfr, natoms,
+     &                  g_movecs, noc,  totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.9 2000-04-21 00:28:48 edo Exp $
+C$Id: xc_sic.F,v 1.10 2000-04-24 19:37:16 edo Exp $
 c
       implicit none
 c      
@@ -13,14 +13,14 @@ c
       integer ik, ij, noc(2), isp, n_states, naux_ipol, size_mat, 
 c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_orb,g_vxc_orb(4),g_movecs(2),
-     &        g_matm, g_vectu, k_eval(2), g_coul_orb, g_vxc_sig(2),
+     &        g_matm, g_vectu,  g_coul_orb, g_vxc_sig(2),
      &        l_vec_aux, i_vec_aux, j, 
      &        l_vec_u, i_vec_u, l_consti, i_consti, l_degen,
      &        aux_ij, aux_ik, i_degen(2), i_gauxsig, l_gauxsig
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 u_array, res_int,const_ci, totsic
       integer natoms
-      logical IOLGC, wght_GA
+      logical  wght_GA
       integer rtdb
 c
 #include "mafdecls.fh"
@@ -33,8 +33,7 @@ c
 #include "sym.fh"
 #include "stdio.fh"
 c
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
+      integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
 c     
@@ -190,7 +189,7 @@ c
             sic_orb_index = 0
             call xc_quadv0(rtdb, nExc, g_vxc_orb, g_sic_dens,
      &                     g_wght, g_xyz, g_nq, wght_GA, Exc_orb,
-     &                     rho_n, rdens_atom, cntoce, cntobfr,
+     &                     rho_n, rdens_atom,
      &                     cetobfr, natoms)
 c
 c   Exc_orb(1) is the exchange-correlation energy by orbital
@@ -215,7 +214,7 @@ c
             sic_orb_index = 1
             call xc_quadv0(rtdb, nExc, g_vxc_orb, g_dens,
      &                     g_wght, g_xyz,g_nq, wght_GA, Exc_orb,
-     &                     rho_n, rdens_atom, cntoce, cntobfr,
+     &                     rho_n, rdens_atom, 
      &                     cetobfr, natoms)
             sic_orb_index = 0
             do ij=1,noc(isp)
