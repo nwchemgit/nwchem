@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.158 2003-01-14 16:31:09 d3j191 Exp $
+c $Id: md_main.F,v 1.159 2003-02-21 20:07:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1326,6 +1326,12 @@ c
       lvs=.false.
       lesp=.false.
 c
+      if(mropt.eq.2) then
+      kequi=0
+      kdacq=0
+      call prp_init
+      endif
+c
 c     equilibration
 c
       lequi=.true.
@@ -2538,7 +2544,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.158 2003-01-14 16:31:09 d3j191 Exp $
+c $Id: md_main.F,v 1.159 2003-02-21 20:07:18 d3j191 Exp $
 c
       implicit none
 c

@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.88 2002-11-08 17:23:48 d3j191 Exp $
+c $Id: prp_main.F,v 1.89 2003-02-21 20:07:19 d3j191 Exp $
 c
       implicit none
 c
@@ -679,7 +679,7 @@ c
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda),dfrm(mda)
+      real*8 rlambd,dlambd,dfr(mda),dfrm(mda),dtmp
       real*8 taver,ep2ave,ep3ave,ebias,dfbias,ep2avm,ep3avm
       integer i,ndec
 c
@@ -740,7 +740,7 @@ c
       integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias,dfbias
-      real*8 ep2avm,ep3avm
+      real*8 ep2avm,ep3avm,dtmp
       real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias,freeb,freem
       logical lfrm
 c
@@ -885,8 +885,13 @@ c
  2000 format(2i7,2f12.6,2i8,i4,e20.12,4x,l1)
       read(lfngib,2001) deriv
  2001 format(4e20.12)
+      if(mda.lt.nda) then
+      read(lfngib,2002) (dtmp,j=1,nda)
+      read(lfngib,2002) (dtmp,j=1,nda)
+      else
       read(lfngib,2002) (dfr(j),j=1,nda)
       read(lfngib,2002) (dfrm(j),j=1,nda)
+      endif
  2002 format(4e20.12)
       read(lfngib,2003) number,taver,ep2ave,ep3ave,dfbias,
      + ep2avm,ep3avm
@@ -1042,7 +1047,7 @@ c
       external cf_rdmri
 c
       integer lfnmri,ndec
-      real*8 dfr(mda),dfrm(mda)
+      real*8 dfr(mda),dfrm(mda),dtmp
 c
       integer i,nprp,nmxp
 c
@@ -1054,8 +1059,13 @@ c
       call errquit('Number of properties maxp changed',0)
       endif
       read(lfnmri,err=9,end=9) deriv
+      if(mda.lt.nda) then
+      read(lfnmri,err=9,end=9) (dtmp,i=1,nda)
+      read(lfnmri,err=9,end=9) (dtmp,i=1,nda)
+      else
       read(lfnmri,err=9,end=9) (dfr(i),i=1,nda)
       read(lfnmri,err=9,end=9) (dfrm(i),i=1,nda)
+      endif
       read(lfnmri,err=9,end=9) tsum,t2sum,tsumt,t2sumt
       read(lfnmri,err=9,end=9) (psum(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (p2sum(i),i=1,maxp)
