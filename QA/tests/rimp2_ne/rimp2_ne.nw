@@ -1,0 +1,36 @@
+# 
+# The enclosed pair of inputs result in clearly erroneous RI-MP2
+# correlation energies (-22 Eh for Ne2).  The culprit appears to be
+# multiple f functions in the AO basis.  Salient facts:
+# 
+# 1) Setting int:cando_txs=f eliminates the problem
+# 2) Two f functions are required in the AO basis. (cc-pVTZ Ne atom does
+#    NOT cause the problem, cc-pVQZ Ne atom does, cc-pVTZ Ne dimer does)
+# 3) f functions in the fitting basis do not seem to matter
+# 
+# --
+start ne2
+title; ne dimer test for 3c integral bug
+
+geometry units angstroms
+Ne 0.0 0.0 0.0
+Ne 0.0 0.0 2.7
+end
+
+basis noprint
+Ne library cc-pVTZ
+end
+
+task scf
+
+basis "ri-mp2 basis" noprint
+Ne library cc-PVDZ
+end
+
+task rimp2
+set int:cando_txs logical false
+scf
+vectors input atomic
+end
+task scf
+task rimp2
