@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.23 1994-09-15 03:15:58 d3e129 Exp $
+c $Id: raktest.F,v 1.24 1994-09-16 20:40:54 d3g681 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
@@ -45,9 +45,7 @@ c
 #include "context.fh"
 c::functions
       logical geom_create_copy
-      logical geom_rtdb_store
       external geom_create_copy
-      external geom_rtdb_store
 c::passed
       integer rtdb
       double precision delta
