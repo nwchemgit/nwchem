@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.27 2000-10-26 19:34:43 edo Exp $
+C$Id: xc_lebedev.F,v 1.28 2003-02-17 22:58:32 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -4150,13 +4150,13 @@ c
       integer function xc_leb_nrd2acc(nrad)
       implicit none
       integer nrad
+      integer i
       integer nridv(29)
       data nridv/38, 50, 74, 86, 110, 146, 170, 194,  
      .     230, 266, 302, 350, 434, 590, 770, 
      &     974, 1202, 1454,1730,2030,2354,2702,3074,3470,
      .     3890,4334,4802,5294,5810/
 c
-      integer i
 c 
       xc_leb_nrd2acc=0
       if (nrad.eq.0) return

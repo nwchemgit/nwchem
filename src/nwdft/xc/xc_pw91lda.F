@@ -4,7 +4,7 @@ c     This has the same form as VWN functional V, only with a different
 c     form for the parameterized functionals of rs.  The VWN V code is
 c     reused.
 *
-* $Id: xc_pw91lda.F,v 1.12 2002-04-05 21:36:18 sohirata Exp $
+* $Id: xc_pw91lda.F,v 1.13 2003-02-17 22:58:32 edo Exp $
 *
 #ifndef SECOND_DERIV
       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
@@ -45,11 +45,6 @@ c     Functional Parameters
 c
       double precision A(3), alp(3), b(4,3)
       save A, alp, b
-      data A   / 0.0310907d0, 0.01554535d0, 0.0168869d0 /
-      data alp / 0.21370d0, 0.20548d0, 0.11125d0 /
-      data b   / 7.5957d0, 3.5876d0, 1.6382d0, 0.49294d0,
-     &          14.1189d0, 6.1977d0, 3.3662d0, 0.62517d0,
-     &          10.357d0, 3.6231d0, 0.88026d0, 0.49671d0 /
 c
       double precision e(3), d1e(3), rhoval, rs, d1rs, x, d1x,
      &     h1, d1h1, h2, d1h2,
@@ -67,6 +62,11 @@ c
 c
       integer i, n, initial
       save initial
+      data A   / 0.0310907d0, 0.01554535d0, 0.0168869d0 /
+      data alp / 0.21370d0, 0.20548d0, 0.11125d0 /
+      data b   / 7.5957d0, 3.5876d0, 1.6382d0, 0.49294d0,
+     &          14.1189d0, 6.1977d0, 3.3662d0, 0.62517d0,
+     &          10.357d0, 3.6231d0, 0.88026d0, 0.49671d0 /
       data initial /1/
 c
 c     Define miscellaneous parameters.

@@ -8,7 +8,7 @@
      ,     qwght, ldew, ffunc)
 #endif
 c
-c$Id: xc_perdew86.F,v 1.21 2002-04-05 21:37:07 sohirata Exp $
+c$Id: xc_perdew86.F,v 1.22 2003-02-17 22:58:32 edo Exp $
 c
       implicit none
 c
@@ -365,13 +365,6 @@ c
 #endif
       double precision A(2), B(2), C(2), D(2), G(2), B1(2), B2(2),
      &                 pi, tol_rho, ONE3, FOUR3, TWO3
-      data A / 0.0311d0, 0.01555d0 /
-      data B / -0.048d0, -0.0269d0 /
-      data C / 0.0020d0, 0.0007d0 /
-      data D / -0.0116d0, -0.0048d0 /
-      data G / -.1423d0, -.0843d0 /
-      data B1 / 1.0529d0, 1.3981d0 /
-      data B2 / 0.3334d0, 0.2611d0 /
       save A, B, C, D, G, B1, B2
       parameter (pi = 3.1415926535897932385d0)
       Parameter (ONE3 = 1.d0/3.d0, FOUR3 = 4.D0/3.D0)
@@ -393,6 +386,13 @@ c
       d2fzeta(x) = ONE3*FOUR3*((1.d0+x)**(-TWO3) + 
      &                    (1.d0-x)**(-TWO3)) / (2.d0**FOUR3-2.d0)
 #endif
+      data A / 0.0311d0, 0.01555d0 /
+      data B / -0.048d0, -0.0269d0 /
+      data C / 0.0020d0, 0.0007d0 /
+      data D / -0.0116d0, -0.0048d0 /
+      data G / -.1423d0, -.0843d0 /
+      data B1 / 1.0529d0, 1.3981d0 /
+      data B2 / 0.3334d0, 0.2611d0 /
 c
       rsfact = (0.75d0/pi)**ONE3
 c

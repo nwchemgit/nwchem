@@ -14,7 +14,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpbe96.F,v 1.7 2001-02-28 22:19:17 edo Exp $
+c$Id: xc_xpbe96.F,v 1.8 2003-02-17 22:58:32 edo Exp $
 c
       implicit none
 c
@@ -93,7 +93,7 @@ c
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
             gam12 = dsqrt(gamma)
-            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 10
+            if (.not.(nlfac.and.gam12.gt.tol_rho**2)) goto 10
 c
             s = Cs*gam12/rho43
             d1s(1) = -F43*s*rrho
@@ -162,7 +162,7 @@ c
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
             gam12 = 2d0*dsqrt(gamma)
-            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 25
+            if (.not.(nlfac.and.gam12.gt.tol_rho**2)) goto 25
 c
             s = Cs*gam12/rho43
             d1s(1) = -F43*s*rrho
@@ -224,7 +224,7 @@ c
      &              delrho(n,2,2)*delrho(n,2,2) +
      &              delrho(n,3,2)*delrho(n,3,2)
             gam12 = 2d0*dsqrt(gamma)
-            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 20
+            if (.not.(nlfac.and.gam12.gt.tol_rho**2)) goto 20
 c
             s = Cs*gam12/rho43
             d1s(1) = -F43*s*rrho

@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.28 2003-02-13 18:49:43 edo Exp $
+c$Id: xc_hcth.F,v 1.29 2003-02-17 22:58:31 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.28 2003-02-13 18:49:43 edo Exp $
+c$Id: xc_hcth.F,v 1.29 2003-02-17 22:58:31 edo Exp $
 c
       Implicit none
 c
@@ -387,10 +387,11 @@ C     Initialise
       IF (rhoa .LT. tol_rho.and.rhob.lt.tol_rho) RETURN
 Cfah numerical cutoff: if the density is too low, its contribution is 
 Cfah neglectable. 
-      nofunc = 1               ! take care of compiler warnings
+      nofunc = -1               ! take care of compiler warnings
       do n=1,numfunc
         if(functional.eq.funcnam(n)) nofunc=n
       enddo
+      if(nofunc.eq.-1) call errquit('xchcth: cant pair funcname ',0)
       max_pow_u=maxpow(nofunc)
       do n=1,3*(limpow+1)
         sol(n)=coeffs(n,nofunc)

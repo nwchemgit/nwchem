@@ -1,7 +1,7 @@
       Subroutine xc_xmpw91(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)     
 c
-C$Id: xc_xmpw91.F,v 1.1 2002-10-01 00:01:22 edo Exp $
+C$Id: xc_xmpw91.F,v 1.2 2003-02-17 22:58:32 edo Exp $
 c
       implicit none
 c
@@ -38,9 +38,9 @@ c
      &     ONE, TWO, SIX, ONEHALF, FOURTHIRDS,CPW91,BETAPW91
       parameter (TOLL=1.E-20)
 
-!      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4)
+!      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4) ! pw91 paper
       Parameter (BETA = 0.00426D0, CPW91=1.6455D0,DPOW=3.73D0)
-!      Parameter (BETA = 0.0046D0, CPW91=1.6455D0,DPOW=3.73D0)
+!      Parameter (BETA = 0.0046D0, CPW91=1.6455D0,DPOW=3.73D0)!mpw91 paper
 
       Parameter (ONE=1.D0, TWO=2.D0, SIX=6.D0)
       Parameter (ONEHALF=0.5D0, FOURTHIRDS=4.D0/3.D0)
