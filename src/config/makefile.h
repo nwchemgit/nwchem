@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.129 1995-11-22 18:09:04 d3j191 Exp $
+# $Id: makefile.h,v 1.130 1995-11-27 05:29:23 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -467,7 +467,7 @@ endif
 ifeq ($(TARGET),SP1)
 #
 
-    CORE_SUBDIRS_EXTRA = blas lapack
+    CORE_SUBDIRS_EXTRA = lapack
          FC = mpxlf
          CC = mpcc
     ARFLAGS = urs
@@ -481,16 +481,16 @@ ifeq ($(TARGET),SP1)
   FOPTIMIZE = -O
   COPTIMIZE = -O
 
-    DEFINES = -DSP1 -DEXTNAM 
+    DEFINES = -DSP1 -DEXTNAM -DPARALLEL_DIAG
+   LIBPATH += -L/usr/lib -L/sphome/harrison/peigs2.0
+  CORE_LIBS = -lglobal -lutil -ltcgmsg -lpeigs -llapack
+
+ifdef MPI
+   LIBPATH += -L$(MPI_LOC)/rs6000/ch_eui
+endif
 ifdef USE_ESSL
    DEFINES += -DESSL
-endif
-
-       LIBPATH += -L/usr/lib -L/msrc/apps/lib
-ifdef MPI
-       LIBPATH += -L$(MPI_LOC)/rs6000/ch_eui
-endif
-       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
+ CORE_LIBS += -lessl \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dgesv_,.dgesv \
 	      -brename:.dcopy_,.dcopy \
@@ -503,10 +503,10 @@ endif
 	      -brename:.dspsvx_,.dspsvx \
 	      -brename:.dpotrf_,.dpotrf \
 	      -brename:.dpotri_,.dpotri \
-	      -brename:.times_,.times \
 	      -brename:.idamax_,.idamax 
-ifdef USE_ESSL
-       CORE_LIBS += -lessl
+else
+    CORE_SUBDIRS_EXTRA += blas
+             CORE_LIBS += -lblas
 endif
 ifdef MPI
        CORE_LIBS += -lmpi
