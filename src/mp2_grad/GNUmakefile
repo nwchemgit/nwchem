@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.32 1998-10-12 18:41:36 d3g681 Exp $
+#$Id: GNUmakefile,v 1.33 2000-04-20 18:07:42 edo Exp $
 
 include ../config/makefile.h
 
@@ -25,6 +25,11 @@ ifneq (,$(findstring SGI, $(TARGET)))
    OBJ += mp2_make_tuhf.o
 else
    OBJ_OPTIMIZE += mp2_make_tuhf.o
+endif
+ifeq ($(TARGET),DECOSF)
+	FC = f77 -notransform_loops
+#  -O5 alone breaks on mp2_make_tuhf.o ; -notransform loops keeps O5 going
+# EA 4/20/200
 endif
 
 
