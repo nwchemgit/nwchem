@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.2 1995-05-24 23:51:27 vg038 Exp $
+C$Id: riscf_init.F,v 1.3 1995-07-25 00:17:11 gg502 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -202,7 +202,7 @@ C     is there a way to do it in parallel?
         npair = isum - 1
       endif
       len = mitob(1)
-      call brdcst (Msg_3c_index, npair, len, 0)
+      call ga_brdcst (Msg_3c_index, npair, len, 0)
 
       status = ma_free_heap (l_indx)
 
