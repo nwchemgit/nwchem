@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.7 2003-02-17 00:55:01 bylaska Exp $
+c $Id: paw_pot_comp.F,v 1.8 2003-02-25 02:34:13 bylaska Exp $
 c
 
 !**************************************************
@@ -45,7 +45,7 @@ c     !*** calculate the size and indexing ***
       if (.not.ok)
      > call errquit("init_paw_pot_comp:out of heap memoryh",1)
   
-      write(*,*) "initialized paw_comp_pot"
+      !write(*,*) "initialized paw_comp_pot"
       end !subroutine init_paw_pot_comp
 
 !**************************************************
@@ -164,33 +164,32 @@ c     !*** calculate the size and indexing ***
       end do !in
 
  
-*     *** print comp potential ***
-      write(*,*) "comp pot"
-      do in=1,ion_nion()
-        ia = ion_katm(in)
-        i_cp0 = int_mb(i_paw_pot_comp(1) + in - 1)
-        nb = paw_basis_nbasis(ia)
-        nilm = 0
-        do i=1,nb
-          li = paw_basis_orb_l(i,ia)
-          do mi=-li,li
-            njlm = 0
-            do j=1,nb
-              lj = paw_basis_orb_l(j,ia)
-                do mj=-lj,lj
-                 i_cp  = i_cp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+c*     *** print comp potential ***
+c      write(*,*) "comp pot"
+c      do in=1,ion_nion()
+c        ia = ion_katm(in)
+c        i_cp0 = int_mb(i_paw_pot_comp(1) + in - 1)
+c        nb = paw_basis_nbasis(ia)
+c        nilm = 0
+c        do i=1,nb
+c          li = paw_basis_orb_l(i,ia)
+c          do mi=-li,li
+c            njlm = 0
+c            do j=1,nb
+c              lj = paw_basis_orb_l(j,ia)
+c                do mj=-lj,lj
+c                 i_cp  = i_cp0-1+(njlm+lj+mj+1)+
+c     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+c
+c                  write(*,*) i,mi,j,mj,in,dcpl_mb(paw_pot_comp(1)+i_cp),
+c     >                     i_cp
+c                end do
+c                njlm=njlm + 2*lj+1
+c             end do
+c           end do   
+c           nilm = nilm + 2*li+1
+c         end do
+c      end do
 
-                  write(*,*) i,mi,j,mj,in,dcpl_mb(paw_pot_comp(1)+i_cp),
-     >                     i_cp
-                end do
-                njlm=njlm + 2*lj+1
-             end do
-           end do   
-           nilm = nilm + 2*li+1
-         end do
-      end do
-       
-      write(*,*) "done"
       return
       end 

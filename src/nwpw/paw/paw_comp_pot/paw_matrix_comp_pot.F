@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_comp_pot.F,v 1.2 2003-02-15 00:24:29 marat Exp $
+* $Id: paw_matrix_comp_pot.F,v 1.3 2003-02-25 02:34:13 bylaska Exp $
 *
 
 !**************************************************
@@ -161,7 +161,6 @@
       ok = ma_push_get(mt_dbl,ic,"tmp_array1",l_f1,i_f1)
       ok = ma_push_get(mt_dbl,ic,"tmp_array2",l_f2,i_f2)
 
-      write(*,*) "compmatrix"
       do la=0,mult_l
     
         call find_gaussian_rspace_array(la,sigma,ic,r,
@@ -187,7 +186,6 @@
 
           matrix(i,j,la+1) = tmp
           matrix(j,i,la+1) = tmp
-          write(*,*)i,j,la+1,tmp
         end do
         end do
 
@@ -195,7 +193,6 @@
 
 
       ok = ma_chop_stack(l_f1)
-      write(*,*) matrix
 
       return
       end !subroutine find_comp_pot_matrix
