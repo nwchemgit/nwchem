@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.1 1999-11-02 19:53:25 bert Exp $
+c $Id: int_1edk_ga.F,v 1.2 1999-11-02 20:16:23 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -40,10 +40,11 @@ c     arguments
 c     
       integer basis_in          ! [input] basis sets for which integrals are computed
       integer g_in              ! [output] GA handle to array of final integrals
-      integer type              ! [input] type or form of Douglas-Kroll (see header)
+      integer type              ! [input] type of integral, 1=kinetic, 2=potential
 c     
 c     local variables
 c     
+      integer form_type         ! form of Douglas-Kroll (see first section header)
       integer nbf, nbf_in       ! # of basis functions for usebasis and basis_in
       integer usebasis          ! Uncontracted basis to be used for computation of integrals
       integer Tg_a              ! GA handle kinetic energy integral matrix T 
@@ -68,6 +69,10 @@ c
 c     
       c=137.0359895d0
       c2=c*c
+c     
+c     For now we set type to free-particle projection operators
+c
+      form_type = 1
 c
       call ga_sync()
 c
@@ -161,6 +166,14 @@ c
       call ga_copy_todiag(DKg_a,dbl_mb(EIm_a))
       call ga_add_todiag(DKg_a,-c2)
 c
+c     We have our kinetic energy integrals
+c 
+      if (type .eq. 1) goto 100
+c
+c     If we just need the potential energy integrals we have to clear Dkg_a
+c
+      if (type .eq. 2) call ga_zero(DKg_a)
+c
 c     Get potential energy matrix V in uncontracted basis, add AVA term to global array:
 c
 c     <phi|AVA|phi> = AU^tVUA
@@ -211,9 +224,9 @@ c
 c
 c     At this point we have the basic integrals for the free-particle projection
 c     operators. The remaining terms come from the external potential. Skip and 
-c     construct final integrals if type=1 (see header).
+c     construct final integrals if form_type=1 (see header).
 c 
-      if (type .eq. 1) goto 100
+      if (form_type .eq. 1) goto 100
 c
 c     Scale U^tVU (in Vg_a) and U^tp.VpU (in Vdg_a) with 1/(Ep+Ep') for W terms
 c
@@ -458,17 +471,15 @@ c
       call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_scale_rh(tmpg_a,dbl_mb(EIm_a))
       call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
-      if (type .eq. 1) goto 100
-      call ga_scale_divEpp(Vdg_a,dbl_mb(EIm_a))
 c
 c     At this point we have the basic integrals for the external potential projection
 c     operators without the pxVp type terms. These remaining pxVp terms come from 
 c     are needed for the full Douglas-Kroll set of integrals. If we neglect these 
 c     terms we get an incomplete Douglas-Kroll transformation a la Haberlen&Rosch 
 c     (CPL, 199, 491, 1992) denoted vn2.
-c     Skip and construct final integrals if type=2 (see header).
+c     Skip and construct final integrals if form_type=2 (see header).
 c 
-      if (type .eq. 2) then
+      if (form_type .eq. 2) then
          if (.not. ma_pop_stack(tempm_a))
      $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
@@ -577,10 +588,12 @@ c
      $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0)
       if (.not. ma_pop_stack(p2m_a))
      $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0)
-      if (.not. ga_destroy(Vdg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
-      if (.not. ga_destroy(Vg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+      if (type .lt. 1) then
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+      endif
       if (.not. ga_destroy(Ug_a))
      $     call errquit('int_1edk_ga: ga_destroy Ug_a',0)
       if (.not. ga_destroy(tmpg_a))
