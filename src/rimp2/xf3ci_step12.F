@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.4 1994-06-20 18:25:39 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.5 1994-08-08 23:39:28 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
@@ -146,150 +146,158 @@ C     them to shell blocks.
 C
       Call GA_Distribution( G_I, GA_NodeID(), IAlo, IAhi, MySLo, MySHi)
 C
-      Status = .TRUE.
-      Status = Status .AND. Bas_BF2Cn( FitBas, MySLo, SShlo)
-      Status = Status .AND. Bas_BF2Cn( FitBas, MySHi, SShhi)
+C     If there is no data on this node, there is no work fo us to do!
 C
-C     We also need some info about the AO basis
+      If ( MySLo .gt. 0 .AND. MySHi .gt. 0) then
+         Status = .TRUE.
+         Status = Status .AND. Bas_BF2Cn( FitBas, MySLo, SShlo)
+         Status = Status .AND. Bas_BF2Cn( FitBas, MySHi, SShhi)
 C
-      Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
-      Status = Status .AND. Bas_NBF_Ce_Max( AOBas, MxBFCe)
+C        We also need some info about the AO basis
 C
-      If (.NOT. Status ) then
-         Write (LuErr, *) 'XF3cI_Step12: Problems with basis set ',
-     $      'queries.'
-         XF3cI_Step12 = .FALSE.
-         Return
-      EndIf
+         Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
+         Status = Status .AND. Bas_NBF_Ce_Max( AOBas, MxBFCe)
 C
-C     **********************************
-C     * Allocate local "scratch" space *
-C     **********************************
-C     These guys are both fed into the integral package, and reused
-C     during the transformation, so we must be sure to size for both
-C     uses.
+         If (.NOT. Status ) then
+            Write (LuErr, *) 'XF3cI_Step12: Problems with basis set ',
+     $         'queries.'
+            XF3cI_Step12 = .FALSE.
+            Return
+         EndIf
 C
-C     This is what the integral package needs
+C        **********************************
+C        * Allocate local "scratch" space *
+C        **********************************
+C        These guys are both fed into the integral package, and reused
+C        during the transformation, so we must be sure to size for both
+C        uses.
 C
-      If ( UseERI ) then
-         Call Int_Mem_2e3c( LInt, LScr)
-      Else
-         Call Int_Mem_3ov( LInt, LScr)
-      EndIf
+C        This is what the integral package needs
 C
-C     We also need to transpose the resulting integrals from Int to Scr
-C     so we have them in a convenient organization.  So we must make
-C     sure that Scr is at least the size of Int (though the integrals
-C     will probably already require this).
+         If ( UseERI ) then
+            Call Int_Mem_2e3c( LInt, LScr)
+         Else
+            Call Int_Mem_3ov( LInt, LScr)
+         EndIf
 C
-      LScr = Max( LScr, LInt, NA*MxBFSh )
+C        We also need to transpose the resulting integrals from Int to Scr
+C        so we have them in a convenient organization.  So we must make
+C        sure that Scr is at least the size of Int (though the integrals
+C        will probably already require this).
+C        
+         LScr = Max( LScr, LInt, NA*MxBFSh )
 C
-C     And we reuse Int as the intermediate in the two transformation
-C     steps, where we need it to be large enough to hold the
-C     (aq|s) block for all a, a shell of q, and a single s.
+C        And we reuse Int as the intermediate in the two transformation
+C        steps, where we need it to be large enough to hold the
+C        (aq|s) block for all a, a shell of q, and a single s.
 C
-      LInt = Max( LInt, NA*MxBFSh)
+         LInt = Max( LInt, NA*MxBFSh)
 C
-      Status = .TRUE.
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LInt, 'Integral eval',
-     $   H_Int, Int_Idx)
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LScr, 'Integral scr',
-     $   H_Scr, Scr_Idx)
+         Status = .TRUE.
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LInt,
+     $      'Integral eval', H_Int, Int_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr,
+     $      'Integral scr', H_Scr, Scr_Idx)
 C
-C     We also need to localize bits of the transformation matrix, C
+C        We also need to localize bits of the transformation matrix, C
 C
-      LCP = NA * MxBFCe
-      LCQ = NI * MxBFCe
+         LCP = NA * MxBFCe
+         LCQ = NI * MxBFCe
 C
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
-     $   H_CP, CP_Idx)
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
-     $   H_CQ, CQ_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr'
+     $      ,H_CP, CP_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
+     $      H_CQ, CQ_Idx)
 C
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
-     $   H_CP2, CP2_Idx)
-      Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
-     $   H_CQ2, CQ2_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
+     $      H_CP2, CP2_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
+     $      H_CQ2, CQ2_Idx)
 C
-      If (.NOT. Status ) then
-         Write (LuErr, *) 'XF3cI_Step12: Problem allocating local ',
-     $      'memory.'
-         XF3cI_Step12 = .FALSE.
-         Return
-      EndIf
+         If (.NOT. Status ) then
+            Write (LuErr, *) 'XF3cI_Step12: Problem allocating local ',
+     $         'memory.'
+            XF3cI_Step12 = .FALSE.
+            Return
+         EndIf
 C
-C     ********************************************
-C     * Grab our panel of G_I to access directly *
-C     ********************************************
-C     This avoids the need for a scratch matrix of size NA*NI
-C     and a copy operation.
+C        ********************************************
+C        * Grab our panel of G_I to access directly *
+C        ********************************************
+C        This avoids the need for a scratch matrix of size NA*NI
+C        and a copy operation.
 C
-      Call GA_Access( G_I, IAlo, IAhi, MySLo, MySHi, Local_Idx, LDLocal)
+         Call GA_Access( G_I, IAlo, IAhi, MySLo, MySHi, Local_Idx,
+     $      LDLocal)
 C
-      If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .lt. NA * NI ) then
-         Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
-     $      ' inconsistent with arguments. Distribution may be wrong.'
-         Call GA_Release( G_I, IAlo, IAhi, MySLo, MySHi)
-         XF3cI_Step12 = .FALSE.
-         Return
-      EndIf
+         If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .lt. NA * NI ) then
+            Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
+     $         ' inconsistent with arguments. Distribution may be ',
+     $         'wrong.'
+            Call GA_Release( G_I, IAlo, IAhi, MySLo, MySHi)
+            XF3cI_Step12 = .FALSE.
+            Return
+         EndIf
 C
-      If ( .NOT. Geom_NCent( Geom, NCent) ) then
-         Write (LuErr, *) 'XF3cI_Step12: Problem getting number of ',
-     $      'centers.'
-         XF3cI_Step12 = .FALSE.
-         Return
-      EndIf
+         If ( .NOT. Geom_NCent( Geom, NCent) ) then
+            Write (LuErr, *) 'XF3cI_Step12: Problem getting number of ',
+     $         'centers.'
+            XF3cI_Step12 = .FALSE.
+            Return
+         EndIf
 C
-      Do CenP = 1, NCent
-         Status = Bas_Ce2BFR( AOBas, CenP, PBFLo, PBFHi)
-         Call GA_Get(G_C, PBFlo, PBFhi, Alo, Ahi,
-     $      Dbl_MB(CP_Idx), MxBFCe)
-         Call GA_Get(G_C, PBFlo, PBFhi, Ilo, Ihi,
-     $      Dbl_MB(CP2_Idx), MxBFCe)
+         Do CenP = 1, NCent
+            Status = Bas_Ce2BFR( AOBas, CenP, PBFLo, PBFHi)
+            Call GA_Get(G_C, PBFlo, PBFhi, Alo, Ahi,
+     $         Dbl_MB(CP_Idx), MxBFCe)
+            Call GA_Get(G_C, PBFlo, PBFhi, Ilo, Ihi,
+     $         Dbl_MB(CP2_Idx), MxBFCe)
 C
-         Do CenQ = 1, CenP
-            Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
+            Do CenQ = 1, CenP
+               Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
 C
-            If ( Schwarz_Atom(CenP, CenQ) * Schwarz_Max() .gt. Neglect)
-     $         then
-               Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
-     $            Dbl_MB(CQ_Idx), MxBFCe)
-               Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
-     $            Dbl_MB(CQ2_Idx), MxBFCe)
+               If ( Schwarz_Atom(CenP, CenQ) * Schwarz_Max() .gt.
+     $            Neglect ) then
+                  Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
+     $               Dbl_MB(CQ_Idx), MxBFCe)
+                  Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
+     $               Dbl_MB(CQ2_Idx), MxBFCe)
 C
-               Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
-     $            Dbl_MB(CP_Idx), MxBFCe, NA,
-     $            Dbl_MB(CP2_Idx), MxBFCe, NI,
-     $            Dbl_MB(CQ_Idx), MxBFCe, NI,
-     $            Dbl_MB(CQ2_Idx), MxBFCe, NA,
-     $            FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
-     $            Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr, Neglect)
-c$$$            Else
-c$$$               Write (LuOut, *) 'Node ', GA_NodeID(),
-c$$$     $            ' neglecting atom ', CenP, CenQ
-            EndIf
+                  Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
+     $               Dbl_MB(CP_Idx), MxBFCe, NA,
+     $               Dbl_MB(CP2_Idx), MxBFCe, NI,
+     $               Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $               Dbl_MB(CQ2_Idx), MxBFCe, NA,
+     $               FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
+     $               Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr,
+     $               Neglect)
+c$$$              Else
+c$$$              Write (LuOut, *) 'Node ', GA_NodeID(),
+c$$$              $            ' neglecting atom ', CenP, CenQ
+               EndIf
+            EndDo
          EndDo
-      EndDo
 C
-C     ****************************
-C     * Clean up after ourselves *
-C     ****************************
+C        ****************************
+C        * Clean up after ourselves *
+C        ****************************
 C
-      Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
+         Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
 C
-      Status = Status .AND. MA_Pop_Stack( H_CQ2)
-      Status = Status .AND. MA_Pop_Stack( H_CP2)
-      Status = Status .AND. MA_Pop_Stack( H_CQ)
-      Status = Status .AND. MA_Pop_Stack( H_CP)
-      Status = Status .AND. MA_Pop_Stack( H_Scr)
-      Status = Status .AND. MA_Pop_Stack( H_Int)
+         Status = Status .AND. MA_Pop_Stack( H_CQ2)
+         Status = Status .AND. MA_Pop_Stack( H_CP2)
+         Status = Status .AND. MA_Pop_Stack( H_CQ)
+         Status = Status .AND. MA_Pop_Stack( H_CP)
+         Status = Status .AND. MA_Pop_Stack( H_Scr)
+         Status = Status .AND. MA_Pop_Stack( H_Int)
 C
-      If (.NOT. Status ) then
-         Write (LuErr, *) 'XF3cI_Step12: Problem freeing local ',
-     $      'memory.'
-         XF3cI_Step12 = .FALSE.
-         Return
+         If (.NOT. Status ) then
+            Write (LuErr, *) 'XF3cI_Step12: Problem freeing local ',
+     $         'memory.'
+            XF3cI_Step12 = .FALSE.
+            Return
+         EndIf
+C
       EndIf
 C
       Call GA_Sync
