@@ -116,8 +116,7 @@ c
          endif
       endif
 c
-      call dftg_force(rtdb, ao_bas_han, cd_bas_han, geom, 
-     &                CDFIT, movecs_out)
+      call dftg_force(rtdb)
 c
       call schwarz_tidy ()
 c
