@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.60 2003-01-30 01:14:35 bert Exp $
+C$Id: nwdft.F,v 1.61 2003-02-19 20:15:19 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -69,8 +69,8 @@ c
 c
       logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
-      logical ocosmo,grid_ok,l1ecache
-      integer necp,igok
+      logical grid_ok,l1ecache
+      integer igok
       character*80 theory
 c     
       nwdft = .false.
