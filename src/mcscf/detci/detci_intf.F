@@ -7,7 +7,7 @@ c
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
 *
-* $Id: detci_intf.F,v 1.24 1997-11-04 09:59:51 d3e129 Exp $
+* $Id: detci_intf.F,v 1.25 1998-02-27 00:54:29 d3g681 Exp $
 *
       implicit none
 c
@@ -117,7 +117,7 @@ c  Toggle spin-adaption
 c  Need some way of automatically turning this on and off 
 c  depending requested spin-state
 c
-      cdetci_spinadapt = .false.
+      cdetci_spinadapt = .true.
       cdetci_squant = (nela - nelb)/2.d0
 c     
 c  Info print
