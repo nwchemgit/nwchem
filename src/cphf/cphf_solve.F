@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.21 1999-07-08 19:10:52 d3e129 Exp $
+* $Id: cphf_solve.F,v 1.22 1999-07-20 01:52:35 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -150,7 +150,7 @@ c
       endif
 c
 *ga:1:0
-      if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',0,0,g_grad))
+      if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',0,1,g_grad))
      $     call errquit('cphf_solve: ga_cre grad',vlen)
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
