@@ -1,6 +1,6 @@
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.26 1998-03-03 02:13:24 d3h449 Exp $
+* $Id: grad_dft.F,v 1.27 1999-02-14 04:45:20 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -80,7 +80,7 @@ c
 c
 c     initialize for schwarz screening
 c
-      call int_app_set_no_texas(rtdb)
+      if (nbases .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, 1, ao_bas_han)
       call schwarz_init (geom, ao_bas_han)
       call int_terminate()
@@ -123,12 +123,11 @@ c
          endif
       endif
 c
-      call dftg_force(rtdb)
+c     Compute the gradients arising from CD fit and XC
+c
+      call dft_gradients(rtdb)
 c
       call schwarz_tidy ()
-c
-c     grad_dft is done destroy basis and geometry handles  
-c     (e.g., preserve the memory available to other modules!!)
 c
       if(CDFIT)then
         if (.not. bas_destroy(cd_bas_han))
@@ -138,14 +137,19 @@ c
         if (.not.bas_destroy(XC_bas_han))
      &     call errquit('grad_dft:not able to destroy XC_bas:',86)
       endif
+
+      call intd_terminate()
+      if (nbases .gt. 1) call int_app_unset_no_texas(rtdb)
+c
+c     Compute the rest of the gradients (1-e and 2-e)
+c
+      call grad_force(rtdb, ao_bas_han, geom)
+c
       if (.not.((bas_destroy(ao_bas_han)) .and. (geom_destroy(geom)) ) )
      &   call errquit
      &   ('grad_dft:error destroying geom and ao_bas_han handles',911)
 c
 c     terminate integral scope
-c
-      call intd_terminate()
-      call int_app_unset_no_texas(rtdb)
 c
       call ecce_print_module_exit ('dft','ok')
       call util_print_pop

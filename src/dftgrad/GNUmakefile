@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.41 1998-09-24 20:56:49 d3e129 Exp $
+# $Id: GNUmakefile,v 1.42 1999-02-14 04:45:21 d3g681 Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
-         dftg_getxc.o \
+         dftg_getxc.o dft_gradients.o \
          grad_dft.o      dftg_quadv0.o     \
          dftg_getcden.o  dftg_getxden.o  \
          dftg_bal_sum.o dftg_beckew.o dftg_wderiv.o

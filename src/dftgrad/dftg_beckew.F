@@ -2,7 +2,7 @@
      &                       zeta, dzeta, d_p, ictr, bcenters, nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.6 1998-03-24 22:48:01 d3h449 Exp $
+C     $Id: dftg_beckew.F,v 1.7 1999-02-14 04:45:19 d3g681 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ C
       integer A, B
       double precision fac, tfac, TOLL,eps
       parameter (tfac=-27.d0/16.d0,eps=1.d-16)
-      parameter(TOLL=0.925)
+      parameter(TOLL=0.925d0)
       double precision ppp
       ppp(x)=0.5D0*x*(3.D0-x*x)
 c     
@@ -186,7 +186,7 @@ c
 c               
 c                    atomic size adjustment derivative
 c               
-                    fac=(1.-aaij*2.*mu)
+                    fac=(1.-aaij*2.d0*mu)
                      dbmuba(1) = -(xi/rq(n,B) + mu*dmu1)*rrij*fac
                      dbmuba(2) = -(yi/rq(n,B) + mu*dmu2)*rrij*fac
                      dbmuba(3) = -(zi/rq(n,B) + mu*dmu3)*rrij*fac
@@ -213,7 +213,7 @@ c
                      xi = qxyz(1,n) - xyz(1,A)
                      yi = qxyz(2,n) - xyz(2,A)
                      zi = qxyz(3,n) - xyz(3,A)
-                     fac=(1.-aaij*2.*mu)
+                     fac=(1.-aaij*2.d0*mu)
                      damuab(1) = -(xi/rq(n,A)+mu*dmu1)*rrij*fac
                      damuab(2) = -(yi/rq(n,A)+mu*dmu2)*rrij*fac
                      damuab(3) = -(zi/rq(n,A)+mu*dmu3)*rrij*fac
