@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.5 2003-04-07 20:57:03 windus Exp $	
+#	$Id: MakeFile,v 1.6 2003-04-07 22:00:08 windus Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -9,7 +9,7 @@ BLAS =         $(OBJDIR)\mxma.obj
 UOBJ =         $(OBJDIR)\iprtri.obj \
                $(OBJDIR)\prtri.obj \
                $(OBJDIR)\input.obj \
-               $(OBJDIR)\icopy.obj \
+               $(OBJDIR)\selci_icopy.obj \
                $(OBJDIR)\output.obj \
                $(OBJDIR)\yacobi.obj \
                $(OBJDIR)\tred1.obj \
