@@ -30,7 +30,8 @@ quick:		$(SOURCE)
 	dvips -D 300 -N0 -o $(TARG).ps $(TARG).dvi
 
 html:	
-	../htmlize prog
+	@../htmlize prog
+	@../update_www prog
 
 view:	$(TARG).ps
 	ghostview -bg white -fg black -bd black $(TARG).ps

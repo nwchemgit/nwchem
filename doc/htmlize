@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# Script to automate updating of web pages for the
+# Script to automate htmlization of the 
 # user and programmers manuals.
 
 if ($#argv != 1) then
@@ -9,10 +9,9 @@ if ($#argv != 1) then
   exit 1
 endif
 
-set WWWDIR=/msrc/doc/www/changes/docs/nwchem/doc
 set TMP=tmp.$$
 
-set L2HOPT="-split 2 -bottom_navigation  -show_section_numbers"
+set L2HOPT="-split 3 -bottom_navigation  -show_section_numbers"
 
 # works also with a list of files here but not currently
 # used in this fashion
@@ -78,7 +77,8 @@ foreach document ($1)
 
   /bin/mv $document/$document.html  $document/$document.html.bak
   mv $TMP $document/$document.html 
-
+  cp $document/$document.html $document/index.html
+  
 # Munge the backgrounds ... need to hardwire the sed here since have
 # trouble getting a shell variable inside two levels of quotes.
 #
@@ -92,12 +92,22 @@ foreach document ($1)
   pushd $document > /dev/null
 
   foreach file (*.html)
+    sed -e 's/<BODY >/<BODY>/' < $file > $TMP
+    if ($status != 0) then
+       echo " munging of <BODY > to <BODY> failed"
+       exit 1
+    endif
+    mv $TMP $file
     if ($document == "prog") then
-      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/rainier1_1.jpg" BGCOLOR="FAEBD7">/' -e 's,http://www.emsl.pnl.gov,,g' < $file > $TMP
+      sed -e 's,<BODY>,<BODY BACKGROUND="../../backgrounds/rainier1_1.jpg" BGCOLOR="FAEBD7">,' \
+          -e 's,http://www.emsl.pnl.gov/,/,g' \
+          -e 's,http://www.emsl.pnl.gov:2080/,/,g' \
+          -e 's,latex2html//,latex2html/,g'  < $file > $TMP
     else if ($document == "user") then
       sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/mt_st_helens_4.jpg" BGCOLOR="FAEBD7">/' \
-          -e 's,http://www.emsl.pnl.gov,,g' \
-          -e 's/\/images\/latex2html\//\/images\/latex2html/g' < $file > $TMP
+          -e 's,http://www.emsl.pnl.gov/,/,g' \
+          -e 's,http://www.emsl.pnl.gov:2080/,/,g' \
+          -e 's,latex2html//,latex2html/,g'  < $file > $TMP
     else
       echo htmlize: unknown document in background munge ... $document
       exit 1
@@ -116,46 +126,45 @@ foreach document ($1)
 
   echo "   Copying postscript source"
 
-  cp $document.ps $document
-  if ($status != 0) then
+# Note: $document.search must match the type and style of this copy
+#       e.g., for user you need to add the number of parts to user.search
+
+  if (-e ${document}.ps) then
+     cp ${document}.ps $document
+     set cpstatus = $status
+  else if(-e ${document}.001.ps) then   # if one exists then there are at least two
+     cp ${document}.???.ps $document
+     set cpstatus = $status
+  else 
+     set cpstatus = 1
+  endif
+  if ($cpstatus != 0) then
     echo htmlize: copy of postscript failed for $document
     exit 1
   endif
 
-  compress < $document.ps > $document/$document.ps.Z  
+  @ compress_stat = 0
+  echo "   Compressing copies of postscript source"
+  foreach file (${document}*.ps)
+    if (-e $file) then
+      compress < $file > ${document}/${file}.Z
+      @ compress_stat += $status
+    endif
+  end
 
-  if ($status != 0) then
+  if ($compress_stat != 0) then
     echo htmlize: compression of postscript failed for $document
     exit 1
   endif
 
-# Now copy the revised source into the EMSL WWW changes tree
-
-  if (! -e $WWWDIR) then
-    echo Making $WWWDIR
-    /bin/mkdir -p $WWWDIR
-  else
-    /bin/rm -rf $WWWDIR/$document
-  endif
-
-  echo "   Copying $document into $WWWDIR"
-
-  /bin/cp -r $document $WWWDIR
-  
-  if ($status != 0) then
-    echo htmlize: copy to $WWWDIR of $document failed
-    exit 1
-  endif
-
-# Now run Pawel's magic perl script to make the frames
-doit:
+#
+# new way to make frames document.
+#
   if (! $?NWCHEM_TOP ) then
     echo "   NWCHEM_TOP is not defined ... cannot generate frames"
-  else if (! -e $NWCHEM_TOP/doc/make_manual.pl) then
-    echo "   $NWCHEM_TOP/doc/make_manual.pl missing ... cannot generate frames"
+  else if (! -e $NWCHEM_TOP/doc/write_frames.pl) then
+    echo "   $NWCHEM_TOP/doc/write_frames.pl missing ... cannot generate frames"
   else
-    echo "   Making frames"
-    pushd $WWWDIR/$document > /dev/null
     if ($document == "user") then
       set title = "NWChem User Manual"
     else if ($document == "prog") then
@@ -163,27 +172,16 @@ doit:
     else
       set title = "NWChem Manual"
     endif
-
-    $NWCHEM_TOP/doc/make_manual.pl $document.html "$title"
-
-    if ($status != 0) then
-      echo "   Making the frames failed"
-    endif
-   
-    popd > /dev/null
+    echo "   Constructing frames documents"
+    $NWCHEM_TOP/doc/write_frames.pl $document "$title"
   endif
-
 
 # Hopefully all is OK
 
-  echo "   Done with $document"
+  echo "   Done htmlize-ing with $document"
  
-  /bin/rm -rf $TMP $document
+  /bin/rm -rf $TMP 
 
 end
 
-echo " "
-echo Ask webmaster@emsl to update $WWWDIR/...
-echo " "
-echo     mailx -s \'Please update from $WWWDIR\' webmaster@emsl
-echo " "
+

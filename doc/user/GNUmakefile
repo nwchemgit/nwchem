@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1998-02-13 01:22:56 d3e129 Exp $
+# $Id: GNUmakefile,v 1.11 1998-03-19 14:21:40 d3e129 Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -32,7 +32,8 @@ quick:		$(SOURCE)
 	dvips user ${DVIPS_OPTS} -o
 	./userpsfix
 html:	
-	../htmlize user
+	@../htmlize user
+	@../update_www user
 
 view:	user.ps
 	ghostview -bg white -fg black -bd black user.001.ps

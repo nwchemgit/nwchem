@@ -1,0 +1,84 @@
+#!/bin/csh 
+#
+# $Id: update_www,v 1.1 1998-03-19 14:20:13 d3e129 Exp $
+
+# Script to automate updating of web pages for the
+# user and programmers manuals.
+
+if ($#argv != 1) then
+  echo usage: update_www document 
+  echo        where document.tex is the main file
+  exit 1
+endif
+
+set document = $argv[1]
+
+echo Updating WWW pages for $document.tex
+#set WWWDIR=/dfs/www/pub/docs/nwchem/doc
+#...............   public                      internal/private
+foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
+#
+# Now copy the revised source into the EMSL private and public WWW tree
+  if ($WWWDIR == "/dfs/www/pub/docs/nwchem/doc") then
+      echo "Public pages .. "
+  else if($WWWDIR == "/dfs/www/docs/nwchem/doc") then
+      echo "Internal/private pages .."
+  endif
+  if (! -e $WWWDIR) then
+    echo "   Making $WWWDIR"
+    /bin/mkdir -p $WWWDIR
+  endif
+  if (-e $WWWDIR/$document) then  
+    echo "   Saving current web documentation in:"
+    echo "       $WWWDIR/$document"
+    echo "   to "
+    echo "       $WWWDIR/${document}.bak"
+    if (-e $WWWDIR/${document}.bak) then 
+       echo "   Deleting current $WWWDIR/${document}.bak"
+       rm -rf $WWWDIR/${document}.bak
+    endif
+    mv $WWWDIR/$document $WWWDIR/${document}.bak
+  endif
+
+  echo "   Copying $document into $WWWDIR"
+
+  /bin/cp -r $document $WWWDIR
+  
+  if ($status != 0) then
+    echo htmlize: copy to $WWWDIR of $document failed
+    exit 1
+  endif
+
+# Now run Pawel's magic perl script to make the frames
+#doit:
+#  if (! $?NWCHEM_TOP ) then
+#    echo "   NWCHEM_TOP is not defined ... cannot generate frames"
+#  else if (! -e $NWCHEM_TOP/doc/make_manual.pl) then
+#    echo "   $NWCHEM_TOP/doc/make_manual.pl missing ... cannot generate frames"
+#  else
+#    echo "   Making frames"
+#    pushd $WWWDIR/$document > /dev/null
+#    if ($document == "user") then
+#      set title = "NWChem User Manual"
+#    else if ($document == "prog") then
+#      set title = "NWChem Programmers Manual"
+#    else
+#      set title = "NWChem Manual"
+#    endif
+#
+#    $NWCHEM_TOP/doc/make_manual.pl $document.html "$title"
+#
+#    if ($status != 0) then
+#      echo "   Making the frames failed"
+#    endif
+#   
+#    popd > /dev/null
+#  endif
+
+end
+# Hopefully all is OK
+
+echo "   Done with $document"
+
+/bin/rm -rf $document
+exit 0
