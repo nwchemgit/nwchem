@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.69 2002-10-23 18:11:32 pg481 Exp $
+c $Id: texas_face.F,v 1.70 2003-04-11 01:06:35 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1434,19 +1434,19 @@ c make these two dependent on a task and more like in pqs :
 c
       if(int_type.eq.'scfd_int') then 
         limblks=0  !   limblks=750
-        limpair=150
+        limpair=750
       endif
       if(int_type.eq.'giao_int') then
         limblks=0  !   limblks=500
-        limpair=150
+        limpair=500
       endif
       if(int_type.eq.'der1_int') then 
         limblks=0  !   limblks=300
-        limpair=100
+        limpair=300
       endif
       if(int_type.eq.'der2_int') then 
         limblks=0  !   limblks=150
-        limpair=50
+        limpair=150
       endif
 c
 c2002 NOTE : for limblks=0 max block size will be determined 
