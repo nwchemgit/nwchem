@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.9 2002-09-06 18:47:08 marat Exp $
+* $Id: paw_proj.F,v 1.10 2002-09-10 23:23:14 marat Exp $
 *
 
 !**************************************************
@@ -546,11 +546,11 @@
       integer  get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
       integer  get_i_ngrid,get_i_log_amesh,get_i_orb_l
       real*8   lattice_unita
-      real*8   spher_bessel_transform,spher_bessel0_transform
+#include "bessel_transform.fh"
       external get_i_rgrid,get_i_prj_ps,get_i_nbasis,G_indx
       external get_i_ngrid,get_i_log_amesh,get_i_orb_l
       external lattice_unita
-      external spher_bessel_transform,spher_bessel0_transform
+
 
 
       call ion_atom_plus_suffix(ia,'_basis',atomname)
