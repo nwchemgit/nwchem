@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.25 2003-09-23 14:17:12 d3j191 Exp $
+c $Id: cf_list.F,v 1.26 2003-09-23 14:21:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -357,6 +357,7 @@ c
 c
 #include "cf_common.fh"
 #include "bitops.fh"
+#include "util.fh"
 #include "mafdecls.fh"
 c
       real*8 rwx(mscr,3),rw(mscr)
