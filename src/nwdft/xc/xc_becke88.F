@@ -1,7 +1,14 @@
+#ifndef SECOND_DERIV
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght)     
+#else
+#include "dft2drv.fh"
+      Subroutine xc_becke88_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
+     &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &                         qwght)     
+#endif
 c
-C$Id: xc_becke88.F,v 1.10 1998-04-23 00:10:53 d3h449 Exp $
+C$Id: xc_becke88.F,v 1.11 1998-09-15 15:51:02 bjohnson Exp $
 c
       implicit none
 c      
@@ -24,7 +31,13 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol), Cmat(nq,3,ipol)
-
+c
+#ifdef SECOND_DERIV
+c
+c     Second Derivatives of the Exchange Energy Functional
+c
+      double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
+#endif
 c
 c     Compute the partial derivatives of the exchange functional of Becke.
 c
@@ -56,6 +69,9 @@ c***************************************************************************
      &                 CD43b, gaa, g, gbb, gamma
 c
       sinhm1(x)=log(x+dsqrt(1+x*x))
+#ifdef SECOND_DERIV
+      call errquit('xc_becke88_d2 called',0)
+#endif
       if (ipol.eq.1 )then
 c
 c        ======> SPIN-RESTRICTED <======
@@ -203,3 +219,10 @@ c
 c
       return
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "xc_becke88.F"
+#endif
