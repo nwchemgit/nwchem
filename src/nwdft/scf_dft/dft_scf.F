@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.183 2001-06-13 01:31:25 edo Exp $
+c     $Id: dft_scf.F,v 1.184 2001-06-23 01:23:12 edo Exp $
 c     
       implicit none
 c
@@ -185,9 +185,6 @@ c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0)
 c !!! BGJ
-      odbug=.false.
-      if (.not.rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) 
-     .     ocosmo=.false.
 c
 c     check if smearing is on
 c
@@ -536,7 +533,8 @@ c
 c
 c     ----- cosmo cavity and setup -----
 c
-      if (ocosmo) then
+      odbug=.false.
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
             write(luout,*) '-cosmo- ... found in -dft_scf-',
      $                     ocosmo,ga_nodeid()
@@ -563,8 +561,8 @@ c
          if(odbug) then
             write(luout,*) '-cosmo- not found in -dft_scf-'
          endif
-      call ga_sync()
       endif
+      call ga_sync()
 c
 c    The loop associated with the label 135 is to find the exact exchange-
 c    correlation potential.
@@ -594,21 +592,31 @@ c     ----- check cosmo ... if cosmo ... -----
 c           pass 1 ... gas_phase
 c           pass 2 ... sol_phase
 c
-      if (ocosmo) then
-         odbug=.false.
+      odbug=.false.
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
          endif
 c
-         ogas_phase=.true.
-         osol_phase=.true.
-         if(odbug) then
-            write(LuOut,*) '-cosmo- ... found , do gas & sol',
-     $           ocosmo,ga_nodeid()
+         if(ocosmo) then
+            odbug=.false.
+            ogas_phase=.true.
+            osol_phase=.true.
+            if(odbug) then
+               write(LuOut,*) '-cosmo- ... found , do gas & sol',
+     $                    ocosmo,ga_nodeid()
+            endif
+            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $         call errquit('dft_scf: rtdb_put failed',0)
+         else
+            ogas_phase=.true.
+            osol_phase=.false.
+            if(odbug) then
+               write(LuOut,*) '-cosmo- ... found , do gas only',
+     $                    ocosmo,ga_nodeid()
+            endif
          endif
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $        call errquit('dft_scf: rtdb_put failed',0)
       else
          if(odbug) then
             write(LuOut,*) '-cosmo- not found in dft_scf'
@@ -676,7 +684,7 @@ c
 c     ----- cosmo charges and energy contribution -----
 c
         odbug=.false.
-        if (ocosmo) then
+        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
            if(odbug) then
               write(LuOut,*) '-cosmo- ... found in dft_scf ...',
      $                   ocosmo,ga_nodeid()
@@ -708,8 +716,8 @@ c
               write(LuOut,*) '-cosmo- not found in dft_scf ...',
      $                   ga_nodeid()
            endif
-        call ga_sync()
         endif
+        call ga_sync()
 c
 c     build DFT Fock matrix
 c
@@ -741,7 +749,7 @@ c
 c     ----- cosmo energy term ... -----
 c
       odbug=.false.
-      if (ocosmo) then
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
@@ -771,8 +779,8 @@ c
             write(LuOut,*) '-cosmo- not found in dft_scf',
      $                 ga_nodeid()
          endif
-      call ga_sync()
       endif
+      call ga_sync()
 c     
       if (last_time_energy)then
          etnew=etnew+tdots
@@ -1204,7 +1212,7 @@ c
 c     ----- cosmo energy term ... -----
 c
       odbug=.false.
-      if (ocosmo) then
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
