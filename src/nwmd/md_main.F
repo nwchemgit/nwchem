@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.74 2000-04-21 19:39:54 d3j191 Exp $
+c $Id: md_main.F,v 1.75 2000-04-21 19:46:04 d3j191 Exp $
 c
       implicit none
 c
@@ -1968,6 +1968,23 @@ c
     2 continue
     1 continue
 c
+c     10 : replicated data multiple processor interactions
+c     11 : PME charge grid calculation
+c     12 : 3D-FFT
+c     13 : PME energy and potential grid calculation
+c     14 : PME synchronization
+c     15 : 3D-FFT
+c     16 : recording
+c     17 : local coordinate retrieval
+c     18 : local forces calculation
+c     19 : local force accumulation
+c     20 : non-local coordinate retrieval
+c     21 : non-local forces calculation
+c     22 : non-local force accumulation
+c     23 : PME wait
+c     24 : PME forces calculation
+c      2 : synchronization
+c
       tim(1,me+1)=timer_wall_total(10)
       tim(2,me+1)=timer_wall_total(11)
       tim(3,me+1)=timer_wall_total(12)
@@ -2001,7 +2018,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.74 2000-04-21 19:39:54 d3j191 Exp $
+c $Id: md_main.F,v 1.75 2000-04-21 19:46:04 d3j191 Exp $
 c
       implicit none
 c
