@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.133 2004-04-20 15:08:37 d3j191 Exp $
+c $Id: sp_init.F,v 1.134 2004-04-20 15:26:15 d3j191 Exp $
 c
       implicit none
 c
@@ -324,10 +324,11 @@ c
       if(util_print('distribution',print_debug)) then
       write(lfnout,2001)
  2001 format(/,' Distribution information',/)
-      write(lfnout,2002) rshort,rsgm,rlong,rbox
+      write(lfnout,2002) rshort,rsgm,rlong,rbox,box,bsize
  2002 format(' Short range cutoff',t35,f12.6,/,
      + ' Segment size',t35,f12.6,/,' Long range cutoff',t35,f12.6,/,
-     + ' Box size rbox',t35,//,' Initial cell size',t35,f12.6,/)
+     + ' Box size rbox',t35,//,' Box dimension',t35,3f12.6,//,
+     + ' Initial cell size',t35,f12.6,/)
       endif
 c
       if(nbx*nby*nbz.lt.np) then
