@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.200 1997-02-06 15:53:01 d3j191 Exp $
+# $Id: makefile.h,v 1.201 1997-02-07 06:57:00 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -909,7 +909,7 @@ ifeq ($(TARGET),LINUX)
 
   LDOPTIONS = -g -L$(LIBDIR)
      LINK.f = gcc $(LDFLAGS)
-  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lpfft -lchemio -lglobal -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
 endif
 
