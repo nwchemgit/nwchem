@@ -1,0 +1,590 @@
+********************************************************************
+*
+*	pspw_APC module: used to generate derived atomic point charges
+*         	         from a plane-wave density.
+*
+*   The algorithms used in this module are based on the work of
+*   P.E. Blochl, J. Chem. Phys. vol. 103, page 7422 (1995).
+*
+*	Data structure
+*
+********************************************************************
+
+*     ***********************************
+*     *									*
+*     *			pspw_init_APC			*
+*     *									*
+*     ***********************************
+      subroutine pspw_init_APC(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+#include "pspw_APC.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer i,j,k,n,npack0,nfft3d
+      integer nx,ny,nxh
+      integer zero,pzero,qzero
+      integer tmp1(2),G(3)
+      real*8  coef,x,gg,fourpi
+
+*     **** external functions ****
+      integer  ion_nion, G_indx
+      real*8   lattice_omega
+      external ion_nion, G_indx
+      external lattice_omega
+
+
+
+*     **** read in nga from rtdb ***
+      value = rtdb_get(rtdb,'pspw_APC:nga',mt_int,1,nga)
+
+*     **** return and set nga to zero if nothing in rtdb ****
+      if ((.not.value).or.(nga.le.0)) then
+         nga = 0
+         return
+      end if
+      ngs = nga*ion_nion()
+      call Parallel_taskid(taskid)
+      call Pack_npack(0,npack0)
+
+
+*     **** Allocate memory needed for pspw_APC ****
+      value = MA_alloc_get(mt_dbl,ngs*ngs,'AAPC',A(2),A(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,ngs*ngs,'AmAPC',Am(2),Am(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,ngs,'bAPC',b(2),b(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,ngs,'qAPC',q(2),q(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,nga,'gammaAPC',gamma(2),gamma(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,npack0,'wAPC',w(2),w(1))
+      value = value.and.
+     >          MA_alloc_get(mt_dbl,npack0*nga,'gausAPC',
+     >                       gaus(2),gaus(1))
+
+*     **** EXIT IF OUT OF MEMORY ****
+      if (.not. value)
+     >   call errquit('pspw_init_APC:out of heap memory',0)
+
+*     **** read in Gc and gamma from rtdb ***
+      value = rtdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
+     >                 dbl_mb(gamma(1)))
+      if (.not. value)
+     >   call errquit('pspw_init_APC:error reading rtdb',0)
+
+
+*     ********************************
+*     **** define weight function ****
+*     ********************************
+
+      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
+      call D3dB_nfft3d(1,nfft3d)
+      G(1)= G_indx(1)
+      G(2)= G_indx(2)
+      G(3)= G_indx(3)
+
+*     ***** find the G==0 point in the lattice *****
+      i=0
+      j=0
+      k=0
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      nxh = nx/2
+      call D3dB_ktoqp(1,k+1,qzero,pzero)
+      zero = (qzero-1)*(nxh+1)*ny
+     >     + j*(nxh+1)
+     >     + i+1
+
+      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+      do i = 1,nfft3d
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
+
+         dbl_mb(tmp1(1)+i-1) = 0.0d0
+         if ((gg.gt.1.0d-6).and.(gg.lt.(Gc*Gc))) then
+            dbl_mb(tmp1(1)+i-1) = fourpi*(gg-Gc*Gc)**2/(gg*Gc*Gc)
+         end if
+      end do
+      call Pack_t_pack(0,dbl_mb(tmp1(1)))
+      call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(w(1)))
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping of stack memory',0)
+
+
+*     *************************************
+*     **** define Gaussians in G-space ****
+*     *************************************
+
+      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+
+      coef = 1.0d0/lattice_omega()
+      do n=1,nga
+         x = dbl_mb(gamma(1)+(n-1))
+         x = x*x/4.0d0
+         do i = 1,nfft3d
+            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1))
+            dbl_mb(tmp1(1)+i-1) = coef*exp(-x*gg)
+         end do
+         call Pack_t_pack(0,dbl_mb(tmp1(1)))
+         call Pack_t_Copy(0,dbl_mb(tmp1(1)),
+     >                      dbl_mb(gaus(1)+(n-1)*npack0))
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping of stack memory',0)
+
+*     **** DEBUG - write out information *****
+      if (taskid.eq.MASTER) then
+         write(*,*) 
+         write(*,*) 'initializing pspw_APC data structure'
+         write(*,*) '------------------------------------'
+         write(*,*) 'nga, ngs:',nga,ngs
+         write(*,*) 'Gc      :',Gc
+         do i=1,nga
+           write(*,*) 'APC gamma:',i, dbl_mb(gamma(1)+i-1)
+         end do
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *			pspw_end_APC			*
+*     *									*
+*     ***********************************
+      subroutine pspw_end_APC()
+      implicit none
+
+#include "mafdecls.fh"
+#include "pspw_APC.fh"
+
+      logical value
+
+      
+      if (nga.gt.0) then
+        value = MA_free_heap(A(2))
+        value = value.and.MA_free_heap(Am(2))
+        value = value.and.MA_free_heap(b(2))
+        value = value.and.MA_free_heap(q(2))
+        value = value.and.MA_free_heap(gamma(2))
+        value = value.and.MA_free_heap(w(2))
+        value = value.and.MA_free_heap(gaus(2))
+         if (.not. value) call errquit('error freeing heap',0)
+        nga = 0
+        ngs = 0
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *									*
+*     *			pspw_gen_APC			*
+*     *									*
+*     ***********************************
+      subroutine pspw_gen_APC(ispin,ne,dng)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+
+#include "mafdecls.fh"
+#include "pspw_APC.fh"
+
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer i,j,ii,iii,jj,jjj,indx,indxt
+      integer nfft3d,npack0
+      real*8 omega,N,sum,sum1
+
+      integer exi(2),exj(2)
+      integer gaus_i(2),gaus_j(2),ipiv(2)
+      integer AAA(2)
+
+*     ***** external functions ****
+      integer  ion_nion
+      real*8   lattice_omega
+      external ion_nion
+      external lattice_omega
+
+      if (nga.gt.0) then
+         omega = lattice_omega()
+         call Parallel_taskid(taskid)
+         call D3dB_nfft3d(1,nfft3d)
+         call Pack_npack(0,npack0)
+
+*         **** get memory from stack ****
+         value = MA_push_get(mt_dcpl,nfft3d,'ttexi',exi(2),exi(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,nfft3d,'ttexj',exj(2),exj(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,'ghaus_i1',
+     >                       gaus_i(2),gaus_i(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,npack0,'ghaus_j2',
+     >                                       gaus_j(2),gaus_j(1))
+         if (.not. value) call errquit('out of stack memory',0)
+
+
+*        ***** calculate N = dng(G=0)*omega *****
+         N = dble(ne(1)+ne(ispin))
+
+*        ***** calculate c_i = omega*gaus_i(G=0) = 1.0d0 *****
+
+*        ***** calculate b_i = omega*Sum(G) w(G)*Re(dcongj(dng(G))*gaus_i(G)) ****
+         do ii=1,ion_nion()
+
+*           **** structure factor  ****
+            call strfac(ii,dcpl_mb(exi(1)))
+            call Pack_c_pack(0,dcpl_mb(exi(1)))
+
+            do iii=1,nga
+               i = iii + (ii-1)*nga
+
+*              *** gaus_i(G))***
+               call Pack_tc_Mul(0,dbl_mb(gaus(1)+npack0*(iii-1)),
+     >                          dcpl_mb(exi(1)),
+     >                          dcpl_mb(gaus_i(1)))
+
+*              *** w(G)*gaus_i(G))***
+               call Pack_tc_Mul(0,dbl_mb(w(1)),
+     >                          dcpl_mb(gaus_i(1)),
+     >                          dcpl_mb(gaus_i(1)))
+
+*              *** omega*Sum(G) w(G)*Re(dcongj(dng(G))*gaus_i(G))***
+               call Pack_cc_dot(0,dng,
+     >                            dcpl_mb(gaus_i(1)),
+     >                            sum)
+               dbl_mb(b(1)+i-1) = sum*omega
+            end do
+          end do
+
+
+
+*        ***** calculate A_ij = omega*Sum(G) w(G)*dcongj(gaus_i(G))*gaus_j(G)) ****
+         do ii=1,ion_nion()
+*           **** structure factor  ****
+            call strfac(ii,dcpl_mb(exi(1)))
+            call Pack_c_pack(0,dcpl_mb(exi(1)))
+
+             do jj=ii,ion_nion()
+*              **** structure factor  ****
+               call strfac(jj,dcpl_mb(exj(1)))
+               call Pack_c_pack(0,dcpl_mb(exj(1)))
+
+
+               do iii=1,nga
+*                 *** gaus_i(G))***
+                  call Pack_tc_Mul(0,dbl_mb(gaus(1)+npack0*(iii-1)),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(gaus_i(1)))
+
+*                 *** w(G)*gaus_i(G))***
+                  call Pack_tc_Mul(0,dbl_mb(w(1)),
+     >                               dcpl_mb(gaus_i(1)),
+     >                               dcpl_mb(gaus_i(1)))
+
+                  do jjj=1,nga
+*                   *** gaus_j(G))***
+                     call Pack_tc_Mul(0,dbl_mb(gaus(1)+npack0*(jjj-1)),
+     >                                  dcpl_mb(exj(1)),
+     >                                  dcpl_mb(gaus_j(1)))
+
+*                   *** omega*Sum(G) w(G)*gaus_i(G)*gaus_j(G))***
+                    call Pack_cc_dot(0,dcpl_mb(gaus_i(1)),
+     >                                 dcpl_mb(gaus_j(1)),
+     >                                 sum)
+                    sum = sum*omega
+                    i = iii + (ii-1)*nga
+                    j = jjj + (jj-1)*nga
+
+                    indx  = (i-1) + (j-1)*ngs
+                    indxt = (j-1) + (i-1)*ngs
+                    dbl_mb(A(1)+indx)  = sum
+                    dbl_mb(A(1)+indxt) = sum
+               end do
+             end do
+           end do
+         end do
+         value = MA_pop_stack(gaus_j(2))
+         value = value.and.MA_pop_stack(gaus_i(2))
+         value = value.and.MA_pop_stack(exj(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) call errquit('popping of stack memory',0)
+
+*        **** perform matrix operations in serial ****
+         call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
+         call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
+         if (taskid.eq.MASTER) then
+
+           value = MA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
+           value = value.and.
+     >             MA_push_get(mt_dbl,ngs*ngs,'AAAAPC',AAA(2),AAA(1))
+           if (.not. value) call errquit('out of stack memory',0)
+
+*          **** calculate Am_ij ****
+           call dcopy(ngs*ngs,dbl_mb(A(1)),1,dbl_mb(AAA(1)),1)
+           call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
+           do i=1,ngs
+              indx = i + (i-1)*ngs
+              dbl_mb(Am(1)+indx-1) = 1.0d0
+              int_mb(ipiv(1)+i-1) = 0
+           end do
+           call DGESV(ngs,ngs,dbl_mb(AAA(1)), ngs,
+     >                        int_mb(ipiv(1)),
+     >                        dbl_mb(Am(1)),ngs,
+     >                        j)
+
+            value = MA_pop_stack(AAA(2))
+            value = value.and.MA_pop_stack(ipiv(2))
+            if (.not. value) call errquit('popping stack memory',0)
+
+*          **** calculate q_i ****
+           sum  = 0.0d0
+           sum1 = 0.0d0
+           do j=1,ngs
+           do i=1,ngs
+              indx = (i-1) + (j-1)*ngs
+              sum  = sum  + dbl_mb(Am(1)+indx)*dbl_mb(b(1)+j-1)
+              sum1 = sum1 + dbl_mb(Am(1)+indx)
+           end do
+           end do
+           sum = (sum-N)/sum1
+   
+           do i=1,ngs
+              sum1 = 0.0d0
+              do j=1,ngs
+                indx = (i-1) + (j-1)*ngs
+                sum1 = sum1 
+     >               + dbl_mb(Am(1)+indx)*(dbl_mb(b(1)+j-1)-sum)
+              end do
+              dbl_mb(q(1)+i-1) = sum1
+           end do
+         end if
+*        **** synchronization ****
+         call D3dB_Vector_SumAll(ngs,dbl_mb(q(1)))
+         call D3dB_Vector_SumAll(ngs*ngs,dbl_mb(Am(1)))
+
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *			pspw_dngen_APC			*
+*     *									*
+*     ***********************************
+      subroutine pspw_dngen_APC(ispin,ne,dn)
+      implicit none
+      integer ispin,ne(2)
+      real*8 dn(*)
+
+#include "mafdecls.fh"
+#include "pspw_APC.fh"
+
+*     ***** local variables ****
+      logical value
+      integer nx,ny,nz,n2ft3d,nfft3d,npack0
+      real*8 scal1
+
+      integer dng(2),tmp(2)
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+
+      call Pack_npack(0,npack0)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+
+*     **** get memory from stack ****
+      value = MA_push_get(mt_dcpl,npack0,'dngakjs',dng(2),dng(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmpxkjz',tmp(2),tmp(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+*     **** generate dng ****
+      call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),dcpl_mb(tmp(1)))
+      call D3dB_r_SMul(1,scal1,dbl_mb(tmp(1)),dcpl_mb(tmp(1)))
+      call D3dB_rc_fft3f(1,dcpl_mb(tmp(1)))
+      call Pack_c_pack(0,dcpl_mb(tmp(1)))
+      call Pack_c_Copy(0,dcpl_mb(tmp(1)),dcpl_mb(dng(1)))
+      value = MA_pop_stack(tmp(2))
+      if (.not. value) call errquit('popping of stack memory',0)
+
+*     **** generate APC *****
+      call pspw_gen_APC(ispin,ne,dcpl_mb(dng(1)))
+
+
+      value = value.and.MA_pop_stack(dng(2))
+      if (.not. value) call errquit('popping of stack memory',0)
+
+      return
+      end
+
+*     ***********************************
+*     *									*
+*     *			pspw_getQ_APC			*
+*     *									*
+*     ***********************************
+      real*8 function pspw_getQ_APC(ii,n)
+      implicit none
+      integer ii,n
+
+#include "mafdecls.fh"
+#include "pspw_APC.fh"
+
+*     **** local variables ****
+      integer i
+      real*8 qq
+
+      qq = 0.0d0
+
+      if (nga.gt.0) then
+         i = n + (ii-1)*nga
+         qq = dbl_mb(q(1)+i-1)
+      end if
+      pspw_getQ_APC = qq
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *									*
+*     *			pspw_print_APC			*
+*     *									*
+*     ***********************************
+      subroutine pspw_print_APC(unit)
+      implicit none
+      integer unit
+
+#include "mafdecls.fh"
+#include "pspw_APC.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      integer i,j,indx
+      real*8 sum,sumi,sume
+
+*     **** external functions ****
+      character*2  psp_atom
+      integer      ion_nion,ion_katm
+      real*8       psp_zv
+      external     psp_atom
+      external     ion_nion,ion_katm
+      external     psp_zv
+      
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+
+         WRITE(unit,*)
+         WRITE(unit,*)
+     >  '*************************************************************'
+         WRITE(unit,*)
+     >  '**                                                         **'
+         WRITE(unit,*)
+     >  '**          PSPW Atomic Point Charge (APC) Analysis        **'
+         WRITE(unit,*)
+     >  '**                                                         **'
+         WRITE(unit,*)
+     >  '**   Point charge analysis based on paper by P.E. Blochl   **'
+         WRITE(unit,*)
+     >  '**         (J. Chem. Phys. vol 103, page 7422, 1995)       **'
+         WRITE(unit,*)
+     >  '**                                                         **'
+         WRITE(unit,*)
+     >  '*************************************************************'
+
+
+*        **** write out information *****
+         write(unit,*) 
+         write(unit,*) 'pspw_APC data structure'
+         write(unit,*) '-----------------------'
+         write(unit,*) 'nga, ngs:',nga,ngs
+         write(unit,*) 'Gc      :',Gc
+         do i=1,nga
+           write(unit,*) 'APC gamma:',i, dbl_mb(gamma(1)+i-1)
+         end do
+
+         write(unit,*) 
+         WRITE(unit,*) 'charge analysis on each atom'
+         WRITE(unit,*) '----------------------------'
+         sume=0.0d0
+         sumi=0.0d0
+         write(unit,100) 'no','atom','Qelc','Qion','Qtotal'
+         write(unit,105) 
+         do j=1,ion_nion()
+           sum = 0.0d0
+           do i=1,nga
+              indx = (i-1) + (j-1)*nga
+              sum = sum + dbl_mb(q(1)+indx)
+           end do
+           sume = sume - sum
+           sumi = sumi + psp_zv(ion_katm(j))
+           write(unit,110) j,psp_atom(ion_katm(j)),
+     >                  (-sum),
+     >                  (psp_zv(ion_katm(j))),
+     >                  (psp_zv(ion_katm(j))-sum)
+         end do
+         write(unit,120) sume,sumi,(sume+sumi)
+
+         write(unit,*) 
+         write(unit,*) 
+         WRITE(unit,*) 'gaussian coefficients of model density'
+         WRITE(unit,*) '--------------------------------------'
+         write(unit,200) 'no','atom',
+     >                   'g=',0.0d0,
+     >                    ('g=',dbl_mb(gamma(1)+i-1),i=1,nga)
+         write(unit,205) ('-------',i=0,nga)
+         do j=1,ion_nion()
+           write(unit,210) j,psp_atom(ion_katm(j)),
+     >                     psp_zv(ion_katm(j)),
+     >                     (-dbl_mb(q(1)+i-1+(j-1)*nga),i=1,nga)
+         end do
+
+
+      end if
+      return
+  100 format(/2x,A4,A6,3A12)
+  105 format(4x,'--',2x,'----',
+     >       5x,'-------',
+     >       5x,'-------',
+     >       5x,'-------')
+  110 format(2x,I4,A6,3F12.3)
+  120 format(2x,'   Total Q',3F12.3)
+  200 format(/2x,A4,A6,20(5x,A2,F5.3))
+  205 format(4x,'--',2x,'----',
+     >       20(5x,A7))
+  210 format(2x,I4,A6,20F12.3)
+      end
+
