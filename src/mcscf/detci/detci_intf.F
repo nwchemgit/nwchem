@@ -994,7 +994,7 @@ c
 #include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
-      data TOL/1.d-9/
+      data TOL/1.d-6/           ! rjh - was 1d-9 but this is not met - why?
 c      
       nmixed = 0
       do i=1,norb
@@ -1004,7 +1004,10 @@ c
           h1(ij) = h(rij)
           ijsym = MULX(orbsym(i),orbsym(j))
           if (ijsym.ne.1) then
-            if (abs(h1(ij)).gt.TOL) nmixed = nmixed + 1
+            if (abs(h1(ij)).gt.TOL) then
+               write(6,*) ' H1 contaminated ', i, j, h1(ij)
+               nmixed = nmixed + 1
+            endif
             h1(ij) = 0.0d0
           endif
           do k=1,norb
@@ -1014,7 +1017,10 @@ c
               g1(ij,kl) = g(rij,rkl)
               ijklsym = MULX(ijsym,MULX(orbsym(k),orbsym(l)))
               if (ijklsym.ne.1) then
-                 if (abs(g1(ij,kl)).gt.TOL) nmixed = nmixed + 1
+                 if (abs(g1(ij,kl)).gt.TOL) then
+                    nmixed = nmixed + 1
+                    write(6,*) ' G1 contaminated ', i,j,k,l,g1(ij,kl)
+                 endif
                  g1(ij,kl) = 0.0d0
               endif
             enddo

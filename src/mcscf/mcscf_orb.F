@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.27 1996-11-03 02:40:40 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.28 1996-11-05 06:06:16 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -14,7 +14,8 @@ c
      $                           dm1, dm2, g_coul, g_exch, oconj,
      $                           ocjrst, ocanon, ocirelax, g_conj,
      $                           g_gradold, g_hcore, eone, etwo, ecore,
-     $                           gnorm, orbe, g_movecs, oconverged )
+     $                           gnorm, orbe, g_movecs, oconverged,
+     $                           oprconv )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -49,6 +50,7 @@ c
        double precision orbe(nbf)                      ! [output] MCSCF orbital energies
        integer g_movecs                                ! [input/output] MO vectors
        logical oconverged                              ! [output] convergence flag
+       logical oprconv          ! [input] if true then print
 c
        integer maxpiter
        integer maxlinsrch
@@ -75,7 +77,7 @@ c
        logical ocoul, oexch, ohalf
        logical oe2approx
        logical odelta_core
-       logical oinfoprint, olsrchprint, ociprint
+       logical olsrchprint, ociprint
        logical ocivecprint, oprcndprint
        logical oblk
        double precision micro_citol, citol
@@ -96,8 +98,6 @@ c
 c
 c  Retrieve info from the database
 c
-       oinfoprint = util_print('info',print_default).and.
-     $              (ga_nodeid().eq.0)
        vlen = (nclosed+nact)*(nbf-nclosed-nact) + nclosed*nact
        if (.not. rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e)) then
          if (.not. rtdb_get(rtdb,'scf:tol2e',MT_DBL,1,tol2e))
@@ -174,7 +174,7 @@ c
        gnorm = sqrt(ga_ddot(g_grad,g_grad))
        gnorm0 = gnorm
        energy = enrep + eone + etwo
-       if (oinfoprint) write(6,922) energy,gnorm
+       if (oprconv) write(6,922) energy,gnorm
  922   format(11x,'>>>| Fock energy:',5x,f22.12,/,
      $        11x,'>>>| Gradient norm:',3x,d22.9)
        oconverged = (gnorm.lt.gnorm_tol)
@@ -231,6 +231,8 @@ c
      $                     g_hdiag, g_kvec, g_srch, p_acc )
        call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
      $                       g_srch, .true., .false., maxx )
+       if (maxx .gt. 1d-6) call errquit('mcscf_orb: large symmetry'//
+     $      ' contamination in search direction',0)
 C       call ga_screen(g_srch, 1.d-10 )
        snorm = sqrt(ga_ddot(g_srch,g_srch))
 c
@@ -240,13 +242,17 @@ c
        if ((gnorm0.lt.0.2d0).and.(oconj).and.(.not.(ocjrst))) then
          call mcscf_conj( g_grad, g_gradold, g_conj, g_srch )
        else if (ocjrst) then
-         if (oinfoprint) write(6,723)
+         if (oprconv) write(6,723)
  723     format(5x,'--- Conjugacy reset ---')
        endif
+       call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
+     $                       g_srch, .true., .false., maxx )
+       if (maxx .gt. 1d-6) call errquit('mcscf_orb: large symmetry'//
+     $      ' contamination in search direction after conjugacy',0)
 c
 c  Info print
 c
-       olsrchprint = oinfoprint
+       olsrchprint = oprconv
        ociprint = util_print('microci',print_high)
        ocivecprint = util_print('civec',print_debug).and.ociprint
        if ((ga_nodeid().eq.0).and.
@@ -260,7 +266,7 @@ c
 c  Begin line search...
 c
 c$$$       CALL GA_ROWPRINT('step vector',G_KVEC)
-*       if (oinfoprint) write(6,973)
+*       if (oprconv) write(6,973)
 * 973   format(/,10x,'step',8x,'energy',9x,'p.grad',6x,'ratio',
 *     $          10x,'time',/,7x,63('-'))
        alpha = 1.0d0
@@ -294,7 +300,7 @@ c
        do iter=1,maxlinsrch
          iter1 = iter - 1
          nstep = iter
-*         if (oinfoprint) write(6,974) av(iter1), eev(iter1), gsv(iter1),
+*         if (oprconv) write(6,974) av(iter1), eev(iter1), gsv(iter1),
 *     $                                abs(gsv(iter1)/gsv(0)),
 *     $                                util_cpusec()
 * 974     format(5x,f10.4,2x,f15.10,2x,d10.2,2x,f10.4,2x,f10.1)
@@ -387,7 +393,7 @@ c
 c  Line search exhausted...take last successful step
 c  (alpha0) for new MO-vectors
 c
-       if (oinfoprint) write(6,927) alpha
+       if (ga_nodeid().eq.0) write(6,927) alpha
  927   format(10x,'Line search exhausted --- step length is:',f10.2)
        call ga_dadd( alpha, g_srch, 0.d0, g_kvec, g_kvec )
        call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
@@ -410,8 +416,16 @@ c
        if (ocanon) then
          call mcscf_canonical( nbf, nclosed, nact, g_ifock, g_afock,
      $                         g_gfock, orbe, g_newvecs, nflip )
+c
+c     Canonicalization can mess up the symmetry for degenerate irreps
+c     that we have to split. So symm adapt here and ignore
+c     any contamination.  Contamination elsewhere is still bad.
+c
+         call sym_movecs_adapt(basis, 1.d-8, g_newvecs, orbsym, nmixed)
+         call ga_orthog_mos(basis, g_newvecs)
+c
          call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
-         if (oinfoprint) write(6,331)
+         if (oprconv) write(6,331)
  331     format(5x,'--- Orbitals canonicalized ---')
          if (util_print('canonical',print_high)) then
            if (ga_nodeid().eq.0) then
@@ -430,6 +444,8 @@ c  Safe to copy MO vectors
 c
        call ga_copy(g_newvecs, g_movecs )
        call sym_movecs_adapt( basis, 1.d-8, g_movecs, orbsym, nmixed )
+*       write(6,*) ' MOVECS after sym adaption'
+*       call ga_print(g_movecs)
        if (nmixed .ne. 0)
      $   call errquit('mcscf_orb: symmetry contamination', nmixed)
 c
@@ -437,6 +453,7 @@ c  Save updated MOs
 c  Orbitals maybe reordered on save (movecs_lock)
 c  so pass temporary MOs
 c
+       call ga_copy(g_movecs, g_newvecs) ! rjh ... save sym adapted vectors
        call mcscf_save_vec( rtdb, geom, basis, nbf, orbe, g_newvecs )
 c
 c  Update Coulomb and Exchange operator

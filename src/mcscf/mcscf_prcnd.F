@@ -97,7 +97,11 @@ c
      $                     g_movecs, g_ifock, g_afock, g_gfock,
      $                     g_coul, g_exch, g_xv, g_axv )
          call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
-     $                         g_axv, .false., .false., maxx )
+     $                         g_axv, .true., .false., maxx )
+c
+         if (maxx .gt. 1d-6) call errquit ! rjh ... always expect the worst
+     $        ('mcscf_prcnd: large symmetry contamination', 0)
+c
 C         CALL GA_ROWPRINT( 'HESSIAN VECTOR PRODUCT', G_AXV )
 
          call ga_copy_patch('n',g_axv,1,vlen,1,1,

@@ -633,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.17 1996-10-16 19:45:55 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.18 1996-11-05 06:06:15 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.17 1996-10-16 19:45:55 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.18 1996-11-05 06:06:15 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
@@ -909,13 +909,15 @@ c
       integer ii, i, a, t, aa, tt
       double precision xx, zero
 c
+      call ga_sync()
+c
       nvir = nbf - nclosed - nact
       vlen = (nact+nclosed)*nvir + nact*nclosed
       aoff = nclosed*nvir
       voff = (nact+nclosed)*nvir
       maxelt = 0.d0
       zero = 0.d0
-      do i=1,nclosed
+      do i=1+ga_nodeid(),nclosed, ga_nnodes()
         do a=1,nvir
           aa = nclosed + nact + a
           if (orbsym(i).ne.orbsym(aa)) then
@@ -928,7 +930,7 @@ c
           endif
         enddo
       enddo
-      do t=1,nact
+      do t=1+ga_nodeid(),nact, ga_nnodes()
         tt = nclosed + t
         do a=1,nvir
           aa = nclosed + nact + a
@@ -941,7 +943,7 @@ c
           endif
         enddo
       enddo
-      do i=1,nclosed
+      do i=1+ga_nodeid(),nclosed, ga_nnodes()
         do t=1,nact
           tt = nclosed + t
           if (orbsym(i).ne.orbsym(tt)) then
@@ -953,7 +955,9 @@ c
           endif
         enddo
       enddo
-      return
+c
+      call ga_sync()
+c
       end
 
 

@@ -15,6 +15,7 @@ c
        implicit none
 #include "mafdecls.fh"       
 #include "global.fh"
+#include "util.fh"
        integer basis
        integer nbf
        integer nclosed
@@ -29,8 +30,12 @@ c
 c
 c  1e Hamiltononian
 c
+       if (util_print('fcore', print_never)) then
+          write(6,*) ' MOVECS in fcore '
+          call ga_print(g_movecs)
+       endif
        call moints_1e( nbf, basis, g_movecs, g_fcore)
-       
+       if (util_print('fcore', print_never))  call ga_print(g_fcore)
 c
 c  Inactive-active Coulomb interation
 c
@@ -64,6 +69,7 @@ c
            endif
          enddo
        enddo
+       
 c
 c
 c

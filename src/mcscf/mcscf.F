@@ -36,7 +36,7 @@ c
        logical ocimicro, ocivecprint
        logical oconverged
        logical oskel
-       logical oprinfo, oprhigh
+       logical oprinfo, oprhigh, oprconv
        logical ohalf
        logical ocisolve
        logical oblk
@@ -55,7 +55,9 @@ c
 c
        call util_print_push
        call util_print_rtdb_load(rtdb, 'mcscf')
-       oprinfo = (util_print('information',print_default).and.
+       oprinfo = (util_print('information',print_low).and.
+     $           (ga_nodeid().eq.0))
+       oprconv = (util_print('conv',print_low).and.
      $           (ga_nodeid().eq.0))
 c
 c  Get w.f. parameters
@@ -69,7 +71,7 @@ c
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
-     $      tol2e = 1.d-10                                                   ! Redundant recovered later
+     $      tol2e = 1.d-10      ! Redundant recovered later
 c
 c  Get electron and spin multiplicity (NB: for info only)
 c  Active elec and multiplicity must be set --- no defaults
@@ -268,7 +270,7 @@ c
        ocanon = .false.
        ocivecprint = util_print('civec',print_debug)
        do iter=1,maxiter
-         if (oprinfo) write(6,996) iter
+         if (oprconv) write(6,996) iter
  996     format(///,10x,'%%%%% MacroIteration ',i3,' %%%%%',/)
          if (mod(iter,5) .eq. 0) call ga_orthog_mos(basis, g_movecs)
 c
@@ -293,7 +295,7 @@ c$$$     $                       ecore, g_hcore )                          ! thi
            call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                         nsym, int_mb(k_sym), e0,
      $                         dbl_mb(k_evals), g_hcore, g_coul, 
-     $                         citol_now, ocirestart, .true.,
+     $                         citol_now, ocirestart, oprconv,
      $                         ocivecprint,
      $                         dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
            if (util_print('ci energy',print_default).and.
@@ -334,7 +336,7 @@ c
      $                        g_exch, oconj, ocjrst, ocanon, ocimicro,
      $                        g_conj, g_gradold, g_hcore, eone, etwo,
      $                        ecore, gnorm, dbl_mb(k_evals),
-     $                        g_movecs, oconverged )
+     $                        g_movecs, oconverged, oprconv )
          gnrmv(iter) =  gnorm
          ocjrst = ocjrst.or.ocanon
          if (omcscfprof) call pstat_off(ps_orb)
@@ -430,6 +432,14 @@ c
          call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                          dbl_mb(k_occ), dbl_mb(k_evals),
      $                          g_movecs )
+c
+c     Again, for degenerate irreps that we must split, symmetry
+c     may be contaminated.  Adapt and orthog one more time
+c
+         call sym_movecs_adapt(basis, 1.d-8, g_movecs,
+     $                        int_mb(k_sym), nmixed)
+         call ga_orthog_mos(basis, g_movecs)
+c
          if ((oprinfo).and.(util_print('movecs',print_debug))) then
            write(6,880)
  880       format(///,10x,'Natural Orbitals and Occupation')
@@ -481,7 +491,7 @@ c
      $                    dbl_mb(k_dm2), g_movecs, g_coul,
      $                    eone, etwo, ecore )
        energy = eone + etwo + enrep
-       if (util_print('trace energy',print_default).and.
+       if (util_print('trace energy',print_low).and.
      $     (ga_nodeid().eq.0)) write(6,674) energy, gnorm
  674   format(//,20x,'Energy:',11x,f20.14,
      $         /,20x,'Gradient Norm:',4x,e20.4)
