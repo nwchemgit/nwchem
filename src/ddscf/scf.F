@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.30 1995-05-30 06:15:58 d3g681 Exp $
+C$Id: scf.F,v 1.31 1995-07-08 00:35:23 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -210,6 +210,4 @@ c
 c
       call scf_pstat_print
 c
-CHF
-      status = rtdb_print(rtdb,0)
       end
