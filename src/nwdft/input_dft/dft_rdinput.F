@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.32 1997-02-22 16:19:56 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.33 1997-02-22 22:28:49 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -30,7 +30,7 @@ c
       integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom,lrot,irot
-      integer iline, n, nradpts
+      integer iline, n
       integer three, six, fifteen
       Parameter ( three=3, six=6, fifteen=15 )
       character*40 blank_40c
@@ -481,8 +481,18 @@ c
 c     lebedev grid;
 c
       write(*,*) ' in DFT_RDINPUT : gridtype recognized as lebedev'
-      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     &   iangquad = 4
+      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
+         iangquad = 4
+      else
+         if(iangquad.lt.1)then
+           write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
+           iangquad = 1
+         endif
+         if(iangquad.gt.7)then
+           write(6,*)' IANGQUAD must be in the range: 1-7; resetting. '
+           iangquad = 7
+         endif
+      endif
       if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
      &   nradpts = 50
    99 continue

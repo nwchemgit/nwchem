@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c     
 c*********************************************************************
       subroutine dft_inpana(rtdb)
-C     $Id: dft_inpana.F,v 1.19 1997-02-18 01:27:30 d3h449 Exp $
+C     $Id: dft_inpana.F,v 1.20 1997-02-22 22:28:48 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -139,6 +139,11 @@ c
             if(nbf_xc.gt.0)write(LuOut,9120)
             if(nbf_cd.gt.0)write(LuOut,9130)
             write(LuOut,9135)gridtype
+            if(iangquad.eq.0)then
+              write(LuOut,9136)nradpts,nagrid,2*nagrid
+            else
+              write(LuOut,9137)nradpts,nang_leb_pts
+            endif
             write(LuOut,9035)e_conv
             if(d_conv.gt.0)then
                write(LuOut,9040)d_conv
@@ -254,7 +259,9 @@ c
  9110 format(10x,'This is a Direct SCF calculation.',/)
  9120 format(10x,'An Exch-Corr fitting basis will be used.',/)
  9130 format(10x,'A Charge density fitting basis will be used.',/)
- 9135 format(10x,'Grid used for XC integration:  ',a,/)
+ 9135 format(10x,'Grid used for XC integration:  ',a)
+ 9136 format(14x,i4,' radial pts. ',i3,' theta pts. ',i3,' phi pts.',/)
+ 9137 format(14x,i4,' radial pts. ',i3,' angular pts.',/)
  9222 format(10x,'Exchange-Correlation Functional Information',/,
      &     10x,43('-'))
  9223 format(10x,a40)

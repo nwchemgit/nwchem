@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.10 1997-02-22 07:00:25 d3h449 Exp $
+C$Id: cdft.fh,v 1.11 1997-02-22 22:28:40 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -26,7 +26,7 @@ c
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
-     &     nrinc, nrmax, geom, ncenters, nbf,
+     &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
      &     nbf_ao, nbf_cd, nbf_xc, 
 c
 c     old common handles 
@@ -56,7 +56,7 @@ c
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
-     &     nrinc, nrmax, geom, ncenters, nbf,
+     &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
      &     nbf_ao, nbf_cd, nbf_xc, 
 c
 c     old common handles 
