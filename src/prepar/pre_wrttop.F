@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.52 2004-05-04 22:59:01 edo Exp $
+c $Id: pre_wrttop.F,v 1.53 2004-12-13 21:20:52 d3j191 Exp $
 c
       implicit none
 c
@@ -395,9 +395,16 @@ c
       maskd=2*maskd
  1110 continue
 c
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'Q'.or.
+     + catt(1,lats(1,latm(3,i)))(6:6).eq.'H') then
+      write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
+     + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),nqu,nqu,nqu,0,
+     + latm(10,i),latm(11,i),i
+      else
       write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
      + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),iql,iq,
      + latm(10,i),latm(11,i),i
+      endif
  1024 format(a10,a5,1x,i3,4i7,6i5,i3,i7)
 c 1024 format(a10,a5,1x,12i5,i7)
 c
