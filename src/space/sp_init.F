@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.80 2000-11-28 23:37:43 d3j191 Exp $
+c $Id: sp_init.F,v 1.81 2000-12-21 02:20:14 edo Exp $
 c
       implicit none
 c
@@ -1832,7 +1832,7 @@ c
 c
       lforces=iguide.ne.0
 c
-      if(me.eq.0) then
+      if(ga_nodeid().eq.0) then
 c
       call swatch(rdate,rtime)
 c
