@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.30 2000-02-20 16:05:15 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.31 2000-05-05 23:55:31 d3j191 Exp $
 c
       implicit none
 c
@@ -290,9 +290,26 @@ c
       iql(2)=latm(8,i)
       iql(3)=latm(9,i)
 c
-      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+4
-      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=iq+2
-      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+1
+c     bits set in iq : 0 set 1 s-w is dummy
+c                      1 set 2 s-w is dummy
+c                      2 set 3 s-w is dummy
+c                      3 set 1 s-s non-self is dummy
+c                      4 set 2 s-s non-self is dummy
+c                      5 set 3 s-s non-self is dummy
+c                      6 set 1 s-s self is dummy
+c                      7 set 2 s-s self is dummy
+c                      8 set 3 s-s self is dummy
+c
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=ior(iq,9)
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=ior(iq,18)
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=ior(iq,36)
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'D') iq=ior(iq,73)
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'D') iq=ior(iq,146)
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'D') iq=ior(iq,292)
+c
+c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+4
+c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=iq+2
+c      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+1
 c
 c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'D') iq=iq+36
 c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'D') iq=iq+18
