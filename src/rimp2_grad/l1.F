@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l1 -- Compute RI-MP2 L1 Lagrangian term
 C
 C REVISION
-C     $Id: l1.F,v 1.3 1998-11-11 18:18:56 bernhold Exp $
+C     $Id: l1.F,v 1.4 1998-12-08 19:51:33 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L1(NFrzO, NAct, NVir, NFit, D_Int, D_Gam,
@@ -69,22 +69,22 @@ C
          NTotal = NFrzO+NAct+NVir + NAct
       EndIf
       Call GA_IGOp(Msg_RIMP2_Mem, NTotal, 1, 'min')
-      Write ( 6, *) 'Initial, Final, Block, NTotal = ',
-     $     Initial, Final, Block, NTotal
+c$$$      Write ( 6, *) 'Initial, Final, Block, NTotal = ',
+c$$$     $     Initial, Final, Block, NTotal
 C
 C     Allocate the total number of blocks we have space for so as to
 C     minimize the total number of passes through the disk files.
 C
       Do IBlock = NAct, 1, -1
          PBlock = NTotal-IBlock
-         Write ( 6, *) 'Testing IBlock, PBlock = ', IBlock, PBlock
+c$$$         Write ( 6, *) 'Testing IBlock, PBlock = ', IBlock, PBlock
          If ( PBlock .gt. 0 ) Goto 1000
       EndDo
       Call ErrQuit('RIMP2_L1: insufficient memory for memory buffers',
      $     NTotal)
  1000 Continue
       PBlock = Min( PBlock, NFrzO+NAct+NVir)
-      Write ( 6, *) 'Chosen PBlock = ', PBlock
+c$$$      Write ( 6, *) 'Chosen PBlock = ', PBlock
 C
 C     Create GAs appropriate for blocking
 C
@@ -102,9 +102,9 @@ C
          IHi = Min( NAct, ILo + IBlock - 1)
          NI = IHi - ILo + 1
 C
-         Write (6, *) 'L1: ILo, IHi, NAct, IBlock = ', ILo, IHi,
-     $        NAct, IBlock
-C
+c$$$         Write (6, *) 'L1: ILo, IHi, NAct, IBlock = ', ILo, IHi,
+c$$$     $        NAct, IBlock
+c$$$C
 C        Read gamma block
 C
          If ( DRA_Read_Section(.FALSE.,
@@ -118,9 +118,9 @@ C
             PHi = Min( NFrzO+NAct+NVir, PLo + PBlock - 1)
             NP = PHi - PLo + 1
 C
-            Write (6, *) 'L1: PLo, PHi, (limit), PBlock = ', PLo, PHi,
-     $           NFrzO+NAct+NVir, PBlock
-C
+c$$$            Write (6, *) 'L1: PLo, PHi, (limit), PBlock = ', PLo, PHi,
+c$$$     $           NFrzO+NAct+NVir, PBlock
+c$$$C
 C        Read integral block
 C
             If ( DRA_Read_Section(.FALSE.,

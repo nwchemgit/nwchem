@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.9 1998-12-08 16:47:06 bernhold Exp $
+C     $Id: mk_l.F,v 1.10 1998-12-08 19:52:03 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -124,9 +124,9 @@ C
          Call GA_Scale(g_L1(ISpin), -1.0d0) ! CHEATING!
          Call GA_Scale(g_L2(ISpin), -1.0d0) ! CHEATING!
 C
-         Write (LuOut, *) 'L1 patches as computed...'
-         Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
-         Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
+c$$$         Write (LuOut, *) 'L1 patches as computed...'
+c$$$         Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
+c$$$         Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
 C
       EndDo ! ISpin
 C
@@ -150,10 +150,10 @@ C
 C           CHEATING!!!! minus sign on scale factor below
             Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, -0.5d0 )
 C
-            Write (LuOut, *) 'L1 patches going into density...'
-            Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
-            Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
-            Call GA_Print_Patch(g_P2(ISpin), 1+C, C+A, 1, C, 1)
+c$$$            Write (LuOut, *) 'L1 patches going into density...'
+c$$$            Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
+c$$$            Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
+c$$$            Call GA_Print_Patch(g_P2(ISpin), 1+C, C+A, 1, C, 1)
 C
             If ( Util_Print('partial p2', Print_Debug) ) then
                Write (6, *) 'P(2) w/ L1 copied in but not scaled...'
@@ -173,12 +173,12 @@ C
             If ( (PHi-PLo+1) * (QHi-QLo+1) .gt. 0 ) then
                Call GA_Access(g_P2(ISpin), PLo, PHi, QLo, QHi,
      $              Index, LD)
-               Write ( 6, *) 'Index, LD = ', Index, LD
+c$$$               Write ( 6, *) 'Index, LD = ', Index, LD
                Do Y = QLo, QHi
                   Do I = PLo, PHi
                      Scale = 1/( Eig(I, ISpin) - Eig(Y, ISpin) )
-                     Write ( 6, *) 'liy: ', i, y, dbl_mb(index),
-     $                    Eig(I, ISpin) - Eig(Y, ISpin), Scale, Index
+c$$$                     Write ( 6, *) 'liy: ', i, y, dbl_mb(index),
+c$$$     $                    Eig(I, ISpin) - Eig(Y, ISpin), Scale, Index
                      Dbl_MB( Index ) = Dbl_MB(Index) * Scale
                      Index = Index + 1
                   EndDo

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_W2 -- Complete formation of W2
 C
 C REVISION
-C     $Id: mk_w2.F,v 1.4 1998-12-08 16:47:13 bernhold Exp $
+C     $Id: mk_w2.F,v 1.5 1998-12-08 19:52:12 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -147,8 +147,8 @@ C
             Call GA_Release_Update(g_Tmp, PLo, PHi, QLo, QHi)
          EndIf
          Call GA_Sync
-         Write (6, *) 'Scaled 1-PDM'
-         Call GA_Print(g_Tmp)
+c$$$         Write (6, *) 'Scaled 1-PDM'
+c$$$         Call GA_Print(g_Tmp)
 C
 C        Since we've scaled the whole of P2, we need to patch up
 C        a couple of things.
@@ -169,9 +169,9 @@ c$$$     $
 c$$$         If ( C .gt. 0) Call GA_Copy_Patch('T', g_Tmp, C+1, C+A, 1, C,
 c$$$     $                                          g_Tmp, 1, C, C+1, C+A)
 C
-         Write (6, *) 'Scaled 1-PDM after patching'
-         Call GA_Print(g_Tmp)
-C
+c$$$         Write (6, *) 'Scaled 1-PDM after patching'
+c$$$         Call GA_Print(g_Tmp)
+c$$$C
 C        Now add into W2
 C
          Call GA_Add(1.0d0, g_Tmp, 1.0d0, g_W2(ISpin), g_W2(ISpin) )
