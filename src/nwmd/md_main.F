@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.193 2004-04-20 15:08:35 d3j191 Exp $
+c $Id: md_main.F,v 1.194 2004-09-13 15:19:06 d3j191 Exp $
 c
       implicit none
 c
@@ -1780,7 +1780,8 @@ c
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
-     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lssgm-1)*msa),tmpext)
+     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lssgm-1)*msa),tmpext,
+     + int_mb(i_is+(lshop-1)*msa))
       call timer_stop(49)
 c
 c     shake
@@ -2771,7 +2772,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.193 2004-04-20 15:08:35 d3j191 Exp $
+c $Id: md_main.F,v 1.194 2004-09-13 15:19:06 d3j191 Exp $
 c
       implicit none
 c
