@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.2 2000-05-30 14:47:30 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.3 2000-07-18 15:06:11 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -103,12 +103,17 @@ C-------------------------local variables-----------------------------
 *      integer numq
       double precision smax, sij, sijkl, block_eff, p, val
 *     double precision integ_acc
+      double precision half, fourth, third
+      data half, fourth,third /0.5d+00,0.25d+00,0.3333333333d+00/
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
       logical oij, okl, oikjl, ouhf, orohf, omcscf, omore
-      logical intbdd_init4c, intbdd_2e4c, ogso
+      logical ogso
+      logical intbdd_init4c, intbdd_2e4c
       external intbdd_init4c, intbdd_2e4c
+      logical intbd_init4c, intbd_2e4c
+      external intbd_init4c, intbd_2e4c
 c     
       write(6,*) 'inside twodd_coul_ex'
       smax  = schwarz_max()
@@ -129,7 +134,7 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       omcscf= (scftype .eq. 'MCSCF')
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
-      ogso = .false.
+      ogso = .false.    ! this is for SO contribution for gradient, not hessian
 
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
@@ -293,7 +298,7 @@ c
      $                                blen, 
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
-     $                                pdm2d, psum, jfac, kfac)
+     $                                pdm2d, psum, jfac, kfac, ogso)
        write(6,*) 'before the grad_make_twopdm call'
        call flush(6)
 c     
@@ -318,6 +323,9 @@ c
 
 c     
                      write(6,*) 'nq is ',nq
+                     write(6,*) 'before call to integrals: eri is'
+                     write(6,*) eri(1),eri(2),eri(3), eri(4)
+      write(6,*) ' leri is ',leri
                      if (.not. intbdd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
@@ -333,8 +341,11 @@ c
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
 c     
+      write(6,*) ' leri is ',leri
       write(6,*) ' nint ', nint, omore
+      call flush(6)
 c     
+                     ibuf = 1
                      if (nint .gt. 0) then
                         do integ = 1, nint
                            i = labels(integ,1)
@@ -354,24 +365,26 @@ c
       write(6,*) ' c ', i,j,k,l
                            p = pdm2d(l,k,j,i)
       write(6,*) ' p ', p
-                           ibuf = 1
                            do iiat1 = 1, 4
                            iat1 = atoms(iiat1)
-                           do icart1 = 1, 3
                            do iiat2 = iiat1, 4
                               iat2 = atoms(iiat2)
+                           do icart1 = 1, 3
                               itemp = 1
-                              if (iat2.eq.iat1) itemp = icart1
+                              if (iiat2.eq.iiat1) itemp = icart1
                               do icart2 = itemp, 3
                               val = p*eri(ibuf)
+                              if (iat1.eq.iat2) val = val * fourth
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
       write(6,*) 'val is ',val
+      write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
       call flush(6)
                               Hxy(icart1,iat1,icart2,iat2) =  
      $                             Hxy(icart1,iat1,icart2,iat2) + 
      $                             val
                               Hxy(icart2,iat2,icart1,iat1) =  
-     $                             Hxy(icart2,iat2,icart1,iat1) + 
-     $                             val
+     $                            Hxy(icart2,iat2,icart1,iat1) + 
+     $                            val
                               ibuf = ibuf + 1
                               end do
                            end do
