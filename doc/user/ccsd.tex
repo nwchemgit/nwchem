@@ -42,11 +42,29 @@ troublesome cases may require an increase.
 
 Controls the convergence threshold for the iterative part of the
 calculation.  Both the RMS error in the amplitudes {\em and} the
-change in energy must be less than $10^{-{\tt thresh}}$.
+change in energy must be less than {\tt thresh}.
 
 \begin{verbatim}
-  THRESH  <integer thresh default 6>
+  THRESH  <real thresh default 10^-6>
 \end{verbatim}
+
+\section{{\tt TOL2E} --- integral screening threshold}
+
+\begin{verbatim}
+  TOL2E <real tol2e default min(10^-12 , 0.01*$thresh$)>
+\end{verbatim}
+
+The variable \verb+tol2e+ is used in determining the integral
+screening threshold for the evaluation of the energy and related
+quantities.
+
+{\em CAUTION!  At the present time, the \verb+tol2e+ parameter only
+effects the three- and four-virtual contributions, and the triples,
+all of which are done ``on the fly''. The transformations
+used for the other parts of the code currently have a hard-wired
+threshold of $10^{-12}$.  The default for \verb+tol2e+ is set to match
+this, and since user input can only make the threshold smaller,
+setting this parameter can only make calculations take longer.}
 
 \subsection{{\tt DIISBAS} --- DIIS subspace dimension}
 
