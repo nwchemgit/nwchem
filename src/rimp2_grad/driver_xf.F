@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.4 1998-07-19 00:08:30 bernhold Exp $
+C     $Id: driver_xf.F,v 1.5 1998-10-09 21:24:59 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,
@@ -119,15 +119,13 @@ C
 C LOCAL VARIABLES
 C
       Logical Status
-      Integer ISpin, NA, NI, FitLen
+      Integer ISpin, FitLen
       Integer G_V, G_Out
       Double precision MyMaxV, Thresh
-      Integer Initial_Avail, Final_Avail, Block_Size, NBlocks
-      Integer LInt, LScr, H_Int, H_Scr, I_Int, I_Scr
       Character*1 Sp, SpinLabel
-      Character*256 String1, String2, String3
+      Character*256 String1
       Character*3 XFFit
-      Integer Class, K, BraKet, N1, N2, NPass
+      Integer Class, BraKet, N1, N2, NPass
       Logical PrInfo, PrPrgRpt
 c$$$C
 c$$$      Integer Lim1(MyMaxSpin, 2, 2, 2)
