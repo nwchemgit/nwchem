@@ -129,6 +129,7 @@ c
       integer msg_gapss_lat_tran
       integer msg_gapss_pijr_ef
       integer msg_gapss_density
+      integer msg_riscf_free
 c
       integer msg_grad_xc
 c-----------------------------------------------------------------------
@@ -349,3 +350,4 @@ C
       parameter (msg_gapss_density = msg_ftn_base - 201 ) ! gapss: gap_density
 c
       parameter (msg_grad_xc=msg_ftn_base-202) !  dftgrad: dftg_force
+      parameter (msg_riscf_free=msg_ftn_base-203) !  dftgrad: dftg_force
