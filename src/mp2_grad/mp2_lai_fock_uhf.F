@@ -22,7 +22,7 @@ c     g_lai += J[Paa] - K[Paa] + J[Pbb]
 c
       integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
       integer g_tmp1, g_tmp2, i
-      double precision jfac(4), kfac(4), one, zero
+      double precision jfac(4), kfac(4), one, zero, mone
       logical oskel
 c
       data nfock /4/
@@ -33,6 +33,7 @@ c
 c
       one = 1.0d0
       zero= 0.0d0
+      mone = -1.0d0
 c
 c     Allocate space for AO fock and density matrices
 c
@@ -68,24 +69,24 @@ c
      $     g_pij_a, 1, no_a, 1, no_a, g_tmp1, 1, no_a, 1, no_a)
       call ga_copy_patch('n',
      $     g_pab_a, 1, nv_a, 1, nv_a, g_tmp1, no_a+1, nmo, no_a+1, nmo)
-      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_a,
-     $     g_tmp1, 0.0d0, g_tmp2)
-      call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp2,
-     $     g_vecs_a, 0.0d0, g_dens(1))
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
+     $     g_tmp1, zero, g_tmp2)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, one, g_tmp2,
+     $     g_vecs_a, zero, g_dens(1))
       call ga_symmetrize(g_dens(1))
-      call ga_dscal(g_dens(1),-1.0d0)
+      call ga_dscal(g_dens(1),mone)
 c
       call ga_zero(g_tmp1)
       call ga_copy_patch('n',
      $     g_pij_b, 1, no_b, 1, no_b, g_tmp1, 1, no_b, 1, no_b)
       call ga_copy_patch('n',
      $     g_pab_b, 1, nv_b, 1, nv_b, g_tmp1, no_b+1, nmo, no_b+1, nmo)
-      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_b,
-     $     g_tmp1, 0.0d0, g_tmp2)
-      call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp2,
-     $     g_vecs_b, 0.0d0, g_dens(3))
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_b,
+     $     g_tmp1, zero, g_tmp2)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, one, g_tmp2,
+     $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
-      call ga_dscal(g_dens(3),-1.0d0)
+      call ga_dscal(g_dens(3),mone)
 c
       if (.not. ga_destroy(g_tmp1)) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
@@ -102,8 +103,8 @@ c
       call schwarz_tidy()
       call fock_2e_tidy(rtdb)
 
-      call ga_dadd(1.0d0, g_fock(1), 1.0d0, g_fock(4), g_fock(1))
-      call ga_dadd(1.0d0, g_fock(3), 1.0d0, g_fock(2), g_fock(3))
+      call ga_dadd(one, g_fock(1), one, g_fock(4), g_fock(1))
+      call ga_dadd(one, g_fock(3), one, g_fock(2), g_fock(3))
       call ga_symmetrize(g_fock(1))
       call ga_symmetrize(g_fock(3))
 c
@@ -112,21 +113,21 @@ c
       g_tmp1 = g_dens(1)
 c
       call ga_zero(g_tmp1)
-      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+      call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(1), 1, nbf, 1, nbf,
      $     g_vecs_a, 1, nbf, no_a+1, nmo,
      $     g_tmp1, 1, nbf, 1, nv_a)
-      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+      call ga_matmul_patch('t','n', one, one,
      $     g_vecs_a, 1, no_a, 1, nbf,
      $     g_tmp1, 1, nbf, 1, nv_a,
      $     g_lai_a, 1, no_a, 1, nv_a)
 c
       call ga_zero(g_tmp1)
-      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+      call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(3), 1, nbf, 1, nbf,
      $     g_vecs_b, 1, nbf, no_b+1, nmo,
      $     g_tmp1, 1, nbf, 1, nv_b)
-      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+      call ga_matmul_patch('t','n', one, one,
      $     g_vecs_b, 1, no_b, 1, nbf,
      $     g_tmp1, 1, nbf, 1, nv_b,
      $     g_lai_b, 1, no_b, 1, nv_b)
@@ -161,7 +162,7 @@ c
 
       integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
       integer g_tmp1, g_tmp2, i
-      double precision jfac(4), kfac(4), one, zero
+      double precision jfac(4), kfac(4), one, zero, mone
       logical oskel
 c
 *      integer syms(13)
@@ -173,6 +174,7 @@ c
 c
       one = 1.0d0
       zero= 0.0d0
+      mone = -1.0d0
 c
 c$$$      call ga_zero(g_wij_a)
 c$$$      call ga_zero(g_wij_b)
@@ -213,16 +215,16 @@ c
 c
 c     Transform the densities and symmetrize
 c
-      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_a,
-     $     g_ppq_a, 0.0d0, g_tmp2)
-      call ga_dgemm('n', 't', nbf, nbf, nmo, -1.0d0, g_tmp2,
-     $     g_vecs_a, 0.0d0, g_dens(1))
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
+     $     g_ppq_a, zero, g_tmp2)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, mone, g_tmp2,
+     $     g_vecs_a, zero, g_dens(1))
       call ga_symmetrize(g_dens(1))
 c
-      call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_b,
-     $     g_ppq_b, 0.0d0, g_tmp2)
-      call ga_dgemm('n', 't', nbf, nbf, nmo, -1.0d0, g_tmp2,
-     $     g_vecs_b, 0.0d0, g_dens(3))
+      call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_b,
+     $     g_ppq_b, zero, g_tmp2)
+      call ga_dgemm('n', 't', nbf, nbf, nmo, mone, g_tmp2,
+     $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
 c
 *      write(6,*) ' ALPHA AO density '
@@ -242,8 +244,8 @@ c
       call schwarz_tidy()
       call fock_2e_tidy(rtdb)
 
-      call ga_dadd(1.0d0, g_fock(1), 1.0d0, g_fock(4), g_fock(1))
-      call ga_dadd(1.0d0, g_fock(3), 1.0d0, g_fock(2), g_fock(3))
+      call ga_dadd(one, g_fock(1), one, g_fock(4), g_fock(1))
+      call ga_dadd(one, g_fock(3), one, g_fock(2), g_fock(3))
       call ga_symmetrize(g_fock(1))
       call ga_symmetrize(g_fock(3))
 c
@@ -256,20 +258,20 @@ c     Transform back ... just want wij
 c
       g_tmp1 = g_dens(1)
 c
-      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+      call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(1), 1, nbf, 1, nbf,
      $     g_vecs_a, 1, nbf, 1, no_a,
      $     g_tmp1, 1, nbf, 1, no_a)
-      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+      call ga_matmul_patch('t','n', one, one,
      $     g_vecs_a, 1, no_a, 1, nbf,
      $     g_tmp1, 1, nbf, 1, no_a,
      $     g_wij_a, 1, no_a, 1, no_a)
 c
-      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+      call ga_matmul_patch('n','n',one, zero, 
      $     g_fock(3), 1, nbf, 1, nbf,
      $     g_vecs_b, 1, nbf, 1, no_b,
      $     g_tmp1, 1, nbf, 1, no_b)
-      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+      call ga_matmul_patch('t','n', one, one,
      $     g_vecs_b, 1, no_b, 1, nbf,
      $     g_tmp1, 1, nbf, 1, no_b,
      $     g_wij_b, 1, no_b, 1, no_b)
