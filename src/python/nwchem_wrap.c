@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.14 2000-08-02 21:35:45 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.15 2000-08-02 21:41:53 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -19,7 +19,7 @@
 
 static PyObject *NwchemError;
 
-static int rtdb_handle;            /* handle to the rtdb */
+static Integer rtdb_handle;            /* handle to the rtdb */
 
 #if defined(CRAY) || defined(CRAY_T3E)
 #define task_energy_ TASK_ENERGY
@@ -107,12 +107,14 @@ static PyObject *
 wrap_rtdb_open(PyObject *self, PyObject *args)
 {
    const char *filename, *mode;
+   int inthandle;
 
    if (PyArg_Parse(args, "(ss)", &filename, &mode)) {
-       if (!rtdb_open(filename, mode, &rtdb_handle)) {
+       if (!rtdb_open(filename, mode, &inthandle)) {
 	   PyErr_SetString(NwchemError, "rtdb_open failed");
 	   return NULL;
        }
+       rtdb_handle = inthandle;
    }
    else {
       PyErr_SetString(PyExc_TypeError, "Usage: rtdb_open(filename, mode)");
