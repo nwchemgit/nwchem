@@ -312,7 +312,7 @@ C
 C
 C
       Status = Status .AND.
-     $   RIMP2_XF_Driver( Geom, AOBas, FitBas,
+     $   RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
      $   TopSpin, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
      $   Approx, G_AOXF)
 C

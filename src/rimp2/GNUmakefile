@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 1994-10-20 22:34:18 gg502 Exp $
+# $Id: GNUmakefile,v 1.13 1994-10-31 17:26:43 gg502 Exp $
 
 LIBRARY =	librimp2.a
 
@@ -12,7 +12,8 @@ OBJ =		rimp2_v_e2.o \
 		dgewr.o		atoi.o		indint.o \
 		int_2c_ga.o     max_v_diagonal.o	rimp2_get_param.o \
 		rimp2_timers.o  mk_fit_xf.o     drop_orbitals.o \
-                mk_correl_map.o print_correl_map.o      progress_report.o
+                mk_correl_map.o print_correl_map.o      progress_report.o \
+		xf3ci_mem12.o
 
 OBJ_OPTIMIZE =  ga_matpow.o     rimp2_denom.o   rimp2_pair_energy.o \
                 sum_pairs.o     eval_3ci_block.o xf3ci_step12a.o \

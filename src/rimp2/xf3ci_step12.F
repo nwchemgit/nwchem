@@ -4,17 +4,19 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.9 1994-10-20 22:34:21 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.10 1994-10-31 17:26:08 gg502 Exp $
 C
 C SYNOPSIS
-      Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
-     $   AOBas, G_C, FitBas, G_I, Geom, Neglect)
+      Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
+     $   Alo, Ahi, Ilo, Ihi, AOBas, G_C, FitBas, G_I, Neglect)
       Implicit NONE
       Character*1 IntTyp
-      Integer Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C, Geom
+      Integer RTDB, Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C, Geom
       Double precision Neglect
 C
 C ARGUMENTS
+C     RTDB     Handle to the run-time database [IN]
+C     Geom     Handle to the geometry [IN]
 C     IntTyp   Type of integral to be transformed. 'E' for three-center
 C              two-electron ERI, (pq|s), or 'O' for three-center
 C              one-electron overlap, (pqs). [IN]
@@ -61,16 +63,13 @@ C     that the caller provide the two scratch arrays, and some of the
 C     basis set info.  But please don't do this unless its necessary!
 C
 C MEMORY USE
-C     Two local arrays are used for multiple purposes:
-C     1) Integral value and scratch arrays as sized by Int_Mem_{2e3c,3ov}
-C     2) Scratch array must be at least as large as the value array
-C        (This will normally be the case just from Imt_Mem_*)
-C     3) The integral value array must also be able to hold 
-C        (Alo:Ahi, MxBFSh), where MxBFSh is the largest shell in the
-C        AOBas basis.
-C     Two additional arrays are used to localize panels of C:
-C     1) NA * MxBFSh
-C     2) NI * MxBFSh
+C     Primary memory requirements are for G_I, the global array that 
+C     will hold the 2/3 transformed integrals.  Local memory is used
+C     to increase matrix multiplication performance for the actual
+C     transformation.  Routine XF3cI_Mem12 will do its best to use
+C     all available local memory subject to external limitations
+C     which may be specified in the RTDB.
+C     
 C
 C INCLUDE FILES
 #include "global.fh"
@@ -79,26 +78,27 @@ C INCLUDE FILES
 #include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
-#include "schwarz.fh"
 #include "rimp2_timers.fh"
+#include "rtdb.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame      ! From BLAS-[23]
       External LSame
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer IAlo, IAhi, NI, NA, NF, S
-      Integer MxBFSh, LInt, LIntScr, LScr, MySLo, MySHi, MxFitSh
+      Integer IAlo, IAhi, NI, NA, NF
+      Integer MxBFSh, LInt, LScr, LOut, NodeSLo, NodeSHi, MxFitSh
       Integer SShlo, SShhi, SSh, First, Last
       Logical Status, UseERI
-      Integer Local_Idx, LDLocal, H_Int, H_Scr, Int_Idx, Scr_Idx
-      Integer H_IntScr, IntScr_Idx, H_Scr2, Scr2_Idx, LScr2
-      Integer H_CP, H_CQ, CP_Idx, CQ_Idx, LCP, LCQ
-      Integer NCent, CenP, CenQ, MxBFCe, PBFLo, PBFHi, QBFLo,
-     $   QBFHi
-      Integer H_CP2, H_CQ2, CP2_Idx, CQ2_Idx
-      Integer PSh, PShLo, PShHi, PLo, PHi, NBFPSh, NAOBF
+      Integer Local_Idx, LDLocal, H_Int, H_Out, I_Int, I_Out
+      Integer H_Scr, I_Scr, H_Interm, I_Interm, LInterm
+      Integer H_CP, H_CQ, I_CP, I_CQ, LCP, LCQ
+      Integer MxBFCe
+      Integer NAOBF
       Integer LIBuf, H_IBuf, I_IBuf
+      Integer PMin, QMin, SMin, PMax, QMax, SMax, PDim, QDim, SDim
+      Integer MemAvail, MemUsed
+      Double Precision FLOPs
 C
 C     Dimensions of A and I ranges
 C
@@ -141,6 +141,19 @@ C     Zero out target array
 C
       Call GA_Zero( G_I )
 C
+C     ********************************
+C     * Some AO basis size inquiries *
+C     ********************************
+C     Needed before RTDB calls
+C
+      Status = .TRUE.
+      Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
+      Status = Status .AND. Bas_NBF_Ce_Max( AOBas, MxBFCe)
+      Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
+C
+      If (.NOT. Status ) Call ErrQuit(
+     $   'XF3cI_Step12: Problems with basis set queries', 0)
+C
 C     ********************************************
 C     * Determine our range of the fitting basis *
 C     ********************************************
@@ -148,160 +161,206 @@ C     Each node will fill the range that lives in its memory.  So we
 C     get the basis functions that define the local panel and translate
 C     them to shell blocks.
 C
-      Call GA_Distribution( G_I, GA_NodeID(), IAlo, IAhi, MySLo, MySHi)
-      NF = MySHi - MySLo +1
+      Call GA_Distribution( G_I, GA_NodeID(), IAlo, IAhi,
+     $   NodeSLo, NodeSHi)
+      NF = NodeSHi - NodeSLo +1
 C
-C     If there is no data on this node, there is no work fo us to do!
+C     ***************************************************************
+C     * Make some database inquiries before we go our separate ways *
+C     ***************************************************************
+C     This allows the user to manpulate the way we do things, but it
+C     will probaly happen only in pretty wierd circumstances.
 C
-      If ( MySLo .gt. 0 .AND. MySHi .gt. 0) then
-         Status = .TRUE.
-         Status = Status .AND. Bas_BF2Cn( FitBas, MySLo, SShlo)
-         Status = Status .AND. Bas_BF2Cn( FitBas, MySHi, SShhi)
+C     Note that Q is the first index transformed, and most important to
+c     performance, therefore is it labeled as "AO 1".
 C
-C        Find the largest shell we own
+      If ( .NOT. RTDB_Get( RTDB, 'AO 1 batch size', MT_Int, 1, QMax) )
+     $   QMax = NAOBF
+      If ( .NOT. RTDB_Get( RTDB, 'AO 2 batch size', MT_Int, 1, PMax) )
+     $   PMax = NAOBF
+      If ( .NOT. RTDB_Get( RTDB, 'fit batch size',  MT_Int, 1, SMax) )
+     $   SMax = NF
 C
-         MxFitSh = 0
-         Do SSh = SShLo, SShHi
-            Status = Status .AND. Bas_Cn2Bfr( FitBas, SSh, First, Last)
-            MxFitSh = Max( MxFitSh, Last-First+1)
-         EndDo
+      PMax = Min( PMax, NAOBF)
+      QMax = Min( QMax, NAOBF)
+      SMax = Min( SMax, NF)
 C
-C        We also need some info about the AO basis
+C     *******************
+C     * Exit if no work *
+C     *******************
+C     Must have everyone to read database, but nodes with no fitting
+C     basis functions don't want to do the basis set inquiries nor
+C     try to allocate local memory (MA doesn't like zero lengths).
 C
-         Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
-         Status = Status .AND. Bas_NBF_Ce_Max( AOBas, MxBFCe)
-         Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
-C
-         If (.NOT. Status ) then
-            Write (LuErr, *) 'XF3cI_Step12: Problems with basis set ',
-     $         'queries.'
-            XF3cI_Step12 = .FALSE.
-            Return
-         EndIf
-C
-C        **********************************
-C        * Allocate local "scratch" space *
-C        **********************************
-C        These guys are both fed into the integral package, and reused
-C        during the transformation, so we must be sure to size for both
-C        uses.
-C
-C        This is what the integral package needs
-C
-         If ( UseERI ) then
-            Call Int_Mem_2e3c( LInt, LIntScr)
-         Else
-            Call Int_Mem_3ov( LInt, LIntScr)
-         EndIf
-C
-         Status = .TRUE.
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LInt,
-     $      'Integral eval', H_Int, Int_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LIntScr,
-     $      'Integral scr', H_IntScr, IntScr_Idx)
-C
-C        We also need to localize bits of the transformation matrix, C
-C
-         LCP = NA * MxBFCe
-         LCQ = NI * MxBFCe
-C
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr'
-     $      ,H_CP, CP_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
-     $      H_CQ, CQ_Idx)
-C
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ, 'trans. scr',
-     $      H_CP2, CP2_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
-     $      H_CQ2, CQ2_Idx)
-C
-C        And some scratch space
-C
-         LScr  = MxBFSh * NI * NF
-         LScr2 = NI * MxBFSh * NF
-         LIBuf = MxBFCe * MxBFSh * NF
-C
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr,
-     $      'Transformation scr', H_Scr, Scr_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr2,
-     $      'Transformation scr', H_Scr2, Scr2_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LIBuf,
-     $      'Transformation scr', H_IBuf, I_IBuf)
-C
-         If (.NOT. Status ) then
-            Write (LuErr, *) 'XF3cI_Step12: Problem allocating local ',
-     $         'memory.'
-            XF3cI_Step12 = .FALSE.
-            Return
-         EndIf
-C
-C        ********************************************
-C        * Grab our panel of G_I to access directly *
-C        ********************************************
-C        This avoids the need for a scratch matrix of size NA*NI
-C        and a copy operation.  But the leading dimension
-C        of the local patch must be a multiple of NA, or the second
-C        transformation step will be wrong.
-C
-         Call GA_Access( G_I, IAlo, IAhi, MySLo, MySHi, Local_Idx,
-     $      LDLocal)
-C
-         If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .ne. NA * NI ) then
-            Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
-     $         ' inconsistent with arguments. Distribution may be ',
-     $         'wrong.'
-            Call GA_Release( G_I, IAlo, IAhi, MySLo, MySHi)
-            XF3cI_Step12 = .FALSE.
-            Return
-         EndIf
-C
-         If ( .NOT. Geom_NCent( Geom, NCent) ) then
-            Write (LuErr, *) 'XF3cI_Step12: Problem getting number of ',
-     $         'centers.'
-            XF3cI_Step12 = .FALSE.
-            Return
-         EndIf
-C
-C
-C
-         Call XF3cI_Step12a(UseERI, AOBas, MxBFSh,
-     $      MxBFCe, FitBas, NF, Neglect,
-     $      Dbl_MB(Int_Idx), LInt,
-     $      Dbl_MB(IntScr_Idx), LIntScr,
-     $      Dbl_MB(I_IBuf),
-     $      Dbl_MB(CP_Idx), ALo, AHi,
-     $      Dbl_MB(CQ_Idx), ILo, IHi, G_C,
-     $      Dbl_MB(Scr2_Idx), Dbl_MB(Scr_Idx), MxBFSh,
-     $      NCent, Dbl_MB(Local_Idx), LDLocal, MySLo, MySHi)
-C
-C
-C
-C
-C        ****************************
-C        * Clean up after ourselves *
-C        ****************************
-C
-         Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
-C
-         Status = Status .AND. MA_Pop_Stack( H_IBuf)
-         Status = Status .AND. MA_Pop_Stack( H_Scr2)
-         Status = Status .AND. MA_Pop_Stack( H_Scr)
-         Status = Status .AND. MA_Pop_Stack( H_CQ2)
-         Status = Status .AND. MA_Pop_Stack( H_CP2)
-         Status = Status .AND. MA_Pop_Stack( H_CQ)
-         Status = Status .AND. MA_Pop_Stack( H_CP)
-         Status = Status .AND. MA_Pop_Stack( H_IntScr)
-         Status = Status .AND. MA_Pop_Stack( H_Int)
-C
-         If (.NOT. Status ) then
-            Write (LuErr, *) 'XF3cI_Step12: Problem freeing local ',
-     $         'memory.'
-            XF3cI_Step12 = .FALSE.
-            Return
-         EndIf
-C
+      If ( NF .le. 0 ) then
+         XF3cI_Step12 = .TRUE.
+         Call Util_Flush(6)
+         Call GA_Sync
+         Return
       EndIf
 C
+C     ***************************************
+C     * Get other fitting basis information *
+C     ***************************************
+C     Find the largest shell in our range of the fitting basis
+C      
+      Status = .TRUE.
+      Status = Status .AND. Bas_BF2Cn( FitBas, NodeSLo, SShlo)
+      Status = Status .AND. Bas_BF2Cn( FitBas, NodeSHi, SShhi)
+C
+      MxFitSh = 0
+      Do SSh = SShLo, SShHi
+         Status = Status .AND. Bas_Cn2Bfr( FitBas, SSh, First, Last)
+         MxFitSh = Max( MxFitSh, Last-First+1)
+      EndDo
+C
+      If (.NOT. Status ) Call ErrQuit(
+     $   'XF3cI_Step12: Problems with basis set queries', 1)
+C
+C     ********************************
+C     * Setup for 3-center integrals *
+C     ********************************
+C
+      If ( UseERI ) then
+         Call Int_Mem_2e3c( LInt, LScr)
+      Else
+         Call Int_Mem_3ov( LInt, LScr)
+      EndIf
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LInt,
+     $   'Integral eval', H_Int, I_Int)
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LScr,
+     $   'Integral scr', H_Scr, I_Scr)
+C
+C     ***************************************
+C     * Determine scratch space size to use *
+C     ***************************************
+C     This transformation can use varying amounts of local memory.  More
+c     memory allows largers blocks of integrals to be evaluated and
+c     transformed at a time, which increases the efficiency of matrix
+c     multiplication.  This can be a major performance win, so we try
+C     to use as much as we can -- intelligently.
+C
+C     The minimum sizes are the largest shell block in each basis
+C
+      PMin = MxBFSh
+      QMin = MxBFSh
+      SMin = MxFitSh
+C
+C     Insure that the maximums are reasonable. Maybe we should report to
+c     the user when we can't obey their minimums?
+C
+      PMax = Max( PMax, PMin)
+      QMax = Max( QMax, QMin)
+      SMax = Max( SMax, SMin)
+C
+C     Now inquire how much space is available to us (everything we need
+c     to allocate is of type double)
+C
+      MemAvail = MA_Inquire_Avail( MT_Dbl)
+C
+C     Figure out how best to use this memory.  Encapsulated in a
+c     separate routine for readibility and returns the individual array
+c     sizes required in addition to the base dimensions for safety.
+c     That way you are less likely to try to sneak in an extra array
+c     without telling the routine that does the negotiation about it.
+C     Not that I don't trust you, of course...
+C
+      Call XF3cI_Mem12(MemAvail, PMin, QMin, SMin, PMax, QMax, SMax, NA,
+     $   NI, PDim, QDim, SDim, MemUsed, LCP, LCQ, LInterm, LOut,
+     $   LIBuf)
+C
+      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(), ' using ',
+     $   MemUsed, ' of ', MemAvail, ' with ', PDim, QDim, SDim
+C
+C     If there isn't enough memory the actual dimensions will be zero
+c     and LUsed will contain the minimum memory required to proceed.
+C
+      If ( PDim * QDim * SDim .eq. 0) Call ErrQuit(
+     $   'XF3cI_Step12: Need more local memory to continue (bytes)',
+     $      MA_SizeOf(MT_Dbl, MemUsed-MemAvail, MT_Byte) )
+C
+C     *************************
+C     * Allocate local memory *
+C     *************************
+C
+      Status = .TRUE.
+C
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LCP,
+     $   'local xform matrix 2', H_CP, I_CP)
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LCQ,
+     $   'local xform matrix 1',  H_CQ, I_CQ)
+C
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LOut,
+     $   'xf3ci step1 ouput', H_Out, I_Out)
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LInterm,
+     $   'xf3ci step1 intermediate', H_Interm, I_Interm)
+      Status = Status .AND. MA_Push_Get( MT_Dbl, LIBuf,
+     $   'xf3ci int buffer', H_IBuf, I_IBuf)
+C
+      If (.NOT. Status ) Call ErrQuit(
+     $   'XF3cI_Step12: Problem allocating local memory', 0)
+C
+C     ********************************************
+C     * Grab our panel of G_I to access directly *
+C     ********************************************
+C     This avoids the need for a scratch matrix of size NA*NI
+C     and a copy operation.  But the leading dimension
+C     of the local patch must be a multiple of NA, or the second
+C     transformation step will be wrong.
+C
+      Call GA_Access( G_I, IAlo, IAhi, NodeSLo, NodeSHi, Local_Idx,
+     $   LDLocal)
+C
+      If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .ne. NA * NI ) then
+         Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
+     $      ' inconsistent with arguments. Distribution may be ',
+     $      'wrong.'
+         Call GA_Release( G_I, IAlo, IAhi, NodeSLo, NodeSHi)
+         XF3cI_Step12 = .FALSE.
+         Return
+      EndIf
+C
+C     ***********************************************************
+C     * After all this preparation, we finally get to the work! *
+C     ***********************************************************
+C
+      FLOPs = FP_Zero
+      Call XF3cI_Step12a(UseERI, AOBas, PDim,
+     $   QDim, FitBas, SDim, Neglect,
+     $   Dbl_MB(I_Int), LInt,
+     $   Dbl_MB(I_Scr), LScr,
+     $   Dbl_MB(I_IBuf),
+     $   Dbl_MB(I_CP), ALo, AHi,
+     $   Dbl_MB(I_CQ), ILo, IHi, G_C,
+     $   Dbl_MB(I_Interm), Dbl_MB(I_Out), PDim,
+     $   Dbl_MB(Local_Idx), LDLocal, NodeSLo, NodeSHi, FLOPs)
+C
+C     Eventually, this should be accumulated into PStat-managed memory
+C
+      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(),
+     $   ' did approximately ', FLOPs, ' FLOPs'
+C
+C     ****************************
+C     * Clean up after ourselves *
+C     ****************************
+C
+      Call GA_Release_Update( G_I, IAlo, IAhi, NodeSLo, NodeSHi)
+C
+      Status = .TRUE.
+      Status = Status .AND. MA_Pop_Stack( H_IBuf)
+      Status = Status .AND. MA_Pop_Stack( H_Interm)
+      Status = Status .AND. MA_Pop_Stack( H_Out)
+      Status = Status .AND. MA_Pop_Stack( H_CQ)
+      Status = Status .AND. MA_Pop_Stack( H_CP)
+      Status = Status .AND. MA_Pop_Stack( H_Scr)
+      Status = Status .AND. MA_Pop_Stack( H_Int)
+C
+      If (.NOT. Status ) Call ErrQuit(
+     $   'XF3cI_Step12: Problem freeing local memory', 0)
+C
+      Call Util_Flush(6)
       Call GA_Sync
 C
       XF3cI_Step12 = .TRUE.

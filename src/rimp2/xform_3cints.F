@@ -3,14 +3,14 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.6 1994-09-06 20:21:31 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.7 1994-10-31 17:26:15 gg502 Exp $
 C
 C SYNOPSIS
-      Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
-     $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
+      Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
+     $   G_Int, ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
      $   Dest, G_Out, IntFil, Neglect)
       Implicit NONE
-      Integer AOBas, FitBas
+      Integer RTDB, AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
       Integer G_Int, G_Out, G_C, G_V, Geom
@@ -252,6 +252,8 @@ C
             Write ( LuOut, '(1X, A)')
      $         'Transformed integrals stored in memory.'
          EndIf
+C
+         Call GA_Summarize( .TRUE. )
       EndIf
 C
  9100 Format(1X, 'Generating three-center ', A,
@@ -272,8 +274,8 @@ C
 C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
 C
-         Status = XF3cI_Step12( Type3ci, ALo, AHi,
-     $      JLo, JHi, AOBas, G_C, FitBas, G_Int, Geom, Neglect)
+         Status = XF3cI_Step12( RTDB, Geom, Type3ci, ALo, AHi,
+     $      JLo, JHi, AOBas, G_C, FitBas, G_Int, Neglect)
          If ( .NOT. Status ) then
             Write (LuErr, 9020) JLo, JHi, Ilo, Ihi
             XForm_3cInts = .FALSE.
@@ -285,6 +287,8 @@ c$$$C
 c$$$         Write (LuOut, *) 'Results of steps 12 ', JLo, JHi,
 c$$$     $      GA_DDot( G_Int, G_Int)
 c$$$         Call GA_Print(G_Int)
+c$$$C
+c$$$         Call PStat_Print_Handles( PS_Step12, 1)
 C
 C        Transform fitting basis & write out the result
 C

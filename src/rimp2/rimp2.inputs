@@ -64,6 +64,18 @@ INPUTS
         limit of 100 elements in arrays.  This is easily changed with
         recomilation, if necessary.
 
+"AO 1 batch size"
+"AO 2 batch size"
+"fit batch size"        no default
+        Limits local memory allocated to three-center integral
+        transformation for performance improvement.  They are listed
+        here in order of their impact on performance.  The minimum
+        size is the largest shell in the AO or fitting basis, as
+        appropriate. Maximum values are the total number of functions
+        in the AO basis and the number of fitting basis functions on
+        each node.  Values outside these ranges are silently reset to
+        the appropriate minimum or maximum.
+
 OUTPUTS
 -------
 "correlation energy"
