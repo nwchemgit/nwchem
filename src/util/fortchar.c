@@ -1,6 +1,6 @@
-/*$Id: fortchar.c,v 1.5 1995-10-17 05:53:19 d3g681 Exp $*/
+/*$Id: fortchar.c,v 1.6 1999-11-13 03:15:13 bjohnson Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY_T3D) || defined(ARDENT))
+#if (defined(CRAY_T3D) || defined(ARDENT) || defined(WIN32))
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -21,6 +21,9 @@
 #ifdef CRAY_T3D
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif /* CRAY_T3D */
+#ifdef WIN32
+#include "typesf2c.h"
+#endif
 
 #define MAX(a,b) (((a) >= (b)) ? (a) : (b))
 #define MIN(a,b) (((a) <= (b)) ? (a) : (b))
@@ -31,8 +34,8 @@
  **/
 
 
-#ifdef CRAY_T3D
-void FCSND_(type, fcd, node, sync)
+#if defined(CRAY_T3D) || defined(USE_FCD)
+void FATR FCSND_(type, fcd, node, sync)
      long *type;
      _fcd fcd;
      long *node;
@@ -48,7 +51,7 @@ void FCSND_(type, fstring, node, sync, flength)
 {
     char cstring[FC_MAXLEN];
     long fpos, clength, lenbuf=sizeof cstring;
-#ifdef CRAY_T3D
+#if defined(CRAY_T3D) || defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	flength;	/* length of fstring */
 
@@ -80,8 +83,8 @@ void FCSND_(type, fstring, node, sync, flength)
     }
 }
 
-#ifdef CRAY_T3D
-void FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
+#if defined(CRAY_T3D) || defined(USE_FCD)
+void FATR FCRCV_(type, fcd, flength, nodeselect, nodefrom, sync)
      long *type;
      _fcd fcd;
      long *flength;
@@ -101,7 +104,7 @@ void FCRCV_(type, fstring, flength, nodeselect, nodefrom, sync, fsize)
 {
     char cstring[FC_MAXLEN];
     long i, clength, lenbuf=sizeof cstring;
-#ifdef CRAY_T3D
+#if defined(CRAY_T3D) || defined(USE_FCD)
     char	*fstring;	/* FORTRAN string */
     long	fsize;	        /* length of fstring */
 

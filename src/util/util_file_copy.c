@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.4 1998-07-25 00:26:28 d3e129 Exp $
+ $Id: util_file_copy.c,v 1.5 1999-11-13 03:17:13 bjohnson Exp $
  */
 
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #endif
 #include "global.h"
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
@@ -108,8 +108,8 @@ void util_file_parallel_copy(const char *input, const char *output)
     if (fout) (void) fclose(fout);
 }
 
-#ifdef CRAY
-void UTIL_FILE_COPY(_fcd input, _fcd output)
+#if defined(CRAY) || defined(USE_FCD)
+void FATR UTIL_FILE_COPY(_fcd input, _fcd output)
 {
     int lin  = _fcdlen(input);
     int lout = _fcdlen(output);

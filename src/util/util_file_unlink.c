@@ -1,5 +1,5 @@
 /*
- $Id: util_file_unlink.c,v 1.3 1999-10-21 22:54:44 d3g681 Exp $
+ $Id: util_file_unlink.c,v 1.4 1999-11-13 03:18:17 bjohnson Exp $
  */
 
 /*
@@ -9,14 +9,19 @@
 
 
 #include <stdio.h>
+#ifdef WIN32
+#include <io.h>
+#define F_OK 2
+#include "typesf2c.h"
+#else
 #include <unistd.h>
+#endif
 #ifdef CRAY
 #include <fortran.h>
 #endif
-
 #include "eaf.h"
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
@@ -43,8 +48,8 @@ void util_file_unlink(const char *filename)
     ga_error("util_file_unlink",0);
 }
 
-#ifdef CRAY
-void UTIL_FILE_UNLINK(_fcd input)
+#if defined(CRAY) || defined(USE_FCD)
+void FATR UTIL_FILE_UNLINK(_fcd input)
 {
     int lin  = _fcdlen(input);
 #else

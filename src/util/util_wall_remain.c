@@ -1,10 +1,10 @@
 /*
- $Id: util_wall_remain.c,v 1.9 1999-07-27 21:00:20 d3e129 Exp $
+ $Id: util_wall_remain.c,v 1.10 1999-11-13 03:22:42 bjohnson Exp $
 */
 #include <stdio.h>
 #include "typesf2c.h"
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(CRAY_T3E)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(CRAY_T3E) || defined(USE_FCD)
 #define util_batch_job_time_remaining_ UTIL_BATCH_JOB_TIME_REMAINING
 #endif
 
@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-Integer util_batch_job_time_remaining_(void)
+Integer FATR util_batch_job_time_remaining_(void)
 {
   FILE *p;
   char cmd[1024];
@@ -56,7 +56,7 @@ Integer util_batch_job_time_remaining_(void)
 
 
 #ifndef DONEIT
-Integer util_batch_job_time_remaining_(void)
+Integer FATR util_batch_job_time_remaining_(void)
 {
   return NOT_AVAILABLE;
 }

@@ -1,14 +1,18 @@
-/*$Id: util_host.c,v 1.2 1997-02-27 23:52:28 d3g681 Exp $*/
+/*$Id: util_host.c,v 1.3 1999-11-13 03:18:47 bjohnson Exp $*/
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
 #endif
-
+#ifdef WIN32
+#include <winsock2.h>
+#include "typesf2c.h"
+#else
 extern int gethostname(char *, int);
+#endif
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 extern int string_to_fortchar(_fcd, int, const char *);
-void UTIL_HOSTNAME(name)
+void FATR UTIL_HOSTNAME(name)
      _fcd name;
 {
   int namelen = _fcdlen(name);

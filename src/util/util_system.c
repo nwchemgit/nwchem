@@ -1,19 +1,24 @@
 /*
- $Id: util_system.c,v 1.3 1999-02-16 07:42:04 d3e129 Exp $
+ $Id: util_system.c,v 1.4 1999-11-13 03:22:42 bjohnson Exp $
  */
 
 #include <stdio.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 extern int system(const char *);
 
 #ifdef CRAY
 #include <fortran.h>
 #endif
+#ifdef WIN32
+#include "typesf2c.h"
+#endif
 
 typedef long Integer;		/*  FORTRAN integer */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
 #else
 int fortchar_to_string(const char *, int, char *, const int);
@@ -21,8 +26,8 @@ int fortchar_to_string(const char *, int, char *, const int);
 
 void ga_error(const char *, long);
 
-#ifdef CRAY
-Integer UTIL_SYSTEM(_fcd input)
+#if defined(CRAY) || defined(USE_FCD)
+Integer FATR UTIL_SYSTEM(_fcd input)
 {
     int lin  = _fcdlen(input);
 #else

@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.13 1999-06-01 20:48:40 d3h325 Exp $
+ $Id: ecce_print.c,v 1.14 1999-11-13 03:14:41 bjohnson Exp $
  */
 
 #include <stdio.h>
@@ -338,7 +338,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
   return 1;
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
 #define ecce_print_file_open_    ECCE_PRINT_FILE_OPEN
 #define ecce_print_file_close_   ECCE_PRINT_FILE_CLOSE
 #define ecce_print_control_      ECCE_PRINT_CONTROL
@@ -353,13 +353,13 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define is_ecce_print_on_        IS_ECCE_PRINT_ON
 #endif
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print_file_open_(_fcd f) 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_file_open_(_fcd f) 
 {
     const char *filename = _fcdtocp(f);
     int flen = _fcdlen(f);
 #else
-void ecce_print_file_open_(const char *filename, int flen)
+void FATR ecce_print_file_open_(const char *filename, int flen)
 {
 #endif
     char buf[1024];
@@ -373,18 +373,18 @@ void ecce_print_file_open_(const char *filename, int flen)
     ecce_print_file_open(buf);
 }
 
-void ecce_print_file_close_(void)
+void FATR ecce_print_file_close_(void)
 {
     ecce_print_file_close();
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print_echo_input_(_fcd f) 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_echo_input_(_fcd f) 
 {
     const char *filename = _fcdtocp(f);
     int flen = _fcdlen(f);
 #else
-void ecce_print_echo_input_(const char *filename, int flen)
+void FATR ecce_print_echo_input_(const char *filename, int flen)
 {
 #endif
     char buf[1024];
@@ -398,21 +398,21 @@ void ecce_print_echo_input_(const char *filename, int flen)
     ecce_print_echo_input(buf);
 }
 
-void ecce_print_control_(Integer *pnew, Integer *pold)
+void FATR ecce_print_control_(Integer *pnew, Integer *pold)
 {
     int old;
     ecce_print_control((int) *pnew, &old);
     *pold = (Integer) old;
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print2_(_fcd f, Integer *ma_type, 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print2_(_fcd f, Integer *ma_type, 
 		  const void *data, Integer *ld1, Integer *dim1, Integer *dim2)
 {
     const char *key = _fcdtocp(f);
     int keylen = _fcdlen(f);
 #else
-void ecce_print2_(const char *key, Integer *ma_type, 
+void FATR ecce_print2_(const char *key, Integer *ma_type, 
 		  const void *data, Integer *ld1, Integer *dim1, Integer *dim2,
 		  int keylen)
 {
@@ -429,8 +429,8 @@ void ecce_print2_(const char *key, Integer *ma_type,
 		(int) *dim2);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print2_dbl_tol_(_fcd f, 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print2_dbl_tol_(_fcd f, 
 			 const double *data, Integer *ld1, 
 			 Integer *dim1, Integer *dim2,
 			 const double *tol)
@@ -438,7 +438,7 @@ void ecce_print2_dbl_tol_(_fcd f,
     const char *key = _fcdtocp(f);
     int keylen = _fcdlen(f);
 #else
-void ecce_print2_dbl_tol_(const char *key, 
+void FATR ecce_print2_dbl_tol_(const char *key, 
 			 const double *data, 
 			 Integer *ld1, Integer *dim1, Integer *dim2,
 			 const double *tol, int keylen)
@@ -456,13 +456,13 @@ void ecce_print2_dbl_tol_(const char *key,
 		(int) *dim2, *tol);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print1_( _fcd f, Integer *ma_type, const void *data, Integer *dim1)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print1_( _fcd f, Integer *ma_type, const void *data, Integer *dim1)
 {
     const char *key = _fcdtocp(f);
     int keylen = _fcdlen(f);
 #else
-void ecce_print1_(const char *key, Integer *ma_type, 
+void FATR ecce_print1_(const char *key, Integer *ma_type, 
 		  const void *data, Integer *dim1, int keylen)
 {
 #endif
@@ -477,13 +477,13 @@ void ecce_print1_(const char *key, Integer *ma_type,
     ecce_print1(buf, (int) *ma_type, data, (int) *dim1);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print_module_entry_(_fcd f) 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_module_entry_(_fcd f) 
 {
     const char *module = _fcdtocp(f);
     int modlen = _fcdlen(f);
 #else
-void ecce_print_module_entry_(const char *module, int modlen) 
+void FATR ecce_print_module_entry_(const char *module, int modlen) 
 {
 #endif
     char buf[1024];
@@ -497,15 +497,15 @@ void ecce_print_module_entry_(const char *module, int modlen)
     ecce_print_module_entry(buf);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print_module_exit_(_fcd f, _fcd g) 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_module_exit_(_fcd f, _fcd g) 
 {
     const char *module = _fcdtocp(f);
     int modlen = _fcdlen(f);
     const char *status = _fcdtocp(g);
     int statlen = _fcdlen(g);
 #else
-void ecce_print_module_exit_(const char *module, const char *status,
+void FATR ecce_print_module_exit_(const char *module, const char *status,
 			     int modlen, int statlen) 
 {
 #endif
@@ -526,15 +526,15 @@ void ecce_print_module_exit_(const char *module, const char *status,
     ecce_print_module_exit(buf, buf1);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print1_char_( _fcd f, _fcd g, Integer *dim1)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print1_char_( _fcd f, _fcd g, Integer *dim1)
 {
     const char *key = _fcdtocp(f);
     const char *data = _fcdtocp(g);
     int keylen = _fcdlen(f);
     int dlen = _fcdlen(g);
 #else
-void ecce_print1_char_(const char *key, const char *data, Integer *dim1, 
+void FATR ecce_print1_char_(const char *key, const char *data, Integer *dim1, 
 		       int keylen, int dlen)
 {
 #endif
@@ -560,13 +560,13 @@ void ecce_print1_char_(const char *key, const char *data, Integer *dim1,
     fflush(ecce_file);
 }
 
-#if defined(CRAY) || defined(CRAY_T3D)
-void ecce_print_echo_string_(_fcd f) 
+#if defined(CRAY) || defined(CRAY_T3D) || defined(USE_FCD)
+void FATR ecce_print_echo_string_(_fcd f) 
 {
     const char *filename = _fcdtocp(f);
     int flen = _fcdlen(f);
 #else
-void ecce_print_echo_string_(const char *filename, int flen)
+void FATR ecce_print_echo_string_(const char *filename, int flen)
 {
 #endif
     char buf[1024];
@@ -587,7 +587,7 @@ logical is_ecce_print_on(void)
   else
     return FORTRAN_FALSE;
 }
-logical is_ecce_print_on_(void)
+logical FATR is_ecce_print_on_(void)
 {
     logical retcode = is_ecce_print_on();
     return retcode;

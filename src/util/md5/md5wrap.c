@@ -4,18 +4,19 @@
 #ifdef CRAY
 #include <fortran.h>
 #endif
+#include "typesf2c.h"
 
 /*
- $Id: md5wrap.c,v 1.4 1997-10-31 20:45:43 d3e129 Exp $
+ $Id: md5wrap.c,v 1.5 1999-11-13 03:23:10 bjohnson Exp $
  */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 extern int string_to_fortchar(_fcd f, int flen, char *buf);
 #else
 extern int string_to_fortchar(char *f, int flen, char *buf);
 #endif
 
-#ifdef CRAY
+#if defined(CRAY) || defined(WIN32)
 #define checksum_simple_ CHECKSUM_SIMPLE
 #define checksum_init_   CHECKSUM_INIT
 #define checksum_update_ CHECKSUM_UPDATE
@@ -92,34 +93,34 @@ static void checksum_string_to_sum(const char csum[33], unsigned char sum[16])
 
 /* Fortran interface */
 
-void checksum_init_(void)
+void FATR checksum_init_(void)
 {
     checksum_init();
 }
 
-void checksum_update_(integer *len, const void *buf)
+void FATR checksum_update_(integer *len, const void *buf)
 {
     checksum_update((int) *len, buf);
 }
 
-#ifdef CRAY
-void checksum_char_update_(_fcd f)
+#if defined(CRAY) || defined(USE_FCD)
+void FATR checksum_char_update_(_fcd f)
 {
     checksum_update(_fcdlen(f), _fcdtocp(f));
 }
 #else
-void checksum_char_update_(const char *buf, int len)
+void FATR checksum_char_update_(const char *buf, int len)
 {
     checksum_update(len, buf);
 }
 #endif
 
-#ifdef CRAY
-void checksum_final_(_fcd f)
+#if defined(CRAY) || defined(USE_FCD)
+void FATR checksum_final_(_fcd f)
 {
     int flen = _fcdlen(f);
 #else
-void checksum_final_(char *f, int flen)
+void FATR checksum_final_(char *f, int flen)
 {
 #endif
     char tmp[33];
@@ -132,7 +133,7 @@ void checksum_final_(char *f, int flen)
     }
 }
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 void checksum_simple_(integer *len, const void *buf, _fcd f)
 {
     checksum_init();
@@ -148,7 +149,7 @@ void checksum_simple_(integer *len, const void *buf, char *f, int flen)
 }
 #endif
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 void checksum_char_simple_(_fcd b, _fcd f)
 {
     checksum_init();
@@ -182,21 +183,21 @@ int cmain()
 
 /* Normally defined by NWChem */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
 static int string_to_fortchar(_fcd f, int flen, char *buf)
 #else
 static int string_to_fortchar(char *f, int flen, char *buf)
 #endif
 {
   int len = (int) strlen(buf), i;
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   flen = _fcdlen(f);
 #endif
 
   if (len > flen) 
     return 0;			/* Won't fit */
 
-#ifdef CRAY
+#if defined(CRAY) || defined(USE_FCD)
   for (i=0; i<len; i++)
     _fcdtocp(f)[i] = buf[i];
   for (i=len; i<flen; i++)
