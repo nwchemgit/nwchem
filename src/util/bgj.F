@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.1 1998-09-09 13:33:43 bjohnson Exp $
+c     $Id: bgj.F,v 1.2 1999-03-04 14:15:33 bjohnson Exp $
 c
 
 c
@@ -101,6 +101,28 @@ c
       endif
       bgj_have_xc = name .eq. 'DFT' .or. name .eq. 'HYB'
 c      write(*,*)'*** bgj_have_xc called: ',name,' ',bgj_have_xc
+c
+      return
+      end
+
+c
+c     Returns whether J fitting is involved is this calculation
+c
+      function bgj_have_j_fit()
+c
+      implicit none
+      logical bgj_have_j_fit
+c
+#include "../nwdft/include/cdft.fh"
+c
+      external bgj_have_xc
+      logical bgj_have_xc
+c
+      bgj_have_j_fit = bgj_have_xc()
+      if (bgj_have_j_fit) then
+         bgj_have_j_fit = CDFIT
+      endif
+c      write(*,*)'*** bgj_have_j_fit called: ',name,' ',bgj_have_j_fit
 c
       return
       end
