@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.7 2003-02-11 21:50:52 marat Exp $
+* $Id: paw_inner_loop.F,v 1.8 2003-02-12 21:39:13 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -269,6 +269,8 @@ c     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
 c     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
 c     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
 c     >             move,dbl_mb(fion(1)))
+       !**** set HPSI toi ZERO!!! ****
+       call dcopy(2*n2(ispin)*npack1,0.0d0,0,Hpsi,1)
 
 
         
@@ -305,12 +307,14 @@ c     >             move,dbl_mb(fion(1)))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-c        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
-c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        call paw_ovlp_S(n2(ispin),psi1,psi_r)
+        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
+     >                 lmd,dbl_mb(tmp_L(1)),ierr)
 
 *        ***** debug ***
          do ms=1,ispin
-           call paw_overlap_matrix_gen(ne(ms),
+           write(*,*) "DEBUG: overlap matrix"
+           call paw_overlap_matrix_gen(ne(ms),ne(ms),
      >                                 psi1(1,n1(ms)),
      >                                 psi1(1,n1(ms)),
      >                                 dbl_mb(tmp_L(1)))
@@ -321,6 +325,25 @@ c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
            end do
 
          end do
+*        ***** debug2 ***
+         do ms=1,ispin
+           write(*,*)
+           write(*,*) "Testing paw_ovlp_S...."
+           write(*,*) "DEBUG2: overlap matrix2"
+           call paw_ovlp_S(ne(ms),psi1(1,n1(ms)),psi_r(1,n1(ms))) 
+           call Grsm_ggm_dot(npack1,ne,
+     >                  psi1(1,n1(ms)),psi_r(1,n1(ms)),
+     >                  dbl_mb(tmp_L(1)))
+
+           write(*,*) "Overlap matrix2, spin:",ms
+           do i=1,ne(ms) 
+             write(*,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+     >                   j=1,ne(ms))
+           end do
+
+         end do
+
+
 
       end do
 

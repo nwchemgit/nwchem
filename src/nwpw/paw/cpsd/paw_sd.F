@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.23 2003-02-11 23:43:15 bylaska Exp $
+* $Id: paw_sd.F,v 1.24 2003-02-12 21:39:13 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -283,15 +283,17 @@
       call paw_ovlp_weights_set()
       call paw_comp_charge_update()
 
+
       !**** Ortho Check ****
       do ms=1,ispin
         deltae=paw_psi_CheckOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
+
         if (deltae.gt.1.0d-10) then
           call paw_psi_MakeOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
           deltac=paw_psi_CheckOrtho(npack1,ne(ms),
-     >                   dcpl_mb(psi2(1)+(ms-1)*ne(1)*npack1))
+     >                   dcpl_mb(psi2(1)+(n1(ms)-1)*npack1))
           if (taskid.eq.MASTER) then
             if (ms.eq.1) then
               write(*,*) "Warning: ",
