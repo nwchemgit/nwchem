@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.21 2003-02-19 18:19:23 fruechtl Exp $
+C     $Id: memory_def.F,v 1.22 2003-04-17 04:16:16 edo Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -54,18 +54,15 @@ C     This is probably a minimum configuration for most IBM
 C     platforms, but many will have more.  Assumes dedicated node
 C     access.
 C
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sp1 or lapi)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB 
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(LINUX) || defined(WIN32)
 *
 *     parameter ( Total_Dflt = 16777216) ! 128 MB (linux)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB 
-*     Parameter ( Total_Dflt = 11796480) ! 90 MB  (linux)
-*     Parameter ( Total_Dflt = 8388608)  ! 64 MB  (linux)
-*     Parameter ( Total_Dflt = 4194304)  ! 32 MB  (linux)
+*      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(SUN) || defined(SOLARIS) || defined(HPUX)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node(sun or solaris)
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(CRAY_T3E)
 C
 *too large   Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
@@ -97,16 +94,16 @@ C
       Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node (delta)
 #elif defined(SGITFP)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgitfp)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node (sgitfp)
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(DECOSF)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (decosf)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node (decosf)
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(SGI) && ! defined(SGITFP)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgi)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node (sgi)
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(IBM) 
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (ibm)
-      Parameter ( Total_Dflt = 26214400) ! 200 MB on 256 MB node (ibm)
+      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
 #elif defined(FUJITSU_VPP)
       Parameter ( Total_Dflt = 67108864) ! 512 MB (Fujitsu VPP)
 #endif
