@@ -35,7 +35,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.15 2000-03-31 01:33:21 edo Exp $
+C$Id: diis_bld12.F,v 1.16 2000-06-05 23:54:42 edo Exp $
 c
       implicit none
 c
@@ -87,6 +87,7 @@ c
 c     write(LuOut,*)' Small eig of S in build of S^-1/2',
 c     &           i, aaz, toll_s
             call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
+            call dfill(nbf_ao,0d0,dbl_mb(itmpm),1)
             call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
          endif
       enddo
@@ -108,7 +109,7 @@ c     iw = 1; build S
 c     iw = 2; build S**(-1/2)
 c     iw = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.15 2000-03-31 01:33:21 edo Exp $
+C$Id: diis_bld12.F,v 1.16 2000-06-05 23:54:42 edo Exp $
 c
       implicit none
 c

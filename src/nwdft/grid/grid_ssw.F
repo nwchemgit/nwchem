@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.8 2000-04-05 01:41:23 edo Exp $
+C$Id: grid_ssw.F,v 1.9 2000-06-05 23:54:42 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -30,7 +30,7 @@ c
       double precision  toll_scr,rag 
       logical inotA,jnota
 c
-      integer iw
+      integer iw,n
       double precision ass,distnc,distnn,wsum
       parameter (toll_scr=1d-13)
 #include "xc_erftab.fh"
@@ -49,9 +49,6 @@ c
       elseif(whichfunc.eq.'erf2') then
         ass=ass_erf2
         iw=2
-      elseif(whichfunc.eq.'erf3') then
-        ass=ass_erf3
-        iw=3
       endif
 c      toll=max((tol_rho*1d-5),1d-33)
       do  i = 1, nctrs_pruned
@@ -136,7 +133,11 @@ c
      $                 nu*table(3,ipoint)))
                   if(mu.lt.0d0) sk=1d0-sk
                 else
-                  sk=erfn(mu,iw)
+                   if(iw.eq.1) then
+                      sk=erf1(mu)
+                   else
+                      sk=erf2(mu)
+                   endif
                 endif
                 p(i) = p(i)*sk
                 p(j) = p(j)*(1d0 - sk)
