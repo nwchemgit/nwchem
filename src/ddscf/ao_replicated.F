@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.30 1998-03-13 01:39:47 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.31 1998-07-13 22:51:42 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -354,13 +354,21 @@ c     more experiments are needed.
 c
 c     C60 has trouble with max value for integ_acc less than 1d-9
 c     (using texas integrals, don't know about nwchem)
+c
+c     More testing shows that NWchem integrals can be wrong with
+c     an accuracy coarser than 1d-15 which is now the standard accuracy.
+c
+c     Thus now use the default integral accuracy unless set by the
+c     user.  Sigh.
 c     
       if (intacc .eq. 0.0d0) then
-         integ_acc = min(1d-9,max(0.01d0*dentol,1d-17)) ! Variable
+         continue
+*         integ_acc = min(1d-15,max(0.01d0*dentol,1d-30)) ! Variable
+*         call int_acc_set(integ_acc)
       else
          integ_acc = intacc     ! User controlled
+         call int_acc_set(integ_acc)
       end if
-      call int_acc_set(integ_acc)
       if (util_print('ao_rep_info', print_debug)) then
          write(6,111) tol2e, denmax, dentol, integ_acc, odensityscreen,
      $        oreadfile, owritefile
