@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.17 2000-03-24 05:41:35 d3j191 Exp $
+c $Id: ana_task.F,v 1.18 2000-03-24 17:44:02 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,6 @@ c
       real*8 ana_bond,ana_angle,ana_torsion
       external ana_rdfram,ana_index
       external ana_bond,ana_angle,ana_torsion
-c
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -71,6 +70,9 @@ c
       ndata=0
       time=0.0d0
       timr=0.0d0
+c
+      valmin=1.0d0
+      valmax=-1.0d0
 c
       ifr=1
 c
@@ -600,15 +602,15 @@ c
       filprj=fil(1:index(fil,' ')-1)//'.trj'
       filval=fil(1:index(fil,' ')-1)//'.val'
       filvec=fil(1:index(fil,' ')-1)//'.vec'
-      filmin=fil(1:index(fil,' ')-1)//'.min'
-      filmax=fil(1:index(fil,' ')-1)//'.max'
+      filmin=fil(1:index(fil,' ')-1)//'_min.pdb'
+      filmax=fil(1:index(fil,' ')-1)//'_max.pdb'
       else
       filprj=fil
       fmt=filprj(i+1:i+3)
-      filval=fil(1:i)//'val'
-      filvec=fil(1:i)//'vec'
-      filmin=fil(1:i)//'min'
-      filmax=fil(1:i)//'max'
+      filval=fil(1:i-1)//'.val'
+      filvec=fil(1:i-1)//'.vec'
+      filmin=fil(1:i-1)//'_min.pdb'
+      filmax=fil(1:i-1)//'_max.pdb'
       endif
 c
       if(nsel.eq.0) call errquit('No atoms selected',0)

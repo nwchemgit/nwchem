@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.6 2000-03-24 05:41:35 d3j191 Exp $
+c $Id: ana_covar.F,v 1.7 2000-03-24 17:44:02 d3j191 Exp $
 c
       implicit none
 c
@@ -106,6 +106,7 @@ c
 c
 #include "ana_common.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 c
       integer ndx(nsel)
       real*8 vct(nsel),val,pnorm,vval
@@ -135,6 +136,19 @@ c
       xp(ndx(i),j)=val*vct(k)+xa(ndx(i),j)
     4 continue
     3 continue
+c
+      if(valmin.gt.valmax) then
+      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp)
+      valmax=val
+      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp)
+      valmin=val
+      elseif(val.lt.valmin) then
+      call ana_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp)
+      valmin=val
+      elseif(val.gt.valmax) then
+      call ana_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp)
+      valmax=val
+      endif
 c
       return
       end
