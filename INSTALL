@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.24 2000-11-07 23:21:19 windus Exp $
+$Id: INSTALL,v 1.25 2000-11-07 23:26:31 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -57,7 +57,10 @@ environment variables described below to your shell script
    SCRATCH_DEF_DIR              default scratch directory for 
                                 temporary files
     ex. setenv SCRATCH_DEF_DIR "\'/scratch\'"
-    ex. setenv DFLT_TOT_MEM 44564480
+
+   PERMANENT_DEF_DIR            default permanent directory for 
+                                files to keep
+    ex. setenv PERMANENT_DEF_DIR "\'/home/user\'"
 
    NWCHEM_BASIS_LIBRARY_PATH    location of the basis set library (the
                                 builder is responsible to make sure that
