@@ -1,16 +1,15 @@
 
-# $Id: GNUmakefile,v 1.1.1.1 1994-03-29 06:44:24 d3g681 Exp $
+# $Id: GNUmakefile,v 1.2 1994-04-01 22:36:11 d3g681 Exp $
 
 include config/makefile.h
 
-nwchem:	nwchem.o libraries
+nwchem:	libraries
+	$(MAKE) nwchem.o
 	$(FC) $(FFLAGS) -o $@ nwchem.o $(LIBS)
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
 # are updated before nwchem is linked
-
-nwchem:	libraries
 
 libraries:
 	for dir in $(SUBDIRS); do \
