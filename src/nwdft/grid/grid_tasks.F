@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.27 2000-04-05 01:41:23 edo Exp $
+c$Id: grid_tasks.F,v 1.28 2000-04-18 16:46:43 edo Exp $
 c
       implicit none
 c
@@ -113,7 +113,7 @@ c
      &   trunc_neigh))trunc_neigh=.true.
       call dft_tstamp(' Before buckinit.')
 
-      call grid_buckinit()
+      call grid_buckinit(rtdb)
 
       nqtotc=0
       ncubenz=0
@@ -154,10 +154,8 @@ c
 c     parallelization here ... might need file exchange when done
 c     for load balancing
                fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
-               call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-               
-               call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia),nxyz)
-               rad_write=rmax
+               fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
+               call grid_rmaxmin(fnxyz,rmax,rmin,lcube(iaia),nxyz)
                nq_cube=0
                do 100 iii = 1, nqsh_at
                   iqsh=int_mb(k_qat+iii-1)          
@@ -179,7 +177,7 @@ c
                      call grid_sympts(.false.,
      .                    rad_sh,xyz(1,ictr), ictr, 
      .                    irsh, iang, iang_done,nq_left,
-     ,                    aqbuf, nq, nx,ny,nz,nxyz,
+     ,                    aqbuf, nq, fnxyz,nxyz,
      ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
      .                    int_mb(k_iscr))
 cedo                     call grid_qpts(rad_sh,xyz(1,ictr), ictr, 

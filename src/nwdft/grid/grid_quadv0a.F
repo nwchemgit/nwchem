@@ -10,7 +10,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r)
 c
-c$Id: grid_quadv0a.F,v 1.17 2000-04-11 20:49:40 edo Exp $
+c$Id: grid_quadv0a.F,v 1.18 2000-04-18 16:46:43 edo Exp $
 c
       implicit none
 c
@@ -72,7 +72,8 @@ c
      &                       Pmat, rq, rdens_atom, 
      &                       cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
-     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2)
+     ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r)
             ntot_cube=ntot_cube+1
          endif
       enddo
