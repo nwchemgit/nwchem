@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.60 2004-01-20 19:08:43 edo Exp $
+c     $Id: dft_main0d.F,v 1.61 2004-10-30 00:55:12 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -20,6 +20,7 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "dftps.fh"
+cedo#define XC_REPL 1
 c     
 c     
       integer  ga_create_atom_blocked
@@ -122,8 +123,10 @@ c
             if (info.eq.0) then
 #if defined(PARALLEL_DIAG)
                call ga_inverse(g_xcinv, g_oi)
+               if (odftps) call pstat_on(ps_bdgemm)
                call ga_dgemm('T', 'N', nbf_xc, nbf_xc, nbf_xc, 1.d0, 
      &              g_oi, g_oi, 0.d0, g_xcinv)
+               if (odftps) call pstat_off(ps_bdgemm)
 #else 
                call ga_copy(g_xcinv, g_oi)
                call ga_inv_seq(g_oi, g_xcinv)
@@ -202,8 +205,10 @@ c         if (lmiss.eq.1) then
                g_tmpb = g_2ceri
 #if defined(PARALLEL_DIAG)
                call ga_inverse(g_cdinv, g_tmpb)
+               if (odftps) call pstat_on(ps_bdgemm)
                call ga_dgemm('T', 'N', nbf_cd, nbf_cd, nbf_cd, 1.d0, 
      &              g_tmpb, g_tmpb, 0.d0, g_cdinv)
+               if (odftps) call pstat_off(ps_bdgemm)
 #else 
                call ga_copy(g_cdinv, g_tmpb)
                call ga_inv_seq(g_tmpb, g_cdinv)
@@ -250,7 +255,13 @@ c
 c     
 c     Compute the AO overlap matrix.
 c     
+#ifdef XC_REPL 
+      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
+     &                       nbf_ao, 0, g_s))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
+#else
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+#endif
       call ga_zero(g_s)
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'ovl eig vals', lsvals, 
      &   isvals))
@@ -265,8 +276,8 @@ c     orthog BS
 c     
 c     Diag Overlap Matrix
 c     
-      g_svecs = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                 'AO ovl eig vecs')
+      if (.not. ga_duplicate(g_s, g_svecs, 'AO ovl eig vecs'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_svecs)
 #if defined(PARALLEL_DIAG)
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
@@ -274,24 +285,26 @@ c
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
 #endif
 c     
-      g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                    'alpha evecs')
+      if (.not. ga_duplicate(g_s, g_evecs(1), 'alpha evecs'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_evecs(1))
-      g_dens(1) = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                   'alpha density')
+      if (.not. ga_duplicate(g_s, g_dens(1), 'alpha density'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_dens(1))
       if (ipol.ne.1)then
-         g_dens(2) = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                      'beta density')
+         if (.not. ga_duplicate(g_s, g_dens(2), 'beta density'))
+     &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
          call ga_zero(g_dens(2))
-         g_evecs(2) = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                       'beta evecs')
+         if (.not. ga_duplicate(g_s, g_evecs(2), 'beta evecs'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
          call ga_zero(g_evecs(2))
-         g_Vxc(2) = ga_create_atom_blocked(geom, AO_bas_han, 'Vxcs')
+         if (.not. ga_duplicate(g_s, g_vxc(2), 'Vxcs'))
+     &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
          call ga_zero(g_Vxc(2))
       endif 
       nVxc = ipol
-      g_fock = ga_create_atom_blocked(geom, AO_bas_han, 'fock matrix')
+      if (.not. ga_duplicate(g_s, g_fock, 'fock matrix'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_fock)
       g_vxc(1) = g_fock
 c      lkeeps=.false.
@@ -307,7 +320,8 @@ c
 cc     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
-      g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'temp')
+      if (.not. ga_duplicate(g_s, g_tmp, 'temp'))
+     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
          call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
      &        g_tmp,  2)
          if (.not. ga_destroy(g_tmp)) call errquit

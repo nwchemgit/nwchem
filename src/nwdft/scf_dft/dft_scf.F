@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.245 2004-10-21 01:37:19 edo Exp $
+c     $Id: dft_scf.F,v 1.246 2004-10-30 00:55:12 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -38,8 +38,6 @@ c
 c
       external dft_lindep
       integer dft_lindep
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
 c
 c Qin
       integer k_goep,l_goep
@@ -350,7 +348,8 @@ c
 c     
 c     SCF energy convergence criterion. 
 c     
-      g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+      if (.not. ga_duplicate(g_fock, g_tmp, 'ga_temp'))
+     &     call errquit('dft_scf: error creating ga',0,GA_ERR)
       g_focks(1)=g_fock
 c     
 c     Set up local convergence parameters
@@ -628,8 +627,8 @@ c
      ,       'ga handle for goep',l_goep,k_goep))
      ,       call errquit('dft_scf: cannot allocate g_oep',0, MA_ERR)
         do i = 1, nbf_xc
-            int_mb(k_goep+i-1) =
-     =          ga_create_atom_blocked(geom,ao_bas_han,'oep')
+           if (.not. ga_duplicate(g_fock, int_mb(k_goep+i-1), 'oep'))
+     &          call errquit('dft_scf: error creating ga',0,GA_ERR)
             call ga_zero(int_mb(k_goep+i-1))
         enddo
       ENDIF
@@ -637,7 +636,8 @@ c
 c end Qin
 c
       if (ipol.gt.1)then
-         g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
+         if (.not. ga_duplicate(g_fock, g_fockt, 'fock tr'))
+     &        call errquit('dft_scf: error creating ga',0,GA_ERR)
       endif
  3000 continue
       if (ipol.gt.1)then
@@ -649,11 +649,12 @@ c     ----- dft scf proper -----
 c
       last_time_energy = .false.
 c
-      g_denso(1) = 
-     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDMa')
-      if(ipol.eq.2)
-     +     g_denso(2) = 
-     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDMb')
+      if (.not. ga_duplicate(g_fock, g_denso(1), 'oldDMa'))
+     &     call errquit('dft_scf: error creating ga',0,GA_ERR)
+      if(ipol.eq.2) then
+         if (.not. ga_duplicate(g_fock, g_denso(2), 'oldDMb'))
+     &        call errquit('dft_scf: error creating ga',0,GA_ERR)
+      endif
 c
       if(iterations.eq.0) then
          if (.not. ga_destroy(g_denso(1))) call errquit

@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.18 2004-07-27 16:20:20 bert Exp $
+c     $Id: dft_fockbld.F,v 1.19 2004-10-30 00:55:12 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -48,8 +48,6 @@ c     double precision evals (*)
       double precision rho_n ![out]
       integer ivcoul_Opt,nexc,ivxc_opt
 c
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
       me=ga_nodeid()

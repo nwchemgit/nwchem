@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.10 2004-01-20 19:08:43 edo Exp $
+c     $Id: dft_diagn.F,v 1.11 2004-10-30 00:55:12 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -28,8 +28,6 @@ c
       integer nmo ! [out]
 c
       integer me,j,nproc,g_fockt,g_xij,g_movecst
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
       integer ncanorg,g_vecstt
       double precision fjj
       integer dft_lindep

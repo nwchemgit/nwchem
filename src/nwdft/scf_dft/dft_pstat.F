@@ -44,6 +44,8 @@ c
      $     ps_fockb)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:dgemm', pstat_qstat, 0, junk,
      $     ps_dgemm)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:bdgem', pstat_qstat, 0, junk,
+     $     ps_bdgemm)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:scfend', pstat_qstat, 0, junk,
      $     ps_scfend)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:scf', pstat_qstat, 0, junk,
@@ -74,6 +76,7 @@ c
          if (.not. pstat_free(ps_fockb))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_diag))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_dgemm))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_bdgemm))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_fitcd))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_incore))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_vcoul))call errquit('dft_pstat?', 0,0)

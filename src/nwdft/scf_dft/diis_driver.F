@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p,reset)
 c
-C$Id: diis_driver.F,v 1.29 2004-01-20 19:08:43 edo Exp $
+C$Id: diis_driver.F,v 1.30 2004-10-30 00:55:12 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -36,9 +36,6 @@ c
       integer g_s12m, g_s12p, me, nproc, g_tmp2,g_rr
       integer lfwght, ifwght
 c     
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-c
       logical diis, nodiis,keeps
       double precision avail, dw_agg_avail
       integer n_n2_objs,i
@@ -108,8 +105,8 @@ c
          endif
 *ga:1:0
          do i=1,mxhist*ipol*2
-            g_diis(i) = ga_create_atom_blocked(
-     .           geom, AO_bas_han, 'g_diis')
+            if (.not. ga_duplicate(g_focks, g_diis(i), 'g_diis'))
+     &           call errquit('diis_driver: error creating ga',0,GA_ERR)
          enddo
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
@@ -131,11 +128,14 @@ c
 c
 c     Construct a temporary global array.
 c       
-      g_tmp2=ga_create_atom_blocked(geom, AO_bas_han, 'gtmp2')
-      g_rr = ga_create_atom_blocked(geom, AO_bas_han, 'grr')
+      if (.not. ga_duplicate(g_diis(1), g_tmp2, 'gtmp2'))
+     &     call errquit('diis_driver: error creating ga',0,GA_ERR)
+      if (.not. ga_duplicate(g_diis(1), g_rr, 'grr'))
+     &     call errquit('diis_driver: error creating ga',0,GA_ERR)
       if (odftps) call pstat_on(ps_bld12)
       if(.not.keeps) then
-         g_s12m=ga_create_atom_blocked(geom, AO_bas_han, 'gs12m')
+         if (.not. ga_duplicate(g_diis(1), g_s12m, 'gs12m'))
+     &        call errquit('diis_driver: error creating ga',0,GA_ERR)
 c
 c     get s-1/2
 c
@@ -158,7 +158,8 @@ c
 c     get s+1/2
 c
       if(.not.keeps) then
-         g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'gs12p')
+         if (.not. ga_duplicate(g_diis(1), g_s12p, 'gs12p'))
+     &        call errquit('diis_driver: error creating ga',0,GA_ERR)
          call diis_bld12(toll_s, svals, g_svecs,  g_s12p, 
      .     g_tmp2, 3)
       endif

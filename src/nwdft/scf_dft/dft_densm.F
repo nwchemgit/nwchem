@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.40 2004-05-24 20:50:59 edo Exp $
+C$Id: dft_densm.F,v 1.41 2004-10-30 00:55:12 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -37,8 +37,6 @@ c
       integer me, nproc
       double precision zero,toll,efermi(2)
       double precision cksum,ntot(2)
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
       integer ltmpm,itmpm,ipoint
       double precision sqrtpi,kbau,eps,rhfuhf
       double precision one,x,xb
@@ -85,8 +83,8 @@ c     initialize ef
 c
            efermi(1)=0.d0
            efermi(2)=0.d0
-           g_tmp = 
-     =          ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+           if (.not. ga_duplicate(g_dens, g_tmp, 'ga_temp'))
+     &          call errquit('dft_densm: error creating ga',0,GA_ERR)
            call ga_zero(g_tmp)
          if(search0)then
            call dfill(nbf*ipol, 0.d0, focc, 1)
@@ -348,16 +346,14 @@ C      write(0,*) ' ==============='
 c
       integer me,nproc,ltmpm,itmpm,g_tmp,i,nocold
       double precision zero
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
       parameter(zero=0.d0)
          me = ga_nodeid()
          nproc = ga_nnodes()
          nocold=noc
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &        call errquit('dftdensm: failed to alloc tmpm',0, MA_ERR)
-         g_tmp = 
-     =        ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+         if (.not. ga_duplicate(g_dens, g_tmp, 'ga_temp'))
+     &        call errquit('dft_densm: error creating ga',0,GA_ERR)
          call ga_zero(g_tmp)
             do i = 1, nbf
                if(focc(i).gt.toll) then

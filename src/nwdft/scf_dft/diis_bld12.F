@@ -1,7 +1,9 @@
       subroutine diis_gets12pm(geom,bas,toll_s,svals, iga_svecs, 
      .     iga_s12m, iga_s12p)
       implicit none
+cedo#define XC_REPL
 #include "errquit.fh"
+#include "mafdecls.fh"
 #include "global.fh"
       integer geom               ! [in] handle
       integer bas               ! [in] handle
@@ -14,9 +16,22 @@ c
       external ga_create_atom_blocked
       integer iga_stmp
 c
+#ifdef XC_REPL 
+      logical bas_numbf
+      external bas_numbf
+      integer nbf_ao
+      if (.not. bas_numbf(bas, nbf_ao))
+     .     call errquit('diisbld12: bas failed ',0,0)
+      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gs12m',
+     &     nbf_ao, 0, iga_s12m))
+     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
+#else
       iga_s12m = ga_create_atom_blocked(geom, bas, 'gs12m')
-      iga_s12p = ga_create_atom_blocked(geom, bas, 'gs12p')
-      iga_stmp = ga_create_atom_blocked(geom, bas, 'gtmp')
+#endif
+      if (.not. ga_duplicate(iga_s12m, iga_s12p, 'gs12p'))
+     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
+      if (.not. ga_duplicate(iga_s12m, iga_stmp, 'gtmp'))
+     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
       call diis_bld12(toll_s, svals, iga_svecs, iga_s12m, 
      &                      iga_stmp, 2)
       call diis_bld12(toll_s, svals, iga_svecs, iga_s12p, 
@@ -36,7 +51,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.21 2003-10-25 16:26:25 edo Exp $
+C$Id: diis_bld12.F,v 1.22 2004-10-30 00:55:12 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -101,32 +116,6 @@ c
          if(.not.MA_Pop_Stack(l_s)) call 
      .        errquit('diisbld12:postack failed',0,MA_ERR)
       endif
-#ifdef OLD
-      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0,0)
-      do i = me+1, nbf_ao, nproc
-         aaz = svals(i)
-         if (aaz.ge.toll_s)  then
-            call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-            if(iwhich.eq.2) then
-               aaz = 1.d0/sqrt(aaz)
-            elseif(iwhich.eq.3) then
-               aaz = dsqrt(aaz)
-            elseif(iwhich.eq.4) then
-               aaz=1d0/aaz
-            endif
-            call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-            call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-         else
-c     write(LuOut,*)' Small eig of S in build of S^-1/2',
-c     &           i, aaz, toll_s
-            call get_col(iga_svecs, nbf_ao, i, DBL_MB(itmpm))
-            call dfill(nbf_ao,0d0,dbl_mb(itmpm),1)
-            call put_col(iga_stmp, nbf_ao, i, DBL_MB(itmpm))
-         endif
-      enddo
-      LResult = MA_Pop_Stack(ltmpm)
-#endif
 c
 c
       if (odftps) call pstat_on(ps_dgemm)
