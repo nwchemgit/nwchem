@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.6 1998-10-06 17:19:09 bernhold Exp $
+C     $Id: driver_e.F,v 1.7 1998-10-09 21:23:16 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
@@ -91,8 +91,8 @@ C INCLUDE FILES
 #include "dra.fh"
 C
 C EXTERNAL ROUTINES
-      Logical Get_3cInts, GA_Create_One_By_Shells
-      External Get_3cInts, GA_Create_One_By_Shells
+      Logical  GA_Create_One_By_Shells
+      External GA_Create_One_By_Shells
 C
       external Sum_Pairs
       Double Precision Sum_Pairs
@@ -109,21 +109,22 @@ C
       Logical IJTri                ! Triangular arrangement for I and T arrays
       Parameter ( IJTri = .FALSE.) !
       Integer TopN                 ! Report largest TopN amplitudes
-      Parameter (TopN = 10)
+      Parameter (TopN = 10)        !
+      Integer MyMaxSpin            ! Allows definition of local "adj arrays"
+      Parameter (MyMaxSpin = 2)    !
 C
 C LOCAL VARIBLES
-      Integer I, J, ISpin, JSpin, JTop, NPass 
+      Integer ISpin, JSpin, JTop, NPass 
       Integer Proc
       Logical Status
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_Int, G_T2
-      Integer G_PairE(2*MaxSpin-1)
-      Character*255 String1, TmpName, FilNam
+      Integer G_PairE(2*MyMaxSpin-1)
+      Character*255 String1
       Integer NewIBlk, NewJBlk
       Logical PrInfo, PrPrgRpt
-      Character*1 Sp
       Character*12 SpinLabel
-      Integer H_TopN_Ind(2*MaxSpin-1), H_TopN_Val(2*MaxSpin-1)
-      Integer I_TopN_Ind(2*MaxSpin-1), I_TopN_Val(2*MaxSpin-1)
+      Integer H_TopN_Ind(2*MyMaxSpin-1), H_TopN_Val(2*MyMaxSpin-1)
+      Integer I_TopN_Ind(2*MyMaxSpin-1), I_TopN_Val(2*MyMaxSpin-1)
       Integer ReqI, ReqJ
 C
 C STATEMENT FUNCTIONS
@@ -135,6 +136,10 @@ C
 C
       PrInfo =   Util_Print('information', Print_Low)
       PrPrgRpt = Util_Print('progress reports', Print_Default)
+C
+      If ( MaxSpin .gt. MyMaxSpin ) Call ErrQuit(
+     $     'RIMP2_Driver_E: fatal program error: MaxSpin > MyMaxSpin',
+     $     MaxSpin)
 C
 C     ************************
 C     * Check inputs & setup *
