@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 2001-05-30 00:03:11 edo Exp $
+# $Id: GNUmakefile,v 1.9 2002-01-29 21:02:30 windus Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -32,7 +32,7 @@
 
 LIB_INCLUDES = -I../include -I../../ddscf
 
-   USES_BLAS = dft_mxovlso.F diis_bld12_so.F diis_bsolve_so.F zheevso.F \
+   USES_BLAS = dft_mxovlso.F diis_bld12_so.F diis_bsolve_so.F \
 sym_mo_adapt_so.F sym_op_clsfy_so.F dft_scf_so.F ga_orthog_so.F
 
 include ../../config/makefile.h
