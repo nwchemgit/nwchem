@@ -6,7 +6,7 @@
       integer g_a ! input matrix
       integer g_s ! output matrix
       integer l_a_in, i_a_in ! ma handle and pointer
-      integer ga_chol_msg
+      integer ga_chol_msg,myelem
 c     
 c     
 c     This subroutine performs a submatrix Choleski factorization of a 
@@ -71,12 +71,10 @@ c****
 c****
 c****   cholesky factorize
 c****
-c****        write (6,*) "ga_chol_seq: incoming matrix"
-c****        call matout(Dbl_MB(i_a_in),n,n,n)
-        call dpotrf( 'LowerTriangle', n, Dbl_MB(i_a_in), n, info )
+        call dpotrf( 'L', n, Dbl_MB(i_a_in), n, info )
         if ( info .ne. 0) then
           write (6,*)
-     &       'WARNING:  ga_chol_seq: LAPACK routine spotrf returns ',
+     &       'WARNING:  ga_chol_seq: LAPACK routine dpotrf returns ',
      &       info
         endif 
 c****

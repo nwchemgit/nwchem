@@ -29,6 +29,7 @@ c
       integer dimA1, dimA2, typeA
       integer dimS1, dimS2, typeS
       integer i_a_in, l_a_in
+      integer istart,myelem
 c
 c***  check environment
 c
@@ -71,21 +72,25 @@ c****
 c****   construct inverse of original matrix from its lower 
 c****   Cholesky decomposition L
 c****
-c****        write (6,*) "ga_inv_seq: incoming matrix"
-c****        call matout(Dbl_MB(i_a_in),n,n,n)
 
-        call dpotri( 'LowerTriangle', n, Dbl_MB(i_a_in), n, info )
+        call dpotri( 'L', n, Dbl_MB(i_a_in), n, info )
         if ( info .ne. 0) then
           write (6,*)
      &       'WARNING:  ga_inv_seq: LAPACK routine spotri returns ',
      &       info
         endif 
 c****        write (6,*) "ga_inv_seq: output matrix"
-c****        call matout(Dbl_MB(i_a_in),n,n,n)
+c       call matout(Dbl_MB(i_a_in),n,n,n)
 c****
 c****   store back to global array
 c****
-        call ga_put(g_s, 1, n, 1, n, Dbl_MB(i_a_in), n )
+         istart = 0
+         do k = 1, n
+           istart = (n+1)*(k-1)
+           call ga_put(g_s,k,n,k,k,dbl_mb(i_a_in+istart),1)
+           if(k.lt.n)
+     &          call ga_put(g_s,k,k,k+1,n,dbl_mb(i_a_in+istart+1),1)
+         enddo
 c****
 c****   deallocate local storage
 c****
