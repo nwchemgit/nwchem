@@ -4,7 +4,7 @@
      &                  cntobfr, cetobfr, natoms,
      &                  g_movecs, noc, k_eval, totsic, i_degen)
 c
-C$Id: xc_sic.F,v 1.7 2000-03-31 18:40:02 jolguin Exp $
+C$Id: xc_sic.F,v 1.8 2000-04-04 17:18:22 jolguin Exp $
 c
       implicit none
 c      
@@ -14,9 +14,9 @@ c
 c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_matm, g_vectu, k_eval(2), g_coul_orb, g_vxc_sig(2),
-     &        g_aux_sig(10), l_vec_aux, i_vec_aux, j, 
+     &        l_vec_aux, i_vec_aux, j, 
      &        l_vec_u, i_vec_u, l_consti, i_consti, l_degen,
-     &        aux_ij, aux_ik, i_degen(2)
+     &        aux_ij, aux_ik, i_degen(2), i_gauxsig, l_gauxsig
       double precision Exc_orb(2), tot_sic_xc, tot_sic_coul, ecoul_orb,
      &                 u_array, res_int,const_ci, totsic
       integer natoms
@@ -134,9 +134,13 @@ c
           if (.not.MA_Push_Get(MT_Dbl, n_states, 'vec u',
      &                 l_vec_u, i_vec_u))
      &         call errquit('xc_sic: cannot allocate vec u',0)
+          if (.not.ma_push_get(mt_int, n_states, 'g_aux_sig',
+     &                         l_gauxsig, i_gauxsig))
+     &         call errquit('xc_sic:push_get failed', 0)
 c
 c   Start loop of total states by spin        
 c
+cc
           do 100 ik = 1,n_states
             if (me.eq.0.and.oprint_sic) write(LuOut,*) ' Orbital ',ik
             aux_ik = Int_MB(i_degen(isp) + ik - 1)
@@ -233,11 +237,12 @@ c
             end do
 c
             if (size_mat.gt.0.and.aux_ik.ne.1) then
-              if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao,'Mat_aux',
-     &                              nbf_ao, nbf_ao, g_aux_sig(ik)))
-     &          call errquit('dft_main0d: error creating 
-     &                                           g_aux_sig(ik)',0)
-              call ga_copy(g_vxc_orb(2), g_aux_sig(ik))
+              if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao,'i_gauxsig',
+     &                            nbf_ao, nbf_ao,
+     &                            int_mb(i_gauxsig + ik - 1)))
+     &             call errquit('xc_sic: error creating 
+     &                                           i_gauxsig',0)
+              call ga_copy(g_vxc_orb(2), int_mb(i_gauxsig + ik - 1))
             end if
 
             call ga_add(-1.0d0, g_vxc_orb(1), 1.0d00, 
@@ -267,11 +272,6 @@ c
             end if
           end do
 c
-          if (.not.ma_pop_stack(l_vec_u))
-     &          call errquit('xc_sic: cannot pop stack',0)
-          if (.not.ma_pop_stack(l_vec_aux))
-     &          call errquit('xc_sic: cannot pop stack',0)
-c
           if (size_mat.gt.0) then
             call ga_zero(g_vectu)
             call ga_put(g_vectu, 1, size_mat, 1, 1, Dbl_MB(i_consti),
@@ -284,12 +284,23 @@ c
               aux_ik = Int_MB(i_degen(isp) + ik - 1)
               if (aux_ik.ne.1) then
                 const_ci= Dbl_MB(i_consti + ik - 1)
-                call ga_add(1.0d0, g_orb, const_ci, g_aux_sig(ik),
-     &                      g_orb)
+                call ga_add(1.0d0, g_orb, const_ci,
+     &                      int_mb(i_gauxsig + ik - 1), g_orb)
               end if
             end do
             call ga_add(1.0d0, g_orb, 1.0d00, g_vxc_sig(isp),
      &                  g_vxc_sig(isp))
+            do ik = 1, size_mat
+              if (.not. ga_destroy(int_mb(i_gauxsig + ik - 1))) 
+     &             call errquit ('xc_sic: could not destroy i_gauxsig',
+     &                            0)
+            end do
+            if (.not.ma_pop_stack(l_gauxsig))
+     &            call errquit('xc_sic: cannot pop stack',0)
+            if (.not.ma_pop_stack(l_vec_u))
+     &            call errquit('xc_sic: cannot pop stack',0)
+            if (.not.ma_pop_stack(l_vec_aux))
+     &            call errquit('xc_sic: cannot pop stack',0)
 c
 c  g_vxc_sig is the exchange-correlation potential associate to the OEP
 c
@@ -304,10 +315,6 @@ c
      &         ('xc_getv: could not destroy g_matm', 0)
             if (.not. ga_destroy(g_vectu)) call errquit
      &         ('xc_getv: could not destroy g_vectu', 0)
-            do ij=1,size_mat
-              if (.not. ga_destroy(g_aux_sig(ij))) call errquit
-     &         ('xc_getv: could not destroy g_aux_sig(ij)', 0)
-            end do
           end if     
   300   continue
         totsic = tot_sic_xc + tot_sic_coul
