@@ -1,5 +1,5 @@
 /* 
-   $Id: paw_atom.c,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+   $Id: paw_atom.c,v 1.4 2004-12-16 16:50:59 edo Exp $
 */
 
 
@@ -64,7 +64,7 @@ void   paw_init_atom(char* atom, char *infile)
   atom_name = atom;
 
   /* read ion charge */
-  //fscanf(fp,"%le", &Zion);
+  /*fscanf(fp,"%le", &Zion);*/
   strcpy(input,"<atom_charge>");
   if(paw_find_word(input,fp) != 0)
   {

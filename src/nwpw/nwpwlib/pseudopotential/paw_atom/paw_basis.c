@@ -1,5 +1,5 @@
 /*
-   $Id: paw_basis.c,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+   $Id: paw_basis.c,v 1.4 2004-12-16 16:50:59 edo Exp $
 */
 
  /************************************
@@ -1448,7 +1448,7 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
   double e_test;
   double log_amesh;
 
-  //char output[30];
+  /*char output[30];*/
   char data_filename[300];
   char script_filename[300];
   
