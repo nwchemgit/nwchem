@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.11 2002-06-21 22:49:06 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.12 2002-09-16 20:00:35 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -353,7 +353,7 @@ c
               r=dbl_mb(k_x(i)+l-1)
               if (dabs(r).gt.maxr) then
                 maxr=dabs(r)
-                pol=ipol
+                pol=i
                 occ=j
                 vir=k
               endif
