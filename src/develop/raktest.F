@@ -1,14 +1,14 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.85 1999-03-16 22:52:10 d3e129 Exp $
+c $Id: raktest.F,v 1.86 1999-03-18 01:54:10 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"
 #include "stdio.fh"
 c::functions
-      logical task_ecp_deriv_check
-      external task_ecp_deriv_check
+      logical task_ecp_deriv_check, task_ecp_print_integrals
+      external task_ecp_deriv_check, task_ecp_print_integrals
       logical task_computeSld, task_printsoints, task_pderiv
       external task_computeSld, task_printsoints, task_pderiv
       logical task_dddd, task_accy, raktask_intdd, raktask_ecppe
@@ -136,8 +136,12 @@ c
         raktest = raktask_ecppe(rtdb)
       else if (raktask.eq.25) then !................................. 25
         if (me.eq.0) write(luout,*)
-     &      ' raktest: ecp PE code test'        
+     &      ' raktest: ecp deriv code test'        
         raktest = task_ecp_deriv_check(rtdb)
+      else if (raktask.eq.26) then !................................. 26
+        if (me.eq.0) write(luout,*)
+     &      ' raktest: ecp print integrals'        
+        raktest = task_ecp_print_integrals(rtdb)
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask
