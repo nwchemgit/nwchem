@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.42 1997-10-28 18:52:43 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.43 1997-12-15 01:28:06 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -22,13 +22,12 @@ c
        character*255 movecs_in
        character*255 title_vecs, basis_vecs
        character*20 scftype_vecs
-       double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair, l_epair
        integer npairs
        integer nbf, nsh, maxbfsh
-       integer nelec, nact, nocc, nopen, nocc_correl
+       integer nelec,  nocc, nopen, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmoarray(2), 
      $      nmo, nmo2
@@ -61,7 +60,6 @@ c
 c
 
        data g_coul,g_exch/-1,-1/
-       data charge/0.d0/
        data ohalf/.false./
 c
        if (.not. scf(rtdb)) then
@@ -102,8 +100,6 @@ c
        if (.not. rtdb_cget(rtdb, 'input mo vector file', 1,
      $      movecs_in)) call util_file_name
      $      ('movecs',.false.,.false.,movecs_in)
-       if (.not. geom_nuc_charge(geom, nuclear_charge))
-     $      call errquit('direct_mp2: no nuclear charge?', 0)
        if (.not. bas_numbf(basis, nbf))
      $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. bas_numcont(basis,nsh))
@@ -131,32 +127,14 @@ c
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
-       nelec = int(nuclear_charge - charge)
+       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nocc))
+     $      call errquit('direct_mp2: get of nocc failed',0)
+       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     $      call errquit('direct_mp2: get of nopen failed',0)
+       if (nopen.ne.0) 
+     $      call errquit('direct_mp2: nopen is not zero',nopen)
+       nelec = 2*nocc
        status = ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
-       call dfill(nbf, 0.0d0, dbl_mb(k_occ), 1)
-       if (.not. rtdb_get(rtdb, 'scfoccupation', MT_DBL, nbf,
-     $      dbl_mb(k_occ))) then
-         nocc = nelec/2
-         nopen = mod(nelec,2)
-         nact = nopen
-         do i = 1, nocc
-            dbl_mb(i-1+k_occ) = 2.0d0
-         enddo
-         do i = 1, nact
-           dbl_mb(i-1+nocc+k_occ) = 1.d0
-         enddo
-       else
-         nocc = 0
-         nact = 0
-         do i=1,nbf
-           if (dbl_mb(k_occ+i-1).eq.2.d0) then
-             nocc = nocc + 1
-           else if (dbl_mb(k_occ+i-1).ne.0.d0) then
-             nact = nact + 1
-           endif
-         enddo
-       endif
-C       if (nact.le.0) return
 c
 c     Look for MP2 specific MO vectors.  If not there use previous SCF.  
 c     If not there use default.

@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.23 1997-12-08 18:38:23 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.24 1997-12-15 01:28:25 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -21,11 +21,10 @@ c
        logical oconverged
 c
        character*255 title_vecs, basis_vecs
-       double precision nuclear_charge, charge
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
        integer k_epair
-       integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl,
+       integer nbf, nsh, nelec, nocc, nopen, nvir, nocc_correl,
      &         nvir_correl, lnof
        integer occ_frozen, occ_lo, occ_hi, nmo_lo
        integer vir_frozen, vir_lo, vir_hi, nmo_hi, nmo, nmo2
@@ -73,14 +72,10 @@ c
 capr
        data algo/'twofold'/
 capr
-       data charge/0.d0/
-c
        Me = GA_NodeID()
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
 c
-c
-       status = geom_nuc_charge(geom, nuclear_charge)
        status = status.and.bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
        if (.not. status)
@@ -88,32 +83,14 @@ c
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
-       nelec = int(nuclear_charge - charge)
-       status = MA_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
-       call dfill(nbf, zip, dbl_mb(k_occ), 1)
-       if (.not. rtdb_get(rtdb, 'scfoccupation', MT_DBL, nbf,
-     $      dbl_mb(k_occ))) then
-         nocc = nelec/2
-         nopen = mod(nelec,2)
-         nact = nopen
-         do i = 1, nocc
-            dbl_mb(i-1+k_occ) = two
-         enddo
-         do i = 1, nact
-           dbl_mb(i-1+nocc+k_occ) = one
-         enddo
-       else
-         nocc = 0
-         nact = 0
-         do i=1,nbf
-           if (dbl_mb(k_occ+i-1).eq.two) then
-             nocc = nocc + 1
-           else if (dbl_mb(k_occ+i-1).ne.zip) then
-             nact = nact + 1
-           endif
-         enddo
-       endif
-C       if (nact.le.0) return
+       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nocc))
+     $      call errquit('direct_mp2: get of nocc failed',0)
+       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     $      call errquit('ccsd: get of nopen failed',0)
+       if (nopen.ne.0) 
+     $      call errquit('ccsd: nopen is not zero',nopen)
+       nelec = 2*nocc
+       status = ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
 c
 c Find MO vector filename in the database.
 c
