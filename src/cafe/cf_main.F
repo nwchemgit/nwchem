@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.105 2001-08-10 17:52:04 d3j191 Exp $
+c $Id: cf_main.F,v 1.106 2001-08-15 22:06:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2574,6 +2574,14 @@ c
 c     make permanent
 c
       if(string(5:5).eq.'p') then
+      do 77 i=1,nums
+      j=iand(isdt(i),mfixed)/4
+      isdt(i)=ior(isdt(i),j)
+   77 continue
+      do 78 i=1,numw
+      j=iand(iwdt(i),mfixed)/4
+      iwdt(i)=ior(iwdt(i),j)
+   78 continue
       endif
 c
       endif
