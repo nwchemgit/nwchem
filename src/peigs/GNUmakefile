@@ -1,7 +1,6 @@
-
 LIBRARY = libpeigs.a
 
-include ../config/makefile.h
+include ./DEFS
 
 #peigs.lib:; $(MAKE) -f makefile.peigs lib
 

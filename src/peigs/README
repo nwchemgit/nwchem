@@ -34,7 +34,7 @@ README file for PeIGS.
 
 The package, PeIGS, is a collection of linear algebra programs for
 solving the general and standard symmetric eigensystem problem.  It is
-being developed at Department of Energy's Pacific Northwest Laboratory
+being developed at Department of Energy's Pacific Northwest National Laboratory
 operated by Battelle Memorial Institute and is in the Public Domain.  The
 authors are David Elwood, George Fann, and Richard Littlefield.
 
