@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.16 2002-03-03 21:47:18 bylaska Exp $
+* $Id: psi.F,v 1.17 2002-05-18 16:29:36 bylaska Exp $
 *
 
 *     ***************************
@@ -1985,6 +1985,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     *		rho_dipole	*
 *     *				*
 *     ***************************
+*
+*     Uses - Calculate_dipole (pspw/lib/psi/dipole.f)
+*
       subroutine rho_dipole(dipole)
       implicit none
       real*8 dipole(3)

@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.1 2002-01-14 21:06:28 bylaska Exp $
+* $Id: dipole.F,v 1.2 2002-05-18 16:29:36 bylaska Exp $
 *
 
 *     ******************************
@@ -101,15 +101,23 @@
       call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,1),cdx1)
       call D3dB_rr_dot(1,dbl_mb(rgy(1)),dn(1,1),cdy1)
       call D3dB_rr_dot(1,dbl_mb(rgz(1)),dn(1,1),cdz1)
-      call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,ispin),cdx2)
-      call D3dB_rr_dot(1,dbl_mb(rgy(1)),dn(1,ispin),cdy2)
-      call D3dB_rr_dot(1,dbl_mb(rgz(1)),dn(1,ispin),cdz2)
       cdx1 = cdx1*dv
       cdy1 = cdy1*dv
       cdz1 = cdz1*dv
-      cdx2 = cdx2*dv
-      cdy2 = cdy2*dv
-      cdz2 = cdz2*dv
+
+*     *** check for ferromagnetic case ***
+      if (ne(ispin).ne.0) then
+        call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,ispin),cdx2)
+        call D3dB_rr_dot(1,dbl_mb(rgy(1)),dn(1,ispin),cdy2)
+        call D3dB_rr_dot(1,dbl_mb(rgz(1)),dn(1,ispin),cdz2)
+        cdx2 = cdx2*dv
+        cdy2 = cdy2*dv
+        cdz2 = cdz2*dv
+      else
+       cdx2 = 0.0d0
+       cdy2 = 0.0d0
+       cdz2 = 0.0d0
+      end if
 
       cdx3=cdx1+cdx2
       cdy3=cdy1+cdy2
@@ -117,9 +125,11 @@
       cdx1=cdx1/ne(1)
       cdy1=cdy1/ne(1)
       cdz1=cdz1/ne(1)
-      cdx2=cdx2/ne(ispin)
-      cdy2=cdy2/ne(ispin)
-      cdz2=cdz2/ne(ispin)
+      if (ne(ispin).ne.0) then
+        cdx2=cdx2/ne(ispin)
+        cdy2=cdy2/ne(ispin)
+        cdz2=cdz2/ne(ispin)
+      end if
       cdx3=cdx3/dble(ne(1)+ne(ispin))
       cdy3=cdy3/dble(ne(1)+ne(ispin))
       cdz3=cdz3/dble(ne(1)+ne(ispin))
@@ -127,7 +137,8 @@
       if (taskid.eq.MASTER) then
         WRITE(*,1200)
         WRITE(*,1220) 'spin up   ',CDX1,CDY1,CDZ1
-        WRITE(*,1220) 'spin down ',CDX2,CDY2,CDZ2
+        if (ne(ispin).ne.0) 
+     >    WRITE(*,1220) 'spin down ',CDX2,CDY2,CDZ2
         WRITE(*,1220) '     total',CDX3,CDY3,CDZ3
         WRITE(*,1220) 'ionic     ',qGX,qGY,qGZ
       end if
