@@ -20,7 +20,7 @@
       integer i, j, k, l, ijkl
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
       double precision eri(256), xi(3), xj(3), xk(3), xl(3)
-      double precision qi, qj, qk, ql
+      double precision qi, qj, qk, ql, sum
       character*16 tagi, tagj, tagk, tagl
       logical int_normalize
       external int_normalize
@@ -56,6 +56,7 @@ c     Partially redundant four-fold loop thru centers
 c
       if (.not. geom_ncent(geom, ncenter))
      $     call errquit('print_integs: geom_ncent failed', 0)
+      sum = 0.0d0
       do icent = 1, ncenter
          do jcent = 1, icent
             do kcent = 1, icent
@@ -115,6 +116,7 @@ c
                                           if (abs(eri(ijkl)) .gt. 1e-6)
      $                                         write(6,1) i,j,k,l,
      $                                         eri(ijkl)
+                                          sum = sum + abs(eri(ijkl))
                                        enddo
                                     enddo
                                  enddo
@@ -130,6 +132,7 @@ c
 c
  1    format(4i6,f20.9)
 
+      write(6,*) ' SUM of integrals ', sum
 
       if (.not. geom_destroy(geom))
      $     call errquit('print_integs: geom_destroy failed', 0)
