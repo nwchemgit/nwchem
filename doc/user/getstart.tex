@@ -35,7 +35,7 @@ module-specific directives (i.e., compound directives) can appear in
 any order, with the exception of the \verb+TASK+ directive (see
 sections \ref{sec:inputstructure} and \ref{sec:task}) which is used to
 invoke an NWChem module.  All input for a given task must
-proceed the \verb+TASK+ directive.  This input specification rule
+precede the \verb+TASK+ directive.  This input specification rule
 allows the concatenation of multiple tasks in a single NWChem input
 file. 
 
@@ -97,12 +97,14 @@ something like the following;
 \end{verbatim}
 
 The default name for the input file is \verb+nwchem.nw+.  If an input
-file name \verb+input_file+ is specified without an extension, the code
-assumes \verb+.nw+ as a default extension, and the input filename becomes \verb+input_file.nw+.  If the code cannot
-locate a file named either \verb+nwchem.nw+ or \verb+input_file.nw+, an 
-error is reported and execution terminates.  The following
-section presents two input files to illustrate the directive syntax and 
-input file format for NWChem applications.
+file name \verb+input_file+ is specified without an extension, the
+code assumes \verb+.nw+ as a default extension, and the input filename
+becomes \verb+input_file.nw+.  If the code cannot locate a file named
+either \verb+input_file+ or \verb+input_file.nw+ (or \verb+nwchem.nw+
+if no file name is provided), an error is reported and execution
+terminates.  The following section presents two input files to
+illustrate the directive syntax and input file format for NWChem
+applications.
 
 \section{Simple Input File --- SCF geometry optimization}
 \label{sec:simplesample}
@@ -163,21 +165,21 @@ both standard output and standard error.
 \label{sec:realsample}
 
 A more complex sample problem is the optimization of a positively
-charged water molecule at the MP2 level of theory, followed by a
-computation of frequencies at the optimized geometry.  A preliminary
-SCF geometry optimization is performed using a computationally
-inexpensive basis set (STO-3G).  This yields a good starting guess for
-the optimal geometry, and any Hessian information generated will be
-used in the next optimization step.  Then the optimization is finished
-using second-order M{\o}ller-Plesset perturbation theory and a basis
-set with polarization functions.  The final task is to calculate the
-vibrational frequencies.  The input file to accomplish these three
+charged water molecule using second-order M{\o}ller-Plesset
+perturbation theory (MP2), followed by a computation of frequencies at
+the optimized geometry.  A preliminary SCF geometry optimization is
+performed using a computationally inexpensive basis set (STO-3G).
+This yields a good starting guess for the optimal geometry, and any
+Hessian information generated will be used in the next optimization
+step.  Then the optimization is finished using MP2 and a basis set
+with polarization functions.  The final task is to calculate the
+MP2 vibrational frequencies.  The input file to accomplish these three
 tasks is as follows:
 
 \begin{verbatim}
 start h2o_freq
 
-title; H2O+ frequencies with MP2 and 6-31g**
+charge 1
 
 geometry units angstroms
   O       0.0  0.0  0.0
@@ -185,44 +187,35 @@ geometry units angstroms
   H       0.0  1.0  0.0
 end
 
-charge 1
-
-basis "starting basis"
+basis
   H library sto-3g
   O library sto-3g
 end
 
-basis "final basis"
+scf
+  uhf; doublet
+  print low
+end
+
+title; H2O+ : STO-3G UHF geometry optimization
+
+task scf optimize
+
+basis
   H library 6-31g**
   O library 6-31g**
 end
 
-scf
-  uhf
-  doublet
-  print low
-end
-
-set "ao basis" "starting basis"
-
-task scf optimize
-
-set "ao basis" "final basis"
-
-scf
-  vectors input atomic
-  print none
-end
+title; H2O+ : 6-31g** UMP2 geometry optimization
 
 task mp2 optimize
 
-mp2
-  print none
-end
+mp2; print none; end
+scf; print none; end
+
+title; H2O+ : 6-31g** UMP2 frequencies
 
 task mp2 freq
-
-eof
 \end{verbatim}
 
 The \verb+START+ directive (Section \ref{sec:start}) tells NWChem that
@@ -242,86 +235,47 @@ actually necessary, however.)  The {\tt CHARGE} directive defines the
 total charge of the system.  This calculation is to be done on an ion
 with charge +1.
 
-The next two directives are the {\tt BASIS} directives.  The names for
-the basis sets are arbitrary, and they may be chosen so that they will
-serve as a helpful mnemonic for later reference in subsequent input
-directives.
-
-The multiple lines of the first {\tt SCF} directive in the {\tt scf
-  \ldots end} block specify details about the SCF calculation to be
-performed.  Unrestricted Hartree-Fock is chosen here (by specifying
-the keyword {\tt uhf}), rather than the default, restricted open-shell
-high-spin Hartree-Fock (ROHF).  This is necessary for the subsequent
-MP2 calculation, because only UMP2 is currently available for
-open-shell systems (see Section \ref{sec:functionality}).  For
-open-shell systems, the spin multiplicity has to be specified (using
-{\tt doublet} in this case), or it defaults to {\tt singlet}.  The
-print level is set to {\tt low} to reduce the output from the SCF
-module to a minimum during the geometry optimization (to avoid verbose
-output for the starting basis calculations).
-
-The final step in setting up the input for the SCF calculation is to
-specify that the \verb+"starting basis"+ should be used.  This is
-accomplished by means of the \verb+SET+ directive, which specifies
-that the \verb+"ao basis"+ is the \verb+"starting basis"+.  All
-molecular orbital (MO) methods look for the \verb+"ao basis"+ in which
-to expand the MOs.  In the previous example with the nitrogen
-molecule, it was not necessary to use the \verb+SET+ directive in this
-manner, since the \verb+BASIS+ directive used the default name (which
-is \verb+"ao basis"+).  An alternative approach, which avoids the
-necessity of assigning the starting basis set name, would be to defer
-definition of the final basis until after the first SCF calculation is
-complete.
+A small basis set (STO-3G) is specified for the intial geometry
+optimization.  Next, the multiple lines of the first {\tt SCF}
+directive in the {\tt scf \ldots end} block specify details about the
+SCF calculation to be performed.  Unrestricted Hartree-Fock is chosen
+here (by specifying the keyword {\tt uhf}), rather than the default,
+restricted open-shell high-spin Hartree-Fock (ROHF).  This is
+necessary for the subsequent MP2 calculation, because only UMP2 is
+currently available for open-shell systems (see Section
+\ref{sec:functionality}).  For open-shell systems, the spin
+multiplicity has to be specified (using {\tt doublet} in this case),
+or it defaults to {\tt singlet}.  The print level is set to {\tt low}
+to avoid verbose output for the starting basis calculations.
 
 All input up to this point affects only the settings in the runtime
 database.  The program takes its information from this database, so
 the sequence of directives up to the first \verb+TASK+ directive is
 irrelevant.  An exchange of order of the different blocks or
 directives would not affect the result.  The {\tt TASK} directive,
-however, must be specified last of all in the list of input directives
-for a given problem.  The {\tt TASK} directive invokes the program and
-directs the code to perform the specified calculation using the
-parameters set in the preceding directives. In this case, the first
-task is an SCF calculation with geometry optimization, specified with
-the input {\tt scf} and {\tt optimize}.  (See Section \ref{sec:task}
-for a list of available tasks and operations.)
+however, must be specified after all relevant input for a given
+problem.  The {\tt TASK} directive causes the code to perform the
+specified calculation using the parameters set in the preceding
+directives. In this case, the first task is an SCF calculation with
+geometry optimization, specified with the input {\tt scf} and {\tt
+  optimize}.  (See Section \ref{sec:task} for a list of available
+tasks and operations.)
 
-After the completion of any task, settings in the database are used
-in subsequent tasks without change, unless they are overridden by new
-input directives.  In this example, there are several important
-changes between the first task (\verb+task scf optimize+) and the
-second task (\verb+task mp2 optimize+).  The {\tt "ao basis"} is set
-to a better basis (i.e., {\tt "final basis"}), using the \verb+SET+
-directive.  The SCF output will be completely discarded (as a result of the
-{\tt print none} input in the {\tt SCF} directive), which means that
-no SCF output will be produced unless an error occurs.  The SCF starting
-guess vectors are reset to be the atomic guess,  since the STO-3G
-vectors are no longer appropriate (see Section \ref{sec:vectors} for
-details on the different possible starting guesses).
-
-The second {\tt TASK} directive invokes an MP2 optimization, instead
-of the SCF optimization.
+After the completion of any task, settings in the database are used in
+subsequent tasks without change, unless they are overridden by new
+input directives.  In this example, before the second task (\verb+task
+mp2 optimize+), a better basis set (6-31G**) is defined and the title
+is changed.  The second {\tt TASK} directive invokes an MP2 geometry
+optimization.
 
 Once the MP2 optimization is completed, the geometry obtained in the
 calculation is used to perform a frequency calculation.  This task is
 invoked by the keyword \verb+freq+ in the final \verb+TASK+ directive,
 \verb+task mp2 freq+.  The second derivatives of the energy are
 calculated as numerical derivatives of analytical gradients. The
-gradients as such are not of interest in this case, so the amount of
-output from the {\tt mp2} module is reduced with the \verb+PRINT+
-directive.
-
-The {\tt EOF} directive marks the end of the input to be read. It is
-not necessary to specify the end-of-file as an explicit directive at
-the actual end of the file.  However, using the directive allows
-additional lines in the file that will not be processed as input.  For
-example, the user might want to add a description of the
-calculation(s) specified in the input or notes on the purpose of the
-task(s), or other informational comments.  The {\tt eof} directive can
-also be used to remove a task (or series of tasks) from the
-calculation without actually removing the relevant input directives
-from the file.  Any lines in the file that occur after the {\tt eof}
-directive are ignored by the program.
+intermediate energies and gradients as such are not of interest in
+this case, so output from the SCF and MP2 modules is disabled with the
+\verb+PRINT+ directives.
 
 \section{Input Format and Syntax for Directives}
 \label{sec:syntax}

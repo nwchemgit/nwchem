@@ -37,15 +37,22 @@ The \verb+START+ directive indicates that the calculation is one in
 which a new database is to be created.  Any relevant information that
 already exists in a previous database of the same name is destroyed.
 The string variable {\tt <file\_prefix>} will be used as the prefix to
-name any files created in the course of the calculation.  If the user
-does not specify an entry for {\tt <file\_prefix>} on the \verb+START+
-directive (or omits the \verb+START+ directive altogether), the code
-uses the base-name of the input file as the file prefix.  That is, the
-variable {\tt <file\_prefix>} is assigned the name of the input file
-(not its full pathname), but without the last "dot-suffix".  For
-example, the input file name \verb+/home/dave/job.2.nw+ yields
-\verb+job.2+ as the file prefix, if a name is not assigned explicitly
-using the \verb+START+ directive.
+name any files created in the course of the calculation.  
+
+E.g., to start a new calculation on water, one might specify
+\begin{verbatim}
+  start water
+end
+which would result in all files beginning with {\tt "water."}.
+
+If the user does not specify an entry for {\tt <file\_prefix>} on the
+\verb+START+ directive (or omits the \verb+START+ directive
+altogether), the code uses the base-name of the input file as the file
+prefix.  That is, the variable {\tt <file\_prefix>} is assigned the
+name of the input file (not its full pathname), but without the last
+"dot-suffix".  For example, the input file name
+\verb+/home/dave/job.2.nw+ yields \verb+job.2+ as the file prefix, if
+a name is not assigned explicitly using the \verb+START+ directive.
 
 The user also has the option of
 specifying a unique name for the database, using the keyword {\tt
@@ -200,8 +207,8 @@ other scratch files in \verb+/scratch+:
 \begin{verbatim}
       scratch_dir /scratch 0:/piofs/rjh
 \end{verbatim}
-\item Put scratch files from Process 1 in directory \verb+scr1+, those from
-Process 2 in \verb+scr2+, and so forth, in a round-robin fashion, using the
+\item Put scratch files from Process 0 in directory \verb+scr1+, those from
+Process 1 in \verb+scr2+, and so forth, in a round-robin fashion, using the
 given list of directories:
 \begin{verbatim}
       scratch_dir /scr1 /scr2 /scr3 /scr4 /scr5
@@ -219,11 +226,13 @@ given list of directories:
 
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
-is not specified, memory is allocated according to installation-dependent
-defaults.  These should generally suffice for most
-calculations, since the defaults usually correspond to the total amount
-of memory available on the machine.  The general form of the directive
-is as follows:
+is not specified, memory is allocated according to
+installation-dependent defaults.  {\em These defaults should generally
+  suffice for most calculations, since the defaults usually correspond
+  to the total amount of memory available on the machine.  It should
+usually be unncessary to provide a memory directive.} 
+
+The general form of the directive is as follows:
 
 \begin{verbatim}
   MEMORY [[total] <integer total_size>] \
@@ -381,10 +390,12 @@ once, by Process 0 when the input file is read.
 
 \section{{\tt TITLE} --- Specify job title}
 
-This top-level directive allows the user to identify a job or series of 
-jobs that use a
-particular database.  It is an optional directive, and if omitted, the 
-character string containing the input title will be empty.  The format for 
+This top-level directive allows the user to identify a job or series
+of jobs that use a particular database.  It is an optional directive,
+and if omitted, the character string containing the input title will
+be empty.  Multiple {\tt TITLE} directives may appear in the input
+file (e.g., the example file in Section {sec:realsample}) in which
+case a task will use the one most recently specified.  The format for
 the directive is as follows:
 
 \begin{verbatim}
@@ -471,9 +482,12 @@ are:
  ``rtdb''              \> high    \> Print names of RTDB entries\\
  ``rtdbvalues''        \> high    \> Print name and values of RTDB entries\\
  ``ga summary''        \> medium \> Summarize GA allocations at job end \\
+ ``ga stats''          \> high   \> Print GA usage statistics at job end \\
  ``ma summary''        \> medium \> Summarize MA allocations at job end \\
  ``ma stats''          \> high   \> Print MA usage statistics at job end \\
- ``version''           \> debug  \> Print version number of all compiled routines \\
+ ``version''           \> debug  \> Print version number of all
+ compiled routines \\
+  ``tcgmsg''           \> never  \> Print TCGMSG debug information \\
 \end{tabbing}
 
 
@@ -506,15 +520,14 @@ The format of the directive is as follows:
   SET <string name> [<string type default automatic>] <$type$ data>
 \end{verbatim}
 
-The entry for variable \verb+<name>+ is the name of some array or
-object to be entered into the database.  This must be specified
-explicitly; there is no default.  The variable \verb+<type>+, which is
+The entry for variable \verb+<name>+ is the name of 
+data to be entered into the database.  This must be specified; there is no default.  The variable \verb+<type>+, which is
 optional, allows the user to define a string specifying the type of
 data in the array \verb+<name>+.  The data type can be explicitly
 specified as \verb+integer+, \verb+real+, \verb+double+,
 \verb+logical+, or \verb+string+.  If no entry for \verb+<type>+ is
 specified on the directive, its value is inferred from the data type
-of the {\em first} data element.  In such a case, floating-point data
+of the {\em first} datum.  In such a case, floating-point data
 entered using this directive must include either an exponent or a
 decimal point, to ensure that the correct default type will be
 inferred.  The correct default type will be inferred for logical
@@ -523,18 +536,21 @@ values if logical-true values are specified as \verb+.true.+,
 \verb+.false.+, \verb+false+, or \verb+f+.  One exeception to the
 automatic detection of the data type is that the data type {\bf must}
 be explicitly stated to input integer ranges, unless the first
-elemenent in the list is an integer that is not a range (c.f.,
+element in the list is an integer that is not a range (c.f.,
 \ref{sec:syntax}).  For example,
 \begin{verbatim}
-set atomid 1 3:7 21
+  set atomid 1 3:7 21
 \end{verbatim}
-will interpret the type as integer and the list input will work fine.
-However, 
+will be interpreted as a list of integers.  However, 
 \begin{verbatim}
-set atomid 3:7 21
+  set atomid 3:7 21
 \end{verbatim}
 will not work since the first element will be interpreted as a
-string and not an integer.
+string and not an integer.  To work around this feature, use instead
+\begin{verbatim}
+  set atomid integer 3:7 21
+\end{verbatim}
+
 
 The \verb+SET+ directive is useful for providing indirection by
 associating the name of a basis set or geometry with the standard
@@ -573,7 +589,7 @@ geometries.  The required input lines are as follows:
 This input tells the code to perform MP2 energy calculations 
 on an argon dimer in the first task, and then
 on the argon atom in the presence of the ``ghost'' basis of the other
-atom at the same geometry.
+atom.
 
 The \verb+SET+ directive can also be used as an indirect means of
 supplying input to a part of the code that does not have a separate
@@ -594,7 +610,7 @@ database.  The general form of the directive is as follows:
 \end{verbatim}
 
 This directive cannot be used with complex objects such as geometries
-and basis sets\footnote{Complex objects are stored using structured
+and basis sets\footnote{Complex objects are stored using a structured
   naming convention that is not matched by a simple wild card.}.  A
 wild-card (*) specified at the end of the string \verb+<name>+ will
 cause {\em all} entries whose name begins with that string to be
@@ -634,23 +650,22 @@ the calculation terminates with an error condition.
 \section{{\tt TASK} --- Perform a task}
 \label{sec:task}
 
-The \verb+TASK+ directive is used to tell the code what to do with the
-input.  The input directives are parsed sequentially until a
-\verb+TASK+ directive is encountered, as described in Section
-\ref{sec:inputstructure}.  At that point, the calculation or operation
-specified in the \verb+TASK+ directive is performed.  When that task
-is completed, the code looks for additional input to process until the
-next \verb+TASK+ directive is encountered, which is then executed.
-This process continues to the end of the input file.  NWChem expects
-the last directive before the end-of-file to be a \verb+TASK+
-directive.  If it is not, a warning message is printed.  Since the
-database is persistent, multiple tasks within one job behave {\em
-  exactly} the same as multiple restart jobs with the same sequence of
-input.
+The \verb+TASK+ directive is used to tell the code what to do.  The
+input directives are parsed sequentially until a \verb+TASK+ directive
+is encountered, as described in Section \ref{sec:inputstructure}.  At
+that point, the calculation or operation specified in the \verb+TASK+
+directive is performed.  When that task is completed, the code looks
+for additional input to process until the next \verb+TASK+ directive
+is encountered, which is then executed.  This process continues to the
+end of the input file.  NWChem expects the last directive before the
+end-of-file to be a \verb+TASK+ directive.  If it is not, a warning
+message is printed.  Since the database is persistent, multiple tasks
+within one job behave {\em exactly} the same as multiple restart jobs
+with the same sequence of input.
 
 There are four main forms of the the \verb+TASK+ directive.  The most
 common form is used to tell the code at what level of theory to
-perform electronic structure calculation, and which specific
+perform an electronic structure calculation, and which specific
 calculations to perform.  The second form is used to specify tasks
 that do not involve electronic structure calculations or tasks that
 have not been fully implemented at all theory levels in NWChem, such
