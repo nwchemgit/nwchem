@@ -105,7 +105,7 @@ c
      $     zir,zclass,chars))
      $     call errquit('mp2_grad: no char table',0)
 c     
-      call util_file_name('khlf',.true.,.true.,fnamek)
+      call util_file_name('kh',.true.,.true.,fnamek)
       if(eaf_stat(fnamek,avail_file,fstype).ne.0)
      $     call errquit('mp2_grad:could not get availkb',1)
       avail_file=avail_file*128
@@ -210,7 +210,7 @@ c
          call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
          call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
 c     
-         call util_file_name('khlf',.true.,.true.,fnamek)
+         call util_file_name('kh',.true.,.true.,fnamek)
          call waopen(kunit,fnamek,1,0,itmp)
          if(itmp.ne.0)call errquit('mp2_grad_doit waopen?',1)
          call moints_vrange(kunit,nva_lo_local,nva_hi_local,nnbf,ioff)
