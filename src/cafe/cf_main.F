@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.50 2000-05-04 06:21:48 d3j191 Exp $
+c $Id: cf_main.F,v 1.51 2000-05-08 20:16:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2021,7 +2021,7 @@ c
 c
       return
       end
-      subroutine cf_fix(ifix,iunfix,iwdt,numw,isatt,isdt,nums)
+      subroutine cf_fix(ifix,iunfix,iwdt,numw,isgan,isatt,isdt,nums)
 c
       implicit none
 c
@@ -2031,13 +2031,13 @@ c
 #include "msgids.fh"
 #include "bitops.fh"
 c
-      integer cf_atonum
-      external cf_atonum
+      integer cf_atonum,cf_numcon
+      external cf_atonum,cf_numcon
 c
       integer ifix,iunfix,numw,nums
-      integer iwdt(mwm),isatt(msa),isdt(msa)
+      integer iwdt(mwm),isgan(msa),isatt(msa),isdt(msa)
 c
-      integer i,ndof(2)
+      integer i,ndof(3)
       real*8 fact(3)
 c
       if(numw.gt.0) then
@@ -2100,15 +2100,21 @@ c
 c
       ndof(1)=0
       ndof(2)=0
+      ndof(3)=0
 c
       do 11 i=1,numw
       if(iand(iwdt(i),lfixed).ne.lfixed) ndof(1)=ndof(1)+1
    11 continue
       do 12 i=1,nums
-      if(iand(isdt(i),lfixed).ne.lfixed) ndof(2)=ndof(2)+1
+      if(iand(isdt(i),lfixed).ne.lfixed) then
+      ndof(2)=ndof(2)+1
+      if(cf_numcon(int_mb(i_ibnd(2)),mbt(2),isgan(i)).eq.0)
+     + ndof(3)=ndof(3)+1
+      endif
    12 continue
 c
-      call ga_igop(mrg_d46,ndof,2,'+')
+      call ga_igop(mrg_d46,ndof,3,'+')
+      nsc=ndof(3)/2
 c
       factmw=zero
       factms=zero
@@ -2127,6 +2133,26 @@ c
       factmw=fact(1)
       factms=fact(2)
       factmp=fact(3)
+c
+      return
+      end
+      integer function cf_numcon(idb,ndb,ia)
+c
+      implicit none
+c
+      integer nb,ia,ndb
+      integer idb(ndb,4)
+c
+      integer i,number
+c
+      number=0
+c
+      do 1 i=1,ndb
+      if(idb(i,3).eq.1.and.(idb(i,1).eq.ia.or.idb(i,2).eq.ia))
+     + number=number+1
+    1 continue
+c
+      cf_numcon=number
 c
       return
       end
