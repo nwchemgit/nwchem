@@ -7,6 +7,7 @@ c
 #include "qmmm_params.fh"
 #include "rtdb.fh"
 #include "global.fh"
+#include "inp.fh"
 
       integer irtdb
 c
@@ -18,6 +19,7 @@ c
       real*8 eatoms,qatoms
       logical xyz,xyzq,fixlinks,fixqm
       integer linkatm,bq_exclude
+      character*30 operation
 
       pname = "qmmm_data_init: "
 
@@ -25,10 +27,8 @@ c
 
       eatoms = 0.0d0
       fixlinks = .false.
-      fixqm = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
-      interface='qm'
       optimization = "qm"
       link_ecp = "auto"
 c
@@ -66,14 +66,6 @@ c     initialize rtdb parameters
 
        end if
 
-      tag ="qmmm:fixqm" 
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
-     >      call errquit(pname//'failed to store fixqm',0,
-     >       RTDB_ERR)
-
-       end if
-
       tag ="qmmm:bq_exclude" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
         if (.not.rtdb_put(irtdb,tag,mt_int,1,bq_exclude)) 
@@ -90,14 +82,6 @@ c     initialize rtdb parameters
 
        end if
      
-      tag ="qmmm:interface"
-      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
-        if (.not.rtdb_cput(irtdb,tag,1,interface)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
-
-       end if
-
       tag ="qmmm:optimization"
       if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
         if (.not.rtdb_cput(irtdb,tag,1,optimization)) 
@@ -124,6 +108,41 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+
+      fixqm = .false.
+      interface='qm'
+
+      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+c
+      if (inp_compare(.false., 'optimize', operation)) then
+        if (optimization.eq.'all') then
+           fixqm = .false.
+           interface = "mm"
+        else if (optimization.eq.'mm') then
+           fixqm = .true.
+           interface = "mm"
+        else if (optimization.eq.'qm') then
+           fixqm = .false.
+           interface = "qm"
+        endif
+      else if (inp_compare(.false., 'saddle', operation)) then
+        fixqm = .false.
+        interface = "qm"
+      else if (inp_compare(.false.,'dynamics',operation)) then
+        interface = "mm"
+      end if
+
+      tag ="qmmm:fixqm" 
+      if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
+     >      call errquit(pname//'failed to store fixqm',0,
+     >       RTDB_ERR)
+
+
+      tag ="qmmm:interface"
+      if (.not.rtdb_cput(irtdb,tag,1,interface)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
 
 
       call mm_get_tot_nqm(nqm)

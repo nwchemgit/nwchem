@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.19 2004-10-15 00:58:41 marat Exp $
+c $Id: qmmm_main.F,v 1.20 2004-10-15 21:44:46 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -25,8 +25,9 @@ c
       integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
       real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
 c
+      character*32 tag
       character*32 interface
-      character*32 optimization
+c      character*32 optimization
       character*255 theory
       logical qmmm_init
       character*32 pname
@@ -51,20 +52,34 @@ c
 
       if(.not.qmmm_init) return
 
-      if (.not. rtdb_cget(inrtdb,'qmmm:optimization',1,optimization))
-     $     call errquit('qmmm_forces: failed to get qmmm:optimization',
-     &       0,RTDB_ERR)
+      tag ="qmmm:fixqm" 
+      if (.not.rtdb_get(inrtdb,tag,mt_log,1,fixqm)) 
+     >      call errquit(pname//'failed to get fixqm',0,
+     >       RTDB_ERR)
 
-      if (optimization.eq.'all') then
-         fixqm = .false.
-         interface = "mm"
-      else if (optimization.eq.'mm') then
-         fixqm = .true.
-         interface = "mm"
-      else if (optimization.eq.'qm') then
-         fixqm = .false.
-         interface = "qm"
-      endif
+
+      tag ="qmmm:interface"
+      if (.not.rtdb_cget(inrtdb,tag,1,interface)) 
+     >      call errquit(pname//'failed to get'//tag,0,
+     >       RTDB_ERR)
+
+
+c      if (.not. rtdb_cget(inrtdb,'qmmm:optimization',1,optimization))
+c     $     call errquit('qmmm_forces: failed to get qmmm:optimization',
+c     &       0,RTDB_ERR)
+c
+c      fixqm = .false.
+c      interface = "qm"
+c      if (optimization.eq.'all') then
+c         fixqm = .false.
+c         interface = "mm"
+c      else if (optimization.eq.'mm') then
+c         fixqm = .true.
+c         interface = "mm"
+c      else if (optimization.eq.'qm') then
+c         fixqm = .false.
+c         interface = "qm"
+c      endif
 c
       if(interface.eq.'qm') then
         write(*,*) "interface qm"
