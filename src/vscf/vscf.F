@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.1 2000-02-25 00:47:20 windus Exp $
+c $Id: vscf.F,v 1.2 2000-07-27 16:31:25 bjohnson Exp $
 c*module vscf    *deck vscfm
       subroutine vscfm(NGRID,READV,NSTART,DMDR,NCOUP,NREAD,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
@@ -1236,7 +1236,7 @@ c
 c
 c     rearrange into descending order
 c
-      call eigsrt(E,VEC,N,N)
+      call eigsort(E,VEC,N,N)
 c
 c     find wavefunctions
 c
@@ -1807,8 +1807,8 @@ c
 1000  sum=sum*Sij
       return
       end
-c*module vscf    *deck eigsrt
-      SUBROUTINE EIGSRT(D,V,N,NP)
+c*module vscf    *deck eigsort
+      SUBROUTINE EIGSORT(D,V,N,NP)
 c
 c     this routine resorts the eigenvalues from ascending 
 c     to descending order, and rearranges the columns of V 
