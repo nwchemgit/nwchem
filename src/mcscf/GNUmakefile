@@ -24,7 +24,7 @@
 
    USES_BLAS  =	mcscf.F \
 		mcscf_aux.F \
-		mcscf_dbg.F \
+		mcscf_debug.F \
 		mcscf_etr.F \
 		mcscf_fock.F \
 		mcscf_ohvmo.F \
@@ -36,7 +36,7 @@
 
   LIB_INCLUDES = -I../ddscf -I./detci
 
-  LIB_DEFINES =
+  LIB_DEFINES = 
 
 
 
@@ -51,8 +51,4 @@ include ../config/makelib.h
 
 
 
-
-
-
-
-
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
