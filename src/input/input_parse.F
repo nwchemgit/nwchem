@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.75 2003-10-17 22:55:18 carlfahl Exp $
+C     $Id: input_parse.F,v 1.76 2003-12-13 02:30:25 marat Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -89,6 +89,8 @@ c
                call stepper_input(rtdb)
             else if (inp_compare(.false.,test,'driver')) then
                call driver_input(rtdb)
+            else if (inp_compare(.false.,test,'qcharge')) then
+               call input_qcharge(rtdb)
             else if (inp_compare(.false.,test,'charge')) then
                call input_charge(rtdb)
             else if (inp_compare(.false.,test,'dft')) then
@@ -315,6 +317,29 @@ c
       subroutine input_time(rtdb)
       implicit none
       integer rtdb
+      end
+      subroutine input_qcharge(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+      double precision qcharge
+      character*255 test
+c
+      if (.not. inp_a(test)) call errquit
+     &    ('input_qcharge: failed to read ascii string',911, INPUT_ERR)
+      if (.not.inp_compare(.false.,test,'qcharge')) call errquit
+     &    ('input_qcharge: failed to read "qcharge"',911, INPUT_ERR)
+c
+      if (.not. inp_f(qcharge)) call errquit
+     $     ('input_qcharge: failed to read real number', 0, INPUT_ERR)
+c
+      if (.not. rtdb_put(rtdb, 'qcharge', MT_DBL, 1, qcharge))
+     $     call errquit
+     $     ('input_qcharge: failed to write to rtdb', 0, RTDB_ERR)
+c
       end
       subroutine input_charge(rtdb)
       implicit none
