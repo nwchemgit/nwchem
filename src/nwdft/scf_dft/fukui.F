@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
+c     $Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
+C$Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -656,7 +656,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
+C$Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
 c
       implicit none
 #include "stdio.fh"
@@ -860,31 +860,8 @@ c
      &         iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
          endif
-         if (grid_on_file)then
             call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc,
      .           dbl_mb(itmat))
-         else
-         if (iVxc_opt.eq.0) then
-c         
-c           Option A:  Compute via direct numerical quadrature.
-c         
-c           compute the integrated density (numerical)
-c 
-c
-            call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
-     &                     wght_GA, Exc, rho_n, rdens_atom, 
-     &                     cetobfr, natoms)
-         elseif (iVxc_opt.eq.1 )then
-c         
-c           Option B:  Compute via a LSQ fitting procedure.
-c         
-c
-c
-            call xc_quadv1(rtdb, Dbl_MB(iTmat), nExc, g_dens, Exc, 
-     &                     rho_n, rdens_atom, cetobfr, 
-     &                     natoms)
-         endif
-      endif
       if(xcfit) then
 c     
 c           symmetrize the "T" vector
