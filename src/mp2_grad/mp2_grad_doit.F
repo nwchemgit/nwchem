@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.33 1997-06-24 23:28:47 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.34 1997-07-25 16:38:31 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -127,7 +127,11 @@ c
       iavail_file = util_scratch_dir_avail_for_me()
       avail_file=iavail_file*128.0d0
 c
-      call intd_init(rtdb,1,basis) ! int_init allocates some memory
+      if (task .eq. 'gradient') then
+        call intd_init(rtdb,1,basis) ! int_init allocates some memory
+      else
+        call int_init(rtdb,1,basis) ! int_init allocates some memory
+      endif
       avail_ma = MA_inquire_avail(mt_dbl)
       call int_terminate()
 c
