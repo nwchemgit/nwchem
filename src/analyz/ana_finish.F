@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.12 2000-05-24 19:33:51 d3j191 Exp $
+c $Id: ana_finish.F,v 1.13 2000-05-24 19:37:50 d3j191 Exp $
 c
       implicit none
 c
@@ -80,7 +80,7 @@ c     report results
 c
       if(me.eq.0) then
       write(lfnrms,1000)
- 1000 format('Analysis')
+ 1000 format('analysis')
       endif
       if(np.gt.1) then
       call ga_dgop(mag_d12,xrms,nsa,'+')

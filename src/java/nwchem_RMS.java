@@ -81,7 +81,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    card=br.readLine();
 	    int numt=0;
 	    boolean first=true;
-	    while(!card.startsWith("Analysis")){
+	    while(!card.startsWith("analysis")){
 		time=Double.valueOf(card.substring(1,12)).doubleValue();
 		rms1=Double.valueOf(card.substring(13,24)).doubleValue();
 		rms2=Double.valueOf(card.substring(25,36)).doubleValue();
@@ -93,7 +93,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    card=br.readLine();
 	    int numa=0;
 	    first=true;
-	    while(!card.startsWith("Analysis")){
+	    while(!card.startsWith("analysis")){
 		rms1=Double.valueOf(card.substring(32,43)).doubleValue();
 		numa++;
 		rmsaPlot.addData(1,numa,rms1,!first,false); first=false;
