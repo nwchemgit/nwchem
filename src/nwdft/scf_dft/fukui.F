@@ -1,16 +1,16 @@
       Subroutine fukui(geom, nbf_ao, AO_bas_han, g_movecs,
-     &                 noc, k_eval,  ipol)
+     &                 noc, k_eval,  ipol, oskel, tol2e)
 c     
-c     $Id: fukui.F,v 1.2 1999-08-11 16:16:43 jolguin Exp $
+c     $Id: fukui.F,v 1.3 1999-08-11 21:06:30 jolguin Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
      &        g_movecs(2), noc(2), isp, k_eval(2), g_s, geom, nbf_ao,
-     &        ipol, AO_bas_han
-      integer me, l_temp_vec, i_temp_vec
-      double precision eig_lumo(2), eig_homo(2)
-      double precision mu_n_mas, mu_n_men, mu_n_cer
-      double precision mu_s_mas, mu_s_men, mu_s_cer
+     &        ipol, AO_bas_han, me, l_temp_vec, i_temp_vec
+      double precision eig_lumo(2), eig_homo(2), jfac(4), kfac(4),
+     &                 ecoul_orb, gap_spin, tol2e,
+     &                 mu_n_mas, mu_n_men, mu_n_cer,
+     &                 mu_s_mas, mu_s_men, mu_s_cer
 c
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -19,7 +19,7 @@ c
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical oprint_fukui
+      logical oprint_fukui, oskel
       me = ga_nodeid()
       oprint_fukui = util_print('Fukui information', print_high)
       g_orb = ga_create_atom_blocked(geom, AO_bas_han, 'ga_orb')
@@ -152,6 +152,26 @@ c
          write(LuOut,'(3f11.4)')  mu_s_mas, mu_s_men,mu_s_cer
          write(LuOut,*) ' ------------------------------------'
       endif
+      call ga_zero(g_dens_ss)
+      call ga_add(-1.0d00,g_dens_HOMO(2),1.0d00,
+     &             g_dens_LUMO(1),g_dens_ss)
+      kfac(1) = 0.d00
+      jfac(1) = 1.0d0
+      jfac(2) = 1.0d0
+      kfac(2) = 0d0
+      call ga_zero(g_orb)
+      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+     &             tol2e, oskel, g_dens_ss, g_orb)
+      ecoul_orb = 0.5d0*ga_ddot(g_dens_ss,g_orb)
+      gap_spin = eig_lumo(1)-eig_homo(2) + ecoul_orb
+      if (me.eq.0.and.oprint_fukui)then
+        write(LuOut,*) ' ------------------------------------'
+        write(LuOut,*) ' Vertical Singlet-Triplet splitting energy'
+        write(LuOut,*) '  delta_eig    integral        GAP'
+        write(LuOut,'(3f11.4)') eig_lumo(1)-eig_homo(2),ecoul_orb,
+     &                          gap_spin  
+        write(LuOut,*) ' ------------------------------------'
+      end if
       if (.not. ga_destroy(g_orb)) call errquit
      &   ('fukui: could not destroy g_orb', 0)
       if (.not. ga_destroy(g_dens_HOMO(1))) call errquit
