@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.36 2003-02-18 01:38:09 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.37 2003-02-18 01:50:58 bylaska Exp $
 *
 
 !**************************************************
@@ -295,6 +295,7 @@ c      write(*,*)
       double complex w_tmp
       
       
+      !*** check for restricted calculation ****
       occup = 1.0d0
       if (ispin.eq.1) occup = 2.0d0
 
@@ -306,7 +307,7 @@ c      write(*,*)
         do nlm =1,nbasis
         do nlm1=1,nbasis
 
-           w_tmp = cmplx(0.0d0,0.0d0)
+           w_tmp = dcmplx(0.0d0,0.0d0)
            do n=1,ne_u
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
@@ -315,7 +316,9 @@ c      write(*,*)
            end do
            dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp*occup
 
-           w_tmp = cmplx(0.0d0,0.0d0)
+
+           !*** this loop is not computed when ispin=1 ***
+           w_tmp = dcmplx(0.0d0,0.0d0)
            do n=ne_u+1,ne_d
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
