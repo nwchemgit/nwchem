@@ -43,11 +43,14 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     int atmNumber=0;
     int[][] id;
     int[] idf,idt;
+
+    int selected = -1;
     
     Segment ToSgm = new Segment();
     Segment FrSgm = new Segment();
 
     JButton writeButton = new JButton("Write");
+    JButton testButton = new JButton("Test");
     
     public nwchem_Segment(){
 	
@@ -82,6 +85,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    setVisible(false); }});
 	
 	addComponent(header,writeButton,5,0,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	writeButton.addActionListener(this);
+
+	addComponent(header,testButton,7,0,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	writeButton.addActionListener(this);
 
@@ -228,7 +235,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     }
     
     void atomListUpdate(){
-	header.remove(atmPane);
+	//	header.remove(atmPane);
 	atomList.removeAllElements();
 	for(int i=0; i<atmNumber; i++){
 	    if(id[i][0]>=0 && id[i][1]>=0) {
@@ -239,6 +246,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		atomList.addElement("     "+ToSgm.atom[id[i][1]].Name);
 	    }
 	};
+	atmList.clearSelection();
 	addComponent(header,atmPane,1,1,2,1,2,2,GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	header.validate();
     };
@@ -655,7 +663,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion2);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force2);
-			    sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
+			    sgmFile.printf("%3d",ToSgm.torsion[jfound].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.torsion[jfound].torsion1);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[jfound].force1);
 			} else {
@@ -762,7 +770,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi2);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper2);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force2);
-			    sgmFile.printf("%3d",ToSgm.improper[i].multi1);
+			    sgmFile.printf("%3d",ToSgm.improper[jfound].multi1);
 			    sgmFile.printf("%10.6f",ToSgm.improper[jfound].improper1);
 			    sgmFile.printf("%12.5E",ToSgm.improper[jfound].force1);
 			} else {
@@ -886,7 +894,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    };
 		};
 		sgmFile.close();
-	    } catch (Exception ee) { System.out.println("Error writing to new segment file"); };
+	    } catch (Exception ee) { ee.printStackTrace(); };
+	};
+	if(e.getSource()==testButton){
+	    int j=atmList.getSelectedIndex();
+	    System.out.println("Test selected index is "+j);
 	};
     };
     
@@ -913,6 +925,37 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     public void mouseReleased(MouseEvent mouse){
 	int j;
 	String fileName;
+	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.CTRL_MASK+MouseEvent.SHIFT_MASK)){
+	    if(mouse.getSource()==atmList){ 
+		selected=atmList.getSelectedIndex();
+	    } else {
+		selected = -1;
+	    };
+	};
+	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.SHIFT_MASK)){
+	    if(mouse.getSource()==atmList){
+		j=atmList.getSelectedIndex();
+		if(j>0){
+		    int tempo = id[j][0]; id[j][0]=id[j-1][0]; id[j-1][0]=tempo;
+		    tempo = id[j][1]; id[j][1]=id[j-1][1]; id[j-1][1]=tempo;
+		};
+		atomListUpdate();
+		atmList.clearSelection();
+	    };
+	    selected = -1;
+	};
+	if(mouse.getModifiers()==(MouseEvent.BUTTON1_MASK+MouseEvent.CTRL_MASK)){
+	    if(mouse.getSource()==atmList){
+		j=atmList.getSelectedIndex();
+		if(j<(atmNumber-1)){
+		    int tempo = id[j][0]; id[j][0]=id[j+1][0]; id[j+1][0]=tempo;
+		    tempo = id[j][1]; id[j][1]=id[j+1][1]; id[j+1][1]=tempo;
+		};
+		atomListUpdate();
+		atmList.clearSelection();
+	    };
+	    selected = -1;
+	};
 	if(mouse.getModifiers()==MouseEvent.BUTTON1_MASK){
 	    if(mouse.getSource()==sgmList){
 		j=sgmList.getSelectedIndex();
@@ -962,19 +1005,37 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			};
 		    };
 		};
+		selected = -1;
 		atomListUpdate();
 	    };
 	    if(mouse.getSource()==atmList){
-		System.out.println(" Mouse event on atmList");
 		j=atmList.getSelectedIndex();
-		System.out.println(" Event index is "+j+" "+id[j][0]+" "+id[j][1]);
 	        if(id[j][0]>=0 && id[j][1]>=0){
 		    for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
 		    if(ToSgm.atom[id[j+1][1]].Name.substring(4,4)==" "){
-			ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(1,3)+"t";
+			ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,3)+"t";
 		    };
 		    id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
 		};
+		if(selected>=0 && selected!=j){
+		    if(id[j][0]==-1 && id[j][1]>=0 && id[selected][0]>=0 && id[selected][1]==-1){
+			id[selected][1]=id[j][1];
+			atmNumber--;
+			for(int k=j; k<atmNumber; k++){
+			    id[k][0]=id[k+1][0];
+			    id[k][1]=id[k+1][1];
+			};
+		    };
+		    if(id[j][0]>=0 && id[j][1]==-1 && id[selected][0]==-1 && id[selected][1]>=0){
+			id[j][1]=id[selected][1];
+			atmNumber--;
+			for(int k=selected; k<atmNumber; k++){
+			    id[k][0]=id[k+1][0];
+			    id[k][1]=id[k+1][1];
+			};
+		    };
+		};
+		selected= -1;
 		atomListUpdate();
 	    };
 	};
