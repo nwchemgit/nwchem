@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.6 1998-04-21 21:37:28 mdupuis Exp $
+* $Id: hnd_property.F,v 1.7 1998-04-21 21:43:51 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -80,7 +80,6 @@ c
       if(.not.bas_is_spherical(basis)) then
          call hnd_propty ( rtdb, basis, geom )
       else
-         write(luout,*) 'basis', basis
          write(luout,9999)
       endif
 c
@@ -101,5 +100,6 @@ c
 c
       return
  9999 format(' property routines lifted from -hondo- do not handle',
-     &       ' spherical basis sets yet ... . skip and continue ')
+     &       ' spherical basis sets ... .',/,
+     &       ' skip and continue ')
       end
