@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.35 2000-06-01 17:46:29 d3e129 Exp $
+#$Id: GNUmakefile,v 1.36 2001-10-09 00:19:27 edo Exp $
 
 include ../config/makefile.h
 
@@ -48,6 +48,8 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dspsvx.o      dsptrf.o      dsptrs.o       dsteqr.o     \
                dsterf.o      dsyev.o       dsygs2.o       dsygst.o     \
                dsygv.o       dsytd2.o      dsytrd.o       dtrtri.o     \
+               dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
+               dlasq4.o      dposv.o \
                ilaenv.o      lsamen.o                                  \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
@@ -87,6 +89,8 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                sspsvx.o      ssptrf.o      ssptrs.o       ssteqr.o     \
                ssterf.o      ssyev.o       ssygs2.o       ssygst.o     \
                ssygv.o       ssytd2.o      ssytrd.o       strtri.o     \
+               slasq1.o      slasq2.o      slasq3.o       slasq5.o     \
+               slasq4.o      sposv.o \
                ilaenv.o      lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
