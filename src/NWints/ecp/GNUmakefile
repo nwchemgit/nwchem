@@ -1,6 +1,12 @@
-OBJ = 
+OBJ_GRAD = \
+      ecp_gradient.o \
+      ecp_grad_a.o \
+      ecp_grad_b.o
 
-OBJ_OPTIMIZE = \
+OBJ_HESS = \
+      ecp_hessian.o
+
+OBJ_ENERGY = \
       ecp_3j_prod.o  \
       ecp_Q2int1.o   \
       ecp_angint.o   \
@@ -17,6 +23,7 @@ OBJ_OPTIMIZE = \
       ecp_down_m.o   \
       ecp_gaussq.o   \
       ecp_init_c2s.o \
+      ecp_init_con.o \
       ecp_int0.o     \
       ecp_int1.o     \
       ecp_int2.o     \
@@ -45,6 +52,10 @@ OBJ_OPTIMIZE = \
       ecp_up_k.o     \
       ecp_local.o    \
       int_ecp.o      
+
+OBJ = 
+
+OBJ_OPTIMIZE = $(OBJ_ENERGY) \
 
 USES_BLAS = ecp_cart_xpd.f \
       ecp_cstrans.f  \
