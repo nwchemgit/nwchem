@@ -1,7 +1,7 @@
 \label{sec:pspw}
 
 A pseudopotential plane-wave (PSPW) module, which can perform Car-Parrinello
-simulations, has been implemented into the NWChem program package.  
+simulations, is being implemented into the NWChem program package.  
 This module complements the capabilities of NWChem by including code 
 which allows for the calculation of density functional theory total energies 
 and forces with the technology based on plane-wave basis sets and 
@@ -9,7 +9,7 @@ pseudopotentials.  Consistent with NWChem's philosophy this module is able
 to run on a variety of architectures, including parallel supercomputers.
 
 The advantage of a PSPW method is that it has been shown to have an accuracy 
-close to chemical accuracy for many applications, yet is still fast enough 
+close to chemical accuracy for many a  pplications, yet is still fast enough 
 to treat systems containing hundreds of atoms.  Another significant advantage 
 is its ability to simulate dynamics on a ground state potential surface 
 directly at run-time.  This method's efficiency and accuracy make it a 
@@ -47,13 +47,14 @@ The format for the TASK PSPW directive is the TASK directive followed by the
 PSPW string, and after that an $<$operation$>$ string is required.  The 
 TASK PSPW directive for PSPW calculations is of the following form:
 \begin{verbatim}
-TASK PSPW (steepest_descent           ||
+TASK PSPW [steepest_descent           ||
            Car-Parrinello             ||
            psp_formatter              ||
            wavefunction_initializer   ||
            v_wavefunction_initializer ||
            wavefunction_expander      ||
-           psp_generator)
+           psp_generator              ||
+           (no default)]
 \end{verbatim}
 Currently available tasks are listed.  Note that unlike most 
 NWChem modules, the PSPW module does not contain an energy operation.  
@@ -70,9 +71,36 @@ of this type are steepest\_descent, and Car-Parrinello.
 The following subsections describe the input to these tasks.
 
 \subsection{STEEPEST\_DESCENT} 
+
 The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
-geometries.
+geometries.  
+
+In this method the LSDA energy functional is minimized with
+respect to the Kohn-Sham orbitals {$\psi_{i,\sigma}$} and subject to 
+orthonormality contraints ($\Lambda_{ji,\sigma}$ Lagrange Multipliers) 
+by a fixed step minimization procedure.
+\begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                     \psi_{i,\sigma}^{t} 
+                      - \frac{\Delta t}{\sqrt{\mu}} 
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\label{eq:sd2}
+\end{eqnarray}
+The ion positions can also be minimized using a fixed step minimization 
+procedure.
+\begin{eqnarray}
+\vec{R}_I^{t+\Delta t} &\leftarrow& 
+                      \vec{R}_I^{t}
+                    - \frac{(\Delta t)}{\sqrt{M_I}} 
+                       \frac{\partial E}{\partial \vec{R}_I}
+\label{eq:b7}
+\end{eqnarray}
+
 Input to the steepest\_descent simulation is contained
 within the steepest\_descent sub-block.
 \begin{verbatim}
@@ -129,13 +157,8 @@ sub-block.
               point to file containing the one-electron orbitals at the
               end of the run. 
 	\item $<$fake\_mass$>$ - value for the electronic
-              fake mass.  In the steepest descent code this parameter is
-              used to define the steepest descent loop for the one-electron
-              orbitals.
-	\item $<$time\_step$>$ - value for the time step.
-               In the steepest descent code this parameter is used to
-               define the steepest descent loop for the one-electron orbitals
-               and ion positions (if GEOMETRY\_OPTIMIZE is specified).
+              fake mass ($\mu$).
+	\item $<$time\_step$>$ - value for the time step ($\Delta t$).
 	\item $<$inner\_iteration$>$ - number of iterations between the 
               printing out of energies and tolerances
 	\item $<$outer\_iteration$>$ - number of outer iterations
@@ -154,9 +177,45 @@ sub-block.
 \end{itemize}
 
 
+
 \subsection{Car-Parrinello}
 The Car-Parrinello task is used to perform ab initio molecular dynamics
-using the scheme developed by Car and Parrinello. Input to the Car-Parrinello 
+using the scheme developed by Car and Parrinello.  In this unified ab
+initio molecular dynamics scheme the motion of the ion cores is coupled to
+a fictacious motion for the Kohn-Sham orbitals of density functional
+theory.  At the heart of this method an auxillary energy functional is 
+defined by adding a fictacious kinetic energy functional of the Kohn-Sham 
+orbitals
+\begin{eqnarray}
+\label{appendix:b1}
+KE(\{\psi_{i,\sigma}(\vec{r})\}) &=& \sum_{i,\sigma}^{occ} 
+                                      \int d\vec{r}\ \mu \left| 
+                                      \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
+\end{eqnarray}
+to the density functional total energy, $E$.  Integrating this auxillary 
+functional, subject to orthonormality constraints 
+($\Lambda_{ji,\sigma}$ Lagrange Multipliers) of the Kohn-Sham orbitals,
+using the Verlet algorithm we get the following equations of motion:
+\begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                    2 \psi_{i,\sigma}^{t} - \psi_{i,\sigma}^{t-\Delta t}
+                      + \frac{(\Delta t)^2}{\mu}
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\label{eq:b6}
+\end{eqnarray}
+\begin{eqnarray}
+\vec{R}_I^{t+\Delta t} &\leftarrow& 
+                    2 \vec{R}_I^{t} - \vec{R}_I^{t-\Delta t}
+                    + \frac{(\Delta t)^2}{M_I} 
+                       \frac{\partial E}{\partial \vec{R}_I}
+\label{eq:b7}
+\end{eqnarray}
+  
+Input to the Car-Parrinello 
 simulation is contained within the Car-Parrinello sub-block.
 \begin{verbatim}
 PSPW
@@ -218,13 +277,9 @@ sub-block.
               point to file containing the one-electron orbital velocities
 	      at the end of the run. 
 	\item $<$fake\_mass$>$ - value for the electronic
-              fake mass.  In the steepest descent code this parameter is
-              used to define the steepest descent loop for the one-electron
-              orbitals.
-	\item $<$time\_step$>$ - value for the time step.
-               In the steepest descent code this parameter is used to
-               define the steepest descent loop for the one-electron orbitals
-               and ion positions (if GEOMETRY\_OPTIMIZE is specified).
+              fake mass ($\mu$).
+	\item $<$time\_step$>$ - value for the Verlet integration 
+               time step ($\Delta t$).
 	\item $<$inner\_iteration$>$ - number of iterations between the
               printing out of energies.
 	\item $<$outer\_iteration$>$ - number of outer iterations
@@ -244,6 +299,7 @@ sub-block.
 	\item $<$xyz\_filename$>$ - name that points to the XYZ motion file
 				generated
 \end{itemize}
+
 
 
 
@@ -297,6 +353,8 @@ sub-block.
         \item LMAX (s$||$p$||$d$||$f$||$g) - used to specify the maximum number
               of angular potentials to use.
 \end{itemize}
+
+
 
 
 \subsection{WAVEFUNCTION\_INTITIALIZER}
@@ -615,8 +673,6 @@ and the format of it is:
 \end{verbatim}
 
 
-
-
 \section{Running a Steepest Descent Simulation}
 \label{sec:pspw_sd}
 
@@ -873,6 +929,11 @@ the file: nwchem/examples/pspw/NaCl-md.nw
 \section{PSPW Capabilities and Limitations}
 \label{sec:pspw_limits}
 
+\begin{itemize}
+\item Currently the one-dimensional pseudopotential module will not work
+       on 64 bit architectures.
+
+\end{itemize}
 
 
 \section{Questions and Difficulties}
