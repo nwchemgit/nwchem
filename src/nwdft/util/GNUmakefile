@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1994-11-21 23:25:12 og845 Exp $
+# $Id: GNUmakefile,v 1.11 1994-11-24 04:40:16 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -31,6 +31,6 @@ bas_ncontr_cn_max.o:	bas_ncontr_cn_max.F
 	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c bas_ncontr_cn_max.F -o bas_ncontr_cn_max.o
 nbf_to_mbf.o:	nbf_to_mbf.F
 	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c nbf_to_mbf.F -o nbf_to_mbf.o
-#sca_lab_mat.o:	sca_lab_mat.F
-#	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c sca_lab_mat.F -o sca_lab_mat.o
+int_eval_gbsets.o:	int_eval_gbsets.F
+	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c int_eval_gbsets.F -o int_eval_gbsets.o
 endif
