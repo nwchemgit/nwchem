@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.9 1998-06-11 18:51:53 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.10 1998-06-24 20:06:37 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -80,7 +80,7 @@ c
      + call errquit('pre_seqsize failed',9999)
 c
       mseq=nseq+2
-      mlnk=nlnk
+      mlnk=nlnk+1
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1001) nseq
@@ -151,19 +151,25 @@ c
      + natm,nbnd,nang,ndih,nimp))
      + call errquit('pre_dimens failed',9999)
 c
-      if(util_print('where',print_debug)) then
-      write(lfnout,1004)
- 1004 format('list dimensions are determined')
-      endif
-c
 c     adjust dimension to account for links
 c     -------------------------------------
 c
-      matm=natm
-      mbnd=nbnd+3*nseq
-      mang=nang+27*nseq
-      mdih=ndih+45*nseq
-      mimp=nimp+6*nseq
+      matm=natm+1
+      mbnd=nbnd+3*nseq+1
+      mang=nang+27*nseq+1
+      mdih=ndih+45*nseq+1
+      mimp=nimp+6*nseq+1
+c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1004) mseq,matm,mbnd,mang,mdih,mimp
+ 1004 format('list dimensions are determined:',/,
+     + ' number of segments  ',i10,/,
+     + ' number of atoms     ',i10,/,
+     + ' number of bonds     ',i10,/,
+     + ' number of angles    ',i10,/,
+     + ' number of dihedrals ',i10,/,
+     + ' number of impropers ',i10)
+      endif
 c
 c     allocate memory for atomic lists
 c     --------------------------------
@@ -177,14 +183,14 @@ c                  6       : molecule number
 c                  7       : atomic number
 c                  8       : fraction
 c
-      if(.not.ma_push_get(mt_int,8*matm,"latm",l_latm,i_latm))
-     + call errquit('Memory allocation failed for latm',9999)
 c
 c     char*6  catm(1,matm) : atom name 
 c                  2       : atom type set 1
 c                  3       : atom type set 2
 c                  4       : atom type set 3
 c
+      if(.not.ma_push_get(mt_int,8*matm,"latm",l_latm,i_latm))
+     + call errquit('Memory allocation failed for latm',9999)
       if(.not.ma_push_get(mt_byte,24*matm,"catm",l_catm,i_catm))
      + call errquit('Memory allocation failed for catm',9999)
 c

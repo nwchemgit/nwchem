@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.11 1998-06-15 22:38:15 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.12 1998-06-24 20:06:37 d3j191 Exp $
 c
       implicit none
 c
@@ -238,7 +238,7 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
@@ -393,7 +393,7 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
@@ -514,7 +514,7 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1011) filnam(1:index(filnam,' ')-1),nmis,nsa

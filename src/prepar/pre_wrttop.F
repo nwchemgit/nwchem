@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.12 1998-06-15 22:38:16 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.13 1998-06-24 20:06:39 d3j191 Exp $
 c
       implicit none
 c
@@ -100,6 +100,13 @@ c
 c
       if(nbndt.gt.nbnd) then
       do 20 i=nbnd+1,nbndt
+      if(lbnd(4,i).eq.0) then
+      lbnd(4,i)=1
+      do 120 j=1,3
+      if(latt(1,lats(j,latm(3,lbnd(1,i)-natm))).ne.1.and.
+     + latt(1,lats(j,latm(3,lbnd(2,i)-natm))).ne.1) lbnd(4,i)=0
+  120 continue
+      endif
       write(lfntop,1112) lbnd(1,i)-natm,lbnd(2,i)-natm,lbnd(4,i),i-nbnd
  1112 format(4i7)
       write(lfntop,1113) (rbnd(j,i),j=1,6)
@@ -202,6 +209,13 @@ c
    10 continue
 c
       do 11 i=1,nbnd
+      if(lbnd(4,i).eq.0) then
+      lbnd(4,i)=1
+      do 111 j=1,3
+      if(latt(1,lats(j,latm(3,lbnd(1,i)))).ne.1.and.
+     + latt(1,lats(j,latm(3,lbnd(2,i)))).ne.1) lbnd(4,i)=0
+  111 continue
+      endif
       write(lfntop,1012) lbnd(1,i),lbnd(2,i),lbnd(4,i),i
  1012 format(4i7)
       write(lfntop,1013) (rbnd(j,i),j=1,6)

@@ -1,6 +1,6 @@
       logical function pre_bnd(xatm,latm,matm,ilo,ihi,lbnd,mbnd,nbnd)
 c
-c $Id: pre_bnd.F,v 1.3 1998-04-29 18:35:12 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.4 1998-06-24 20:06:36 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -38,7 +38,8 @@ c
       dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
      + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
      + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
-      if(dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+      if(dist.gt.0.05d0.and.
+     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
       if(nbnd.ge.mbnd) return
       nbnd=nbnd+1
       lbnd(1,nbnd)=i

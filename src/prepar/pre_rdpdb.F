@@ -1,8 +1,8 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv)
 c
-c $Id: pre_rdpdb.F,v 1.6 1998-06-11 18:51:54 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.7 1998-06-24 20:06:38 d3j191 Exp $
 c
       implicit none
 c
@@ -16,6 +16,7 @@ c
       integer isar(msa),isgm(msa),iwmr(mwm),isfnd(msa),iwfnd(mwm)
       real*8 xs(3,msa),vs(3,msa)
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
+      character*3 namslv
 c
       character*6 name1,name2
       character*80 card
@@ -77,7 +78,9 @@ c
       read(card,1001,end=9999,err=9999) hdr,nama,namr,num,x,y,z
  1001 format(a6,6x,a4,1x,a3,2x,i4,4x,3f8.3)
 c
-      if(num.gt.last.or.num.lt.nprv) then
+      if(card(1:6).eq.'HETATM'.and.card(18:20).eq.namslv) lsolut=.false.
+c
+      if(.not.lsolut.or.num.gt.last.or.num.lt.nprv) then
       if(lnames) then
       close(unit=lfntmp)
       lnames=.false.

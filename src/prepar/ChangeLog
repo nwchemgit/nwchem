@@ -49,3 +49,4 @@ Jun 11 1998	 Add topology modification commands
 		 Fix bugs in reading solvent from pdb file
 		 Keep name file
 Jun 15 1998	 Bug fixes: pre_boxsiz, pre_orient, pre_wrtrst, pre_wrttop
+Jun 24 1998	 Fix memory problem occurring in solvent-only preparations
