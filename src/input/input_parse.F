@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.29 1996-09-19 01:11:44 d3g681 Exp $
+C     $Id: input_parse.F,v 1.30 1996-10-01 18:56:18 d3e129 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -50,6 +50,8 @@ c
             else if (inp_compare(.false.,test,'geometry')) then
                call geom_input(rtdb)
             else if (inp_compare(.false.,test,'basis')) then
+               call bas_input(rtdb)
+            else if (inp_compare(.false.,test,'ecp')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'scf')) then
                call scf_input(rtdb)
