@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.147 1996-04-16 00:08:35 d3g681 Exp $
+# $Id: makefile.h,v 1.148 1996-04-22 17:00:44 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -64,10 +64,16 @@ endif
 # prior to trying to compile anything.
 #
 # The core libraries are usually rather platform-dependent and are
-# specified below.
+# specified below.  Use of MPI requires substituting the tcgmsg-mpi
+# wrapper for the normal tcgmsg library.
 
+ifdef USE_MPI
+NW_CORE_SUBDIRS = include basis geom global inp input \
+	ma pstat rtdb tcgmsg-mpi symmetry util $(CORE_SUBDIRS_EXTRA)
+else
 NW_CORE_SUBDIRS = include basis geom global inp input \
 	ma pstat rtdb tcgmsg symmetry util $(CORE_SUBDIRS_EXTRA)
+endif
 
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -597,6 +603,22 @@ else
              CORE_LIBS += -lblas
 endif
 
+# IMPORTANT NOTE:
+# mpipriv is a common block used in MPICH's implementation of MPI.  It
+# is critical that this common block is renamed correctly because
+# the linker will not detect any problems (there will be separate
+# common blocks labeled mpipriv_ and mpipriv) but the program will not
+# operate correctly.
+ifdef USE_MPI
+   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
+		-brename:.mpi_initialized_,.mpi_initialized \
+		-brename:.mpi_init_,.mpi_init \
+		-brename:.mpi_comm_rank_,.mpi_comm_rank \
+		-brename:.mpi_comm_size_,.mpi_comm_size \
+		-brename:.mpi_finalize_,.mpi_finalize \
+		-brename:.mpi_send_,.mpi_send \
+		-brename:mpipriv_,mpipriv
+endif
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
