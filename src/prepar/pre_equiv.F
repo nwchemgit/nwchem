@@ -1,6 +1,6 @@
       logical function pre_equiv(csa,isml,isgm,msa,nsa,iequi,msm,nsm)
 c
-c $Id: pre_equiv.F,v 1.2 2002-04-05 19:15:29 d3j191 Exp $
+c $Id: pre_equiv.F,v 1.3 2002-07-17 15:56:55 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       character*16 csa(msa)
       integer isml(msa),isgm(msa),iequi(msm,4)
 c
-      integer i,j,ia,ja
+      integer i,j,ia,ja,number
 c
       do 1 i=1,msm
       iequi(i,1)=0
@@ -50,8 +50,14 @@ c
       iequi(isml(i),2)=isgm(i)
     7 continue
 c
-      write(*,1000) (i,(iequi(i,j),j=1,4),i=1,msm)
- 1000 format(/,' Solute molecule equivalence',//,(5i7))
+      do 8 i=1,nsm
+      number=1
+      do 9 j=1,nsm
+      if(iequi(j,3).eq.i) number=number+1
+    9 continue
+      if(number.gt.1) write(*,1000) number,i
+ 1000 format(/,i5,' equivalent solute molecules ',i5)
+    8 continue
 c
       pre_equiv=.true.
       return
