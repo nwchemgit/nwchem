@@ -1,5 +1,5 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.19 1997-07-25 17:53:32 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.20 2000-08-08 19:56:37 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -75,7 +75,7 @@ c
 c
 c     make sure that the integrals are being evaluated to sufficient precision
 c
-      call int_acc_set(1d-30)   ! 1d-30 = square of machine precision
+      call int_acc_high()
 c     
       at_max = 0.0d0
       sch_max = 0.0d0
