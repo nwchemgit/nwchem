@@ -1,6 +1,6 @@
       subroutine fock_xc(nmat, g_dens, g_xc)
 c
-c     $Id: fock_xc.F,v 1.5 2000-05-25 17:45:34 bjohnson Exp $
+c     $Id: fock_xc.F,v 1.6 2000-08-09 22:16:13 bjohnson Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -35,7 +35,11 @@ c
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom,
      &        l_g_dens_local, k_g_dens_local, k_g_dens_scf
       logical wght_GA_dum,grid_on_file
-      double precision Exc_dum(2), rho_n_dum,tdum
+      double precision Exc_dum(2), rho_n_dum,tdum,enuc
+      integer filesize, memsize
+      logical grid_file_open
+      external grid_file_open
+      character*255 gridfilename
 c
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered fock_xc-------------'
@@ -113,12 +117,26 @@ c
      &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
      &                   l_rdens_atom, k_rdens_atom)
 c
-      if(grid_on_file) then
+c
+c     check if we can get the grid from a file
+c         
+      grid_written=.false.
+      if(.not.geom_nuc_rep_energy(geom, Enuc)) 
+     .     call errquit(' gridquad: enucrep failed ',0)
+      if(rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) then
+        oreopen=.true.
+        grid_written=
+     .       grid_file_open(enuc,
+     .       gridfilename, memsize, filesize)
+      endif
+      write(0,*) ' grid_wr ',grid_written
+      if(grid_on_file.and.grid_written) then
       call grid_quadv0_gen(rtdb, 
      ,         int_mb(k_g_dens_local),g_xc,nexc_dum,
      &     rho_n_dum, Exc_dum,
      &     nmat, calc_type ,tdum)
       else
+        write(0,*) ' call xc_quadv0'
       call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(k_g_dens_local),
      &     g_wght_dum, g_xyz_dum, g_nq_dum, wght_GA_dum, Exc_dum,
      &     rho_n_dum, dbl_mb(k_rdens_atom), 
