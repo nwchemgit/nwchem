@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.1 1998-03-19 14:20:13 d3e129 Exp $
+# $Id: update_www,v 1.2 1998-09-08 18:30:51 d3e129 Exp $
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.
@@ -20,34 +20,39 @@ foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
 #
 # Now copy the revised source into the EMSL private and public WWW tree
   if ($WWWDIR == "/dfs/www/pub/docs/nwchem/doc") then
-      echo "Public pages .. "
+      echo "update_www: Public pages .. "
   else if($WWWDIR == "/dfs/www/docs/nwchem/doc") then
-      echo "Internal/private pages .."
+      echo "update_www: Internal/private pages .."
   endif
   if (! -e $WWWDIR) then
-    echo "   Making $WWWDIR"
+    echo "update_www:    Making $WWWDIR"
     /bin/mkdir -p $WWWDIR
   endif
   if (-e $WWWDIR/$document) then  
-    echo "   Saving current web documentation in:"
-    echo "       $WWWDIR/$document"
-    echo "   to "
-    echo "       $WWWDIR/${document}.bak"
+    echo "update_www:    Saving current web documentation in:"
+    echo "update_www:        $WWWDIR/$document"
+    echo "update_www:    to "
+    echo "update_www:        $WWWDIR/${document}.bak"
     if (-e $WWWDIR/${document}.bak) then 
-       echo "   Deleting current $WWWDIR/${document}.bak"
+       echo "update_www:    Deleting current $WWWDIR/${document}.bak"
        rm -rf $WWWDIR/${document}.bak
     endif
     mv $WWWDIR/$document $WWWDIR/${document}.bak
   endif
 
-  echo "   Copying $document into $WWWDIR"
+  echo "update_www:    Copying $document into $WWWDIR"
 
   /bin/cp -r $document $WWWDIR
   
   if ($status != 0) then
-    echo htmlize: copy to $WWWDIR of $document failed
+    echo "update_www: copy to $WWWDIR of $document failed"
     exit 1
   endif
+#
+# reset directory and file permissions
+#
+  chmod go+rx $WWWDIR/$document
+  find $WWWDIR/$document -type f -exec chmod go+r "{}" ";"
 
 # Now run Pawel's magic perl script to make the frames
 #doit:
@@ -78,7 +83,7 @@ foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
 end
 # Hopefully all is OK
 
-echo "   Done with $document"
+echo "update_www:    Done with $document"
 
 /bin/rm -rf $document
 exit 0

@@ -22,28 +22,28 @@ foreach document ($1)
 
 # First make sure the latex builds OK
 
-  echo "   Cleaning and making $document.ps"
+  echo "htmlize:    Cleaning and making $document.ps"
 
   make clean >& /dev/null
   make $document.ps >& $document.latex.log
 
   if ($status != 0) then
-    echo htmlize: latex errors reported in $document.latex.log
+    echo "htmlize: latex errors reported in $document.latex.log"
     exit 1
   endif
 
 # Get rid of the old directory and run latex2html
 
   if (-e $document) then
-    echo "   Removing old $document directory"
+    echo "htmlize:   Removing old $document directory"
     /bin/rm -rf $document
   endif
 
-  echo "   Running latex2html on $document.tex"
+  echo "htmlize:   Running latex2html on $document.tex"
 
   latex2html $L2HOPT $document.tex >& $document.latex2html.log
   if ($status != 0) then
-    echo htmlize: latex2html errors reported in $document.latex2html.log
+    echo "htmlize: latex2html errors reported in $document.latex2html.log"
     exit 1
   endif
 
@@ -52,11 +52,11 @@ foreach document ($1)
 # We actually shove it immediately before the first unnumbered list
 # <UL> which is the table of contents
 
-  echo "   Inserting search information into $document/$document.html"
+  echo "htmlize:   Inserting search information into $document/$document.html"
 
   /bin/cp $document.INDEX $document/INDEX
   if ($status != 0) then
-    echo htmlize: copy of INDEX for $document failed
+    echo "htmlize: copy of INDEX for $document failed"
     exit 1
   endif
 
@@ -71,7 +71,7 @@ foreach document ($1)
   @ i += $status
 
   if ($i != 0) then
-    echo htmlize: insertion of search info into $document failed
+    echo "htmlize: insertion of search info into $document failed"
     exit 1
   endif
 
@@ -87,14 +87,14 @@ foreach document ($1)
 # both the public and private side.
 # With DFS WEB now must also remove // from file paths used in images
 
-  echo "   Munging backgrounds and http paths"
+  echo "htmlize:   Munging backgrounds and http paths"
 
   pushd $document > /dev/null
 
   foreach file (*.html)
     sed -e 's/<BODY >/<BODY>/' < $file > $TMP
     if ($status != 0) then
-       echo " munging of <BODY > to <BODY> failed"
+       echo "htmlize: munging of <BODY > to <BODY> failed"
        exit 1
     endif
     mv $TMP $file
@@ -109,12 +109,12 @@ foreach document ($1)
           -e 's,http://www.emsl.pnl.gov:2080/,/,g' \
           -e 's,latex2html//,latex2html/,g'  < $file > $TMP
     else
-      echo htmlize: unknown document in background munge ... $document
+      echo "htmlize: unknown document in background munge ... $document"
       exit 1
     endif
 
     if ($status != 0) then
-       echo htmlize: sed of $file failed ... look in $TMP for output.
+       echo "htmlize: sed of $file failed ... look in $TMP for output."
        exit 1
     endif
     /bin/mv $TMP $file
@@ -124,7 +124,7 @@ foreach document ($1)
 
 # Copy the postscript and compressed postscript files down
 
-  echo "   Copying postscript source"
+  echo "htmlize:   Copying postscript source"
 
 # Note: $document.search must match the type and style of this copy
 #       e.g., for user you need to add the number of parts to user.search
@@ -139,12 +139,12 @@ foreach document ($1)
      set cpstatus = 1
   endif
   if ($cpstatus != 0) then
-    echo htmlize: copy of postscript failed for $document
+    echo "htmlize: copy of postscript failed for $document"
     exit 1
   endif
 
   @ compress_stat = 0
-  echo "   Compressing copies of postscript source"
+  echo "htmlize:   Compressing copies of postscript source"
   foreach file (${document}*.ps)
     if (-e $file) then
       compress < $file > ${document}/${file}.Z
@@ -153,7 +153,7 @@ foreach document ($1)
   end
 
   if ($compress_stat != 0) then
-    echo htmlize: compression of postscript failed for $document
+    echo "htmlize: compression of postscript failed for $document"
     exit 1
   endif
 
@@ -161,9 +161,9 @@ foreach document ($1)
 # new way to make frames document.
 #
   if (! $?NWCHEM_TOP ) then
-    echo "   NWCHEM_TOP is not defined ... cannot generate frames"
+    echo "htmlize:   NWCHEM_TOP is not defined ... cannot generate frames"
   else if (! -e $NWCHEM_TOP/doc/write_frames.pl) then
-    echo "   $NWCHEM_TOP/doc/write_frames.pl missing ... cannot generate frames"
+    echo "htmlize:   $NWCHEM_TOP/doc/write_frames.pl missing ... cannot generate frames"
   else
     if ($document == "user") then
       set title = "NWChem User Manual"
@@ -172,13 +172,13 @@ foreach document ($1)
     else
       set title = "NWChem Manual"
     endif
-    echo "   Constructing frames documents"
+    echo "htmlize:   Constructing frames documents"
     $NWCHEM_TOP/doc/write_frames.pl $document "$title"
   endif
 
 # Hopefully all is OK
 
-  echo "   Done htmlize-ing with $document"
+  echo "   Done htmlize-ing $document"
  
   /bin/rm -rf $TMP 
 
