@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.44 2003-02-23 23:44:02 bylaska Exp $
+* $Id: paw_sd.F,v 1.45 2003-02-24 21:02:14 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -83,18 +83,16 @@
 
 
 *     **** external functions ****
-      real*8      ewald_rcut,ion_amass
-      real*8      ewald_mandelung
+      real*8      paw_mult_rcut,ion_amass
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg
-      integer     ewald_ncut,ewald_nshl3d
+      integer     paw_mult_ncut
       character   spdf_name
       character*2 ion_aname,ion_atom
-      external    ewald_rcut,ion_amass
-      external    ewald_mandelung
+      external    paw_mult_rcut,ion_amass
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
-      external    ewald_ncut,ewald_nshl3d
+      external    paw_mult_ncut
       external    spdf_name
       external    ion_aname,ion_atom
 
@@ -255,7 +253,6 @@
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
-      if (control_version().eq.3) call ewald_init()
 
 
 *     **** generate initial wavefunction if it does not exist ****
@@ -436,10 +433,7 @@
      >                 pack_nwave_all(0),pack_nwave(0)
          write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
-         if (control_version().eq.3) then
-         write(6,1260) ewald_rcut(),ewald_ncut()
-         write(6,1261) ewald_mandelung()
-         end if
+         write(6,1260) paw_mult_rcut(),paw_mult_ncut()
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc(),control_tolr()
@@ -689,7 +683,6 @@ c         write(6,1498) virial
 
 
 *     **** deallocate heap memory ****
-      if (control_version().eq.3) call ewald_end()
       call strfac_end()
       if (control_version().eq.3) call coulomb_end()
       if (control_version().eq.4) call coulomb2_end()
@@ -850,7 +843,8 @@ c         write(6,1498) virial
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' smooth compensation (ewald) summation: cut radius=',
+     &       F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
