@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.23 1999-05-10 22:57:39 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.24 1999-05-10 23:23:49 d3j191 Exp $
 c
       implicit none
 c
@@ -285,6 +285,9 @@ c
       iql(1)=latm(7,i)
       iql(2)=latm(8,i)
       iql(3)=latm(9,i)
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+1
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=iq+2
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+4
 c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
 c      iq=3
 c      iql(1)=nqu
@@ -301,8 +304,8 @@ c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=3
 c      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=3
 c      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=3
       write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
-     + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),iql,i
- 1024 format(a10,a5,1x,9i5,i7)
+     + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),iql,iq,i
+ 1024 format(a10,a5,1x,10i5,i7)
 c      write(lfntop,1010) latm(3,i),imol,latm(1,i),latm(2,i),
 c     + lseq(1,latm(5,i)),cseq(latm(5,i)),catm(1,i)(1:5),i,iq,ifrac
 c 1010 format(5i7,a10,a5,1x,i7,2i5)
