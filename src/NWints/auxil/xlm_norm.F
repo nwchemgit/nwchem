@@ -1,5 +1,5 @@
-      subroutine xlm_norm(qn,e,D,Ld)
-* $Id: xlm_norm.F,v 1.3 1996-07-18 23:59:13 d3e129 Exp $
+      subroutine nwints_xlm_norm(qn,e,D,Ld)
+* $Id: xlm_norm.F,v 1.4 1999-02-01 23:13:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 c

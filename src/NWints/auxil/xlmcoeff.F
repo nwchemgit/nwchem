@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.4 1998-11-04 08:52:27 d3e129 Exp $
+* $Id: xlmcoeff.F,v 1.5 1999-02-01 23:13:55 d3g681 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -172,7 +172,7 @@ c... allocate space for qn
      &      ('xlmcoeff: error allocating qn bug ',911)
 * does not need to be zeroed      
 
-      call xlm_norm(dbl_mb(k_xlm_qn),dbl_mb(k_xlm_e),d,lmax)
+      call nwints_xlm_norm(dbl_mb(k_xlm_qn),dbl_mb(k_xlm_e),d,lmax)
 c... free tmp space
       if (.not.MA_pop_stack(h_xlm_qn)) call errquit
      &      ('xlmcoeff: error poping qn bug ',911)

@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.4 1996-02-06 01:07:10 d3e129 Exp $
+* $Id: spherical.F,v 1.5 1999-02-01 23:13:54 d3g681 Exp $
       implicit none
       integer memgot
       parameter (memgot=5000)
@@ -19,7 +19,7 @@ c
       call xlmcoeff_test(lmax,dd,.true.)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
-* $Id: spherical.F,v 1.4 1996-02-06 01:07:10 d3e129 Exp $
+* $Id: spherical.F,v 1.5 1999-02-01 23:13:54 d3g681 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -168,7 +168,7 @@ c... allocate space for e
       if (2*lmax+1.gt.e_sz) stop 'e error'
 c... allocate space for qn
       if (((2*lmax+1)*(lmax+1)).gt.qn_sz) stop 'qn error'
-      call xlm_norm(zzqn,zze,d,lmax)
+      call nwints_xlm_norm(zzqn,zze,d,lmax)
       call xlm_print_d(d,lmax,'normalized')
       end
       subroutine xlm_print_d(d,lmax,msg)
