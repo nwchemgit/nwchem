@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.240 1997-09-04 19:07:35 rg240 Exp $
+# $Id: makefile.h,v 1.241 1997-09-08 15:10:42 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -570,7 +570,7 @@ ifeq ($(TARGET),SGITFP)
 
 
     INSTALL = @echo nwchem is built
-  MAKEFLAGS = --no-print-directory
+  MAKEFLAGS = -j 4 --no-print-directory
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 -64
@@ -580,8 +580,8 @@ ifeq ($(TARGET),SGITFP)
 FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
 
 #optimization flags for R10000 (IP28)
- FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
-FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
+ FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC
 
  COPTIMIZE = -O
  FOPTIMIZE = -O3
@@ -596,7 +596,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
 endif
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT
-  CORE_LIBS = -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 endif
 
 
