@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.126 2002-02-08 15:46:17 d3j191 Exp $
+c $Id: cf_main.F,v 1.127 2002-02-08 15:47:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1871,6 +1871,7 @@ c
 c
       if(numw.gt.0) then
       facdof=rgas*tgauss
+      write(*,'(a,2f12.6)') 'TGAUSS ',tgauss,frgaus
       do 1 iwa=1,nwa
       if(facdof.lt.zero) tdev=sqrt(facdof/wgt(iwat(iwa),iset))
       do 2 iwm=1,numw
@@ -1884,6 +1885,7 @@ c
       do 4 iran=1,12
       rran=rran+util_random(0)
     4 continue
+      write(*,'(a,f12.6)') 'RRAN   ',(rran-six)/six
       if(facdof.gt.zero) then
       vw(iwm,ix,iwa)=(one-frgaus)*vw(iwm,ix,iwa)+frgaus*(rran-six)*tdev
       else
@@ -2894,32 +2896,32 @@ c
 c
       return
       end
-      subroutine cf_links(nums,isgan,isdt,lst)
+      subroutine cf_links(ltype,nums,isgan,isdt,lst)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nums
+      integer nums,ltype
       integer isgan(msa),isdt(msa),lst(nsa)
 c
-      call cf_cntlnk(mbt(2),int_mb(i_ibnd(2)),nums,isgan,isdt,lst)
+      call cf_cntlnk(ltype,mbt(2),int_mb(i_ibnd(2)),nums,isgan,isdt,lst)
       return
       end
-      subroutine cf_cntlnk(msb,ibnd,nums,isgan,isdt,lst)
+      subroutine cf_cntlnk(ltype,msb,ibnd,nums,isgan,isdt,lst)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      integer msb,nums
+      integer msb,nums,ltype
       integer ibnd(msb,3),isgan(msa),isdt(msa),lst(nsa)
 c
       integer i,j
 c
       do 1 j=1,nums
-      if(iand(isdt(j),lquant).ne.0) then
+      if(iand(isdt(j),ltype).ne.0) then
       do 2 i=1,msb
       if(ibnd(i,1).eq.isgan(j)) lst(ibnd(i,2))=lst(ibnd(i,2))+1
       if(ibnd(i,2).eq.isgan(j)) lst(ibnd(i,1))=lst(ibnd(i,1))+1
