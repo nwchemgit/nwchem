@@ -1,6 +1,6 @@
       subroutine psp_formatter_input(rtdb)
 c
-c $Id: psp_formatter_input.F,v 1.2 2001-11-26 21:51:24 bylaska Exp $
+c $Id: psp_formatter_input.F,v 1.3 2002-02-13 20:43:47 edo Exp $
 c
       implicit none
 #include "inp.fh"
@@ -12,7 +12,7 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       parameter (num_dirs = 10)
-      character*22 dirs(num_dirs)
+      character*26 dirs(num_dirs)
       character*255 test
 
       character*50 rtdb_name
