@@ -296,7 +296,7 @@ c   Transform to natural orbitals
 c
        call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                        dbl_mb(k_occ), g_movecs )
-       if (oprinfo) then
+       if ((oprinfo).and.(util_print('mo',print_high))) then
          write(6,880)
  880     format(///,10x,'Natural Orbitals and Occupation')
          if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
