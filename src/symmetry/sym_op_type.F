@@ -1,5 +1,5 @@
       subroutine sym_op_type(r, op_type, order, power, direction)
-C$Id: sym_op_type.F,v 1.3 1997-03-04 06:08:46 d3e129 Exp $
+C$Id: sym_op_type.F,v 1.4 2000-09-23 00:35:25 edo Exp $
       implicit none
       double precision r(3,3)
       character*(*) op_type
@@ -50,6 +50,7 @@ c
 c
 c     Determine angles of rotations
 c
+cedo      write(0,*) ' ttt ',trace
       if (op_type.eq.'rotation' .or. op_type.eq.'improper rotation')then
          if (op_type.eq.'rotation') then
             acos_arg = 0.5d0*(trace - 1.0d0)
@@ -63,6 +64,7 @@ c
             acos_arg = sign(1.0d0,acos_arg)
          endif
          angle = acos(acos_arg) ! Angle should be 2*pi*m/n
+cedo         write(0,*) ' aaangle ',angle,acos_arg
          do n = 2, 12
             do m = 1, n-1
                if (abs(twopi*dble(m)/dble(n) - angle) .lt.
@@ -73,6 +75,7 @@ c
          call errquit('sym_op_type: bad', 0)
  10      order = n
          power = m
+cedo         write(0,*) ' mmmm ',m
 c     
       endif
 c
@@ -99,6 +102,7 @@ c
          phase  = 0
       endif
 c
+cedo      write(0,*) ' repeat ',repeat
       if (repeat .gt. 0) then
         direction(1) = x(1)
         direction(2) = x(2)
@@ -180,17 +184,21 @@ c
          sintheta=z(1)*direction(1)+z(2)*direction(2)+z(3)*direction(3)
          sintheta=sintheta*phase
          if (sintheta .lt. -1d-6) power = -power
+ceod         write(0,*) ' sinth ',sintheta,power
       endif
 c
 c     Evaluation of power is mod(order) ... thus can end
 c     up with seemingly even improper rotations
 c
       if (op_type.eq.'improper rotation') then 
-         if (mod(power,2).eq.0) power = power + order
-         if (power .gt. order) power = 2*order - power
+         if (mod(power,2).eq.0) then
+            power = power + order
+         elseif (power .gt. order) then
+            power = 2*order - power
+         endif
       endif
 c
-*      write(6,*) ' trace, deter, op_type, order, power ',
-*     $     trace, deter, op_type, order, power 
+cedo      write(6,*) ' trace, deter, op_type, order, power ',
+cedo     $     trace, deter, op_type, order, power 
 c
       end
