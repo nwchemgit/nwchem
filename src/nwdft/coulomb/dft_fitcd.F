@@ -1,8 +1,9 @@
       Subroutine dft_fitcd(CD_coef, i3c_ERI, Ecoul1, rtdb, g_cdinv,
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
-     &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
+     &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
+     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
 *
-* $Id: dft_fitcd.F,v 1.22 1997-11-14 01:14:16 d3h449 Exp $
+* $Id: dft_fitcd.F,v 1.23 1997-11-26 17:26:56 d3h449 Exp $
 *
       implicit none
 c
@@ -20,6 +21,9 @@ c
 #include "sym.fh"
 #include "geom.fh"
 c
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rdens_atom(natoms,natoms,ipol)
       integer rtdb
       integer g_cdinv
       integer g_dens         ! GA DM handle

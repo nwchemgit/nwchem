@@ -1,7 +1,8 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
-     &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.20 1997-11-14 01:14:16 d3h449 Exp $
+     &                     iwhat_max, n_semi_bufs, fd, IOLGC,
+     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
+c     $Id: dft_fitvc.F,v 1.21 1997-11-26 17:26:57 d3h449 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -16,11 +17,14 @@ c
 #include "eaf.fh"
 #include "cdft.fh"
 #include "sym.fh"
-
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
-c      
+c
+      integer natoms      
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rdens_atom(natoms,natoms,ipol)
       integer rtdb
       integer g_vc    ! GA handle for V Coulomb [output]
       integer g_2ceri ! GA handle for repulsion int. [input]

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.52 1997-11-15 04:44:01 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.53 1997-11-26 17:27:06 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -27,7 +27,7 @@ c
       integer itype, icenter, jcenter
       integer lcoord, icoord, lcharge, icharge, ltags, itags,
      &        lznuc, iznuc, lratom, iratom, lrot, irot
-      integer iline, n
+      integer iline
       integer three, six, fifteen
       Parameter (three=3, six=6, fifteen=15)
       character*40 blank_40c
@@ -170,13 +170,13 @@ c
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))then
-         d_conv=1.d-4
+         d_conv=1.d-5
          if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
      &      call errquit('dft_input: rtdb_put failed', 106)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))then
-         g_conv=1.d-3
+         g_conv=5.d-4
          if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
      &      call errquit('dft_input: rtdb_put failed', 106)
       endif
@@ -258,7 +258,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:irqmax', mt_int, 1,
      &   irqmax))then
-         irqmax=40
+         irqmax=15
          if (.not. rtdb_put(rtdb, 'dft:irqmax',
      &      mt_int, 1, irqmax))
      &      call errquit('dft_input: rtdb_put failed', 126)
@@ -266,7 +266,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1,
      &   itol2e))then
-         itol2e=12
+         itol2e=10
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
      &      call errquit('dft_input: rtdb_put failed', 127)
@@ -401,7 +401,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,
      &   radius))then
-         radius=32.d0
+         radius=25.d0
          if (.not. rtdb_put(rtdb, 'dft:radius',
      &      mt_dbl, 1,radius))
      &      call errquit('dft_input: rtdb_put failed', 213)
@@ -409,7 +409,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1,
      &   tol_rho))then
-         tol_rho=1.D-15
+         tol_rho=1.D-10
          if (.not. rtdb_put(rtdb, 'dft:tol_rho',
      &      mt_dbl, 1,tol_rho))
      &      call errquit('dft_input: rtdb_put failed', 214)

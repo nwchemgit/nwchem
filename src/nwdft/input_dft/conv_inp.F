@@ -27,7 +27,7 @@ c     diis/nodiis/nfock
 c     lshift/nolevelshifting
 c     hl_tol
 c     
-      integer num_dirs, ind, mlen, iline
+      integer num_dirs, ind, mlen
       parameter (num_dirs = 19)
       character*15 dirs(num_dirs)
       character*255 test
@@ -61,7 +61,7 @@ c
   100 if (.not. inp_f(e_conv)) then
          write(6,*)' conv_inp: energy convergence value not found;',
      &             ' defaulting to 1d-7 Hartree'
-         e_conv = 1.d-7
+         e_conv = 1.d-6
       endif
       if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
      &   call errquit('conv_inp: rtdb_put failed', 100)
@@ -85,7 +85,7 @@ c
   300 if (.not. inp_f(g_conv)) then
          write(6,*)' conv_inp: gradient convergence value not found;',
      &             ' defaulting to 0.d0 Hartree'
-         g_conv = 1.d-4
+         g_conv = 5.d-4
       endif 
       if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
      &   call errquit('conv_inp: rtdb_put failed', 300)

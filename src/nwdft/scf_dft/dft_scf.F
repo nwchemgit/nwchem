@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.94 1997-11-20 00:18:00 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.95 1997-11-26 17:27:09 d3h449 Exp $
 c     
       implicit none
 c
@@ -61,6 +61,8 @@ c
       integer nexc
       integer iswitc
       integer itol_max, iaoacc_max
+      integer itol_min, iAOacc_min
+      double precision tol_rho_min, tol_rho_max
       integer nao2_max, batch_max, icount
       integer npol, nprint
       integer leneval, lcd_coef, icd_coef
@@ -94,7 +96,6 @@ c
      &        oprint_info, oprint_tol, oprint_final_vecs, 
      &        oprint_energy_step, oprint_intermediate_fock,
      &        oprint_3c2e, oprint_interm_overlap, oprint_interm_S2
-      integer itol_min, iAOacc_min
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
@@ -105,7 +106,7 @@ C
 c
 c     early convergence tolerances
 c
-      parameter(itol_min = 6, iAOacc_min = 15)
+      parameter(itol_min = 7, iAOacc_min = 12, tol_rho_min = 1.d-7)
 c
       double precision dft_dencvg, dft_time
       external dft_dencvg
@@ -117,6 +118,7 @@ c
       character*4 scftype
       character*255 basis_name, basis_trans
       integer nopen, nclosed
+      integer mbf_ao
 c
       call ecce_print_module_entry('dft')
 c
@@ -234,6 +236,7 @@ c
 c     
       itol_max = itol2e
       iaoacc_max = iaoacc
+      tol_rho_max = tol_rho
       if (oprint_time)
      &     call dft_tstamp(' Before 3c-2e initialize.')
 c
@@ -285,7 +288,13 @@ c
          nscr = 3*nqmax*nbf_ao_mxcont + 
      &          max(3*nqmax*nbf_ao_mxprim,nqmax*max_elem_ang_scr) + 1
 c
-         availm = availm - (nqmax*(natoms + 4*nbf_ao + 
+c        Assume exponent screening reduces nbf_ao to nbf_ao_mxnbf_ce*(nearest
+c        neighbors) with lets say 10 nearest neighbors - should actually
+c        try and compute this from nbf_to_mbf.F
+c
+         mbf_ao = nbf_ao_mxnbf_ce*10
+c
+         availm = availm - (nqmax*(natoms + 4*mbf_ao + 
      &                             3*nbf_ao_mxnbf_ce + 1) +
      &                      nbf_ao + nscr)
 c
@@ -342,7 +351,8 @@ c
      &         write(LuOut,3229)n3c_dbl*1.d-6
             call dft_3cincor(rtdb, n_batch, n3c_int, int_mb(k_3cwhat), 
      &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &                       n_semi_bufs, fd)
+     &                       n_semi_bufs, fd, int_mb(icntoce), 
+     &                       int_mb(icntobfr), int_mb(icetobfr), natoms)
          else
             if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
          endif
@@ -359,20 +369,6 @@ c
       pgmsect(5) = ' 3c-2e Ints'
       call tcllct(t_pgm(1,5),tp4,tp3)
 #endif
-c     
-c     set initial coulomb acc to 1e-5
-c     
-      iswitc = 0
-      if (ltight)then
-         itol2e = itol_max
-         iAOacc = iAOacc_max
-         iswitc = 1
-      else
-         itol2e = min(itol_min,itol_max)
-         iAOacc = min(iAOacc_min,iAOacc_max)
-      endif
-c     
-      tol2e = 10.d0**(-itol_max)
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
       IOLGC = .TRUE.
@@ -488,6 +484,24 @@ c
 c     Tidy up SCF
 c
       call fock_2e_tidy(rtdb)
+c
+c     set initial coulomb acc
+c
+c      write(6,*)' movecs_guess = ',movecs_guess
+      if (movecs_guess.eq.'restart')ltight=.true.
+      iswitc = 0
+      if (ltight)then
+         itol2e = itol_max
+         iAOacc = iAOacc_max
+         tol_rho = tol_rho_max
+         iswitc = 1
+      else
+         itol2e = min(itol_min,itol_max)
+         iAOacc = min(iAOacc_min,iAOacc_max)
+         tol_rho = max(tol_rho_min,tol_rho_max)
+      endif
+c     
+      tol2e = 10.d0**(-itol_max)
 c 
 c     Restore SCF parameters
 c
@@ -580,6 +594,18 @@ c
          call errquit('dft_scf: end of CMM ',1234)
       endif
 c
+c     Pre-compute reduced total density matrices over atoms
+c 
+      call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
+      nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &   call errquit('dft_scf: cannot allocate scr',0)
+      call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
+     &                        ipol, dbl_mb(irdens_atom), 'rms', 
+     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+      if (.not.ma_pop_stack(lscr))
+     &   call errquit('dft_scf: cannot pop stack',0)
+c
 #if defined(DFT_TIMER)
       call dft_second(tp3)
 #endif
@@ -596,7 +622,9 @@ c
          call dft_fitcd(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
      &                  g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
-     &                  n_semi_bufs, fd, IOLGC)
+     &                  n_semi_bufs, fd, IOLGC, 
+     &                  dbl_mb(irdens_atom), int_mb(icntoce), 
+     &                  int_mb(icntobfr), int_mb(icetobfr), natoms)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -610,7 +638,9 @@ c
       call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
      &               g_tmp, iVcoul_opt, g_2ceri, g_dens, n_batch, 
      &               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
-     &               n_semi_bufs, fd, IOLGC)
+     &               n_semi_bufs, fd, IOLGC,
+     &               dbl_mb(irdens_atom), int_mb(icntoce), 
+     &               int_mb(icntobfr), int_mb(icetobfr), natoms)
 c     
 c     Add V coul to Fock Matrix
 c     
@@ -634,20 +664,19 @@ c
 c     
 c        Note that g_dens(1) now contains the alpha density
 c        matrix and g_dens(2) contains the beta
-c     
-      endif
 c
-c     Pre-compute reduced density matrices over atoms
+c        Pre-compute reduced alpha and beta density matrices over atoms
 c 
-      call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
-      nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
-      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &   call errquit('dft_scf: cannot allocate scr',0)
-      call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
-     &                        ipol, dbl_mb(irdens_atom), 'rms', 
-     &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
-      if (.not.ma_pop_stack(lscr))
-     &   call errquit('dft_scf: cannot pop stack',0)
+         call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
+         nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+         if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &      call errquit('dft_scf: cannot allocate scr',0)
+         call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), 
+     &                           g_dens, ipol, dbl_mb(irdens_atom), 
+     &                           'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
+         if (.not.ma_pop_stack(lscr))
+     &      call errquit('dft_scf: cannot pop stack',0)
+      endif
 c     
 c     Compute the XC potential and energy.
 c     
@@ -1040,6 +1069,7 @@ c        (note, may also require re-initializing DIIS)
 c     
          itol2e = itol_max
          iAOacc = iAOacc_max
+         tol_rho = tol_rho_max
          iswitc = iswitc+1
       endif
 c     

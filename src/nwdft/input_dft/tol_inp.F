@@ -17,10 +17,13 @@ c     tight
 c     tol_rho
 c     accAOfunc
 c     accCDfunc
+c     accXCfunc
 c     accCoul
 c     accQrad
 c     accXCfunc
 c     radius
+c
+c     Any default assumptions are based upon "no input" defaults.
 c     
       integer num_dirs, ind, mlen
       parameter (num_dirs = 8)
@@ -60,8 +63,8 @@ c              multiplied by a density element less than tol_rho.
 c     
   200 if (.not. inp_f(tol_rho)) then
          write(6,*)' tol_inp: tol_rho value not found; defaulting ',
-     &             ' to 1.d-15 '
-         tol_rho=1.D-15
+     &             ' to 1.d-10 '
+         tol_rho=1.D-10
       endif            
       if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
      &   call errquit('tol_inp: rtdb_put failed', 200)
@@ -98,8 +101,8 @@ c     accCoul; for use in fitcd & fitvcoul for schwarz screening
 c             
   500 if (.not. inp_i(itol2e)) then
          write(6,*)' tol_inp: accCoul value not found; defaulting ',
-     &             ' to 15.'
-         itol2e = 15
+     &             ' to 10.'
+         itol2e = 10
       endif
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
      &   call errquit('tol_inp: rtdb_put failed', 500)
@@ -110,8 +113,8 @@ c     accQrad; for use in setquad - r_max for quadrature points (distance in boh
 c             
   600 if (.not. inp_i(irqmax)) then
          write(6,*)' tol_inp: accQrad value not found; defaulting ',
-     &             ' to 40.'
-         irqmax = 40
+     &             ' to 15.'
+         irqmax = 15
       endif            
       if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
      &   call errquit('tol_inp: rtdb_put failed', 600)
@@ -135,8 +138,8 @@ c     radius; screening radius used in computation of spatial weights (distance 
 c     
   800 if (.not. inp_f(radius)) then
          write(6,*)' tol_inp: radius value not found; defaulting ',
-     &             ' to 32.d0.'
-         radius=32.d0
+     &             ' to 25.d0.'
+         radius=25.d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1, radius))
      &   call errquit('tol_inp: rtdb_put failed', 800)

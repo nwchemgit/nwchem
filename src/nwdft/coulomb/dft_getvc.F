@@ -1,9 +1,10 @@
       Subroutine dft_getvc(CD_coef, i3c_ERI, Ecoul, rtdb, g_vc,
      &                     iVcoul_opt, g_2ceri, g_dens, n_batch,
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
-     &                     n_semi_bufs, fd, IOLGC)
+     &                     n_semi_bufs, fd, IOLGC, rdens_atom,
+     &                     cntoce, cntobfr, cetobfr, natoms)
 
-C$Id: dft_getvc.F,v 1.15 1997-11-14 01:14:17 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.16 1997-11-26 17:26:57 d3h449 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -15,6 +16,10 @@ c
 #include "cdft.fh"
 #include "util.fh"
 c
+      integer natoms
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
+      double precision rdens_atom(natoms,natoms,ipol)
       integer rtdb
       integer g_vc
       integer iVcoul_opt
@@ -71,7 +76,8 @@ c        call dft_tstamp(' Before call to dft_fitvc')
 c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         call dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc,
      &                 g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
-     &                 iwhat_max, n_semi_bufs, fd, IOLGC)
+     &                 iwhat_max, n_semi_bufs, fd, IOLGC, rdens_atom,
+     &                 cntoce, cntobfr, cetobfr, natoms)
 c        call dft_tstamp(' After  call to dft_fitvc')
 c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.35 1997-11-19 04:52:18 d3j191 Exp $
+c     $Id: dft_inpana.F,v 1.36 1997-11-26 17:27:05 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -253,7 +253,24 @@ c
      &      mt_int, 1, itol2e))
      &      call errquit('dft_inpana: rtdb_put failed', 127)
          if (me.eq.0.and.oprint_general)then
-            write(LuOut,*)' itol2e modified to match energy convergence'
+            write(LuOut,*)' itol2e modified to match energy'
+            write(LuOut,*)' convergence criterion.'
+         endif
+      endif
+c
+c     check density tolerance to make sure it matches
+c     requested convergence tolerances.
+c
+c     make sure tol_rho is less than 0.01*e_conv or (0.01*g_conv**2)
+c
+      if (tol_rho.gt.(1.0d-2*e_conv))then
+         tol_rho = 1.0d-2*e_conv
+         if (.not. rtdb_put(rtdb, 'dft:tol_rho',
+     &      mt_dbl, 1, tol_rho))
+     &      call errquit('dft_inpana: rtdb_put failed', 127)
+         if (me.eq.0.and.oprint_general)then
+            write(LuOut,*)' tol_rho modified to match energy'
+            write(LuOut,*)' convergence criterion.'
          endif
       endif
 c

@@ -1,7 +1,8 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
-     &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
+     &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
+     &                       cntoce, cntobfr, cetobfr, natoms)
 c 
-C$Id: dft_3cincor.F,v 1.11 1997-11-14 01:14:15 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.12 1997-11-26 17:26:55 d3h449 Exp $
 c
       implicit none
 c    
@@ -10,6 +11,7 @@ c
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl ! max no. ints [in]
+      integer natoms
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c
 #include "bas.fh"
@@ -25,6 +27,8 @@ c
 #include "eaf.fh"
 #include "util.fh"
 #include "sym.fh"
+      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
+     &        cetobfr(2,natoms)
 c     
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
@@ -417,7 +421,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.11 1997-11-14 01:14:15 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.12 1997-11-26 17:26:55 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
