@@ -206,6 +206,10 @@ c
 c grad_dft is done destroy basis and geometry handles  
 c (e.g., preserve the memory available to other modules!!)
 c
+      if(CDFIT) then
+        if (.not. bas_destroy(cd_basis))
+     &       call errquit('dft_grad:not able to destroy CD_bas:',86)
+      endif
       if (.not.(
      &    (bas_destroy(ao_basis))
      &    .and.
