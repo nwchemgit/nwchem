@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.9 2004-03-04 15:12:23 bylaska Exp $
+* $Id: paw_psi.F,v 1.10 2004-08-12 18:39:41 bylaska Exp $
 *
 
 
@@ -70,6 +70,43 @@
       paw_psi_CheckOrtho = error
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *          paw_psi_CheckOrtho2    *
+*     *                                 *
+*     ***********************************
+
+*   This routine return true if the orbitals are
+* orthonormal.
+
+      subroutine paw_psi_CheckOrtho2(npack,ne,psi)
+      implicit none
+      integer npack,ne
+      double complex psi(npack,ne)
+
+
+*     **** local variables ****
+      integer j,k
+      real*8  w,error
+
+      
+      write(*,*)
+      do k=1,ne
+        call paw_overlap_matrix_gen(1,1,psi(1,k),psi(1,k),w)
+        write(*,*) "CheckOrtho2:",k,k,w
+
+        do j=k+1,ne
+           call paw_overlap_matrix_gen(1,1,psi(1,j),psi(1,k),w)
+        write(*,*) "CheckOrtho2:",j,k,w
+        end do
+      end do
+      write(*,*)
+
+      return
+      end
+
 
 
 *     ***********************************

@@ -1,13 +1,18 @@
 c
-c $Id: paw_gaunt_data.fh,v 1.2 2004-07-29 15:55:37 bylaska Exp $
+c $Id: paw_gaunt_data.fh,v 1.3 2004-08-12 18:39:41 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.2  2004/07/29 15:55:37  bylaska
+c Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+c
+c  ...EJB
+c
 c Revision 1.1  2003/02/06 06:04:37  marat
 c Initial Revision
 c
 
 !     **** paw_gaunt common blocks ****
       integer    paw_gaunt_lmax
-      integer    paw_gaunt_coeff(2)    
+      integer    paw_gaunt_coeff(4)    
       common / paw_gaunt / paw_gaunt_lmax, paw_gaunt_coeff
 

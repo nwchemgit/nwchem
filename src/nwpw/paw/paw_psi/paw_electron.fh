@@ -1,0 +1,30 @@
+*
+* $Id: paw_electron.fh,v 1.1 2004-08-12 18:39:41 bylaska Exp $
+*
+
+*     ***** paw_electron common block **********************************
+      logical field_exist
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer Hpsi_k(2)
+      integer psi_r(2)
+      integer vl(2)            ! short-range local psp
+      integer vl_lr(2)         ! long-range local psp
+      integer v_field(2)       ! used for qm/mm and charge fields
+      integer vc(2)            ! coulomb potential
+      integer vh(2)            ! hartree potential
+      integer vcomp(2)         ! compensation potential
+      integer dn_cmp_smooth(2) ! smooth compensation density
+      integer xcp(2)           ! xc potential
+      integer xce(2)           ! xc energy density
+      integer vall(2)
+      real*8  ehsic,exsic,phsic,pxsic ! SIC energies
+
+      common / paw_electron_block / ehsic,exsic,phsic,pxsic,
+     >                          Hpsi_k,psi_r,
+     >                          vl,vl_lr,v_field,
+     >                          vc,vh,vcomp,dn_cmp_smooth,
+     >                          xcp,xce,vall,
+     >                          ne,ispin,nfft3d,npack1,npack0,
+     >                          field_exist
+*     *****************************************************************
+

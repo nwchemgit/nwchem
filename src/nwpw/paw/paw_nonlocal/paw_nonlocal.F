@@ -1,8 +1,24 @@
 *
-* $Id: paw_nonlocal.F,v 1.13 2003-10-21 02:05:17 marat Exp $
+* $Id: paw_nonlocal.F,v 1.14 2004-08-12 18:39:41 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2003/10/21 02:05:17  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.12  2003/03/25 01:11:30  edo
 * uninitialized variable
 *
@@ -331,6 +347,7 @@
         prj    = paw_proj_i_prj_atom(ia)
         call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
+
         do nlm=1,nbasis
            nlmii = nlmii + 1
            
@@ -340,11 +357,13 @@
      >                      dcpl_mb(prj+indx_prj),
      >                      dcpl_mb(p(1)))
 
+
            do n=1,neall
              indx_psi   = (n-1)*npack1 + 1
              indx_coeff = paw_nl_coeff(1) 
      >                  + (nlmii-1)*neall 
      >                  + (n-1) 
+
              call Pack_cc_zaxpy(1,
      >                          dcpl_mb(indx_coeff),
      >                          dcpl_mb(p(1)),

@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.2 2004-08-01 02:10:25 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.3 2004-08-12 18:39:41 bylaska Exp $
 *
 
 ***********************************************************************
@@ -100,6 +100,10 @@
       character*30 control_cell_name
       external     control_cell_name
 
+      logical  paw_psi_initialize, paw_psi_finalize
+      external paw_psi_initialize, paw_psi_finalize
+
+
       logical      control_Mulliken
       external     control_Mulliken
       logical      psi_filefind
@@ -109,11 +113,11 @@
       integer      control_mapping
       external     control_mapping
 
-      integer  electron_count,linesearch_count
-      external electron_count,linesearch_count
+      integer  paw_electron_count,linesearch_count
+      external paw_electron_count,linesearch_count
       
-      real*8   ion_TotalCharge
-      external ion_TotalCharge
+      real*8   ion_TotalCharge,paw_cgsd_energy
+      external ion_TotalCharge,paw_cgsd_energy
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
       real*8   control_ks_alpha
@@ -129,6 +133,8 @@
 *****************************|  PROLOGUE  |****************************
 *                            |************|
 
+      value = MA_set_error_print(.true.)
+      value = MA_set_auto_verify(.true.)
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
@@ -193,7 +199,6 @@
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 
- 
 *     **** initialize lattice data structure ****
       call lattice_init()
       call G_init()
@@ -203,10 +208,6 @@
 *     **** initialize Gaunt array ****
       call paw_gaunt_init()
 
-
-
-*     **** read in wavefunctions and initialize psi ****
-c     value = psi_initialize()
 
 *     **** read ions ****
       value = ion_init(rtdb)
@@ -247,9 +248,16 @@ c     value = psi_initialize()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
 
-      call psi_get_ne(ispin,ne)
+*     ***** create wavefunctions if they don't exist ****
+      if (.not.psi_filefind()) then
+        call paw_psi_new()
+        newpsi = .true.
+      else
+        newpsi = .false.
+      end if
 
 *     *** intialize overlap coefficient data structure ***
+      call psi_get_ne(ispin,ne)
       call phafac()
       call paw_ovlp_init(ispin,ne)
       call paw_nonlocal_init(ispin,ne)
@@ -259,6 +267,13 @@ c     value = psi_initialize()
       !call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       !call paw_ovlp_weights_set()
 
+
+*     **** read in wavefunctions and initialize psi ****
+      value = paw_psi_initialize()
+
+*     **** electron and geodesic data structures ****
+      call paw_electron_init()
+      call paw_geodesic_init()
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -398,12 +413,13 @@ c       call control_gradient_iterations()
 c     end if
 
 *     **** calculate energy ****
-      !if (flag.eq.-1) then
+      if (flag.eq.-1) then
       !  EV= cgsd_noit_energy()
-      !else
-      !  EV= cgsd_energy(newpsi)
-      !end if
-      EV = 0.0d0
+       write(*,*) "doh!"
+      else
+         EV= paw_cgsd_energy(newpsi)
+      end if
+      !EV = 0.0d0
 
 *     **** extra energy output for QA test ****
       if (lprint) write(6,1600) EV
@@ -449,13 +465,19 @@ c     end if
 
 *     **** calculate Mulliken Populations ***
 
+
 *     **** write wavefunctions to file and finalize psi ****
+      value = paw_psi_finalize()
+
 
 *     **** write geometry to rtdb ****
       call ion_write(rtdb)
 
 
 *     **** deallocate heap memory ****
+      call paw_electron_finalize()
+      call paw_geodesic_finalize()
+
       call strfac_end()
       if (control_version().eq.3) call coulomb_end()
       if (control_version().eq.4) call coulomb2_end()
@@ -500,42 +522,47 @@ c     end if
          T2=CPU3-CPU2
          T3=CPU4-CPU3
          T4=CPU4-CPU1
-         AV=T2/dble(electron_count())
-         write(6,*)
-         write(6,*) '-----------------'
-         write(6,*) 'cputime in seconds'
-         write(6,*) 'prologue    : ',T1
-         write(6,*) 'main loop   : ',T2
-         write(6,*) 'epilogue    : ',T3
-         write(6,*) 'total       : ',T4
-         write(6,*) 'cputime/step: ',AV,
-     >              '   (',electron_count(),' evalulations, ', 
-     >                     linesearch_count(),' line searches)'
+         AV=T2/dble(paw_electron_count())
+         write(6,1801)
+         write(6,1802)
+         write(6,1803) T1
+         write(6,1804) T2
+         write(6,1805) T3
+         write(6,1806) T4
+         write(6,1807) AV,paw_electron_count(),linesearch_count()
          if (oprint) then
-         write(6,*)
-         write(6,*) '-------------------------------'
-         write(6,*) 'Time spent doing:'
-         write(6,*) '  FFTs                       : ', nwpw_timing(1),
-     >                          nwpw_timing(1)/dble(electron_count())           
-         write(6,*) '  dot products               : ', nwpw_timing(2),
-     >                          nwpw_timing(2)/dble(electron_count())           
-         write(6,*) '  geodesic                   : ', nwpw_timing(10),
-     >                          nwpw_timing(10)/dble(electron_count())           
-         write(6,*) '  exchange correlation       : ', nwpw_timing(4),
-     >                          nwpw_timing(4)/dble(electron_count())           
-         write(6,*) '  local pseudopotentials     : ', nwpw_timing(5),
-     >                          nwpw_timing(5)/dble(electron_count())           
-         write(6,*) '  non-local pseudopotentials : ', nwpw_timing(6),
-     >                          nwpw_timing(6)/dble(electron_count())           
-         write(6,*) '  hartree potentials         : ', nwpw_timing(7),
-     >                          nwpw_timing(7)/dble(electron_count())           
-         write(6,*) '  structure factors          : ', nwpw_timing(8),
-     >                          nwpw_timing(8)/dble(electron_count())           
-         write(6,*) '  masking and packing        : ', nwpw_timing(9),
-     >                          nwpw_timing(9)/dble(electron_count())           
+         write(6,1809) 'Time spent doing               ',
+     >              'total','step'
+         write(6,1808) '  FFTs                       : ', 
+     >                 nwpw_timing(1),
+     >                 nwpw_timing(1)/dble(paw_electron_count())           
+         write(6,1808) '  dot products               : ', 
+     >                 nwpw_timing(2),
+     >                 nwpw_timing(2)/dble(paw_electron_count())           
+         write(6,1808) '  geodesic                   : ', 
+     >                 nwpw_timing(10),
+     >                 nwpw_timing(10)/dble(paw_electron_count())           
+         write(6,1808) '  exchange correlation       : ', 
+     >                 nwpw_timing(4),
+     >                 nwpw_timing(4)/dble(paw_electron_count())           
+         write(6,1808) '  local pseudopotentials     : ', 
+     >                 nwpw_timing(5),
+     >                 nwpw_timing(5)/dble(paw_electron_count())           
+         write(6,1808) '  non-local pseudopotentials : ', 
+     >                 nwpw_timing(6),
+     >                 nwpw_timing(6)/dble(paw_electron_count())           
+         write(6,1808) '  hartree potentials         : ', 
+     >                 nwpw_timing(7),
+     >                 nwpw_timing(7)/dble(paw_electron_count())           
+         write(6,1808) '  structure factors          : ', 
+     >                 nwpw_timing(8),
+     >                 nwpw_timing(8)/dble(paw_electron_count())           
+         write(6,1808) '  masking and packing        : ',
+     >                 nwpw_timing(9),
+     >                 nwpw_timing(9)/dble(paw_electron_count())           
          end if
          write(6,*)
-         CALL nwpw_MESSAGE(4)
+         CALL nwpw_message(4)
       end if 
 
 
@@ -649,7 +676,19 @@ c     end if
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1600 FORMAT(/' Total PSPW energy   :',E19.10)
+ 1600 FORMAT(/' Total PAW energy   :',E19.10)
+
+ 1801 FORMAT(//'== Timing ==')
+ 1802 FORMAT(/'cputime in seconds')
+ 1803 FORMAT( '  prologue    : ',E14.6)
+ 1804 FORMAT( '  main loop   : ',E14.6)
+ 1805 FORMAT( '  epilogue    : ',E14.6)
+ 1806 FORMAT( '  total       : ',E14.6)
+ 1807 FORMAT( '  cputime/step: ',E14.6,
+     >        '       (',I8,' evalulations,', I8,' linesearches)')
+ 1808 FORMAT(A,E14.6,E14.6)
+ 1809 FORMAT(//A,2A14)
+
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
  9000 if (taskid.eq.MASTER) write(6,9010) ierr

@@ -1,8 +1,12 @@
 *
-* $Id: paw_inner_loop.F,v 1.38 2003-10-24 18:45:24 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.39 2004-08-12 18:39:41 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.38  2003/10/24 18:45:24  bylaska
+*
+* Aperiodic convolution capability has been added to PAW .... EJB
+*
 * Revision 1.37  2003/10/21 02:05:15  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -319,9 +323,9 @@
 *      ************************************
 *      **** generate coulomb potential ****
 *      ************************************
-       call paw_pot_hartree_solve()
         
 *      *** atomic portion ***
+       call paw_pot_hartree_solve()
            
         call paw_mult_dn_cmp_get(dcpl_mb(tmp1(1)),
      >                           dn_cmp_smooth)
@@ -491,37 +495,8 @@
      >                            dcpl_mb(vcomp(1)),
      >                            dbl_mb(fion(1)))
 
-c          write(*,*)
-c          write(*,*) " pw force:"
-c          write(*,*) " fpw1:",dbl_mb(fion(1)),
-c    >                         dbl_mb(fion(1)+1),
-c    >                         dbl_mb(fion(1)+2)
-c          write(*,*) " fpw2:",dbl_mb(fion(1)   +3),
-c    >                         dbl_mb(fion(1)+1 +3),
-c    >                         dbl_mb(fion(1)+2 +3)
-c          write(*,*) " fpw3:",dbl_mb(fion(1)   +6),
-c    >                         dbl_mb(fion(1)+1 +6),
-c    >                         dbl_mb(fion(1)+2 +6)
-c          write(*,*)
-c          write(*,*)
-
            call paw_force_solve(psi1,dbl_mb(fion(1))) 
 
-c          call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
-c          call paw_force_mult(dbl_mb(ftest(1))) 
-c          write(*,*)
-c          write(*,*) " mult force:"
-c          write(*,*) " fmult1:",dbl_mb(ftest(1)),
-c    >                           dbl_mb(ftest(1)+1),
-c    >                           dbl_mb(ftest(1)+2)
-c          write(*,*) " fmult2:",dbl_mb(ftest(1)   +3),
-c    >                           dbl_mb(ftest(1)+1 +3),
-c    >                           dbl_mb(ftest(1)+2 +3)
-c          write(*,*) " fmult3:",dbl_mb(ftest(1)   +6),
-c    >                           dbl_mb(ftest(1)+1 +6),
-c    >                           dbl_mb(ftest(1)+2 +6)
-c          write(*,*)
-c          write(*,*)
 
 *           *** compute hamiltonian matrix if first iteration ****
            if (first_iteration) then
@@ -557,61 +532,6 @@ c          write(*,*)
            call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(fion(1))) 
 
 
-c*     **** write out lambda matrix ****
-c      n = ne(1)
-c      nn = n*n
-c         write(*,*)
-c         write(*,*)
-c         do ms=1,ispin
-c            do i=n1(ms),n2(ms)
-c               ii = i-n1(ms)
-c               do j=n1(ms),n2(ms)
-c                  jj = j-n1(ms)
-c                  index = (ii+1) + jj*n +(ms-1)*nn
-c                  write(*,1340) ms,ii+1,jj+1,
-c     >                           hml(index),
-c     >                           dbl_mb(tmp_L(1)+index-1)
-c               end do
-c            end do
-c         end do
-c         write(*,*)
-c         write(*,*)
-c 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
-c*     **** write out lambda matrix ****
-
-
-
-
-
-c          call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
-c          call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(ftest(1))) 
-c          write(*,*)
-c          write(*,*) " constraint force:"
-c          write(*,*) " fcons1:",dbl_mb(ftest(1)),
-c    >                           dbl_mb(ftest(1)+1),
-c    >                           dbl_mb(ftest(1)+2)
-c          write(*,*) " fcons2:",dbl_mb(ftest(1)   +3),
-c    >                           dbl_mb(ftest(1)+1 +3),
-c    >                           dbl_mb(ftest(1)+2 +3)
-c          write(*,*) " fcons3:",dbl_mb(ftest(1)   +6),
-c    >                           dbl_mb(ftest(1)+1 +6),
-c    >                           dbl_mb(ftest(1)+2 +6)
-c          write(*,*)
-c          write(*,*)
-
-c          write(*,*)
-c          write(*,*) " total force:"
-c          write(*,*) " f1:",dbl_mb(fion(1)),
-c    >                           dbl_mb(fion(1)+1),
-c    >                           dbl_mb(fion(1)+2)
-c          write(*,*) " f2:",dbl_mb(fion(1)   +3),
-c    >                           dbl_mb(fion(1)+1 +3),
-c    >                           dbl_mb(fion(1)+2 +3)
-c          write(*,*) " f3:",dbl_mb(fion(1)   +6),
-c    >                           dbl_mb(fion(1)+1 +6),
-c    >                           dbl_mb(fion(1)+2 +6)
-c          write(*,*)
-c          write(*,*)
 
 
 *          **** remove ion forces using ion_FixIon ****
