@@ -9,7 +9,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.27 1997-03-27 08:48:45 d3e129 Exp $
+* $Id: mp2_grad_doit.F,v 1.28 1997-04-11 23:11:25 d3h325 Exp $
 *
       implicit none
 #include "global.fh"
@@ -55,7 +55,7 @@
       character*256 fnamek
       character*256 fnameta,fnametb
       integer nva_lo_local,nva_hi_local
-      parameter(kunit=11)
+*     parameter(kunit=11)  ! it becomes output argument if EAF is used
       integer tunita,tunitb
       logical ocoul,oexch, oprint_mem, oprint_where
       double precision tol2e,e2
