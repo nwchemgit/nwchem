@@ -1,0 +1,443 @@
+#!/bin/csh 
+#
+# $Id: runtest.batch,v 1.1 1997-06-30 17:16:45 d3e129 Exp $
+#
+# Batch system based parallel and sequential execution of test jobs
+#
+# Usage:
+#       runtest.batch [-procs nproc] testdir1 [testdir2 ...]
+#
+#
+# Gets executable from environment variable NWCHEM_EXECUTABLE or
+# uses the daily NWChem release build if it can find one.
+#
+# A test is specified by the path to the directory containing
+# the test inputs and outputs.  The input file is assumed to
+# begin with the same name as the directory.  
+#
+# E.g., if the test is specified as ./small/o3grad then
+# - the input file will be ./small/o3grad/o3grad.nw
+# - the verified output will be ./small/o3grad/o3grad.out
+#
+# A machine specific subdirectory with a basename of scratchdir 
+# is deleted and remade by each calculation, and deleted at job end.
+# NOTE: since jobs may execute concurrently this needs to be 
+#       specific to the batch job.
+#
+# A subdirectory of the current directory name testoutputs is made
+# (if necessary) and all outputs are routed there.  Existing outputs
+# are overwritten.  The name of the output file is formed by replacing
+# the trailing .nw with .out.  In this directory is also put the
+# output of nwparse for the verified and the test outputs.
+#
+# At job completion BATCH_OK has the number of jobs that finished OK, 
+# similarly for BATCH_FAILED.  BATCH_OVERALL will be empty or 
+# non-existent if all jobs are OK.  There is one job per test 
+# subdirectory.  This script automatically checks for output
+# in a while loop that will last for 100 minutes.  It will return
+# an overall status of 0 otherwise a non-zero status is returned. 
+# If the timeout limit is reached output must be checked by hand 
+# and the script returns a non-zero status.
+#
+
+
+#  get batch system information information
+if ($?BATCH_SYSTEM) then
+   set BATCH = $BATCH_SYSTEM
+else
+   if (! ($?BATCH)) then
+      cqstatl >& /dev/null
+      if (! ($status)) then
+         set BATCH = NQE
+      endif
+   endif
+   if (! ($?BATCH)) then
+      llq >& /dev/null
+      if (! ($status)) then
+         set BATCH = LoadLeveler
+      endif
+   endif
+   if (! ($?BATCH)) then
+      echo " no known batch system configured "
+      exit 911
+   endif
+endif
+set CURDIR = $cwd
+
+# Figure out where the executable is.
+
+if ($?NWCHEM_EXECUTABLE) then
+  set NWCHEM = $NWCHEM_EXECUTABLE
+else
+  if ($BATCH == "NQE") then
+     if (-x /u5/u5097/bind/nwchem.t3e) then
+        set NWCHEM = /u5/u5097/bind/nwchem.t3e
+     endif
+  else if ($BATCH == "LoadLeveler") then
+     if (-x /u/nwchem/bind/nwchem.sp) then
+        set NWCHEM = /u/nwchem/bind/nwchem.sp
+     endif
+     if (-x /u3/nwchem/bind/nwchem.sp) then
+        set NWCHEM = /u3/nwchem/bind/nwchem.sp
+     endif
+  else
+     set NWCHEM = /msrc/proj/nwchem/bin/nwchem
+  endif
+endif
+
+if (! -x $NWCHEM) then
+  echo cannot execute $NWCHEM
+  exit 1
+endif
+
+# Figure out where the nwparse.pl script is.
+
+if (! $?NWPARSE) then
+  if (-f nwparse.pl) then
+    set NWPARSE = $CURDIR/nwparse.pl
+  else if ($?NWCHEM_TOP) then
+    set NWPARSE = $NWCHEM_TOP/QA/nwparse.pl
+  else
+    echo Cannot find nwparse.pl.  Set NWPARSE or NWCHEM_TOP appropriately.
+    exit 1
+  endif
+endif
+
+# create and submit the tests one at a time
+
+set TESTOUTPUTS = $CURDIR/testoutputs
+if ($BATCH == "NQE") then
+  set SCRATCHDIR  = \$BIG/scratchdir
+else if ($BATCH == "LoadLeveler") then
+  set SCRATCHDIR  = /scratch/scratchdir
+else 
+  set SCRATCHDIR  = $CURDIR/scratchdir
+endif
+
+if (! -d $TESTOUTPUTS) then
+  mkdir $TESTOUTPUTS
+  if ($status) then
+    echo cannot make directory $TESTOUTPUTS
+    exit 1
+  endif
+endif
+
+set overall_status = 0
+
+rm -f $CURDIR/BATCH_OKAY
+rm -f $CURDIR/BATCH_FAILED
+rm -f $CURDIR/BATCH_OVERALL
+
+@ run_count = 0
+foreach TEST ($argv[*]) 
+
+  \cd $CURDIR
+
+  set TESTDIR = $TEST
+  set STUB    = `basename $TEST`
+  set BATCH_SCRIPT = ${CURDIR}/${BATCH}_${STUB}
+  rm -f $BATCH_SCRIPT
+  touch $BATCH_SCRIPT
+  touch $BATCH_SCRIPT.log
+  rm -f $BATCH_SCRIPT.log
+  touch $BATCH_SCRIPT.OK
+  rm -f $BATCH_SCRIPT.OK
+  touch $BATCH_SCRIPT.FAILED
+  rm -f $BATCH_SCRIPT.FAILED
+#
+# if $TEST is not a directory try use as root of filenames
+#
+  if(! -d $TEST) then
+    set TESTDIR = `echo $TEST | sed 's+/[^/]*$++'`
+  endif
+#
+# if $TESTDIR not directory skip
+#
+  if(! -d $TESTDIR) then
+    echo could not find job in $TEST
+    continue
+  endif
+
+  if ($BATCH == "NQE") then
+     set NPROC = 2
+     if (-e $TESTDIR/MPP) then
+        set NPROC = `grep NPROC $TESTDIR/MPP | sed 's/NPROC//'`
+     endif
+     echo  "#QSUB -mb"                           >> $BATCH_SCRIPT
+     echo  "#QSUB -me"                           >> $BATCH_SCRIPT
+     echo  "#QSUB -s /bin/csh"                   >> $BATCH_SCRIPT
+     @ run_count++
+     echo  "#QSUB -r nwc_reg_$run_count"         >> $BATCH_SCRIPT
+     echo  "#QSUB -lM 28Mw"                      >> $BATCH_SCRIPT
+     echo  "#QSUB -lm 28Mw"                      >> $BATCH_SCRIPT
+     echo  "#QSUB -J m -eo -o $BATCH_SCRIPT.log" >> $BATCH_SCRIPT
+     echo  "#QSUB -lT 2000"                      >> $BATCH_SCRIPT
+     echo  "#QSUB -lt 2000"                      >> $BATCH_SCRIPT
+     echo  "#QSUB -l mpp_p=$NPROC"               >> $BATCH_SCRIPT
+     echo  "#"                                   >> $BATCH_SCRIPT
+  else if ($BATCH == "LoadLeveler") then
+     echo " LoadLeveler setup for batch not implemented"
+     continue
+  else
+     echo " unknown setup for batch script"
+     continue
+  endif
+  echo "set echo timestamp verbose"         >> $BATCH_SCRIPT
+# echo "set echo timestamp"                 >> $BATCH_SCRIPT
+  echo "set batchjob_status = 0"            >> $BATCH_SCRIPT
+  echo "cd $CURDIR"                         >> $BATCH_SCRIPT
+  echo "if(! -d $TESTOUTPUTS) then"         >> $BATCH_SCRIPT
+  echo "   mkdir $TESTOUTPUTS"              >> $BATCH_SCRIPT
+  echo '   if($status) then'                >> $BATCH_SCRIPT
+  echo "      echo cannot make directory $TESTOUTPUTS" >> $BATCH_SCRIPT
+  echo "      set batchjob_status = 1"      >> $BATCH_SCRIPT
+  echo "      goto notify_status"           >> $BATCH_SCRIPT
+  echo "   endif"                           >> $BATCH_SCRIPT
+  echo "endif"                              >> $BATCH_SCRIPT
+  echo "set TESTDIR = $TESTDIR"             >> $BATCH_SCRIPT
+  echo "# "                                 >> $BATCH_SCRIPT
+  echo "# Running $TESTDIR/$STUB "          >> $BATCH_SCRIPT
+  echo "# "                                 >> $BATCH_SCRIPT
+  echo " "                                  >> $BATCH_SCRIPT
+  echo "#"                                  >> $BATCH_SCRIPT
+  echo "# Clean the scratch directory and copy the input and verified output"  >> $BATCH_SCRIPT
+  echo "# files to the scratch and test output directories"                    >> $BATCH_SCRIPT
+  echo "#"                                  >> $BATCH_SCRIPT
+  echo "#    cleaning scratch"              >> $BATCH_SCRIPT
+  echo " "                                  >> $BATCH_SCRIPT
+  echo "/bin/rm -rf $SCRATCHDIR"            >> $BATCH_SCRIPT
+  echo "#    making scratch"                >> $BATCH_SCRIPT
+  echo " "                                  >> $BATCH_SCRIPT
+  echo "mkdir $SCRATCHDIR"                  >> $BATCH_SCRIPT
+  echo 'if ($status) then'                  >> $BATCH_SCRIPT
+  echo "  echo failed to make $SCRATCHDIR"  >> $BATCH_SCRIPT
+  echo "  set batchjob_status = 1"          >> $BATCH_SCRIPT
+  echo "  goto notify_status"               >> $BATCH_SCRIPT
+  echo "endif"                              >> $BATCH_SCRIPT
+  echo " "                                  >> $BATCH_SCRIPT
+# copying input and verified output files
+  echo "# set input and output files"       >> $BATCH_SCRIPT
+  set OUTPUTFILE   = $STUB.out
+  set INPUTFILE    = $STUB.nw
+  echo "# OUTPUTFILE is $OUTPUTFILE"  >> $BATCH_SCRIPT
+  echo "# INPUTFILE  is $INPUTFILE"   >> $BATCH_SCRIPT
+  echo " "  >> $BATCH_SCRIPT
+  echo "#"  >> $BATCH_SCRIPT
+  echo "# MD input files"   >> $BATCH_SCRIPT
+  echo "#"  >> $BATCH_SCRIPT
+  echo " "  >> $BATCH_SCRIPT
+  set TESTFILE     = $STUB.tst
+  set RESTARTFILE  = $STUB.rst
+  set RDFINPUTFILE = $STUB.rdi
+  set TOPOLOGYFILE = `echo $STUB.top | sed 's/_.*\././'`
+  echo "# TESTFILE is $TESTFILE"         >> $BATCH_SCRIPT
+  echo "# RESTARTFILE is $RESTARTFILE"   >> $BATCH_SCRIPT
+  echo "# RDFINPUTFILE is $RDFINPUTFILE" >> $BATCH_SCRIPT
+  echo "# TOPOLOGYFILE is $TOPOLOGYFILE" >> $BATCH_SCRIPT
+#
+  echo "set md_test_run = 0"                  >> $BATCH_SCRIPT
+  echo "if( -f $TESTDIR/$TOPOLOGYFILE) then"  >> $BATCH_SCRIPT
+  echo "   set md_test_run = 1"               >> $BATCH_SCRIPT
+  echo "endif"                                >> $BATCH_SCRIPT
+#
+  
+  echo "if (! -f $TESTDIR/$INPUTFILE) then"         >> $BATCH_SCRIPT
+  echo "   echo cannot access $TESTDIR/$INPUTFILE"  >> $BATCH_SCRIPT
+  echo "   set batchjob_status = 1"                 >> $BATCH_SCRIPT
+  echo "   goto notify_status"                      >> $BATCH_SCRIPT
+  echo "endif"                                      >> $BATCH_SCRIPT
+  echo "if (! -f $TESTDIR/$OUTPUTFILE) then"        >> $BATCH_SCRIPT
+  echo "   echo Could not find verified output file $TESTDIR/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  echo "   set batchjob_status = 1"                 >> $BATCH_SCRIPT
+  echo "   goto notify_status"                      >> $BATCH_SCRIPT
+  echo "endif"                                      >> $BATCH_SCRIPT
+
+  echo "# copy files"                                                            >> $BATCH_SCRIPT
+  echo "cp $TESTDIR/$INPUTFILE $SCRATCHDIR/tmp_input"                            >> $BATCH_SCRIPT
+  echo "cat  $SCRATCHDIR/tmp_input | sed 's/scratch_dir/#scratch_dir/' | sed 's/permanent_dir/#permanent_dir/' > $SCRATCHDIR/$INPUTFILE"  >> $BATCH_SCRIPT
+  echo "if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out"  >> $BATCH_SCRIPT
+  echo "cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out"                       >> $BATCH_SCRIPT
+
+#
+# copy the MD files
+#
+  echo 'if($md_test_run) then'                                                   >> $BATCH_SCRIPT
+  echo "   cp $TESTDIR/$TOPOLOGYFILE $SCRATCHDIR"                                >> $BATCH_SCRIPT
+  echo "   cp $TESTDIR/$RESTARTFILE $SCRATCHDIR"                                 >> $BATCH_SCRIPT
+  echo "   cp $TESTDIR/$TESTFILE $TESTOUTPUTS/$STUB.ok.tst"                      >> $BATCH_SCRIPT
+  echo "   if(-f $TESTDIR/$RDFINPUTFILE) cp $TESTDIR/$RDFINPUTFILE $SCRATCHDIR"  >> $BATCH_SCRIPT
+  echo "endif"                                                                   >> $BATCH_SCRIPT
+#
+
+# Run the calculation in the scratch directory
+
+  echo "cd $SCRATCHDIR"  >> $BATCH_SCRIPT
+
+  echo "if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out"  >> $BATCH_SCRIPT
+
+  echo "# running nwchem"  >> $BATCH_SCRIPT
+
+  echo "# start date" >> $BATCH_SCRIPT
+  echo "date"         >> $BATCH_SCRIPT
+  echo "     "        >> $BATCH_SCRIPT
+
+#
+# MD creates it own $STUB.out
+#
+  echo "cp $NWCHEM $SCRATCHDIR/nwchem.run"           >> $BATCH_SCRIPT
+  echo 'if($md_test_run) then'                       >> $BATCH_SCRIPT
+#  echo "   /bin/time mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $STUB.nwout"  >> $BATCH_SCRIPT
+  echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $STUB.nwout"  >> $BATCH_SCRIPT
+  echo '   set runstat = $status'                    >> $BATCH_SCRIPT
+  echo "   cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  echo "   cp $TESTFILE $TESTOUTPUTS/$TESTFILE"      >> $BATCH_SCRIPT
+  echo "else"                                        >> $BATCH_SCRIPT
+#  echo "   /bin/time mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  echo "   mpprun -n $NPROC $SCRATCHDIR/nwchem.run $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE"  >> $BATCH_SCRIPT
+  echo '   set runstat = $status'                    >> $BATCH_SCRIPT
+  echo "endif"                                       >> $BATCH_SCRIPT
+#
+
+  echo 'if($runstat) then'                       >> $BATCH_SCRIPT
+  echo '   echo "     NWChem execution failed"'  >> $BATCH_SCRIPT
+  echo "  set batchjob_status = 1"               >> $BATCH_SCRIPT
+  echo "  goto notify_status"                    >> $BATCH_SCRIPT
+  echo "endif"                                   >> $BATCH_SCRIPT
+
+  echo "# finish date" >> $BATCH_SCRIPT
+  echo "date"          >> $BATCH_SCRIPT
+  echo "     "         >> $BATCH_SCRIPT
+
+
+  echo "cd $TESTOUTPUTS"  >> $BATCH_SCRIPT
+
+#
+  echo 'if($md_test_run) then'                   >> $BATCH_SCRIPT
+  echo '   echo -n "     verifying nwout ... "'  >> $BATCH_SCRIPT
+  echo '   echo "skipped"'                       >> $BATCH_SCRIPT
+  echo "else"                                    >> $BATCH_SCRIPT
+
+# Now verify the output
+
+  echo "# . . . . . . . . . . . . . . . .     verifying output ... "   >> $BATCH_SCRIPT
+  echo "   perl $NWPARSE $STUB.out >& /dev/null"                       >> $BATCH_SCRIPT
+  echo '   if($status) then'                                           >> $BATCH_SCRIPT
+  echo "      echo nwparse.pl failed on test output $STUB.out"         >> $BATCH_SCRIPT
+  echo "      set batchjob_status = 1"                                 >> $BATCH_SCRIPT
+  echo "      goto notify_status"                                      >> $BATCH_SCRIPT
+  echo "   endif "                                                     >> $BATCH_SCRIPT
+  echo "   perl $NWPARSE $STUB.ok.out >& /dev/null"                    >> $BATCH_SCRIPT
+  echo '   if ($status) then'                                          >> $BATCH_SCRIPT
+  echo "      echo nwparse.pl failed on verified output $STUB.ok.out"  >> $BATCH_SCRIPT
+  echo "      set batchjob_status = 1"                                 >> $BATCH_SCRIPT
+  echo "      goto notify_status"                                      >> $BATCH_SCRIPT
+  echo "   endif"                                                      >> $BATCH_SCRIPT
+
+  echo "   diff -w $STUB.ok.out.nwparse $STUB.out.nwparse ">> $BATCH_SCRIPT
+#
+  echo '   set diff1_status = $status'                                 >> $BATCH_SCRIPT
+  echo "endif"                                                         >> $BATCH_SCRIPT
+#
+
+  echo 'if($diff1_status) then'            >> $BATCH_SCRIPT
+  echo "   echo failed"              >> $BATCH_SCRIPT
+  echo "   set batchjob_status = 1"  >> $BATCH_SCRIPT
+  echo "   goto notify_status"       >> $BATCH_SCRIPT
+  echo "else"                        >> $BATCH_SCRIPT
+  echo "#"                           >> $BATCH_SCRIPT
+  echo "# diff MD test files"        >> $BATCH_SCRIPT
+  echo "#"                           >> $BATCH_SCRIPT
+  echo '   if(!($md_test_run)) then  '                        >> $BATCH_SCRIPT
+  echo "      echo 'OK'"                                      >> $BATCH_SCRIPT
+  echo "   else"                                              >> $BATCH_SCRIPT
+  echo '      echo  "     verifying MD test ... "  '          >> $BATCH_SCRIPT
+  echo "      diff -w $STUB.ok.tst $STUB.tst >& /dev/null"    >> $BATCH_SCRIPT
+  echo '      if($status) then'                               >> $BATCH_SCRIPT
+  echo "         echo failed"                                 >> $BATCH_SCRIPT
+  echo "         set batchjob_status = 1"                     >> $BATCH_SCRIPT
+  echo "      else"                                           >> $BATCH_SCRIPT
+  echo "         echo 'completed okay'"                       >> $BATCH_SCRIPT
+  echo "      endif"                                          >> $BATCH_SCRIPT
+  echo "   endif"                                             >> $BATCH_SCRIPT
+  echo "endif"                                                >> $BATCH_SCRIPT
+  echo "#"                                                    >> $BATCH_SCRIPT
+  echo "#"                                                    >> $BATCH_SCRIPT
+  echo "#"                                                    >> $BATCH_SCRIPT
+  echo "#"                                                    >> $BATCH_SCRIPT
+  echo "notify_status:"                                       >> $BATCH_SCRIPT
+  echo "set FILEOVERALL = $CURDIR/BATCH_OVERALL"              >> $BATCH_SCRIPT
+  echo 'if ($batchjob_status) then'                           >> $BATCH_SCRIPT
+  echo "   set FILE2UPDATE = $CURDIR/BATCH_FAILED"            >> $BATCH_SCRIPT
+  echo '   echo $batchjob_status > $FILEOVERALL'              >> $BATCH_SCRIPT
+  echo "   touch $BATCH_SCRIPT.FAILED"                        >> $BATCH_SCRIPT
+  echo "else"                                                 >> $BATCH_SCRIPT
+  echo "   set FILE2UPDATE = $CURDIR/BATCH_OK"                >> $BATCH_SCRIPT
+  echo '   touch  $FILEOVERALL'                               >> $BATCH_SCRIPT
+  echo "   touch $BATCH_SCRIPT.OK"                            >> $BATCH_SCRIPT
+  echo "endif"                                                >> $BATCH_SCRIPT
+  echo "@ count = 20"                                         >> $BATCH_SCRIPT
+  echo 'while ($count)'                                       >> $BATCH_SCRIPT
+  echo '   if (-e $FILE2UPDATE.lock) then'                    >> $BATCH_SCRIPT
+  echo "      sleep 60"                                       >> $BATCH_SCRIPT
+  echo "      @ count--"                                      >> $BATCH_SCRIPT
+  echo "   else"                                              >> $BATCH_SCRIPT
+  echo "      @ count = 0"                                    >> $BATCH_SCRIPT
+  echo '      touch $FILE2UPDATE.lock'                        >> $BATCH_SCRIPT
+  echo '      if (-e $FILE2UPDATE) then'                      >> $BATCH_SCRIPT
+  echo '         @ num_update = `cat $FILE2UPDATE`'           >> $BATCH_SCRIPT
+  echo "         @ num_update++"                              >> $BATCH_SCRIPT
+  echo "      else"                                           >> $BATCH_SCRIPT
+  echo "         @ num_update = 1"                            >> $BATCH_SCRIPT
+  echo "      endif"                                          >> $BATCH_SCRIPT
+  echo '      echo $num_update > $FILE2UPDATE'                >> $BATCH_SCRIPT
+  echo '      rm -f $FILE2UPDATE.lock'                        >> $BATCH_SCRIPT
+  echo "   endif"                                             >> $BATCH_SCRIPT
+  echo "end"                                                  >> $BATCH_SCRIPT
+  echo " sumitting job $BATCH_SCRIPT to $BATCH using $NPROC processes/nodes"
+  if ($BATCH == "NQE") then
+     cqsub  $BATCH_SCRIPT
+  else if ($BATCH == "LoadLeveler") then
+     llsubmit $BATCH_SCRIPT
+  else
+     echo " $BATCH not configured for submission     
+     exit 911
+  endif
+  if ($status) then
+     echo batch submission failed
+     exit 911
+  endif
+end
+@ jobs_total = $run_count
+echo " "
+echo " A total of $jobs_total jobs were submitted to $BATCH"
+echo " "
+@ all_jobs_done = 0
+@ jobs_ok = 0
+@ jobs_failed = 0
+@ run_count = 0
+@ sleep_time = 60  # seconds
+while (!($all_jobs_done))
+   @ run_count++
+   if ($run_count > 100) then
+      @ time_slept = $run_count * $sleep_time
+      echo " runtest.batch beyond wait time limit exiting now"
+      echo " tests must be verified by hand"
+      @ all_jobs_done++
+      @ jobs_failed = $time_slept
+   endif
+   if (-e BATCH_OK) then
+      @ jobs_ok = `cat BATCH_OK`
+   endif
+   if (-e BATCH_FAILED) then
+      @ jobs_failed = `cat BATCH_FAILED`
+   endif
+   @ jobs_done = $jobs_ok + $jobs_failed
+   if ($jobs_done == $jobs_total) @ all_jobs_done++
+   echo "jobs done $jobs_done of $jobs_total, OK $jobs_ok, FAILED $jobs_failed `date`"
+   if (!($all_jobs_done)) sleep $sleep_time
+end
+if ($jobs_failed == 0) then
+   exit 911
+else
+   exit 0
+endif
