@@ -1,4 +1,4 @@
-       subroutine mcscf_hdiag( nbf, nclosed, nact, dm1, dm2,
+       subroutine mcscf_hdiag( nbf, nclosed, nact, pflg, dm1, dm2,
      $                         g_coul, g_exch, g_ifock,
      $                         g_afock, g_gfock, g_hdiag )
        implicit none
@@ -6,6 +6,7 @@
 #include "mafdecls.fh"
 c
        integer nbf, nclosed, nact
+       integer pflg
        double precision dm1(nact,nact)
        double precision dm2(nact,nact,nact,nact)
        integer g_coul, g_exch
@@ -99,28 +100,29 @@ c  (this intermediate term can potentially be precomputed
 c  and stored in the unused blocks of the gen. Fock
 c  inside the Fock build)
 c
-       do j=1,nvir
-         jjj = (vbase+j-1)*nbf + (vbase+j)
-         zz = 0.d0
-         do i=1,nact
-           ii = ((i-1)*i)/2 + i
-           call ga_get(g_coul,jjj,jjj,ii,ii,xx,1)
-           call ga_get(g_exch,jjj,jjj,ii,ii,yy,1)
-           zz = zz + xx - yy
+       if (pflg.gt.1) then
+         do j=1,nvir
+           jjj = (vbase+j-1)*nbf + (vbase+j)
+           zz = 0.d0
+           do i=1,nact
+             ii = ((i-1)*i)/2 + i
+             call ga_get(g_coul,jjj,jjj,ii,ii,xx,1)
+             call ga_get(g_exch,jjj,jjj,ii,ii,yy,1)
+             zz = zz + xx - yy
+           enddo
+           dbl_mb(k_tmp+j-1) = zz
          enddo
-         dbl_mb(k_tmp+j-1) = zz
-       enddo
 c
 c  Now contract against density
 c
-       ioff = nclosed*nvir
-       do i=myid+1, nact, numnodes
-         do j=1,nvir
-           ij = ioff + (i-1)*nvir + j
-           xx = dm1(i,i)*dbl_mb(k_tmp+j-1)*2.d0
-           call ga_acc(g_hdiag,ij,ij,1,1,xx,1,1.d0)
+         ioff = nclosed*nvir
+         do i=myid+1, nact, numnodes
+           do j=1,nvir
+             ij = ioff + (i-1)*nvir + j
+             xx = dm1(i,i)*dbl_mb(k_tmp+j-1)*2.d0
+             call ga_acc(g_hdiag,ij,ij,1,1,xx,1,1.d0)
+           enddo
          enddo
-       enddo
 c
 c
 c  Part of CA term from 2-pdm contraction
@@ -131,28 +133,29 @@ c            tt   v
 c
 c  This is exact for ROHF
 c
-       do j=1,nclosed
-         jjj = (cbase+j-1)*nbf + (cbase+j)
-         zz = 0.d0
-         do i=1,nact
-           ii = ((i-1)*i)/2 + i
-           call ga_get(g_coul,jjj,jjj,ii,ii,xx,1)
-           call ga_get(g_exch,jjj,jjj,ii,ii,yy,1)
-           zz = zz + xx - yy
-         enddo
-         dbl_mb(k_tmp+j-1) = zz
-       enddo
-c
-c  Now contract against density
-c
-       ioff = nvir*(nclosed+nact)
-       do i=myid+1, nact, numnodes
          do j=1,nclosed
-           ij = ioff + (j-1)*nact + i
-           xx = dm1(i,i)*dbl_mb(k_tmp+j-1)*2.d0
-           call ga_acc(g_hdiag,ij,ij,1,1,xx,1,1.d0)
+           jjj = (cbase+j-1)*nbf + (cbase+j)
+           zz = 0.d0
+           do i=1,nact
+             ii = ((i-1)*i)/2 + i
+             call ga_get(g_coul,jjj,jjj,ii,ii,xx,1)
+             call ga_get(g_exch,jjj,jjj,ii,ii,yy,1)
+             zz = zz + xx - yy
+           enddo
+           dbl_mb(k_tmp+j-1) = zz
          enddo
-       enddo
+c     
+c     Now contract against density
+c     
+         ioff = nvir*(nclosed+nact)
+         do i=myid+1, nact, numnodes
+           do j=1,nclosed
+             ij = ioff + (j-1)*nact + i
+             xx = dm1(i,i)*dbl_mb(k_tmp+j-1)*2.d0
+             call ga_acc(g_hdiag,ij,ij,1,1,xx,1,1.d0)
+           enddo
+         enddo
+       endif
 c
 c  Clean up
 c

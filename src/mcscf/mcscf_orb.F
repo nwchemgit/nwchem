@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.12 1996-04-03 02:06:43 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.13 1996-04-05 22:12:43 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -66,7 +66,6 @@ c
        external linesrch1
 c
        data lshift/1.0d0/
-       data pflg/2/
        data ostepci/.false./
        data blen/16/
        data ohalf/.true./
@@ -82,6 +81,9 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
+       endif
+       if (.not. rtdb_get(rtdb,'mcscf:hessiantype',MT_INT,1,pflg)) then
+         pflg = 2
        endif
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
@@ -129,7 +131,7 @@ c
 c
 c  Precompute 1e-Hessian diagonal
 c
-       call mcscf_hdiag( nbf, nclosed, nact, dm1, dm2,
+       call mcscf_hdiag( nbf, nclosed, nact, pflg, dm1, dm2,
      $                   g_coul, g_exch, g_ifock,
      $                   g_afock, g_gfock, g_hdiag )
 c
@@ -325,7 +327,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.12 1996-04-03 02:06:43 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.13 1996-04-05 22:12:43 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

@@ -216,7 +216,7 @@ c
 c
 c   Initial 4-Index Tranformation
 c
-       if (omcscfprof) call pstat_on(ps_4index)
+c$$$       if (omcscfprof) call pstat_on(ps_4index)
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
@@ -225,7 +225,7 @@ c$$$       call moints_build_6x( basis, oskel,
 c$$$     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
 c$$$     $                       g_movecs, g_coul, .true.,
 c$$$     $                       g_exch, .true., blen )
-       if (omcscfprof) call pstat_off(ps_4index)
+c$$$       if (omcscfprof) call pstat_off(ps_4index)
 c
 c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
