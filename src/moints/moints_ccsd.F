@@ -126,7 +126,8 @@ c
       status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
       status = ma_push_get(MT_DBL,n_hlp2,'hlp block',l_hlp2,k_hlp2)
       status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
-      if (.not.(status)) call errquit('cannot allocate local memory',0)
+      if (.not.(status)) call errquit
+     $     ('moints_ccsd: cannot allocate local memory',0)
 c
 c Initialize
 c

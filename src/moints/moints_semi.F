@@ -100,7 +100,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.28 1996-10-22 08:40:08 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.29 1996-10-22 08:42:33 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -492,7 +492,7 @@ c
 c  Integrals allocation
 c
        call int_mem_2e4c(max2e, mem2)
-       write(6,*) ' max2e, mem2 ', max2e, mem2
+*       write(6,*) ' max2e, mem2 ', max2e, mem2
        call util_flush(6)
        status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
        status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)

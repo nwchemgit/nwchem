@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.15 1996-10-04 22:11:41 d3g681 Exp $
+c  $Id: moints_6x.F,v 1.16 1996-10-22 08:42:31 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -192,7 +192,8 @@ c
        status = ma_push_get(MT_DBL,n_ssbb,'ssbbt block',l_ssbbt,k_ssbbt)
        status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
        status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
-       if (.not.(status)) call errquit('cannot allocate local memory',0)
+       if (.not.(status)) call errquit
+     $      ('moints_6x: cannot allocate local memory',0)
 c
 c Initialize
 c

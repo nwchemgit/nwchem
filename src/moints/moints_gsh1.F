@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.7 1996-07-25 00:06:55 rg240 Exp $
+C$Id: moints_gsh1.F,v 1.8 1996-10-22 08:42:32 d3g681 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -167,7 +167,7 @@ c  Large groups of similar shells may be split
 c  to fit into a block.
 c
         if (.not.ma_push_get(mt_int,(4*nsh),'gsh tmp',l_t,k_t))
-     $       call errquit('cannot allocate tmp',(4*nsh))
+     $       call errquit('moints_shorder: cannot allocate tmp',(4*nsh))
         wght = 0
         nsht = 0
         tlen = 0
@@ -235,7 +235,7 @@ c
           enddo
         endif
         if (.not.ma_pop_stack(l_t))
-     $       call errquit('cannot pop stack',0)
+     $       call errquit('moints_shorder: cannot pop stack',0)
       else
 c
 c  No reordering of shells -- still need grouping

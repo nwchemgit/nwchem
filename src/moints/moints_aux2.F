@@ -42,6 +42,7 @@ c
      $                       kblo, kbhi, lblo, lbhi,
      $                       ssbb, osym )
       else
+**         call errquit('BLOCKING INTERFACE', 0)
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
@@ -214,7 +215,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -523,7 +524,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1079,7 +1080,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1123,7 +1124,7 @@ C$Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

@@ -6,7 +6,7 @@ c
 c
        integer function moints_numoper( basis, algo, nbf, nocc,
      $                                  nvir, blen, oprint )
-C$Id: moints_mem.F,v 1.4 1995-08-07 05:33:36 rg240 Exp $
+C$Id: moints_mem.F,v 1.5 1996-10-22 08:42:32 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -55,9 +55,9 @@ c
 c 10% safety margin
 c
        mem_req = mem_req*1.1
-       if (mem_req.gt.mem_min_local)
-     $   call errquit(
-     $   'not enough local memory to do transformation',mem_req)
+       if (mem_req.gt.mem_min_local) call errquit
+     $      ('moints_mem: not enough local memory to do transformation',
+     $      mem_req)
 c
 c Reconcile local and global memory requirements
 c
