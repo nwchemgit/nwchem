@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.2 1996-05-14 18:07:49 d3g681 Exp $
+C$Id: sym_sym.F,v 1.3 1996-10-06 20:14:34 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -36,6 +36,7 @@ c
 c
       integer next, ijcent, nproc
 c
+      call ga_sync()
       if (.not. ga_duplicate(g_a, g_b, 'sym_sym: b')) call errquit
      $     ('sym_symmetrize: failed to allocate temp GA', 0)
       call ga_zero(g_b)
@@ -126,6 +127,7 @@ c
       call ga_copy(g_b, g_a)
       if (.not. ga_destroy(g_b)) call errquit
      $     ('sym_symmetrize: ga_destroy of b', 0)
+      call ga_sync()
 c
 c*$*optimize(1)
 c*$*scalar optimize(1)

@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.10 1996-08-19 15:27:09 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.11 1996-10-06 20:14:33 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -173,6 +173,7 @@ c     This leads to the second having a zero character for the
 c     identify.  We fudge our way out of this by projecting
 c     with twice the real component.
 c     
+      call ga_sync()
       do i = me+1, nvec, nproc
          ii = (i-1)/nproc
          ioff = k_c + ii*nir
