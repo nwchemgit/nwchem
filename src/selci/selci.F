@@ -58,24 +58,20 @@ c
       if (oforce .or. (.not. oexist)) call moints_full(rtdb)
       call ga_sync()
 c
-c     What is the name of the ciconf file?  Should we delete the
-c     existing one?  (not checking this now). 
-c     If it does not exisit then generate a default.
-c
-c     What to do about frozen core? Must be consistent with 4-index
-c     which is why we must do it first and have it record info somewhere
-c     (which it does not do right now).
-c
-      if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
-     $     call util_file_prefix('ciconf', ciconf)
-      inquire(file=ciconf, exist=oexist)
-      if (.not. oexist) call errquit('selci: no default conf',0)
-c
 c     Allocate all available MA space
 c
       lword = ma_inquire_avail(mt_dbl)
       if (.not. ma_push_get(mt_dbl, lword, 'selci', l_mem, k_mem))
      $     call errquit('selci: could not allocate all memory',lword)
+c
+c     What is the name of the ciconf file?  Should we delete the
+c     existing one?  (not checking this now). 
+c     If it does not exisit then generate a default.
+c
+      if (.not. rtdb_cget(rtdb, 'selci:ciconf', 1, ciconf))
+     $     call util_file_prefix('ciconf', ciconf)
+      inquire(file=ciconf, exist=oexist)
+      if (.not. oexist) call selci_conf(rtdb, dbl_mb(k_mem), lword)
 c
 c     What about #roots, davids conv., ??????
 c     Passing down file names ?????

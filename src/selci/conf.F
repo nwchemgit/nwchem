@@ -1,43 +1,20 @@
-      program conf
-c
-#include "implicit.fh"
-#include "mptr.fh"
-c
-      parameter (lword = 1250000,iqoff=1)
-      dimension q(lword)
-c
-      call pbeginf()
-      call selci_gettim(startc, startw)
-      junk = selci_minit(lword)
-c
-      call selci_confmain(q(iqoff+1), lword)
-c
-      if (nodeid() .eq. 0) then
-         junk = selci_mstats(0)
-         call selci_gettim(endc, endw)
-         write(6,1) 'CONF', endc-startc, endw-startw
- 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call flush(6)
-      endif
-c
-      call pend()
-c
-      end
-      subroutine selci_confmain(q, lword)
+      subroutine selci_conf(rtdb, q, lword)
 #include "implicit.fh"
 #include "cconf.fh"
 #include "mptr.fh"
+#include "cselcifiles.fh"
+      integer rtdb
       dimension q(lword)
+      external data_selci_conf  ! For T3D to link block data
 c
 c     Crude version of a configuration generation program
 c     Needs much doing to it to be very useful
 c
-      character*80 title,ciconf, confin
+      character*80 title
 c
       if (nodeid().ne.0) goto 99999
-c
-      confin = 'confin'
-      ciconf = 'ciconf'
+      call selci_gettim(startc, startw)
+      junk = selci_minit(lword)
 c
 c     Leave a quarter of the space for excit to function
 c     (we could be more intelligent but I have a bad cold so
@@ -48,9 +25,8 @@ c
       jrefo  = selci_mptr(mitod(nrefmx))
       indxci = selci_mptr(mitod(nrefmx+1))
 c
-      open(5,file=confin,status='old',form='formatted')
       call inibit
-      call selci_start(title, q(irefo))
+      call selci_start(rtdb, title, q(irefo))
 c
 c     apply the refgens to the reference functions
 c
@@ -74,207 +50,201 @@ c
       junk = selci_mfree(irefo)
 c
 99999 call synch(911)
+      if (nodeid() .eq. 0) then
+         junk = selci_mstats(0)
+         call selci_gettim(endc, endw)
+         write(6,1) 'CONF', endc-startc, endw-startw
+ 1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
+         call flush(6)
+      endif
 c
       end
-      subroutine selci_start(title, irefo)
+      subroutine selci_start(rtdb,title, irefo)
 #include "implicit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
 #include "cconf.fh"
+#include "cselcifiles.fh"
+      integer rtdb
       character*80 title
       integer irefo(nrefmx)
       parameter (ndd=8)
-      dimension ydd(ndd),itemp(16)
-      data ydd/'titl','nele','mult','symm','conf','refg','inte',
-     $     'ente'/
+      dimension itemp(16)
+      double precision occ(255)
+      character*80 name
+      parameter (max_inconf = 4095)
+      integer inconf(max_inconf)
 c
 c     read in title, nelec, multi, symmetry, norbs, nbpsy, conf, refgen
 c
-      call setinp(5,6)
       write(6,1)
  1    format(//'             Configuration Generator v1.0 8/31/89'/
      &         '             -----------------------'//)
 c
- 10   call input
+c     Get most junk from the moints file
 c
- 20   call inpa4(ytest)
- 21   i=locatc(ydd,ndd,ytest)
-      goto (110,120,130,140,150,160,170,180) i
-      call errquit('conf: unrecognised directive',i)
+      inttyp = 0
+      title = ' '
 c
-c     title
+      iflint = 8
+      open(iflint, form='formatted',status='old',file=moints)
+      read(iflint,'(a)') title
+      read(iflint,*) norbs, nfzc
+      read(iflint,*)            ! map
+      read(iflint,*) (isym(i),i=1,norbs) ! syms
+      read(iflint,*)            ! eigenvalues
+      read(iflint,*) (occ(i),i=1,norbs) ! occupations
+      close(iflint, status='keep')
 c
- 110  call input
-      call getlin(title)
-      goto 10
+c     nelectrons ... add up the occupation numbers ... 
 c
-c     nelectrons
+      dnelec = 0.0d0
+      do i = 1, norbs
+         dnelec = dnelec + occ(i)
+      enddo
+      nelec = nint(dnelec)
 c
- 120  call inpi(nelec)
-      goto 10
+c     multiplicity ... get this from the SCF/MCSCF last run
 c
-c     multiplicity
-c
- 130  call inpi(multi)
-      goto 10
+      if (.not. rtdb_get(rtdb,'scf:nopen', mt_int, 1, nopen))
+     $     nopen = 0
+      multi = 2*nopen + 1
 c
 c     symmetry ... make nbpsy, isym, norbs, nelpi, nintpo
 c
- 140  if (inttyp.eq.-1)
-     $     call errquit('conf: integrals must precede symmetry',inttyp)
-      call inpi(nsym)
-      call inpi(issss)
-      issss = issss - 1
-      norbs = 0
-      if (inttyp.eq.2) then
-c
-c     for columbus style integrals read in the no. of orbitals of each s
-c
-         call input
-         do 131 i = 1,nsym
-            call inpi(nbpsy(i))
-            ioff = norbs+1
-            norbs = norbs + nbpsy(i)
-            if (norbs.gt.255)
-     $           call errquit('conf: too many orbitals',norbs)
-            call ifill(nbpsy(i),i-1,isym(ioff),1)
- 131     continue
-         nelpi = nbitpi / 2
-         nintpo = (norbs + nelpi - 1) / nelpi
+      nsym = 0
+      do is = 0, 7
+         nbpsy(is+1) = 0
+         do i = 1, norbs
+            if (isym(i).eq.is) nbpsy(is+1) = nbpsy(is+1)+1
+         enddo
+         if (nbpsy(is+1).gt.0) nsym = is+1
+      enddo
+      if (nsym .le. 2) then
+         continue
+      else if (nsym .le. 4) then
+         nsym = 4
+      else if (nsym .le. 8) then
+         nsym = 8
       else
-c
-c     for the ascii, binasc and gamess integrals we need to read in
-c     the symmetry of each orbital ... the input is terminated
-c     by the next directive
-c
-         call ifill(8,0,nbpsy,1)
- 132     call input
-c     is this the end of the input ?
-         call inpa4(ytest)
-         i=locatc(ydd,ndd,ytest)
-         if (i.ne.0) goto 134
-         call setfld(ifield()-1)
-         do 133 i = 1,nfield()
-            call inpi(itest)
-            if (itest.lt.1 .or. itest.gt.nsym)
-     $           call errquit('conf: invalid orbital symmetry ',itest)
-            norbs = norbs + 1
-            if (norbs.gt.255)
-     $           call errquit('conf: too many orbitals ',norbs)
-            isym(norbs) = itest - 1
-            nbpsy(itest) = nbpsy(itest) + 1
- 133     continue
-         goto 132
- 134     nelpi = nbitpi / 2
-         nintpo = (norbs + nelpi - 1) / nelpi
-         goto 21
+         call errquit('selci_conf: symmetry nonsense',nsym)
       endif
+      nelpi = nbitpi / 2
+      nintpo = (norbs + nelpi - 1) / nelpi
 c
-      goto 10
+c     conf <nosort> ... construct a default reference from the occupation
+c     pattern heading the moints.  Eventually we'll also want to use
+c     default from MCSCF.
 c
-c     conf <nosort>
-c
- 150  if (norbs.eq.-1) call errquit('conf: symm must precede conf',-1)
-      if (nelec.eq.-1) call errquit('conf: nele must precede conf',-1)
-      if (multi.eq.-1) call errquit('conf: mult must precede conf',-1)
-      if (nintpo.le.0)call errquit('conf: nintpo invalid value',nintpo)
-      osort = .true.
-      call inpa4(ytest)
-      if (ytest.eq.'noso') osort = .false.
+      if (.not. rtdb_get(rtdb, 'selci:osort', mt_log, 1, osort))
+     $     osort = .true.
       nref = 0
- 151  call input
-c     are we at the end of this directive
-      call inpa4(ytest)
-      if (ytest.eq.' ') goto 151
-      i=locatc(ydd,ndd,ytest)
-      if (i.ne.0) goto 21
-      call setfld(ifield()-1)
+      call ifill(max_inconf, -1, inconf, 1)
+      if (rtdb_get(rtdb, 'selci:conf', mt_int, max_inconf, inconf)) then
 c
-      call ifill(norbs,0,iocc,1)
-      call inpi(ns)
-      if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1)
-     $     call errquit('conf: ns and multi do not match',ns)
-      do 152 j = 1,ns
-         call inpi(iorb)
-         iocc(iorb) = 1
- 152  continue
-      do 153 j = ifield()+1,nfield()
-         ns = ns + 2
-         call inpi(iorb)
-         iocc(iorb) = 3
- 153  continue
-      if (ns.ne.nelec) call errquit('conf: wrong no. of electrons',ns)
-      if (nref.eq.0) then
-         nref = 1
-         call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
-      else
-         if (osort) then
-            call selci_pkcon(norbs, iocc, itemp, nintpo, nbitpi)
-            call selci_bserch(nref, itemp, irefo, nintpo, ipos)
-            if (ipos.le.0)
-     $           call errquit('conf: replication in conf',ipos)
-            call selci_insert(nref, itemp, irefo, nintpo, ipos)
-         else
-            ipt = nref*nintpo+1
-            if (ipt+nintpo-1.gt.nrefmx)
-     $           call errquit('conf: too many ref',nref+1)
-            call selci_pkcon(norbs, iocc, irefo(ipt), nintpo, nbitpi)
-            nref = nref + 1
+c     list on database is terminated with a 0
+c
+         ind = 1
+ 10      if (inconf(ind) .ge. 0) then
+            ns = inconf(ind)
+            ind = ind + 1
+            if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1)
+     $           call errquit('conf: ns and multi do not match',ns)
+            call ifill(norbs, 0, iocc, 1)
+            do j = 1,ns
+               if (inconf(ind).le.0) 
+     $              call errquit('selci: bad socc in conf',inconf(ind))
+               iocc(inconf(ind)) = 1
+               ind = ind + 1
+            enddo
+            do j = ns+1,nelec,2
+               if (inconf(ind).le.0) 
+     $              call errquit('selci: bad docc in conf',inconf(ind))
+               iocc(inconf(ind)) = 3
+               ind = ind + 1
+            enddo
+            if (nref.eq.0) then
+               nref = 1
+               call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
+            else
+               if (osort) then
+                  call selci_pkcon(norbs, iocc, itemp, nintpo, nbitpi)
+                  call selci_bserch(nref, itemp, irefo, nintpo, ipos)
+                  if (ipos.le.0)
+     $                 call errquit('conf: replication in conf',ipos)
+                  call selci_insert(nref, itemp, irefo, nintpo, ipos)
+               else
+                  ipt = nref*nintpo+1
+                  if (ipt+nintpo-1.gt.nrefmx)
+     $                 call errquit('conf: too many references',nref+1)
+                  call selci_pkcon(norbs,iocc,irefo(ipt),nintpo,nbitpi)
+               endif
+            endif
+            write(6,*) ' nref ', nref
+            call selci_prtcon(6,norbs,irefo((nref-1)*nintpo+1),
+     $           nintpo,nbitpi)
+            goto 10
          endif
-      endif
-      ipt = ipt + nintpo
-      goto 151
-c
-c     refgen
-c
- 160  call inpa(ytest)
-      if (ytest.eq.'exci') then
-         call inpi(iexcit)
-         goto 10
-      endif
-      ngen = ngen + 1
-      if (ngen.gt.ngenmx)
-     $     call errquit('conf: too many refgen sets',ngen)
-      nigen(ngen) = 0
-c
- 161  call input
-c     are we at the end of this directive
-      call inpa4(ytest)
-      if (ytest.eq.' ') goto 161
-      i=locatc(ydd,ndd,ytest)
-      if (i.ne.0) goto 21
-      call setfld(ifield()-1)
-      if (mod(nfield(),2).ne.0)
-     $     call errquit('conf: odd no. of values in refgen line',
-     $     nfield())
-      do 162 i=1,nfield()/2
-         nigen(ngen) = nigen(ngen) + 1
-         call inpi(igen(1,nigen(ngen),ngen))
-         call inpi(igen(2,nigen(ngen),ngen))
- 162  continue
-      goto 161
-c
-c     integrals gamess (assumes 1e on ed3 1, section 171. 2e on ed6 1)
-c     integrals ascii
-c     integrals binasc
-c     integrals columbus
-c
- 170  call inpa4(ytest)
-      if (ytest.eq.'asci') then
-         inttyp = 0
-      else if (ytest.eq.'game') then
-         call errquit('selci_conf: gamess integrals no longer',0)
-         inttyp = 1
-      else if (ytest.eq.'colu') then
-         inttyp = 2
-      else if (ytest.eq.'bina') then
-         inttyp = 3
       else
-         call errquit('conf: unknown integral source specified',inttyp)
+         ns = 0
+         nd = 0
+         do i = 1, norbs
+            iocc(i) = nint(occ(i))
+            if (iocc(i) .eq. 0) then
+               continue
+            else if (iocc(i) .eq. 1) then
+               ns = ns + 1
+            else if (iocc(i) .eq. 2) then
+               nd = nd + 1
+               iocc(i) = 3
+            else
+               call errquit('conf: bad default occ?',0)
+            endif
+         enddo
+         if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1)
+     $        call errquit('conf: ns and multi do not match',ns)
+         if ((ns+2*nd) .ne. nelec)
+     $        call errquit('conf: default nelec don not match',2*nd+ns)
+         call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
+         nref = 1
       endif
-      goto 10
+c
+c     Determine state symmetry from the first conf
+c
+      call selci_upkcon(norbs, iocc, irefo, nintpo, nbitpi)
+      issss = 0
+      do i = 1, norbs
+         if (iocc(i) .eq. 1) issss = ieor(issss,isym(i))
+      enddo
+c
+c     refgen [excit <iexcit>]
+c
+      if (.not. rtdb_get(rtdb, 'selci:exci',mt_int, 1, iexcit))
+     $     iexcit = 0
+      if (.not. rtdb_get(rtdb, 'selci:ngen',mt_int, 1, ngen))
+     $     ngen = 0
+      if (ngen .gt. ngenmx)
+     $     call errquit('conf: too many refgen sets',ngen)
+      call ifill(2*255*ngen, -1, igen, 1)
+      do jj = 1, ngen
+         name = ' '
+         write(name,'(''selci:refgen '',i2)') jj
+         write(6,*) ' FMT = ', name
+         if (.not.rtdb_get(rtdb,name,mt_int,2*255,igen(1,1,jj))) then
+            write(6,*) ' name = ', name
+            call errquit('conf: could not find refgen set',jj)
+         endif
+         do i = 1, 255
+            if (igen(1,i,jj) .le. 0) then
+               nigen(jj) = i-1
+               goto 160
+            endif
+         enddo
+ 160     continue
+      enddo
 c
 c     enter
 c
- 180  continue
       if (nelec.le.0)
      $     call errquit('conf: invalid no. electrons',nelec)
       if (multi.le.0 .or. (mod(multi-1,2).ne.mod(nelec,2)))
@@ -291,7 +261,6 @@ c
 c     work out dimension of the full ci
 c
       fci = selci_fcidim(nelec, multi, issss, norbs, isym)
-c     fci = 0.0d0
 c
       write(6,2) title,multi,issss+1,nelec,norbs,fci,nref,ngen,nsym,
      $     (nbpsy(i),i=1,nsym)
@@ -606,7 +575,7 @@ c
  2    format(' After excit ',i3,' no. of references',i6)
 c
       end
-      block data
+      block data data_selci_conf
 #include "implicit.fh"
 #include "cconf.fh"
 c

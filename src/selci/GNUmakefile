@@ -21,6 +21,7 @@ mxmb.o  check.o
 DVOBJ = davids.o sigma.o sigsav.o
 
 CIOBJ = \
+conf.o \
 ci.o            initci.o	rdhead.o 	load.o   	loada.o  \
 mkinta.o	pconls.o	makeh.o		mkindb.o	eij.o    \
 eijeji.o	makehd.o	makef.o 	loadg.o \
@@ -81,6 +82,7 @@ $(LIBRARY_PATH)(mkvc.o):	 ./mptr.fh ./implicit.fh ./ciinfo.fh
 $(LIBRARY_PATH)(mpdele.o):	 ./implicit.fh 
 $(LIBRARY_PATH)(ointer.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(ointer.mod.o):	 ./bitops.fh 
+$(LIBRARY_PATH)(ointer.parthack.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(pconls.o):	 ./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(pkcon.o):	 ./bitops.fh 
 $(LIBRARY_PATH)(popcnt32.o):	 ./cbits.fh ./bitops.fh 
