@@ -3,7 +3,7 @@
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.10 1998-06-08 23:29:37 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.11 1999-01-04 23:12:07 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,8 @@ c
 c
       character*80 card
       integer i,j,l,length,na,jmol
-      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3),rd(6)
+      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3)
+      real*8 rd(6)
 c
       jmol=imol
 c
