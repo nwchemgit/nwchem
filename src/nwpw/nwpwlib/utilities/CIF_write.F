@@ -1,4 +1,4 @@
-c     $Id: CIF_write.F,v 1.2 2001-10-26 20:13:24 edo Exp $
+c     $Id: CIF_write.F,v 1.3 2003-02-14 02:11:53 bylaska Exp $
 *     *********************************
 *     *                               *
 *     *          CIF_write            *
@@ -17,7 +17,7 @@ c     $Id: CIF_write.F,v 1.2 2001-10-26 20:13:24 edo Exp $
       character*30 filename
       character*255 full_filename
 
-      if (rtdb_cget(rtdb,'pspw:cif_filename',1,filename)) then
+      if (rtdb_cget(rtdb,'nwpw:cif_filename',1,filename)) then
          flen  = index(filename,' ') - 1
          filename = filename(1:flen)//'.cif'
      
