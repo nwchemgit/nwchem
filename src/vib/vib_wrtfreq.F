@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.11 2002-12-30 23:07:23 edo Exp $
+* $Id: vib_wrtfreq.F,v 1.12 2002-12-31 02:55:33 edo Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -196,7 +196,7 @@ c     &      temp = 298.15d0
            Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
      >          log(inertprod) -
      >          2.0d0*log(dble(sigma))) +
-     >          + 3.0327d0/AUKCAL/1000.0d0
+     >           3.0327d0/AUKCAL/1000.0d0
         endif
 
 *       **** add up vibrational contributions ****
