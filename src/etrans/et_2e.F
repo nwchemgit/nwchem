@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.13 2003-02-20 17:35:50 d3k958 Exp $
+c     $Id: et_2e.F,v 1.14 2003-02-20 17:50:26 d3k958 Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
@@ -36,18 +36,16 @@ c
       integer l_gJ, k_gJ, l_scr, k_scr, l_den, k_den
       integer ish, jsh, ksh, lsh, nsh
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
-      integer i,j,nproc, num, blen, max_sh_bf
-      integer maxlsh, shellnum, ng, numi, numj, iproc
+      integer nproc, blen, max_sh_bf
+      integer maxlsh, shellnum, ng, numi, numj
       double precision omega2, omega2_val
       integer nxtask, next
       external nxtask
       double precision smax, sij, skl
-      double precision pa(nbf,nbf), pb(nbf,nbf)
-      double precision density(nbf*nbf)
       double precision norm, G(10000), dij
-      double precision tol2e, maxPa, maxPb
-      double precision density_shell, dabsmax, adenmax,bdenmax
-      external  density_shell, dabsmax
+      double precision tol2e
+      double precision dabsmax, adenmax,bdenmax
+      external  dabsmax
 c     -------------------------------------------     
 c     find the maximum value of the alpha density
 c     -------------------------------------------     
