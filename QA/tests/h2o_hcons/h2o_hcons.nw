@@ -1,8 +1,6 @@
 echo
 start h2o
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 basis
   O library 6-31g*
   H library 6-31g*
@@ -15,6 +13,7 @@ geometry noautoz noautosym nocenter units au
  H                     0.08518191    -0.91769081    -0.30894068
 end
 driver
+clear
 maxiter 40
 end
 
@@ -40,6 +39,7 @@ constraints
   spring bond 1 2 5.0 1.70 
   fix atom 1
 end
+dft;print low;end
 task dft optimize
 
 constraints
