@@ -7,7 +7,7 @@
 c
       integer iam,ga_nodeid
       integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av
-      double precision xx,gmoint2
+      double precision xx
       double precision zip
       data zip/0.0d00/
 c

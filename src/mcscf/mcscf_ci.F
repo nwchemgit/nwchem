@@ -42,6 +42,12 @@ c
       integer g_civec, g_wvec(mxworkvec)
       INTEGER J,II
       character*10 vstr
+c
+      external dummy_mxv
+      external dummy_precon
+      external detci_sigma
+      external detci_ciprecon
+c
       save hasprint
       data hasprint/0/
       data citol/1.e-6/
@@ -60,12 +66,6 @@ c
      $            4, 4,
      $            3, 4,
      $            4, 3/
-c
-      external dummy_mxv
-      external dummy_precon
-      external detci_sigma
-      external detci_ciprecon
-c
 c
 c
       iprint = 1

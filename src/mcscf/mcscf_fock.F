@@ -1,6 +1,6 @@
 c
 c  %A%
-c  $Id: mcscf_fock.F,v 1.1 1995-10-25 01:27:10 rg240 Exp $
+c  $Id: mcscf_fock.F,v 1.2 1995-12-15 11:59:11 d3g681 Exp $
 c
 c Compute the MCSCF MO-Fock matrices;
 c inactive, active and generalized
@@ -60,13 +60,13 @@ c
        integer nset, aoff, aend
        integer iv_dens(2), iv_fock(2)
        double precision jfac(2), kfac(2)
-       data nset/2/
-       data jfac/1.0d0, 1.d0/
-       data kfac/-0.5d0, -0.5d0/
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
        double precision ga_trace_diag
        external ga_trace_diag
+       data nset/2/
+       data jfac/1.0d0, 1.d0/
+       data kfac/-0.5d0, -0.5d0/
 c
 c
 c

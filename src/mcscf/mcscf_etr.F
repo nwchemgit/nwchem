@@ -32,10 +32,10 @@ c
        double precision e2ii, e2ia, e2ai, e2aa
        integer iv_dens(2), iv_fock(2)
        double precision jfac(2), kfac(2)
-       data jfac/1.0d0, 1.d0/, kfac/-0.5d0, -0.5d0/
        integer ga_create_atom_blocked
        double precision ga_trace_diag, mcscf_act_ener
        external ga_create_atom_blocked, ga_trace_diag, mcscf_act_ener
+       data jfac/1.0d0, 1.d0/, kfac/-0.5d0, -0.5d0/
 c
 c
 c
@@ -137,10 +137,10 @@ c
        integer g_ifock, g_cdens, g_adens, g_tmp
        integer iv_dens(2), iv_fock(2)
        double precision jfac(2), kfac(2)
-       data jfac/1.0d0, 1.d0/, kfac/-0.5d0, -0.5d0/
        integer ga_create_atom_blocked
        double precision ga_trace_diag, mcscf_act_ener
        external ga_create_atom_blocked, ga_trace_diag, mcscf_act_ener
+       data jfac/1.0d0, 1.d0/, kfac/-0.5d0, -0.5d0/
 c
 c
 c

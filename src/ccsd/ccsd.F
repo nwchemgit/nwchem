@@ -16,7 +16,6 @@ c
        character*255 movecs_in, movecs
        external moint_driver
        logical moint_driver,ccsd_driver
-       logical do_old
 c
 c
        if (.not. context_push('atwtest'))

@@ -43,17 +43,7 @@ c
      &         l_aint,k_aint,l_scr,k_scr
 capr
 c
-c
-c
-       data g_coul,g_exch,g_int1t/-1,-1,-1/
-       data oexch,ocoul/.true.,.true./
-       data oprint/.true./
-       data charge/0.d0/
        double precision zip,one,two
-       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
-c
-c
-c
 c
        logical movecs_read_header, movecs_read, movecs_write
        external movecs_read_header, movecs_read, movecs_write
@@ -65,8 +55,11 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
-c
-c
+       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
+       data g_coul,g_exch,g_int1t/-1,-1,-1/
+       data oexch,ocoul/.true.,.true./
+       data oprint/.true./
+       data charge/0.d0/
 c
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
