@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 2000-04-27 01:11:33 edo Exp $
+#$Id: GNUmakefile,v 1.35 2000-06-01 17:46:29 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -28,12 +28,13 @@ error:
 endif
 
 ifeq ($(PRECISION),double)
+OBJ_DLAMCH = dlamch.o
 OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dgelqf.o      dgeqr2.o      dgeqrf.o       dgesv.o      \
                dgesvd.o      dgetf2.o      dgetrf.o       dgetrs.o     \
                dlabrd.o      dlacon.o      dlacpy.o       dladiv.o     \
                dlae2.o       dlaev2.o      dlagtf.o       dlagts.o     \
-               dlamch.o      dlange.o      dlansp.o       dtrti2.o     \
+                             dlange.o      dlansp.o       dtrti2.o     \
                dlanst.o      dlansy.o      dlapy2.o       dlapy3.o     \
                dlarf.o       dlarfb.o      dlarfg.o       dlarft.o     \
                dlarnv.o      dlartg.o      dlaruv.o       dlas2.o      \
@@ -58,6 +59,13 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                zspsvx.o      zsptrf.o      zsptrs.o       zgeru.o      \
                zlacon.o      zlacpy.o      zlansp.o \
                zungqr.o      zungtr.o
+
+ifeq ($(FC),pgf77)
+#pgf77 on Linux (and possibly others) puts dlamch routines into infinite loop
+        OBJ = $(OBJ_DLAMCH)
+else
+	OBJ_OPTIMIZE += $(OBJ_DLAMCH)
+endif
 else
 ########################################################################
 OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
@@ -102,6 +110,7 @@ OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
                slaev2.o slasr.o slanst.o slascl.o slasrt.o \
                ssygv.o ssygst.o ssygs2.o slas2.o clanhe.o clascl.o
 endif
+
 
 
 include ../config/makelib.h
