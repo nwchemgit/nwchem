@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.13 2002-01-04 16:06:12 d3j191 Exp $
+c $Id: cf_list.F,v 1.14 2002-02-21 15:58:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -348,9 +348,9 @@ c
 c
       return
       end
-      subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,isz,isfr,isto,
-     + jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,rwx,rw,
-     + ndxt,nt,ndxx,nx)
+      subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,iss,isz,
+     + isfr,isto,jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,
+     + rwx,rw,ndxt,nt,ndxx,nx)
 c
       implicit none
 c
@@ -363,7 +363,7 @@ c
       integer ndxt(0:nt,2),ndxx(0:nx,2)
 c
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
-      integer list(msa,3),iga(msa),igr(msa),idt(msa),isz(msa)
+      integer list(msa,3),iga(msa),igr(msa),idt(msa),iss(msa),isz(msa)
       logical lself,lpbc,lpbcs
 c
       integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
@@ -728,11 +728,53 @@ c
       endif
    57 continue
 c
+c     remove interactions between dummy atoms
+c
+c     bits set in iss : 0 set 1 s-w is dummy               (1)
+c                       1 set 2 s-w is dummy               (2)
+c                       2 set 3 s-w is dummy               (4)
+c                       3 set 1 s-s non-self is dummy      (8)
+c                       4 set 2 s-s non-self is dummy     (16)
+c                       5 set 3 s-s non-self is dummy     (32)
+c                       6 set 1 s-s self is dummy         (64)
+c                       7 set 2 s-s self is dummy        (128)
+c                       8 set 3 s-s self is dummy        (256)
+c
+      if(.not.ithint) then
+      do 150 jsa=jsafr,jsato
+      if(iand(iss(iisa),72).eq.72) list(jsa,3)=0
+      if(iand(iss(jsa),72).eq.72) list(jsa,3)=0
+  150 continue
+      else
+      do 151 jsa=jsafr,jsato
+      if(iand(iss(iisa),144).eq.144.and.iand(iss(iisa),288).eq.288)
+     + list(jsa,3)=0
+      if(iand(iss(jsa),144).eq.144.and.iand(iss(jsa),288).eq.288)
+     + list(jsa,3)=0
+      if(iand(iss(iisa),144).eq.144.and.iand(iss(jsa),288).eq.288)
+     + list(jsa,3)=0
+      if(iand(iss(jsa),144).eq.144.and.iand(iss(iisa),288).eq.288)
+     + list(jsa,3)=0
+  151 continue
+      endif
+c
 c     make the actual pairlist
 c
       nlist=0
       do 59 jsa=jsafr,jsato
       if(list(jsa,3).ne.0) then
+c      write(*,'(a,8i5,2(1x,9l1))') 'LSS ',iisa,jsa,iga(iisa),iga(jsa),
+c     + idt(iisa),idt(jsa),iss(iisa),iss(jsa),
+c     + iand(iss(iisa),1).ne.0,iand(iss(iisa),2).ne.0,
+c     + iand(iss(iisa),4).ne.0,iand(iss(iisa),8).ne.0,
+c     + iand(iss(iisa),16).ne.0,iand(iss(iisa),32).ne.0,
+c     + iand(iss(iisa),64).ne.0,iand(iss(iisa),128).ne.0,
+c     + iand(iss(iisa),256).ne.0,
+c     + iand(iss(jsa),1).ne.0,iand(iss(jsa),2).ne.0,
+c     + iand(iss(jsa),4).ne.0,iand(iss(jsa),8).ne.0,
+c     + iand(iss(jsa),16).ne.0,iand(iss(jsa),32).ne.0,
+c     + iand(iss(jsa),64).ne.0,iand(iss(jsa),128).ne.0,
+c     + iand(iss(jsa),256).ne.0
       nlist=nlist+1
       list(nlist,3)=jsa
       endif

@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.10 2000-02-20 15:59:33 d3j191 Exp $
+c $Id: cf_pairs.F,v 1.11 2002-02-21 15:58:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -134,7 +134,7 @@ c
       mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nsnon.gt.0) then
       call cf_lss(lself,lpbc,lpbcs,
-     + xs,isga,isdt,isgr,isz,isfr,isto,
+     + xs,isga,isdt,isgr,isss,isz,isfr,isto,
      + jsfr,jsto,
      + nsloc,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsloc),
      + int_mb(lptr+1+4*nsloc),
