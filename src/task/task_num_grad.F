@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.16 1997-04-23 01:28:47 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.17 1997-04-27 04:39:29 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -344,26 +344,23 @@ c     and we will just use the cartesian coordinates of the active atoms
 c     plus symmetry (assuming that the frozen atoms presever symmetry)
 c
       call grad_active_atoms(rtdb, natoms, oactive, nactive)
+      call dfill(natoms3*natoms3,0.0d0,vectors,1)
       if (nactive .ne. natoms) then
-         call dfill(natoms3*natoms3,0.0d0,vectors,1)
-         nvec = 0
          do i = 1, natoms
             if (oactive(i)) then
                do k = 1,3
-                  vectors((i-1)*3+k,nvec+k) = 1.0d0
+                  vectors((i-1)*3+k,(i-1)*3+k) = 1.0d0
                enddo
                nvec = nvec+3
             endif
          enddo
       else
-         call dfill(natoms3*natoms3,0.0d0,vectors, 1)
          call dfill(natoms3,1.0d0,vectors,natoms3+1)
-         nvec = natoms3
       endif
 c
 c     Project totally symmetric component
 c
-      do i = 1, nvec
+      do i = 1, natoms3
          call sym_grad_symmetrize(geom, vectors(1,i))
       enddo
 c
@@ -453,6 +450,8 @@ c
       if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
+*      write(6,*) ' Eigen vectors of the projected vectors metric '
+*      call output(temp, 1, natoms3, 1, natoms3, natoms3, natoms3, 1)
 c     
 c     There should be nvec unit eigen values with all else zero
 c     
