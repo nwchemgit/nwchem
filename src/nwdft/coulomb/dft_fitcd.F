@@ -3,7 +3,7 @@
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
 *
-* $Id: dft_fitcd.F,v 1.23 1997-11-26 17:26:56 d3h449 Exp $
+* $Id: dft_fitcd.F,v 1.24 1997-11-28 07:32:34 d3e129 Exp $
 *
       implicit none
 c
@@ -21,6 +21,7 @@ c
 #include "sym.fh"
 #include "geom.fh"
 c
+      integer natoms
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
      &        cetobfr(2,natoms)
       double precision rdens_atom(natoms,natoms,ipol)
@@ -55,7 +56,7 @@ c
      &        max1e, nscr1e, j, next, i, mscratch_2e3c,
      &        ifirst, ilast, nshbf, maxg, ish, lmiss
       integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
-     &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, natoms,
+     &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
      &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd
       logical oprint, dowork, oprint_ioinfo
       integer nlast, ntasks
