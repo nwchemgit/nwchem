@@ -17,8 +17,6 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
   Graph enePlot = new Graph();
   boolean first=true;
 
-  JLabel lstring = new JLabel("-----------------------------------------");
-
   public nwchem_Socket(){
 
     super("NWChem Socket");
@@ -59,11 +57,9 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
       System.out.println("Server");
       server = new ServerSocket(3333);
       System.out.println("Server thread running");
-      lstring.setText("Server thread");
       validate();
       Socket client = server.accept();
       System.out.println("Client connected");
-      lstring.setText("Client connected");
       validate();
       InputStreamReader isr = new InputStreamReader(client.getInputStream());
       BufferedReader is = new BufferedReader(isr);

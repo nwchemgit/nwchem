@@ -1,11 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.9 1999-11-17 03:38:35 d3j191 Exp $
+# $Id: GNUmakefile,v 1.10 2000-01-15 00:44:05 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
 	nwchem_Task.class nwchem_Job.class nwchem_MD.class \
 	nwchem_MD_energy.class nwchem_MD_optimize.class \
 	nwchem_MD_dynamics.class nwchem_MD_thermo.class \
+        nwchem_Free.class \
 	nwchem_Synch.class nwchem_Input.class nwchem_Times.class\
 	nwchem_MD_control.class nwchem_Property.class nwchem_Rasmol.class\
         nwchem_NWChem.class nwchem_Socket.class\
