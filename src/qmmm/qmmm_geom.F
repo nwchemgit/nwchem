@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.39 2004-12-04 02:59:27 marat Exp $
+c $Id: qmmm_geom.F,v 1.40 2004-12-08 02:52:02 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -84,7 +84,7 @@ c     --------------------------
      >                      nqm,
      >                      int_mb(i_lind),
      >                      int_mb(i_num),
-     >                      dbl_mb(i_m))
+     >                      dbl_mb(i_c))
 
        if(ga_nodeid().eq.0) then
          write(*,*) "link bond list"
