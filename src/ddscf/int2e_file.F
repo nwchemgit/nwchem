@@ -36,18 +36,24 @@ c
       file_opened = .false.
       cur_rec = 1
       n_rec_in_file = 1
-      rec_len_in_dbl = n_per_rec + ma_sizeof(mt_int, 1, mt_dbl)
+      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call int2e_buf_clear()
       call dfill(rec_len_in_dbl, 0.0d0, values, 1)
 c
 c     work out dynamic ranges and scaling for integral compression
 c
-c     Need eventually to be able to diable compression for max precision
-c
-      if (precision .lt. 1d-11) precision = 1d-11
       precision = precision_arg
-      scale = 1.0d0/precision
-      maxvalue = 2147483647*precision ! Max value compreses to 2^31-1
+      ocompress = precision .gt. 1d-10
+      if (ocompress) then
+         scale = 1.0d0/precision
+         maxvalue = 2147483647*precision ! Max value compreses to 2^31-1
+         n_per_rec = buffer_size
+      else
+         scale = 1.0d0
+         maxvalue = 1.0d99
+         n_per_rec = 2*(buffer_size/3)
+         n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
+      endif
 c
 c     Figure out sizes
 c
@@ -59,7 +65,7 @@ c
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
-         max_file_rec = 2048    ! Default max size of about 2 Gb
+         max_file_rec = 2048    ! Default max size 
       else 
          max_file_rec = 0
       endif
@@ -341,7 +347,7 @@ c
 c     This copy can be made a lot more efficient
 c     
       do ind = 1, nints
-         if (abs(g(ind)) .ge. maxvalue) then
+         if (ocompress .and. (abs(g(ind)) .ge. maxvalue)) then
             int2e_file_write = int2e_file_write_big
      $           (g(ind), i(ind), j(ind), k(ind), l(ind))
             if (.not. int2e_file_write) return
@@ -458,11 +464,6 @@ c
             k(loop+nints) = labels4(2+nv4) + kbase
             l(loop+nints) = labels4(3+nv4) + lbase
             nv4= nv4 + 4
-**            i(loop+nints) = labels(1,next_value+loop-1) + ibase
-**            j(loop+nints) = labels(2,next_value+loop-1) + jbase
-**            k(loop+nints) = labels(3,next_value+loop-1) + kbase
-**            l(loop+nints) = labels(4,next_value+loop-1) + lbase
-**            g(loop+nints) = values(next_value+loop-1)
          enddo
          nints = nints + ncopy
          nfree = nfree - ncopy
@@ -540,12 +541,13 @@ c
       if (cur_rec .eq. 1) then
          if (oinfo) then
             write(6,20) actualname(1:inp_strlen(actualname)),
-     $           rec_len_in_dbl,max_cache_rec,max_file_rec
+     $           rec_len_in_dbl,max_cache_rec,max_file_rec, ocompress
  20         format(/
      $           ' Integral file          = ', a/
      $           ' Record size in doubles = ', i6/
      $           ' Max. records in memory = ', i6/
-     $           ' Max. records in file   = ', i6/)
+     $           ' Max. records in file   = ', i6/
+     $           ' Compression            = ', l1/)
             call util_flush(6)
          endif
       endif
@@ -669,7 +671,10 @@ c
 c     
 c     Copy compressed values and labels 
 c
-      if (nint_per_dbl .eq. 2) then
+      if (.not. ocompress) then
+         call dcopy(n_per_rec, buf, 1, values, 1)
+         call util_unpack_8(4*n_per_rec, buf(n_per_rec+1), labels)
+      else if (nint_per_dbl .eq. 2) then
          do i = 1, n_per_rec
             values(i) = precision * ibuf(i)
          enddo
@@ -708,7 +713,10 @@ c
 c
 c     Copy compressed values and labels 
 c
-      if (nint_per_dbl .eq. 2) then
+      if (.not. ocompress) then
+         call dcopy(n_per_rec, values, 1, buf, 1)
+         call util_pack_8(4*n_per_rec, buf(n_per_rec+1), labels)
+      else if (nint_per_dbl .eq. 2) then
          do i = 1, n_per_rec
             ibuf(i) = nint(values(i)*scale)
          enddo
@@ -825,11 +833,11 @@ c
       nq = 0.125d0 * dble(nbf+1)**4 
       nq = nq / (sym_number_ops(geom)+1)
       nq = nq / ga_nnodes()
-      nq = nq * 1.1d0 + 2*(n_per_rec+1) ! Fudge factors for safety
+      nq = nq * 1.1d0 + 2*(rec_len_in_dbl+1) ! Fudge factors for safety
 c
       if (nq .lt. avail) then
          memsize = int(nq)      ! Set these so that scf_tidy cleans up
-         filesize = nq*0.3 + 2*(n_per_rec+1) ! Allow for small overflow
+         filesize = nq*0.3 + 2*(buffer_size+1) ! Allow for small overflow
          if (.not. int2e_file_open(int2efilename, memsize, filesize, 
      $        tol2e, .false.))
      $        call errquit('int2e_test_mem: int2e_file_open failed',0)

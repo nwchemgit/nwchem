@@ -11,10 +11,12 @@ c
       integer next_value        ! Next value to be read/inserted
       integer n_rec_in_file     ! No. of records in file
       integer cur_rec           ! Current record no. (1, 2, ...)
-      integer n_per_rec         ! Size of buffer ... MUST BE EVEN
+      integer buffer_size       ! Size of buffer ... MUST BE EVEN
+      integer n_per_rec         ! No. of integrals a buffer can hold
       integer unitno            ! Fortran unit no.
       integer rec_len_in_dbl    ! Size of total record in doubles
       character*256 actualname  ! Name of file
+      logical ocompress         ! True if value compression is enabled
       logical otrace            ! True if debugging enabled
       logical oinfo             ! True if to print brief info
       integer l_cache, k_cache  ! MA space for integral cache
@@ -35,29 +37,31 @@ c
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
-*      parameter (n_per_rec = 8192)
-      parameter (n_per_rec = 32768)
+*      parameter (buffer_size = 8192)
+      parameter (buffer_size = 32768)
       parameter (unitno = 98)
 c
       common/cint2ebuf/
-     $     buf(n_per_rec),
+     $     buf(buffer_size),
      $     n_in_buf, pad
       equivalence(ibuf(1),buf(1))
 c
       common/cint2efile/
-     $     values(n_per_rec),
-     $     labels(4,n_per_rec),
+     $     values(buffer_size),
+     $     labels(4,buffer_size),
      $     n_in_rec
       equivalence (labels4(1),labels(1,1))
 c
       common/cintinfo/
      $     precision, scale, maxvalue,
      $     n_rec_in_file,
+     $     n_per_rec,
      $     cur_rec,
      $     rec_len_in_dbl,
      $     next_value,
      $     otrace,
      $     oinfo,
+     $     ocompress,
      $     file_opened,
      $     l_cache, k_cache,
      $     max_file_rec, max_cache_rec,
