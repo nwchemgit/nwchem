@@ -2,7 +2,7 @@
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
-c     $Id: dft_fitvc.F,v 1.21 1997-11-26 17:26:57 d3h449 Exp $
+c     $Id: dft_fitvc.F,v 1.22 1998-12-19 00:38:36 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -145,11 +145,12 @@ c
      &  call errquit('dft_fitvc: cannot allocate isvec',0)
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2))
      &  call errquit('dft_fitvc: cannot allocate isvec2',0)
-      nERI    = Nao2*nbf_cd_mxnbf_cn
-      if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
-     &  call errquit('dft_fitvc: cannot allocate ERI',0)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
+c      nERI    = Nao2*nbf_cd_mxnbf_cn
+      nERI    = maxg
+      if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
+     &  call errquit('dft_fitvc: cannot allocate ERI',0)
       nscr    = mscratch_2e3c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0)
@@ -359,7 +360,8 @@ c
                 if( .not.bas_cn2bfr(CD_bas_han, ishp, ifirstp, ilastp))
      &            call errquit('Exiting in fitvcoul.',5)
                 nshbf_cd=ilastp-ifirstp+1
-                Nintegrals=nshbf_cd*Nao2
+c                Nintegrals=nshbf_cd*Nao2
+                Nintegrals=maxg
                 Vcoul_est = Dbl_MB((icd_shell-1)+ishp)*ERI_est
                 if( Vcoul_est.gt.THRESHOLD )then
 c                  
