@@ -1,11 +1,15 @@
-# Lower temperature dynamics.  Takes much longer
-# for decomposition to occur.
+#  For testing Quantum MD with DFT energy
+#  Trajectory file can be viewed with Ecce v2.1
+#  
+#  In the output file the temp. should drop when
+#  the CO2 is eliminated.  At least 500 ps are needed
+#  to get the decarboxylation to occur at 800 K.
 
 start decomp
 
 echo
 
-Title "3-Carboxybenzisoxazole Gas-phase Dynamics at 500 K"
+Title "3-Carboxybenzisoxazole Gas-phase Dynamics at 800 K"
 
 charge -1
 
@@ -29,16 +33,10 @@ geometry  units angstrom noautoz
 end
 
 basis
-  H library 3-21G
-  O library 3-21G
-  N library 3-21G
-  C library 3-21G
+  * library 3-21G
 end
 
-scf
-  RHF
-  nopen 0
-  thresh 1e-6
+dft
   print low
 end
 
@@ -46,10 +44,10 @@ md
   system Bzisox_qmd
   cutoff 2.8
   noshake solute
-  equil 5  data 30  step 0.0005 # short time for testing
-  isotherm 500.0 trelax 0.2
-  print step 5  stat 10
-  record scoor 1
+  equil 0  data 100  step 0.001
+  isotherm 800.0 trelax 0.05  # heat quickly
+  print step 5  stat 50
+  record scoor 1 prop 1
 end
 
-task scf dynamics 
+task dft dynamics 
