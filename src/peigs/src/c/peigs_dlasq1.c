@@ -4,9 +4,14 @@
 
 void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, DoublePrecision *eval, DoublePrecision *work, Integer *info)
 {   
-  Integer i, j;
+  Integer i, j, iii, me, nproc;
   DoublePrecision *dptr;
   extern void dlasq1_();
+  FILE *file;
+  char filename[40];
+  
+  me    = mxmynd_();
+  nproc = mxnprc_();
   
   for ( i = 0; i < n; i++ )
     work[i]=sqrt(dplus[i]);
@@ -17,8 +22,15 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
   }
   
   dlasq1_( &n, &work[0], &work[n], &work[n+n], info );
+  
   if ( *info != 0 ){
     printf(" error in dlasq1 info = %d \n", *info );
+    sprintf( filename, "pdspevx.%d", me);
+    file = fopen(filename, "w");
+    for ( iii = 0; iii < n; iii++)
+      fprintf(file, " %d %20.16f %20.16f \n", iii, dplus[iii], lplus[iii]);
+    close(file);
+    fflush(file);
     fflush(stdout);
   }
   

@@ -2,7 +2,7 @@
  *
  * DISCLAIMER
  *
- * This material was prepared as an account of work sponsored by an
+ * This material was prepared as an account ofe work sponsored by an
  * agency of the United States Government.  Neither the United States
  * Government nor the United States Department of Energy, nor Battelle,
  * nor any of their employees, MAKES ANY WARRANTY, EXPRESS OR IMPLIED, OR
@@ -346,7 +346,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     strcpy( msg,  "Error in pdspevx." );
 
     sprintf( filename, "pdspevx.%d", me);
-
+    
 #ifdef DEBUG7
 
 #endif
@@ -752,42 +752,46 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
 #endif
       
-   pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
-	      dd, ee, dplus, lplus,
-	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
-	      d_scrat, i_scrat, &linfo);
+/*
+      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
+		 dd, ee, dplus, lplus,
+		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		 d_scrat, i_scrat, &linfo);
 
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+*/
+	linfo = 1;
       
-
-   if ( linfo != 0 ) {
-
-     printf(" error in peigs...pstebz10 me = %d \n", me);
-     fflush(stdout);
-     pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-	       dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
-	      d_scrat, i_scrat, info);
-     
-      syncco[0] = 0.0e0;
-     gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-     
-     
-     if ( *info != 0 ) {
-     printf(" error in peigs...pstebz9 me = %d \n", me);
-     fflush(stdout);
-
-       for ( iii = 0 ; iii < msize; iii++ )
-	 d_scrat[iii] = dd[iii];
-       for (iii = 0; iii < msize; iii++)
-	 d_scrat[iii+msize] = ee[iii];
-       dsterf_(&msize, d_scrat, &d_scrat[msize+1], &linfo);
-       for ( iii = 0; iii < msize; iii++ )
-	 eval[iii] = dd[iii];
-       if ( linfo != 0 ) {
-	 printf(" error in peigs...dsterf me = %d \n", me);
-	 printf(" error in peigs...fails all eval solver me = %d \n", me);
-	 exit(-1);
+      
+      if ( linfo != 0 ) {
+/*
+	printf(" error in peigs...pstebz10 using pstebz9 me = %d \n", me);
+	fflush(stdout);
+*/
+	linfo = 0;
+	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
+		  dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		  d_scrat, i_scrat, info);
+	
+	syncco[0] = 0.0e0;
+	gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+	
+	if ( *info != 0 ) {
+	  printf(" error in peigs...pstebz9 using dsterf me = %d \n", me);
+	  fflush(stdout);
+	  
+	  for ( iii = 0 ; iii < msize; iii++ )
+	    d_scrat[iii] = dd[iii];
+	  for (iii = 0; iii < msize; iii++)
+	    d_scrat[iii+msize] = ee[iii];
+	  dsterf_(&msize, d_scrat, &d_scrat[msize+1], &linfo);
+	  for ( iii = 0; iii < msize; iii++ )
+	    eval[iii] = d_scrat[iii];
+	  if ( linfo != 0 ) {
+	    printf(" error in peigs...dsterf me = %d \n", me);
+	    printf(" error in peigs...fails all eval solver me = %d \n", me);
+	    exit(-1);
        }
      }
    }

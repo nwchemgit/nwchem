@@ -514,7 +514,7 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
 	       me, ifakeme, *info );
        fprintf(stderr, " me = %d ifakeme=%d dstebz3 also returned neig= %d il=%d iu=%d \n",
 	       me, ifakeme, m, il, iu );
-
+       
        *info = 1;
      }
      
@@ -664,15 +664,20 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
     * the blocks.
     */
 
-    if ( *info != 0 ) {
-      range = 3;
+   if ( *info != 0 ) {
+/*
+	if parallel multisection gives errors then do it serially
+*/
+     range = 3;
      order = 1;
      m = 0;
-      dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	      &m, nsplit, eval, iblock, isplit, work,
-	      i_work, info);
-   }
-     
+     il = 1;
+     iu = *n;
+     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+	       &m, nsplit, eval, iblock, isplit, work,
+	       i_work, info);
+    }
+    
     
     if ( ifakeme == 0  &&  *info == 0 ) {
 
@@ -702,7 +707,9 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
      */
     
     mxbrod_( info, proclist, &isize1, &nn_procs, proclist, &INT);
-    
+
+
+ 
     itype = 19;
     isize = numeig * sizeof(Integer);
     mxbrod_( iblock, proclist, &isize, &nn_procs, proclist, &itype);
@@ -710,6 +717,8 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
     isize = numeig * sizeof(DoublePrecision);
     mxbrod_( (Integer *) eval, proclist, &isize, &nn_procs, proclist, &DOUBLE);
 
+JUNK:
+    
     range = 3;
     order = 1;
     m = 0;
@@ -718,19 +727,38 @@ void pstebz9_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e,
     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
 	      &m, nsplit, &dummy, iblock, isplit, work,
 	      i_work, info);
+    
     leig = dummy; /* left most e-val */
     psgn = 1.0;
     psigma = 0.;
     eps = DLAMCHE;
+
+
+/*
+    for ( indx = 0; indx < *n; indx++ )
+      work[indx] = d[indx];
+    
+    for ( indx = 0; indx < *n; indx++ )
+      work[msize + indx] = e[indx];
+
+    dsterf_(&msize, work, &work[msize], info);
+    
+    for ( indx = 0; indx < *n; indx++ )
+      eval[indx] = work[indx];
+    
+    *neigval = msize;
+    leig = work[0];
+*/
     
     if ( leig <= 0. ){
       psgn = 1.;
-      psigma = -(fabs(leig)+100.0*eps);
+      psigma = -(fabs(leig)+sqrt(eps));
     }
     
     for ( indx = 0; indx < *neigval; indx++ ){
       eval[indx] -= psigma;
     }
+    
     
     for (i = 0; i < msize; i++ )
       work[i] = d[i] - psgn*psigma;

@@ -644,9 +644,9 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    if ( leig <= 0. ){
      psgn = 1.;
      if (onenrm > 1.0e0 )
-       psigma = -(ffabs(leig)+1.0e3*sqrt(DLAMCHE)*onenrm );
+       psigma = -(ffabs(leig)+1.0e3*DLAMCHE*onenrm );
      else
-       psigma = -(ffabs(leig)+1.0e3*sqrt(DLAMCHE));
+       psigma = -(ffabs(leig)+1.0e3*DLAMCHE);
    }
    
    
@@ -706,8 +706,8 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      dptr = &dplus[i1split];
      lptr = &lplus[i1split];
      /*
-	LDL' factorization of tridiagonal
-	*/
+       LDL' factorization of tridiagonal
+       */
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
      peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
      j = iii+1; /* for fortran indexing */
