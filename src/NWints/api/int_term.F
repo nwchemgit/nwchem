@@ -1,5 +1,5 @@
       subroutine int_terminate()
-c $Id: int_term.F,v 1.3 1996-07-18 23:58:32 d3e129 Exp $
+c $Id: int_term.F,v 1.4 1996-08-21 19:53:08 d3g681 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -19,7 +19,7 @@ c
         call texas_terminate()
       endif
       if (.not.spcart_terminate()) then
-        call errquit('int_terminate: spcart_terminate failed')
+        call errquit('int_terminate: spcart_terminate failed',0)
       endif
       end
       subroutine sp_terminate()
