@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.6 2002-08-07 00:16:18 bylaska Exp $
+* $Id: paw_sd.F,v 1.7 2002-08-07 18:42:08 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -214,7 +214,7 @@
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
-      write(*,*) "generating PAW basis"
+      write(*,*) "generating PAW basis - debug"
       call init_paw_basis()
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
