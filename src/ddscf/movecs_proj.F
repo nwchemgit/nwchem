@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.5 1997-03-25 18:02:38 d3e129 Exp $
+C$Id: movecs_proj.F,v 1.6 1997-07-25 17:50:45 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -69,6 +69,7 @@ c
      $     call errquit('movecs_project: no file/basis', 0)
       old_basis_name = project(1)
       old_filename   = project(2)
+      call util_file_name_resolve(old_filename, .false.)
 *
       if (.not. bas_create(old_basis,old_basis_name)) call errquit
      $     ('movecs_project: bas_create', 0)
