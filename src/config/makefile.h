@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.497 2005-02-05 00:02:02 edo Exp $
+# $Id: makefile.h,v 1.498 2005-02-05 00:15:28 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1316,8 +1316,8 @@ ifeq ($(LINUXCPU),x86)
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
-    _IFCV80= $(shell ifc -v  2>&1|egrep 8|awk ' /8\.0/  {print "Y"}')
-    _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8\./  {print "Y"}')
+    _IFCV80= $(shell ifc -v  2>&1|egrep 8|head -1|awk ' /8\.0/  {print "Y"}')
+    _IFCV8= $(shell ifc -v  2>&1|egrep 8|head -1|awk ' /8\./  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
@@ -1503,8 +1503,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-       _IFCV81= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8\.1/  {print "Y"}')
-       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8\./  {print "Y"}')
+       _IFCV81= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|head -1|awk ' /8\.1/  {print "Y"}')
+       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|head -1|awk ' /8\./  {print "Y"}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
          FOPTIONS += -quiet
@@ -1593,7 +1593,7 @@ endif # end of ia32 bit
        _FC=ifc
       endif
       ifeq ($(_FC),ifc)
-       _IFCV81= $(shell ifc -v  2>&1|egrep 8|awk ' /8\.1/  {print "Y"}')
+       _IFCV81= $(shell ifc -v  2>&1|egrep 8|head -1|awk ' /8\.1/  {print "Y"}')
        ifeq ($(_IFCV81),Y)
 # to get EM64T
 # Intel 8.1 is required
