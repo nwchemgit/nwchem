@@ -333,6 +333,8 @@ c
 c
 c  Get misc info
 c
+      oprint = (ga_nodeid().eq.0).and.
+     $         (util_print('info',print_default))
       if (.not. rtdb_get(rtdb, 'scf:tol2e',
      $     MT_DBL, 1, tol2e)) tol2e = 1.0d-7
       if (.not.rtdb_get(rtdb, 'scf:skeleton',MT_LOG, 1, oskel)) then
@@ -546,7 +548,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.8 1996-03-01 22:37:14 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.9 1996-03-13 23:08:34 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -637,7 +639,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.8 1996-03-01 22:37:14 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.9 1996-03-13 23:08:34 rg240 Exp $
 c
 c Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c partially occupied orbitals (trivially)
