@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.39 1997-06-26 00:36:36 d3e129 Exp $
+# $Id: makelib.h,v 1.40 1997-11-14 00:09:11 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -129,6 +129,8 @@ ifdef OBJ_OPTIMIZE
 else
  OPT_TARGET = 
 endif
+
+all:	$(LIBRARY_PATH) $(LIB_ALSO_BUILD)
 
 
  LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJ))

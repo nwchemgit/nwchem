@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.244 1997-11-01 05:38:10 d3j191 Exp $
+# $Id: makefile.h,v 1.245 1997-11-14 00:09:10 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -817,6 +817,7 @@ ifeq ($(TARGET),SP1)
 
   LDOPTIONS = 
    FOPTIONS = -qEXTNAME -qnosave
+# -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
