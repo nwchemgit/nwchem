@@ -186,6 +186,33 @@ c     -------------------
 
       end 
 
+      function qmmm_get_h_qbqs()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_h_qbqs
+
+      qmmm_get_h_qbqs = h_qbqs
+
+      end 
+
+      function qmmm_get_i_qbqs()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_qbqs
+
+      qmmm_get_i_qbqs = i_qbqs
+
+      end 
+
+      function qmmm_get_h_cbqs()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_h_cbqs
+
+      qmmm_get_h_cbqs = h_cbqs
+
+      end 
+
       function qmmm_get_i_cbqs()
       implicit none
 #include "qmmm_data.fh"
@@ -269,14 +296,6 @@ c     -------------------
 
       end 
 
-      function qmmm_get_i_qbqs()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_qbqs
-
-      qmmm_get_i_qbqs = i_qbqs
-
-      end 
 
       function qmmm_get_i_g()
       implicit none

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_params.fh,v 1.1 2004-03-12 23:37:06 marat Exp $
+c $Id: qmmm_params.fh,v 1.2 2004-08-14 00:34:43 marat Exp $
 c
 c
 c     atom type parameters
@@ -10,6 +10,21 @@ c     -------------------
       parameter(lqsoft=64)
       parameter(lqhigh=128)
       parameter(lqzone=64)
+c
+c     bq zone
+c
+      integer   bq_exlude_H
+      parameter(bq_exlude_H=1)
+      integer   bq_exlude_all
+      parameter(bq_exlude_all=2)
+      integer	bq_exlude_none
+      parameter(bq_exlude_none=0)
+c
+c     link atom types
+      integer   hydrogen_link
+      parameter(hydrogen_link=1)
+      integer   halogen_link
+      parameter(halogen_link=0)
 
 c
 c     conversion parameters

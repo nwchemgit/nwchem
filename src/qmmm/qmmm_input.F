@@ -7,6 +7,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
+#include "qmmm_params.fh"
 c
       integer rtdb
 c
@@ -20,8 +21,8 @@ c
 c**** default values for parameters
       xyz  = .false.
       xyzq = .false.
-      linkatm=0
-      nobq=1
+      linkatm=halogen_link
+      nobq=bq_exlude_H
 c
       if (.not.inp_a(token))
      + call errquit('qmmm_input: no input available',0, INPUT_ERR)
@@ -67,7 +68,7 @@ c
       if(.not.inp_a(token)) call errquit('qmmm_input: no link atom',0,
      &       INPUT_ERR)
       if(token.eq.'hydrogen') then
-      linkatm=1
+      linkatm=hydrogen_link
       goto 2
       endif
       call errquit('qmmm_input: invalid link atom',0, INPUT_ERR)
@@ -77,18 +78,18 @@ c
       if(.not.inp_a(token)) call errquit('qmmm_input: no nobq atom',0,
      &       INPUT_ERR)
       if(token.eq.'hydrogen') then
-      nobq=1
+      nobq=bq_exlude_H
       goto 2
       endif
       if(token.eq.'all') then
-      nobq=2
+      nobq=bq_exlude_all
       goto 2
       endif
       if(token.eq.'none') then
-      nobq=0
+      nobq=bq_exlude_none
       goto 2
       endif
-      call errquit('qmmm_input: invalid nobq atom',0, INPUT_ERR)
+      call errquit('qmmm_input: invalid nobq option',0, INPUT_ERR)
       endif
 c
       if (token.eq.'end') then

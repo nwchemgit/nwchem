@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.1 2004-07-21 01:29:47 marat Exp $
+c $Id: qmmm_bq.F,v 1.2 2004-08-14 00:34:43 marat Exp $
 c
 c
 
@@ -21,7 +21,6 @@ c     local variables
       character*4 bqtag
       character*16 myname
 
-      call qmmm_unload_bq()
 
       call mm_get_tot_nbqs(nbqs)
       call mm_get_tot_nbqw(nbqw)
@@ -76,13 +75,16 @@ c     local variables
       call mm_get_tot_nbqs(nbqs)
       call mm_get_tot_nbqw(nbqw)
 
+      h_cbqs = qmmm_get_h_cbqs()
+      h_qbqs = qmmm_get_h_qbqs()
+
       if(nbqs.gt.0) then
-        if(.not.ma_alloc_get(mt_dbl,3*nbqs,'cbq',h_cbqs,i_cbqs))
-     +   call errquit('qmmm: Failed to allocate memory for cbq',3*nbqs,
+        if(.not.ma_free_heap(h_cbqs))
+     +   call errquit('qmmm: memory deallocation for cbq',3*nbqs,
      +         MA_ERR)
 
-        if(.not.ma_alloc_get(mt_dbl,nbqs,'qbq',h_qbqs,i_qbqs))
-     +   call errquit('qmmm: Failed to allocate memory for qbq',nbqs,
+        if(.not.ma_free_heap(h_qbqs))
+     +   call errquit('qmmm:memory deallocation for qbq',nbqs,
      &         MA_ERR)
       end if
 

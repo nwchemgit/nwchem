@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.4 2004-07-21 01:29:47 marat Exp $
+c $Id: mm_interface.F,v 1.5 2004-08-14 00:34:43 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -106,7 +106,7 @@ c
      &                     iwz,nbqw)
       implicit none
 #include "util.fh"
-#include "qmmm_common.fh"
+c#include "qmmm_common.fh"
 c
       integer mwm,nwm,mwa
       integer iwz(mwm)
@@ -179,7 +179,7 @@ c
      &                     isdt,isz,nbq)
       implicit none
 #include "util.fh"
-#include "qmmm_common.fh"
+#include "qmmm_params.fh"
 c
       integer msa,nsa
       integer isdt(msa)
@@ -336,6 +336,7 @@ c     local variables
 
       ioq = ioff
       do i=1,nsa
+      write(*,*) "isz array",i,isz(i)
       if(isz(i).ne.0 .and. iand(isdt(i),lquant).eq.0 .and.
      >   iand(isdt(i),lqlink).eq.0) then
          ioq=ioq+1
