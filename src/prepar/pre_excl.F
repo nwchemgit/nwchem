@@ -1,16 +1,22 @@
       logical function pre_excl(l3rd,m3rd,n3rd,lbnd,mbnd,nbnd,
-     + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx)
+     + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx,catt,matt,
+     + lats,mats,latm,matm,natm,lupdat)
 c
-c $Id: pre_excl.F,v 1.6 2000-06-21 03:48:15 d3j191 Exp $
+c $Id: pre_excl.F,v 1.7 2002-04-19 22:21:12 d3j191 Exp $
 c
       implicit none
 c
       integer m3rd,n3rd,mbnd,nbnd,mang,nang,mexc,nexc
+      integer matt,mats,matm,natm
       integer l3rd(2,m3rd),lbnd(4,mbnd),lang(5,mang),lexc(2,mexc)
       integer nval
       integer ival(nval),ndx(nval)
+      character*6 catt(2,matt)
+      integer lats(3,mats)
+      integer latm(9,matm)
+      logical lupdat
 c
-      integer i,k,l,in,jn,ln,itmp,ir
+      integer i,j,k,l,in,jn,ln,itmp,ir
 c
       if(n3rd.gt.mexc) call errquit('increase mexc',9999)
       do 1 i=1,n3rd
@@ -32,13 +38,39 @@ c
       lexc(2,nexc)=max(lang(1,i),lang(3,i))
     3 continue
 c
-      if(nexc.gt.0) then
-      do 4 i=1,nexc
-      ndx(i)=i
+      if(lupdat) then
+      do 4 i=1,natm-1
+      if(catt(1,lats(2,latm(3,i)))(6:6).eq.'D') then
+      do 5 j=i+1,natm
+      if(catt(1,lats(3,latm(3,j)))(6:6).eq.'D') then
+      nexc=nexc+1
+      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      lexc(1,nexc)=i
+      lexc(2,nexc)=j
+      write(*,'(a,2i5)') 'Excluding ',i,j
+      endif
+    5 continue
+      elseif(catt(1,lats(3,latm(3,i)))(6:6).eq.'D') then
+      do 6 j=i+1,natm
+      if(catt(1,lats(2,latm(3,j)))(6:6).eq.'D') then
+      nexc=nexc+1
+      if(nexc.gt.mexc) call errquit('increase mexc',9999)
+      lexc(1,nexc)=i
+      lexc(2,nexc)=j
+      write(*,'(a,2i5)') 'Excluding ',i,j
+      endif
+    6 continue
+      endif
     4 continue
+      endif
+c
+      if(nexc.gt.0) then
+      do 7 i=1,nexc
+      ndx(i)=i
+    7 continue
       ln=nexc/2+1
       ir=nexc
-    5 continue
+    8 continue
       if(ln.gt.1) then
       ln=ln-1
       itmp=ndx(ln)
@@ -48,12 +80,12 @@ c
       ir=ir-1
       if(ir.eq.1) then
       ndx(1)=itmp
-      goto 6
+      goto 9
       endif
       endif
       in=ln
       jn=ln+ln
-    7 continue
+   10 continue
       if(jn.le.ir) then
       if(jn.lt.ir) then
       if(lexc(1,ndx(jn)).gt.lexc(1,ndx(jn+1)).or.
@@ -72,32 +104,32 @@ c
       in=jn
       jn=jn+jn
       endif
-      goto 7
+      goto 10
       endif
       ndx(in)=itmp
-      goto 5
-    6 continue
-c
-      do 8 k=1,2
-      do 9 i=1,nexc
-      ival(i)=lexc(k,i)
+      goto 8
     9 continue
-      do 10 i=1,nexc
+c
+      do 11 k=1,2
+      do 12 i=1,nexc
+      ival(i)=lexc(k,i)
+   12 continue
+      do 13 i=1,nexc
       lexc(k,i)=ival(ndx(i))
-   10 continue
-    8 continue
+   13 continue
+   11 continue
       endif
 c
       if(nexc.gt.1) then
       l=nexc
       nexc=1
-      do 11 i=2,l
+      do 14 i=2,l
       if(lexc(1,i).ne.lexc(1,nexc).or.lexc(2,i).ne.lexc(2,nexc)) then
       nexc=nexc+1
       lexc(1,nexc)=lexc(1,i)
       lexc(2,nexc)=lexc(2,i)
       endif
-   11 continue
+   14 continue
       endif
 c
       pre_excl=.true.

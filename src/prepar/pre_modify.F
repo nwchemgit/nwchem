@@ -1,9 +1,9 @@
       logical function pre_modify(iwhich,lfnout,lfnmod,filmod,ffield,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
-     + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
+     + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.12 2002-02-26 00:35:53 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.13 2002-04-19 22:21:12 d3j191 Exp $
 c
       implicit none
 c
@@ -41,9 +41,11 @@ c
       integer ndx,ndy,mset,multip
       real*8 charge,polar,value,forcon
       character*5 type
-      logical foundit
+      logical foundit,lupdat
 c
       integer i,j,k,l,m,n
+c
+      lupdat=.false.
 c
       open(unit=lfnmod,file=filmod(1:index(filmod,' ')-1),
      + form='formatted',status='old',err=999)
@@ -257,6 +259,7 @@ c
       endif
 c
       if(card(1:6).eq.'update') then
+      lupdat=.true.
       do 50 j=1,3
       n=0
       m=0

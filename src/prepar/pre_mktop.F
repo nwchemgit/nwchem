@@ -5,7 +5,7 @@
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + ignore,slvnam)
 c
-c $Id: pre_mktop.F,v 1.29 2001-11-15 16:45:57 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.30 2002-04-19 22:21:12 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -79,8 +79,12 @@ c
 c
       real*8 releps,q14fac,wcorr(3)
 c
+      logical lupdat
+c
       real*8 timer_wall_total
       external timer_wall_total
+c
+      lupdat=.false.
 c
       if(util_print('topology',print_debug)) then
       write(lfnout,1000)
@@ -346,7 +350,7 @@ c
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt))
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt,lupdat))
      + call errquit('pre_modify failed',9999)
 c
 c     get number of atom types
@@ -438,7 +442,7 @@ c
 c     allocate memory for excluded pair list
 c     --------------------------------------
 c
-      mexc=n3rd+nbnd+nang
+      mexc=n3rd+nbnd+nang+300
       nexc=0
       if(.not.ma_push_get(mt_int,2*mexc,'lexc',l_lexc,i_lexc))
      + call errquit('Memory allocation failed for lexc',9999)
@@ -453,7 +457,8 @@ c
      + call errquit('Memory allocation failed for ndx',9999)
       if(.not.pre_excl(int_mb(i_l3rd),m3rd,n3rd,int_mb(i_lbnd),
      + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc,
-     + nval,int_mb(i_ival),int_mb(i_ndx)))
+     + nval,int_mb(i_ival),int_mb(i_ndx),byte_mb(i_catt),matt,
+     + int_mb(i_lats),mats,int_mb(i_latm),matm,natm,lupdat))
      + call errquit('pre_excl failed',9999)
       if(.not.ma_pop_stack(l_ndx))
      + call errquit('Memory deallocation failed for ndx',9999)
@@ -495,7 +500,7 @@ c
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt))
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt,lupdat))
      + call errquit('pre_modify failed',9999)
 c
 c     write the topology file
