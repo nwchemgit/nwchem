@@ -1,7 +1,7 @@
       subroutine scf_movecs_sym_adapt(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
 *
-* $Id: scf_sym_adap.F,v 1.5 1997-11-13 23:48:22 d3g681 Exp $
+* $Id: scf_sym_adap.F,v 1.6 1998-08-26 15:29:25 d3g681 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -75,9 +75,9 @@ c
          call util_flush(6)
       endif
 c
-c     Make any near zeros exact zeroes
+c     Make any near zeros exact zeroes ... bad idea 
 c
-      call ga_screen(g_movecs, 1d-13)
+*****      call ga_screen(g_movecs, 1d-13)
 c
 c     Must reorthog if mixing was present
 c
@@ -97,6 +97,8 @@ c
 *         write(6,*) ' after sym, after ortho '
 *         call util_flush(6)
 *         call ga_print(g_movecs)
+      else
+         call ga_orthog_mos(basis, g_movecs)
       endif
 c
       if (oprint .and. ga_nodeid() .eq. 0) then
