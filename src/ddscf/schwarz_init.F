@@ -1,5 +1,5 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.14 1995-03-01 19:56:03 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.15 1995-11-13 16:57:32 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -28,8 +28,8 @@ c
      $     numint, integ, len_csh, len_cat, ijat, me, nproc
       double precision at_max, sh_max
       logical status, odebug
-      integer nxtval, next
-      external nxtval
+      integer nxtask, next, task_size
+      external nxtask
 #include "itri.fh"
 c
       odebug = .false.
@@ -51,8 +51,9 @@ c
       if (.not. ma_alloc_get(MT_INT, len_cat, 'schwarz: atoms',
      $     l_cat, k_cat))
      $     call errquit('schwarz_init: ma_alloc 1', len_cat)
-      
       call ifill(len_cat, 0, int_mb(k_cat), 1)
+c
+      task_size = max(1,natri/(10*ga_nnodes()))
 c
       nshtri = nshell*(nshell+1)/2
       len_csh = (nshtri - 1) / (2*nb_per_i) + 1
@@ -86,7 +87,7 @@ c
       ijat  = 0
       nproc = ga_nnodes()
       me    = ga_nodeid()
-      next  = nxtval(nproc)
+      next  = nxtask(nproc,task_size)
 c
       do iat = 1, natoms
          if (.not. bas_ce2cnr(basis, iat, ishlo, ishhi))
@@ -145,12 +146,12 @@ c
      $                 schwarz_atom(iat,jat)/at_max
                   call util_flush(6)
                endif
-               next = nxtval(nproc)
+               next = nxtask(nproc,task_size)
             endif
             ijat = ijat + 1
          enddo
       enddo
-      next = nxtval(-nproc)
+      next = nxtask(-nproc,task_size)
 c     
 c     A global OR is required to piece together the parts made in parallel
 c

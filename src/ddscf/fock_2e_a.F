@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.14 1995-11-13 06:41:14 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.15 1995-11-13 16:57:28 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/      ! Defines size of parallel tasks
@@ -19,7 +19,7 @@ c     see scf_init for input of task_chunks etc.
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.14 1995-11-13 06:41:14 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.15 1995-11-13 16:57:28 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -79,7 +79,7 @@ c
 c
 c     Determine appropriate task chunking
 c
-      call fock_2e_est_task(geom, oskel, tol2e)
+      call fock_2e_est_task(geom, oskel, tol2e, task_chunks)
 c     
       ijk_prev(1,1) = -1
       ijk_prev(2,1) = -1

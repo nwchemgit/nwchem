@@ -182,7 +182,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.13 1995-11-13 06:41:20 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.14 1995-11-13 16:57:31 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -247,6 +247,8 @@ c
 c
       logical int2e_file_open
       external int2e_file_open
+c
+      task_chunks = -1
 c
       if (rtdb_get(rtdb, 'scf:task_chunks',
      $     MT_INT, 1, chunktmp)) then
