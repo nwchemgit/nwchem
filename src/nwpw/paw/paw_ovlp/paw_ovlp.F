@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.4 2002-08-13 23:57:59 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.5 2002-08-15 22:41:14 bylaska Exp $
 *
 
 !**************************************************
@@ -127,6 +127,8 @@
       integer exi(2),tmp(2)
 
       !*** external functions ****
+      integer  paw_proj_l,paw_proj_m
+      external paw_proj_l,paw_proj_m
       integer  paw_proj_i_prj_atom,paw_proj_nbasis
       integer  ion_nion,ion_katm,psi_ne
       external paw_proj_i_prj_atom,paw_proj_nbasis
@@ -148,6 +150,7 @@
         nbasis = paw_proj_nbasis(ia)
         prj = paw_proj_i_prj_atom(ia)
         do nlm=1,nbasis
+           write(*,*) "lm:",paw_proj_l(nlm,ia),paw_proj_m(nlm,ia)
            nlmii = nlmii + 1
            indx_prj = (nlm-1)*npack1
            call Pack_cc_Mul(1,

@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.7 2002-08-13 23:09:49 bylaska Exp $
+* $Id: paw_proj.F,v 1.8 2002-08-15 22:41:14 bylaska Exp $
 *
 
 !**************************************************
@@ -529,6 +529,9 @@
       integer MASTER,taskid
       parameter (MASTER=0)
 
+      real*8  small
+      parameter (small=1.0d-9)
+
       logical value
       integer ii,i,npack1,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3)
       integer i_rgrid,i_prj
@@ -608,25 +611,20 @@
      >        MA_push_get(mt_dcpl,nfft3d,
      >                    'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,npack1,'Gx',Gx(2),Gx(1))
+     >        MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,npack1,'Gy',Gy(2),Gy(1))
+     >        MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,npack1,'Gz',Gz(2),Gz(1))
+     >        MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.value) 
      > call errquit('paw_proj_formatter_auto, push stack',0)
 
-      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dcpl_mb(tmp(1)))
-      call Pack_t_pack(1,dcpl_mb(tmp(1)))
-      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gx(1)))
-
-      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dcpl_mb(tmp(1)))
-      call Pack_t_pack(1,dcpl_mb(tmp(1)))
-      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gy(1)))
-
-      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dcpl_mb(tmp(1)))
-      call Pack_t_pack(1,dcpl_mb(tmp(1)))
-      call Pack_t_Copy(1,dcpl_mb(tmp(1)),dbl_mb(Gz(1)))
+      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)),1)
+      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(Gy(1)),1)
+      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(Gz(1)),1)
+      call Pack_t_pack(1,dbl_mb(Gx(1)))
+      call Pack_t_pack(1,dbl_mb(Gy(1)))
+      call Pack_t_pack(1,dbl_mb(Gz(1)))
 
       do ii=1,basis_nbasis
         l =  int_mb(get_i_orb_l(ia)+ii-1)
@@ -635,16 +633,20 @@
         do i=1,npack1
           gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
      >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
-     >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) ) 
-          dbl_mb(rayleigh(1)+i-1) 
+     >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )             
+  
+          if (gg.gt.small) then
+            dbl_mb(rayleigh(1)+i-1) 
      >      = spher_bessel_transform(l,nr,log_amesh,
      >                               dbl_mb(i_rgrid),
      >                               dbl_mb(i_prj+(ii-1)*nr),
      >                               gg)
-          dbl_mb(rayleigh(1)+i-1) 
+          else
+            dbl_mb(rayleigh(1)+i-1) 
      >      = spher_bessel0_transform(l,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
      >                                dbl_mb(i_prj+(ii-1)*nr))
+          end if
         end do
         do m=-l,l
            call spher_harmonics_generate(l,m,npack1,
@@ -750,7 +752,6 @@
       external legendre_lm
 
 
-
       fourpi = 16.0d0*datan(1.0d0)
       sgn    = 1.0d0
       if (m.ge.0) then
@@ -781,34 +782,32 @@
           g   = dsqrt(g) 
 
           if (gxy.gt.small)then
-            exp_phi = dcmplx(Gx(k),Gy(k))/gxy 
+            exp_phi = (dcmplx(Gx(k),Gy(k))/gxy)**mabs 
           else
             exp_phi = dcmplx(1.0d0,0.0d0)
           end if 
-          exp_phi  = dcmplx(Gx(k),Gy(k))/gxy
 
           if (g.gt.small) then
             cs_theta = Gz(k)/g
           else
             cs_theta = 0.0d0
           end if 
-       
+
           Ylm(k) = coeff*legendre_lm(l,mabs,cs_theta)
-     >                  *exp_phi**mabs
+     >                  *exp_phi
         end do
       else
-              do k=1,nfft3d
+        do k=1,nfft3d
           gxy = Gx(k)**2 + Gy(k)**2
           g   = gxy + Gz(k)**2
           gxy = dsqrt(gxy)
           g   = dsqrt(g) 
 
           if (gxy.gt.small)then
-            exp_phi = dcmplx(Gx(k),Gy(k))/gxy 
+            exp_phi = (dcmplx(Gx(k),Gy(k))/gxy)**mabs 
           else
             exp_phi = dcmplx(1.0d0,0.0d0)
           end if 
-          exp_phi  = dcmplx(Gx(k),Gy(k))/gxy
 
           if (g.gt.small) then
             cs_theta = Gz(k)/g
@@ -817,7 +816,7 @@
           end if 
        
           Ylm(k) = coeff*legendre_lm(l,mabs,cs_theta)
-     >                  *dconjg(exp_phi**mabs)
+     >                  *dconjg(exp_phi)
         end do
       end if
      
