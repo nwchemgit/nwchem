@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.18 2000-04-27 15:22:10 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.19 2000-05-24 20:22:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -142,7 +142,7 @@ c
  1017 format(a16,3i5)
       write(snam(i),'(a5,a5,i6)') stemp(1:5),stemp(11:15),l
 c      snam(i)=stemp
-c      if(i.gt.nsf) nsf=i
+      if(j.gt.nsf) nsf=j
 c      if(j.gt.nsm) nsm=j
    10 continue
       idata(4)=0
@@ -306,9 +306,11 @@ c
 c
       itemp(1)=nwc
       itemp(2)=nsc
-      call ga_brdcst(mcf_33,itemp,2*ma_sizeof(mt_int,1,mt_byte),0)
+      itemp(3)=nsf
+      call ga_brdcst(mcf_33,itemp,3*ma_sizeof(mt_int,1,mt_byte),0)
       nwc=itemp(1)
       nsc=itemp(2)
+      nsf=itemp(3)
 c
       endif
 c

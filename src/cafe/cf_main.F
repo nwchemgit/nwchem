@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.54 2000-05-16 01:17:47 edo Exp $
+c $Id: cf_main.F,v 1.55 2000-05-24 20:22:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2323,19 +2323,20 @@ c
 c
       integer iunit
 c
-      call cf_wthdr(iunit,byte_mb(i_snam),int_mb(i_ibnd(2)),mbt(2))
+      call cf_wthdr(iunit,byte_mb(i_snam),
+     + int_mb(i_ibnd(1)),mbt(1),int_mb(i_ibnd(2)),mbt(2))
 c
       return
       end
-      subroutine cf_wthdr(iunit,snam,idb,nsb)
+      subroutine cf_wthdr(iunit,snam,idbw,nwb,idbs,nsb)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      integer iunit,nsb
+      integer iunit,nwb,nsb
       character*16 snam(nsatot)
-      integer idb(nsb,4)
+      integer idbw(nwb,4),idbs(nsb,4)
 c
       integer i
 c
@@ -2343,8 +2344,8 @@ c
 c
       write(iunit,1000)
  1000 format('header')
-      write(iunit,1001) nwa,nsatot,numb(2)
- 1001 format(3i10)
+      write(iunit,1001) nwa,nsatot,numb(2),numb(1)
+ 1001 format(4i10)
       if(nwa.gt.0) then
       do 1 i=1,nwa
       write(iunit,1004) wnam(i)(1:5),wnam(i)(11:15)
@@ -2357,11 +2358,16 @@ c
  1005 format(a16)
     2 continue
       endif
-      if(numb(2).gt.0) then
-      do 3 i=1,numb(2)
-      write(iunit,1006) idb(i,1),idb(i,2)
+      if(numb(1).gt.0) then
+      do 3 i=1,numb(1)
+      write(iunit,1006) idbw(i,1),idbw(i,2)
  1006 format(2i8)
     3 continue
+      endif
+      if(numb(2).gt.0) then
+      do 4 i=1,numb(2)
+      write(iunit,1006) idbs(i,1),idbs(i,2)
+    4 continue
       endif
 c
       return
