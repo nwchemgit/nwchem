@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.26 1994-09-19 23:50:44 d3e129 Exp $
+c $Id: raktest.F,v 1.27 1994-09-22 13:39:01 d3e129 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
@@ -339,9 +339,9 @@ c
 *rak:c
 *rak:c      write(6,*)' with integrals  printed '
 *rak:c      call int_chk_sum(basis,.true.)
-*rak:      call int_init(1,basis)
+*rak:      call int_init(rtdb,1,basis)
 *rak:      call int_terminate()
-*rak:      call intd_init(1,basis)
+*rak:      call intd_init(rtdb,1,basis)
 *rak:      call int_mem(max1e,max2e,scr1,scr2)
 *rak:      maxuse=max(max1e,max2e)
 *rak:      scruse=max(scr1,scr2)
@@ -406,7 +406,7 @@ c
 *rak:      if (.not.int_normalize(basis))
 *rak:     &       call errquit('derivtest: basis norm. failed', 0)
 *rak:      write(6,*)' after normalization'
-*rak:      call intd_init(1,basis)
+*rak:      call intd_init(rtdb,1,basis)
 *rak:      if (.not. bas_print(basis))
 *rak:     $      call errquit('derivtest: basis print failed', 0)
 *rak:c

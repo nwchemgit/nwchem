@@ -153,7 +153,7 @@ c
       endif
 c
 c initialize for schwarz screening
-      call intd_init(1,basis)
+      call intd_init(rtdb,1,basis)
       call schwarz_init (geom, basis)
 c
       call force(rtdb,basis,geom,movecs_out)

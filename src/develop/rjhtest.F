@@ -81,7 +81,7 @@ c... open ri basis set
       EndIf
       bases(1) = basis
       bases(2) = ri_basis
-      call int_init(2,bases)
+      call int_init(rtdb,2,bases)
       g_dens_dumm = ga_create_atom_blocked(geom,basis,' fake density')
       g_j = ga_create_atom_blocked(geom,basis,'ri coulomb matrix ')
       g_j_real =

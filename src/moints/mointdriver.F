@@ -120,7 +120,7 @@ C       mo_indx2_hi = nbf
 c
 c
 c
-       call int_init(1, basis)
+       call int_init(rtdb,1, basis)
        call int_normalize(basis)
        call schwarz_init(geom,basis)
 c

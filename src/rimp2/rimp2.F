@@ -303,7 +303,7 @@ C
       Bases(1) = AOBas
       Bases(2) = FitBas
 C
-      Call Int_Init( 2, Bases)
+      Call Int_Init(RTDB, 2, Bases)
 C
 C
       Status = Status .AND.
