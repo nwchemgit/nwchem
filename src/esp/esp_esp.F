@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.16 2000-03-14 05:44:13 d3j191 Exp $
+c $Id: esp_esp.F,v 1.17 2000-03-14 06:20:33 d3j191 Exp $
 c
       implicit none
 c
@@ -76,7 +76,7 @@ c
       close(unit=lfner)
    12 continue
       write(lfnout,1000) jshi
- 1000 format(/,' Recovering from shell ',i6)
+ 1000 format(/,' Recovering from shell ',i6,/)
       endif
       call ga_brdcst(mre_005,jshi,ma_sizeof(mt_int,1,mt_byte),0)
 c
@@ -107,7 +107,7 @@ c
       if(util_print('output',print_medium)) then
       call swatch(today,now)
       write(lfnout,1001) today,now,jsh,nshell
- 1001 format(/,2a10,' er shell ',i6,' of ',i6)
+ 1001 format(2a10,' er shell ',i6,' of ',i6)
       call util_flush(lfnout)
       endif
       else
