@@ -7,18 +7,10 @@
 #define dasum  sasum
 #define dcopy  scopy
 
-/*
-  lapack
-  */
-
 #define dlagtf slagtf
 #define dlagts slagts
 #define dlamch slamch
 #define dlarnv slarnv
-
-/*
-  peigs
-  */
 
 #define heapsort sheapsort
 #define neblw2   sneblw2 
@@ -40,10 +32,6 @@
 #define idamax ISAMAX
 #define xerbla XERBLA
 
-/*
-   lapack
-   */
-
 #define dlagtf SLAGTF
 #define dlagts SLAGTS
 #define dlamch SLAMCH
@@ -52,9 +40,6 @@
 
 
 
-/*
-peigs
-*/
 
 #define heapsort SHEAPSORT
 #define neblw1   SNEBLW1
@@ -72,9 +57,6 @@ peigs
 #define sumiv    SUMIV
 #define damax    SAMAX
 
-/*
-  mx
-*/
 
 #define mxpara   MXPARA
 #define mxmynd   MXMYND
@@ -96,10 +78,6 @@ peigs
 #define mxend    MXEND
 #define mxpara   MXPARA
 #define mxtime   MXTIME
-
-/*
-  peigs ctof 
-*/
 
 #define  choleski     CHOLESKI
 #define  inversel     INVERSEL
