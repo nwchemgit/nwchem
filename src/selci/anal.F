@@ -37,14 +37,14 @@ c
 91    format(/
      $ '       Total Perturbation Corrections for CI energies '/
      $ '       ---------------------------------------------- '//
-     $ ' EN|   ci energy    pt correction   ci+pt energy   PT norm '/
+     $ ' EN|  ci energy    pt correction   ci+pt energy   PT norm '/
      $ ' EN| -------------  -------------  -------------  ---------'/
      $ 20(:' EN:',f13.8,2x,f13.8,2x,f13.8,2x,f9.6/))
 92    format(/
      $ '      Total Perturbation Corrections for CI energies '/
      $ '      ---------------------------------------------- '//
      $ ' MP|  ci energy    pt correction   ci+pt energy   PT norm '/
-     $ ' MP|-------------  -------------  -------------  ---------'/
+     $ ' MP| -------------  -------------  -------------  ---------'/
      $ 20(:' MP:',f13.8,2x,f13.8,2x,f13.8,2x,f9.6/))
 c
       write(ifllog,31) ncinew, noconf
