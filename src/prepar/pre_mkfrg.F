@@ -7,7 +7,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.37 2002-01-11 23:14:27 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.38 2003-04-10 23:29:08 bert Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -356,7 +356,7 @@ c
 c      call errquit('Unresolved atom types',0)
       endif
 c
-      lsgm(2,i)=-4
+      lsgm(2,i)=-6
 c
       endif
     1 continue
