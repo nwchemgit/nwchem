@@ -337,8 +337,9 @@ c
      $     call errquit('oniom: failed creating geometry?',0)
       if (.not. geom_rtdb_load(rtdb, geom, 'oniom_geometry'))
      $     call errquit('oniom: no geometry ', 0)
-      if (.not. geom_cart_get(geom,real_nat,tags,coords,charge))
+      if (.not. geom_cart_get(geom,real_nat,tags,g,charge))
      $     call errquit('oniom: geom_cart_get failed', 0)
+      call dcopy(3*real_nat, g, 1, coords, 1)
 c     
       nat = model_nat
       do bond = 1, model_nbonds
@@ -350,7 +351,7 @@ c
          ignore = geom_tag_to_element(tags(nat), symbol, element, atn)
          charge(nat) = atn
          do k = 1, 3
-            coords(k,nat) = coords(k,i)*(1.0d0-p) + coords(k,j)*p
+            coords(k,nat) = g(k,i)*(1.0d0-p) + g(k,j)*p
          end do
       end do
 c     
@@ -386,8 +387,9 @@ c
      $        call errquit('oniom: failed creating geometry?',0)
          if (.not. geom_rtdb_load(rtdb, geom, 'oniom_geometry'))
      $        call errquit('oniom: no geometry ', 0)
-         if (.not. geom_cart_get(geom,real_nat,tags,coords,charge))
+         if (.not. geom_cart_get(geom,real_nat,tags,g,charge))
      $        call errquit('oniom: geom_cart_get failed', 0)
+         call dcopy(3*real_nat, g, 1, coords, 1)
          nat = inter_nat
          do bond = 1, inter_nbonds
             i = inter_bonds(1,bond)
@@ -397,7 +399,7 @@ c
             tags(nat) = inter_tags(bond) !!!! 'H oniom'
             charge(nat) = 1.0d0
             do k = 1, 3
-               coords(k,nat) = coords(k,i)*(1.0d0-p) + coords(k,j)*p
+               coords(k,nat) = g(k,i)*(1.0d0-p) + g(k,j)*p
             end do
          end do
          if (.not. geom_cart_set(geom,nat,tags,coords,charge))
