@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.11 2000-08-22 17:27:47 windus Exp $
+C $Id: twodd_cont.F,v 1.12 2000-08-25 17:04:49 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -410,11 +410,16 @@ c
         call xc_cpks_rhs(g_dens, log_mb(k_act), nactive, g_rhs_xc)
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
+      write(6,*) 'The g_rhs dft contribution'
+      call flush(6)
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs_xc(i))
+      enddo
 c
 c  The next statements are only temporarily in until we are confident the
 c  dft code is giving the correct contributions.
 c
-        do i = 1,ncent
+        do i = 1,ndens*n3xyz
           call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
         enddo
         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
@@ -427,6 +432,11 @@ c
       call flush(6)
       call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
       call flush(6)
+      write(6,*) 'The g_rhs after the dft contribution'
+      call flush(6)
+      do i = 1, ndens*n3xyz
+        call ga_print(g_rhs(i))
+      enddo
 
 c
 c call terminate since cphf will call it's own integral initialization
