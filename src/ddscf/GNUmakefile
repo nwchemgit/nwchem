@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.111 2001-11-28 01:11:57 windus Exp $
+# $Id: GNUmakefile,v 1.112 2002-01-16 17:22:41 windus Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -37,6 +37,7 @@
         riscf_trans.o 		do_riscf.o \
 	riscf_dovecs.o \
         uhf.o                   uhf_hessv.o fock_2e_rep.o \
+        uhf_hessv2.o \
         print_integ.o \
 	riscf_square.o 		riscf_io.o movecs_pr_anal.o \
         rohf_lagr.o 		rohf_diis.o \
