@@ -1,6 +1,6 @@
       subroutine input_mem_size(stack_size, heap_size, global_size,
      $   overify)
-C$Id: input_mem.F,v 1.1 1995-12-13 01:35:27 d3g681 Exp $
+C$Id: input_mem.F,v 1.2 1996-05-20 22:51:20 d3h449 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -29,7 +29,7 @@ C
          rewind 5
          call inp_init(5,6)
          if (inp_search(.false., 'memory')) then
-            call memory_input(-1, .false., heap_size, stack_size, 
+            call memory_input(-1, .false., stack_size, heap_size, 
      $           global_size, Total_Size, overify)
          Else
             Total_Src = 'N'
