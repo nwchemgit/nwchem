@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.7 2004-08-14 00:34:43 marat Exp $
+c $Id: qmmm.F,v 1.8 2004-08-14 02:30:57 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -30,9 +30,10 @@ c     get total number of quantum atoms
 c     --------------------------------
       call mm_get_tot_nqm(nqm)
 
-c     allocate qmmm data structure
-c     ---------------------------
+c     allocate and initialize qmmm data structure
+c     -------------------------------------------
       call qmmm_data_alloc(nqm)
+      call qmmm_data_init(irtdb)
 
 c     establish mapping between mm and qm atoms
 c     ----------------------------------------
@@ -42,14 +43,6 @@ c     ----------------------------------------
 c     create initial qm geometry
 c     --------------------------
       call qmmm_create_qm_geom(irtdb)
-
-c     save charge of the quantum system
-c     later it will be augmented with bq charges
-c     ------------------------------------------
-      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,aqcharge)) then
-        aqcharge = 0.0d0    
-      end if
-      call qmmm_set_qcharge(aqcharge)
 
       return
       end

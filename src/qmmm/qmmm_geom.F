@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.3 2004-08-14 00:33:44 marat Exp $
+c $Id: qmmm_geom.F,v 1.4 2004-08-14 02:30:57 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -96,9 +96,7 @@ c     local variables
 
       nqm   = qmmm_get_nqm()
       nbq   = qmmm_get_nbqs()
-
-      ntot = nbq + nqm
-      call qmmm_set_ntot(ntot)
+      ntot  = qmmm_get_ntot()
 
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
@@ -282,8 +280,6 @@ c     ------------------------
 
       if(.not.geom_destroy(igeom))
      >    call errquit("qmmm:load geometry",0,0)
-
-      call qmmm_set_ntot(nqm)
 
       end
 

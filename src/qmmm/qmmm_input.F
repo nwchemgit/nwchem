@@ -14,15 +14,15 @@ c
       character*255 token
       real*8 eatoms,qatoms
       logical xyz,xyzq
-      integer linkatm,nobq
+      integer linkatm,bq_exclude
 c
       call inp_set_field(0)
 c
 c**** default values for parameters
       xyz  = .false.
       xyzq = .false.
-      linkatm=halogen_link
-      nobq=bq_exlude_H
+      linkatm=qmmm_halogen
+      bq_exclude=qmmm_hydrogen
 c
       if (.not.inp_a(token))
      + call errquit('qmmm_input: no input available',0, INPUT_ERR)
@@ -68,28 +68,28 @@ c
       if(.not.inp_a(token)) call errquit('qmmm_input: no link atom',0,
      &       INPUT_ERR)
       if(token.eq.'hydrogen') then
-      linkatm=hydrogen_link
+      linkatm=qmmm_hydrogen
       goto 2
       endif
       call errquit('qmmm_input: invalid link atom',0, INPUT_ERR)
       endif
 c
-      if(token.eq.'nobq') then
-      if(.not.inp_a(token)) call errquit('qmmm_input: no nobq atom',0,
+      if(token.eq.'bq_exclude') then
+      if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
      &       INPUT_ERR)
       if(token.eq.'hydrogen') then
-      nobq=bq_exlude_H
+      bq_exclude=qmmm_hydrogen
       goto 2
       endif
       if(token.eq.'all') then
-      nobq=bq_exlude_all
+      bq_exclude=qmmm_all_atoms
       goto 2
       endif
       if(token.eq.'none') then
-      nobq=bq_exlude_none
+      bq_exclude=qmmm_no_atoms
       goto 2
       endif
-      call errquit('qmmm_input: invalid nobq option',0, INPUT_ERR)
+      call errquit('qmmm_input: invalid bq_exclude option',0, INPUT_ERR)
       endif
 c
       if (token.eq.'end') then
@@ -108,9 +108,9 @@ c
       if (.not.rtdb_put(rtdb,'qmmm:xyzq',mt_log,1,xyzq))
      + call errquit('qmmm_input: failed to store qmmm:xyzq',xyzq,
      &       RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'qmmm:nobq',mt_int,1,nobq))
-     + call errquit('qmmm_input: failed to store qmmm:nobq',nobq,
-     &       RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
+     + call errquit('qmmm_input: failed to store qmmm:bq_exclude',
+     &       bq_exclude,RTDB_ERR)
       return
       endif
 c

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.5 2004-08-14 00:34:43 marat Exp $
+c $Id: mm_interface.F,v 1.6 2004-08-14 02:30:57 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -147,17 +147,18 @@ c
       integer nsaloc
       integer psdt
       integer psz
-
-      write(*,*) "mm_get_nbq"
+      integer psat
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsaloc)
       call mm_get_psdt(psdt)
       call mm_get_psz(psz)
+      call mm_get_psat(psat)
 
       call mm_get_nbqs0(msa,nsaloc,
      &        int_mb(psdt),
      &        int_mb(psz),
+     &        int_mb(psat),
      &        nbq)
       end
 
@@ -176,24 +177,37 @@ c
       end
 
       subroutine mm_get_nbqs0(msa,nsa,
-     &                     isdt,isz,nbq)
+     &                     isdt,isz,isat,nbq)
       implicit none
 #include "util.fh"
 #include "qmmm_params.fh"
+#include "qmmm.fh"
 c
       integer msa,nsa
       integer isdt(msa)
       integer isz(msa)
+      integer isat(msa)
       integer nbq
 c
       integer i
+      integer bq_exclude
+      logical nobq
 c
+      integer cf_element
+      external cf_element
+c
+      bq_exclude = qmmm_get_bq_exclude()
       nbq=0
       do i=1,nsa
          write(*,*) "isdt(i),iand(isdt(i),lquant),isz(i)",
      >     isdt(i),iand(isdt(i),lquant),isz(i)
-c        if(iand(isdt(i),lqsoft).ne.0) isz(i)=0
-        if(iand(isdt(i),lquant).eq.0 .and. 
+         if(iand(isdt(i),lqsoft).ne.0) then
+           if(bq_exclude.eq.qmmm_hydrogen.and.cf_element(isat(i)).eq.1)
+     >     isz(i)=0
+           if(bq_exclude.eq.qmmm_all_atoms) isz(i)=0
+         endif
+
+       if(iand(isdt(i),lquant).eq.0 .and. 
      >    iand(isdt(i),lqlink).eq.0) then
         if(isz(i).gt.0) nbq=nbq+1
         end if

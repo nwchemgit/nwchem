@@ -1,7 +1,6 @@
 c
-c $Id: qmmm_data.fh,v 1.4 2004-07-21 01:29:47 marat Exp $
+c $Id: qmmm_data.fh,v 1.5 2004-08-14 02:30:57 marat Exp $
 c
-      integer ntot
       integer nqm
       integer i_ai,h_ai
       integer i_c,h_c
@@ -22,8 +21,11 @@ c
       integer i_qbqs,h_qbqs
       integer i_qbqw,h_qbqw
 
+
+      integer bq_exclude
+      integer link_atom
+
       common/qmmm_data/nqm,
-     &                 ntot,
      &                 nbqs,
      &                 nbqw,
      &                 i_ai,h_ai,
@@ -40,6 +42,8 @@ c
      &                 i_num,h_num,
      &                 i_g,h_g,
      &                 i_gmm,h_gmm,
+     &                 bq_exclude,
+     &                 link_atom,
      &                 qcharge
 
 

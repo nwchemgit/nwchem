@@ -68,9 +68,37 @@ c     -------------------
      &      nqm, MA_ERR)
       call ifill(nqm,0,int_mb(i_num),1)
     
-     
-       end
+       
+      end
 
+      subroutine qmmm_data_init(irtdb)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "rtdb.fh"
+
+      integer irtdb
+
+      nbqs = 0
+      nbqw = 0
+
+      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
+        qcharge = 0.0d0    
+      end if
+
+       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
+     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
+     &       RTDB_ERR)
+
+       if (.not.rtdb_get(irtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
+     + call errquit('qmmm_data_init: qmmm:bq_exclude',bq_exclude,
+     &       RTDB_ERR)
+
+
+      end
+ 
       subroutine qmmm_data_release()
       implicit none
 #include "mafdecls.fh"
@@ -105,7 +133,7 @@ c     -------------------
 
       integer qmmm_get_ntot
 
-      qmmm_get_ntot = ntot
+      qmmm_get_ntot = nqm+nbqs
 
       end 
 
@@ -136,16 +164,6 @@ c     -------------------
       integer anbqw
 
       nbqw = anbqw
-
-      end 
-
-      subroutine qmmm_set_ntot(antot)
-      implicit none
-#include "qmmm_data.fh"
-
-      integer antot
-
-      ntot = antot
 
       end 
 
@@ -296,7 +314,6 @@ c     -------------------
 
       end 
 
-
       function qmmm_get_i_g()
       implicit none
 #include "qmmm_data.fh"
@@ -333,4 +350,23 @@ c     -------------------
 
       end 
 
+      function qmmm_get_bq_exclude()
+      implicit none
+#include "qmmm_data.fh"
+
+      integer qmmm_get_bq_exclude
+
+      qmmm_get_bq_exclude = bq_exclude
+
+      end 
+
+      function qmmm_get_link_atom()
+      implicit none
+#include "qmmm_data.fh"
+
+      integer qmmm_get_link_atom
+
+      qmmm_get_link_atom = link_atom
+
+      end 
 
