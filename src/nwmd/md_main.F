@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.155 2002-11-14 18:43:17 d3j191 Exp $
+c $Id: md_main.F,v 1.156 2002-12-02 20:25:11 d3j191 Exp $
 c
       implicit none
 c
@@ -322,6 +322,8 @@ c
       ys(i,3)=xs(i,3)
     3 continue
       endif
+c
+      return
 c
       lpair=.true.
 c
@@ -2536,7 +2538,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.155 2002-11-14 18:43:17 d3j191 Exp $
+c $Id: md_main.F,v 1.156 2002-12-02 20:25:11 d3j191 Exp $
 c
       implicit none
 c

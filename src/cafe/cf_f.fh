@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
       implicit none
 c
@@ -340,6 +340,7 @@ c
      + iand(idt(lwwptr),mdynam).eq.ldynam) ) facu(nax+iwmn)=half
       if(iand(idt(iwm),mdynam).ne.ldynam.and.
      + iand(idt(lwwptr),mdynam).ne.ldynam) facu(nax+iwmn)=zero
+      if(includ.eq.1) facu(nax+iwmn)=one
     5 continue
 c
       do 6 iwa=1,mwa
@@ -758,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
       implicit none
 c
@@ -1187,6 +1188,7 @@ c
       else
       facu(nax+ismn)=one
       endif
+      if(includ.eq.1) facu(nax+ismn)=one
    11 continue
       else
       do 12 ismn=1,lswin(isa,ipsw)
@@ -1205,6 +1207,7 @@ c
       else
       facu(nax+ismn)=zero
       endif
+      if(includ.eq.1) facu(nax+ismn)=one
    12 continue
       endif
 c
@@ -1875,7 +1878,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
       implicit none
 c
@@ -2065,6 +2068,7 @@ c
      + iand(isdt(lssptr),mdynam).ne.ldynam) .or.
      + (iand(isdt(isfr+isa),mdynam).ne.ldynam.and.
      + iand(isdt(lssptr),mdynam).eq.ldynam)) facu(nax+jnum)=half
+      if(includ.eq.1) facu(nax+jnum)=one
    17 continue
 c
       if(.not.lpbc.and..not.lpbcs) then
@@ -2974,7 +2978,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3112,6 +3116,7 @@ c
      + iand(idyn(jsa),mdynam).ne.ldynam) .or.
      + (iand(idyn(isa),mdynam).ne.ldynam.and.
      + iand(idyn(jsa),mdynam).eq.ldynam)) factu=half
+      if(includ.eq.1) factu=one
 c
 c     find reference bond length and force constant
 c
@@ -3253,7 +3258,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3364,6 +3369,7 @@ c
       if(iand(idyn(jsa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
       factu=dble(ifacu)/three
+      if(includ.eq.1) factu=one
 c
 c     get reference angle and force constant
 c     --------------------------------------
@@ -3519,7 +3525,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3634,6 +3640,7 @@ c
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(lsa),mdynam).eq.ldynam) ifacu=ifacu+1
       factu=dble(ifacu)/four
+      if(includ.eq.1) factu=one
 c
 c     find reference angle and force constants
 c     ----------------------------------------
@@ -3852,7 +3859,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3962,6 +3969,7 @@ c
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(lsa),mdynam).eq.ldynam) ifacu=ifacu+1
       factu=dble(ifacu)/four
+      if(includ.eq.1) factu=one
 c
 c     get reference angle and force constant
 c
@@ -4169,7 +4177,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4295,6 +4303,7 @@ c
      + iand(idyn(jsa),mdynam).ne.ldynam) .or.
      + (iand(idyn(isa),mdynam).ne.ldynam.and.
      + iand(idyn(jsa),mdynam).eq.ldynam) ) factu=half
+      if(includ.eq.1) factu=one
 c
 c     evaluate the distance
 c
@@ -4515,7 +4524,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_f.fh,v 1.48 2002-12-02 20:23:45 d3j191 Exp $
 c
       implicit none
 c
