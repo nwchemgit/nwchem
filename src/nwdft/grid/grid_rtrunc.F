@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.22 2000-02-23 02:47:52 edo Exp $
+c$Id: grid_rtrunc.F,v 1.23 2000-02-23 23:12:40 edo Exp $
 c
       implicit none
 c      
@@ -95,8 +95,8 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
       call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(check_s) then 
-      call ga_dgop(msg_igop_tru5,int_mb(k_ldiff),ncenters,'absmax') 
-      call ga_igop(msg_igop_tru6,dbl_mb(k_minexp),ncenters,'absmax') 
+      call ga_igop(msg_igop_tru5,int_mb(k_ldiff),ncenters,'absmax') 
+      call ga_dgop(msg_igop_tru6,dbl_mb(k_minexp),ncenters,'absmax') 
 
          do itype=1,ntypes
             iat=ityp2ctr(itype)
@@ -290,7 +290,7 @@ c
      .              (coord(2,iat)-coord(2,jat))**2+
      .              (coord(3,iat)-coord(3,jat))**2)*exp_iat/
      /              (exp_iat+expo(jat))
-cedo               if(shift_2g.gt.1e-12) shift_2g=shift_2g*5d0
+               if(shift_2g.gt.1e-12) shift_2g=shift_2g*2d0
                range=range+shift_2g
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g

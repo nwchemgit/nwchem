@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.17 2000-02-23 02:47:52 edo Exp $
+c$Id: grid_acc_def.F,v 1.18 2000-02-23 23:12:38 edo Exp $
 c
       implicit none
 c      
@@ -309,6 +309,12 @@ c
          gridtype='medium'
          grid_acc_index = 3
       endif
+c
+c     see if we have lebedev
+c
+      if (.not. rtdb_get(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   leb=.false.
+
       goto (8, 8, 8, 8, 8, 8, 8, 8, 6, 7) grid_acc_index
       call errquit('grid_acc_def: unknown gridtype', grid_acc_index)
     6 continue
@@ -413,8 +419,10 @@ c
      &                                    i_atomic_number)
                      nang(itype) = xc_leb_acc2nrd(iangquad)
                   else
+                     leb=.true.
                   nang(itype) = grid_params(grid_acc_index,2,
      &                                    i_atomic_number)
+                     nang(itype) = xc_leb_acc2nrd(iangquad)
                   endif
                endif
 c                

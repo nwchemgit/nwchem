@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.8 2000-02-23 02:47:52 edo Exp $
+c$Id: grid_checks.F,v 1.9 2000-02-23 23:12:39 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -132,7 +132,7 @@ c
          write(0,*) ' **********'
       endif
       rad_cutoff(1,itype)=range_a
-      if(same_ctr) rad_cutoff(1,jtype)=range_b
+      rad_cutoff(1,jtype)=range_b
       nrad(itype)=nrada
       nrad(jtype)=nradb
       nang(itype)=nanga
@@ -210,12 +210,12 @@ c
      ,     pts,wghts,xyzw,
      ,     iscr,rq)
       if(same_ctr) then
-         lnotacc=s_err.gt.(reqacc*0.05d0)
+         lnotacc=s_err.gt.(reqacc*0.025d0)
       else
-         lnotacc=s_err.gt.reqacc
+         lnotacc=s_err.gt.(reqacc*0.025d0)
       endif
       lsafe=range_a.gt.maxrad.and.range_b.gt.maxrad
-      limprove=(s_err0-s_err).gt.reqacc*0.01d0
+      limprove=(s_err0-s_err).gt.reqacc*0.001d0
       if(lnotacc.and.(.not.lsafe).
      .     and.limprove) then
          range_b=min(range_b+delta_b,maxrad)
@@ -229,7 +229,8 @@ c
       if(.not.lnotacc) then
          if(me.eq.0) write(0,*) '@radial extension OK'
       else
-         if(.not.limprove) then
+cedo         if(.not.limprove) then
+         if(.false.) then
             range_a=range_a-delta_a
             range_b=range_b-delta_b
          endif
