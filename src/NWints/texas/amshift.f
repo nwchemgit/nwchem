@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.2 1997-06-06 21:12:03 pg481 Exp $
+c $Id: amshift.f,v 1.3 1997-09-17 23:10:43 d3g681 Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -14,6 +14,18 @@ c   nqi.ge.nqj  and  nqk.ge.nql
 c 
 c   other cases are not included here !
 c----------------------------------------------------
+      subroutine amtfer (a,b,n)
+      implicit none
+      double precision a(*),b(*)
+      integer n, i
+c
+c     local copy of tfer for automatic inlining by compiler
+c
+      do i = 1, n
+         b(i) = a(i)
+      enddo
+c
+      end
       subroutine amshift(bl,nbls,l01,l02,npij,npkl,ngcd)
       implicit real*8 (a-h,o-z)
       character*11 scftype
@@ -532,14 +544,14 @@ c
       do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
 c
            do 102 nij=nfu(nqix)+1,nfu(nsij+1)
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
   102      continue
 c
        call horiz12(wij,lt3,lsjl,xab,mnbls,nqi,nqj,nsij1)
 c
        do 107 nj=njbeg,njend
        do 107 ni=nibeg,niend
-          call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+          call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
   107  continue
   100 continue
 c
@@ -567,7 +579,7 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   301    continue
 c
        call horiz12(wij,lt3,lsjl,xcd,mnbls,nqk,nql,nskl1)
@@ -579,7 +591,7 @@ c
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c
@@ -671,7 +683,7 @@ c
        ijbeg=nfu(ij)+1
        ijend=nfu(ij+1)
            do 12 nij=ijbeg,ijend
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
    12      continue
 c
    11  continue
@@ -682,7 +694,7 @@ cccccccc
 c
        do 16 nj=nfu(nqj)+1,nfu(nqj+1)
        do 16 ni=nfu(nqi)+1,nfu(nqi+1)
-       call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+       call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
    16  continue
 c
 ccc  here lshelij can be eq. 0, 1 or 2 only  ccc
@@ -690,7 +702,7 @@ c
       if(lshelij.gt.0) then
           if(lshelij.eq.1) then
               if(jtyp.eq.1) then
-                call tfer(bijx(1,1,nkl),xij(1,1,1,nkl),mnbls)
+                call amtfer(bijx(1,1,nkl),xij(1,1,1,nkl),mnbls)
               else
                 call daxpy3(mnbls,xab,
      *          xij(1,1,2,nkl),xij(1,1,3,nkl),xij(1,1,4,nkl),
@@ -698,7 +710,7 @@ c
               endif
           else
                do 17 nij=nfu(nqi )+1,nfu(nqi +1)
-               call tfer(bijx(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
+               call amtfer(bijx(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
    17          continue
           endif
       endif
@@ -715,7 +727,7 @@ c
        ijend=nfu(ij+1)
 c
              do 103 nij=ijbeg,ijend
-             call tfer(bklx(1,nij,nkl),vij(1,nij,1),mnbls)
+             call amtfer(bklx(1,nij,nkl),vij(1,nij,1),mnbls)
   103        continue
   101  continue
 c
@@ -724,7 +736,7 @@ cccccc
 cccccc
             do 1071 nj=njbeg,njend
             do 1071 ni=nibeg,niend
-            call tfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
+            call amtfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
  1071       continue
 c
   100 continue
@@ -755,7 +767,7 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   301    continue
 c
         call horiz12(wij,lt5,lt6,xcd,mnbls,nqk,nql,nskl1)
@@ -764,14 +776,14 @@ c
 c
          if(lshelkl.eq.1) then
             if(ltyp.eq.1) then
-             call tfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
+             call amtfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
             else
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *    yij(1,ni,nj,2),yij(1,ni,nj,3),yij(1,ni,nj,4),yij(1,ni,nj,1))
             endif
          else
              do 312 nkl=nfu(nqkx)+1,nfu(nqkl+1)
-             call tfer(yij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+             call amtfer(yij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   312        continue
          endif
       endif
@@ -785,7 +797,7 @@ ccccccccccccccccccccccccccccccccccc
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c****
@@ -885,23 +897,23 @@ c
        ijbeg=nfu(ij)+1
        ijend=nfu(ij+1)
            do 102 nij=ijbeg,ijend
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
   102      continue
 c
        if( nkl.le.nfu(nqkl+1)) then
          if(lshelkl.eq.1.or.lshelkl.eq.3) then
            do 103 nij=ijbeg,ijend
-           call tfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
+           call amtfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
   103      continue
          endif
          if(lshelkl.eq.2.or.lshelkl.eq.3) then
            do 104 nij=ijbeg,ijend
-           call tfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
+           call amtfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
   104      continue
          endif
          if(lshelkl.eq.3.and.nkl.eq.1) then
            do 105 nij=ijbeg,ijend
-           call tfer(bkl3(1,nij),sij(1,nij,1),mnbls)
+           call amtfer(bkl3(1,nij),sij(1,nij,1),mnbls)
   105      continue
          endif
        endif
@@ -930,26 +942,26 @@ cccc
 c
        do 107 nj=njbeg,njend
        do 107 ni=nibeg,niend
-       call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+       call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
   107  continue
        if( nkl.le.nfu(nqkl+1)) then
            if(lshelkl.eq.1.or.lshelkl.eq.3) then
                 do 1071 nj=njbeg,njend
                 do 1071 ni=nibeg,niend
-                call tfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
+                call amtfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
  1071           continue
            endif
            if(lshelkl.eq.2.or.lshelkl.eq.3) then
                 do 1072 nj=njbeg,njend
                 do 1072 ni=nibeg,niend
-                call tfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
+                call amtfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
  1072           continue
            endif
        endif
 c
        if(lshelij.eq.1.or.lshelij.eq.3) then
           if(jtyp.eq.1) then
-             call tfer(bij1(1,1,nkl),xij(1,1,1,nkl),mnbls)
+             call amtfer(bij1(1,1,nkl),xij(1,1,1,nkl),mnbls)
           else
       call daxpy3(mnbls,xab,
      *          xij(1,1,2,nkl),xij(1,1,3,nkl),xij(1,1,4,nkl),
@@ -958,11 +970,11 @@ c
        endif
        if(lshelij.eq.2.or.lshelij.eq.3) then
            do 108 nij=nfu(nqi )+1,nfu(nqi +1)
-           call tfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
+           call amtfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
   108      continue
        endif
        if(lshelij.eq.3) then
-           call tfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
+           call amtfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
        endif
 c*****
       if( nkl.le.nfu(nqkl+1)) then
@@ -971,7 +983,7 @@ c
            if(lshelij.eq.1) then
               if(jtyp.eq.1) then
                 if(lcas2(1).eq.1 .or. lcas2(2).eq.1) then
-                   call tfer(b2l12(1,1,nkl),x2l(1,1,nkl),mnbls)
+                   call amtfer(b2l12(1,1,nkl),x2l(1,1,nkl),mnbls)
                 endif
               else
                 if(lcas2(1).eq.1 .or. lcas2(2).eq.1) then
@@ -985,7 +997,7 @@ c
            if(lshelij.eq.2) then
                 if(lcas2(3).eq.1 .or. lcas2(4).eq.1) then
                   do 109 nij=nfu(nqix)+1,nfu(nqij+1)
-                  call tfer(b2l34(1,nij,nkl),x2l(1,nij,nkl),mnbls)
+                  call amtfer(b2l34(1,nij,nkl),x2l(1,nij,nkl),mnbls)
   109             continue
                 endif
            endif
@@ -1018,7 +1030,7 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   301    continue
 c
 cccccccccc
@@ -1028,7 +1040,7 @@ cccccccccc
 c
        if(lshelkl.eq.1.or.lshelkl.eq.3) then
          if(ltyp.eq.1) then
-           call tfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
+           call amtfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
          else
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      * yij(1,ni,nj,2),yij(1,ni,nj,3),yij(1,ni,nj,4),yij(1,ni,nj,1))
@@ -1036,12 +1048,12 @@ c
        endif
        if(lshelkl.eq.2.or.lshelkl.eq.3) then
          do 312 nkl=nfu(nqkx)+1,nfu(nqkl+1)
-         call tfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   312    continue
        endif
 c
        if(lshelkl.eq.3) then
-         call tfer(sij(1,ni,nj),wij(1,1,1),mnbls)
+         call amtfer(sij(1,ni,nj),wij(1,1,1),mnbls)
        endif
 c
        if( ni.le.nfu(nqi +1).and.nj.le.nfu(nqj +1) ) then
@@ -1051,12 +1063,12 @@ c****  2 l-shells ****
             if(ltyp.eq.1) then
               if(lcas2(1).eq.1) then
                if(ni.eq.1.and.nj.ge.nfu(nqj)+1) then 
-                   call tfer(x2l(1,nj,1),wij(1,1,1),mnbls)
+                   call amtfer(x2l(1,nj,1),wij(1,1,1),mnbls)
                endif
               endif
               if(lcas2(3).eq.1) then
                if(nj.eq.1.and.ni.ge.nfu(nqi)+1) then
-                   call tfer(x2l(1,ni,1),wij(1,1,1),mnbls)
+                   call amtfer(x2l(1,ni,1),wij(1,1,1),mnbls)
                endif
               endif
             else
@@ -1073,10 +1085,10 @@ c****  2 l-shells ****
          if(lshelkl.eq.2) then
               do 313 nkl=nfu(nqkx)+1,nfu(nqkl+1)
               if(lcas2(2).eq.1.and.ni.eq.1) then 
-                  call tfer(x2l(1,nj,nkl),wij(1,nkl,1),mnbls)
+                  call amtfer(x2l(1,nj,nkl),wij(1,nkl,1),mnbls)
               endif
               if(lcas2(4).eq.1.and.nj.eq.1) then
-                  call tfer(x2l(1,ni,nkl),wij(1,nkl,1),mnbls)
+                  call amtfer(x2l(1,ni,nkl),wij(1,nkl,1),mnbls)
               endif
   313         continue
          endif
@@ -1091,7 +1103,7 @@ ccccccccccccccccccccccccccccccccccc
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c
@@ -1197,23 +1209,23 @@ c
        ijbeg=nfu(ij)+1
        ijend=nfu(ij+1)
            do 102 nij=ijbeg,ijend
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
   102      continue
 c
        if( nkl.le.nfu(nqkl+1)) then
          if(lshelkl.eq.1.or.lshelkl.eq.3) then
            do 103 nij=ijbeg,ijend
-           call tfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
+           call amtfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
   103      continue
          endif
          if(lshelkl.eq.2.or.lshelkl.eq.3) then
            do 104 nij=ijbeg,ijend
-           call tfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
+           call amtfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
   104      continue
          endif
          if(lshelkl.eq.3.and.nkl.eq.1) then
            do 105 nij=ijbeg,ijend
-           call tfer(bkl3(1,nij),sij(1,nij,1),mnbls)
+           call amtfer(bkl3(1,nij),sij(1,nij,1),mnbls)
   105      continue
          endif
        endif
@@ -1241,26 +1253,26 @@ cccccccccccc
 c
        do 107 nj=njbeg,njend
        do 107 ni=nibeg,niend
-       call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+       call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
   107  continue
        if( nkl.le.nfu(nqkl+1)) then
            if(lshelkl.eq.1.or.lshelkl.eq.3) then
                 do 1071 nj=njbeg,njend
                 do 1071 ni=nibeg,niend
-                call tfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
+                call amtfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
  1071           continue
            endif
            if(lshelkl.eq.2.or.lshelkl.eq.3) then
                 do 1072 nj=njbeg,njend
                 do 1072 ni=nibeg,niend
-                call tfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
+                call amtfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
  1072           continue
            endif
        endif
 c
        if(lshelij.eq.1.or.lshelij.eq.3) then
           if(jtyp.eq.1) then
-             call tfer(bij1(1,1,nkl),xij(1,1,1,nkl),mnbls)
+             call amtfer(bij1(1,1,nkl),xij(1,1,1,nkl),mnbls)
           else
       call daxpy3(mnbls,xab,
      *    xij(1,1,2,nkl),xij(1,1,3,nkl),xij(1,1,4,nkl),
@@ -1269,11 +1281,11 @@ c
        endif
        if(lshelij.eq.2.or.lshelij.eq.3) then
            do 108 nij=nfu(nqi )+1,nfu(nqi +1)
-           call tfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
+           call amtfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
   108      continue
        endif
        if(lshelij.eq.3) then
-           call tfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
+           call amtfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
        endif
 c*****
       if( nkl.le.nfu(nqkl+1)) then
@@ -1281,11 +1293,11 @@ c****  2 or 3 l-shells ****
 c
            if(lshelij.eq.1) then
               if(jtyp.eq.1) then
-                   call tfer(b2l1(1,1,nkl),x2l1(1,1,nkl),mnbls)
-                   call tfer(b2l2(1,1,nkl),x2l2(1,1,nkl),mnbls)
+                   call amtfer(b2l1(1,1,nkl),x2l1(1,1,nkl),mnbls)
+                   call amtfer(b2l2(1,1,nkl),x2l2(1,1,nkl),mnbls)
 c-- test ?      if(nkl.eq.1) then
                 if(nkl.eq.1 .and. lcas3(3).eq.1) then
-                   call tfer(b3l34(1,1),x3l34(1,1),mnbls)
+                   call amtfer(b3l34(1,1),x3l34(1,1),mnbls)
                 endif
               else
                 call daxpy3(mnbls,xab,
@@ -1305,13 +1317,13 @@ c-- test ?      if(nkl.eq.1) then
            endif
            if(lshelij.eq.2) then
                 do 109 nij=nfu(nqix)+1,nfu(nqij+1)
-                   call tfer(b2l3(1,nij,nkl),x2l3(1,nij,nkl),mnbls)
-                   call tfer(b2l4(1,nij,nkl),x2l4(1,nij,nkl),mnbls)
+                   call amtfer(b2l3(1,nij,nkl),x2l3(1,nij,nkl),mnbls)
+                   call amtfer(b2l4(1,nij,nkl),x2l4(1,nij,nkl),mnbls)
   109           continue
 c-- test ?      if(nkl.eq.1) then
                 if(nkl.eq.1 .and. lcas3(4).eq.1) then
                    do 110 nij=nfu(nqi )+1,nfu(nqi +1)
-                   call tfer(b3l34(1,nij),x3l34(1,nij),mnbls)
+                   call amtfer(b3l34(1,nij),x3l34(1,nij),mnbls)
   110              continue
                 endif
            endif
@@ -1322,9 +1334,9 @@ c-- test ?      if(nkl.eq.1) then
      *            b2l1(1,2,nkl),b2l1(1,3,nkl),b2l1(1,4,nkl),
      *            b2l1(1,1,nkl))
 cc
-                  call tfer(b2l3(1,2,nkl),x2l3(1,2,nkl),mnbls)
-                  call tfer(b2l3(1,3,nkl),x2l3(1,3,nkl),mnbls)
-                  call tfer(b2l3(1,4,nkl),x2l3(1,4,nkl),mnbls)
+                  call amtfer(b2l3(1,2,nkl),x2l3(1,2,nkl),mnbls)
+                  call amtfer(b2l3(1,3,nkl),x2l3(1,3,nkl),mnbls)
+                  call amtfer(b2l3(1,4,nkl),x2l3(1,4,nkl),mnbls)
                 endif
                 if(lcas2(2).eq.1) then
                   call daxpy3(mnbls,xab,
@@ -1332,15 +1344,15 @@ cc
      *            b2l2(1,2,nkl),b2l2(1,3,nkl),b2l2(1,4,nkl),
      *            b2l2(1,1,nkl))
 cc
-                  call tfer(b2l4(1,2,nkl),x2l4(1,2,nkl),mnbls)
-                  call tfer(b2l4(1,3,nkl),x2l4(1,3,nkl),mnbls)
-                  call tfer(b2l4(1,4,nkl),x2l4(1,4,nkl),mnbls)
+                  call amtfer(b2l4(1,2,nkl),x2l4(1,2,nkl),mnbls)
+                  call amtfer(b2l4(1,3,nkl),x2l4(1,3,nkl),mnbls)
+                  call amtfer(b2l4(1,4,nkl),x2l4(1,4,nkl),mnbls)
                 endif
                 if(lcas3(1).eq.1) then
-                  call tfer(b3l12(1,nkl),x3l12(1,nkl),mnbls)
+                  call amtfer(b3l12(1,nkl),x3l12(1,nkl),mnbls)
                 endif
                 if(lcas3(2).eq.1) then
-                  call tfer(b3l12(1,nkl),x3l12(1,nkl),mnbls)
+                  call amtfer(b3l12(1,nkl),x3l12(1,nkl),mnbls)
                 endif
            endif
       endif
@@ -1371,7 +1383,7 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   301    continue
 c
 ccccccc
@@ -1380,7 +1392,7 @@ ccccccc
 cc
        if(lshelkl.eq.1.or.lshelkl.eq.3) then
          if(ltyp.eq.1) then
-           call tfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
+           call amtfer(yij(1,ni,nj,1),wij(1,1,1),mnbls)
          else
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *   yij(1,ni,nj,2),yij(1,ni,nj,3),yij(1,ni,nj,4),yij(1,ni,nj,1))
@@ -1388,12 +1400,12 @@ cc
        endif
        if(lshelkl.eq.2.or.lshelkl.eq.3) then
          do 312 nkl=nfu(nqkx)+1,nfu(nqkl+1)
-         call tfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   312    continue
        endif
 c
        if(lshelkl.eq.3) then
-         call tfer(sij(1,ni,nj),wij(1,1,1),mnbls)
+         call amtfer(sij(1,ni,nj),wij(1,1,1),mnbls)
        endif
 c
        if( ni.le.nfu(nqi +1).and.nj.le.nfu(nqj +1) ) then
@@ -1402,14 +1414,14 @@ c****  2,3  l-shells ****
          if(lshelkl.eq.1) then
             if(ltyp.eq.1) then
                if(ni.eq.1.and.nj.ge.nfu(nqj)+1) then
-                  call tfer(x2l1(1,nj,1),wij(1,1,1),mnbls)
+                  call amtfer(x2l1(1,nj,1),wij(1,1,1),mnbls)
                endif
                if(nj.eq.1.and.ni.ge.nfu(nqi)+1) then
-                  call tfer(x2l3(1,ni,1),wij(1,1,1),mnbls)
+                  call amtfer(x2l3(1,ni,1),wij(1,1,1),mnbls)
                endif
 c--test ?      if(ni.eq.1.and.nj.eq.1) then
                if(ni.eq.1.and.nj.eq.1 .and. lcas3(1).eq.1) then
-                  call tfer(x3l12(1,1),wij(1,1,1),mnbls)
+                  call amtfer(x3l12(1,1),wij(1,1,1),mnbls)
                endif
             else
               if(ni.eq.1.and.nj.ge.nfu(nqj)+1) then
@@ -1431,14 +1443,14 @@ c
          if(lshelkl.eq.2) then
               do 313 nkl=nfu(nqkx)+1,nfu(nqkl+1)
               if(ni.eq.1)  then
-                  call tfer(x2l2(1,nj,nkl),wij(1,nkl,1),mnbls)
+                  call amtfer(x2l2(1,nj,nkl),wij(1,nkl,1),mnbls)
               endif
               if(nj.eq.1)  then
-                  call tfer(x2l4(1,ni,nkl),wij(1,nkl,1),mnbls)
+                  call amtfer(x2l4(1,ni,nkl),wij(1,nkl,1),mnbls)
               endif
 c--test ?     if(ni.eq.1.and.nj.eq.1) then
               if(ni.eq.1.and.nj.eq.1 .and. lcas3(2).eq.1) then
-                  call tfer(x3l12(1,nkl),wij(1,nkl,1),mnbls)
+                  call amtfer(x3l12(1,nkl),wij(1,nkl,1),mnbls)
               endif
   313         continue
          endif
@@ -1449,24 +1461,24 @@ c****  3 l-shells ****
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *  x2l1(1,nj,2),x2l1(1,nj,3),x2l1(1,nj,4),x2l1(1,nj,1))
 cc
-              call tfer(x2l2(1,nj,2),wij(1,2,1),mnbls)
-              call tfer(x2l2(1,nj,3),wij(1,3,1),mnbls)
-              call tfer(x2l2(1,nj,4),wij(1,4,1),mnbls)
+              call amtfer(x2l2(1,nj,2),wij(1,2,1),mnbls)
+              call amtfer(x2l2(1,nj,3),wij(1,3,1),mnbls)
+              call amtfer(x2l2(1,nj,4),wij(1,4,1),mnbls)
               endif
               if(lcas2(3).eq.1.and.nj.eq.1) then
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *  x2l3(1,ni,2),x2l3(1,ni,3),x2l3(1,ni,4),x2l3(1,ni,1))
 cc
-              call tfer(x2l4(1,ni,2),wij(1,2,1),mnbls)
-              call tfer(x2l4(1,ni,3),wij(1,3,1),mnbls)
-              call tfer(x2l4(1,ni,4),wij(1,4,1),mnbls)
+              call amtfer(x2l4(1,ni,2),wij(1,2,1),mnbls)
+              call amtfer(x2l4(1,ni,3),wij(1,3,1),mnbls)
+              call amtfer(x2l4(1,ni,4),wij(1,4,1),mnbls)
               endif
 c
               if(lcas3(3).eq.1.and.ni.eq.1) then
-                  call tfer(x3l34(1,nj),wij(1,1,1),mnbls)         
+                  call amtfer(x3l34(1,nj),wij(1,1,1),mnbls)         
               endif
               if(lcas3(4).eq.1.and.nj.eq.1) then
-                  call tfer(x3l34(1,ni),wij(1,1,1),mnbls)
+                  call amtfer(x3l34(1,ni),wij(1,1,1),mnbls)
               endif
          endif
        endif
@@ -1479,7 +1491,7 @@ ccccccccccccccccccccccccccccccccccc
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c
@@ -1565,19 +1577,19 @@ c      do 101 ij=nqix,nsij
        ijbeg=nfu(ij)+1
        ijend=nfu(ij+1)
            do 102 nij=ijbeg,ijend
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
   102      continue
 c
        if( nkl.le.nfu(nqkl+1)) then
            do 103 nij=ijbeg,ijend
-           call tfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
+           call amtfer(bkl1(1,nij,nkl),vij(1,nij,1),mnbls)
   103      continue
            do 104 nij=ijbeg,ijend
-           call tfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
+           call amtfer(bkl2(1,nij,nkl),uij(1,nij,1),mnbls)
   104      continue
          if(                 nkl.eq.1) then
            do 105 nij=ijbeg,ijend
-           call tfer(bkl3(1,nij),sij(1,nij,1),mnbls)
+           call amtfer(bkl3(1,nij),sij(1,nij,1),mnbls)
   105      continue
          endif
        endif
@@ -1599,14 +1611,14 @@ ccccccccccc
 c
         do 107 nj=njbeg,njend
         do 107 ni=nibeg,niend
-        call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+        call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
   107   continue
 c
       if( nkl.le.nfu(nqkl+1)) then
         do 1071 nj=njbeg,njend
         do 1071 ni=nibeg,niend
-        call tfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
-        call tfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
+        call amtfer(vij(1,ni,nj),yij(1,ni,nj,nkl),mnbls)
+        call amtfer(uij(1,ni,nj),zij(1,ni,nj,nkl),mnbls)
  1071   continue
       endif
 c
@@ -1615,28 +1627,28 @@ c
      *   bij1(1,2,nkl),bij1(1,3,nkl),bij1(1,4,nkl),bij1(1,1,nkl))
 c
            do 108 nij=nfu(nqi )+1,nfu(nqi +1)
-           call tfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
+           call amtfer(bij2(1,nij,nkl),xij(1,nij,1,nkl),mnbls)
   108      continue
 c
-           call tfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
+           call amtfer(bij3(1,nkl),xij(1,1,1,nkl),mnbls)
 c
 c*****
       if( nkl.le.nfu(nqkl+1)) then
       call daxpy3(mnbls,xab,x2l1(1,2,nkl),x2l1(1,3,nkl),x2l1(1,4,nkl),
      *    b2l1(1,2,nkl),b2l1(1,3,nkl),b2l1(1,4,nkl),b2l1(1,1,nkl))
-                call tfer(b2l3(1,2,nkl),x2l3(1,2,nkl),mnbls)
-                call tfer(b2l3(1,3,nkl),x2l3(1,3,nkl),mnbls)
-                call tfer(b2l3(1,4,nkl),x2l3(1,4,nkl),mnbls)
+                call amtfer(b2l3(1,2,nkl),x2l3(1,2,nkl),mnbls)
+                call amtfer(b2l3(1,3,nkl),x2l3(1,3,nkl),mnbls)
+                call amtfer(b2l3(1,4,nkl),x2l3(1,4,nkl),mnbls)
 cc
       call daxpy3(mnbls,xab,x2l2(1,2,nkl),x2l2(1,3,nkl),x2l2(1,4,nkl),
      *  b2l2(1,2,nkl),b2l2(1,3,nkl),b2l2(1,4,nkl),b2l2(1,1,nkl))
 cc
-                call tfer(b2l4(1,2,nkl),x2l4(1,2,nkl),mnbls)
-                call tfer(b2l4(1,3,nkl),x2l4(1,3,nkl),mnbls)
-                call tfer(b2l4(1,4,nkl),x2l4(1,4,nkl),mnbls)
+                call amtfer(b2l4(1,2,nkl),x2l4(1,2,nkl),mnbls)
+                call amtfer(b2l4(1,3,nkl),x2l4(1,3,nkl),mnbls)
+                call amtfer(b2l4(1,4,nkl),x2l4(1,4,nkl),mnbls)
 c
-                call tfer(b3l1(1,nkl),x3l1(1,nkl),mnbls)
-                call tfer(b3l2(1,nkl),x3l2(1,nkl),mnbls)
+                call amtfer(b3l1(1,nkl),x3l1(1,nkl),mnbls)
+                call amtfer(b3l2(1,nkl),x3l2(1,nkl),mnbls)
 c
       endif
       if(nkl.eq.1) then
@@ -1645,7 +1657,7 @@ c
      *  b3l3(1,2),b3l3(1,3),b3l3(1,4),b3l3(1,1))
 c
                 do 1101 nij=nfu(nqix)+1,nfu(nqij+1)
-                call tfer(b3l4(1,nij ),x3l4(1,nij),mnbls)
+                call amtfer(b3l4(1,nij ),x3l4(1,nij),mnbls)
  1101           continue
       endif
 c
@@ -1677,7 +1689,7 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(xij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   301    continue
 c
 ccccccccc
@@ -1689,10 +1701,10 @@ cccccc
      * yij(1,ni,nj,2),yij(1,ni,nj,3),yij(1,ni,nj,4),yij(1,ni,nj,1))
 cc
          do 312 nkl=nfu(nqkx)+1,nfu(nqkl+1)
-         call tfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
+         call amtfer(zij(1,ni,nj,nkl),wij(1,nkl,1),mnbls)
   312    continue
 c
-         call tfer(sij(1,ni,nj),wij(1,1,1),mnbls)
+         call amtfer(sij(1,ni,nj),wij(1,1,1),mnbls)
 c
 c****
        if( ni.le.nfu(nqi +1).and.nj.le.nfu(nqj +1) ) then
@@ -1700,32 +1712,32 @@ c****
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *  x2l1(1,nj,2),x2l1(1,nj,3),x2l1(1,nj,4),x2l1(1,nj,1))
 cc
-              call tfer(x2l2(1,nj,2),wij(1,2,1),mnbls)
-              call tfer(x2l2(1,nj,3),wij(1,3,1),mnbls)
-              call tfer(x2l2(1,nj,4),wij(1,4,1),mnbls)
+              call amtfer(x2l2(1,nj,2),wij(1,2,1),mnbls)
+              call amtfer(x2l2(1,nj,3),wij(1,3,1),mnbls)
+              call amtfer(x2l2(1,nj,4),wij(1,4,1),mnbls)
 cc
               endif
               if(nj.eq.1 .and. ni.ge.2) then
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      * x2l3(1,ni,2),x2l3(1,ni,3),x2l3(1,ni,4),x2l3(1,ni,1))
 cc
-              call tfer(x2l4(1,ni,2),wij(1,2,1),mnbls)
-              call tfer(x2l4(1,ni,3),wij(1,3,1),mnbls)
-              call tfer(x2l4(1,ni,4),wij(1,4,1),mnbls)
+              call amtfer(x2l4(1,ni,2),wij(1,2,1),mnbls)
+              call amtfer(x2l4(1,ni,3),wij(1,3,1),mnbls)
+              call amtfer(x2l4(1,ni,4),wij(1,4,1),mnbls)
               endif
 c
-              if(ni.eq.1) call tfer(x3l3(1,nj),wij(1,1,1),mnbls)
-              if(nj.eq.1) call tfer(x3l4(1,ni),wij(1,1,1),mnbls)
+              if(ni.eq.1) call amtfer(x3l3(1,nj),wij(1,1,1),mnbls)
+              if(nj.eq.1) call amtfer(x3l4(1,ni),wij(1,1,1),mnbls)
        endif
        if( ni.eq.1.and.nj.eq.1 ) then
       call daxpy3(mnbls,xcd,wij(1,1,2),wij(1,1,3),wij(1,1,4),
      *  x3l1(1,2),x3l1(1,3),x3l1(1,4),x3l1(1,1))
 cc
-          call tfer(x3l2(1,2),wij(1,2,1),mnbls)
-          call tfer(x3l2(1,3),wij(1,3,1),mnbls)
-          call tfer(x3l2(1,4),wij(1,4,1),mnbls)
+          call amtfer(x3l2(1,2),wij(1,2,1),mnbls)
+          call amtfer(x3l2(1,3),wij(1,3,1),mnbls)
+          call amtfer(x3l2(1,4),wij(1,4,1),mnbls)
 cc
-          call tfer(ssss(1),wij(1,1,1),mnbls)
+          call amtfer(ssss(1),wij(1,1,1),mnbls)
        endif
 c
 ccccccccccccccccccccccccccccccccccc
@@ -1736,7 +1748,7 @@ ccccccccccccccccccccccccccccccccccc
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c
@@ -1823,16 +1835,16 @@ c
       do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
 c
            do 102 nij=nfu(nqix)+1,nfu(nsij+1)
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
-           call tfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
   102      continue
 c
            call horiz12_der1(wij0,wij,lt3,lsjl,xab, nbls,nqi,nqj,nsij1)
 c
            do 107 nj=njbeg,njend
            do 107 ni=nibeg,niend
-           call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
-           call tfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl), nbls)
+           call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+           call amtfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl), nbls)
   107      continue
   100 continue
 c
@@ -1860,8 +1872,8 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
-         call tfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
+         call amtfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
+         call amtfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
   301    continue
 c
          call horiz34_der1(wij0,wij,lt3,lsjl,xcd, nbls,nqk,nql,nskl1)
@@ -1873,7 +1885,7 @@ c
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c
@@ -2082,9 +2094,9 @@ c
       do 100 nkl=nfu(nqklx)+1,nfu(nskl+1)
 c
            do 102 nij=nfu(nqix)+1,nfu(nsij+1)
-           call tfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
-           call tfer(buf1(1,nij,nkl),wij1(1,nij,1),nbls9)
-           call tfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
+           call amtfer(buf2(1,nij,nkl),wij(1,nij,1),mnbls)
+           call amtfer(buf1(1,nij,nkl),wij1(1,nij,1),nbls9)
+           call amtfer(buf0(1,nij,nkl),wij0(1,nij,1),nbls)
   102      continue
 c
            call horiz12_der2(wij0,wij1,wij,
@@ -2092,9 +2104,9 @@ c
 c
            do 107 nj=njbeg,njend
            do 107 ni=nibeg,niend
-           call tfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
-           call tfer(wij1(1,ni,nj),xij1(1,ni,nj,nkl),nbls9)
-           call tfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl),nbls)
+           call amtfer(wij(1,ni,nj),xij(1,ni,nj,nkl),mnbls)
+           call amtfer(wij1(1,ni,nj),xij1(1,ni,nj,nkl),nbls9)
+           call amtfer(wij0(1,ni,nj),xij0(1,ni,nj,nkl),nbls)
   107      continue
   100 continue
 c
@@ -2122,9 +2134,9 @@ c
       jxyz=jxyz+1
 c
          do 301 nkl=nfu(nqkx)+1,nfu(nskl+1)
-         call tfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
-         call tfer(xij1(1,ni,nj,nkl),wij1(1,nkl,1),nbls9)
-         call tfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
+         call amtfer( xij(1,ni,nj,nkl), wij(1,nkl,1),mnbls)
+         call amtfer(xij1(1,ni,nj,nkl),wij1(1,nkl,1),nbls9)
+         call amtfer(xij0(1,ni,nj,nkl),wij0(1,nkl,1), nbls)
   301    continue
 c
          call horiz34_der2(wij0,wij1,wij,
@@ -2137,7 +2149,7 @@ c
       do 305 nl=nlbeg,nlend
       lxyz=lxyz+1
       indx=indxx(ixyz,jxyz,kxyz,lxyz)
-      call tfer(wij(1,nk,nl),buf(1,indx),mnbls)
+      call amtfer(wij(1,nk,nl),buf(1,indx),mnbls)
   305 continue
   300 continue
 c

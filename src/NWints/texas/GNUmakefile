@@ -1,8 +1,18 @@
-# $Id: GNUmakefile,v 1.34 1997-06-19 18:20:21 pg481 Exp $
+# $Id: GNUmakefile,v 1.35 1997-09-17 23:10:48 d3g681 Exp $
  
+include ../../config/makefile.h
+
 USE_TEXAS = YEP
 
 ifeq ($(USE_TEXAS),YEP)
+
+ifeq ($(TARGET),SOLARIS)
+ FOPTIMIZE += -inline=amtfer,tfer_i
+endif
+ifeq ($(TARGET),SP1)
+ FOPTIMIZE += -Q+amtfer:tfer_i
+endif
+
       LIB_DEFINES = -DUSE_TEXAS
   OBJ_OPTIMIZE = texas_face.o\
                  texas_hf.o\
@@ -31,7 +41,8 @@ ifeq ($(USE_TEXAS),YEP)
                  transfor.o\
                  gencon.o\
                  derivat.o\
-                 test_calc2.o
+                 test_calc2.o \
+                 conbuf2_der.o destdul.o
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 
@@ -43,7 +54,6 @@ endif
 
        LIBRARY = libnwints.a
 
-include ../../config/makefile.h
 include ../../config/makelib.h
 
 txs:

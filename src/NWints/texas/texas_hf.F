@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.29 1997-07-10 23:25:10 d3e129 Exp $
+* $Id: texas_hf.F,v 1.30 1997-09-17 23:10:50 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -920,28 +920,27 @@ c-------------------------------
 c==========
       subroutine tfer_i(ia,ib,n)
       dimension ia(n),ib(n)
-c---------------------------
-c       do 10 ii=1,n
-c         ib(ii)=ia(ii)
-c  10   continue
-c---------------------------
 c
-      m = mod(n,7)
-      if( m .eq. 0 ) go to 20
-        do 10 ii=1,n
-          ib(ii)=ia(ii)
-   10   continue
-      if( n .lt. 7) return
-   20 mp1=m+1
-      do 30 i=mp1,n,7
-         ib(i  ) = ia(i  )
-         ib(i+1) = ia(i+1)
-         ib(i+2) = ia(i+2)
-         ib(i+3) = ia(i+3)
-         ib(i+4) = ia(i+4)
-         ib(i+5) = ia(i+5)
-         ib(i+6) = ia(i+6)
-   30 continue
+       do 10 ii=1,n
+         ib(ii)=ia(ii)          ! let the compiler do the unrolling.
+  10   continue
+c
+c$$$      m = mod(n,7)
+c$$$      if( m .eq. 0 ) go to 20
+c$$$        do 10 ii=1,n
+c$$$          ib(ii)=ia(ii)
+c$$$   10   continue
+c$$$      if( n .lt. 7) return
+c$$$   20 mp1=m+1
+c$$$      do 30 i=mp1,n,7
+c$$$         ib(i  ) = ia(i  )
+c$$$         ib(i+1) = ia(i+1)
+c$$$         ib(i+2) = ia(i+2)
+c$$$         ib(i+3) = ia(i+3)
+c$$$         ib(i+4) = ia(i+4)
+c$$$         ib(i+5) = ia(i+5)
+c$$$         ib(i+6) = ia(i+6)
+c$$$   30 continue
 c
       end
 c=====================================================================
