@@ -1,5 +1,6 @@
-# $Id: GNUmakefile,v 1.6 1995-01-27 02:20:40 og845 Exp $
+# $Id: GNUmakefile,v 1.7 1995-01-29 09:34:53 d3e129 Exp $
        HEADERS = 
+       OBJ_OPTIMIZE stpr_sjacobi.o
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
                  stpr_cneed.o      stpr_cross.o      stpr_driver.o  \
                  stpr_fndmde.o     stpr_formup.o     stpr_gmass.o   \
@@ -9,10 +10,10 @@
                  stpr_output.o     stpr_partit.o     stpr_place.o   \
                  stpr_pmat.o       stpr_prntpd.o     stpr_projec.o  \
                  stpr_putbck.o     stpr_readsq.o     stpr_save.o    \
-                 stpr_setmass.o    stpr_sjacobi.o    stpr_stepcor.o \
+                 stpr_setmass.o    stpr_stepcor.o \
                  stpr_stepper.o    stpr_sumstc.o     stpr_tprntd.o  \
                  stpr_uprcase.o    stpr_wlkchk.o     stpr_wrtsq.o   \
-                 stpr_walk.o  \
+                 stpr_walk.o       scf_optimize.o    stpr_datestamp.o \
                  stpr_walk_dft.o distang.o scf_optimize.o  dft_optimize.o   
        LIBRARY = libstepper.a
    LIB_TARGETS = 
