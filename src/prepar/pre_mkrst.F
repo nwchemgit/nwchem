@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.50 2000-05-02 21:17:30 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.51 2000-05-02 23:01:01 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
-      integer nxrep,nyrep,nzrep,itran,jtran,i,j
+      integer nxrep,nyrep,nzrep,itran,jtran,i,j,k
       real*8 xtran(3)
       real*8 xr(3,2)
 c
@@ -809,8 +809,8 @@ c     remove solvent
 c     --------------
 c
       if(card(1:6).eq.'removw') then
-      read(card(8:79),'(6f12.6)') ((xr(i,j),j=1,2),i=1,3)
-      if(.not.pre_removw(xr,dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+      read(card(8:80),'(6f12.6,i1)') ((xr(i,j),j=1,2),i=1,3),k
+      if(.not.pre_removw(k,xr,dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('Error in pre_removw',0)
       endif

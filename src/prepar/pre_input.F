@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.48 2000-05-02 21:17:30 d3j191 Exp $
+c $Id: pre_input.F,v 1.49 2000-05-02 23:01:01 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 rfix
       character*1 altloc,chain
       integer ires,jres,kres,i,ignore,igroup,jgroup,kgroup,lgroup
-      integer nxrep,nyrep,nzrep,itran,jtran
+      integer nxrep,nyrep,nzrep,itran,jtran,j
       real*8 rrep,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
@@ -872,6 +872,11 @@ c
       yrmax=0.0d0
       zrmin=0.0d0
       zrmax=0.0d0
+      if(.not.inp_a(item)) call errquit('pre_input: translate',9999)
+      j=-1
+      if(inp_compare(.false.,'inside',item)) j=1
+      if(inp_compare(.false.,'outside',item)) j=0
+      if(j.eq.-1) call errquit('pre_input: translate',9999)
       do 6855 i=1,3
       if(inp_a(item)) then
       if(inp_compare(.false.,'x',item)) then
@@ -886,10 +891,15 @@ c
       if(.not.inp_f(zrmin)) call errquit('pre_input remove',0)
       if(.not.inp_f(zrmax)) call errquit('pre_input remove',0)
       endif
+      else
+      goto 6857
       endif
  6855 continue
-      write(68,6856) xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
- 6856 format('removw ',6f12.6)
+ 6857 continue
+      write(68,6856) xrmin,xrmax,yrmin,yrmax,zrmin,zrmax,j
+ 6856 format('removw ',6f12.6,i1)
+      numcmd=numcmd+1
+      goto 2
       endif
       endif
 c
