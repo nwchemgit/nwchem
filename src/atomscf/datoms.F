@@ -29,7 +29,7 @@ c
 c     These should be dynamically allocated
 c
       integer mxnat, mxnprim, mxngen
-      parameter (mxnat = 1000, mxnprim = 20, mxngen = 10)
+      parameter (mxnat = 500, mxnprim = 20, mxngen = 10)
       logical odone(mxnat)
       character*16 tags(mxnat)
       double precision expnt(mxnprim)
@@ -76,6 +76,8 @@ c     centers that do not seem to be ataoms as done already.
 c
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('guess atom dens: geom_ncent failed', geom)
+      if (natoms .gt. mxnat) call errquit
+     $     ('guess atom dens: mxnat too small ', natoms)
       do iat = 1 , natoms
          if (.not. geom_cent_get(geom, iat, tag, coords, charge))
      $        call errquit('guess atom dens: geom_cent_get?', iat)
