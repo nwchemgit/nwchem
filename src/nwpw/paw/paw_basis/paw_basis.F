@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.1 2002-07-15 19:16:20 bylaska Exp $
+* $Id: paw_basis.F,v 1.2 2002-07-30 21:19:56 marat Exp $
 *
 
 !**************************************************
@@ -15,8 +15,8 @@
       integer      nt
       character(*) ion_type(*)
 
-#include "paw_basis.fh" 
-#include "myma.fh"
+      include "paw_basis.fh"
+      include "myma.fh"
   
 *     !*** local variables ***
       integer it, ir

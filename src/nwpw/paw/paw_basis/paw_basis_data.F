@@ -1,6 +1,6 @@
-*
-* $Id: paw_basis_data.F,v 1.1 2002-07-15 20:28:53 bylaska Exp $
-*
+!
+! $Id: paw_basis_data.F,v 1.2 2002-07-30 21:19:56 marat Exp $
+!
 
 !**************************************************
 !
@@ -103,6 +103,76 @@
 
       END !SUBROUTINE alloc_paw_basis_data
 
+
+      SUBROUTINE dealloc_paw_basis_data()
+
+      IMPLICIT NONE
+
+#include "paw_utils.fh"
+#include "paw_basis_data.fh"
+
+      logical ok
+
+
+        ok = .true.
+        ok = ok .and. my_dealloc(i_ngb)
+        call chkerr("failed to dealloc_paw_basis_data 1",ok)
+        ok = ok .and. my_dealloc(i_ng)
+        call chkerr("failed to dealloc_paw_basis_data 2",ok)
+        ok = ok .and. my_dealloc(i_nb)
+        call chkerr("failed to dealloc_paw_basis_data 3",ok)
+        ok = ok .and. my_dealloc(rgrid)
+        call chkerr("failed to dealloc_paw_basis_data 4",ok)
+        ok = ok .and. my_dealloc(prj_ps0)
+        call chkerr("failed to dealloc_paw_basis_data 5",ok)
+        ok = ok .and. my_dealloc(v_ps)
+        call chkerr("failed to dealloc_paw_basis_data 6",ok)
+        ok = ok .and. my_dealloc(ps_core_density)
+        call chkerr("failed to dealloc_paw_basis_data 7",ok)
+        ok = ok .and. my_dealloc(core_density)
+        call chkerr("failed to dealloc_paw_basis_data 8",ok)
+        ok = ok .and. my_dealloc(prj_ps)
+        call chkerr("failed to dealloc_paw_basis_data 9",ok)
+
+        ok = ok .and. my_dealloc(phi_ps_prime)
+        call chkerr("failed to dealloc_paw_basis_data 21",ok)
+        ok = ok .and. my_dealloc(phi_ps)
+        call chkerr("failed to dealloc_paw_basis_data 22",ok)
+        ok = ok .and. my_dealloc(phi_ae_prime)
+        call chkerr("failed to dealloc_paw_basis_data 23",ok)
+        ok = ok .and. my_dealloc(phi_ae)
+        call chkerr("failed to dealloc_paw_basis_data 24",ok)
+        ok = ok .and. my_dealloc(eig)
+        call chkerr("failed to dealloc_paw_basis_data 25",ok)
+        ok = ok .and. my_dealloc(orb_l)
+        call chkerr("failed to dealloc_paw_basis_data 26",ok)
+        ok = ok .and. my_dealloc(pr_n)
+        call chkerr("failed to dealloc_paw_basis_data 27",ok)
+        ok = ok .and. my_dealloc(pr_n_ps)
+        call chkerr("failed to dealloc_paw_basis_data 28",ok)
+        ok = ok .and. my_dealloc(core_kin_energy)
+        call chkerr("failed to dealloc_paw_basis_data 29",ok)
+        ok = ok .and. my_dealloc(ion_charge) 
+        call chkerr("failed to dealloc_paw_basis_data 11",ok)
+        ok = ok .and. my_dealloc(sigma)
+        call chkerr("failed to dealloc_paw_basis_data 12",ok)
+        ok = ok .and. my_dealloc(log_amesh)
+        call chkerr("failed to dealloc_paw_basis_data 13",ok)
+        ok = ok .and. my_dealloc(rmax)
+        call chkerr("failed to dealloc_paw_basis_data 14",ok)
+        ok = ok .and. my_dealloc(r1)
+        call chkerr("failed to dealloc_paw_basis_data 15",ok)
+        ok = ok .and. my_dealloc(mult_l)
+        call chkerr("failed to dealloc_paw_basis_data 16",ok)
+        ok = ok .and. my_dealloc(ngrid)
+        call chkerr("failed to dealloc_paw_basis_data 17",ok)
+        ok = ok .and. my_dealloc(i_cut)
+        call chkerr("failed to dealloc_paw_basis_data 18",ok)
+        ok = ok .and. my_dealloc(nbasis)
+        call chkerr("failed to dealloc_paw_basis_data 19",ok)
+
+
+      END SUBROUTINE
 
 !**************************************************
 !
