@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl)
-c $Id: cf_init.F,v 1.76 2002-04-17 23:40:19 d3j191 Exp $
+c $Id: cf_init.F,v 1.77 2002-05-02 19:39:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -192,7 +192,7 @@ c
      + call errquit('Failed to allocate snam',me)
 c
       if(npgdec.gt.1) then
-      if(.not.ma_push_get(mt_dbl,5*nsatot,'sti',l_sti,i_sti))
+      if(.not.ma_push_get(mt_dbl,6*nsatot,'sti',l_sti,i_sti))
      + call errquit('Failed to allocate sti',me)
       else
       if(.not.ma_push_get(mt_dbl,1,'sti',l_sti,i_sti))
@@ -1427,6 +1427,8 @@ c
       ep2(l)=zero
       ep3(l)=zero
     8 continue
+      ep2(3)=zero
+      ep3(3)=zero
 c
       if(npener.gt.0) then
       do 10 i=1,nsa

@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.50 2002-05-01 00:02:24 d3j191 Exp $
+c $Id: prp_init.F,v 1.51 2002-05-02 19:39:31 d3j191 Exp $
 c
       implicit none
 c
@@ -136,12 +136,14 @@ c
       pronam( 33)='Virial total                                kJ/mol'
       pronam( 34)='pV total                                    kJ/mol'
       pronam( 35)='Enthalpy                                    kJ/mol'
-      pronam( 36)='Energy perturbation 1                       kJ/mol'
+      pronam( 36)='Potential Energy perturbation 1             kJ/mol'
       lp(36)=lpert2
-      pronam( 37)='Energy perturbation 2                       kJ/mol'
+      pronam( 37)='Potential energy perturbation 2             kJ/mol'
       lp(37)=lpert3
-      pronam( 38)='Free energy perturbation 1                  kJ/mol'
-      pronam( 39)='Free energy perturbation 2                  kJ/mol'
+      pronam( 38)='Total energy perturbation 1                 kJ/mol'
+      lp(38)=lpert2
+      pronam( 39)='Total energy perturbation 2                 kJ/mol'
+      lp(39)=lpert3
       pronam( 40)='Derivative free energy wrt lambda           kJ/mol'
       lp(40)=ntype.eq.3
       pronam( 41)='Bias corrected derivative                   kJ/mol'
@@ -265,8 +267,12 @@ c
       lp(110)=lpbc
       pronam(111)='Box z-dimension                                 nm'
       lp(111)=lpbc
+      pronam(112)='Free energy perturbation 1                  kJ/mol'
+      pronam(113)='Free energy perturbation 2                  kJ/mol'
+      pronam(114)='Free energy perturbation 1 including mass   kJ/mol'
+      pronam(115)='Free energy perturbation 2 including mass   kJ/mol'
 c
-      isprop=111
+      isprop=115
       it=isprop
 c
       if(nsf.gt.0) then
@@ -549,7 +555,10 @@ c
       if(ntype.eq.3.and.me.eq.0) then
       if(.not.ma_push_get(mt_dbl,mda,'dfr',l_dfr,i_dfr))
      + call errquit('Failed to allocate memory for dfr',0)
+      if(.not.ma_push_get(mt_dbl,mda,'dfrm',l_dfrm,i_dfrm))
+     + call errquit('Failed to allocate memory for dfrm',0)
       endif
+      lfreem=.false.
 c
       if(nserie.gt.0) call prp_rdrest(lfn,fil)
 c
@@ -671,6 +680,8 @@ c
 #include "mafdecls.fh"
 c
       if(ntype.eq.3.and.me.eq.0) then
+      if(.not.ma_pop_stack(l_dfrm))
+     + call errquit('Failed to deallocate dfrm',me)
       if(.not.ma_pop_stack(l_dfr))
      + call errquit('Failed to deallocate dfr',me)
       endif

@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.27 2002-04-17 23:42:26 d3j191 Exp $
+c $Id: prp_common.fh,v 1.28 2002-05-02 19:39:31 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -22,8 +22,8 @@ c
      + nsf,msf,mpe,nfoutp,nfstat,
      + nfprop,maxp,mda,nda,mrun,nwm,msm,nsm,nsa
 c
-      integer i_dfr,l_dfr
-      common/prp_ptr/i_dfr,l_dfr
+      integer i_dfr,l_dfr,i_dfrm,l_dfrm
+      common/prp_ptr/i_dfr,l_dfr,i_dfrm,l_dfrm
 c
       logical lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,lnoe
       common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener,lpmf,
@@ -51,5 +51,5 @@ c
       common/prp_prp/volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,
      + samrat
 c
-      logical lerror,lauto,lappr,limport
-      common/prp_log/lerror,lauto,lappr,limport
+      logical lerror,lauto,lappr,limport,lfreem
+      common/prp_log/lerror,lauto,lappr,limport,lfreem

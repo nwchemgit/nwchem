@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
       implicit none
 c
@@ -758,7 +758,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
       implicit none
 c
@@ -790,7 +790,7 @@ c
       integer list(0:msa)
 c
 #if defined(CAFE_FORCES)
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 #endif
 #if defined(CAFE_POLARIZATION)
       real*8 ps(msa,3,2),psp(msa,3,2,2)
@@ -1875,7 +1875,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1902,7 +1902,7 @@ c
       integer iass(mat,mat),nsslen(2)
 c
 #if defined(CAFE_FORCES)
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 #endif
 #if defined(CAFE_POLARIZATION)
       real*8 ps(msa,3,2),psp(msa,3,2,2)
@@ -2962,7 +2962,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3007,7 +3007,7 @@ c
       integer indexl(nbonds)
 c
       logical lpbc,lpbcs,lupden
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
       integer natoms,ndim
       integer igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
@@ -3241,7 +3241,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3296,7 +3296,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
 c     declaration of local variables
 c     ------------------------------
@@ -3507,7 +3507,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3559,7 +3559,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
 c     declaration of local variables
 c     ------------------------------
@@ -3840,7 +3840,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3892,7 +3892,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
       logical lpbc,lpbcs,lupden
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
 c     declaration of local variables
 c     -----------------------------
@@ -4157,7 +4157,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4212,7 +4212,7 @@ c
       real*8 ess(msf,msf,mpe,2),esa(nsa)
 c
 #if defined(CAFE_FORCES)
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 #endif
 c
       logical lpbc,lpbcs
@@ -4503,7 +4503,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.43 2002-04-30 23:52:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.44 2002-05-02 19:39:34 d3j191 Exp $
 c
       implicit none
 c

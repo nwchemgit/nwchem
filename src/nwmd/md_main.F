@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.127 2002-04-30 17:23:22 d3j191 Exp $
+c $Id: md_main.F,v 1.128 2002-05-02 19:39:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1230,7 +1230,8 @@ c
 c
       if(npgdec.gt.1) ndec=ndec+1
 c
-      call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_vs),nsaloc)
+      call cf_mcti_kin(int_mb(i_is+(lsatt-1)*msa),
+     + int_mb(i_is+(lsgan-1)*msa),dbl_mb(i_vs),nsaloc)
 c
       done=prp_mcti_step(idacq,ldacq)
 c
@@ -2360,7 +2361,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.127 2002-04-30 17:23:22 d3j191 Exp $
+c $Id: md_main.F,v 1.128 2002-05-02 19:39:31 d3j191 Exp $
 c
       implicit none
 c

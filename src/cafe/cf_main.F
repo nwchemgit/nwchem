@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.137 2002-04-17 23:40:19 d3j191 Exp $
+c $Id: cf_main.F,v 1.138 2002-05-02 19:39:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1166,14 +1166,14 @@ c
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
      + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
-     + edistr,epomef,vir,prest,virt,ekct,ubiasi)
+     + ep2m,ep3m,edistr,epomef,vir,prest,virt,ekct,ubiasi)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
-      real*8 edistr,epomef,vir,ubiasi
+      real*8 edistr,epomef,vir,ubiasi,ep2m,ep3m
       real*8 prest(3,3),virt(3,3),ekct(3,3)
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
@@ -1203,6 +1203,8 @@ c
 c
       ept2=ep2(1)
       ept3=ep3(1)
+      ep2m=ep2(3)
+      ep3m=ep3(3)
 c
       edistr=edrs
       epomef=epmf
@@ -2141,7 +2143,7 @@ c
 c
 #include "cf_common.fh"
 c
-      real*8 fdata(26)
+      real*8 fdata(28)
 c
       integer i
 c
@@ -2150,10 +2152,12 @@ c
     1 continue
       fdata(25)=ep2(1)
       fdata(26)=ep3(1)
+      fdata(27)=ep2(3)
+      fdata(28)=ep3(3)
 c
       return
       end
-      subroutine cf_mcti_kin(isat,vs,nums)
+      subroutine cf_mcti_kin(isat,isga,vs,nums)
 c
       implicit none
 c
@@ -2161,28 +2165,35 @@ c
 #include "mafdecls.fh"
 c
       integer nums
-      integer isat(msa)
+      integer isat(msa),isga(msa)
       real*8 vs(msa,3)
 c
-      call cf_mcti_w(isat,vs,nums,dbl_mb(i_mas))
+      call cf_mcti_w(isat,isga,vs,nums,dbl_mb(i_mas),dbl_mb(i_sti))
 c
       return
       end
-      subroutine cf_mcti_w(isat,vs,nums,wgt)
+      subroutine cf_mcti_w(isat,isga,vs,nums,wgt,dera)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       integer nums
-      integer isat(msa)
+      integer isat(msa),isga(msa)
       real*8 vs(msa,3),wgt(mat,6)
+      real*8 dera(6,nsatot)
 c
       integer i
+      real*8 vsq
 c
       do 1 i=1,nums
-      deriv(13,1)=deriv(13,1)+wgt(isat(i),4)*
-     + (vs(i,1)*vs(i,1)+vs(i,2)*vs(i,2)+vs(i,3)*vs(i,3))
+      vsq=half*(vs(i,1)*vs(i,1)+vs(i,2)*vs(i,2)+vs(i,3)*vs(i,3))
+      deriv(13,1)=deriv(13,1)-wgt(isat(i),4)*vsq
+      dera(6,isga(i))=dera(6,isga(i))-wgt(isat(i),4)*vsq
+      if(ipert2.and.ip2(13))
+     + ep2(3)=ep2(3)+vsq*(wgt(isat(i),1)/wgt(isat(i),2)-one)
+      if(ipert3.and.ip3(13))
+     + ep3(3)=ep3(3)+vsq*(wgt(isat(i),1)/wgt(isat(i),3)-one)
     1 continue
 c
       return
@@ -3223,7 +3234,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
       integer i
 c
@@ -3233,6 +3244,7 @@ c
       dera(3,i)=zero
       dera(4,i)=zero
       dera(5,i)=zero
+      dera(6,i)=zero
     1 continue
 c
       return
@@ -3300,7 +3312,7 @@ c
 #include "msgids.fh"
 c
       integer lfnout,number
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -3346,17 +3358,17 @@ c
 #include "msgids.fh"
 c
       integer lfnmro
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
       integer i,j
 c
       call ga_dgop(mcf_68,dera,5*nsatot,'+')
 c
       if(me.eq.0) then
-      write(lfnmro) ((dera(i,j),i=1,5),j=1,nsatot)
+      write(lfnmro) ((dera(i,j),i=1,6),j=1,nsatot)
       else
       do 1 i=1,nsatot
-      do 2 j=1,5
+      do 2 j=1,6
       dera(j,i)=zero
     2 continue
     1 continue
@@ -3386,15 +3398,15 @@ c
 #include "cf_common.fh"
 c
       integer lfnmri
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
       integer i,j
 c
       if(me.eq.0) then
-      read(lfnmri) ((dera(i,j),i=1,5),j=1,nsatot)
+      read(lfnmri) ((dera(i,j),i=1,6),j=1,nsatot)
       else
       do 1 i=1,nsatot
-      do 2 j=1,5
+      do 2 j=1,6
       dera(j,i)=zero
     2 continue
     1 continue
@@ -3423,18 +3435,18 @@ c
 #include "msgids.fh"
 c
       integer lfngib
-      real*8 dera(5,nsatot)
+      real*8 dera(6,nsatot)
 c
       integer i,j
 c
       call ga_dgop(mcf_68,dera,5*nsatot,'+')
 c
       if(me.eq.0) then
-      write(lfngib,1000) ((dera(i,j),i=1,5),j=1,nsatot)
+      write(lfngib,1000) ((dera(i,j),i=1,6),j=1,nsatot)
  1000 format(4e20.10)
       else
       do 1 i=1,nsatot
-      do 2 j=1,5
+      do 2 j=1,6
       dera(j,i)=zero
     2 continue
     1 continue
@@ -3450,7 +3462,7 @@ c
 #include "mafdecls.fh"
 c
       integer lfngib
-      real*8 dec(5,nsatot),dlambd
+      real*8 dec(6,nsatot),dlambd
 c
       if(npgdec.eq.0) call errquit('rdgib error',0)
 c
@@ -3465,21 +3477,21 @@ c
 #include "cf_common.fh"
 c
       integer lfngib
-      real*8 dera(5,nsatot),dec(5,nsatot),dlambd
+      real*8 dera(6,nsatot),dec(6,nsatot),dlambd
 c
       integer i,j
 c
       if(me.eq.0) then
-      read(lfngib,1000) ((dera(i,j),i=1,5),j=1,nsatot)
+      read(lfngib,1000) ((dera(i,j),i=1,6),j=1,nsatot)
  1000 format(4e20.10)
       do 1 i=1,nsatot
-      do 2 j=1,5
+      do 2 j=1,6
       dec(j,i)=dec(j,i)+dlambd*dera(j,i)
     2 continue
     1 continue
       else
       do 3 i=1,nsatot
-      do 4 j=1,5
+      do 4 j=1,6
       dera(j,i)=zero
     4 continue
     3 continue
@@ -3495,7 +3507,7 @@ c
 #include "mafdecls.fh"
 c
       integer lfnout
-      real*8 dec(5,nsatot)
+      real*8 dec(6,nsatot)
 c
       call cf_print_d(lfnout,byte_mb(i_snam),dec)
 c
@@ -3510,7 +3522,7 @@ c
 #include "msgids.fh"
 c
       integer lfnout
-      real*8 dec(5,nsatot)
+      real*8 dec(6,nsatot)
       character*16 snam(nsatot)
 c
       integer i,j
@@ -3518,12 +3530,12 @@ c
       write(lfnout,1001)
  1001 format(//,' SOLUTE DECOMPOSITION THERMODYNAMIC INTEGRATION',//,
      + '     Atom',13x,'Solvent     Solvent      Solute      Solute',
-     + 6x,'Solute',/,
-     + 21x,'v.d.Waals   electrost   v.d.Waals   electrost',6x,
-     + 'bonded',/)
+     + 6x,'Solute      Solute',/,
+     + 21x,'v.d.Waals   Electrost   v.d.Waals   Electrost',5x,
+     + 'Bonded        Mass',/)
       do 1 i=1,nsatot
-      write(lfnout,1009) snam(i),(dec(j,i),j=1,5)
- 1009 format(1x,a16,5f12.3)
+      write(lfnout,1009) snam(i),(dec(j,i),j=1,6)
+ 1009 format(1x,a16,6f12.3)
     1 continue
 c
       return

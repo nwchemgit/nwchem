@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.73 2002-05-01 20:15:35 d3j191 Exp $
+c $Id: prp_main.F,v 1.74 2002-05-02 19:39:31 d3j191 Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
-      real*8 prest(3,3),virt(3,3),ekct(3,3)
+      real*8 prest(3,3),virt(3,3),ekct(3,3),ep2m,ep3m
 c
       integer i,j,k,it
 c
@@ -96,8 +96,8 @@ c     if using cafe get properties from it
 c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
-     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3,
-     + edrs,epmf,virial,prest,virt,ekct,ubias)
+     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,
+     + ep2,ep3,ep2m,ep3m,edrs,epmf,virial,prest,virt,ekct,ubias)
       endif
 c
 c     if using space get properties from it
@@ -165,6 +165,8 @@ c
       p(32)=p(32)+ep
       p(36)=ep2
       p(37)=ep3
+      p(38)=ep2+ep2m
+      p(39)=ep3+ep3m
       if(me.eq.0) p(40)=dfree
       p(50)=ubias
       p(52)=eww(6,1)
@@ -308,12 +310,16 @@ c
       endif
 c
       if(temp.eq.zero.or.me.ne.0) then
-      p(38)=zero
-      p(39)=zero
+      p(112)=zero
+      p(113)=zero
+      p(114)=zero
+      p(115)=zero
       p(51)=zero
       else
-      p(38)=exp(-p(36)/(rgas*temp))
-      p(39)=exp(-p(37)/(rgas*temp))
+      p(112)=exp(-p(36)/(rgas*temp))
+      p(113)=exp(-p(37)/(rgas*temp))
+      p(114)=exp(-p(38)/(rgas*temp))
+      p(115)=exp(-p(39)/(rgas*temp))
       p(51)=exp(-p(50)/(rgas*temp))
       if(nbias.gt.0) p(41)=p(40)*p(51)
       endif
@@ -527,7 +533,7 @@ c
 c
       integer ida,lda
 c
-      real*8 fdata(26)
+      real*8 fdata(28)
       real*8 aver,drift,stderr,corerr,ratio
       logical done
 c
@@ -535,10 +541,10 @@ c
 c
       call cf_mcti(fdata)
 c
-      call ga_dgop(mrg_d44,fdata,26,'+')
+      call ga_dgop(mrg_d44,fdata,28,'+')
 c
       if(me.eq.0) then
-      done=prp_mcti_acc(ida,dbl_mb(i_dfr),fdata,
+      done=prp_mcti_acc(ida,dbl_mb(i_dfr),dbl_mb(i_dfrm),fdata,
      + aver,drift,stderr,corerr,ratio)
       endif
 c
@@ -550,7 +556,7 @@ c
 c
       return
       end
-      logical function prp_mcti_acc(ida,dfr,fdata,
+      logical function prp_mcti_acc(ida,dfr,dfrm,fdata,
      + aver,drift,stderr,corerr,ratio)
 c
       implicit none
@@ -558,20 +564,25 @@ c
 #include "prp_common.fh"
 c
       integer ida
-      real*8 dfr(mda),fdata(26)
+      real*8 dfr(mda),dfrm(mda),fdata(28)
       real*8 aver,drift,stderr,corerr,ratio,cerror
 c
       integer i
       logical done
+      real*8 dfrnom
 c
       dfree=zero
+      dfrnom=zero
       do 1 i=1,24
       dfree=dfree+fdata(i)
+      if(i.ne.1.and.i.ne.13) dfrnom=dfrnom+fdata(i)
       deriv(i)=deriv(i)+fdata(i)
     1 continue
       nderiv=nderiv+1
 c
       dfr(ida)=dfree
+      dfrm(ida)=dfrnom
+      if(dfree.ne.dfrnom) lfreem=.true.
       nda=ida
 c
     2 continue
@@ -608,32 +619,36 @@ c
       real*8 rlambd,dlambd
       integer ndec
 c
-      call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),
-     + psumt(16),psumt(38),psumt(39),psumt(51),psumt(41))
+      call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm),
+     + psumt(16),psumt(112),psumt(113),psumt(114),psumt(115),
+     + psumt(51),psumt(41))
 c
       return
       end
-      subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,taver,
-     + ep2ave,ep3ave,ebias,dfbias)
+      subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,dfrm,taver,
+     + ep2ave,ep3ave,ep2avm,ep3avm,ebias,dfbias)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave,ebias,dfbias
+      real*8 rlambd,dlambd,dfr(mda),dfrm(mda)
+      real*8 taver,ep2ave,ep3ave,ebias,dfbias,ep2avm,ep3avm
       integer i,ndec
 c
       if(me.eq.0) then
       write(lfngib,1000) nderiv,nda,rlambd,dlambd,ndec,nsa,
-     + nbias,ebias/dble(nsumt)
- 1000 format(2i7,2f12.6,2i8,i4,e20.12)
+     + nbias,ebias/dble(nsumt),lfreem
+ 1000 format(2i7,2f12.6,2i8,i4,e20.12,4x,l1)
       write(lfngib,1001) deriv
  1001 format(4e20.12)
       write(lfngib,1002) (dfr(i),i=1,nda)
+      write(lfngib,1002) (dfrm(i),i=1,nda)
  1002 format(4e20.12)
       write(lfngib,1003) nsumt,taver/dble(nsumt),
-     + ep2ave/dble(nsumt),ep3ave/dble(nsumt),dfbias/ebias
- 1003 format(i10,/,4e20.12)
+     + ep2ave/dble(nsumt),ep3ave/dble(nsumt),dfbias/ebias,
+     + ep2avm/dble(nsumt),ep3avm/dble(nsumt)
+ 1003 format(i10,/,4e20.12,/,2e20.12)
       endif
       if(ndec.gt.0) call cf_wrtgib(lfngib)
 c
@@ -651,47 +666,89 @@ c
       npgdec=n
 c
       if(npgdec.gt.0) then
-      if(.not.ma_push_get(mt_dbl,5*nsa,'dec',l_dec,i_dec))
+      if(.not.ma_push_get(mt_dbl,6*nsa,'dec',l_dec,i_dec))
      + call errquit('Failed to allocate dec',0)
       else
       if(.not.ma_push_get(mt_dbl,1,'dec',l_dec,i_dec))
      + call errquit('Failed to allocate dec',0)
       endif
 c
-      call prp_mcti_s(dbl_mb(i_dfr),dbl_mb(i_dec))
+      call prp_mcti_s(dbl_mb(i_dfr),dbl_mb(i_dfrm),dbl_mb(i_dec))
 c
       if(.not.ma_pop_stack(l_dec))
      + call errquit('Failed to deallocate dec',0)
 c
       return
       end
-      subroutine prp_mcti_s(dfr,dec)
+      subroutine prp_mcti_s(dfr,dfrm,dec)
 c
       implicit none
 c
 #include "prp_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 dfr(mda),dec(5,nsa)
+      real*8 dfr(mda),dfrm(mda),dec(6,nsa)
 c
       character*10 pdate,ptime
       integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias,dfbias
+      real*8 ep2avm,ep3avm
       real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias,freeb,freem
+      logical lfrm
 c
       gbias=zero
 c
       if(me.eq.0) then
 c
-      do 1 k=1,4
+      do 1 k=1,8
 c
-      if((k.eq.2.or.k.eq.3).and.npgdec.eq.0) goto 1
+      if(k.le.4.and.npgdec.eq.0) goto 1
 c
       call swatch(pdate,ptime)
       if(k.eq.1) then
-      write(lfnout,1000) pdate,ptime
- 1000 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
+      write(lfnout,1001)
+ 1001 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
+     + 'DECOMPOSITION',//,' Solvent derivatives in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      elseif(k.eq.2) then
+      write(lfnout,1002)
+ 1002 format(//,' Solute derivatives in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      elseif(k.eq.3) then
+      write(lfnout,1003)
+ 1003 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
+     + 'DECOMPOSITION',//,' Solvent contributions in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      elseif(k.eq.4) then
+      write(lfnout,1004)
+ 1004 format(//,' Solute contributions in kJ/mol',//,
+     + ' Run Lambda',
+     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
+     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      elseif(k.eq.5) then
+      if(lfreem) then
+      write(lfnout,1005) pdate,ptime
+ 1005 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
+     + 'EXCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '  Derivative  Derivative  Derivative Lambda',
+     + ' Free Energy Free Energy Free Energy Free Energy  Sampling',/,
+     + 18x,
+     + '     Average       Error       Drift       ',
+     + ' Accumulated       Error       Drift   Corrected     Ratio',/,
+     + 18x,
+     + '      kJ/mol      kJ/mol   kJ/mol ps       ',
+     + '      kJ/mol      kJ/mol   kJ/mol ps      kJ/mol',/)
+      else
+      write(lfnout,1006) pdate,ptime
+ 1006 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
      + '  Derivative  Derivative  Derivative Lambda',
@@ -702,28 +759,53 @@ c
      + 18x,
      + '      kJ/mol      kJ/mol   kJ/mol ps       ',
      + '      kJ/mol      kJ/mol   kJ/mol ps      kJ/mol',/)
-      elseif(k.eq.2) then
-      write(lfnout,1001)
- 1001 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
-     + 'DECOMPOSITION',//,' Solvent contributions in kJ/mol',//,
-     + ' Run Lambda',
-     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
-     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
-      elseif(k.eq.3) then
-      write(lfnout,1002)
- 1002 format(//,' Solute contributions in kJ/mol',//,
-     + ' Run Lambda',
-     + '      Mass Solvnt LJ Solute LJ Solvnt el Solute el     Bonds',
-     + '  Constrts    Angles Dihedrals Impropers Slvnt pol Solut pol',/)
+      endif
+      elseif(k.eq.6) then
+      if(lfreem) then
+      write(lfnout,1007) pdate,ptime
+ 1007 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
+     + 'INCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '  Derivative  Derivative  Derivative Lambda',
+     + ' Free Energy Free Energy Free Energy Free Energy  Sampling',/,
+     + 18x,
+     + '     Average       Error       Drift       ',
+     + ' Accumulated       Error       Drift   Corrected     Ratio',/,
+     + 18x,
+     + '      kJ/mol      kJ/mol   kJ/mol ps       ',
+     + '      kJ/mol      kJ/mol   kJ/mol ps      kJ/mol',/)
+      endif
+      elseif(k.eq.7) then
+      if(lfreem) then
+      write(lfnout,1008) pdate,ptime
+ 1008 format(//' MULTISTEP THERMODYNAMIC PERTURBATION ',
+     + 'EXCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Accumulated        Bias   Corrected',/,18x,
+     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '      kJ/mol      kJ/mol      kJ/mol',/)
       else
-      write(lfnout,1003) pdate,ptime
- 1003 format(//' MULTISTEP THERMODYNAMIC PERTURBATION',
+      write(lfnout,1009) pdate,ptime
+ 1009 format(//' MULTISTEP THERMODYNAMIC PERTURBATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse     Forward    Ensemble Lambda Accumulated ',
-     + '       Bias        Mass   Corrected',/,18x,
-     + '      kJ/mol      kJ/mol      kJ/mol             kJ/mol ',
-     + '     kJ/mol      kJ/mol      kJ/mol',/)
+     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Accumulated        Bias   Corrected',/,18x,
+     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '      kJ/mol      kJ/mol      kJ/mol',/)
+      endif
+      else
+      if(lfreem) then
+      write(lfnout,1010) pdate,ptime
+ 1010 format(//' MULTISTEP THERMODYNAMIC PERTURBATION ',
+     + 'INCLUDING MASS CONTRIBUTIONS',t110,2a10,//,
+     + ' Run Lambda   Size',
+     + '     Reverse Temperature     Forward    Ensemble Lambda',
+     + ' Accumulated        Bias   Corrected',/,18x,
+     + '      kJ/mol           K      kJ/mol      kJ/mol       ',
+     + '      kJ/mol      kJ/mol      kJ/mol',/)
+      endif
       endif
 c
       rewind(lfngib)
@@ -746,17 +828,22 @@ c
       dec(3,i)=zero
       dec(4,i)=zero
       dec(5,i)=zero
+      dec(6,i)=zero
    22 continue
       endif
       do 3 i=1,mrun
-      read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec,nsa,nbias,ebias
- 2000 format(2i7,2f12.6,2i8,i4,e20.12)
+      read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec,nsa,nbias,ebias,
+     + lfrm
+      if(lfrm) lfreem=.true.
+ 2000 format(2i7,2f12.6,2i8,i4,e20.12,4x,l1)
       read(lfngib,2001) deriv
  2001 format(4e20.12)
       read(lfngib,2002) (dfr(j),j=1,nda)
+      read(lfngib,2002) (dfrm(j),j=1,nda)
  2002 format(4e20.12)
-      read(lfngib,2003) number,taver,ep2ave,ep3ave,dfbias
- 2003 format(i10,/,4e20.12)
+      read(lfngib,2003) number,taver,ep2ave,ep3ave,dfbias,
+     + ep2avm,ep3avm
+ 2003 format(i10,/,4e20.12,/,2e20.12)
       if(nbias.gt.0) gbias=-rgas*taver*log(ebias)
       if(ndec.gt.0) call cf_rdgib(lfngib,dec,dlambd/dble(ndec))
 c
@@ -770,6 +857,34 @@ c
       freem=freem+rnum*(deriv(1)+deriv(13))
 c
       if(k.eq.1) then
+      rnum=one/dble(nderiv)
+      write(lfnout,1101) i,slambd,(rnum*deriv(j),j=1,12)
+ 1101 format(i4,f7.3,12f10.3)
+      elseif(k.eq.2) then
+      rnum=one/dble(nderiv)
+      write(lfnout,1102) i,slambd,(rnum*deriv(j),j=13,24)
+ 1102 format(i4,f7.3,12f10.3)
+      elseif(k.eq.3) then
+      write(lfnout,1103) i,slambd,(fterm(j),j=1,12)
+ 1103 format(i4,f7.3,12f10.5)
+      elseif(k.eq.4) then
+      write(lfnout,1104) i,slambd,(fterm(j),j=13,24)
+ 1104 format(i4,f7.3,12f10.5)
+      elseif(k.eq.5) then
+      call error(.true.,.true.,1000,dfrm,nda,
+     + dfree,ddrft,dsterr,dcerr,ratio)
+c
+      freeti=freeti+dfree*dlambd
+      freeb=freeb+dfbias*dlambd
+      errti=errti+(dcerr*dlambd)**2
+      drftti=drftti+ddrft*dlambd
+c
+      write(lfnout,1105) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
+     + slambd,freeti,sqrt(errti),drftti/tstep,freeb,ratio
+ 1105 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f12.3,f10.5)
+c
+      elseif(k.eq.6) then
+      if(lfreem) then
       call error(.true.,.true.,1000,dfr,nda,
      + dfree,ddrft,dsterr,dcerr,ratio)
 c
@@ -778,31 +893,34 @@ c
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
-      write(lfnout,1004) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
+      write(lfnout,1106) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
      + slambd,freeti,sqrt(errti),drftti/tstep,freeb,ratio
- 1004 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f12.3,f10.5)
+ 1106 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f12.3,f10.5)
+      endif
 c
-      elseif(k.eq.2) then
-      write(lfnout,1005) i,slambd,(fterm(j),j=1,12)
- 1005 format(i4,f7.3,12f10.5)
-      elseif(k.eq.3) then
-      write(lfnout,1006) i,slambd,(fterm(j),j=13,24)
- 1006 format(i4,f7.3,12f10.5)
-      else
+      elseif(k.eq.7) then
       epr=-rgas*taver*log(ep2ave)
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
-      write(lfnout,1007) i,rlambd,number,epr,epf,epf-epr,slambd,etp,
-     + -gbias,freem,etp-gbias+freem
- 1007 format(i4,f7.3,i7,3f12.3,f7.3,4f12.3)
+      write(lfnout,1107) i,rlambd,number,taver,epr,epf,epf-epr,
+     + slambd,etp,-gbias,etp-gbias+freem
+ 1107 format(i4,f7.3,i7,4f12.3,f7.3,3f12.3)
+      else
+      epr=-rgas*taver*log(ep2avm)
+      epf=-rgas*taver*log(ep3avm)
+      etp=etp-epr+epf
+      write(lfnout,1108) i,rlambd,number,taver,epr,epf,epf-epr,
+     + slambd,etp,-gbias,etp-gbias+freem
+ 1108 format(i4,f7.3,i7,4f12.3,f7.3,3f12.3)
       endif
 c
     3 continue
+c
+      if(ndec.gt.0.and.k.eq.4) call cf_print_deco(lfnout,dec)
+c
     1 continue
 c
       close(unit=lfngib)
-c
-      if(ndec.gt.0) call cf_print_deco(lfnout,dec)
 c
       endif
 c
@@ -817,7 +935,7 @@ c
 c
       integer lfnmro,ndec
 c
-      call prp_wtmro(lfnmro,ndec,dbl_mb(i_dfr))
+      call prp_wtmro(lfnmro,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm))
 c
       return
       end
@@ -830,18 +948,18 @@ c
 c
       integer lfnmri,ndec
 c
-      call prp_rmri(lfnmri,ndec,dbl_mb(i_dfr))
+      call prp_rmri(lfnmri,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm))
 c
       return
       end
-      subroutine prp_wtmro(lfnmro,ndec,dfr)
+      subroutine prp_wtmro(lfnmro,ndec,dfr,dfrm)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
       integer lfnmro,ndec
-      real*8 dfr(mda)
+      real*8 dfr(mda),dfrm(mda)
 c
       integer i
 c
@@ -849,6 +967,7 @@ c
       write(lfnmro) nderiv,nda,nprop,nsum,nsumt,ndec
       write(lfnmro) deriv
       write(lfnmro) (dfr(i),i=1,nda)
+      write(lfnmro) (dfrm(i),i=1,nda)
       write(lfnmro) tsum,t2sum,tsumt,t2sumt
       write(lfnmro) (psum(i),i=1,nprop)
       write(lfnmro) (p2sum(i),i=1,nprop)
@@ -861,14 +980,14 @@ c
 c
       return
       end
-      subroutine prp_rmri(lfnmri,ndec,dfr)
+      subroutine prp_rmri(lfnmri,ndec,dfr,dfrm)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
       integer lfnmri,ndec
-      real*8 dfr(mda)
+      real*8 dfr(mda),dfrm(mda)
 c
       integer i,nprp
 c
@@ -878,6 +997,7 @@ c
       endif
       read(lfnmri) deriv
       read(lfnmri) (dfr(i),i=1,nda)
+      read(lfnmri) (dfrm(i),i=1,nda)
       read(lfnmri) tsum,t2sum,tsumt,t2sumt
       read(lfnmri) (psum(i),i=1,nprop)
       read(lfnmri) (p2sum(i),i=1,nprop)
