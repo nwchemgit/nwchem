@@ -110,6 +110,13 @@ MP2:
   o 64-bit platforms: removed 2GB file limit (this will drastically
     reduce the number of passes)
 
+CSD(T):
+
+  o BUG FIX: Triples energies were wrong for systems with higher than
+    abelian symmetry. This is now handled correctly.
+  o BUG FIX: Linear dependency was ignored in triples mo symmetry
+    transformation. Now, only nbf-# lin. dep. functions are used.
+
 Hessian and Frequencies: 
 
   o Analytic hessian calculation with ECP basis sets can now performed
