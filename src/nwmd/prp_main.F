@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.98 2003-10-27 19:06:56 d3j191 Exp $
+c $Id: prp_main.F,v 1.99 2003-11-25 16:40:07 d3j191 Exp $
 c
       implicit none
 c
@@ -82,7 +82,7 @@ c
       eq=eww(6,1)+eww(8,1)
       ep=zero
       ewp=zero
-      do 9 i=1,8
+      do 9 i=1,mpe
       ep=ep+eww(i,1)
       ewp=ewp+eww(i,1)
       do 10 j=1,msf
@@ -195,58 +195,59 @@ c
       p(55)=eww(7,1)
       p(56)=eww(1,1)
       p(57)=eww(2,1)
-      p(58)=eww(3,1)
-      p(59)=eww(4,1)
-      p(66)=ewp
-      p(67)=p(67)+ewp
-      p(69)=dwr
-      if(lnoe) p(74)=edrs
-      if(lpmf) p(75)=epmf
+      p(58)=eww(13,1)
+      p(59)=eww(3,1)
+      p(60)=eww(4,1)
+      p(67)=ewp
+      p(68)=p(68)+ewp
+      p(70)=dwr
+      if(lnoe) p(75)=edrs
+      if(lpmf) p(76)=epmf
       if(ntype.ne.3) then
-      p(76)=epme(iset)
-      p(79)=epmec
+      p(77)=epme(iset)
+      p(80)=epmec
       else
-      p(76)=epme(1)
-      p(77)=epme(2)-p(76)
-      p(78)=epme(3)-p(76)
-      p(79)=epme(1)+epmec
-      p(80)=epme(2)+epmec2-p(79)
-      p(81)=epme(3)+epmec3-p(79)
+      p(77)=epme(1)
+      p(78)=epme(2)-p(77)
+      p(79)=epme(3)-p(77)
+      p(80)=epme(1)+epmec
+      p(81)=epme(2)+epmec2-p(80)
+      p(82)=epme(3)+epmec3-p(80)
       endif
-      p(83)=timer_wall(202)
-      p(84)=timer_wall(203)
-      if(me.eq.0) p(85)=timer_wall(203)
+      p(84)=timer_wall(202)
+      p(85)=timer_wall(203)
+      if(me.eq.0) p(86)=timer_wall(203)
       if(me.eq.0) then
-      p(86)=virt(1,1)
-      p(87)=virt(1,2)
-      p(88)=virt(1,3)
-      p(89)=virt(2,1)
-      p(90)=virt(2,2)
-      p(91)=virt(2,3)
-      p(92)=virt(3,1)
-      p(93)=virt(3,2)
-      p(94)=virt(3,3)
-      p(95)=prest(1,1)
-      p(96)=prest(1,2)
-      p(97)=prest(1,3)
-      p(98)=prest(2,1)
-      p(99)=prest(2,2)
-      p(100)=prest(2,3)
-      p(101)=prest(3,1)
-      p(102)=prest(3,2)
-      p(103)=prest(3,3)
-      p(104)=ekct(1,1)
-      p(105)=ekct(1,2)
-      p(106)=ekct(1,3)
-      p(107)=ekct(2,1)
-      p(108)=ekct(2,2)
-      p(109)=ekct(2,3)
-      p(110)=ekct(3,1)
-      p(111)=ekct(3,2)
-      p(112)=ekct(3,3)
-      p(113)=box(1)
-      p(114)=box(2)
-      p(115)=box(3)
+      p(87)=virt(1,1)
+      p(88)=virt(1,2)
+      p(89)=virt(1,3)
+      p(90)=virt(2,1)
+      p(91)=virt(2,2)
+      p(92)=virt(2,3)
+      p(93)=virt(3,1)
+      p(94)=virt(3,2)
+      p(95)=virt(3,3)
+      p(96)=prest(1,1)
+      p(97)=prest(1,2)
+      p(98)=prest(1,3)
+      p(99)=prest(2,1)
+      p(100)=prest(2,2)
+      p(101)=prest(2,3)
+      p(102)=prest(3,1)
+      p(103)=prest(3,2)
+      p(104)=prest(3,3)
+      p(105)=ekct(1,1)
+      p(106)=ekct(1,2)
+      p(107)=ekct(1,3)
+      p(108)=ekct(2,1)
+      p(109)=ekct(2,2)
+      p(110)=ekct(2,3)
+      p(111)=ekct(3,1)
+      p(112)=ekct(3,2)
+      p(113)=ekct(3,3)
+      p(114)=box(1)
+      p(115)=box(2)
+      p(116)=box(3)
       endif
 c
       maxp=isprop
@@ -261,24 +262,25 @@ c
       p(it+6)=esw(i,5,1)
       p(it+7)=ess(i,i,1,1)
       p(it+8)=ess(i,i,2,1)
-      p(it+9)=ess(i,i,3,1)
-      p(it+10)=ess(i,i,4,1)
-      p(it+13)=ess(i,i,7,1)
-      p(it+14)=ess(i,i,8,1)
-      p(it+15)=ess(i,i,5,1)
-      p(it+16)=ess(i,i,6,1)
+      p(it+9)=ess(i,i,13,1)
+      p(it+10)=ess(i,i,3,1)
+      p(it+11)=ess(i,i,4,1)
+      p(it+14)=ess(i,i,7,1)
+      p(it+15)=ess(i,i,8,1)
+      p(it+16)=ess(i,i,5,1)
+      p(it+17)=ess(i,i,6,1)
       if(me.eq.0) then
-      p(it+18)=esk(i)
+      p(it+19)=esk(i)
       endif
-      p(it+19)=ess(i,i,5,1)+ess(i,i,6,1)+ess(i,i,7,1)+ess(i,i,8,1)+
+      p(it+20)=ess(i,i,5,1)+ess(i,i,6,1)+ess(i,i,7,1)+ess(i,i,8,1)+
      + ess(i,i,1,1)+ess(i,i,2,1)+
      + ess(i,i,3,1)+ess(i,i,4,1)+half*(esw(i,6,1)+esw(i,5,1))
       do 34 j=i+1,nsf
-      p(it+19)=p(it+17)+half*(ess(i,j,6,1)+ess(j,i,6,1)+
+      p(it+20)=p(it+18)+half*(ess(i,j,6,1)+ess(j,i,6,1)+
      + ess(i,j,5,1)+ess(j,i,5,1))
    34 continue
    33 continue
-      it=it+29
+      it=it+30
       if(nsf.gt.1) then
       do 35 i=1,nsf-1
       do 36 j=i+1,nsf
@@ -409,27 +411,27 @@ c
       endif
 c
       if(temp.eq.zero.or.me.ne.0) then
-      p(116)=zero
       p(117)=zero
       p(118)=zero
       p(119)=zero
+      p(120)=zero
       p(51)=zero
       else
-      p(116)=exp(-p(36)/(rgas*temp))
-      p(117)=exp(-p(37)/(rgas*temp))
-      p(118)=exp(-p(38)/(rgas*temp))
-      p(119)=exp(-p(39)/(rgas*temp))
+      p(117)=exp(-p(36)/(rgas*temp))
+      p(118)=exp(-p(37)/(rgas*temp))
+      p(119)=exp(-p(38)/(rgas*temp))
+      p(120)=exp(-p(39)/(rgas*temp))
       p(51)=exp(-p(50)/(rgas*temp))
       if(nbias.gt.0) p(41)=p(40)*p(51)
       endif
 c
       if(nwm.gt.0) then
-      dwr=p(69)/dble(nwm)
-      p(69)=dwr
+      dwr=p(70)/dble(nwm)
+      p(70)=dwr
       if(stime.ne.0) then
-      p(70)=1.0d-6*dwr/(6.0d0*stime)
+      p(71)=1.0d-6*dwr/(6.0d0*stime)
       else
-      p(70)=zero
+      p(71)=zero
       endif
       endif
 c

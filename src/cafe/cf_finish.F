@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.21 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_finish.F,v 1.22 2003-11-25 16:40:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -98,6 +98,9 @@ c
      + call md_abort('Failed to deallocate idih',id)
       if(.not.ma_pop_stack(l_dih(id)))
      + call md_abort('Failed to deallocate dih',id)
+c
+      if(.not.ma_pop_stack(l_rub(id)))
+     + call md_abort('Failed to deallocate rub',id)
 c
       if(.not.ma_pop_stack(l_rang(id)))
      + call md_abort('Failed to deallocate rang',id)

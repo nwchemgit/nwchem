@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.78 2003-11-18 23:25:59 d3j191 Exp $
+c $Id: md_common.fh,v 1.79 2003-11-25 16:40:07 d3j191 Exp $
 c
 c     parameters
 c
@@ -20,7 +20,7 @@ c
       parameter(mip2=7)
       parameter(miw2=5)
       parameter(mis2=15)
-      parameter(mpe=12)
+      parameter(mpe=13)
       parameter(mtimes=250)
       integer lwgmn,lwbox,lwnod,lwdyn
       parameter(lwgmn=1)

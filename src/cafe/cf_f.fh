@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
       implicit none
 c
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
       implicit none
 c
@@ -3221,7 +3221,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3527,11 +3527,11 @@ c
 c
       return
       end
-      subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
+      subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,rub,
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3572,7 +3572,7 @@ c     ------------------------
 c
       integer msh,msp
       integer iang(msh,4)
-      real*8 ang(msh,msp,mset),rang(msh,2)
+      real*8 ang(msh,msp,mset),rang(msh,2),rub(msh,2)
       integer isgm(msa),lseq(mseq)
 c
       integer nangls
@@ -3829,12 +3829,10 @@ c     find local atom numbers involved in this angle
 c     ----------------------------------------------
 c
       isa=0
-      jsa=0
       ksa=0
 c
       do 4 j=1,natoms
       if(iang(ish,1).eq.igan(j)) isa=j
-      if(iang(ish,2).eq.igan(j)) jsa=j
       if(iang(ish,3).eq.igan(j)) ksa=j
     4 continue
       isf=imol(isa)
@@ -3887,11 +3885,11 @@ c     this depends on the atoms being dynamic or fixed
 c
       factu=zero
       if(iand(idyn(isa),mdynam).eq.ldynam.and.
-     + iand(idyn(jsa),mdynam).eq.ldynam) factu=one
+     + iand(idyn(ksa),mdynam).eq.ldynam) factu=one
       if((iand(idyn(isa),mdynam).eq.ldynam.and.
-     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
+     + iand(idyn(ksa),mdynam).ne.ldynam) .or.
      + (iand(idyn(isa),mdynam).ne.ldynam.and.
-     + iand(idyn(jsa),mdynam).eq.ldynam)) factu=half
+     + iand(idyn(ksa),mdynam).eq.ldynam)) factu=half
       if(includ.eq.1) factu=one
 c
       dbond=rss-bond
@@ -3901,8 +3899,8 @@ c
       rb=half*for*dbond*dbond
       eterm=zero
       if(lupden) then
-      ess(isf,isf,1,1)=ess(isf,isf,1,1)+half*factu*rb
-      ess(ksf,ksf,1,1)=ess(ksf,ksf,1,1)+half*factu*rb
+      ess(isf,isf,13,1)=ess(isf,isf,13,1)+half*factu*rb
+      ess(ksf,ksf,13,1)=ess(ksf,ksf,13,1)+half*factu*rb
       endif
       eterm=factu*rb
       dfor=for*dbond*rssi
@@ -3915,6 +3913,9 @@ c
       fs(ksa,2)=fs(ksa,2)+dfs2
       fs(isa,3)=fs(isa,3)-dfs3
       fs(ksa,3)=fs(ksa,3)+dfs3
+c
+      rub(ish,1)=rss
+      rub(ish,2)=eterm
 c
       if(lupdti) then
 c
@@ -3951,7 +3952,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4295,7 +4296,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4622,7 +4623,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4981,11 +4982,11 @@ c
       return
       end
       subroutine cf_fw(iwfr,iwto,xw,fw,iwdt,iwatm,iwq,lpbc,eww,vdw,chg,
-     + mwb,nwb,nbp,ibnd,bnd,rbnd,mwh,nwh,nhp,iang,ang,rang,
+     + mwb,nwb,nbp,ibnd,bnd,rbnd,mwh,nwh,nhp,iang,ang,rang,rub,
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.58 2003-11-25 00:07:55 d3j191 Exp $
+c $Id: cf_f.fh,v 1.59 2003-11-25 16:40:11 d3j191 Exp $
 c
       implicit none
 c
@@ -5001,7 +5002,7 @@ c
       integer ibnd(mwb,3),iang(mwh,4),idih(mwd,5),iimp(mwo,5)
       real*8 bnd(mwb,nbp,mset),ang(mwh,nhp,mset)
       real*8 dih(mwd,ndp,mset),dimp(mwo,nop,mset)
-      real*8 rbnd(mwb,2),rang(mwh,2),rdih(mwd,2),rimp(mwo,2)
+      real*8 rbnd(mwb,2),rang(mwh,2),rub(mwh,2),rdih(mwd,2),rimp(mwo,2)
 c
 c      real*8 ca6(mat,mat,6),ca12(mat,mat,6)
 c      real*8 cb6(mat,mat,6),cb12(mat,mat,6)
@@ -5031,7 +5032,7 @@ c
       real*8 c6,c12,c6t,c12t,qit,qjt,cf6,cf12,qi,qj,q,qp1,qp2
       real*8 ep2l,ep3l,ep2q,ep3q,rxx,rxy,rxz,r2,r2i,r1i,r6i,dfw
       real*8 rwikji,sphii,qij,rwi,ferfc,fderfc,eww(mpe,2)
-      real*8 etermq,eterml
+      real*8 etermq,eterml,eub
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -5213,6 +5214,51 @@ c
    41 continue
       endif
    40 continue
+      if(iffld.eq.2) then
+      do 1140 iwh=1,nwh
+      iwa=iang(iwh,1)
+      kwa=iang(iwh,3)
+      bond=ang(iwb,3,iset)
+      for=ang(iwb,4,iset)
+      eub=zero
+      do 150 iwm=iwfr,iwto
+      rwx1=xw(iwm,1,iwa)-xw(iwm,1,kwa)
+      rwx2=xw(iwm,2,iwa)-xw(iwm,2,kwa)
+      rwx3=xw(iwm,3,iwa)-xw(iwm,3,kwa)
+      rww=sqrt(rwx1**2+rwx2**2+rwx3**2)
+      if(rww.lt.small) then
+      rwwi=one
+      else
+      rwwi=one/rww
+      endif
+      dbond=rww-bond
+      if(iand(iwdt(iwm),mdynam).eq.ldynam)
+     + eub=eub+half*for*(rww-bond)**2
+      dfor=for*dbond*rwwi
+      dfw1=dfor*rwx1
+      dfw2=dfor*rwx2
+      dfw3=dfor*rwx3
+      fw(iwm,1,iwa,1)=fw(iwm,1,iwa,1)-dfw1
+      fw(iwm,1,kwa,1)=fw(iwm,1,kwa,1)+dfw1
+      fw(iwm,2,iwa,1)=fw(iwm,2,iwa,1)-dfw2
+      fw(iwm,2,kwa,1)=fw(iwm,2,kwa,1)+dfw2
+      fw(iwm,3,iwa,1)=fw(iwm,3,iwa,1)-dfw3
+      fw(iwm,3,kwa,1)=fw(iwm,3,kwa,1)+dfw3
+      if(ip2(8))
+     + ep2(1)=ep2(1)+half*ang(iwh,4,2)*(rww-ang(iwh,3,2))**2
+      if(ip3(8))
+     + ep3(1)=ep3(1)+half*ang(iwh,4,3)*(rww-ang(iwh,3,3))**2
+      if(ith(8)) then
+      deriv(8,1)=deriv(8,1)+
+     + dbond*(half*dbond*ang(iwh,4,4)-for*ang(iwh,3,4))
+      endif
+  150 continue
+      rub(iwh,2)=rub(iwh,2)+eub
+      eww(13,1)=eww(13,1)+eub
+      if(ip2(8)) ep2(1)=ep2(1)-eub
+      if(ip3(8)) ep3(1)=ep3(1)-eub
+ 1140 continue
+      endif
       do 70 iwd=1,nwd
       iwa=idih(iwd,1)
       jwa=idih(iwd,2)

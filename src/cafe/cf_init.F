@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi)
-c $Id: cf_init.F,v 1.101 2003-10-21 19:01:58 d3j191 Exp $
+c $Id: cf_init.F,v 1.102 2003-11-25 16:40:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -886,6 +886,12 @@ c
      + l_rang(id),i_rang(id)))
      + call md_abort('Allocation failed for rang',0)
 c
+c     for Urey-Bradley terms
+c
+      if(.not.ma_push_get(mt_dbl,mht(id)*2,'rub',
+     + l_rub(id),i_rub(id)))
+     + call md_abort('Allocation failed for rub',0)
+c
 c     for dihedral types
 c
       if(.not.ma_push_get(mt_dbl,mdt(id)*mdp(id)*mset,'dih',
@@ -1635,6 +1641,7 @@ c
 c
       call cf_binit(dbl_mb(i_rbnd(2)),numb(2),2)
       call cf_binit(dbl_mb(i_rang(2)),numh(2),2)
+      call cf_binit(dbl_mb(i_rub(2)),numh(2),2)
       call cf_binit(dbl_mb(i_rdih(2)),numd(2),2)
       call cf_binit(dbl_mb(i_rimp(2)),numi(2),2)
 c

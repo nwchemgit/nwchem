@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.164 2003-11-18 23:25:55 d3j191 Exp $
+c $Id: cf_main.F,v 1.165 2003-11-25 16:40:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1963,6 +1963,7 @@ c
       ix=1+nmult(1)
       call cf_fsh(nmult(2),ixmul(ix),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + dbl_mb(i_rub(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
      + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
       endif
@@ -2400,6 +2401,7 @@ c
 c
       if(numh(2).gt.0) call cf_pr_angles(lfnout,numh(2),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + dbl_mb(i_rub(2)),
      + byte_mb(i_snam))
 c
       if(numd(2).gt.0) call cf_pr_dihes(lfnout,numd(2),mdt(2),mdp(2),
@@ -2454,7 +2456,7 @@ c
 c
       return
       end
-      subroutine cf_pr_angles(lfnout,nsh,msh,msp,iang,ang,rang,snam)
+      subroutine cf_pr_angles(lfnout,nsh,msh,msp,iang,ang,rang,rub,snam)
 c
       implicit none
 c
@@ -2464,12 +2466,13 @@ c
 c
       integer lfnout,nsh,msh,msp
       integer iang(msh,4)
-      real*8 ang(msh,msp,mset),rang(msh,2)
+      real*8 ang(msh,msp,mset),rang(msh,2),rub(msh,2)
       character*16 snam(nsatot)
 c
       integer i,j
 c
       if(np.gt.1) call ga_dgop(mcf_52,rang,2*msh,'+')
+      if(np.gt.1.and.iffld.eq.2) call ga_dgop(mcf_81,rub,2*msh,'+')
       if(me.ne.0) return
 c
       write(lfnout,1000)
@@ -2483,6 +2486,25 @@ c
      + iang(i,4),(ang(i,j,iset),j=1,2),(rang(i,j),j=1,2)
  1001 format(3i7,3a17,i7,f10.5,e12.5,f10.5,f12.6)
     1 continue
+c
+      if(iffld.eq.2) then
+c
+      write(lfnout,1002)
+ 1002 format(/,' Solute Urey-Bradley terms',/,
+     + '      i      k     atom_i           atom_k           ',
+     + ' c     s_0        C          s          U',/)
+c
+      do 2 i=1,nsh
+      if(ang(i,3,iset).gt.0.0d0) then
+      write(lfnout,1003) iang(i,1),iang(i,3),
+     + snam(iang(i,1))(12:16)//':'//snam(iang(i,1))(1:11),
+     + snam(iang(i,3))(12:16)//':'//snam(iang(i,3))(1:11),
+     + iang(i,4),(ang(i,j,iset),j=3,4),(rub(i,j),j=1,2)
+ 1003 format(2i7,2a17,i7,f10.5,e12.5,f10.5,f12.6)
+      endif
+    2 continue
+c
+      endif
 c
       return
       end
@@ -3659,7 +3681,8 @@ c
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),esa)
 c
       if(numh(2).gt.0) call cf_add_eangles(numh(2),mht(2),mhp(2),
-     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),esa)
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + dbl_mb(i_rub(2)),esa)
 c
       if(numd(2).gt.0) call cf_add_edihes(numd(2),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),esa)
@@ -3692,7 +3715,7 @@ c
 c
       return
       end
-      subroutine cf_add_eangles(nsh,msh,msp,iang,ang,rang,esa)
+      subroutine cf_add_eangles(nsh,msh,msp,iang,ang,rang,rub,esa)
 c
       implicit none
 c
@@ -3702,7 +3725,7 @@ c
 c
       integer nsh,msh,msp
       integer iang(msh,4)
-      real*8 ang(msh,msp,mset),rang(msh,2),esa(nsa,2)
+      real*8 ang(msh,msp,mset),rang(msh,2),rub(msh,2),esa(nsa,2)
 c
       integer i
 c
@@ -3711,6 +3734,13 @@ c
       esa(iang(i,2),2)=esa(iang(i,2),2)+third*rang(i,2)
       esa(iang(i,3),2)=esa(iang(i,3),2)+third*rang(i,2)
     1 continue
+c
+      if(iffld.eq.2) then
+      do 2 i=1,nsh
+      esa(iang(i,1),2)=esa(iang(i,1),2)+half*rub(i,2)
+      esa(iang(i,3),2)=esa(iang(i,3),2)+half*rub(i,2)
+    2 continue
+      endif
 c
       return
       end
