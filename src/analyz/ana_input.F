@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.40 2000-10-12 20:25:27 d3j191 Exp $
+c $Id: ana_input.F,v 1.41 2001-01-11 21:48:13 d3j191 Exp $
 c
       implicit none
 c
@@ -568,9 +568,16 @@ c     -----------------
 c
       if(inp_compare(.false.,'average',item)) then
       if(.not.inp_a(item)) call errquit('No average file',0)
+      if(item(1:5).eq.'super') then
+      if(.not.inp_a(item)) call errquit('No average file',0)
       write(lfncmd,1070) item
- 1070 format('xaver ',a)
+ 1070 format('saver ',a)
       numcmd=numcmd+1
+      else
+      write(lfncmd,1071) item
+ 1071 format('aver  ',a)
+      numcmd=numcmd+1
+      endif
       goto 2
       endif
 c
@@ -580,7 +587,7 @@ c
       if(inp_compare(.false.,'essential',item)) then
       if(.not.inp_a(item)) item=' ' 
       write(lfncmd,1009) item
- 1009 format('xaver  ',/,'covar  ',a)
+ 1009 format('saver  ',/,'covar  ',a)
       numcmd=numcmd+2
       goto 2
       endif

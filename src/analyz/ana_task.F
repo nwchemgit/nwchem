@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.53 2000-10-11 21:38:08 d3j191 Exp $
+c $Id: ana_task.F,v 1.54 2001-01-11 21:48:14 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       external ana_rdfram
       external ana_bond,ana_angle,ana_torsion
       integer idpdb
-      logical lsuper
+      logical lsuper,lsaver
 c
       integer i_iram,l_iram,i_imol,l_imol
 c
@@ -517,10 +517,11 @@ c
       nread=0
       nwrit=0
       nframe=0
+      if(idpdb.gt.0) then
   222 continue
       if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
       nread=nread+1
-      if(nread.lt.ifrfr) goto 222
+      if(nread.lt.idpdb) goto 222
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
      + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
@@ -543,6 +544,25 @@ c
       write(*,'(/,a,i10,a,a)') ' Written frame ',idpdb,' to ',
      + filcop(1:index(filcop,' ')-1)
       lsonly=.false.
+      endif
+      else
+      if(fmt.eq.'pdb') then
+      call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xref),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
+     + int_mb(i_ndxw))
+      elseif(fmt.eq.'xyz') then
+      call ana_wrtxyz(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + .false.,.false.,int_mb(i_ndxw))
+      else
+      call errquit('Illegal file format specified',0)
+      endif
+      if(me.eq.0) then
+      close(unit=lfncop)
+      write(*,'(/,a,a)') ' Written reference solute coordinates to ',
+     + filcop(1:index(filcop,' ')-1)
+      lsonly=.false.
+      endif
       endif
 c
       goto 1
@@ -839,7 +859,17 @@ c
 c     calculate average coordinates
 c     -----------------------------
 c
-      if(card(1:6).eq.'xaver ') then
+      if(card(1:6).eq.'saver '.or.card(1:6).eq.'aver  ') then
+c
+      lsaver=card(1:6).eq.'saver '
+c
+      read(card(7:80),'(a)') filcop
+      i=index(filcop,'.')
+      if(i.le.0) then
+      fmt='pdb'
+      else
+      fmt=filcop(i+1:i+3)
+      endif
 c
       if(nsel.eq.0) call errquit('No atoms selected',0)
 c
@@ -852,9 +882,11 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 4
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+      if(lsaver) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      endif
 c
       call ana_xaver(dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),
      + num,msa,nave)
@@ -876,6 +908,26 @@ c
       write(*,'(/,a,i10,a)') ' Averaged ',nave,' frames'
       endif
 c
+      if(filcop(1:1).ne.' ') then
+      if(fmt.eq.'pdb') then
+      call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
+     + int_mb(i_ndxw))
+      elseif(fmt.eq.'xyz') then
+      call ana_wrtxyz(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + .false.,.false.,int_mb(i_ndxw))
+      endif
+      if(lsaver) then
+      write(*,'(/,a,a)')
+     +  ' Averaged superimposed coordinates written to ',
+     + filcop(1:index(filcop,' ')-1)
+      else
+      write(*,'(/,a,a)')
+     +  ' Averaged coordinates written to ',
+     + filcop(1:index(filcop,' ')-1)
+      endif
+      endif
       goto 1
       endif
 c
