@@ -68,7 +68,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.29 2002-03-22 02:40:06 sohirata Exp $
+* $Id: task_energy.F,v 1.30 2002-10-23 22:48:50 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -102,8 +102,8 @@ c
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
       external semi_dir_mp2, rimp2g,nwmd,pspw_energy,band_energy
-      logical dft_energy, sodft_energy, tddft_energy
-      external dft_energy, sodft_energy, tddft_energy
+      logical dft_energy, sodft_energy, tddft_energy, tce_energy
+      external dft_energy, sodft_energy, tddft_energy, tce_energy
 c
       logical status
       double precision dipole(3)
@@ -132,6 +132,8 @@ c
          status = sodft_energy(rtdb)
       else if (theory .eq. 'tddft') then
          status = tddft_energy(rtdb)
+      else if (theory .eq. 'tce') then
+         status = tce_energy(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
       else if (theory .eq. 'rimp2_grad') then
