@@ -1,7 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C     $Id: datoms.F,v 1.16 1996-06-29 01:51:34 d3g681 Exp $
+C     $Id: datoms.F,v 1.17 1996-08-06 05:26:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -58,6 +58,8 @@ c
       integer maxtyp
       parameter (maxtyp = 6)
       integer minf(maxtyp),maxf(maxtyp)
+c
+      logical ospherical
 c     
       data ioffhp/0,0,3,9/
       data iwrite/6/
@@ -76,6 +78,7 @@ c
      $     ('guess atom dens: geom_ncent failed', geom)
       if (natoms .gt. mxnat) call errquit
      $     ('guess atom dens: mxnat too small ', natoms)
+c
       do iat = 1 , natoms
          if (.not. geom_cent_get(geom, iat, tag, coords, charge))
      $        call errquit('guess atom dens: geom_cent_get?', iat)
@@ -113,7 +116,7 @@ c
 *      write(6,*) me,' doing ', iat, ' ', tag, element
 c     
             call atscf_bas_gather(geom, basis, iat, ic, iiloc,
-     $           isymax, hatom, znps, element, tag)
+     $           isymax, hatom, znps, element, tag, ospherical)
 c     
             call atomd(oprin,iwrite,znps,ic,isymax,hatom,
      +           pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
@@ -142,7 +145,7 @@ c
 c     
                   odone(jat) = .true.
                   toteng = toteng + energ
-                  call creded(g_dens, dt, iiloc, nbb)
+                  call creded(g_dens, dt, iiloc, nbb, ospherical)
 c     
 c     undo the shifting ready for next atom ... clearer than fudging shift
 c     
@@ -172,7 +175,7 @@ c
  6010 format(' Sum of atomic energies: ',f20.8)
       end
       subroutine atscf_bas_gather(geom, basis, iat, ic, iiloc,
-     $     isymax, hatom, znps, element, tag)
+     $     isymax, hatom, znps, element, tag, ospherical)
       implicit none
 #include "bas.fh"
 #include "cguess.fh"
@@ -186,6 +189,7 @@ c
       double precision hatom(*) ! [output]
       double precision znps     ! [output]
       character*16 tag, element ! [output]
+      logical ospherical        ! [output]
 c     
 c     Gather all of the basis/atomic information necessary in order
 c     to call atomd() to perform an atomic SCF calculation on atom
@@ -239,8 +243,6 @@ c
      $        call errquit('guess atom dens: bas_cn2bfr', icont)
          if (nprim.gt.mxnprim .or. ngen.gt.mxngen) call errquit
      $        ('guess atom dens: nprim/ngen too big', 0)
-         if (sphcart .ne. 0) call errquit
-     $        ('guess atoms dens: cannot do sphericals', 0)
 c     
          if (type .le. 3) then  ! Only s/p/d/f functions
             nbf_per_shell = (ibfhi - ibflo + 1) / ngen
@@ -267,6 +269,7 @@ c
             enddo
          endif
       enddo
+      ospherical = sphcart .eq. 1
 c..   
 c..   we gathered symmetry/shell info ; now get the real thing
 c..   

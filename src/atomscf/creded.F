@@ -1,5 +1,5 @@
-      subroutine creded(g_dens, dt, iiloc, nbb)
-C$Id: creded.F,v 1.8 1996-05-14 00:19:43 d3g681 Exp $
+      subroutine creded(g_dens, dt, iiloc, nbb, ospherical)
+C$Id: creded.F,v 1.9 1996-08-06 05:26:05 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "cguess.fh"
@@ -12,9 +12,11 @@ c
       integer g_dens            ! [input] Handle of GA where dens is stuffed
       real *8 dt(*)             ! [input] Atomic density
       integer iiloc(nbb,4)      ! [input] First basis function in each shell
+      logical ospherical        ! [input] True if spherical basis
 c
 c..
-      real *8 dmult(145)
+      real *8 dmult(145)        ! cartesian
+      real *8 smult(83)         ! spherical
 c..
 crz   order of d's and f's in GAMESS is completely different
 crz   from MOLECULE !!
@@ -92,6 +94,13 @@ c$$$     x  -0.670820393d0,     4*0.0d0,    -0.3d0,  0.0d0,  1.2d0, 2*0.0d0,
 c$$$     x   0.0d0, -0.670820393d0, 0.0d0, -0.3d0, 4*0.0d0,  1.2d0,   0.0d0,
 c$$$     x 9*0.0d0,  1.0d0/
 
+      data smult /
+     $     1d0, 3*0d0, 1d0, 3*0d0, 1d0, ! p
+     $     1d0, 5*0d0, 1d0, 5*0d0, 1d0, 5*0d0, 1d0, 5*0d0, 1d0, !d
+     $     1d0, 7*0d0, 1d0, 7*0d0, 1d0, 7*0d0, 1d0, 7*0d0, 1d0, 7*0d0,
+     $     1d0, 7*0d0, 1d0/      !f
+
+
 c
 c.......................................................................
 c         among the variables used are:
@@ -120,14 +129,26 @@ c.......................................................................
                enddo
             enddo
          else if (k.le.4) then
-            kdim = k*(k+1)/2
-            kmone = k - 1
-            kpoint = kmone*(kmone+1)*(((6*kmone+24)*kmone+26)*kmone+4)
-     +               /120
             factor = 1.d0/(k+k-1)
-**            if (k .eq. 3) factor = factor / 3.0d0
-            call pdfded(k,kdim,g_dens,dt,factor,dmult(kpoint),lm,nbci,
-     +                  iiloc(1,k))
+            if (.not. ospherical) then
+               kdim = k*(k+1)/2
+               kmone = k - 1
+               kpoint = kmone*(kmone+1)*
+     $              (((6*kmone+24)*kmone+26)*kmone+4)/120
+               call pdfded(k,kdim,g_dens,dt,factor,dmult(kpoint),lm,
+     $              nbci, iiloc(1,k))
+            else
+               kdim = 2*k - 1
+               if (k.eq.2) then
+                  kpoint = 1
+               else if (k.eq.3) then
+                  kpoint = 10
+               else
+                  kpoint = 35
+               endif
+               call pdfded(k,kdim,g_dens,dt,factor,smult(kpoint),lm,
+     $              nbci, iiloc(1,k))
+            endif
          end if
       enddo
 c..
