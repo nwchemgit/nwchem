@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.12 2003-06-26 01:27:44 edo Exp $
+C$Id: xc_replicated.F,v 1.13 2003-06-27 06:19:38 edo Exp $
 c
       implicit none
 c      
@@ -35,9 +35,12 @@ c
          xcreplicated=.false.
          return
       endif
-      if (.not. rtdb_get(rtdb, 'dft:xcrepoldway', mt_log, 1, 
-     .     oldway))
-     &     oldway=.true.
+      if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
+     .     dorepdm))
+     &     dorepdm=.true.
+      if (.not. rtdb_get(rtdb, 'dft:dorepxc', mt_log, 1, 
+     .     dorepxc))
+     &     dorepxc=.true.
       if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      .     xcreplicated_l))
      &     xcreplicated_l=.false.
@@ -82,21 +85,20 @@ c
 #else 
             nblock(1)=0
             nblock(2)=0
-            if(.not.oldway) then
-            if(.not.dograd) then
+            if(dorepxc) then
+               if(.not.dograd) then
+                  if(.not.nga_create_config(MT_DBL, 2, dims,
+     .                 'replicated xc GA',
+     .                 nblock,plist, k_repxc(ii))) goto 1984
+                  call ga_zero(k_repxc(ii))
+               endif
+            endif
+            if(dorepdm) then
                if(.not.nga_create_config(MT_DBL, 2, dims,
-     .              'replicated xc GA',
-     .              nblock,plist, k_repxc(ii))) goto 1984
-               call ga_zero(k_repxc(ii))
+     .              'replicated DM GA',
+     .              nblock,plist, g_repdm(ii))) goto 1984
+               call ga_copy(g_dens(ii),g_repdm(ii))
             endif
-            endif
-            if(.not.nga_create_config(MT_DBL, 2, dims,
-     .           'replicated DM GA',
-     .           nblock,plist, g_repdm(ii))) goto 1984
-            call ga_copy(g_dens(ii),g_repdm(ii))
-#endif
-#ifdef DEBUG
-               call ga_print_distribution(k_repxc(ii))
 #endif
             enddo
 #ifdef GAIRREG
@@ -130,7 +132,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.12 2003-06-26 01:27:44 edo Exp $
+C$Id: xc_replicated.F,v 1.13 2003-06-27 06:19:38 edo Exp $
 c
       implicit none
 c      
@@ -151,24 +153,22 @@ c
       if(xcreplicated) then
          do i = 1, ipol
             if(.not.dograd) then
-               if(.not.oldway) then
+               if(dorepxc) then
                   call ga_merge_mirrored(k_repxc(i))
                   call ga_copy(k_repxc(i),g_vxc(i))
                   if (.not.ga_destroy(k_repxc(i)))
      &              call errquit('xc_rep_close: cannot gadestr',i)
                endif
             endif
-            if (.not.ga_destroy(g_repdm(i)))
-     &           call errquit('xc_rep_close: cannot gadestr',i)
+            if(dorepdm) then
+               if (.not.ga_destroy(g_repdm(i)))
+     &              call errquit('xc_rep_close: cannot gadestr',i)
+            endif
          enddo
 c     
 c     avoid getting things out of control
 c
       xcreplicated=.false.
-#ifdef DEBUG
-      call ga_summarize(1)
-      call ma_summarize_allocated_blocks()
-#endif
       endif
       return
       end
