@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
 
-C$Id: diis_bsolve.F,v 1.5 1998-08-21 20:48:26 d3g681 Exp $
+C$Id: diis_bsolve.F,v 1.6 1999-01-29 21:05:43 d3h449 Exp $
 
 c     
 c***********************************************************************
@@ -75,10 +75,20 @@ c     Define the c array.
 c
       call dzero(Dbl_MB(icc),nhist+1)
       Dbl_MB(icc) = -1.0d0
+c      if(ga_nodeid().eq.0)then
+c        write(6,*)' pulay matrix '
+c        call stpr_tprntd(pulay,nhist+1)
+c        write(6,*)' rhs '
+c        call output(Dbl_MB(icc),1,nhist+1,1,1,nhist+1,1,1)
+c      endif
       call dspsvx( 'N', 'U', nhist+1, 1, pulay, Dbl_MB(iafp), 
      &             Int_MB(iipiv), Dbl_MB(icc), nhist+1, wght, nhist+1, 
      &             rcond, ferr, berr, Dbl_MB(iwork), Int_MB(iiwork), 
      &             info)
+c      if(ga_nodeid().eq.0)then
+c        write(6,*)' wght '
+c        call output(wght,1,nhist+1,1,1,nhist+1,1,1)
+c      endif
       LResult = MA_Pop_Stack(lafp)
       LResult = MA_Pop_Stack(lcc)
       LResult = MA_Pop_Stack(lwork)

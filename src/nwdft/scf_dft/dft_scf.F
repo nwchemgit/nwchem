@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.110 1999-01-20 19:33:12 d3e129 Exp $
+c     $Id: dft_scf.F,v 1.111 1999-01-29 21:05:42 d3h449 Exp $
 c     
       implicit none
 c
@@ -438,11 +438,6 @@ c
          diising = .true.
       endif
 c     
-c     Do not allow levelshifting initially until sure that the
-c     transformed Fock matrix will be diagonally dominant.
-c     
-      levelshifting = .false.
-c     
 c     Initialize DIIS call counter.
 c     
       icall(1) = 0
@@ -513,6 +508,18 @@ c     set initial coulomb acc
 c
 c      write(6,*)' movecs_guess = ',movecs_guess
       if (movecs_guess.eq.'restart')ltight=.true.
+c     
+c     May not want levelshifting initially until sure that the
+c     transformed Fock matrix will be diagonally dominant, or
+c     alternatively shift the piss out of it.
+c     
+      if (movecs_guess.eq.'restart')then
+         levelshifting = .true.
+      else
+         levelshifting = .false.
+c         levelshifting = .true.
+c         rlshift = 2.0
+      endif
       iswitc = 0
       if (ltight)then
          itol2e = itol_max
