@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.34 2003-03-29 03:00:00 edo Exp $
+# $Id: doqmtests,v 1.35 2003-04-07 21:29:49 edo Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o #pyqa
@@ -8,7 +8,7 @@ runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
 runtests.unix h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 runtests.unix cosmo_trichloroethene esp esp_uhf dft_bsse
 runtests.unix dplot neda_nbo
-runtests.unix et_zn_dimer vectors_rotate
+runtests.unix et_zn_dimer vectors_rotate sad_ch3hf
 
 #---   small tests that should fail!
 echo ' '
@@ -56,3 +56,4 @@ runtests.unix mp2_si2h6
 runtests.unix pbo_nesc1e
 runtests.unix bf_cis
 runtests.unix oniom3
+runtests.unix cytosine_ccsd
