@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.58 2000-05-31 05:55:19 d3j191 Exp $
+c $Id: cf_main.F,v 1.59 2000-05-31 06:13:44 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2442,7 +2442,7 @@ c
 c
       do 1 i=1,nsatot
       write(lfnout,1001) snam(i),(dera(j,i)/dble(number),j=1,5)
- 1001 format(i8,5f12.3)
+ 1001 format(a16,5f12.3)
     1 continue
 c
       endif
