@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.150 2002-01-10 23:40:34 edo Exp $
+C     $Id: geom_input.F,v 1.151 2002-01-16 01:34:45 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3124,9 +3124,11 @@ C
       DIMENSION C4AXS(3)
       DIMENSION S4AXS(3)
       DIMENSION ERRMSG(3)
-      double precision big,deter3,check_row
+      double precision big,deter3
       external deter3
-      logical sameatm
+      logical sameatm,ngotax(3)
+      complex*16 geom_powcmpl
+      external geom_powcmpl
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -3288,6 +3290,9 @@ C           C4 AXES FOR -O - GROUP
 C           C4 AXES FOR -Oh- GROUP
 C
          NAXM=0
+         ngotax(1)=.true.
+         ngotax(2)=.true.
+         ngotax(3)=.true.
          DO IAT=1,NAT
             IF(IEQU(IAT).EQ.IAT) THEN
                DO JAT=1,NAT
@@ -3428,31 +3433,23 @@ C
                         ENDIF
                         GOTONE=.FALSE.
                         DO IAXIS=1,3
+                           if(ngotax(iaxis)) then
                               IF((GRPTH.AND.
      1                             C2AXS(IAXIS)                 ).OR. 
      2                             (GRPOH.AND.
      3                             C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
                                  NAXM=NAXM+1
-c
-c     check if you are adding an existing row
-c
-                                 gotone=.false.
-                                 do j=1,3
-                                    check_row=0d0
-                                    do i=1,3
-                                       check_row=check_row+
-     +                                      abs(axs(i,iaxis)-axM(i,j))
-                                    enddo
-                                    if(check_row.lt.1d-2) gotone=.true.
-                                 enddo
-                                 IF(NAXM.LE.3.and.(.not.gotone)) THEN
+c                                IF(NAXM.EQ.1) THEN
+c                                GOTONE=.TRUE.
+c                                ENDIF
+                                 IF(NAXM.LE.3) THEN
                                     DO I=1,3
                                        AXM(I,NAXM)=AXS(I,IAXIS)
                                     ENDDO
-                                    else
-                                       naxm=naxm-1
+                                    ngotax(iaxis)=.false.
                                  ENDIF
                               ENDIF
+                           endif
                         ENDDO
                      ELSE
                         GRPTD=.FALSE.
@@ -3466,6 +3463,7 @@ c
                            WRITE(IW,*) 'T , TD , O = ',
      1                                  GRPT,GRPTD,GRPO
                         ENDIF
+c                       GOTONE=.FALSE.
                         DO IAXIS=1,3
                            IF((GRPO .AND.
      1                         (C2AXS(IAXIS).AND.C4AXS(IAXIS))).OR.
@@ -3474,6 +3472,9 @@ c
      4                        (GRPT .AND.
      5                         (C2AXS(IAXIS)                 ))) THEN
                               NAXM=NAXM+1
+c                             IF(NAXM.EQ.1) THEN
+c                                GOTONE=.TRUE.
+c                             ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3518,7 +3519,7 @@ C
          AXS(1,3)=AXS(2,1)*AXS(3,2)-AXS(2,2)*AXS(3,1)
          AXS(2,3)=AXS(3,1)*AXS(1,2)-AXS(3,2)*AXS(1,1)
          AXS(3,3)=AXS(1,1)*AXS(2,2)-AXS(1,2)*AXS(2,1)
-         if(abs(deter3(AXS)-1d0).gt.1d-2) then
+         if(deter3(AXS).le.0.99d0.or.deter3(AXS).gt.1.1d0) then
             groupname='C1'
             write(IW,*) ' WARNING: autosym failed! '
             return
@@ -3651,19 +3652,19 @@ C
          QZ(IORDR)=QZERO 
          DO IAT=1,NAT
             if (.not.stopordrx) then
-             QDUMX=(CMPLX(C2(2,IAT),C2(3,IAT)))**IORDR
-             QX(IORDR)=QX(IORDR)+QDUMX
-             if (abs(qx(iordr)).gt.big) stopordrx = .true.
+               QDUMX= geom_powcmpl(C2(2,IAT),C2(3,IAT),IORDR,big)
+               QX(IORDR)=QX(IORDR)+QDUMX
+               if (abs(qx(iordr)).gt.big) stopordrx = .true.
             endif
             if (.not.stopordry) then
-             QDUMY=(CMPLX(C2(1,IAT),C2(3,IAT)))**IORDR
-             QY(IORDR)=QY(IORDR)+QDUMY
-             if (abs(qy(iordr)).gt.big) stopordry = .true.
+               QDUMY= geom_powcmpl(C2(1,IAT),C2(3,IAT),IORDR,big)
+               QY(IORDR)=QY(IORDR)+QDUMY
+               if (abs(qy(iordr)).gt.big) stopordry = .true.
             endif
             if (.not.stopordrz) then
-             QDUMZ=(CMPLX(C2(1,IAT),C2(2,IAT)))**IORDR
-             QZ(IORDR)=QZ(IORDR)+QDUMZ
-             if (abs(qz(iordr)).gt.big) stopordrz = .true.
+               QDUMZ= geom_powcmpl(C2(1,IAT),C2(2,IAT),IORDR,big)
+               QZ(IORDR)=QZ(IORDR)+QDUMZ
+               if (abs(qz(iordr)).gt.big) stopordrz = .true.
             endif
             IF(MUCH) THEN
                WRITE(IW,9996) IORDR,IAT
@@ -5978,4 +5979,42 @@ c
          zmt_izfrz_val(ii,geom) = q(i)
       enddo
 c
+      end
+      complex*16 function geom_powcmpl(c,s,n,big)
+      implicit none
+      double precision c,s,big
+      integer n
+c
+      double precision toll
+      parameter (toll=1d-4)
+      double precision x,y
+      integer in
+      logical itisbig,foundbig
+      itisbig(x,in,y)=in*log(abs(x)).gt.log(y)
+      
+c
+      foundbig=.false.
+      if(abs(c).gt.toll) then
+         foundbig=itisbig(c,n,big)
+      endif
+      if(abs(s).gt.toll) then
+         foundbig=foundbig.or.itisbig(s,n,big)
+      endif
+      if(foundbig) then
+         geom_powcmpl=big
+         return
+      endif
+      if(abs(c).gt.toll.and.
+     .     abs(s).gt.toll)then
+         geom_powcmpl=CMPLX(c,s)**n
+      elseif(abs(c).le.toll.and.
+     .     abs(s).le.toll)then
+         geom_powcmpl=cmplx(0d0,0d0)
+      elseif(abs(c).le.toll) then
+         geom_powcmpl=cmplx(0d0,s**n)
+      elseif(abs(s).le.toll) then
+         geom_powcmpl=cmplx(c**n,0)
+      endif
+ 
+      return
       end
