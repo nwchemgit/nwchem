@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.57 2002-03-02 00:09:19 d3j191 Exp $
+c $Id: md_input.F,v 1.58 2002-03-08 17:29:06 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd
+      integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -59,6 +59,7 @@ c
       npx=0
       npy=0
       npz=0
+      includ=0
       itrack=0
       mdalgo=1
       iset=1
@@ -659,6 +660,18 @@ c
       endif
       goto 2
       endif
+c
+c     include
+c
+      if(inp_compare(.false.,'include',item)) then
+      if(.not.inp_a(item)) call errquit('md_input: error include',0)
+      if(inp_compare(.false.,'fixed',item)) then
+      includ=1
+      else
+      call errquit('md_input: error include option',0)
+      endif
+      goto 2
+      endif      
 c
 c     distance restraints
 c
@@ -1670,6 +1683,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ilambd',mt_int,1,ilambd))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:mlambd',mt_int,1,mlambd))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:includ',mt_int,1,includ))
      + call errquit('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

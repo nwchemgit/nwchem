@@ -5,8 +5,8 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
-     + mropti)
-c $Id: cf_init.F,v 1.73 2002-02-15 20:54:09 d3j191 Exp $
+     + mropti,incl)
+c $Id: cf_init.F,v 1.74 2002-03-08 17:28:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -19,7 +19,7 @@ c
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq
-      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl
+      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,iipopt
       integer nodpme,ntyp,idset,ipset1,ipset2
@@ -51,6 +51,7 @@ c
 c
       ntype=ntyp
       mdalgo=mdalg
+      includ=incl
 c
       nbs=0
       mscr=0

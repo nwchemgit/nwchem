@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.117 2002-02-28 23:38:18 d3j191 Exp $
+c $Id: md_start.F,v 1.118 2002-03-08 17:29:06 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl,nbias,mropt)
+     + npener,icntrl,nbias,mropt,includ)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -889,6 +889,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:ilambd',mt_int,1,ilambd))
      + call errquit('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:mlambd',mt_int,1,mlambd))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:includ',mt_int,1,includ))
      + call errquit('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))

@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.14 2002-02-21 15:58:52 d3j191 Exp $
+c $Id: cf_list.F,v 1.15 2002-03-08 17:28:52 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -411,10 +411,10 @@ c
       iskip1=1
       iskip2=1
       if(rw(jsa).lt.rshrt2.and.
-     + (iand(idt(isa),mdynam).eq.ldynam.or.
+     + (iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1.or.
      + iand(idt(jsa),mdynam).eq.ldynam)) iskip1=0
       if(rw(jsa).lt.rlong2.and.
-     + (iand(idt(isa),mdynam).eq.ldynam.or.
+     + (iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1.or.
      + iand(idt(jsa),mdynam).eq.ldynam)) iskip2=0
       if(rw(jsa).lt.rrest2.and.
      + (iand(idt(isa),mrestr).eq.lrestr.or.
@@ -507,7 +507,7 @@ c
       do 17 jsa=jsafr,jsato
       rw(jsa)=rwx(jsa,1)**2+rwx(jsa,2)**2+rwx(jsa,3)**2
    17 continue
-      if(iand(idt(isa),mdynam).eq.ldynam) then
+      if(iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1) then
       do 18 jsa=jsafr,jsato
       if(rw(jsa).lt.rshrt2) list(jsa,1)=1
    18 continue
@@ -542,7 +542,7 @@ c
       endif
       endif
       if(npss.eq.2) then
-      if(iand(idt(isa),mdynam).eq.ldynam) then
+      if(iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1) then
       do 26 jsa=jsafr,jsato
       if(rw(jsa).lt.rlong2) list(jsa,2)=1
    26 continue
@@ -583,7 +583,7 @@ c     this can only happen when lself is true
 c
       if(lself) then
       do 35 jsa=isa0+1,isa
-      if(iand(idt(isa),mdynam).eq.ldynam.or.
+      if(iand(idt(isa),mdynam).eq.ldynam.or.includ.eq.1.or.
      + iand(idt(jsa),mdynam).eq.ldynam) list(jsa,1)=1
    35 continue
       endif
