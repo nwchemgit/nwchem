@@ -1,10 +1,11 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.1 1994-06-24 20:42:50 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.2 1994-07-28 15:52:04 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
+#include "geomP.fh"
 #include "rtdb.fh"
 #include "context.fh"
 c
@@ -24,8 +25,8 @@ c
       integer h_grad, k_grad    ! MA handle/index of gradient
       integer h_coord, k_coord  ! MA handle/index of coords
       integer h_core, k_core    ! MA handle/index of scratch array for stepper
-      integer h_tags, k_tags    ! MA handle/index of tags array
       integer h_chg, k_chg      ! MA handle/index of charge array
+      character*16 stpr_tags(max_cent) ! local tags array
       logical status
       double precision convgg, convge
 c
@@ -45,7 +46,7 @@ c
           write(6,*)
         endif
 c      
-c     Push context down to SCF
+c     Push context down to SCF later look for wavefunction!!
 c
         if (.not. context_push('scf'))
      &      call errquit('stpr_walk: context_push <scf> failed', 911)
@@ -65,6 +66,12 @@ c
         if (.not. rtdb_get(rtdb, name, MT_DBL, 1, energy))
      &      call errquit
      &      ('stpr_walk: failed to read energy in rtdb', 911)
+c... remove scf context
+        if (.not. context_pop('scf'))
+     &      call errquit('stpr_walk: context_pop failed',0)
+c
+        if (.not. context_push('stepper'))
+     &      call errquit('stpr_walk: context_push <scf> failed', 911)
 c
         if (.not. geom_create(geom, 'geometry'))
      &      call errquit('stpr_walk: geom_create?', 911)
@@ -93,11 +100,6 @@ c..... space for gradient
      &      MA_Push_Get(MT_DBL,(3*nat),'stpr gradient',h_grad,k_grad))
      &      call errquit
      &        ('stpr_walk: allocation for gradient failed?',911)
-c..... space for tags
-        if (.not.
-     &      MA_Push_Get(MT_BYTE,(16*nat),'geom tags',h_tags,k_tags))
-     &      call errquit
-     &        ('stpr_walk: allocation for geom tags failed?',911)
 c..... space for charge
         if (.not.
      &      MA_Push_Get(MT_DBL,nat,'stpr geom charge',h_chg,k_chg))
@@ -112,7 +114,7 @@ c..... read gradients
 c
 c..... get coordinates
         if (.not. geom_cart_get(geom,nat,
-     &      byte_mb(k_tags),
+     &      stpr_tags,
      &      dbl_mb(k_coord),
      &      dbl_mb(k_chg)))
      &      call errquit
@@ -127,11 +129,12 @@ c
      &      needed,
      &      dbl_mb(k_grad),
      &      dbl_mb(k_coord),
-     &      energy,nat,convge,convgg,stpr_walk)
+     &      energy,nat,convge,convgg,stpr_walk,
+     &      rtdb)
 c
 c..... set coordinates
         if (.not. geom_cart_set(geom,nat,
-     &      byte_mb(k_tags),
+     &      stpr_tags,
      &      dbl_mb(k_coord),
      &      dbl_mb(k_chg)))
      &      call errquit
@@ -150,8 +153,6 @@ c... clean up
      &      call errquit('stpr_walk: geom_destroy failed?',911)
         if (.not.MA_Pop_Stack(h_chg))
      &      call errquit('stpr_walk: ma_pop_stack h_chg failed',911)
-        if (.not.MA_Pop_Stack(h_tags))
-     &      call errquit('stpr_walk: ma_pop_stack h_tags failed',911)
         if (.not.MA_Pop_Stack(h_grad))
      &      call errquit('stpr_walk: ma_pop_stack h_grad failed',911)
         if (.not.MA_Pop_Stack(h_coord))
@@ -159,9 +160,9 @@ c... clean up
         if (.not.MA_Pop_Stack(h_core))
      &      call errquit('stpr_walk: ma_pop_stack h_core failed',911)
 c
-c... remove scf context
-      if (.not. context_pop('scf'))
-     &    call errquit('stpr_walk: context_pop failed',0)
+c... remove stepper context
+        if (.not. context_pop('stepper'))
+     &      call errquit('stpr_walk: context_pop failed',0)
       endif
 c
 c.... restore parallel access to rtdb
