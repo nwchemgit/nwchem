@@ -131,6 +131,8 @@ c
       integer msg_gapss_lat_tran
       integer msg_gapss_pijr_ef
       integer msg_gapss_density
+c
+      integer msg_grad_xc
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -349,3 +351,5 @@ C
       parameter (msg_gapss_lat_tran = msg_ftn_base - 199 ) ! gapss: gap_lat_tran
       parameter (msg_gapss_pijr_ef = msg_ftn_base - 200 ) ! gapss: gap_pijr_ef
       parameter (msg_gapss_density = msg_ftn_base - 201 ) ! gapss: gap_density
+c
+      parameter (msg_grad_xc=msg_ftn_base-202) !  dftgrad: dftg_force
