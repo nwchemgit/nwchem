@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.31 2003-02-16 21:28:38 marat Exp $
+* $Id: paw_ovlp.F,v 1.32 2003-02-16 21:41:26 marat Exp $
 *
 
 !**************************************************
@@ -10,8 +10,9 @@
 !
 !	Created:	8/07/2002
 !**************************************************
-      subroutine paw_ovlp_init(ne)
+      subroutine paw_ovlp_init(ispin,ne)
       implicit none
+      integer ispin
       integer ne(2)
 
 #include "mafdecls.fh"
@@ -56,6 +57,8 @@ c     !*** calculate the size and indexing for weight coefficients  ***
 c     !*** allocate storage for paw_ovlp arrays*** 
 c     !-- total number of electron states
       neall = ne(1) + ne(2)
+      ne_u=ne(1)
+      ne_d=ne(2)
 
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
      >                               'coeff',coeff(2),coeff(1))
@@ -69,6 +72,12 @@ c     !-- total number of electron states
 
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
      >                           "paw_ovlp_w",paw_ovlp_w)
+
+      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
+     >                           "paw_ovlp_w",paw_ovlp_w_u)
+
+      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
+     >                           "paw_ovlp_w",paw_ovlp_w_d)
 
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
@@ -298,10 +307,6 @@ c      write(*,*)
              w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
      >        dcpl_mb(coeff(1)+indx_coeff1)
            end do
-c           write(*,*) ia,nlm,nlm1
-c           write(*,*) in,paw_proj_l(nlm,ia),paw_proj_m(nlm,ia),
-c     >                       paw_proj_l(nlm1,ia),paw_proj_m(nlm1,ia)
-c           write(*,*) "paw_ovlp:w",w_tmp
            dcpl_mb(paw_ovlp_w(1)+ii) = w_tmp
            ii =ii +1
         end do

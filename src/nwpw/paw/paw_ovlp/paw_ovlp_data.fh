@@ -1,18 +1,18 @@
 ! 
-! $Id: paw_ovlp_data.fh,v 1.6 2003-02-13 02:30:27 bylaska Exp $
+! $Id: paw_ovlp_data.fh,v 1.7 2003-02-16 21:41:26 marat Exp $
 ! 
 
 !     **** paw_ovlp.fh common blocks ****
       integer    coeff(2),toeff(2)     ! overlap coefficientss 
       integer    indx2(2),sgn(2)
-      integer    total_nbasis,neall
+      integer    total_nbasis
+      integer    ne_d,ne_u,neall
       integer    i_paw_ovlp_w(4)
       integer    paw_ovlp_w(4)
-      integer    paw_ovlp_w_d(4)
-      integer    paw_ovlp_w_up(4)
-      integer    paw_ovlp_w_down(4)     ! overlap weights
+      integer    paw_ovlp_w_u(4)
+      integer    paw_ovlp_w_d(4)     ! overlap weights
       common / paw_ovlp / coeff,toeff,indx2,sgn,
-     >                    i_paw_ovlp_w,paw_ovlp_w,paw_ovlp_w_d,
-     >                    paw_ovlp_w_up,paw_ovlp_w_down, 
-     >                    total_nbasis,neall
+     >                    i_paw_ovlp_w,paw_ovlp_w,
+     >                    paw_ovlp_w_u,paw_ovlp_w_d, 
+     >                    total_nbasis,ne_d,ne_u,neall
 
