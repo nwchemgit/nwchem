@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.120 1999-07-04 00:03:19 d3g681 Exp $
+C     $Id: geom_input.F,v 1.121 1999-07-06 17:08:40 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -408,7 +408,7 @@ c
       if (ncenter .eq. 1) oautoz = .false. ! No point for atoms
 c
 c     If doing user zmatrix then remember values of constant variables
-c     so their values can be exactly enforced
+c     so their values can be exactly enforced. 
 c      
       if (ozmatrix) call geom_zmt_remember_constants(geom)
 c     
@@ -424,6 +424,7 @@ c
          call geom_hnd_parallel(.false.)
          call geom_impose_constraints(geom,
      $        geom_impose_initial_values_on_q)
+         call geom_zmt_remember_constants(geom)
          call geom_hnd_parallel(.true.)
       endif
 c     
@@ -5461,6 +5462,8 @@ c     Get current q, impose constraints. Compute dq
 c     
          if (.not. geom_compute_zmatrix(geom, q))
      $        call errquit('driver_u_c_f_i: geom?',0)
+*         write(6,*) ' CURRENT q '
+*         call output(q,1,nvar,1,1,nvar,1,1)
          call dcopy(nzvar, q, 1, p, 1)
          call impose_constraints(geom,q) ! q is the target
          do i = 1, nzvar
@@ -5468,6 +5471,8 @@ c
          enddo
          call geom_zmat_sane_step(geom,dq)
          call geom_zmat_ico_scale(geom, dq, 1d0/bohr, 1d0/deg)
+*         write(6,*) ' CURRENT dq '
+*         call output(dq,1,nvar,1,1,nvar,1,1)
          err = 0.0d0
          do i = 1, nzvar
             err = max(err, abs(dq(i)))
