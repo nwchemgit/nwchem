@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.33 2003-02-18 18:31:13 pollack Exp $
+C$Id: grid_quadv0.F,v 1.34 2003-02-20 03:08:04 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -100,6 +100,7 @@ c
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r)) then
          call errquit('grid_quadv0_gen: illegal calculation type',1)
       endif
+         len_tau = 1
       if (do_scf) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
