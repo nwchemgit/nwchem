@@ -4,18 +4,27 @@
 	      ga_create_moblocked.o \
 	      ga_check_moblocked.o \
 	      mointdriver.o \
-	      moints_mp2.o \
-	      moints_xx.o \
-	      moints.o 
+	      moints.o \
+	      moints_dbg.o \
+	      moints_mp2.o
+
+
+OBJ_OPTIMIZE = moints_trf1idx.o 
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints_xx.F
+  USES_BLAS = moints.F
 
- LIB_DEFINES =  -DDEBUG_PRINT -DDEBUG_PARALLEL
+LIB_DEFINES = 
 
+#
+# Possible #defines
+#
 #              -DDEBUG_PRINT
-#              -DDEBUG_PARALLEL
+#              -DMOINTS_STATS
+#	       -DMOINTS_PAR_STATS
+#	       -DUSEGEMM
+#
 
 
 include ../config/makefile.h

@@ -1,3 +1,4 @@
+
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
        implicit none
 #include "mafdecls.fh"
@@ -28,6 +29,9 @@ c
        integer g_coul, g_exch
        logical oexch,ocoul,oprint
        double precision emp2,chunk_factor
+c
+c
+c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
        data oprint/.true./
@@ -80,9 +84,7 @@ c
        endif
 C       if (nact.le.0) return
 c
-c
 c Find MO vector filename in the database.
-c
 c
        if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
      $      then
@@ -145,7 +147,7 @@ c
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Chunksize factor:',14x,f10.2)
+     $        10x,'Chunksize Factor:',14x,f10.2)
          call util_flush(6)
        endif
 c
@@ -157,14 +159,13 @@ c
      $      g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
 c
 c
-c       
-       call moints_build_JK(rtdb,basis,
-     $                      mo_indx_lo,mo_indx_hi,
-     $                      mo_indx2_lo,mo_indx2_hi,
+c
+       call moints_build_JK(basis,
+     $                      mo_indx_lo, mo_indx_hi,
+     $                      mo_indx2_lo, mo_indx2_hi,
      $                      g_vecs,
-     $                      g_coul,ocoul,
-     $                      g_exch,oexch,
-     $                      oprint,
+     $                      g_coul, ocoul,
+     $                      g_exch, oexch,
      $                      chunk_factor)
 
 C       call moints_print_opermatrix(noper,nmo2,g_coul)
@@ -189,7 +190,11 @@ c
        if (.not.status) call errquit('moints: cannot pop stack?',0)
 c
 c
+c
+c
+c
        return
        end
+
 
 
