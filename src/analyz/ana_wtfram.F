@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.50 2002-07-23 21:46:08 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.51 2002-07-23 21:52:02 d3j191 Exp $
 c
       implicit none
 c
@@ -447,6 +447,8 @@ c
    17 continue
       do 15 l=1,nwb
       read(44,6004) ib,jb
+      if(pre_atnum(wnam(ib)(6:7)).gt.1.or.
+     + pre_atnum(wnam(jb)(6:7)).gt.1.) then
       do 16 i=1,nwm
       if(iwsel(i).ne.0) then
       if(rangle.gt.0.0d0) then
@@ -491,6 +493,7 @@ c
       endif
       endif
    16 continue
+      endif
    15 continue
       endif
       close(unit=iunit)
