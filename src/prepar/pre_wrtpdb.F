@@ -5,7 +5,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum)
 c
-c $Id: pre_wrtpdb.F,v 1.32 2001-11-15 17:23:04 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.33 2001-11-15 17:44:10 d3j191 Exp $
 c
       implicit none
 c
@@ -121,6 +121,7 @@ c
       if(nsa.gt.0.and.nwm.eq.0) dbz0=xs(3,1)
       if(nsa.eq.0.and.nwm.gt.0) dbz0=xw(3,1,1)
       if(nsa.gt.0.and.nwm.gt.0) dbz=min(xs(3,1),xw(3,1,1))
+      if(rdist.gt.0.0d0) then
       do 31 i=1,nsa
       dbz0=min(dbz0,xs(3,i))
    31 continue
@@ -130,6 +131,17 @@ c
    33 continue
    32 continue
       dbz0=dbz0-0.5d0*rdist
+      else
+      do 41 i=1,nsa
+      dbz0=max(dbz0,xs(3,i))
+   41 continue
+      do 42 i=1,nwm
+      do 43 j=1,nwa
+      dbz0=max(dbz0,xw(3,j,i))
+   43 continue
+   42 continue
+      dbz0=dbz0-0.5d0*rdist
+      endif
       endif
 c
       nmols=0
