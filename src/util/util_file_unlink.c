@@ -1,12 +1,20 @@
 /*
- $Id: util_file_unlink.c,v 1.2 1997-10-31 20:45:37 d3e129 Exp $
+ $Id: util_file_unlink.c,v 1.3 1999-10-21 22:54:44 d3g681 Exp $
  */
+
+/*
+  Try to route all sequential file operations thru eaf/elio
+  so that can handle extents correctly
+*/
+
 
 #include <stdio.h>
 #include <unistd.h>
 #ifdef CRAY
 #include <fortran.h>
 #endif
+
+#include "eaf.h"
 
 #ifdef CRAY
 int fortchar_to_string(_fcd, int, char *, const int);
@@ -22,6 +30,7 @@ void util_file_unlink(const char *filename)
   If the file exists and the unlink fails then abort.
   */
 {
+  /*
     if (access(filename, F_OK) == 0) {
 	if (unlink(filename)) {
 	    fprintf(stderr,"util_file_unlink: failed unlinking %s\n",
@@ -29,6 +38,9 @@ void util_file_unlink(const char *filename)
 	    ga_error("util_file_unlink",0);
 	}
     }
+  */
+  if (eaf_delete(filename) != 0)
+    ga_error("util_file_unlink",0);
 }
 
 #ifdef CRAY
