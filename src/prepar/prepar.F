@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.33 2000-03-29 20:29:01 d3j191 Exp $
+c $Id: prepar.F,v 1.34 2000-04-24 19:41:12 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -171,10 +171,10 @@ c
 c     check if the source file exists
 c     -------------------------------
 c
-      if(source(1:1).eq.' '.or.source(1:3).eq.'pdb') then
+      if(source(1:8).ne.'geometry') then
       open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
      + form='formatted',status='old',err=7)
-      if(source(1:1).eq.' ') source='pdb'
+      source='pdb'
       close(unit=lfnpdb)
       goto 8
     7 continue
