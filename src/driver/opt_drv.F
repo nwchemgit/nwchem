@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.67 1999-05-31 23:23:09 d3g681 Exp $
+C$Id: opt_drv.F,v 1.68 1999-06-07 22:15:59 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -59,15 +59,17 @@ c
       logical       geom_zmt_get_nizmat
       logical       geom_zmt_get_nzfrz 
       logical       geom_zmt_get_izfrz 
+      logical geom_zmtmak
+      external geom_zmtmak
       integer       rtdb
       integer       geom
       integer       idriver
       logical       hnd_sadx
-      logical       some
+      logical       some, status
       logical       out
       logical       dbug
       logical       cvged
-      logical       zcoord
+      logical       zcoord, oprint
       logical       rstart
       logical       excess
       logical       zmatrix     ! True if user specified zmatrix
@@ -108,9 +110,6 @@ c
       hnd_optx = .false.
 c     
 c     Initialize HONDO common blocks with junk for paranoia
-c     since it was relying on (node 0 only for last geometry read!) 
-c     passing data from the input routines ... explains some modes 
-c     of failure that were hard to understand.
 c
       call dfill(6*mxcoor+7,1d300,x0,1)
       call ifill(4,-99999999,npts,1)
@@ -129,10 +128,9 @@ c
       out =out.or.dbug
       some=.false.
       some=some.or.out
-      if ((ga_nodeid().eq.0.or.some) .and.
-     $     util_print('information', print_low))  then
-         write(iw,9999)
-      endif
+      oprint = util_print('information', print_low)
+      if ((ga_nodeid().eq.0.or.some) .and. oprint)
+     $     write(iw,9999)
 c     
 c     ----- default parameters for optimization driver -----
 c     
@@ -163,13 +161,54 @@ c
      $     sadstp=0.35d+00
       if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep))
      $     oqstep = .true.
-c     
+c
+      if (rtdb_get(rtdb,'driver:redoautoz',mt_log,1,status)) then
+         write(6,*) ' REGEN ', ga_nodeid()
+         call util_flush(6)
+c
+c     Regenerate the internals at the latest geometry
+c
+         if (ga_nodeid() .eq. 0) then
+            status = rtdb_parallel(.false.)
+            status = rtdb_delete(rtdb,'driver:redoautoz')
+            call driver_opt_del_hess() ! Clear hessian info
+            if (.not. geom_create(geom, 'geometry'))
+     &           call errquit('hnd_opt: geom_create?', 911)
+            if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &           call errquit('hnd_opt: no geometry ', 911)
+            if (.not.geom_zmt_get_source(geom,source))
+     $           call errquit('hnd_optx: zmat source ',geom)
+c
+            if (source .eq. 'autoz') then
+               if (oprint) write(6,777)
+ 777           format(/' Regenerating redundant internal coordinates'/)
+               if (.not. geom_zmtmak(geom,oprint))
+     $              call errquit('driver: regeneration of autoz failed',
+     $              0)
+               if (oprint) write(6,*)
+               if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
+     &              call errquit('hnd_opt: failed storing geometry',0)
+            endif
+            if (.not. geom_destroy(geom))
+     $           call errquit('driver: geom_destroy?',0)
+            status = rtdb_parallel(.true.)
+         endif
+         call ga_sync()
+      endif
+c
 c     ----- get going ... -----
 c     
       if (.not. geom_create(geom, 'geometry'))
      &     call errquit('hnd_opt: geom_create?', 911)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('hnd_opt: no geometry ', 911)
+c
+c     Save copy of initial geometry so can analyze what happened
+c     during the optimization
+c
+      if (.not. geom_rtdb_store(rtdb, geom, 'driverinitial'))
+     &     call errquit('hnd_opt: no geometry ', 911)
+c
       if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
      &     call errquit('hnd_opt: geom_get ', 911)
       nat = ncent
@@ -185,8 +224,26 @@ c
      &        call errquit('geom_input: geom_zmt_get_nizmat failed',0)
          if(.not.geom_zmt_get_nzvar(geom,nzvar))
      &        call errquit('geom_input: geom_zmt_get_nzvar failed',0)
+
+         call geom_bandbi(geom)
+
+         if (zmatrix) then      ! User specified Z-matrix is non-redunant
+            nvar = nzvar
+         else                   ! AUTOZ for non-linear molecules
+            if (nat .eq. 1) then
+               nvar = 0
+            else if (nat .eq. 2) then
+               nvar = 1
+            else
+               nvar = 3*nat - 6 ! Linear molecules not done here
+            endif
+         endif
+         nizmat = nzmat
+*     Hondo commons being phased out of geometry directory.
+*     Now fill this in explicitly.
 c     This next call fills in nvar, nizmat and other bits of HONDO common
-         call geom_zmt_icoord(rtdb,geom)
+*         call geom_zmt_icoord(rtdb,geom)
+c
       endif
 c
       if (.not. zmatrix) oqstep = .false.
@@ -343,10 +400,9 @@ c
 c     
 c     ----- first point -----  
 c     
+      if (.not. geom_cart_coords_get(geom,x))
+     $     call errquit('driver: failed getting coords',0)
       npts=1
-      do i=1,ncart
-         x(i)=c(i)
-      enddo
 c     
 c     ----- energy -----
 c     
@@ -486,12 +542,6 @@ c
          if (.not. geom_print(geom)) call errquit
      $        ('hnd_opt_drv: geom_print?',0)
       endif
-      if ((dbug) .and. util_print('geometry',print_low))  then
-         if (zcoord)  then 
-            call hnd_zmtprt(geom) ! Must be called in parallel
-            write(6,*)
-         endif
-      endif
       if ((ga_nodeid().eq.0.or.dbug)
      $     .and. util_print('geometry',print_low))  then
          if (util_print('bonds',print_default)) then
@@ -600,6 +650,10 @@ c
 c
       else if (inp_compare(.false.,'clear',field)) then
          call driver_opt_del_hess()
+c
+      else if (inp_compare(.false.,'redoautoz',field)) then
+         if (.not. rtdb_put(rtdb,'driver:redoautoz',mt_log,1,.true.))
+     $        call errquit('driver_input: rtdb put failed',0)
 c
       else if(inp_compare(.false.,'inhess',field)) then
          if(.not. inp_i(inhess)) 
@@ -734,7 +788,6 @@ c
       common/hnd_iofile/ir,iw
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optfun/e,eg(mxcart)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
 c
       dbug=.false.
@@ -747,11 +800,7 @@ c
       endif
 c
       if(nzmat.gt.0) then
-         call hnd_bandbi(geom,nat,c)
-         if (util_print('optimization', print_low)) then
-            call hnd_zmtprt(geom)
-            if (ga_nodeid().eq.0) write(iw,9997)
-         endif
+         call geom_bandbi(geom)
       endif
 c
       if (task_energy(rtdb)) then
@@ -860,7 +909,7 @@ c
 c
 c     ----- get -b- and -bi- -----
 c
-      call hnd_bandbi(geom,nat,c)
+      call geom_bandbi(geom)
 c
 c     ----- transform -hx- to -hs- -----
 c
@@ -916,6 +965,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
+#include "util.fh"
       integer  rtdb
       integer  geom
       logical  gradients
@@ -946,11 +996,14 @@ c
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
 c
-      logical geom_zmt_get_varinfo
+      double precision gq(mxcoor) ! Gradient in redundant coords.
+      integer l_zsym, k_zsym
+c
+      logical geom_zmt_get_varinfo, geom_print_zmatrix
       character*8 zvarname(mxcoor),test
       double precision zvarsign(mxcoor)
       double precision gs(mxcoor)
-      integer ibi, i_ibi, i, ncart, j, num
+      integer ibi, i_ibi, i, ncart, j, num, nmunged, ndim
       double precision sum
       double precision zero
       data zero /0.0d+00/
@@ -960,31 +1013,16 @@ c
 c
 c     ----- get -b- and -bi- -----
 c
-      call hnd_bandbi(geom,nat,x)
+      call geom_bandbi(geom)
 c
 c     ----- transform -gx- to -gs- -----
 c
       ncart=3*nat
       if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi))
      $     call errquit('hnd_opt_tfgx: ma', ncart*nzvar)
-      if(dbug) then
-         write(iw,*) 'in opt_tfgx'
-         write(iw,*) '-gx-'
-         call hnd_prsq(g,1,ncart,ncart)
-      endif
       call geom_hnd_get_data('binv',dbl_mb(ibi),ncart*nzvar)
-      if(dbug) then
-         write(iw,*) '-binv-', ga_nodeid()
-         call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
-         call util_flush(6)
-      endif
       if (.not. geom_hnd_tfgx(gs,g,dbl_mb(ibi),nvar,ncart,ncart))
      $     call errquit('hnd_opt_tfgx: tfgx', ncart*nzvar)
-      if(dbug) then
-         write(iw,*) '-gs-',ga_nodeid()
-         call hnd_prsq(gs,1,nvar,ncart)
-         call util_flush(6)
-      endif
       if (.not. ma_pop_stack(i_ibi))
      $     call errquit('hnd_opt_tfgx: ma pop', ncart*nzvar)
       do i=1,nvar
@@ -995,22 +1033,51 @@ c
             g(i)=zero
          enddo
       endif
-      if(dbug) then
-         write(iw,*) '-gs-',ga_nodeid(),nvar,ncart
-         call hnd_prsq(g,1,ncart,ncart)
-         call util_flush(6)
+c
+c     Print the internal coord gradient before & after constraints
+c
+c     If no redundant variables then are using natural
+c     coordinates ... otherwise the gradient must be back
+c     transformed from independent variables to natural
+c
+      if (nvar .eq. nzvar) then
+         call dcopy(nvar, g, 1, gq, 1)
+      else
+         ndim = max(ncart,nzvar)
+         if (.not. ma_push_get(MT_DBL,ndim**2,'zsym',l_zsym,k_zsym))
+     $        call errquit('hnd_opt_tfgx: ma', ndim**2)
+         call geom_hnd_get_data('zsym',dbl_mb(k_zsym),ndim*ndim)
+         call dgemv('n',nzvar,nvar,1.0d0,dbl_mb(k_zsym),ndim,
+     $        g,1,0.0d0,gq,1)
+         if (.not. ma_pop_stack(l_zsym)) call errquit
+     $        ('hnd_opt_tfgx: error popping zsym',0)
+      endif
+c
+      if (ga_nodeid().eq.0 .and. util_print('internal gradient',
+     $     print_low)) then
+         write(6,*)
+         write(6,*) ' Internal coordinate gradient before any',
+     $        ' constraints'
+         if (.not. geom_print_zmatrix(geom, gq, 'Gradient',.true.))
+     $        call errquit('tfgx: print internal gradient?',geom)
       endif
 c
 c     Apply constants and constraints to the gradient before
-c     it is used for upating the Hessian.
+c     it is used for upating the Hessian.  
+c
+c     Currently constants and constraints only happen in the
+c     user input non-redundant coordinates ... when we
+c     eventually do this for the redundant coordinates
+c     then it will have to transform the gradient to & from
+c     the redundant set.  DON'T DO THIS YET.
 c
       if (nzfrz .gt. 0) then
          do i = 1, nzfrz
-            if (dbug) write(6,*) ' Freezing ', izfrz(i)
             g(izfrz(i)) = 0d0
          enddo
       endif
 c
+      nmunged = nzfrz               ! Count no. modified variables 
       if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
      $     call errquit('hnd_opt_tfgx: varinfo?',0)
       do i = 1, nzvar
@@ -1028,8 +1095,9 @@ c
                sum = sum / dble(num)
                do j = 1, nzvar
                   if (zvarname(j).eq.test) then 
-                     if(dbug)write(6,77) j, test, zvarsign(j), g(j),sum
- 77                  format(' Constraining : ',i3,2x,a,2x,f3.1,2f10.6)
+                     nmunged = nmunged + 1
+*     write(6,77) j, test, zvarsign(j), g(j),sum
+*     77                  format(' Constraining : ',i3,2x,a,2x,f3.1,2f10.6)
                      g(j) = sum*zvarsign(j)
                      zvarname(j) = ' '
                   endif
@@ -1038,13 +1106,14 @@ c
          endif
       enddo
 c
-      if(dbug) then
-         write(iw,*) '-gs- at end ',ga_nodeid(),nvar,ncart
-         call hnd_prsq(g,1,ncart,ncart)
-         call util_flush(6)
+      if (ga_nodeid().eq.0 .and. util_print('internal gradient',
+     $     print_low) .and. nmunged .gt. 0) then
+         write(6,*)
+         write(6,*) ' Internal coordinate gradient after constraints'
+         if (.not. geom_print_zmatrix(geom, gq, 'Gradient', .true.))
+     $        call errquit('tfgx: print internal gradient?',geom)
       endif
 c
-      return
       end
       subroutine hnd_opt_tfds(rtdb,geom)
       implicit none
@@ -1102,7 +1171,7 @@ c
 c
 c     ----- get -b- and -bi- and transform -ds- to -dx- -----              
 c
-         call hnd_bandbi(geom,nat,x)
+         call geom_bandbi(geom)
 c
          if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi))
      $        call errquit('hnd_opt_tfds: ma', ncart*nzvar)
@@ -1171,7 +1240,7 @@ c
 c
 c     ----- get -b- and -bi- -----
 c
-      call hnd_bandbi(geom,nat,x)
+      call geom_bandbi(geom)
 c
 c     ----- transform -dx- to -ds- -----              
 c
@@ -1196,18 +1265,18 @@ c
       return
  9999 format(f15.10)
       end
-      logical function scf_opt(rtdb)
-      implicit none
-      integer  rtdb
-      scf_opt=.true.
-      return
-      end
-      logical function scf_freq(rtdb)
-      implicit none
-      integer  rtdb
-      scf_freq=.true.
-      return
-      end
+c$$$      logical function scf_opt(rtdb)
+c$$$      implicit none
+c$$$      integer  rtdb
+c$$$      scf_opt=.true.
+c$$$      return
+c$$$      end
+c$$$      logical function scf_freq(rtdb)
+c$$$      implicit none
+c$$$      integer  rtdb
+c$$$      scf_freq=.true.
+c$$$      return
+c$$$      end
       subroutine hnd_opt_hss_init(rtdb,geom)
       implicit none
 #include "mafdecls.fh"
@@ -1256,6 +1325,8 @@ c
       integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
 c
+      integer nuc
+      COMMON/HND_MOLNUC/NUC(MXATOM)
       double precision c, zan
       integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -1331,6 +1402,9 @@ c
       if(.not.
      1   geom_cart_get(geom,nat,atom_tags,c,zan))
      2   call errquit('hnd_opt_hss_init: geom_cart_get failed?',911)
+      do iat = 1, nat
+         nuc(iat) = nint(zan(iat))
+      enddo
       if(dbug) then
          write(iw,*) 'in hnd_opt_hss_init , z and c = '
          write(iw,9996) (zan(iat),(c(ixyz,iat),ixyz=1,3),iat=1,nat)
@@ -1350,8 +1424,12 @@ c
             write(iw,*) ' k_izmat   = ',k_izmat
             write(iw,*) ' k_last    = ',k_last
          endif
-         call hnd_bandbi(geom,nat,c)
+         call geom_bandbi(geom)
+c
+c     rjh ... was zsym here
+c
          call geom_hnd_get_data('zsym',dbl_mb(k_zsym),ndim*ndim)
+c
          call geom_hnd_get_data('zmat',dbl_mb(k_zmat),nzvar)
          if(.not.geom_zmt_get_nizmat(geom,nzmat))                 
      1      call errquit('hnd_opt_hss_init:zmt_get_nizmat failed?',911)
@@ -1451,19 +1529,15 @@ c::   -- read  information
      1           HSS,NCOOR,HSSX,NCART,HSSQ,NINT,ZSYM,
      2           ZMAT,IZMAT)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
 #include "global.fh"
-#include "rtdb.fh"
 #include "util.fh"
 #include "coptopt.fh"
+#include "mafdecls.fh"
 C
 C      -----        INITIALIZE THE HESSIAN MATRIX           -----
 C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
 C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
-C
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -1498,6 +1572,8 @@ C
 C
 C     ----- CHECK IF THERE IS ALREADY A HESSIAN ON DISK -----
 C
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
+
       old_hessian=.false.
       if(inhess.eq.0) then
          call driver_opt_check_hess(ncoor, old_hessian)
@@ -1509,6 +1585,8 @@ C
          endif
       endif
       call ga_sync()
+c
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
 c
       if (ga_nodeid().eq.0 .and. 
      $        util_print('information', print_low)) then
@@ -1538,6 +1616,8 @@ C
          ENDDO
       ENDDO
 C
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
+
       IF(NZMAT.NE.0) THEN
          IF(OUT) THEN
             WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
@@ -1569,7 +1649,9 @@ C
 C
 C     ----- INTERNALLY GENERATED (DIAGONAL) INITIAL HESSIAN -----
 C
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
             CALL HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,OUT)
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
 C
 C     ----- TRANSFORM TO SYMMETRY INTERNAL COORDINATES -----
 C
@@ -1581,6 +1663,7 @@ C
                WRITE(IW,9995)
                CALL HND_PRSQ(HSSQ,NZVAR,NZVAR,NINT)
             ENDIF
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
             DO J=1,NZVAR
                DO I=1,NZVAR 
                   DUM=ZERO
@@ -1590,6 +1673,7 @@ C
                   HSS(I,J)=DUM
                ENDDO
             ENDDO
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
             IF(SOME) THEN
                IF(OUT) THEN
                   WRITE(IW,9994)
@@ -1640,6 +1724,7 @@ C
             ENDIF
          ENDIF
       ENDIF
+      if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
 C
 C     ----- SAVE INITIAL HESSIAN IF THERE IS NOT ONE ALREADY -----
 C           IF THERE IS ONE, KEEP IT, DO NOT OVERWRITE IT
@@ -1682,7 +1767,6 @@ C
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSSQ(NINT,*)
       DIMENSION ZMAT(*),IZMAT(*)
@@ -2015,18 +2099,24 @@ c
       implicit none
 #include "util.fh"
 c
-c     Delete the Hessian information restart file
+c     Delete the Hessian information restart file.
+c     For good measure also zap the ZSYM and ZINV files.
 c     
       character*255 opt_hess_fil
 c
       call util_file_name('drv.hess',
      1     .false.,.false.,opt_hess_fil)
-c
+      call util_file_unlink(opt_hess_fil)
+      call util_file_name('zsym',
+     1     .false.,.false.,opt_hess_fil)
+      call util_file_unlink(opt_hess_fil)
+      call util_file_name('zinv',
+     1     .false.,.false.,opt_hess_fil)
       call util_file_unlink(opt_hess_fil)
 c
       if (util_print('information',print_low)) then
          write(6,*)
-         write(6,*) ' Deleted DRIVER Hessian restart file '
+         write(6,*) ' Deleted DRIVER restart files '
          write(6,*)
       endif
 c
@@ -2703,6 +2793,8 @@ C
      1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD,
      $     geom)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "global.fh"
+#include "util.fh"
 #include "coptopt.fh"
 C
 C     ----- SELECT SEARCH DIRECTION -----
@@ -2767,7 +2859,7 @@ C
                HESS(I,J)=ZERO
                HESS(J,I)=ZERO
             ENDDO
-            HESS(I,I)=  1d9  ! RJH ... was HUNDRD
+            HESS(I,I)=  HUNDRD
          ENDDO
       ENDIF
 C
@@ -2784,6 +2876,11 @@ C
          CALL HND_PRTR(HESST,NVAR)
       ENDIF
       CALL HND_DIAGIV(HESST,HESVEC,HESEIG,IA,NVAR,NVAR,NDIM)
+      if (util_print('hevals',print_never) .and. ga_nodeid().eq.0) then
+         write(6,*) ' Hessian eigenvalues '
+         call doutput(heseig,1,nvar,1,1,nvar,1,1)
+      endif
+
       IF(DBUG) THEN
          WRITE(IW,9997)
          CALL HND_PREV(HESVEC,HESEIG,NVAR,NVAR,NDIM)
@@ -2804,6 +2901,11 @@ C
             WRITE(IW,9995) J,HESEIG(J),HESEDM(J)
          ENDDO
       ENDIF
+      if (ga_nodeid().eq.0 .and. util_print('hessg',print_never)) then
+         write(6,*) ' Gradient along hessian modes'
+         call doutput(hesedm,1,nvar,1,1,nvar,1,1)
+         call util_flush(6)
+      endif
 C
 C     --- CHECK FOR NEGATIVE EIGENVALUES AND CONVERT TO POSITIVE ----
 C               AFTER DAMPING. ALSO, DAMP ANY ROTATIONAL 
@@ -2812,6 +2914,12 @@ C
       NEGEIG=0
       DO I=1,NVAR
          IF(ABS(HESEIG(I)).LT.TENM8) THEN
+            if (ga_nodeid() .eq. 0) then
+               write(6,33) i, heseig(i), hesedm(i)
+ 33            format(' !! Hessian eigenvalue very small ',
+     $              ' i=',i5,' eval=',1p,d9.2,' g=',d9.2)
+               call util_flush(6)
+            endif
             HESEIG(I)=ZERO
             HESEDM(I)=ZERO
             DO J=1,NVAR

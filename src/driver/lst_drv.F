@@ -49,6 +49,7 @@ c
 #include "stdio.fh"
 #include "geom.fh"
 #include "util.fh"
+      logical       geom_zmt_get_nzvar
       logical       geom_zmt_get_nizmat
       external      geom_zmt_get_nizmat
       logical       geom_zmt_get_nzfrz 
@@ -113,6 +114,8 @@ c
        nat = ncent
       if(.not.geom_zmt_get_nizmat(geom,nzmat))
      &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+      if(.not.geom_zmt_get_nzvar(geom,nzvar))
+     &     call errquit('geom_input: geom_zmt_get_nzvar failed',0)
 c
 c     ----- scan -lst- coordinates file -----
 c
@@ -181,7 +184,7 @@ c
          endif
       endif
       if(zcoord) then
-         call geom_zmt_icoord(rtdb,geom)
+         call geom_bandbi(geom)
          ncart =3*nat
          ncoord=nvar                  
          mcoord=max(ncart,nzvar)
@@ -531,7 +534,6 @@ C
       logical  task_energy
       external task_energy
       logical  status
-      logical  cvged
       logical  dbug
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
@@ -542,6 +544,8 @@ C
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      logical geom_print_zmatrix
 c
       dbug=.false.
 c
@@ -559,8 +563,9 @@ c
       endif
 c
       if(nzmat.gt.0) then
-         call hnd_bandbi(geom,nat,c)
-         call hnd_zmtprt(geom)
+         call geom_bandbi(geom)
+         if (.not. geom_print_zmatrix(geom,0d0,.false.))
+     $        call errquit('hnd_lst: print zmat failed',0)
          write(iw,9997)
       endif
 c
