@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.18 2000-01-17 21:04:42 edo Exp $
+C$Id: xc_lebedev.F,v 1.19 2000-01-18 00:22:44 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -11,6 +11,8 @@ c
 c     Routine for Lebedev weights, supplied by Mauro Causa`
 c     n>=7 modified by E. Apra based on the following paper
 c     B.Delley, J. Comp. Chem. 17, 1152 (1996) 
+c     n = 131 from VI Lebedev and DN Laikov, 
+c      Doklady Mathematics 366, 741 (1999)
 c
 c     integer iacc  ! [input]
 c
@@ -1128,7 +1130,7 @@ C			write(0,*) ' wtest ', wtest/fourpi
  201  format('     irreducible set of Lebedev Angular points ;')
   208 format(t10,3f10.5)
 c  207 format('     Irreducible set of points ;')
-  209 format(t10,f10.5,2x,3f10.5)
+  209 format(4f19.15)
   410 format('   total no. of   reducible points:',i4,'; test:',f12.8)
       end
       integer function xc_leb_acc2nrd(acc)
