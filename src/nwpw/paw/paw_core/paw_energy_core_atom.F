@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.2 2003-02-21 18:38:45 marat Exp $
+* $Id: paw_energy_core_atom.F,v 1.3 2003-02-23 23:16:58 marat Exp $
 *
 
 
@@ -89,11 +89,9 @@
       double precision log_amesh
       double precision ecore
 
-      write(*,*) " in core ion energy"
       !*** temporary array for calculations ***
       max_ic = paw_basis_max_i_cut()
-      write(*,*) "max_ic",max_ic
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
+      ok = ma_push_get(mt_dbl,max_ic,"tmp_array",l_f1,i_f1)
       ecore = 0.D0
       i_w = 0
       do in=1,ion_nion()
@@ -105,7 +103,8 @@
         log_amesh = paw_basis_log_amesh(ia)
         do k=1,ic
 
-          dbl_mb(i_f1+k-1)=-paw_basis_ion_charge(in)*
+
+          dbl_mb(i_f1+k-1)=-paw_basis_ion_charge(ia)*
      >                      dbl_mb(i_core_ae+k-1)/
      >                      dbl_mb(i_r+k-1)       
 
@@ -154,11 +153,10 @@
       double precision log_amesh
       double precision ecore
 
-      write(*,*) " in core self energy"
       !*** temporary array for calculations ***
       max_ic = paw_basis_max_i_cut()
       ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
-      ecore = 0.D0
+      ecore = 0.0d0
       i_w = 0
       do in=1,ion_nion()
         ia = ion_katm(in)
