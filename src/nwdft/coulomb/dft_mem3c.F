@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.4 2000-11-29 00:13:30 edo Exp $
+* $Id: dft_mem3c.F,v 1.5 2002-04-02 22:02:13 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -170,6 +170,6 @@ c     if(me.eq.0) call MA_summarize_allocated_blocks()
  3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
      &     /,10x,'         This is reduced (for later use) to: ',i15,
      &     /,10x,'                   Suggested buffer size is: ',i15)
- 3229 format(/,10x,f6.3,' MW buffer allocated for incore 3-center '
+ 3229 format(/,6x,f10.3,' MW buffer allocated for incore 3-center '
      &     /,10x,'2e- integral storage on stack. ')
          end
