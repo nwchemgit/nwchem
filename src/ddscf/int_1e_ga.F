@@ -33,6 +33,7 @@ c
       logical odoit
       double precision q2
 c     
+      call ga_sync()
       if (oscfps) call pstat_on(ps_int_1e)
 c     
       if (oskel) then
@@ -79,32 +80,21 @@ c
       ijshell = 0
       odoit = .true.
       q2 = 1.0d0
-      do ishell = 1, nshell_i
-         if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) call errquit
-     $        ('int_1e_ga: bas_cn2bfr failed ibas', ibas)
-         idim = ihi - ilo + 1
-         do jshell = 1, nshell_j
-c     
-            if (oskel) 
-     $           odoit = sym_shell_pair(ibas, ishell, jshell, q2)
+      do jshell = 1, nshell_j
+         do ishell = 1, nshell_i
+            if (mod(ijshell/16, nproc) .eq. iproc) then
+               if (oskel) 
+     $              odoit = sym_shell_pair(ibas, ishell, jshell, q2)
 c
-            if (odoit) then
-               if (mod(ijshell, nproc) .eq. iproc) then
-
-*                  if (oskel)
-*     $                 write(6,*) ga_nodeid(), ' getting bfr ', jshell
-*                  call util_flush(6)
-
+               if (odoit) then
+                  if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) 
+     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas)
                   if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
      $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas)
+                  idim = ihi - ilo + 1
 c     
 c     Generate the integrals
 c     
-
-*                  if (oskel)
-*     $                 write(6,*) ga_nodeid(), ' generating integrals '
-*                  call util_flush(6)
-
                   if (type .eq. 1) then
                      call int_1eke (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
@@ -120,17 +110,11 @@ c
 c     
 c     Add the integrals into the global array
 c     
-
-*                  if (oskel)
-*     $                 write(6,*) ga_nodeid(), ' ga_acc ', jshell, jlo,
-*     $                 jhi
-*                  call util_flush(6)
-
                   call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                 idim, q2)
                endif
-               ijshell = ijshell + 1
             endif
+            ijshell = ijshell + 1
             call ga_sync()
          enddo
       enddo
