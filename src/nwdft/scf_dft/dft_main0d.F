@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.49 2000-11-04 03:27:07 d3g681 Exp $
+c     $Id: dft_main0d.F,v 1.50 2001-06-13 01:31:25 edo Exp $
 c     
       implicit none
 c
@@ -273,18 +273,14 @@ c                  call errquit(' temp stop this should not happen',0)
                call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
                if (lmiss.ne.0)call errquit
      &         (' dft_main0d; dft_invio - abnormal write of CDI ', 0)
-               if (oprint_ioinfo)then
-                 write(LuOut,*)' g_cdinv = ', g_cdinv
-                 call ga_print(g_cdinv)
-               endif
                lmiss = 0
                call dft_invio('CD', g_2ceri, nbf_cd, 'WRITE', lmiss)
                if (lmiss.ne.0)call errquit
      &         (' dft_main0d; dft_invio - abnormal write of CD ', 0)
-               if (oprint_ioinfo)then
-                 write(LuOut,*)' g_2ceri = ',  g_2ceri
-                 call ga_print(g_2ceri)
-               endif
+            endif
+            if (oprint_ioinfo)then
+               call ga_print(g_cdinv)
+               call ga_print(g_2ceri)
             endif
 cedo            call ga_sync
 c         endif

@@ -1,8 +1,9 @@
       subroutine dft_densm(g_dens,g_vecs,nbf,ipol,
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
-     ,     iter,search0,check_deg)
-C$Id: dft_densm.F,v 1.25 2001-06-11 20:29:27 edo Exp $
+     ,     iter,search0,
+     .     fon, nel_fon,nmo_fon)
+C$Id: dft_densm.F,v 1.26 2001-06-13 01:31:25 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -23,7 +24,8 @@ C$Id: dft_densm.F,v 1.25 2001-06-11 20:29:27 edo Exp $
       double precision evals(ipol*nbf)
       double precision ssmear       ! smearing sigma
       double precision tdots       ! total energy
-      logical search0,check_deg
+      logical search0,fon
+      integer nel_fon(2),nmo_fon(2)
 
 c
       integer i,isp,g_tmp
@@ -52,13 +54,24 @@ c
       if(ipol.eq.2) rhfuhf=1d0
 c      me=0
 c      nproc=1
-      if (check_deg) then
-         ssmear=1d-4
-      endif
+!      if (check_deg) then
+!         ssmear=1d-4
+!      endif
       if(ssmear.lt.toll.or.iter.lt.-1) then
 c
 c     check degener
-c
+c     
+         if (fon) then
+            if(dft_checkdg(nmo_fon,nel_fon,
+     .           evals,nbf,ntotel,focc,noc,ipol,me)) then
+                do isp=1,ipol
+                   call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
+     ,                 AO_bas_han,nbf,
+     *                 g_vecs(isp),g_dens(isp),toll)
+                enddo
+                return
+             endif
+          endif  
 cedo         if (check_deg.and.ipol.eq.2) then
          do isp=1,ipol
             call ga_dgemm('n', 't', nbf, nbf, 
@@ -118,7 +131,7 @@ c
 c     
 c     compute entropy correction to total e
 c     
-         if(.not.check_deg) then
+         if(.not.fon) then
          cksum=0.d0
          do i=1,nbf
             x=(evals(i)-efermi)/ssmear
@@ -313,7 +326,6 @@ c
       parameter(zero=0.d0)
          me = ga_nodeid()
          nproc = ga_nnodes()
-         if(me.eq.0) write(LuOut,*) ' got deg'
          nocold=noc
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &        call errquit('dftdensm: failed to alloc tmpm',0)
@@ -345,15 +357,16 @@ c      call dfill(nbf, 0.d0, focc, 1)
 c      call dfill(noc, rhfuhf, focc, 1)
          return
          end
-      logical function dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,
-     , me,mult)
+      logical function dft_checkdg(nmo_fon,nel_fon,
+     .     evals,nbf,ntotel,focc,noc,ipol,
+     , me)
       implicit none
 #include "global.fh"
 #include "stdio.fh"
       integer ipol
       integer nbf
       double precision evals(ipol*nbf)
-      double precision focc(ipol*nbf)
+      double precision focc(nbf,ipol)
       integer ntotel
       integer noc(2)
       integer me,mult
@@ -363,94 +376,39 @@ c
       integer nlevdeg,nnintg
       double precision rhfuhf,nck,ehomo
       double precision deps,fracc,eee,fnoc(2)
-      parameter (deps=2d-4)
-c      
-      if(ipol.eq.2) then
-         rhfuhf=1d0
-         if(mult.gt.0) then
-            fnoc(1) = mult - 1
-            fnoc(2) = (ntotel - fnoc(1)) *.5d0
-            fnoc(1)=fnoc(2)+fnoc(1)
-         else
-            fnoc(2) = -mult - 1
-            fnoc(1) = (ntotel - fnoc(2)) *.5d0
-            fnoc(2)=fnoc(2)+fnoc(1)
-         endif
+      double precision avg_fon
+      integer nmo_fon(2),nel_fon(2),ispin
+      double precision ncheck
+      nmo_fon(1)=0
+      nmo_fon(2)=0
+      nel_fon(1)=0
+      nel_fon(2)=0
+c
+c  assignments      
+c
+      nmo_fon(1)=2
+      nel_fon(1)=1
+!      nmo_fon(2)=5
+!      nel_fon(2)=1
+      ncheck=0d0
+      do ispin=1,ipol
+         avg_fon = dble(nel_fon(ispin))/dble(nmo_fon(ispin)) 
+         do i=1,noc(ispin)-nel_fon(ispin)
+            focc(i,ispin) = 2d0/ipol
+            ncheck=ncheck+focc(i,ispin)
+         enddo
+         do i = noc(ispin)-nel_fon(ispin)+1,
+     ,        noc(ispin)-nel_fon(ispin)+nmo_fon(ispin)
+            focc(i,ispin) = avg_fon*(2d0/ipol)
+            ncheck=ncheck+focc(i,ispin)
+         enddo
+      enddo
+      if(abs(ncheck-dble(ntotel)).gt.1d-3) then
+         write(0,*) ' lost electrons ',ncheck,' vs ',ntotel
+         dft_checkdg=.false.
       else
-         rhfuhf=2d0
-         fnoc(1)=ntotel*.5d0
+         dft_checkdg=.true.
       endif
-      call dfill(nbf*ipol, 0.d0, focc, 1)
-      dft_checkdg=.false.
-      do isp=1,ipol
-c
-c     check degen
-c      
-         
-         ehomo=evals(nint(fnoc(isp))+nbf*(isp-1))
-c     up
-         nup=0
-         ndown=0
-         nnintg=0
-         if(fnoc(isp).ne.0) then
-            do i=1,nbf
-               eee=evals(i+nbf*(isp-1))
-               if(eee.le.ehomo-deps) nnintg=nnintg+1
-            enddo
-            neldeg=fnoc(isp)-nnintg
-            nlevdeg=0
-            do i=nnintg+1,nbf
-               eee=evals(i+nbf*(isp-1))
-               if(eee.gt.ehomo-deps.and.eee.le.ehomo+deps) 
-     .              nlevdeg=nlevdeg+1
-            enddo
-         endif
-         do i=1,nnintg
-            focc(i+nbf*(isp-1))=rhfuhf
-         enddo
-         if(nlevdeg.eq.0) then
-            write(0,*) ' nint eh ',nnintg,ehomo
-            write(0,*) ' neldeg nlev ',neldeg,nlevdeg
-           call errquit('dftcheckdg: zero levels?? ',0)
-cedo            dft_checkdg=.false.
-cedo            return
-         endif
-         if(mod(neldeg,nlevdeg).ne.0) then
-            dft_checkdg=.true.
-c
-c     we have degeneracy
-c           
-c         fracc=dble(neldeg)/dble(nlevdeg)*rhfuhf
-            fracc=(fnoc(isp)-nnintg)/dble(nlevdeg)*rhfuhf
-cedo        if(ga_nodeid().eq.0) write(0,*) ' fracc ',fracc
-            noc(isp)=nint(fnoc(isp))+nup
-            fnoc(isp)=fnoc(isp)+nup
-         else
-            fracc=rhfuhf
-         endif
-         do i=nnintg+1,nnintg+nlevdeg
-            focc(i+nbf*(isp-1))=fracc
-         enddo
-      enddo
-c
-c     check if ntot ok
-c      
-      nck=0d0
-      do i=1,nbf*ipol
-         nck=nck+focc(i)
-      enddo
-      if(nint(nck).ne.ntotel) then
-        if(me.eq.0) then
-          do i=1,nbf*ipol
-             write(LuOut,1964) ' i focc ',i,focc(i),evals(i)
- 1964        format(A,i4,2f20.13)
-          enddo
-             write(0,*) ' ntot ntotel',nck,ntotel
-             write(0,*) ' degeneracy check failed'
-             dft_checkdg=.false.
-         endif	
-        call ga_sync()
-cedo    call   errquit(' dftdeg: lost electrons',ntotel-nint(nck))
-      endif
+      if(me.eq.0) write(luout,*)  ' FON applied '
       return
       end

@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.33 2000-04-22 01:05:43 edo Exp $
+* $Id: dft_fitcd.F,v 1.34 2001-06-13 01:31:21 edo Exp $
 *
       implicit none
 c
@@ -514,8 +514,7 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
      &     (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
         endif
 cedo        call ga_sync
-        if(me.eq.0.and.oprint_ioinfo)then
-          write(6,*)' g_cdinv = ', g_cdinv
+        if(oprint_ioinfo)then
           call ga_print(g_cdinv)
         endif
       endif

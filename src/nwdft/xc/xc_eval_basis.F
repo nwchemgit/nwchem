@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.3 2001-06-02 00:42:22 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.4 2001-06-13 01:31:25 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -332,14 +332,21 @@ c
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
       do n = 1, maxd
-         t(n) = 2d0*zeta*t(n-1)
+         t(n) = zeta*t(n-1)*2d0
       enddo
-      do n = 1,nq
-        tmp = exp(zeta*r2(n))
-        do nd = 0,maxd
-          crad(nd,n) = t(nd)*tmp
-        enddo
-      enddo
+      if(maxd.eq.0) then
+         tmp=t(0)
+         do n = 1,nq
+            crad(0,n) = exp(r2(n)*zeta)*tmp
+         enddo
+      else
+         do n = 1,nq
+            tmp = exp(zeta*r2(n))
+            do nd = 0,maxd
+               crad(nd,n) = t(nd)*tmp
+            enddo
+         enddo
+      endif
 c
       do iprimo = 2, nprimo
          zeta = -zprim(iprimo)

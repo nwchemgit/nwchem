@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.182 2001-05-17 00:50:43 edo Exp $
+c     $Id: dft_scf.F,v 1.183 2001-06-13 01:31:25 edo Exp $
 c     
       implicit none
 c
@@ -122,7 +122,7 @@ c
       double precision ssmear
       integer l_ir, k_ir
       logical last_time_energy
-      logical check_shift, lmaxov_sv,check_deg, reorth
+      logical check_shift, lmaxov_sv,fon, reorth
       character*7 name
       character*4 scftype
       character*7 vecs_or_dens
@@ -149,6 +149,7 @@ c
       double precision ecosmo
 
       integer itype_wfn,g_focks(2)
+      integer nel_fon(2),nmo_fon(2)
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -184,6 +185,9 @@ c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0)
 c !!! BGJ
+      odbug=.false.
+      if (.not.rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) 
+     .     ocosmo=.false.
 c
 c     check if smearing is on
 c
@@ -192,8 +196,15 @@ c
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
       endif
-      if (.not.rtdb_get(rtdb, 'dft:check_deg', mt_log, 1,
-     &   check_deg))check_deg=.false.
+      if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
+     &   fon))then
+      if (.not.rtdb_get(rtdb, 'dft:nmo_fon', mt_int, 2,
+     & nmo_fon)) call errquit('dft_scf: rtdb_gett failed', 2300)
+      if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_int, 2,
+     & nel_fon)) call errquit('dft_scfp: rtdb_get failed', 2301)
+      else
+         fon=.false.
+      endif
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
      &   reorth))reorth=.true.
 c
@@ -411,7 +422,7 @@ c
       ldmix=.false.
       if((movecs_in.ne.'atomic'.and.
      *     movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
-     .     .or.check_deg) then
+     .     .or.fon) then
          vecs_or_dens='vectors'
          ldmix=.true.
       endif
@@ -432,7 +443,8 @@ c
      &        nbf_ao, ipol, 
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &        ssmear,tdots,iter,.false.,check_deg)
+     &        ssmear,tdots,iter,.false.,
+     .        fon, nel_fon,nmo_fon)
 c
 c  Jorge Garza/Begin/Exact_pot
 c
@@ -524,8 +536,7 @@ c
 c
 c     ----- cosmo cavity and setup -----
 c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+      if (ocosmo) then
          if(odbug) then
             write(luout,*) '-cosmo- ... found in -dft_scf-',
      $                     ocosmo,ga_nodeid()
@@ -552,8 +563,8 @@ c
          if(odbug) then
             write(luout,*) '-cosmo- not found in -dft_scf-'
          endif
-      endif
       call ga_sync()
+      endif
 c
 c    The loop associated with the label 135 is to find the exact exchange-
 c    correlation potential.
@@ -583,40 +594,28 @@ c     ----- check cosmo ... if cosmo ... -----
 c           pass 1 ... gas_phase
 c           pass 2 ... sol_phase
 c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+      if (ocosmo) then
+         odbug=.false.
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
          endif
 c
-         if(ocosmo) then
-            odbug=.false.
-            ogas_phase=.true.
-            osol_phase=.true.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas & sol',
-     $                    ocosmo,ga_nodeid()
-            endif
-            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $         call errquit('dft_scf: rtdb_put failed',0)
-         else
-            ogas_phase=.true.
-            osol_phase=.false.
-            if(odbug) then
-               write(LuOut,*) '-cosmo- ... found , do gas only',
-     $                    ocosmo,ga_nodeid()
-            endif
+         ogas_phase=.true.
+         osol_phase=.true.
+         if(odbug) then
+            write(LuOut,*) '-cosmo- ... found , do gas & sol',
+     $           ocosmo,ga_nodeid()
          endif
+         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $        call errquit('dft_scf: rtdb_put failed',0)
       else
          if(odbug) then
             write(LuOut,*) '-cosmo- not found in dft_scf'
          endif
          ogas_phase=.true.
          osol_phase=.false.
-      call util_flush(LuOut)
       endif
-      call ga_sync()
 c
       iter = 1
 c
@@ -677,7 +676,7 @@ c
 c     ----- cosmo charges and energy contribution -----
 c
         odbug=.false.
-        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+        if (ocosmo) then
            if(odbug) then
               write(LuOut,*) '-cosmo- ... found in dft_scf ...',
      $                   ocosmo,ga_nodeid()
@@ -709,8 +708,8 @@ c
               write(LuOut,*) '-cosmo- not found in dft_scf ...',
      $                   ga_nodeid()
            endif
-        endif
         call ga_sync()
+        endif
 c
 c     build DFT Fock matrix
 c
@@ -742,7 +741,7 @@ c
 c     ----- cosmo energy term ... -----
 c
       odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+      if (ocosmo) then
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
@@ -772,8 +771,8 @@ c
             write(LuOut,*) '-cosmo- not found in dft_scf',
      $                 ga_nodeid()
          endif
-      endif
       call ga_sync()
+      endif
 c     
       if (last_time_energy)then
          etnew=etnew+tdots
@@ -896,7 +895,9 @@ c
      &     nbf_ao, ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &     ssmear,tdots,iter,.true.,check_deg)
+     &     ssmear,tdots,iter,.true.,
+     .        fon, nel_fon,nmo_fon)
+
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
       
@@ -1203,7 +1204,7 @@ c
 c     ----- cosmo energy term ... -----
 c
       odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+      if (ocosmo) then
          if(odbug) then
             write(LuOut,*) '-cosmo- ... found in dft_scf',
      $                 ocosmo,ga_nodeid()
@@ -1455,7 +1456,7 @@ c
 c
 c     write to rtdb that fractional occupancy exists
 c
-      if(check_deg.or.ssmear.gt.1d-9) then
+      if(fon.or.ssmear.gt.1d-9) then
       if (.not.rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
      &   .true.))call errquit('dftscf: cannot write rtdb',1)
       endif

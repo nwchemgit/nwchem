@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.18 2001-05-29 23:33:08 edo Exp $
+c     $Id: dft_scf_so.F,v 1.19 2001-06-13 01:31:25 edo Exp $
 c     
       implicit none
 c     
@@ -171,6 +171,10 @@ c
       external dft_mem3c
       call ecce_print_module_entry('dft')
 c     
+c     disabl symmetry
+c
+      oadapt=.false.
+      oskel=.false.
       dft_scf_so = .false.
       nbf_mo = 2*nbf_ao
       lmaxov_sv = lmaxov

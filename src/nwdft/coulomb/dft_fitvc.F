@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.31 2000-10-11 22:06:04 edo Exp $
+c     $Id: dft_fitvc.F,v 1.32 2001-06-13 01:31:21 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -119,7 +119,7 @@ c
      &     (' dft_fitvc; dft_invio - abnormal read of CD ',0)
         endif
         call ga_sync
-        if(me.eq.0.and.oprint_ioinfo)then
+        if(oprint_ioinfo)then
           call ga_print(g_2ceri)
         endif
       endif

@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.26 2001-03-30 00:00:47 edo Exp $
+c     $Id: dft_input.F,v 1.27 2001-06-13 01:31:24 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -21,19 +21,21 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 23)
+      parameter (num_dirs = 24)
       character*12 dirs(num_dirs)
       character*255 test
+      character*6 alphabeta
       integer idecomp, mult, iterations, ipol, noio,
      &        idirect, imull
       integer nopen
       logical pseudo, direct, lmaxov, incore
       double precision smear_sigma
+      integer nel_fon(2),nmo_fon(2),ispin
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     .           'smear',
+     .           'smear','fon',
      &           'end'/
 c
 c     Any DFT input causes calculation to be marked as not converged
@@ -50,9 +52,13 @@ c
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      $     call errquit('dft_input: unknown directive', 0)
 c     
+      nel_fon(1)=0
+      nmo_fon(1)=0
+      nel_fon(2)=0
+      nmo_fon(2)=0
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 9999) ind
+     $     1900, 2000, 2100, 2200, 2300, 9999) ind
       call errquit('dft_input: unimplemented directive', ind)
 c
 c     convergence;
@@ -233,11 +239,44 @@ c
      &   call errquit('dft_inp: rtdb_put failed', 2200)
       goto 10
 c
+c     fon
+c
+ 2300 continue
+      ispin=1
+ 2301 if (inp_a(test)) then
+         if (inp_compare(.false.,'alpha', test)) then
+            ispin=1
+            goto 2301
+         else if (inp_compare(.false.,'beta', test)) then
+            ispin=2
+            goto 2301
+         endif
+         if (inp_compare(.false.,'electrons', test)) then
+            if(.not.inp_i(nel_fon(ispin))) call errquit(
+     .           ' fon: required integer after electrons keyword',0)
+            goto 2301
+         else if (inp_compare(.false.,'orbitals', test)) then
+            if(.not.inp_i(nmo_fon(ispin))) call errquit(
+     .           ' fon: required integer after orbitals keyword',0)
+            goto 2301
+         endif
+      endif
+      if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
+     & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300)
+      if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_int, 2,
+     & nel_fon)) call errquit('dft_inp: rtdb_put failed', 2300)
+      if (.not.rtdb_put(rtdb, 'dft:fon', mt_log, 1,
+     & .true.)) call errquit('dft_inp: rtdb_put failed', 2300)
+      goto 10
+c
 c             
 c     end;
 c             
- 2300 continue
  9999 continue
       return 
+10000 write(6,10001)
+10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
+      call util_flush(6)
+      call errquit('vectors_input: invalid format', 0)
 c       
       end
