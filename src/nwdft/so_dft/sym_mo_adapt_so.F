@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt_so(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt_so.F,v 1.1 2000-04-17 21:46:07 zzhang Exp $
+C$Id: sym_mo_adapt_so.F,v 1.2 2000-04-18 00:59:37 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -456,7 +456,7 @@ c
          do j = 1, 4 
             ufact=u(4*(op-1)+2*mod(i-1,2)+mod(j-1,2)+1)
             if((i-1)/2 .eq. (j-1)/2)then 
-               fact = real(ufact)
+               fact = real(real(ufact))
             else 
                fact = -imag(ufact)
                if((i-1)/2 .eq. 1)fact = -fact 
