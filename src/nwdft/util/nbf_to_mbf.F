@@ -1,10 +1,9 @@
       Subroutine nbf_to_mbf(  geom_hand, basis_hand,
      &     rq0,mbf,mcenters,iniz,ifin,
-     &     zprim, nzprim)
+     &     zprim, nzprim,acc_gauss)
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-      parameter(acc_gauss=20.)
       integer basis_hand, geom_hand
 
       Logical LResult
