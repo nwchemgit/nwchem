@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.50 2001-12-15 04:11:32 d3j191 Exp $
+c $Id: md_input.F,v 1.51 2001-12-15 05:04:49 d3j191 Exp $
 c
       implicit none
 c
@@ -623,7 +623,8 @@ c
       npmf=1
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'equilharm',item)) then
-      npmf=2
+      if(.not.inp_i(npmf)) call errquit('md_input: error equilharm',0)
+      if(npmf.le.1) call errquit('md_input: error equilharm',npmf)
       if(.not.inp_a(item)) goto 1
       endif
       goto 2

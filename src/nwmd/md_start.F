@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.106 2001-11-19 17:15:08 d3j191 Exp $
+c $Id: md_start.F,v 1.107 2001-12-15 05:04:49 d3j191 Exp $
 c
       implicit none
 c
@@ -1258,6 +1258,7 @@ c
       endif
 c
       costio=zero
+      lpmfc=.true.
 c
       return
       end

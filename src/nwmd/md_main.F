@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.115 2001-12-15 04:11:32 d3j191 Exp $
+c $Id: md_main.F,v 1.116 2001-12-15 05:04:49 d3j191 Exp $
 c
       implicit none
 c
@@ -946,6 +946,7 @@ c     equilibration
 c
       lequi=.true.
       do 1 iequi=kequi+1,mequi
+      lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(1)
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
@@ -955,6 +956,7 @@ c
       call md_server
       call timer_stop(1)
     1 continue
+      lpmfc=.true.
 c
 c     data gathering
 c
@@ -1077,11 +1079,13 @@ c
       lequi=.true.
       jequi=kequi
       do 2 iequi=kequi+1,mequi
+      lpmfc=npmf.gt.1.and.iequi.gt.npmf
       call timer_start(1)
       call md_newton()
       call timer_stop(1)
       jequi=iequi
     2 continue
+      lpmfc=.true.
 c
 c     data gathering
 c
@@ -1502,7 +1506,7 @@ c
      + (xs(i,3)-ys(i,3))**2)
     5 continue
       endif
-      if(npmf.eq.1.or.(npmf.eq.2.and..not.lequi)) then
+      if(npmf.eq.1.or.lpmfc) then
       if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
      + nsaloc)) goto 3
       endif
@@ -1574,8 +1578,7 @@ c
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
-     + dbl_mb(i_ess),lfnpmf,.not.lequi,
-     + npmf.eq.1.or.(npmf.eq.2.and..not.lequi))
+     + dbl_mb(i_ess),lfnpmf,.not.lequi,npmf.eq.1.or.lpmfc)
       call timer_stop(10)
 c
       if(ipolt.gt.0) then
@@ -2196,7 +2199,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.115 2001-12-15 04:11:32 d3j191 Exp $
+c $Id: md_main.F,v 1.116 2001-12-15 05:04:49 d3j191 Exp $
 c
       implicit none
 c
