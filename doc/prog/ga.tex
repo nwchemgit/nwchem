@@ -1,0 +1,141 @@
+\sloppy
+For more detailed information look in 
+{\tt \$NWCHEM\_TOP/src/global/doc/global.doc}     %$ for emacs
+
+\fussy
+
+Globally addressable arrays have been developed to simplify writing
+portable scientific software for both shared and distributed memory
+computers.  Programming convenience, code extensibility and
+maintainability are gained by adopting the shared memory programming
+model.
+
+From the user perspective, a global array can be used as it was stored
+in the shared memory. Details of the data distribution, addressing and
+communication are encapsulated in the global array objects. However,
+the information on the actual data distribution can be obtained and
+taken advantage of whenever data locality is important.
+
+Currently support is limited to 2-D double precision or integer arrays
+with block distribution, at most one block per array per processor.
+
+Operations that are globally collective \ldots i.e.\ must be
+simultaneously invoked by all processes as if in SIMD mode:
+\begin{itemize}
+\item {\tt ga\_initialize} --- initialize global array internal
+  structures
+\item {\tt ga\_initialize\_ltd} --- initialize global arrays and set
+  memory usage limits
+\item {\tt ga\_create} --- create an array
+\item {\tt ga\_create\_irreg} --- create an array with irregular
+  distribution
+\item {\tt ga\_duplicate} --- create an array following a reference
+  array
+\item {\tt ga\_destroy} --- destroy an array
+\item {\tt ga\_terminate} --- destroy all existing arrays and delete
+  internal data structures
+\item {\tt ga\_sync} --- synchronize processes (a barrier)
+\item {\tt ga\_zero} --- zero an array
+\item {\tt ga\_ddot} --- dot product of two arrays (doubles only)
+\item {\tt ga\_dscal} --- scale the elements in an array by a constant
+  (double precision data only)
+\item {\tt ga\_dadd} --- scale and add two arrays to put result in a
+  third (may overwrite one of the other two, doubles only)
+\item {\tt ga\_copy} --- copy one array into another
+\item {\tt ga\_dgemm} --- BLAS-like matrix multiply
+\item {\tt ga\_ddot\_patch} --- dot product of two arrays (doubles
+  only) (patch version)
+\item {\tt ga\_dscal\_patch} --- scale the elements in an array by a
+  constant (patch version)
+\item {\tt ga\_dadd\_patch} --- scale and add two arrays to put result
+  in a third (patch version)
+\item {\tt ga\_ifill\_patch} --- fill a patch of array with value
+  (integer version)
+\item {\tt ga\_dfill\_patch} --- fill a patch of array with value
+  (double version)
+\item {\tt ga\_matmul\_patch} --- matrix multiply (patch version)
+\item {\tt ga\_diag} --- real symmetric generalized eigensolver
+  (sequential version also exists)
+\item {\tt ga\_diag\_reuse} --- a version of ga\_diag for repeated use
+\item {\tt ga\_diag\_std} --- standard real symmetric eigensolver
+  (sequential version also exists)
+\item {\tt ga\_symmetrize} --- symmetrize a matrix
+\item {\tt ga\_transpose} --- transpose a matrix
+\item {\tt ga\_lu\_solve} --- solve system of linear equations based
+  on LU factorization (sequential version also exists)
+\item {\tt ga\_print\_patch} --- print a patch of an array to the
+  screen
+\item {\tt ga\_print} --- print an entire array to the screen
+\item {\tt ga\_copy\_patch} --- copy data from a patch of one global
+  array into another array
+\item {\tt ga\_compare\_distr} --- compare distributions of two global
+  arrays
+\end{itemize}
+
+Operations that may be invoked by any process in true MIMD style:
+\begin{itemize}
+\item {\tt ga\_get} --- read from a patch of an array
+\item {\tt ga\_put} --- write to a patch of an array
+\item {\tt ga\_acc} --- accumulate into a patch of an array (double
+  precision only)
+\item {\tt ga\_scatter} --- scatter elements into an array
+\item {\tt ga\_gather} --- gather elements from an array
+\item {\tt ga\_read\_inc} --- atomically read and increment the value
+  of a single array element (integers only)
+\item {\tt ga\_locate} --- determine which process `holds' an array
+  element
+\item {\tt ga\_locate\_region} --- determine which process `holds' an
+  array section
+\item {\tt ga\_error} --- print error message and terminate the
+  program
+\item {\tt ga\_summarize} --- print information about already
+  allocated arrays
+\end{itemize}
+
+Operations that may be invoked by any process in true MIMD style and
+are intended to support writing of new functions:
+\begin{itemize}
+\item {\tt ga\_distribution} --- find coordinates of the array patch
+  that is `held' by a processor
+\item {\tt ga\_access} --- access internal data
+\item {\tt ga\_release} --- relinquish access to internal data
+\item {\tt ga\_release\_update} --- relinquish access after data were
+  updated
+\item {\tt ga\_check\_handle} --- verify that a GA handle is valid
+\end{itemize}
+
+Operations to support portability between implementations:
+\begin{itemize}
+\item {\tt ga\_nodeid} --- find requesting compute process message id
+\item {\tt ga\_nnodes} --- find number of compute processes
+\item {\tt ga\_dgop} --- equivalent to TCGMSG dgop
+\item {\tt ga\_igop} --- equivalent to TCGMSG igop
+\item {\tt ga\_brdcst} --- equivalent to TCGMSG brdcst
+\end{itemize}
+
+Other utility operations:
+\begin{itemize}
+\item {\tt ga\_inquire} --- find the type and dimensions of the array
+\item {\tt ga\_inquire\_name} --- find the name of the array
+\item {\tt ga\_inquire\_memory} --- find the amount of memory in
+  active arrays
+\item {\tt ga\_memory\_avail} --- find the amount of memory left for
+  GA
+\item {\tt ga\_summarize} --- prints summary info about allocated
+  arrays
+\item {\tt ga\_uses\_ma} --- finds if memory in arrays comes from MA
+  (memory allocator)
+\item {\tt ga\_memory\_limited} --- finds if limits were set for
+  memory usage in arrays
+\end{itemize}
+
+Note that consistency is only guaranteed for
+\begin{enumerate}
+\item Multiple read operations (as the data does not change)
+\item Multiple accumulate operations (as addition is commutative)
+\item Multiple disjoint put operations (as there is only one writer
+  for each element)
+\end{enumerate}
+The application has to worry about everything else (usually by
+appropriate insertion of {\tt ga\_sync} calls).
+

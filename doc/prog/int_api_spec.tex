@@ -1,0 +1,135 @@
+%
+% $Id: int_api_spec.tex,v 1.1 1997-05-28 08:23:05 d3e129 Exp $
+%
+%-----------------------------------------------------------------%  
+%                                                                 % 
+%                                                                 % 
+%  This latex source file should not be edited.  It is generated  % 
+%  automatically from the integral API source code using "seetex" % 
+%  modifications required sould be made in the source code which  % 
+%  is in the source directory ".../nwchem/src/NWints/api" from    % 
+%  the standard repository. If you have questions or problems     % 
+%  contact Ricky Kendall at ra_kendall@pnl.gov or (509)375-2602   % 
+%                                                                 % 
+%                                                                 % 
+%-----------------------------------------------------------------%  
+\chapter{Integral Application Programmer's Interface} 
+This appendix describes the interface to all routines for the NWChem 
+integral API.  
+\section{INT-API: Initialization, Integral Accuracy and Termination} 
+These routines set the scope for the integral computation that is 
+about to be performed.  
+% 
+ 
+%API Initialization and Termination Routines 
+\subsection{int\_init} 
+This is the main initialization routine for integrals. 
+Default memory requirements, accuracy thresholds, and other  
+initializations for all base integral codes are set here.  
+This routine will read (from the rtdb) any integral  
+settings changed by the user. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_init(rtdb, nbas, bases) 
+\end{verbatim} 
+\begin{verbatim} 
+      integer rtdb        ! [input] run time data base handle 
+      integer nbas        ! [input] number of basis sets to be used 
+      integer bases(nbas) ! [input] basis set handles 
+\end{verbatim} 
+%API Initialization and Termination Routines 
+\subsection{intd\_init} 
+This is the main initialization routine for integral derivatives. 
+Default memory requirements, accuracy thresholds, and other  
+initializations for all base integral codes are set here.  
+This routine will read (from the rtdb) any integral  
+settings changed by the user. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine intd_init(rtdb,nbas,bases) 
+\end{verbatim} 
+\begin{verbatim} 
+      integer rtdb        ! [input] run time data base handle 
+      integer nbas        ! [input] number of basis sets to be used 
+      integer bases(nbas) ! [input] basis set handles 
+\end{verbatim} 
+ 
+%API Initialization and Termination Routines 
+\subsection{int\_terminate} 
+This is the main termination routine for integrals. 
+After this call the INT-API is ready for re-initialization. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_terminate() 
+\end{verbatim} 
+No formal arguments 
+ 
+ 
+%API Initialization and Termination Routines 
+\subsection{intd\_terminate} 
+This is the main termination routine for integral 
+derivatives. 
+After this call the INT-API is ready for re-initialization. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine intd_terminate() 
+\end{verbatim} 
+No formal arguments 
+ 
+% part of API Internal Routines 
+\subsection{int\_acc\_std} 
+This routine sets the integral threshold for radial cutoffs in all  
+integral codes used in the api via a parameter statement.  Other 
+routines have access via the apiP.fh common blocks and the set/get API. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_acc_std() 
+\end{verbatim} 
+\begin{verbatim} 
+      parameter(val_def = 1.0d-10) 
+\end{verbatim} 
+% part of API Internal Routines 
+\subsection{int\_acc\_high} 
+This routine sets the integral threshold to ``high'' accuracy  
+for radial cutoffs in all integral codes used in the api via a  
+parameter statement.  Other routines have access via the apiP.fh  
+common blocks and the set/get API. 
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_acc_high() 
+\end{verbatim} 
+\begin{verbatim} 
+      val_int_acc = 1.0d-20 
+\end{verbatim} 
+% part of API Internal Routines 
+\subsection{int\_acc\_get} 
+This routine returns the current integral threshold  
+for radial cutoffs in all integral codes used in the api via a  
+parameter statement.   
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_acc_get(retval) 
+\end{verbatim} 
+\begin{verbatim} 
+      double precision retval ! [output] current threshold 
+\end{verbatim} 
+% part of API Internal Routines 
+\subsection{int\_acc\_set} 
+This routine sets the current integral threshold  
+for radial cutoffs in all integral codes used in the api via a  
+parameter statement.   
+ 
+{\it Syntax:} 
+\begin{verbatim} 
+      subroutine int_acc_set(setval) 
+\end{verbatim} 
+\begin{verbatim} 
+      double precision setval ! [input] new threshold 
+\end{verbatim} 

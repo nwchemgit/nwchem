@@ -1,0 +1,171 @@
+
+\section{Use of TCGMSG global operation routines}
+
+In some cases (notably workstation clusters) the global array tools
+use a ``data-server'' process on each node in addition to the compute
+processes.  Data-server processes don't follow the same flow of
+execution of compute processes, so TCGMSG global operations
+(\verb+brdcst+, \verb+igop+, and \verb+dgop+) will hang when invoked.
+The global array toolkit provides ``wrapper'' functions
+(\verb+ga_brdcst+, \verb+ga_igop+, and \verb+ga_dgop+) which properly
+exclude data server processes from the global communication and must
+be used instead of the corresponding TCGMSG functions.
+
+\section{Interaction between GA and message-passing}
+
+The limited buffering available on the IBM SP-1/2 means that GA and
+message-passing operations cannot interleave as readily as they do on
+other machines.  Basically, in transitioning from GA to message
+passing or vice versa the application must call {\tt ga\_sync()}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The memory allocator --- MA}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\sloppy
+For detailed information on routines see the MA man pages by adding
+{\tt \$(NWCHEM\_TOP)/src/man/ma/man} % $ 
+to your {\tt MANPATH}.
+
+\fussy
+
+MA is a library of routines that comprises a dynamic memory allocator
+for use by C, FORTRAN, or mixed-language applications.  FORTRAN
+applications require such a library because the language does not
+support dynamic memory allocation.  C applications can benefit from
+using MA instead of the ordinary {\tt malloc()} and {\tt free()}
+routines because of the extra features MA provides: both heap and
+stack memory management disciplines, debugging and verification
+support, usage statistics, and quantitative memory availability
+information.  MA is designed to be portable across a large variety of
+platforms.
+
+\section{Typing}
+
+\section{MA data types}
+
+All MA memory is typed.  Data is allocated in units of integer,
+logical, double precision, etc., words.  The type of data is specified
+in arguments using predefined Fortran parameters (or macros in C).
+\begin{description}
+\item{\verb+MT_INT+} --- integer
+\item{\verb+MT_DBL+} --- double precision
+\item{\verb+MT_LOG+} --- logical
+\item{\verb+MT_CHAR+} --- character\verb+*+1
+\end{description}
+
+\section{List of routines}
+
+All MA routines are shown below, grouped by category and listed
+alphabetically within each category.  The FORTRAN interface is given
+({\em or the plan is to include it eventually}),
+refer to the man pages for the C interface or information on the
+arguments.
+
+Initialization: 
+\begin{itemize}
+\item {\tt MA\_init(datatype, nominal\_stack, nominal\_heap)}
+\item {\tt MA\_sizeof(datatype1, nelem1, datatype2)}
+\item {\tt MA\_sizeof\_overhead(datatype)}
+\end{itemize}
+
+Allocation:
+\begin{itemize}
+\item {\tt MA\_alloc\_get(datatype, nelem, name, memhandle, index)}
+\item {\tt MA\_allocate\_heap(datatype, nelem, name, memhandle)}
+\item {\tt MA\_get\_index(memhandle, index)}
+\item {\tt MA\_get\_pointer()} --- C only
+\item {\tt MA\_inquire\_avail(datatype)}
+\item {\tt MA\_inquire\_heap(datatype)}
+\item {\tt MA\_inquire\_stack(datatype)}
+\item {\tt MA\_push\_get(datatype, nelem, name, memhandle, index)}
+\item {\tt MA\_push\_stack(datatype, nelem, name, memhandle)}
+\end{itemize}
+
+Deallocation:
+\begin{itemize}
+\item {\tt MA\_chop\_stack(memhandle)}
+\item {\tt MA\_free\_heap(memhandle)}
+\item {\tt MA\_pop\_stack(memhandle)}
+\end{itemize}
+
+Debugging:
+\begin{itemize}
+\item {\tt MA\_set\_auto\_verify()}
+\item {\tt MA\_set\_error\_print()}
+\item {\tt MA\_set\_hard\_fail()}
+\item {\tt MA\_summarize\_allocated\_blocks()}
+\item {\tt MA\_verify\_allocator\_stuff()}
+\end{itemize}
+
+Iteration Over Allocated Blocks:
+\begin{itemize}
+\item {\tt MA\_get\_next\_memhandle(ithandle, memhandle)}
+\item {\tt MA\_init\_memhandle\_iterator(ithandle)}
+\end{itemize}
+
+Statistics:
+\begin{itemize}
+\item {\tt MA\_print\_stats(oprintroutines)}
+\end{itemize}
+
+
+\section{Errors}
+
+Errors considered fatal by MA result in program termination.  Errors
+considered nonfatal by MA cause the MA routine to return an error
+value to the caller.  For most boolean functions, false is returned
+upon failure and true is returned upon success.  (The boolean
+functions for which the return value means something other than
+success or failure are {\tt MA\_set\_auto\_verify()}, {\tt
+  MA\_set\_error\_print()}, and {\tt MA\_set\_hard\_fail()}.)  Integer
+functions return zero upon failure; depending on the function, zero
+may or may not be distinguishable as an exceptional value.
+
+An application can force MA to treat all errors as fatal via
+{\tt MA\_set\_hard\_fail()}.
+
+If a fatal error occurs, an error message is printed on the standard
+error (stderr).  By default, error messages are also printed for
+nonfatal errors.  An application can force MA to print or not print
+error messages for nonfatal errors via {\tt MA\_set\_error\_print()}.
+
+\section{Files}
+
+To access required MA definitions, C applications should include
+{\tt macdecls.h} and FORTRAN applications should include
+{\tt mafdecls.fh}.
+
+\section{Implementation}
+
+Memory layout definitions:
+\begin{itemize}
+\item segment = heap\_region stack\_region
+\item region = block block block \ldots
+\item block = AD gap1 guard1 client\_space guard2 gap2
+\end{itemize}
+
+A segment of memory is obtained from the OS upon initialization.  The
+low end of the segment is managed as a heap; the heap region grows
+from low addresses to high addresses.  The high end of the segment is
+managed as a stack; the stack region grows from high addresses to low
+addresses.
+
+Each region consists of a series of contiguous blocks, one per
+allocation request, and possibly some unused space.  Blocks in the
+heap region are either in use by the client (allocated and not yet
+deallocated) or not in use by the client (allocated and already
+deallocated).  A block on the rightmost end of the heap region becomes
+part of the unused space upon deallocation.  Blocks in the stack
+region are always in use by the client, because when a stack block is
+deallocated, it becomes part of the unused space.
+
+A block consists of the client space, i.e., the range of memory
+available for use by the application; guard words adjacent to each end
+of the client space to help detect improper memory access by the
+client; bookkeeping info (in an "allocation descriptor," AD); and two
+gaps, each zero or more bytes long, to satisfy alignment constraints
+(specifically, to ensure that AD and client\_space are aligned
+properly).  
+
+

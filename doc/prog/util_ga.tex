@@ -1,0 +1,305 @@
+
+Most of these routines are in the utility directory, but are
+documented here for better organization.  These routines all operate
+with global arrays and are (spuriously?)  prefaced with \verb+ga_+ but
+are not part of the GA library.  Some reference other NWChem objects,
+such as geometries or basis sets.
+
+All of these routines are collective --- i.e., all processes must
+invoke them at the same time, otherwise deadlock or a fatal error will
+result.
+
+\section{Simple linear operations}
+
+\subsection{{\tt ga\_get\_diag}}
+\begin{verbatim}
+  subroutine ga_get_diagonal(g_a, diags)
+  integer g_a               ! [input] GA handle
+  double precision diags(*) ! [output] diagonals
+\end{verbatim}
+Extracts the diagonal elements of the square (real) global array in a
+'scalable' fashion, broadcasting the result to everyone.  The local
+array (\verb+diags+) must be large enough to hold the result.  The
+only communication is (apart from synchronization to avoid a race
+condition) is a global sum of length the diagonal.
+
+\subsection{{\tt ga\_maxelt}}
+\begin{verbatim}
+   subroutine ga_maxelt(g_a, value)
+   integer g_a            ! [input] GA handle
+   double precision value ! [output] abs max value
+\end{verbatim}
+Returns the absolute value of the element with largest absolute
+magnitude.  The only communication is (apart from synchronization to
+avoid a race condition) is a global maximum of unit length.
+
+\subsection{{\tt ga\_ran\_fill}}
+\begin{verbatim}
+  subroutine ga_ran_fill(g_a, ilo, ihi, jlo, jhi)
+  integer g_a                ! [input] GA handle
+  integer ilo, ihi, jlo, jhi ! [input] patch specification
+\end{verbatim}
+Fills a patch of a global array (\verb+a(ilo:ihi,jlo:jhi)+) with
+random numbers uniformly distributed between 0 and 1.  The only
+communication is necessary synchronization.
+
+\subsection{{\tt ga\_screen}}
+\begin{verbatim}
+   subroutine ga_screen(g_a, value)
+   integer g_a            ! [input] GA handle
+   double precision value ! [input] Threshold
+\end{verbatim}
+Set all elements whose absolute value is less than {\tt value} to a
+hard zero.  The only communication is necessary synchronization.
+
+\subsection{{\tt ga\_mat2col} and {\tt ga\_col2mat}}
+\begin{verbatim}
+  subroutine ga_mat2col( g_a, ailo, aihi, ajlo, ajhi,
+ &   g_b, bilo, bihi, bjlo, bjhi)
+  integer g_a
+  integer g_b
+  integer ailo, aihi, ajlo, ajhi
+  integer bilo, bihi, bjlo, bjhi
+
+  subroutine ga_col2mat( g_a, ailo, aihi, ajlo, ajhi,
+ &   g_b, bilo, bihi, bjlo, bjhi)
+  integer g_a
+  integer g_b
+  integer ailo, aihi, ajlo, ajhi
+  integer bilo, bihi, bjlo, bjhi
+\end{verbatim}
+Obsolete routines to copy patches with reshaping. Use \verb+ga_copy_patch+
+instead.
+
+\section{Linear algebra and transformations}
+
+\subsection{{\tt ga\_mix}}
+\begin{verbatim}
+  subroutine ga_mix(g_a, n, nvec, b, ld)
+  integer g_a                 [input]
+  integer n, nvec, ld         [input]
+  double precision b(ld,nvec) [input]
+\end{verbatim}
+This routine is set up to optimize the rotation of a (small) set of
+vectors amoung themselves.  The matrix ($A(n,n_{vec})$) referenced by
+GA handle \verb+g_a+ must be distributed by columns so that an entire
+row is present on a processor --- a fatal error results if this is not
+the case.  The matrix {\tt b} must be replicated.  With these
+conditions no communication is necessary, other than that required for
+synchronizations to avoid race conditions.  The routine performs the
+following operation
+\begin{displaymath}
+     A_{ij} \Leftarrow \sum_{l=1,n_{vec}} A_{il} B_{lj}, i=1,n; j=1,n_{vec}
+\end{displaymath}
+which can be regarded as a multiplication of two matrices, one global
+and the other local, with the result overwriting the input global
+matrix.
+
+It would be easy to make this routine use more general distributions
+but still leave the optimized code for columnwise distribution.
+
+\subsection{{\tt two\_index\_transf}}
+\begin{verbatim}
+  subroutine two_index_transf( g_a, g_lhs, g_rhs, g_tmp, g_b )
+  integer g_a           ! [input] Handle to initial GA
+  integer g_lhs, g_rhs  ! [input] Handles to transformation
+  integer g_tmp         ! [input] Handle to scratch GA
+  integer g_b           ! [input] Handle to output GA
+\end{verbatim}
+Two-index square matrix transform --- $B = U_{LHS}^T A U_{RHS}$.  Done
+using calls to \verb+ga_dgemm+.  The scratch array must be a square
+array of the same dimension as all the other arrays.  It would be easy
+(and very useful) to generalize this to handle non-square transformations.
+
+\subsection{{\tt ga\_matpow}}
+\begin{verbatim}
+  subroutine ga_matpow(g_v, pow, mineval)
+  integer g_v              ! [input/output] Handle to GA
+  double precision pow     ! [input] Exponent
+  double precision mineval ! [input] Threshold for evals
+\end{verbatim}
+The square matrix referenced by \verb+g_v+ is raised to the power
+\verb+pow+ by diagonalizing it, discarding (if \verb+pow+ is les than
+zero) eigenvectors whose eigenvalue is smaller than \verb+mineval+,
+raising the diagonal matrix to the required power, and transforming
+back.  The only allowed values for \verb+pow+ are 1, -1,
+$\frac{1}{2}$, and $\frac{-1}{2}$, though it would be easy to
+generalize the routine to handle any value.
+
+The input GA is overwritten with the exponentiated result.  It is {\em
+not} guaranteed that the same handle will be returned -- if it is most
+efficient, the original GA may be destroyed and a new GA created to
+hold the result.
+
+Uses a GA the size of V, and a local array the size of the number
+of rows of V.  The eigensolver requires additional memory.
+
+Due to the use of a generalized eigensolver, an additional GA the size
+of V is also used.
+
+\subsection{{\tt mk\_fit\_xf}}
+\begin{verbatim}
+  logical function mk_fit_xf(approx, split, basis, mineval, g_v)
+  character*(*) approx, split [input]
+  integer basis               [input]
+  integer g_v                 [output]
+  double precision mineval    [input]
+\end{verbatim}
+Returns in \verb+g_v+ a newly allocated global array containing the
+appropriate fitting matrix for the specified
+resolution-of-the-identity (RI) approximation.
+
+ Arguments:
+\begin{itemize}
+\item \verb+approx+ --- RI approximation used (SVS, S, or V)
+\item \verb+split+ ---  Whether or not to return the square root of the matrix
+              so that it can be used to transform both sets of 3c ints.
+              (Y or N).
+\item \verb+basis+ --- Handle to fitting basis
+\item \verb+mineval+ --- Minimum eigenvalue of V matrix to be retained in 
+              the inversion
+\item \verb+g_v+ ---  Returns new global array handle to the $V^{-1/2}$ matrix
+\end{itemize}
+
+Return value:
+\begin{itemize}
+\item \TRUE\ if successful, even if some eigenvalues fell below \verb+mineval+.
+\item \FALSE\ if errors occured in dynamic memory (MA or GA) operations,
+inquiries about the basis, or in obtaining the required integrals.
+
+Note: the integral package must be initialized before calling this routine.
+
+Memory use:
+\item Creates and returns a global array (\verb+g_v+) the size of 
+\verb+bas_numbf(basis)+$^2$.
+\item Additional temporary usage consists of the largest of:
+\begin{enumerate}
+\item Integral requirements, reported by \verb+int_mem_2e2c+.
+\item \verb+bas_numbf(basis)+$^2$ + \verb+bas_numbf(basis)+ and whatever additional
+        space is required by \verb+ga_diag_std+.
+\item 2 * \verb+bas_numbf(basis)+$^2$.
+\end{enumerate}
+\end{itemize}
+
+\subsection{{ga\_orthog}}
+\begin{verbatim}
+  subroutine ga_orthog(g_vecs, g_over, ometric)
+  integer g_vecs  ! [input] Vectors to be orthonormalized
+  integer g_over  ! [input] Optional metric/overlap matrix
+  logical ometric ! [input] If .true. use metric matrix
+\end{verbatim}
+The columns of the GA referenced by the handle \verb+g_vecs+ are
+assumed to be vectors that must be orthonormalized.  If \verb+ometric+
+is specified as \FALSE\ then the standard inner product is used.
+Otherwise the \verb+g_over+ is assumed to refer to the metric (or
+overlap).  Internally, MA is used to allocate a copy of the matrix
+(and the metric) in a specific distribution.  If insufficient memory
+is available or the matrix is singular a fatal error results.
+
+\subsection{{\tt ga\_orthog\_vec}}
+\begin{verbatim}
+  subroutine ga_orthog_vec(n, nvec, g_m, g_x, j) 
+  integer n    ! vector length 
+  integer nvec ! no. of vectors 
+  integer g_m  ! GA handle for matrix 
+  integer g_x  ! GA handle for vector 
+  integer j    ! Column for vector
+\end{verbatim}
+Orthogonalize the vector \verb+x(1:n,j)+ to the vectors
+\verb+g(1:n,1:nvec)+.  Note that x is {\em not} normalized.  This routine
+is/was used by some of the iterative equation solvers.
+
+\section{Iterative linear algebra operations}
+
+\subsection{{\tt ga\_iter\_diag}}
+\begin{verbatim}
+  logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
+ &     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
+  integer n                 ! Matrix dimension
+  integer nroot             ! No. of eigen vectors sought
+  integer maxiter           ! Max. no. of iterations
+  integer maxsub            ! Max. dimension of iterative subspace
+  double precision tol      ! Required norm of residual
+  external precond          ! Preconditioner
+  external product          ! Matrix-vector product
+  logical oprint            ! Control printing to unit 6
+  double precision eval0    ! Estimate of lowest eval
+  integer g_evec            ! n by nroot GA for guess and final
+  double precision eval(nroot) ! Returns eigen values
+  double precision rnorm(nroot) ! Returns residual norms
+  integer iter              ! Returns no. of iterations used
+\end{verbatim}
+  Solve the eigenvalue equation ${\bf A}x = \lambda x$ with the
+vectors $x$ in GA and a routine (product) to form a matrix vector
+products to a required precision.  Return \TRUE\ if converged, \FALSE
+otherwise. Rnorm returns the actual attained precision for each root.
+     
+The block-Davidson-like algorithm solves for the best solution for
+each eigenvector in the iterative subspace ($x_i, i = 1, k$) with
+\begin{displaymath}
+  {\bf A} y = {\bf S}y\lambda, \mbox{where} A_{ij} = x_i^{\dagger} A x_j,
+\mbox{and} S_{ij} = x_i^{\dagger} x_j
+\end{displaymath}
+ {\em NB:} The matrix vector products ${\bf A}x_i$ are performed by the user
+provided routine \verb+product()+ to a precision specified by this routine
+(currently products are performed one at a time, but it is easy to
+improve the routine to perform many in one call).
+     
+The best solution within the iterative subspace is then
+\begin{displaymath}
+  x = \sum_i y_i x_i
+\end{displaymath}
+New expansion vectors are added by multiplying the residual
+\begin{displaymath}
+  r = ({\bf A} - s {\bf I}) x, \mbox{where} s \mbox{is the shift},
+\end{displaymath}
+with some approximation ($P$) to the inverse of ${\bf A}-s{\bf I}$.
+This preconditioning is performed by the user provided routine
+\verb+precond()+.  If \verb+eval0+ is a hard zero then the shift ($s$) is
+chosen as the current estimate for the eigenvalue that the next update
+strives to improve.  Otherwise the shift is fixed as \verb+eval0+
+which is appropriate for convergence to a known energy spectrum from
+some poor initial guess.
+     
+  The program cyles through the lowest nroot roots updating each that
+does not yet satisfy the convergence criterion which is
+\begin{displaymath}
+   {\tt rnorm(root)} = ||r|| < {\tt tol}
+\end{displaymath}
+
+ On input the global array \verb+x(n,nroot)+ should contain either an
+initial guess at the eigen vectors or zeroes.  If any vector is zero
+then random numbers are used.
+
+The use must proivde these routines:
+\begin{itemize}
+\item \verb+subroutine product(precision, g_x, g_ax)+ ---
+     computes the product ${\bf A}x$ to the specified precision (absolute
+     magnitude error in any element of the product) returning the result
+     in the GA \verb+g_ax+.
+\item \verb+subroutine precond(g_r, shift)+ ---
+     Apply an approximation ($P$) to the inverse of ${\bf A} - s {\bf
+     I}$ to the vector in \verb+g_r+ overwriting \verb+g_r+ with the result.
+\end{itemize}
+     
+If the initial guess is zero no redundant matrix product is formed.
+    
+Temporary global arrays of dimension \verb+n*maxsub+, \verb+n*maxsub+, 
+\verb+n+ and \verb+n+ are created.
+
+
+\subsection{{\tt ga\_iter\_lsolve}}
+
+\subsection{{\tt ga\_iter\_orthog}}
+
+\subsection{{\tt ga\_iter\_project}}
+
+\section{Miscellaneous}
+
+\subsection{{\tt ga\_pcg\_minimize}}
+
+\subsection{{\tt int\_1e\_ga}}
+
+\subsection{{\tt int\_2c\_ga}}
+
+

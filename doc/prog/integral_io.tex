@@ -1,0 +1,197 @@
+
+\section{Application- and I/O-Level Views of the Data Stream}
+
+The data stream coming into the package from the application consists
+of (floating point) integral values and (integer) labels (four labels
+per value) interspersed with calls which specify the ranges of the
+four labels for subsequent integrals.
+
+On disk (or in the package's cache) the data appears in compressed
+form, in chunks of 64 KB holding up to 8192 value/label sets, some of
+which may contain structural information rather than integral data.
+
+\section{Internal Data Structures (all are node-private)}
+
+\begin{verbatim}
+buffer (common block /cint2efile/)
+        integer                 n_per_rec = 8192
+        double precision        values(n_per_rec)
+        integer                 labels(4, n_per_rec)
+        integer                 n_in_rec
+\end{verbatim}
+VALUES are actual floating point integral values and must be bounded
+in absolute value by MAXVALUE to allow for the fixed-point compression
+scheme.
+
+LABELS are basis function labels relative to RANGE (set by
+int2e\_set\_bf\_range).  Must be representable in 8 bits to allow for
+compression.
+
+Some elements of the buffer are devoted to special purposes, in which
+case the labels are used to store > 8 bit integer values and the
+corresponding VALUES are set to zero (used in sanity checking).
+Special purposes are (1) a counter of the number of values in the
+current range (see int2e\_buf\_cntr\_\{pack,unpack\}), and (2) specifying a
+new basis function range (see int2e\_set\_bf\_range).  The first element
+of the buffer is always a counter.
+
+Related values:
+\begin{description}
+\item[next\_value]       Points to next buffer element to be read/inserted
+\item[cntr\_ptr]         Points to buffer element holding the current
+                        integral counter
+\item[nleft\_in\_range]   Running count of number of valid integrals
+                        remaining in the range.  Initialized by
+                        int2e\_buf\_cntr\_unpack and updated as the user
+                        obtains integrals with int2e\_file\_read.
+\end{description}
+
+\begin{verbatim}
+compressed buffer (common block /cint2ebuf/)
+        integer                 n\_per\_rec = 8192
+        double precision        buf(n\_per\_rec)
+        integer                 n\_in\_buf, pad
+\end{verbatim}
+
+Note: BUF is equivalanced to the integer array IBUF.  The IBUF
+representation is used during compression, while the BUF
+representation is used for storage.  PAD insures that the common block
+has an even length in doubles regardless of the relative size of
+integers and doubles.
+
+The first half of BUF contains the 32-bit integer fixed-point
+representation of the VALUES array.  If the machine has 64-bit
+integers, the fixed-point data are packed two per integer.  The final
+half of BUF contains the LABELS array compressed to 8 bits per
+element. (Note that the same bitstream results regardless of whether
+the platform uses one or two integers per double. In the case of one
+integer per double, the 32-bit fixed-point integral values are packed
+two to a word.)
+
+\subsection{Cache}
+
+Each node allocates local memory to act as a cache for its file.  The
+size of the cache is determined by user input (via the RTDB).
+Operation is simple:  the cache is filled with the initial records of
+integral data, the remainder go to disk.  Data is never moved between
+cache and disk.
+
+\section{Subprograms}
+
+\subsection{{\tt sread, swrite} (in util directory)}
+
+
+Read (write) an array of doubles on a Fortran sequential access file.
+If more than 32767 elements (hardwired in the routines) are to be read
+(written), it broken into multiple records of at most 32767 elements
+each.
+
+\subsection{{\tt int2e\_file\_open} (API)}
+
+
+Initializes integral file management variables (including filename).
+Determined numerical precision required to store (floating point)
+integral values and produces a scaling factor for the fixed-point
+compression scheme (values are represented as 32 bit integers relative
+to this scale factor).  Allocates local memory for cache.  Does not
+actually open the file (the Paragon is notorious for dying if you try
+to open too many files simultaneously, so actual opening is deferred
+until the first need to write, which is less likely to be
+synchronous).
+
+\subsection{{\tt int2e\_file\_close} (API)}
+
+Closes integral files, frees cache (local memory).
+
+\subsection{{\tt int2e\_file\_rewind} (API)}
+
+Rewinds the integral files, clears buffer.
+
+\subsection{{\tt int2e\_file\_read} (API)}
+
+Fills user-provided arrays with integrals and four labels.  Operates
+by repeated calls to int2e\_buf\_read followed by unpacking of the data
+into the user-supplied arrays.  Unpacking involves adjusting the
+labels to reflect the range as set by int2e\_set\_bf\_range.  Data is
+read until MAXINTS (user-specified) values have been read or the end
+of the current range (see int2e\_set\_bf\_range) is reached.  Returning
+.FALSE. is a signal to call int2e\_get\_bf\_range before the next call to
+this routine.
+
+\subsection{{\tt int2e\_file\_write} (API)}
+
+Copies data into internal buffers (currently 8192 elements, defined in
+cint2efile.fh), writing to disk as the buffer fills.  As each integral
+is being copied into the internal buffers, it is compared against a
+value which is the limit of what can be represented in the fixed-point
+compression scheme with the necessary precision.  If the integral
+value exceeds this value (in absolute value) int2e\_file\_write\_big is
+called deposit it into the buffer.
+
+
+\subsection{{\tt int2e\_file\_write\_big} (internal)}
+
+Splits up an integral too large to be represented accurately in the
+fixed point compression scheme into multiple smaller integrals (same
+labels, of course).
+
+\subsection{{\tt int2e\_buf\_read, int2e\_buf\_write} (mostly internal)}
+
+There is one application-level call to int2e\_buf\_write in
+the SCF to insure that the final buffer is written to disk.
+
+int2e\_buf\_read obtains a record of data from the cache (for records <
+max\_cache\_rec) or from disk (via sread). The data is unpacked by
+int2e\_buf\_unpack, and the number of integrals in the current range is
+extracted. To write the buffer, the procedure is exactly the reverse.
+
+\subsection{{\tt int2e\_buf\_clear} (internal)}
+
+Resets buffer pointers to "zero", effectively emptying the buffer and
+reserving the first entry in the buffer as a counter of the number of
+data values in the record (or until int2e\_set\_bf\_range is called).
+
+\subsection{{\tt int2e\_buf\_cntr\_pack, int2e\_buf\_cntr\_unpack} (internal)}
+
+Prepares the number of integrals counter for the data compression
+associated with storage.  The counter occupies the cntr\_ptr element in
+the buffer.  During normal operation, the counter is maintained as an
+integer in labels(1, cntr\_ptr), with no data in labels(2:4, cntr\_ptr)
+or values(cntr\_ptr).  The counter can therefore represent up to
+$2^{24}$. Since the data compression algorithm stores the label values as
+8 bits each, the counter is "packed" (unpacked) by splitting it into
+three bytes and stored in labels(1:3, cntr\_ptr).  Zeros are stored in
+labels(4, cntr\_ptr) and values(cntr\_ptr) and used by int2e\_buf\_unpack
+as as part of a sanity check.
+
+The first element of each record is a counter, and additional counters
+are generated by calls to int2e\_set\_bf\_range.
+
+\subsection{{\tt int2e\_buf\_pack, int2e\_buf\_unpack} (internal)}
+
+Compresses (decompresses) the integral buffer.  Integral values are
+scaled to produce a 32 bit integer representation (fixed-point
+compression).  Integral labels are packed into 32 bits as well.  On
+machines with 64 bit integers, the compressed integrals and labels are
+combined into a single datum.
+
+\subsection{{\tt int2e\_set\_bf\_range, int2e\_get\_bf\_range} (API)}
+
+Tells (extracts) the integral file module the ranges of the four
+integral labels to follow. The specified range is effective until
+it2e\_set\_bf\_range is called again to change it.
+
+The lowest 16 bits of the eight limit values are stored in four
+elements of the buffer as follows to survive the subsequent 8 bit
+packing:
+\begin{verbatim}
+        high 8 bits: ilo, jlo, klo, llo --> labels(1:4, next_value    ) 
+        high 8 bits: ihi, jhi, khi, lhi --> labels(1:4, next_value + 1) 
+        low  8 bits: ilo, jlo, klo, llo --> labels(1:4, next_value + 3) 
+        low  8 bits: ihi, jhi, khi, lhi --> labels(1:4, next_value + 4) 
+\end{verbatim}
+Calling int2e\_set\_bf\_range also terminates the current counter (see
+int2e\_buf\_cntr\_\{pack,unpack\}) and starts a new one for the new basis
+function range at next\_value+5.
+
+

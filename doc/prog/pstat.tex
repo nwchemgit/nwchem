@@ -1,0 +1,144 @@
+
+The pstat library is intended to facilitate collecting and reporting
+performance statistics for parallel programs.  The design is based to
+some extent on the ptimer and pmon facilities provided by Kendall
+Square Research, and also by getstat in the COLUMBUS program system.
+
+\section{Model}
+
+Applications can allocate ``timers'' associated with events in the
+program.  ``Timers'' are actually generalized data structures which
+can record elapsed CPU and wall clock time, accumulate information
+(i.e. the number of integrals produced) and other (possibly
+system-dependent) data. (In the present implementation only times and
+accumulators are available.)  Timers are represented within the
+program by opaque handles.
+
+\section{API}
+
+\subsection{Include files}
+All routines using the pstat library should include \verb+pstat.fh+,
+which includes predefined constants for the various statistics that
+can be collected.
+
+\subsection{{\tt pstat\_init}}
+\begin{verbatim}
+Status = PStat_Init( Max_Timers, NAcc, Names )
+Logical Status
+Integer Max_Timers, NAcc [IN]
+Character*(*) Names(NAcc) [IN]
+\end{verbatim}
+Initialize package, reserving space for Max\_Timers different
+timers.  Also defines NAcc user-defined accumulation registers
+labeled by the given Names.
+
+\subsection{{\tt pstat\_terminate}}
+\begin{verbatim}
+Status = PStat_Terminate()
+Logical Status
+\end{verbatim}
+Free up all temporary space used by pstat package
+
+\subsection{{\tt pstat\_allocate}}
+\begin{verbatim}
+Status = PStat_Allocate( Name, Functions, NAcc, Accumulators, Handle )
+Logical Status [OUT]
+Character*(*) Name [IN]
+Integer Functions [IN], NAcc [IN], Accumulators(NAcc) [IN], Handle [OUT]
+\end{verbatim}
+Create a timer with the given descriptive name which records
+the statistics described by the Functions argument. This timer
+will also allow accumulation into the NAcc accumulation
+registers listed in the Accumulators array.
+
+\subsection{{\tt pstat\_free}}
+\begin{verbatim}
+Status = PStat_Free( Handle )
+Logical Status [OUT]
+Integer Handle [IN]
+\end{verbatim}
+Frees up a timer so it can be re-pstat\_allocated later.  Does
+not free the storage associated with the timer.
+
+\subsection{{\tt pstat\_on}}
+\begin{verbatim}
+PStat_On( Handle )
+Integer Handle [IN]
+\end{verbatim}
+Start statistics gathering for the timer Handle.  Routine
+aborts with an error if timer is not in the "off" state at
+invocation.  Aborts with an error if Handle is not assigned.
+
+\subsection{{\tt pstat\_off}}
+\begin{verbatim}
+PStat_Off( Handle )
+Integer Handle [IN]
+\end{verbatim}
+End statistics gathering for the timer Handle.  Routine aborts
+with an error if timer is not in the "on" state at invocation.
+Aborts with an error if Handle is not assigned.
+
+\subsection{{\tt pstat\_acc}}
+\begin{verbatim}
+PStat_Acc( Handle, N, Data)
+Integer Handle, N [IN]
+Double precision Data(N) [IN]
+\end{verbatim}
+Accumulate Data into the registers defined when Handle was
+allocated. N must match the number of accumulation registers
+specified in the declaration of the timer, and the elements of
+Data will be added to the registers as specified in the
+Accumulators array used then the timer was allocated.
+
+\subsection{{\tt pstat\_print\_all} and {\tt pstat\_print}}
+\begin{verbatim}
+PStat_Print_All
+PStat_Print( Functions, NAcc, Accumulators )
+Integer Functions, NAcc, Accumulators(NAcc) [IN]
+\end{verbatim}
+Write a summary of statistics to stdout.  PStat\_Print\_All
+reports all data which has been collected.  PStat\_Print
+reports those data specified in Functions and Accumulators.
+The report includes the number of calls to each timer and the
+data specified by Functions.  For all data, including the
+number of calls, the min, max, and average across all
+processes is reported.
+        
+\subsection{Usage Notes}
+In normal usage, an application module would allocate the appropriate
+timers, normally in a subroutine, and store the handles in a common
+block which is included by all routines in the module which use
+PStat.  This is separate from the \verb+pstat.fh+ include file.
+And of course another subroutine at the end of the module would
+normally be used to free the timers.
+
+The core routines, PStat\_\{On,Off,Acc\}, do not return error codes in
+order to simplify putting them into \& removing them from code easily.
+They abort with an error if the timer handle is invalid, or if they
+are called out of sequence (PStat\_On and PStat\_Off must be paired).
+
+Different machines have different capabilities w.r.t. performance
+statistics collection.  Those functions which are not available on a
+given implementation will be silently ignored.  
+
+In order to minimize the overhead of checking which statistics to
+collect in each PStat\_\{On,Off\} call, the functions should represent
+related groups of statistics rather than a single item.  Three
+predefined groups will always be available: PStat\_NoStats, which is a
+NOP (for example when a timer will use only user-defined
+accumulators), PStat\_AllStats, which expands to all available
+functions, and PStat\_QStat, which is a minimal (quick) set (CPU time
+and wall clock time) intended for low-overhead usage.  Multiple
+functions can be requested by adding their values together with the
+exception of PStat\_QStat (to keep overhead low, PStat\_QStat is checked
+first, and if true, no other functions are checked.
+
+\section{Closing Comment}
+The current version of pstat was created as a throwaway prototype, but
+it hasn't been thrown away quite yet.  Things can certainly be
+improved, and hopefully they will be in due course.  One of the most
+important design flaws is the lack of context-dependence in the
+timers. As an excuse, I can only offer that we {\em still} don't have
+a grip on how to handle context in general, so it is not surprising
+that pstat doesn't have it.
+

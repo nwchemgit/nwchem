@@ -1,0 +1,291 @@
+
+NWchem consists of independent modules (e.g., input, SCF, RIMP2) that
+communicate through a database (similar in spirit to the GAMESS
+dumpfile or the Gaussian checkpoint file).  The only way modules can
+share data is via the database, or via files whose names are stored in
+the database (which may have default values).  Everything stored
+directly in the database comprises a typed array described by
+\begin{enumerate}
+\item a name which is a simple string of ASCII characters (e.g., 
+      \verb+"reference energies"+),
+\item the type of the data (real, integer, logical, or character), 
+\item the number of data items, and
+\item the actual data (an array of items of the specified type).
+\end{enumerate}
+
+A database is simply a file and is openend by name. Usually there is
+just one database per calculation, though multiple databases may be
+open at any instant.  
+
+By default access to all open databases occur in parallel, meaning
+that
+\begin{itemize}
+\item all processes must participate in any read/write of any database
+  and any such operation has an implied synchronization
+\item writes to the database write the data associated with process
+  zero but the correct status of the operation is returned to all
+  processes
+\item reads from the database read the data named by process zero and
+  broadcast the data to all processes, checking dimensions and types
+  of provided arrays
+\end{itemize}
+
+Alternatively, database operations can occur sequentially, meaning
+that
+\begin{itemize}
+\item only process zero can read/write the database and this happens
+  with no communication or synchronization with other processes
+\item read/write operations by any other process than process zero is
+  an error
+\end{itemize}
+
+Usually, all processes will want the same data at the same time from
+the database, and all processes will want to know of the success or
+failure of operations.  This is readily done in the default parallel
+mode.  A counter-example to this is provided during the reading of input.
+Usually, only process zero will read the input and needs to store the
+data directly into the database without involving the other processes.
+This is done using sequential mode.
+
+Following is a detailed listing of the C and Fortran API\@.  
+Programs using RTDB routines should include the appropriate Fortran
+({\tt rtdb.fh}) or C ({\tt rtdb.h}) header file.   These define return
+types for all functions and also the paramters 
+\begin{itemize}
+\item {\tt rtdb\_max\_key} --- an integer parameter that defines the maximum
+  length of a character string key
+\item {\tt rtdb\_max\_file} --- an integer parameter that defines the maximum
+  length of a file name
+\end{itemize}
+All routines return \TRUE (1 in C) on success, \FALSE (0
+in C) on failure.
+
+\section{{\tt rtdb\_parallel}}
+\begin{verbatim}
+  int rtdb_parallel(const int mode)
+
+  logical function rtdb_parallel(mode)
+  logical mode              [input]
+\end{verbatim}
+Set the parallel access mode of all databases to mode and return the
+previous setting. If {\tt mode} is true then accesses are in parallel.
+
+\section{{\tt rtdb\_open}}
+\begin{verbatim}
+  int rtdb_open(const char *filename, const char *mode, int *handle)
+
+  logical function rtdb_open(filename, mode, handle)
+  character *(*) filename   [input]
+  character *(*) mode       [input]
+  integer handle            [output]
+\end{verbatim}
+Open a database:
+\begin{itemize}
+\item    {\tt Filename} --- path to file associated with the data base
+\item    {\tt mode} ---
+\begin{itemize}
+\item {\tt new} ---  Open only if it does not exist already
+\item {\tt old} ---  Open only if it does exist already
+\item {\tt unknown} --- Create new or open existing (preserving contents)
+\item {\tt empty} --- Create new or open existing (deleting contents)
+\item {\tt scratch} --- Create new or open existing (deleting contents)
+                         and automatically delete upon closing.  Also, items
+                         cached in memory are not written to disk.
+\end{itemize}
+\item {\tt handle} --- returns an integer handle by which all future
+  references to the data base are made
+\end{itemize}
+
+\section{{\tt rtdb\_close}}
+\begin{verbatim}
+  int rtdb_close(const int handle, const char *mode)
+
+  logical function rtdb_close(handle, mode)
+  integer handle            [input]
+  character*(*) mode        [input]
+\end{verbatim}
+Close a database:
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt mode} ---
+\begin{itemize}
+\item {\tt keep} ---    Preserve the data base file to enable restart
+\item {\tt delete} ---  Delete the data base file freeing all resources
+\end{itemize}
+\end{itemize}
+The {\tt mode} of close is overridden by opening the data base with
+{\tt mode} equal to {\tt scratch} in which instance it is always
+deleted upon closing.
+
+\section{{\tt rtdb\_put}}
+\begin{verbatim}
+  int rtdb_put(const int handle, const char *name, const int ma_type,
+               const int nelem, const void *array)
+
+  logical function rtdb_put(handle, name, ma_type, nelem, array)
+  integer handle            [input]
+  character *(*) name       [input]
+  integer ma_type           [input]
+  integer nelem             [input]
+  <ma_type>array(nelem)     [input]
+\end{verbatim}
+Insert an entry into the data base replacing previous entry
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt name} --- entry name (null terminated character string)
+\item {\tt ma\_type} --- MA type of the entry
+\item {\tt nelem} --- number of elements of the given type
+\item {\tt array} --- data to be inserted
+\end{itemize}
+
+\section{{\tt rtdb\_get}}
+\begin{verbatim}
+  int rtdb_get(const int handle, const char *name, const int ma_type,
+               const int nelem, void *array)
+
+  logical function rtdb_get(handle, name, ma_type, nelem, array)
+  integer handle            [input]
+  character *(*) name       [input]
+  integer ma_type           [input]
+  integer nelem             [input]
+  <ma_type>array(nelem)     [output]
+\end{verbatim}
+Get an entry from the data base
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt name} --- entry name
+\item {\tt ma\_type} --- MA type of the entry which must match entry type
+\item {\tt nelem} --- size of array in units of {\tt ma\_type}
+\item {\tt array} --- user provided buffer that returns data
+\end{itemize}
+
+\section{{\tt rtdb\_cput/get}}
+\begin{verbatim}
+  logical function rtdb_cput(handle, name, nelem, buf)
+  integer handle            [input]
+  character *(*) name       [input]
+  character *(*) buf        [input]
+
+  logical function rtdb_cget(handle, name, nelem, buf)
+  integer handle            [input]
+  character *(*) name       [input]
+  character *(*) buf        [output]
+\end{verbatim}
+Fortran routines to provide put/get functionality for character
+variables.
+
+\section{{\tt rtdb\_ma\_get}}
+\begin{verbatim}
+  int rtdb_ma_get(const int handle, const char *name, int *ma_type,
+                  int *nelem, int *ma_handle)
+
+  logical function rtdb_ma_get(handle, name, ma_type, nelem, ma_handle)
+  integer handle            [input]
+  character *(*) name       [input]
+  integer ma_type           [output]
+  integer nelem             [output]
+  integer ma_handle         [output]
+\end{verbatim}
+Get an entry from the data base returning an MA handle to memory
+automatically allocated to hold the data read from the database.
+\begin{itemize}  
+\item {\tt handle} --- handle to RTDB
+\item {\tt name} --- entry name
+\item {\tt ma\_type} --- returns MA type of the entry
+\item {\tt nelem} --- returns number of elements of type {\tt ma\_type} in data
+\item {\tt ma\_handle} --- returns MA handle to data
+\end{itemize}
+
+
+\section{{\tt rtdb\_get\_info}}
+\begin{verbatim}
+  int rtdb_get_info(const int handle, const char *name, int *ma_type, 
+                    int *nelem, char date[26])
+
+  logical function rtdb_get_info(handle, name, ma_type, nelem, date)
+  integer handle            [input]
+  character *(*) name       [input]
+  integer ma_type           [output]
+  integer nelem             [output]
+  character*26 date         [output]
+\end{verbatim}
+Get info about an entry from the data base
+\begin{itemize}
+\item {\tt handle} ---- handle to RTDB
+\item {\tt name} --- entry name (null terminated character string in
+  C,  standard FORTRAN character constant or variable in FORTRAN)
+\item {\tt ma\_type} --- returns MA type of the entry
+\item {\tt nelem} --- returns number of elements of the given type
+\item {\tt date} --- returns date of insertion (null terminated
+  character string, or FORTRAN character variable)
+\end{itemize}
+
+\section{{\tt rtdb\_first/next}}
+\begin{verbatim}
+  int rtdb_first(const int handle, const int namelen, char *name)
+
+  int rtdb_next(const int handle, const int namelen, char *name)
+
+  logical function rtdb_first(handle, name)
+  integer handle            [input]
+  character *(*) name       [output]
+
+  logical function rtdb_next(handle, name)
+  integer handle            [input]
+  character *(*) name       [output]
+\end{verbatim}
+These routines enable iteration through the items in the database in
+an effectively random order.  They return in {\tt name} the name of
+the first/next (user inserted) entry in the data base. 
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt namelen} ---  size of user provided buffer name (C only)
+\item {\tt name} --- name of first/next entry is returned in this
+  buffer
+\end{itemize}
+
+An example of their use in C to count and print the name of all
+entries is
+\begin{verbatim}
+  char name[256];
+  int n, status, rtdb;
+
+  for (status=rtdb_first(rtdb, sizeof(name), name), n=0;
+       status;
+       status=rtdb_next(rtdb, sizeof(name), name), n++) 
+    printf("entry %d has name '%s'\n", n, name);
+\end{verbatim}
+
+\section{{\tt rtdb\_delete}}
+\begin{verbatim}
+  int rtdb_delete(const int handle, const char *name)
+
+  logical function rtdb_delete(handle, name)
+  integer handle            [input]
+  character *(*) name       [input]
+\end{verbatim}
+Delete the entry from the database. 
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt name} --- name of entry to delete
+\end{itemize}
+Returns
+\begin{itemize}
+\item 1 if key was present and successfully deleted, or
+\item 0 if key was not present, or if an error occured.
+\end{itemize}
+
+\section{{\tt rtdb\_print}}
+\begin{verbatim}
+  int rtdb_print(const int handle, const int print_values)
+
+  logical function rtdb_print(handle, print_values)
+  integer handle            [input]
+  logical print_values      [input]
+\end{verbatim}
+Print the contents of the data base to {\tt STDOUT}.
+\begin{itemize}
+\item {\tt handle} --- handle to RTDB
+\item {\tt print\_values} --- boolean flag --- if true values as
+  well as keys are printed out.
+\end{itemize}

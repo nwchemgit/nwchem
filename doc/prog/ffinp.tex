@@ -1,0 +1,337 @@
+
+
+ All routines are declared in the header file {\tt inp.fh}.
+Have a look at the input routines in the NWChem input module
+for code examples.
+
+\section{Initialization}
+
+\subsection{{\tt inp\_init}}
+
+\begin{verbatim}
+  subroutine inp_init(ir, iw)
+  integer ir, iw     [input]
+\end{verbatim}
+Initialize free format input routines to take input from Fortran unit
+{\tt ir} and send their output to fortran unit {\tt iw}.  The input
+file is processed from the current location.
+
+{\tt inp\_init()} shuld be invoked each time the input file is
+repositioned using other than {\tt inp\_*()} routines (e.g., rewind).
+
+\section{Basic input routines}
+
+\subsection{{\tt inp\_read}}
+\begin{verbatim}
+  logical function inp_read()
+\end{verbatim}
+Read a line from the input and split it into white space (blank or
+tab) separated fields.  White space may be incorporated into a field
+by enclosing it in quotes (\verb+"+).  The case of input is preserved.
+Blank lines are ignored, and text from a pound or hash symbol
+(\verb+#+) to the end of the line is treated as a comment.  A
+backslash(\verb+\+) at the end of a line (only white space may appear
+after it) may be used to concatentate physical input lines into one
+logical input line.  A semicolon (\verb+;+) may be used to split a
+physical input line into multiple logical input lines.  The special
+meaning of hash (\verb+#+), semicolon (\verb+;+) and quotation
+(\verb+"+) characters may be avoided only by prefacing them with a
+backslash (this must be done even if the character is inside a quoted
+character string).
+
+The number of fields read is set to 0, there being a total of
+\verb+inp_n_field()+ fields in the line.
+
+If a non-blank line is successfully parsed then \TRUE is returned.
+Otherwise an internal error message is set and \FALSE is returned.
+
+Possible errors include detection of EOF ({\tt inp\_eof()} may be used to
+check for this condition) or failure to parse the line (e.g., a
+character string without a terminating quote).
+
+EOF may be indicated by end of the physical input file, or by a
+physical input line that begins with either asterisk (*), period (\.)
+or EOF (ignoring case), and has only trailing white space.
+
+There is a maximum input line width of 1024 characters.
+
+\subsection{{\tt inp\_i}}
+\begin{verbatim}
+  logical function inp_i(i)
+  integer i        [output]
+\end{verbatim}
+Attempt to read the next field as an integer.  Upon success return
+\TRUE and advance to the next field.  Otherwise return \FALSE,
+save an internal error message and do not change the
+current field.  The input argument ({\tt i}) is not changed unless an
+integer is successfully read (so that any default value already
+present in i is not corrupted).
+
+\subsection{{\tt inp\_f}}
+\begin{verbatim}
+  logical function inp_f(d)
+  double precision d       [output]
+\end{verbatim}
+Attempt to read the next field as a floating point number.  Upon
+success return \TRUE and advance to the next field.  Otherwise
+return \FALSE, save an internal error message and do not change
+the current field.  The input argument ({\tt d}) is not changed unless
+an integer is successfully read (so that any default value already
+present in {\tt d} is not corrupted).
+
+\subsection{{\tt inp\_a}}
+\begin{verbatim}
+  logical function inp_a(a)
+  character *(*) a         [output]
+\end{verbatim}
+Attempt to read the next field as a character string.  Upon success
+return \TRUE and advance to the next field.  Otherwise return
+\FALSE, save an internal error message and do not change the
+current field.
+
+\subsection{{\tt inp\_a\_trunc}}
+\begin{verbatim}
+  logical function inp_a_trunc(a)
+  character *(*) a         [output]
+\end{verbatim}
+Attempt to read the next field as a character string, quietly
+discarding any data that does not fit in the user provided buffer.
+Upon success return \TRUE and advance to the next field.
+Otherwise return \FALSE, save an internal error message and do
+not change the current field.
+
+\subsection{{\tt inp\_line}}
+\begin{verbatim}
+  logical function inp_line(z)
+  character*(*) z          [output]
+\end{verbatim}
+Return in {\tt z} as much of the entire input line as it will hold and
+quietly discard any overflow.  Upon success return \TRUE,
+otherwise save an internal error message and return \FALSE
+
+\subsection{{\tt inp\_cline}}
+\begin{verbatim}
+  subroutine inp_cline(z, len, success)
+  character*(*) z          [output]
+  integer len              [input]
+  logical success          [input]
+\end{verbatim}
+A C-callable equivalent of inp\_line, which puts {\tt len -1} characters of
+the input line into the character string {\tt z}. Trailing spaces are
+eliminated and the string is terminated with a 0 character, as is
+standard for C,
+
+
+\subsection{{\tt inp\_irange}}
+\begin{verbatim}
+  logical function inp_irange(first, last, stride)
+  integer first, last, stride     [output]
+\end{verbatim}
+Attempt to read the next field as a Fortran90-style triplet specifying
+a range with optional stride.  Upon success return \TRUE and
+advance to the next field.  Otherwise, return \FALSE, save
+internal error message, and do not change the current field.  The
+input arguments are not changed unless an integer range is
+successfully read.
+
+The syntax is \verb+<first>[:<last>[:<stride>]]+, where all terms are
+integers.  The default \verb+<stride>+ is 1.  A simple integer is, in
+essence, a degenerate triplet, and will be read correctly by this
+routine.  The result will be as if the input had been
+\verb+"<first>:<first>:1"+.
+
+\subsection{{\tt inp\_ilist}}
+\begin{verbatim}
+  logical function inp_ilist(maxlist, list, n)
+  integer maxlist          [input]
+  integer list(maxlist)    [output]
+  integer n                [output]
+\end{verbatim}
+Reads the remainder of the line as a list of integers and puts the
+results in {\tt list}.  Ranges of integers may be input compactly
+using the notation of \verb+inp_irange()+. The number of elements set
+from the input is returned in \verb+n+.
+
+\verb+inp_ilist+ returns \TRUE if the input is a valid integer
+list, and \FALSE otherwise, also setting an appropriate error
+message.  If $n > $ ~{\tt maxlist}, it indicates that there is too
+much data on the line to fit in {\tt list}.
+
+\subsection{{\tt inp\_search}}
+\begin{verbatim}
+  logical function inp_search(ocase, z, nz)
+  logical ocase            [input]
+  integer nz               [input]
+  character*(*) z(nz)      [input]
+\end{verbatim}
+Position the input file at the next logical input line which has a
+first input field that matches the leading non-blank characters of one
+of the elements of \verb+z+.  If ocase is \TRUE then matches are case
+sensitive.
+
+If such a line is found then return \TRUE, and reset the
+current input field to 0 (i.e., as if \verb+inp_read()+ had just been
+called).
+
+If no such line is found return \FALSE\@.  The file will be
+either at EOF or at a line which was not successfully parsed.  EOF may
+be detected by \verb+inp_eof()+.
+
+\section{Routines concerning fields within a line}
+
+\subsection{{\tt inp\_n\_field}}
+\begin{verbatim}
+  integer function inp_n_field()
+\end{verbatim}
+Returns the number of fields in the current input line (1, \ldots).  A
+value of 0 implies either that EOF or some other error was detected or
+{\tt inp\_read()} has not yet been called.
+
+\subsection{{\tt inp\_cur\_field}}
+\begin{verbatim}
+  integer function inp_cur_field()
+\end{verbatim}
+Returns the number of fields in the input line that have been processed
+so far (0, \ldots).  Thus if {\tt inp\_cur\_field()} returns 2, then the next
+field read by {\tt inp\_f()} etc.\ will be field 3.
+
+\subsection{{\tt inp\_set\_field}}
+\begin{verbatim}
+  subroutine inp_set_field(value)
+  integer value            [input]
+\end{verbatim}
+Sets the current field (as returned by \verb+inp_cur_field+) to be
+value.  $0 \le$~{\tt value}~$\le$ {\tt inp\_n\_field()}.  An out of
+range value results in error termination.
+
+\subsection{{\tt inp\_prev\_field}}
+\begin{verbatim}
+  subroutine inp_prev_field()
+\end{verbatim}
+A convenience routine that positions you to read the field (on the
+current input line) that was last read.  It is simply implemented as
+\begin{verbatim}
+        call inp_set_field(max(0,inp_cur_field()-1))
+\end{verbatim}
+At the beginning of the line this is a null operation.
+
+
+\section{String routines}
+These routines don't actually read input but are helpful in
+interpreting input or formatting output.
+
+\subsection{{\tt inp\_strlen}}
+\begin{verbatim}
+  integer function inp_strlen(z)
+  character*(*) z          [input]
+\end{verbatim}
+Return the index of the last non-blank character in {\tt z}, 0 being
+returned for a fully blank string.
+
+\subsection{{\tt inp\_lcase}}
+\begin{verbatim}
+  subroutine inp_lcase(z)
+  character*(*) z          [input/oputput]
+\end{verbatim}
+Lowercase the character string {\tt z}.
+
+\subsection{{\tt inp\_ucase}}
+\begin{verbatim}
+  subroutine inp_ucase(z)
+  character*(*) z          [input/output]
+\end{verbatim}
+Uppercase the character string {\tt z}.
+
+\subsection{{\tt inp\_compare}}
+\begin{verbatim}
+  logical function inp_compare(ocase, a, b)
+  logical ocase            [input]
+  character*(*) a, b       [input]
+\end{verbatim}
+Return \TRUE iff all the characters in A match the first len(A)
+characters of B.  If ocase is \TRUE then comparisons are case
+sensitive, otherwise comparisons ignore case.
+
+\subsection{{\tt inp\_match}}
+\begin{verbatim}
+  logical function inp_match(nrec, ocase, test, array, ind)
+  integer nrec             [input]
+  logical ocase            [input]
+  character*(*) test       [input]
+  character*(*) array(nrec)[input]
+  integer ind              [output]
+\end{verbatim}
+Let {\tt L} be the length of the character string test ignoring
+trailing blanks.  Attempt to find a unique match of \verb+test(1:L)+
+against elements of \verb+array(*)+.  If \verb+ocase+ is \TRUE then
+comparisons are case sensitive, otherwise comparisons ignore case.
+
+If a unique match is made return the index of the element in
+\verb+ind+ and return \TRUE
+
+If the match is ambiguous set \verb+ind+ to 0, and return \FALSE.
+
+If no match is found set \verb+ind+ to -1 and return \FALSE.
+
+\subsection{{\tt inp\_strtok}}
+\begin{verbatim}
+  logical function inp_strtok(z, sep, istart, iend)
+  character*(*) z           ! [input] string to parse
+  character*(*) sep         ! [input] token separators
+  integer istart, iend      ! [output] start/end of next token
+\end{verbatim}
+Returns the number of the start and end character of the next token in
+the character string.  Tokens are separated by one of the characters
+in \verb+sep+.  Note that all characters in \verb+sep+ are used including any
+trailing blanks.
+
+Before the first call initialize \verb+istart+ to zero, and leave
+\verb+istart+ and \verb+iend+ {\em unchanged} for subsequent calls.
+Repeated calls return the next token and \TRUE, or \FALSE if there are
+no more tokens.  The separators may be changed between calls.  No
+internal state is maintained (which is why \verb+istart+ and
+\verb+iend+ must not be modified between calls) so multiple strings
+may be parsed simultaneously.
+
+E.g., to split the character string \verb+list+ into tokens separated 
+by \verb+':'+ and print each token out, you might execute
+\begin{verbatim}
+     istart = 0
+  10 if (inp_strtok(list, ':', istart, iend)) then
+        write(6,*) list(istart:iend)
+        goto 10
+     endif
+\end{verbatim}
+
+\section{Error handling routines}
+
+\subsection{{\tt inp\_errout}}
+\begin{verbatim}
+  subroutine inp_errout()
+\end{verbatim}
+If there is an internal error message, print out its value, the
+current line number and its contents.  If appropriate indicate the
+problematic position in the current input line.
+
+\subsection{{\tt inp\_outrec}}
+\begin{verbatim}
+  subroutine inp_outrec()
+\end{verbatim}
+Print out the current input line.
+
+\subsection{{\tt inp\_clear\_err}}
+\begin{verbatim}
+  subroutine inp_clear_err()
+\end{verbatim}
+Clear error conditions and messages that may no longer be relevant.
+For instance, if values are read from a line until no more are
+available, the error message ``at end of line looking for \ldots''
+will be internally recorded.  A call to this routine will clear this state.
+
+\subsection{{\tt inp\_eof}}
+\begin{verbatim}
+  logical function inp_eof()
+\end{verbatim}
+Return \TRUE if EOF has been detected, \FALSE otherwise.
+
+

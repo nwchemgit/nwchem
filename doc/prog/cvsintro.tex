@@ -1,0 +1,258 @@
+\label{sec:cvs-intro}
+
+{\bf Author:} David Bernholdt
+
+CVS, which stands for {\it Concurrent Version System} is a revision
+control package designed to facilitate multiple developers working on
+the same software package.  It is implemented as a layer on top of RCS
+and provides a number of useful features which RCS alone does not.
+
+To my mind, the two most important of these features are 
+\begin{itemize}
+\item The RCS check-in/checkout locking mechanism introduces a coupling
+between developers at the level of the source file they want to work
+on, despite the practical reality that even within a given source
+file, changes are usually orthogonal.  CVS does not require exclusive
+locks on sources during the development process and provides for
+merging of orthogonal changes to the same source file (overlapping
+changes are flagged for manual resolution during the merger process).
+
+\item RCS works on a per-file basis, and unless great care is taken,
+changes can be forgotten or lost.  Most CVS commands work recursively
+on the entire contents of a directory tree (with command line switches
+to limit operation to the local directory), making it easy to identify
+all files which have changed, check them in, etc.
+\end{itemize}
+This note
+is meant to outline the model which CVS uses for the software
+development process and to connect that model with the basic commands
+of the program itself.  Hopefully once the basics are under control,
+the more sophisticated aspects of the program can be understood from
+the man pages.
+
+\section{The CVS Model}
+
+CVS divorces the directory tree in which development takes place from
+the directory tree in which the master copy of the sources are kept.
+The latter directory tree is referred to as the {\em repository}, and
+it has exactly the same structure as the working directory tree.  Where
+the working tree would have source files, the repository has the RCS
+files for the sources (i.e., {\tt source.f,v}).
+
+Each user who wants to work on a program checks it out of the
+repository into their own directories.  The working copy is (by
+default) created giving the user read and write permission on all of
+the files, and can be used directly.  When a developer has completed
+(and tested) a set of changes, they can check the revised sources into
+the repository.  The other developers are uneffected by the change to
+the repository until they either update their copy of the source or
+check out new copy.  Anyone checking out a new working copy will
+always get the latest version present in the repository.
+
+Developers can ``poll'' the repository for changes and update {\em
+  their working copy} with the changes between their last checkout or
+update and the current version.  The repository is entirely unaffected
+by an update; only the developer's private working copy is changed.
+Most often, even within the same source file, changes made by
+independent developers will not conflict.  As long as they don't CVS
+handles the merger automatically.  If they do conflict, it is up to
+the developer to fix them.  It is then the individual developer's
+responsibility to insure that whatever they have been working on
+meshes properly with the changes others have put into the repository.
+Note that although CVS reduces the coupling between developers
+actually wanting to edit a particular source, it does not eliminate
+the need for communication, so that changes which functionally
+conflict (regardless of whether the source changes conflict) can be
+avoided.
+
+\section{The CVS Program}
+
+CVS is implemented as a single program named {\tt cvs} which has many
+subcommands.  It is worth noting both the cvs command itself and the
+subcommand accept a variety of command line switched which are
+distinguished by their position: {\tt cvs [cvs\_options] subcommand
+[subcommand\_options] [arguments]}.  The man page lists the
+applicable options for the cvs command itself and for each subcommand.
+
+CVS must be told of the location of the repository.  This can be done
+with the cvs\_option (i.e. {\tt -d /msrc/proj/mss}) or by setting
+the environment variable {\it CVSROOT}.  Although the CVS man pages
+implicitly use a single repository for all projects under CVS control,
+this is not strictly necessary.  At Florida, I had a private CVS
+repository, one for my research group, and one for software I added to
+the system, which I accessed by changing the definition of {\tt CVSROOT}.
+
+CVS thinks in terms of source {\em modules}.  Basically this is some
+collection of source which it is sensible to work on.  The module can
+simply be the name of a directory within the repository (i.e. {\tt
+nwchem} or {\tt nwchem/src}) or it defined as a collection of selected
+bits and pieces of the directories within the repository.  For
+instance, we might eventually find it useful to avoid checking out the
+Argos sources or the distributed data package in some circumstances,
+so modules could be defined to give these results.
+
+To check out a working copy of a repository, go to the place in your
+directory tree where you want the copy to live and give the command
+{\tt cvs co nwchem} (or whatever module you want; nwchem is the one
+of interest to most of us).
+
+As you are working, you may want to compare your sources with those
+you checked out.  This can be done with the {\tt cvs diff} command,
+which accepts the same arguments as rcsdiff.  You can specify
+particular files, or let it do the entire directory tree recursively.
+{\tt cvs log} is the equivalent of the RCS rlog command and operates
+similarly to {\tt cvs diff}.
+
+The {\tt cvs update} command is used to merge changes to the
+repository into your working copy.  Recurses through the directory
+tree and reports files you have modified with an ``M'', and files
+which have changed in the repository with a ``U''.  Files which did
+not come from the repository are marked with a ``?''.  There are a
+number of other codes for other circumstances, which are detailed in
+the man pages. If you just want to check what has changed without
+merging from the repository, use {\tt cvs -n update}.
+
+To inform CVS that you are intentionally removing a file under its
+control, first remove it with the Unix {\tt rm} command, then use {\tt
+cvs rm} to notify CVS\@.  When you check-in this (nonexistent) file the
+next time, it will be moved to a special place in the repository where
+it can be recovered if old versions which require it are check out,
+but where it will not appear in future working copies.
+
+To give CVS control over files, you {\tt cvs add} them.  Like {\tt cvs
+rm}, the actual addition takes place at the next check-in.  As with
+the first RCS check-in of a file, {\tt cvs add} will prompt you for a
+description of the file (not a log message -- that happens at
+check-in).  New directories must also be added with {\tt cvs add}, but no
+description is requested.
+
+To check-in your changes use {\tt cvs ci}.  As with {\tt cvs diff},
+it will accept particular file names or recurse through the directory
+tree looking for files you have modified.  You are asked to write a
+log message for the files you check-in.  If you give specific filenames
+to check-in, the log message applies to all of them.  If you let it
+figure out which files to check-in, you are asked for a log message for
+all of the modified files in a given directory.  The {\tt EDITOR}
+environment variable is used to decide which editor to bring up to
+enter the log message.
+
+CVS automatically tracks which versions if the sources your working
+copy is based on, so it determines whether your changes would be
+checked in on a branch or the main trunk, etc.
+
+If you want to get rid of a working directory, the best thing to do is
+{\tt cvs release -d nwchem} in the directory above it.  This command
+checks your files to make sure you are not accidentally abandoning any
+changes which haven't been checked in, then delete the entire
+directory tree (leaving off the {\tt -d} just does the check without
+deleting anything).
+
+There is a lot more that can be done with CVS, but these basics should
+get you started.  I {\em strongly} recommend you take the time to read
+through the CVS man pages to get a better feel for everything that can
+be done.  If you are unsure of what a command will do, try it first
+with a {\tt -n} option on cvs itself.  This is like ``make -n'', which
+reports what it would do if invoked without the {\tt -n}.
+
+\section{Summary of CVS commands}
+
+For a really brief reference, look below.  A bit more detail is in
+\verb+nwchem/doc/cvshelp.man+ and the full gore is available from
+\verb+man cvs+.
+
+\begin{description}
+\item{\verb+setenv CVSROOT /msrc/proj/mss+} --- in the \verb+csh+ this
+  defines the path to the CVS repository.  Put this in your
+  \verb+.cshrc+ or \verb+.mycshrc+.
+ 
+\item{\verb+cvs co nwchem+} --- checks out the entire source for NWChem into
+  the directory \verb+nwchem+.  The repository is unaffected.
+  
+\item{\verb+cvs -n update+} --- compares the contents of the current
+  directory and all subdirectories against the repository and flags
+  files according to their status:
+  \begin{description}
+  \item{\verb+?+} --- the file is not maintained by CVS.
+  \item{\verb+M+} --- your checked-out version differs from the original
+    (i.e., you edited it).
+  \item{\verb+U+} --- your checked-out version is out-of-date and
+    needs updating.
+  \item{\verb+C+} --- potential conflict. You have changed this file
+    and the source in the repository has also changed.
+  \item{File not listed} --- your source is the same as that in the repository.
+  \end{description}
+  Neither the repository nor your source are changed.
+
+\item{\verb+cvs update+} --- updates the contents of the current
+  directory and all subdirectories with the latest versions of the
+  source, again flagging files according to their status. {\em You are
+    responsible for correcting files that CVS flags as containing
+    conflicts between edits you and others have made.} However, CVS
+  handles all other merging.  New files will also be added to your
+  source, however, to get new directories you must append the
+  \verb+-d+ flag.  Your source is changed; the repository is
+  unaffected.
+
+\item{\verb+cvs diff filename+} --- generates differences between the
+  file and the version of the file you checked out (i.e., it indicates
+  edits you made).  If you want to compare against the most recent
+  version in the repository use \verb+cvs diff -r head filename+.
+  Neither the repository nor your source are changed.
+
+\item{\verb+cvs add filename+} --- adds a new file to the repository.
+  The new file is not actually added until you execute \verb+cvs
+  commit+.  Changes CVS internal information in your source tree but
+  does not affect the repository.
+
+\item{\verb+cvs rm filename+} --- to delete a file from the repository
+  delete it from your source with the standard UNIX \verb+rm+ command
+  then tell CVS to delete it with this command.  The file
+  is not actually removed until you execute \verb+cvs commit+.  Changes CVS
+  internal information in your source tree but does not affect the
+  repository.
+  
+\item{\verb+cvs commit+} --- this is the only command that affects the
+  repository.  Before committing changes and updating the repository
+  with changes in a list of files or the current directory tree you
+  must
+  \begin{itemize}
+  \item ensure that all of your sources are up-to-date with respect to
+    the repository by using \verb+cvs update+,
+  \item resolve all conflicts resulting from the update, and
+  \item ensure that the updated code functions correctly.
+  \end{itemize}
+  Commit will verify that all source is up-to-date before proceeding.
+  Then it will prompt (using an editor) for log messages describing
+  the changes made.  Be as detailed as possible.
+\end{description}
+
+\section{Trouble shooting}
+
+{\em Under no circumstances edit, move, delete or otherwise mess with
+  files in the repository (\verb+/msrc/proj/mss/nwchem+), unless you really
+  know what you are doing.  CVS breaks easily.  Consult with Dave,
+  Robert, Rick, Edo or Adrian if you think that there are problems.}
+
+If you checked out a specific version then CVS usually remembers this
+(the version information is termed sticky) and this can get really
+confusing since \verb+cvs update+, etc., will not refer to the latest (or
+head) version.  Changes that you know have been made will magically
+disappear.  This may be what you want.  However, if you want to get
+back to the latest version use the \verb+-A+ flag (e.g., \verb+cvs
+update -A+).
+
+If CVS is interrupted, or there is an AFS to NFS translator problem,
+it may occasionally leave lock files in the CVS repository, causing
+subsequent commands to wait forever printing messages indicating it is
+waiting for someone to relinquish access to a specific directory.
+Fixing this requires deleting files from the repository.  Ask Dave,
+Robert, Rick, Edo or Adrian for help.
+
+It is unclear if this next problem still exists within EMSL but it may
+arise elsewhere.  Because of a problem with the AFS version of the ci
+command, which is used by CVS, you must have {\tt
+  /usr/local/lib/rcs/diff} on your system.  The easiest way to do this
+is to create the {\tt /usr/local/lib/rcs directory} and put in it a
+symbolic link to the GNU diff program, {\tt /msrc/bin/diff}.
+
+
