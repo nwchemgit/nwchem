@@ -32,6 +32,9 @@ c
 c
          open(5, file=input_filename, status='old', form='formatted',
      $        err=10000)
+         goto 10001
+10000    call errquit('nwchem: failed to open the input file', 0)
+10001    continue
       else
 #ifndef KSR
          close(5)
@@ -77,9 +80,6 @@ c
 c
 c     Done
 c
-      stop 'nwchem done'
-c
-10000 call errquit('nwchem: failed to open the input file', 0)
       end
       subroutine start(rtdb)
       implicit none
@@ -135,7 +135,7 @@ c
       parameter (ntasks = 7)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf',
-     $   'debtest', 'gradients', 'scfopt'/
+     $   'debtest', 'gradients', 'optscf'/
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
 c
@@ -174,24 +174,17 @@ c
 C
 C     debtest ... I want my own task!
 C
- 50      Call DEBTest(RTDB)
-         Goto 1000
+ 50      call debtest(rtdb)
+         goto 1000
 c
 c    gradients (scf has to be done first)
 c
- 60      status = scf(rtdb)
-         status = gradients(rtdb)
+ 60      call scf_gradient(rtdb)
          goto 1000
 c
- 70      continue
-         status = scf(rtdb)
-         status = status.and.gradients(rtdb)
-         if (status) then
-           status = stpr_walk(rtdb)
-           if(.not.status) goto 70
-         else
-           call errquit('control: scf or gradients failed',911)
-         endif
+c     optscf ... scf optimization
+c
+ 70      call scf_optimize(rtdb)
          goto 1000
       else
 c

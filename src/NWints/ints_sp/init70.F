@@ -1,5 +1,5 @@
       subroutine init70
-c $Id: init70.F,v 1.1 1994-04-06 23:51:55 d3e129 Exp $
+c $Id: init70.F,v 1.2 1994-06-24 23:34:31 d3g681 Exp $
       implicit none
 c
 c     called once by genr70 to initialize internal data
@@ -16,11 +16,30 @@ c
       root3 = sqrt(3.0d0)
       root5 = sqrt(5.0d0)
 c
+c     Generate tables for evaluation of incomplete gamma function
+c
       call tabgen
 c
-      error2 = 1.0d-11
+c     Error2 and error1 control the accuracy of 2-e integrals.
+c     For use in energy expressions 10^-11 is appropriate.
+c     For use in the Schwarz() screening 10^-22 is required.
+c     
+c     The routine int_sp_acc has bee provided so that this
+c     value can be changed according to circumstances.
+c     
+      error2 = 1.0d-22
       error1 = sqrt(error2)
       var(1) = 15.0d0
       var(2) = 5.0d0
+c
+      end
+      subroutine int_sp_acc(tol)
+c $Id: init70.F,v 1.2 1994-06-24 23:34:31 d3g681 Exp $
+      implicit none
+#include "maxc.fh"
+      double precision tol
+c
+      error2 = tol
+      error1 = sqrt(error2)
 c
       end
