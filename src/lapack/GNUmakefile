@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.45 2004-09-29 22:07:14 edo Exp $
+#$Id: GNUmakefile,v 1.46 2004-11-16 23:03:07 edo Exp $
 
 include ../config/makefile.h
 
@@ -45,7 +45,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
                dpotrs.o           \
-               ilaenv.o      lsamen.o                                  \
+               ilaenv.o ieeeck.o      lsamen.o                                  \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
                zlanhe.o      zlarf.o       zlarfb.o       zlarfg.o     \
@@ -93,7 +93,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                ssygv.o       ssytd2.o      ssytrd.o       strtri.o     \
                slasq1.o      slasq2.o      slasq3.o       slasq5.o     \
                slasq4.o      slasq6.o      sposv.o \
-               ilaenv.o      lsamen.o                                  \
+               ilaenv.o    ieeeck.o   lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
                clanhe.o      clarf.o       clarfb.o       clarfg.o     \
@@ -103,7 +103,8 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                cungqr.o      cungtr.o \
                cgehd2.o cgehrd.o clahrd.o cgebak.o cgebal.o cgeev.o \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
-               clatrs.o ctrevc.o cunghr.o slabad.o claswp.o
+               clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
+               sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o
 endif
 CRAYS = CRAY-T3E CRAY-T3D CRAY-YMP
 ifeq ($(TARGET),$(findstring $(TARGET),$(CRAYS)))
