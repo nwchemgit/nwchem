@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.1 1995-12-13 01:35:31 d3g681 Exp $
+C     $Id: memory_def.F,v 1.2 1996-01-26 18:18:42 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -46,7 +46,7 @@ C     platform-specific defaults below.
 C
 #ifdef DFLT_TOT_MEM
       Parameter (Total_Dflt = DFLT_TOT_MEM )
-#elif defined(SUN) || defined(LINUX)
+#elif defined(SUN) || defined(LINUX) || defined(SOLARIS)
 C     This is primarily for debugging, so do not be too greedy
 C
       Parameter ( Total_Dflt = 2097152 ) ! 16 MB

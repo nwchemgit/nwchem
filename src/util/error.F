@@ -1,5 +1,5 @@
       block data error_data
-C$Id: error.F,v 1.7 1995-12-01 16:58:59 d3g681 Exp $
+C$Id: error.F,v 1.8 1996-01-26 18:19:17 d3e129 Exp $
       implicit none
 #include "errorP.h"
 c
@@ -43,7 +43,7 @@ c
 #elif defined(IPSC)
          call killcube(-1,-1)
 #endif
-#if defined(SUN) || defined(SGI)
+#if defined(SUN) || defined(SGI)  || defined(SOLARIS)
          call abort
 #else
          stop status

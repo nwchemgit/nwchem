@@ -1,5 +1,5 @@
       subroutine errquit(string, icode)
-C$Id: errquit.F,v 1.6 1995-02-02 18:09:22 d3g681 Exp $
+C$Id: errquit.F,v 1.7 1996-01-26 18:19:18 d3e129 Exp $
       character*(*) string
       integer icode
 c     
@@ -32,7 +32,7 @@ c
         call killcube(-1,-1)
 #endif
 *
-#if defined(SUN) || defined(SGI)
+#if defined(SUN) || defined(SGI) || defined(SOLARIS)
       call abort
 #else
       stop 1

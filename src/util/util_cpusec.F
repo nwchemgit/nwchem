@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.7 1995-12-01 22:34:25 rg240 Exp $
+c $Id: util_cpusec.F,v 1.8 1996-01-26 18:19:18 d3e129 Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -20,7 +20,7 @@ c
       util_cpusec = ksr_cputime()
 *--KSR-end
 #endif
-#if defined(SUN) || defined(__PARAGON__) || defined(DECOSF)
+#if defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS)
 #define __UTIL_CPUSEC__
       real*4 tarray(2)
       real*4 etime

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.16 1995-11-03 20:41:39 d3g681 Exp $
+#$Id: GNUmakefile,v 1.17 1996-01-26 18:18:27 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -17,6 +17,9 @@ ifeq ($(TARGET),SGI)
        PRECISION = double
 endif
 ifeq ($(TARGET),SUN)
+       PRECISION = double
+endif
+ifeq ($(TARGET),SOLARIS)
        PRECISION = double
 endif
 ifeq ($(TARGET),IBM)

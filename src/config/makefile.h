@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.137 1996-01-14 20:10:08 d3j191 Exp $
+# $Id: makefile.h,v 1.138 1996-01-26 18:18:36 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -213,6 +213,30 @@ ifeq ($(TARGET),SUN)
     DEFINES = -DSUN
 
        CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas
+endif
+
+ifeq ($(TARGET),SOLARIS)
+#
+# Sun running Solaris 5.4 or later
+#
+
+       NICE = nice
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = gcc
+     RANLIB = @ echo
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+
+   FOPTIONS = -Nl199 -fast -dalign
+   COPTIONS = -Wall
+# -O4 breaks at least inp_* and seems no faster than -O3
+  FOPTIMIZE = -O3
+  COPTIMIZE = -g -O2
+   LIBPATH += -L/usr/ucblib
+    DEFINES = -DSOLARIS
+
+       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lsocket -lrpcsvc -lnsl -lucb
 endif
 
 
