@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.14 1995-01-05 04:18:03 og845 Exp $
+c $Id: bas_input.F,v 1.15 1995-03-01 19:53:55 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -9,7 +9,7 @@ c $Id: bas_input.F,v 1.14 1995-01-05 04:18:03 og845 Exp $
 #include "inp.fh"
 c
 c     basis [<name>] [library <standard set>] [file <filename>] \
-c           [spherical|cartesian] [segment||nosegment] [print]
+c           [spherical|cartesian] [segment||nosegment] [print] [noprint]
 c
 c     tag library <standard set> [file <filename>]
 c     tag <shell type>
@@ -21,13 +21,13 @@ c     parse the main directive
 c
       integer rtdb              ! [input] handle to database
       integer nopt
-      parameter (nopt = 7)
+      parameter (nopt = 8)
       character*10 opts(nopt)
       character*255 test, name, filename, standard
       logical status, ospherical, osegment, oprint
       integer ind, basis
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
-     $     'library', 'file', 'print'/
+     $     'library', 'file', 'print', 'noprint'/
 c
 c     Check is a basis directive and read in name of the basis
 c
@@ -44,7 +44,7 @@ c
       standard = ' '
       ospherical = .false.      ! Default is cartesian
       osegment   = .true.       ! Default is to force segmentation
-      oprint     = .false.      ! Default is NOT to print basis on input
+      oprint     = .true.       ! Default is to print the basis on input
 c
  10   if (inp_a(test)) then
 c
@@ -60,7 +60,7 @@ c
             goto 10
          endif
 c
-         goto (100, 200, 300, 400, 500, 600, 700) ind
+         goto (100, 200, 300, 400, 500, 600, 700, 800) ind
          goto 10000
 c
 c     spherical
@@ -96,6 +96,11 @@ c
 c     print
 c
  700     oprint = .true.
+         goto 10
+c
+c     noprint
+c
+ 800     oprint = .false.
          goto 10
 c
       endif
