@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.28 2004-10-18 22:45:01 marat Exp $
+c $Id: qmmm.F,v 1.29 2004-10-18 23:10:19 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -12,9 +12,17 @@ c
 #include "errquit.fh"
 #include "geom.fh"
 #include "qmmm.fh"
+#include "global.fh"
       integer irtdb
       logical qmmm_init
 c
+      character*32 pname
+c
+      pname = "qmmm_init"
+
+
+      write(*,*) ga_nodeid(),"in "//pname
+    
       qmmm_init = .true.
 
 c     initialize mm part
@@ -30,6 +38,8 @@ c     --------------------------------------------
         call qmmm_print_header(irtdb)
         call qmmm_print_params(irtdb)
       end if
+
+      write(*,*) ga_nodeid(),"out "//pname
 
       return
       end
