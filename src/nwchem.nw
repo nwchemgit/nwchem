@@ -1,63 +1,40 @@
-title; dft/scf freq
+#
+# $Id: nwchem.nw,v 1.7 1999-07-26 23:52:29 d3e129 Exp $
+#
 
-memory 120 mb
+title; Water in 6-31g basis set
 
-start dftscf
-charge 0.0
+start h2o
 
-geometry
-O       0.00000000     0.00000000    -0.11544580
-H       0.00000000     0.81           0.45949186
-H       0.00000000    -0.85     0.45949186
+geometry units au
+  O      0.00000000    0.00000000    0.00000000
+  H      0.00000000    1.93042809   -1.10715266
+  H      0.00000000   -1.43042809   -1.60715266
 end
 
-basis 
-O library 6-31g
-H library 6-31g
+basis nosegment noprint
+  H library cc-pvdz
+  O library cc-pvdz
 end
 
-dft
-  iterations 300
+basis "test mo basis" nosegment noprint
+  O s
+          322.037000    0.059239
+           48.430800    0.351500
+           10.420600    0.707658
+  O sp
+            7.402940   -0.404453   0.244586
+            1.576200    1.221560   0.853955
+  O sp
+            0.373684    1.000000   1.000000
+  H  s
+            5.447178    0.156285
+            0.824547    0.904691
+  H  s
+            0.183192    1.000000
 end
 
-stepper
-convgg  0.0001
-convge  0.0001
-convggm 0.0001
-end
+scf; print high; end
 
-#task dft optimize
-#set "stpr_gen:delta" real 0.01
-#task dft freq
-#set "stpr_gen:delta" real 0.0075
-#task dft freq
-#set "stpr_gen:delta" real 0.005
-#task dft freq
-#set "stpr_gen:delta" real 0.0025
-#task dft freq
-#set "stpr_gen:delta" real 0.001
-#task dft freq
+task scf
 
-
-task shell " ls -l                  "
-task shell " date"
-task shell " ls -l"
-task shell "touch dftscf.ess"
-task shell " ls -l"
-task shell "/bin/rm -f dftscf.ess"
-task shell "touch dftscf.hess"
-task shell "/bin/rm -f dftscf.hess"
-task shell "rm -f dftscf.hess dftscf.movecs dftscf.fd_ddipole dftscf.stpr41 dftscf.stpr44"
-
-
-task scf optimize
-set "stpr_gen:delta" real 0.01
-task scf freq
-set "stpr_gen:delta" real 0.0075
-task scf freq
-set "stpr_gen:delta" real 0.005
-task scf freq
-set "stpr_gen:delta" real 0.0025
-task scf freq
-set "stpr_gen:delta" real 0.001
-task scf freq
