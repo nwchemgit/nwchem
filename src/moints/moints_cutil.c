@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: moints_cutil.c,v 1.7 1999-11-13 02:29:04 bjohnson Exp $
+$Id: moints_cutil.c,v 1.8 2000-05-06 22:50:03 edo Exp $
 \*---------------------------------------------------------*/
 
 #include <stdio.h>
@@ -9,7 +9,7 @@ void c_print_sparsemat( int, int, int *, int *, int, double * );
 
 
 
-#if defined(SGITFP)
+#if defined(SGITFP) || defined(DECOSF) ||defined (SOLARIS64)
 long onbitmask_( long *len )
 {
   unsigned long		mask;
