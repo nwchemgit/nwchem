@@ -3,7 +3,7 @@
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box,
      + lpdbbx)
 c
-c $Id: pre_rdpdb.F,v 1.23 2002-08-14 19:56:32 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.24 2002-08-15 15:19:31 d3j191 Exp $
 c
       implicit none
 c
@@ -161,11 +161,7 @@ c
 c
       if(chain.eq.'*') then
       if(num.lt.nump) then
-      if(achain.ne.pchain) then
-      ioff=(nump/100+1)*100-num
-      else
-      ioff=nump+1-num
-      endif
+      if(achain.ne.pchain) ioff=(nump/100+1)*100-num
       num=num+ioff
       endif
       endif

@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount)
 c
-c $Id: pre_mkrst.F,v 1.86 2002-08-14 19:56:32 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.87 2002-08-15 15:19:31 d3j191 Exp $
 c
       implicit none
 c
@@ -284,8 +284,8 @@ c
      + chain,model,box,lpdbbx))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('restart',print_debug)) then
-      write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
- 1006 format(' PDB file',t40,a,/)
+      write(lfnout,1006) filpdb(1:index(filpdb,' ')-1),nmis,iwater
+ 1006 format(' PDB file',t40,a,2i7/)
       endif
       if(nmis.gt.0.or.iwater.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
