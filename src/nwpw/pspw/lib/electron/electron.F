@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.28 2003-10-24 19:01:35 bylaska Exp $
+* $Id: electron.F,v 1.29 2003-11-07 02:17:42 bylaska Exp $
 *
 
 
@@ -932,6 +932,46 @@ c    >                     hml(shift+1))
 
       return
       end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *     electron_gen_hml_g  *
+*     *                         *
+*     ***************************
+
+      subroutine electron_gen_hml_g(psi_k,hml)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     hml(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer ms,n,n1(2),shift
+
+
+      n1(1) = 1
+      n1(2) = ne(1) + 1
+
+
+      do ms=1,ispin
+         shift = (ms-1)*ne(1)*ne(1)
+         n     = ne(ms)
+         call Pack_ccm_dot(1,n,
+     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+     >                     hml(shift+1))
+      end do
+
+
+      return
+      end
+
 
 *     ***********************************
 *     *				        *

@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.45 2003-10-21 00:57:22 bylaska Exp $
+* $Id: psi.F,v 1.46 2003-11-07 02:17:45 bylaska Exp $
 *
 
 
@@ -3672,6 +3672,27 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1gen_hml_g          *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1gen_hml_g()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+
+      call electron_gen_hml_g(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
