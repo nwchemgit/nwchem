@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.43 2000-03-08 01:51:26 edo Exp $
+C$Id: cdft.fh,v 1.44 2000-03-17 00:29:26 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -24,7 +24,7 @@ c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
-     &     oadapt, lssw
+     &     oadapt, lssw, lkeeps
       integer
      &     iAOacc, iCDacc, iXCacc, irqmax, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -42,7 +42,7 @@ c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
-     ,     g_sic_dens(2)
+     ,     g_sic_dens(2),g_s12m,g_s12p
 c
       parameter(numfunc=19)
       character*255 movecs_in, movecs_out
@@ -61,7 +61,7 @@ c
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(numfunc), 
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
-     &     direct, oskel, oadapt, lssw,
+     &     direct, oskel, oadapt, lssw, lkeeps,
 c
 c     Integers
 c
@@ -81,7 +81,7 @@ c
      &     AO_bas_han, CD_bas_han, XC_bas_han,
      ,     lrchi,irchi,lrdelchi,irdelchi,
      ,     g_cdinv, g_2ceri, sic_orb_spin, sic_orb_occ, sic_orb_index,
-     ,     g_sic_dens
+     ,     g_sic_dens, g_s12m,g_s12p
 c
 c     Characters
 c
