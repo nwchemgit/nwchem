@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.36 1999-12-22 20:49:54 d3j191 Exp $
+c $Id: sp_main.F,v 1.37 1999-12-22 20:55:55 d3j191 Exp $
 c
       implicit none
 c
@@ -176,8 +176,12 @@ c
       if(me.eq.0) then
       write(*,'(a,i2,a,14i4)') ' Packing s in ',npack,' integers : ',
      + (ipack(i),i=1,npack)
+      write(*,'(a,i2,a,14i4)') ' Packing s in ',npack,'     bits : ',
+     + (nbits(i),i=1,npack)
       write(*,'(a,i2,a,14i4)') ' Packing w in ',npackw,' integers : ',
      + (ipackw(i),i=1,npackw)
+      write(*,'(a,i2,a,14i4)') ' Packing w in ',npackw,'     bits : ',
+     + (nbitw(i),i=1,npackw)
       endif
 c
       if(npack.eq.mis2) npack=0
