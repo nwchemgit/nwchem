@@ -88,6 +88,8 @@ c
       integer mrg_d29
       integer mrg_d31
       integer mrg_d39
+      integer msg_hessmin
+      integer msg_hessmax
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
