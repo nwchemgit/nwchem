@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.76 2003-12-13 02:30:25 marat Exp $
+C     $Id: input_parse.F,v 1.77 2004-01-28 17:56:08 marat Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -128,6 +128,8 @@ c
                call mcscf_input(rtdb)
             else if (inp_compare(.false.,test,'plnwv')) then
                call plnwv_input(rtdb)
+            else if (inp_compare(.false.,test,'cons')) then
+               call cons_input(rtdb)
             else if (inp_compare(.false.,test,'dplot')) then
                call dplot_input(rtdb)
             else if (inp_compare(.false.,test,'property')) then

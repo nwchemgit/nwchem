@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.35 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_gradient.F,v 1.36 2004-01-28 17:56:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -66,6 +66,10 @@ c
          endif
       endif
 c
+      if(rtdb_get(rtdb, 'harm_cons', mt_log, 1, status)) then
+        call cons_add_egrad(rtdb,energy,gradient)
+      end if
+c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
@@ -118,7 +122,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.35 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_gradient.F,v 1.36 2004-01-28 17:56:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"

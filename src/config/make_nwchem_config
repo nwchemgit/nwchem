@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.174 2003-10-17 22:54:27 carlfahl Exp $
+# $Id: make_nwchem_config,v 1.175 2004-01-28 17:56:11 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property gapss nwpw fft rimp2_grad nbo python analyz nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd mcstep etrans tddft tce geninterface
+        drdy vscf uccsdt qmmm qmd mcstep etrans tddft tce geninterface cons
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -31,7 +31,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep -letrans\
-                    -ltddft -ltce -lgeninterface
+                    -ltddft -ltce -lgeninterface -lcons
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -68,7 +68,7 @@ EXP_all = $(filter-out uccsdt python develop gapss oimp2 scfaux plane_wave rimp2
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
-EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
+EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian cons \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
@@ -220,6 +220,7 @@ MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vscf,-lvscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwpw,-lnwpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcstep,-lmcstep,$(MOD_LIBS) )
@@ -271,6 +272,7 @@ STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_paw task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst cons, cons_input,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 

@@ -45,6 +45,13 @@ c
             endif
          endif
       endif
+      if(rtdb_get(rtdb, 'harm_cons', mt_log, 1, status)) then
+        write(6,*) "found constraints"
+        call cons_add_energy(rtdb,energy)
+      else
+         write(6,*) "inot found constraints"
+      end if
+
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_energy: failed storing energy',0,
      &       RTDB_ERR)
@@ -76,7 +83,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.32 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_energy.F,v 1.33 2004-01-28 17:56:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -88,6 +95,7 @@ c
       integer rtdb
       character*(*) theory
       double precision energy
+      
 c
 c     Generic NWChem interface to compute the energy.  Currently
 c     only the QM components are supported.
