@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.14 2003-01-14 18:18:07 edo Exp $
+* $Id: paw_sd.F,v 1.15 2003-01-23 01:22:47 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -111,12 +111,13 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
- 
-      integer  pack_nwave_all,paw_proj_nbasis
+
+#include "paw_proj.fh"
+      integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
-      external pack_nwave_all,paw_proj_nbasis
+      external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave
       external ion_nion,ion_natm,ion_katm,ion_nkatm

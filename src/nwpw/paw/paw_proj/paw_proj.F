@@ -1,6 +1,7 @@
 *
-* $Id: paw_proj.F,v 1.13 2003-01-14 18:18:07 edo Exp $
+* $Id: paw_proj.F,v 1.14 2003-01-23 01:28:18 marat Exp $
 *
+
 
 !**************************************************
 !
@@ -14,7 +15,7 @@
       implicit none
 
 #include "mafdecls.fh"
-#include "paw_proj.fh" 
+#include "paw_proj_data.fh" 
   
 *     **** local variables ****
       logical value,found
@@ -104,7 +105,7 @@
       implicit none
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       !*** local variables ***
       logical value
@@ -137,7 +138,7 @@
       integer function paw_proj_i_prj()
       implicit none
       
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       paw_proj_i_prj = prj(1)
       return
@@ -157,7 +158,7 @@
       integer ia
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       paw_proj_i_prj_atom = prj(1) + int_mb(prj_indx(1)+ia-1)
       return
@@ -178,7 +179,7 @@
       integer ia
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       paw_proj_nbasis = int_mb(nbasis(1)+ia-1)
       return
@@ -199,7 +200,7 @@
       integer ia
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       paw_proj_total_nbasis = ntotal
       return
@@ -223,7 +224,7 @@
       integer n,ia
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
       paw_proj_l = int_mb(int_mb(i_prj_l(1)+2*(ia-1))+n-1)
       return
@@ -244,7 +245,7 @@
       integer n,ia
       
 #include "mafdecls.fh"
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
 
 
       paw_proj_m = int_mb(int_mb(i_prj_m(1)+2*(ia-1))+n-1)
@@ -434,9 +435,8 @@
       call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
       
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      value = value.and.
-     .MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value =           MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not.value) call errquit('paw_proj_read: push stack',0)
 
       do ii=1,nbasis

@@ -1,10 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-09-10 23:23:14 marat Exp $
+# $Id: GNUmakefile,v 1.4 2003-01-23 01:28:18 marat Exp $
 #
 
-#          OBJ = bessel_transform.o \
-#		paw_proj.o
           OBJ =  paw_proj.o
+          HEADERS =  paw_proj.fh
 
 
       LIBRARY =	libpaw.a

@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.6 2002-09-16 21:57:28 marat Exp $
+* $Id: paw_ovlp.F,v 1.7 2003-01-23 01:24:14 marat Exp $
 *
 
 !**************************************************
@@ -22,9 +22,10 @@
       integer nbasis,i2,i1,isgn,nion
 
 *     **** external functions ****
-      integer  paw_proj_nbasis,paw_proj_m,psi_ne
+#include "paw_proj.fh"
+      integer  psi_ne
       integer  ion_nion,ion_natm,ion_nkatm,ion_katm
-      external paw_proj_nbasis,paw_proj_m,psi_ne
+      external psi_ne
       external ion_nion,ion_natm,ion_nkatm,ion_katm
 
       total_nbasis = 0
@@ -129,11 +130,8 @@
       real*8 scal_factor
 
       !*** external functions ****
-      integer  paw_proj_l,paw_proj_m
-      external paw_proj_l,paw_proj_m
-      integer  paw_proj_i_prj_atom,paw_proj_nbasis
+#include "paw_proj.fh"
       integer  ion_nion,ion_katm,psi_ne
-      external paw_proj_i_prj_atom,paw_proj_nbasis
       external ion_nion,ion_katm,psi_ne 
       real*8 lattice_omega
       external lattice_omega
@@ -209,7 +207,7 @@ c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_f
 
       !*** debug - write out the overlap coefficients ***
       write(*,*)
-      write(*,*) "Overlap coefficients:"
+      write(*,*) "Overlap coefficients:",neall,total_nbasis
       do i2=1,neall
       do i1=1,total_nbasis
          indx_coeff = (i2-1) + (i1-1)*neall
