@@ -24,6 +24,9 @@ endif
 ifeq ($(TARGET),CRAY)
        PRECISION = single
 endif
+ifeq ($(TARGET),DELTA)
+       PRECISION = double
+endif
 
 
 ifndef PRECISION
