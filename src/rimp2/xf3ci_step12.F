@@ -4,14 +4,15 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.3 1994-06-16 22:01:55 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.4 1994-06-20 18:25:39 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
-     $   AOBas, G_C, FitBas, G_I, Geom)
+     $   AOBas, G_C, FitBas, G_I, Geom, Neglect)
       Implicit NONE
       Character*1 IntTyp
       Integer Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C, Geom
+      Double precision Neglect
 C
 C ARGUMENTS
 C     IntTyp   Type of integral to be transformed. 'E' for three-center
@@ -25,6 +26,7 @@ C     AOBas    Handle for AO basis. [IN]
 C     G_C      GA handle for SCF eigenvectors. [IN]
 C     FitBas   Handle for fitting basis. [IN]
 C     G_I      Handle for global array to hold (ia|s). [IN]
+C     Neglect  Neglect raw integrals smaller than this value [IN]
 C
 C RETURN VALUE
 C     .TRUE.   Successful completion
@@ -77,6 +79,7 @@ C INCLUDE FILES
 #include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "schwarz.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame      ! From BLAS-[23]
@@ -246,20 +249,26 @@ C
      $      Dbl_MB(CP2_Idx), MxBFCe)
 C
          Do CenQ = 1, CenP
-C
             Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
-            Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
-     $         Dbl_MB(CQ_Idx), MxBFCe)
-            Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
-     $         Dbl_MB(CQ2_Idx), MxBFCe)
 C
-            Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
-     $         Dbl_MB(CP_Idx), MxBFCe, NA,
-     $         Dbl_MB(CP2_Idx), MxBFCe, NI,
-     $         Dbl_MB(CQ_Idx), MxBFCe, NI,
-     $         Dbl_MB(CQ2_Idx), MxBFCe, NA,
-     $         FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
-     $         Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr )
+            If ( Schwarz_Atom(CenP, CenQ) * Schwarz_Max() .gt. Neglect)
+     $         then
+               Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
+     $            Dbl_MB(CQ_Idx), MxBFCe)
+               Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
+     $            Dbl_MB(CQ2_Idx), MxBFCe)
+C
+               Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
+     $            Dbl_MB(CP_Idx), MxBFCe, NA,
+     $            Dbl_MB(CP2_Idx), MxBFCe, NI,
+     $            Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $            Dbl_MB(CQ2_Idx), MxBFCe, NA,
+     $            FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
+     $            Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr, Neglect)
+c$$$            Else
+c$$$               Write (LuOut, *) 'Node ', GA_NodeID(),
+c$$$     $            ' neglecting atom ', CenP, CenQ
+            EndIf
          EndDo
       EndDo
 C

@@ -3,18 +3,19 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.3 1994-06-16 22:45:24 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.4 1994-06-20 18:25:41 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
      $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
-     $   Dest, G_Out, IntFil)
+     $   Dest, G_Out, IntFil, Neglect)
       Implicit NONE
       Integer AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
       Integer G_Int, G_Out, G_C, G_V, Geom
       Character*1 Type3ci, XFFit, Dest
+      Double precision Neglect
 C
 C ARGUMENTS
 C     Type3ci  Type of 3-center integrals to be used ('E'RI or 'O'verlap) [IN]
@@ -31,6 +32,7 @@ C     G_V      GA handle for transformation matrix for fitting basis index [IN]
 C     Dest     Send transformed integrals to 'D'isk or 'M'emory [IN]
 C     G_Out    GA handle for output buffer of integrals [IN]
 C     IntFil   LUN for file to hold transformed integrals [IN]
+C     Neglect  Neglect raw integrals smaller than this value [IN]
 C
 C RETURN VALUE
 C     .TRUE.   Successful completion
@@ -251,7 +253,7 @@ C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
 C
          Status = XF3cI_Step12( Type3ci, ALo, AHi,
-     $      JLo, JHi, AOBas, G_C, FitBas, G_Int, Geom)
+     $      JLo, JHi, AOBas, G_C, FitBas, G_Int, Geom, Neglect)
          If ( .NOT. Status ) then
             Write (LuErr, 9020) JLo, JHi, Ilo, Ihi
             XForm_3cInts = .FALSE.
