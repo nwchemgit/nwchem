@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.14 2000-03-20 20:57:17 d3j191 Exp $
+c $Id: ana_common.fh,v 1.15 2000-03-20 22:50:45 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -41,11 +41,13 @@ c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
      + i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
      + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag,ga_vec,
-     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov
+     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov,
+     + i_xp,l_xp
       common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,
      + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
      + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag,ga_vec,
-     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov
+     + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov,
+     + i_xp,l_xp
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel

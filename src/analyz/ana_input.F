@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.14 2000-03-18 04:29:48 d3j191 Exp $
+c $Id: ana_input.F,v 1.15 2000-03-20 22:50:46 d3j191 Exp $
 c
       implicit none
 c
@@ -342,34 +342,6 @@ c
       numcmd=numcmd+1
       goto 1
       endif
-c
-c      if(inp_compare(.false.,'charges',item)) then
-c      if(.not.inp_a(filchg)) call errquit('ana_input: filchg failed',0)
-c      goto 2
-c      endif
-c      if(inp_compare(.false.,'plt',item)) then
-c      if(.not.inp_a(filplt)) call errquit('ana_input: filplt failed',0)
-c      goto 2
-c      endif
-c      if(inp_compare(.false.,'xyz',item)) then
-c      if(.not.inp_a(filxyz)) call errquit('ana_input: filxyz failed',0)
-c      goto 2
-c      endif
-c      if(inp_compare(.false.,'espgrid',item)) then
-c      if(.not.inp_i(lplt)) lplt=1
-c    5 continue
-c      if(.not.inp_a(item)) goto 1
-c      if(inp_compare(.false.,'spacing',item)) then
-c      if(.not.inp_f(spac)) call errquit('ana_input: spac failed',0)
-c      goto 5
-c      endif
-c      if(inp_compare(.false.,'range',item)) then
-c      if(.not.inp_f(rcut)) call errquit('ana_input: rcut failed',0)
-c      goto 5
-c      endif
-c      goto 3
-c      endif
-c
 c 
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,1999) item

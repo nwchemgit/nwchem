@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.14 2000-03-18 04:29:48 d3j191 Exp $
+c $Id: ana_task.F,v 1.15 2000-03-20 22:50:46 d3j191 Exp $
 c
       implicit none
 c
@@ -155,6 +155,10 @@ c
       endif
       call ana_select(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
+      if(me.eq.0) then
+      write(*,3003) nsel,nsa
+ 3003 format(' Selected',i5,' out of',i5,' atoms')
+      endif
       goto 1
       endif
 c
@@ -570,7 +574,8 @@ c
      + rms0,rms1)
 c
       call ana_projec(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
-     + dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),val)
+     + dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),val,
+     + dbl_mb(i_xp+ifr-1))
 c
       nave=nave+1
 c

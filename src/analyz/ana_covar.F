@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.3 2000-03-16 20:45:37 d3j191 Exp $
+c $Id: ana_covar.F,v 1.4 2000-03-20 22:50:46 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       end
       subroutine ana_edfinal()
 c
-c $Id: ana_covar.F,v 1.3 2000-03-16 20:45:37 d3j191 Exp $
+c $Id: ana_covar.F,v 1.4 2000-03-20 22:50:46 d3j191 Exp $
 c
       implicit none
 c
@@ -98,7 +98,7 @@ c     + x(ib,k),xa(ib,k),cov(ii)
 c
       return
       end
-      subroutine ana_projec(ndx,vct,isel,x,xa,val)
+      subroutine ana_projec(ndx,vct,isel,x,xa,val,xp)
 c
       implicit none
 c
@@ -107,7 +107,7 @@ c
 c
       integer ndx(nsel)
       real*8 vct(nsel),val
-      real*8 x(nsa,3),xa(nsa,3)
+      real*8 x(nsa,3),xa(nsa,3),xp(nsa,3)
       integer isel(nsa)
 c
 c
@@ -119,6 +119,7 @@ c
       do 2 j=1,3
       k=k+1
       val=(x(ndx(i),j)-xa(ndx(i),j))*vct(k)
+      xp(i,j)=val*vct(k)+xa(ndx(i),j)
     2 continue
     1 continue
 c
