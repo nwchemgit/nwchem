@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.36 2001-03-31 04:32:07 d3j191 Exp $
+c $Id: md_input.F,v 1.37 2001-05-09 18:22:13 d3j191 Exp $
 c
       implicit none
 c
@@ -42,13 +42,6 @@ c
       integer lfncmd,numcmd,ifirst,ilast
 c
 #include "bitops.fh"
-c
-      mdold=0
-      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=0
-      if(mdold.ne.0) then
-      call arg_input(irtdb)
-      return
-      endif
 c
       lfncmd=69
       numcmd=0
