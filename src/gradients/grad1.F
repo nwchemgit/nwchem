@@ -1,7 +1,7 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
-     $                   max_at_bf, rtdb )
-c$Id: grad1.F,v 1.8 1995-02-07 00:11:13 d3g681 Exp $
+     $                   max_at_bf, rtdb, oskel )
+c$Id: grad1.F,v 1.9 1995-10-16 18:21:34 d3g681 Exp $
 
       implicit real*8 (a-h,o-z)
 
@@ -10,6 +10,7 @@ c$Id: grad1.F,v 1.8 1995-02-07 00:11:13 d3g681 Exp $
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "sym.fh"
 
       dimension frc ( 3, nat ), idatom(2), scr(lscr)
       dimension H ( lbuf ), 
@@ -18,6 +19,9 @@ c$Id: grad1.F,v 1.8 1995-02-07 00:11:13 d3g681 Exp $
 
       integer g_dens, g_wdens, basis, geom
       integer rtdb
+
+      logical oskel
+      double precision qfac
 
       logical status, pointforce, point
 
@@ -50,6 +54,13 @@ c
 c     At least one center has no functions on it ... next atom
 c
               goto 1010
+            endif
+
+            if (oskel) then
+               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
+     $              goto 1010
+            else
+               qfac = 1.0d0
             endif
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
@@ -89,6 +100,7 @@ C               idatom(1).ge.0 <=> idatom(1).ge.0 (no check necessary)
                         ic = ic + 1
  20                   continue
  22                 continue
+                    dE = dE * qfac
                     frc(icart,idatom(1)) = frc(icart,idatom(1)) 
      $                                     - dE - dE
                     frc(icart,idatom(2)) = frc(icart,idatom(2)) 
@@ -113,6 +125,7 @@ C     D x H
  30                   continue
  31                 continue
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+                    dE = dE * qfac
                     frc(icart,iat3) = frc(icart,iat3) + dE
  40               continue
  50             continue

@@ -1,23 +1,25 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
      $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e,
-     $                 s34, oactive)
-c$Id: grad2.F,v 1.11 1995-06-21 11:55:13 d3e129 Exp $
+     $                 s34, oactive, oskel)
+c$Id: grad2.F,v 1.12 1995-10-16 18:21:35 d3g681 Exp $
 
       implicit real*8 (a-h,o-z)
 
+#include "sym.fh"
 #include "mafdecls.h"
 #include "global.fh"
 #include "bas.fh"
 #include "schwarz.fh"
-#include "tcgmsg.fh"
 #if defined(REPORT_LOOP)        
       logical reportit
       character*26 date_string
 #endif
-
+      logical oskel
       integer g_dens, basis
+      double precision q4, q2
+      integer geom
 
-      logical status, oactive, oij, okl, oikjl, oschwarz12
+      logical status, oactive, oij, okl, oikjl, oschwarz12, osym
 
       dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4),
      $          s34(nat)
@@ -25,7 +27,12 @@ c$Id: grad2.F,v 1.11 1995-06-21 11:55:13 d3e129 Exp $
      $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim)
       dimension oactive(nat)
 
-      iproc = nodeid()
+      if (.not. bas_geom(basis, geom)) 
+     $     call errquit('grad2: bad basis',0)
+
+      iproc = ga_nodeid()
+
+      q4 = 1.0d0                ! If not using symmetry
 
       ijatom = -1
       next = nxtval(nproc)
@@ -46,18 +53,20 @@ c$Id: grad2.F,v 1.11 1995-06-21 11:55:13 d3e129 Exp $
           s34(iat4) = schwarz_atom(iat3,iat4) ! Precompute
         enddo
 
-        do 90, iat1 = iat3, 1, -1
+        do 90, iat1 = nat, iat3, -1 ! Want canonical atom list for symmetry
           do 85, iat2 = iat1, 1, -1
 
             s12 = schwarz_atom(iat1,iat2)
             oschwarz12 =(s12*schwarz_max().ge.tol2e)
 C
-C           TODO: CHECK HERE FOR SYMMETRY
-C
+            if (oschwarz12 .and. oskel) then
+               oschwarz12 = sym_atom_pair(geom, iat1, iat2, q2)
+            endif
+c
             if (oschwarz12) then
               ihi4 = iat3
               if ( iat1.eq.iat3 ) ihi4 = iat2
-              do 80, iat4 = ihi4, 1, -1
+              do 80, iat4 = 1, ihi4
 
 C                 check if all atoms are inactive
                   if ( .not.oactive(iat1) .and. .not.oactive(iat2) .and.
@@ -65,6 +74,14 @@ C                 check if all atoms are inactive
      $                 goto 1020
 
                 if ( s12 * s34(iat4) .lt. tol2e ) goto 1020
+
+                if (oskel) then
+                   osym = sym_atom_quartet(geom,
+     $                  iat1, iat2, iat3, iat4, q4)
+*                   write(6,11) iat1, iat2, iat3, iat4, q4, osym
+* 11                format(1x,4i5,f6.1,2x,l1)
+                   if (.not. osym) goto 1020
+                endif
 
                 status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
                 if (.not.status) 
@@ -175,7 +192,12 @@ C     2el. integral derivatives
             if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
             if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
      $           dE = dE + dE
-            frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE
+*
+*            if (icart.eq.3 .and. idatom(i).eq.1) then
+*               write(6,17) iat1, iat2,iat3,iat4,dE, q4
+* 17            format(1x,4i5,f10.6,f6.1)
+*            endif
+            frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
  35       continue
         else
           icount = icount + 3 * Nint
