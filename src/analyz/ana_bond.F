@@ -1,6 +1,6 @@
       real*8 function ana_bond(x,nx,w,nw,na,i,i2,j,j2,box)
 c
-c $Id: ana_bond.F,v 1.3 2002-06-25 18:13:13 d3j191 Exp $
+c $Id: ana_bond.F,v 1.4 2002-06-25 18:33:24 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
       real*8 x(nx,3),w(nw,na,3),box(3)
 c
       real*8 xa(3),xb(3),dx(3)
-      integer i
+      integer ix
 c
 c     determine the bond length
 c     -------------------------
@@ -32,10 +32,10 @@ c
       xb(3)=w(j,j2,3)
       endif
 c
-      do 1 i=1,3
-      dx(i)=xa(i)-xb(i)
-      if(dx(i).gt.box(i)) dx(i)=dx(i)-box(i)
-      if(dx(i).lt.-box(i)) dx(i)=dx(i)+box(i)
+      do 1 ix=1,3
+      dx(ix)=xa(ix)-xb(ix)
+      if(dx(ix).gt.box(ix)) dx(ix)=dx(ix)-box(ix)
+      if(dx(ix).lt.-box(ix)) dx(ix)=dx(ix)+box(ix)
     1 continue
 c      ana_bond=sqrt((xa(1)-xb(1))**2+(xa(2)-xb(2))**2+(xa(3)-xb(3))**2)
       ana_bond=sqrt(dx(1)**2+dx(2)**2+dx(3)**2)
