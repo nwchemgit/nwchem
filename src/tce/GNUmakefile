@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.7 2002-10-30 21:49:14 sohirata Exp $
+#$Id: GNUmakefile,v 1.8 2002-11-01 01:51:21 sohirata Exp $
 
 OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
@@ -9,7 +9,10 @@ OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o sf_unlink.o \
       ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \
       ccd_e.o ccd_t2.o lccd_e.o lccd_t2.o ccsd_e.o ccsd_t1.o ccsd_t2.o lccsd_e.o lccsd_t1.o lccsd_t2.o \
-      ccsdt_e.o ccsdt_t1.o ccsdt_t2.o ccsdt_t3.o ccsdtq_e.o ccsdtq_t1.o ccsdtq_t2.o ccsdtq_t3.o ccsdtq_t4.o
+      ccsdt_e.o ccsdt_t1.o ccsdt_t2.o ccsdt_t3.o ccsdtq_e.o ccsdtq_t1.o ccsdtq_t2.o ccsdtq_t3.o ccsdtq_t4.o \
+      cisd_e.o cisd_c1.o cisd_c2.o cisdt_e.o cisdt_c1.o cisdt_c2.o cisdt_c3.o \
+      cisdtq_e.o cisdtq_c1.o cisdtq_c2.o cisdtq_c3.o cisdtq_c4.o \
+      tce_residual_c1.o tce_residual_c2.o tce_residual_c3.o tce_residual_c4.o 
 
 OBJ = 
 

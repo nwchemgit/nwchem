@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.10 2002-10-31 10:52:06 sohirata Exp $
+c $Id: tce_init.F,v 1.11 2002-11-01 01:51:22 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -166,8 +166,14 @@ c
         ctype='Coupled-cluster singles, doubles, & triples'
       else if (model.eq.'ccsdtq') then
         ctype='Coupled-cluster singles, doubles, triples, & quadruples'
+      else if (model.eq.'cisd') then
+        ctype='CI interaction singles & doubles'
+      else if (model.eq.'cisdt') then
+        ctype='CI singles, doubles, & triples'
+      else if (model.eq.'cisdtq') then
+        ctype='CI singles, double, triples, & quadruples'
       else
-        call errquit('tce_init: specified CC model not implemented',0)
+        call errquit('tce_init: unknown theory',0)
       endif
 c
 c     -------------------------------------

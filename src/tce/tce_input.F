@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.5 2002-10-31 10:52:06 sohirata Exp $
+c $Id: tce_input.F,v 1.6 2002-11-01 01:51:22 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -9,7 +9,8 @@ c
 c     TCE
 c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
 c                 [virtual <integer nfzv default 0>]]
-c        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ) default CCSD]
+c        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \ 
+c          CISD||CISDT||CISDTQ) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
@@ -99,6 +100,18 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0)
       else if (inp_compare(.false.,test,'ccsdtq')) then
         model='ccsdtq'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+      else if (inp_compare(.false.,test,'cisd')) then
+        model='cisd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+      else if (inp_compare(.false.,test,'cisdt')) then
+        model='cisdt'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+      else if (inp_compare(.false.,test,'cisdtq')) then
+        model='cisdtq'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
      1    call errquit('tce_input: failed writing to rtdb',0)
 c
