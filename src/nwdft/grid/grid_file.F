@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.31 2000-08-01 00:39:22 edo Exp $
+* $Id: grid_file.F,v 1.32 2000-08-01 20:11:54 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -208,11 +208,9 @@ c
          write(gr_unit,99,err=199) max_cache_rec
          write(gr_unit,99,err=199) n_rec_in_file
          write(gr_unit,'(L1)',err=199) file_opened
-         rewind(gr_unit)
          close(gr_unit)
       endif
 c
-      if (file_opened .or. l_cache.ne.-1) then
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
          if (oinfo) then
             write(LuOut,1) n_rec_in_file
@@ -225,7 +223,6 @@ c
      $           actualname(1:inp_strlen(actualname))
             call util_flush(LuOut)
          end if
-      endif
 c
       l_cache = -1
       file_opened = .false.

@@ -9,7 +9,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadv0a.F,v 1.21 2000-04-25 02:08:42 edo Exp $
+c$Id: grid_quadv0a.F,v 1.22 2000-08-01 20:11:54 edo Exp $
 c
       implicit none
 c
@@ -35,6 +35,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad(xfac,cfac)
+      if(n_rec_in_file.eq.0) goto 100
 c
 c     rewind grid pts file
 c
@@ -74,6 +75,7 @@ c
          endif
       enddo
  200  continue
+ 100  continue
 c
       call ga_sync
       return

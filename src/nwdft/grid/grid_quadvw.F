@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.20 2000-07-27 22:24:19 edo Exp $
+c$Id: grid_quadvw.F,v 1.21 2000-08-01 20:11:54 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -57,12 +57,11 @@ c
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       logical dosympts
-      integer grid_nxyz,grid_nsub4,ifail
+      integer grid_nxyz,grid_nsub4
       external grid_nxyz,grid_nsub4
       double precision symfact,rmax,rmin,rad_write,rad_sh
-      double precision grid_lcube,lcubez,enuc
+      double precision grid_lcube,enuc
       external grid_lcube
-      integer i
       logical oprint
 C      
       nproc=ga_nnodes()
@@ -211,40 +210,7 @@ c
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
       n1 = nxtask(-nproc,icount)
-!      if(ncubenz.eq.0) call errquit(
-!     .     ' grid_quadvw: no cube detected - nqtot ',nqtotc)
-      ifail=0
-      if(ncubenz.eq.0) ifail=1
-      call ga_igop(Msg_Excrho,ifail,1,'+')
-      if(ifail.ne.0) then
-c
-c     decrease cube size and goto beginning
-c
-         if(dosympts)call grid_sympts2(l_symops,l_gridscr)
-         call grid_buckend()
-         if (l_cache .ne. -1) then
-            if (.not. ma_free_heap(l_cache))
-     $           call errquit('grid_quadvw: free heap?',0)
-         endif
-         lcubez=1d+10
-         do i=1,ntypes
-            lcubez=min(grid_lcube(dble(rad_cutoff(1,i))),lcubez)
-         enddo
-         l_cube=lcubez*.75d0
-         if(me.eq.0) write(LuOut,'(A,/,A,F10.4)') 
-     '        ' WARNING: please add to your input file this line',
-     ,        ' set dft:l_cube double ',l_cube
-         if (.not. rtdb_put(rtdb, 'dft:l_cube',
-     $     mt_dbl, 1, l_cube)) 
-     .        call errquit('gridquw: rtdbput failed',0)
-         Ex=0d0
-         Ec=0d0
-         rho_int=0d0
-         nqtot=0 
-         call ga_zero(g_vxc)
-         goto 2001
-      endif
-      if(oprint) write(LuOut,16) ' me ',me,
+      if(oprint.and.ncubenz.ne.0) write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       if(dosympts)call grid_sympts2(l_symops,l_gridscr)
  16   format(A,I3,A,2I8)
