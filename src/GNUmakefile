@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.14 1994-10-11 19:35:06 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1994-11-05 05:03:26 og845 Exp $
 
 include config/makefile.h
 
@@ -13,14 +13,14 @@ include config/makefile.h
 .PRECIOUS:	nwchem
 nwchem:	libraries
 	$(MAKE) nwchem.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $(BINDIR)/$@ nwchem.o $(LIBS)
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
 #
 
 link nwchem_link:    nwchem.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o nwchem nwchem.o $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $(BINDIR)/nwchem nwchem.o $(LIBS)
 	$(INSTALL)
 #
 # This for linking test version
