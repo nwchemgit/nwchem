@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.71 2001-07-17 21:58:48 d3j191 Exp $
+c $Id: ana_task.F,v 1.72 2001-07-17 23:23:46 d3j191 Exp $
 c
       implicit none
 c
@@ -93,6 +93,7 @@ c
       nrot=0
 c
       lsel=.false.
+      lsels=.false.
       active=.false.
       lrms=.false.
       lana=.false.
@@ -178,6 +179,9 @@ c
       if(ito.gt.nsa) ito=nsa
       num=ito-ifr+1
       endif
+c
+      call ana_all(int_mb(i_ssel),1,dbl_mb(i_swt))
+      lsel=.false.
 c
       if(me.eq.0) then
       write(*,'(a,a)') ' Reference coordinates read from ',
@@ -271,6 +275,19 @@ c
       endif
       goto 1
       endif
+      if(card(1:6).eq.'selecs') then
+      if(.not.lsels) then
+      call ana_all(int_mb(i_ssel),0,dbl_mb(i_swt))
+      lsel=.true.
+      endif
+      call ana_select(card,byte_mb(i_snam),int_mb(i_ssel),dbl_mb(i_swt),
+     + dbl_mb(i_xref))
+      if(me.eq.0) then
+      write(*,3533) nsel,nsa
+ 3533 format(' Selected',i5,' out of',i5,' atoms for superposition')
+      endif
+      goto 1
+      endif
 c
 c     save atom selection
 c     -------------------
@@ -280,6 +297,11 @@ c
       call ana_savsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
       goto 1
       endif
+      if(card(1:6).eq.'savsls') then
+      filsel=card(8:80)
+      call ana_savsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_ssel))
+      goto 1
+      endif
 c
 c     read atom selection
 c     -------------------
@@ -287,6 +309,12 @@ c
       if(card(1:5).eq.'rdsel') then
       filsel=card(8:80)
       call ana_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      call ana_wcount(int_mb(i_wsel),int_mb(i_ndxw))
+      goto 1
+      endif
+      if(card(1:6).eq.'rdsels') then
+      filsel=card(8:80)
+      call ana_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_ssel))
       call ana_wcount(int_mb(i_wsel),int_mb(i_ndxw))
       goto 1
       endif
@@ -633,7 +661,7 @@ c
       nread=nread+1
       if(nread.lt.idpdb) goto 222
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
-     + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,
      + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
@@ -754,7 +782,7 @@ c
       if(nread.lt.ifrfr) goto 3
       if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
@@ -847,7 +875,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c
       if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
-     + num,msa,dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,
+     + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,
      + .true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
 c     evaluate bond lenghts
@@ -1032,7 +1060,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       if(lsaver) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       endif
 c
@@ -1100,7 +1128,7 @@ c
       if(nread.lt.ifrfr) goto 5
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
@@ -1208,7 +1236,7 @@ c
       if(nread.lt.ifrfr) goto 6
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)

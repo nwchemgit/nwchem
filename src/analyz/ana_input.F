@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.52 2001-07-17 21:58:48 d3j191 Exp $
+c $Id: ana_input.F,v 1.53 2001-07-17 23:23:46 d3j191 Exp $
 c
       implicit none
 c
@@ -298,6 +298,8 @@ c     select atoms
 c     ------------
 c
       if(inp_compare(.false.,'select',item)) then
+      lsuper=.false.
+ 1255 continue
       rsel=0.0d0
       isel=0
       jsel=0
@@ -311,7 +313,12 @@ c
       endif
       endif
       if(.not.inp_a(atom)) atom=' '
+      if(atom(1:5).eq.'super') then
+      lsuper=.true.
+      goto 1255
+      endif
       if(atom(1:7).eq.'solvent') then
+      if(lsuper) call errquit('Can not select super solvent',0)
       if(.not.inp_f(rsel)) call errquit('No range specified',0)
       write(lfncmd,1206) rsel
  1206 format('wselct ',f12.6)
@@ -320,21 +327,36 @@ c
       endif
       if(atom(1:4).eq.'save') then
       if(.not.inp_a(atom)) call errquit('No file specified',0)
+      if(lsuper) then
+      write(lfncmd,1258) atom(1:index(atom,' ')-1)
+ 1258 format('savsls ',a)
+      else
       write(lfncmd,1208) atom(1:index(atom,' ')-1)
  1208 format('savsel ',a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif
       if(atom(1:4).eq.'read') then
       if(.not.inp_a(atom)) call errquit('No file specified',0)
+      if(lsuper) then
+      write(lfncmd,1259) atom(1:index(atom,' ')-1)
+ 1259 format('rdsels ',a)
+      else
       write(lfncmd,1209) atom(1:index(atom,' ')-1)
  1209 format('rdsel  ',a)
+      endif
       numcmd=numcmd+1
       goto 2
       endif
     4 continue
+      if(lsuper) then
+      write(lfncmd,1056) isel,jsel,rsel,atom(1:index(atom,' ')-1)
+ 1056 format('selecs ',2i7,f12.6,a)
+      else
       write(lfncmd,1006) isel,jsel,rsel,atom(1:index(atom,' ')-1)
  1006 format('select ',2i7,f12.6,a)
+      endif
       numcmd=numcmd+1
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 4

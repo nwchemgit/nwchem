@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.17 2000-09-13 19:29:44 d3j191 Exp $
+c $Id: ana_finish.F,v 1.18 2001-07-17 23:23:46 d3j191 Exp $
 c
       implicit none
 c
@@ -51,6 +51,8 @@ c
 c
       if(.not.ma_verify_allocator_stuff()) print*,'Oops'
 c
+      if(.not.ma_pop_stack(l_swt))
+     + call errquit('Failed to deallocate swt',0)
       if(.not.ma_pop_stack(l_wt))
      + call errquit('Failed to deallocate wt',0)
       if(.not.ma_pop_stack(l_xrms))
@@ -62,6 +64,8 @@ c
      + call errquit('Failed to deallocate val',0)
       if(.not.ma_pop_stack(l_tag))
      + call errquit('Failed to deallocate tag',0)
+      if(.not.ma_pop_stack(l_ssel))
+     + call errquit('Failed to deallocate ssel',0)
       if(.not.ma_pop_stack(l_isel))
      + call errquit('Failed to deallocate isel',0)
 c
