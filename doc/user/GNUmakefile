@@ -27,6 +27,6 @@ view:	user.ps
 	ghostview -bg white -fg black -bd black user.ps
 
 realclean clean:
-	/bin/rm -f *dvi *ps *toc *aux *log *~
+	/bin/rm -f *.dvi *.ps *.toc *.aux *.log *~
 	/bin/rm -rf user
 
