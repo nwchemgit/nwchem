@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.16 2004-03-01 05:14:33 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.17 2004-03-02 00:10:21 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -443,7 +443,7 @@ c     value = .false.
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
- 1159 FORMAT(/' total charge:',I2)
+ 1159 FORMAT(/' total charge=',I2)
 
  1160 FORMAT(/' ATOMIC COMPOSITION:')
  1170 FORMAT(7(5X,A2,':',I3))

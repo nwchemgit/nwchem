@@ -1,9 +1,15 @@
 *
-* $Id: psi.F,v 1.52 2004-03-01 05:14:33 bylaska Exp $
+* $Id: psi.F,v 1.53 2004-03-02 00:10:22 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.52  2004/03/01 05:14:33  bylaska
+* Mulliken and DOS fixes.
+* Added Mulliken projections based on atomic orbitals
+* Added projected density of states (based on Mulliken projections)
+* ...EJB
+*
 * Revision 1.51  2004/02/06 01:57:22  bylaska
 *
 * Option added to write out temporary psi for Kiril.
@@ -4729,6 +4735,8 @@ c     end if
 
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
       call pspw_print_APC(6)
+
+      call pspw_gen_Efield(rtdb,ispin,dbl_mb(rho1(1)),dcpl_mb(dng1(1)))
 
       return
       end

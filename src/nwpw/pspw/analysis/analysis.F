@@ -61,7 +61,9 @@
 
 
 *     **** external functions ****
+      logical  control_DOS
       logical  control_mulliken_kawai,aorbs_init,aorbs_readall
+      external control_DOS
       external control_mulliken_kawai,aorbs_init,aorbs_readall
       character   spdf_name
       external    spdf_name
@@ -388,8 +390,8 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
      >  (dbl_mb(SUBTL(1)+L)+dbl_mb(SUBTL(1)+L+(ISPIN-1)*6))
      >   *100.d0/(NE(1)+NE(ISPIN))
         dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)*100.0d0/dble(NE(1))
-        IF(ISPIN.EQ.2) dbl_mb(SUBTL(1)+L+6)=dbl_mb(SUBTL(1)+L+6)
-     >                                      *100.0d0/dble(NE(2))
+        IF((ISPIN.EQ.2).and.(NE(2).gt.0)) 
+     >    dbl_mb(SUBTL(1)+L+6)=dbl_mb(SUBTL(1)+L+6)*100.0d0/dble(NE(2))
       END DO
 
       WRITE(6,1700)
@@ -408,6 +410,8 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
 *     ***********************************************
 *     **** generate projected DENSITY OF STATES *****
 *     ***********************************************
+      if (control_DOS()) then
+
       value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
@@ -634,6 +638,8 @@ c      end do
       value = MA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
+
+      end if !*** control_DOS ***
 
 
 

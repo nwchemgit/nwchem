@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.16 2004-03-01 05:14:27 bylaska Exp $
+c $Id: nwpw_input.F,v 1.17 2004-03-02 00:10:21 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 57)
+      parameter (num_dirs = 58)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -72,6 +72,7 @@ c
      >            'dos',
      >            'monkhorst-pack',
      >            'zone_name',
+     >            'dos_filename',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -120,6 +121,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
+     >       4100,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -572,6 +574,20 @@ c
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4000, RTDB_ERR)
+
+      goto 10
+
+
+
+
+c
+c  DOS_FILENAME - density of states input
+c
+ 4100 if (inp_a(zone_name)) then
+        ind = index(zone_name,' ') - 1
+        if (.not.rtdb_cput(rtdb,'nwpw:dos:filename',1,zone_name(1:ind)))
+     >  call errquit('nwpw_input: error writing to rtdb',4100,RTDB_ERR)
+      end if
 
       goto 10
 
