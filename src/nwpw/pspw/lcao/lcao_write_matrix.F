@@ -1,6 +1,19 @@
 *
-* $Id: lcao_write_matrix.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
+* $Id: lcao_write_matrix.F,v 1.3 2001-12-04 02:39:31 bylaska Exp $
 *
+      subroutine lcao_write_matrix_seq(unit,size,matrix)
+      implicit none
+      integer unit,size
+      real*8 matrix(size,size)
+
+      integer i,j
+      do i=1,size
+         write(unit,1000) (matrix(i,j),j=1,size)
+      end do
+      return 
+ 1000 format(100E10.3)
+      end
+
       subroutine lcao_write_matrix(unit,matrix)
       implicit none
       integer unit

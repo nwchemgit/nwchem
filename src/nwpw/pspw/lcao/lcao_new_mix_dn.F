@@ -1,5 +1,5 @@
 *
-* $Id: lcao_new_mix_dn.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
+* $Id: lcao_new_mix_dn.F,v 1.3 2001-12-04 02:39:31 bylaska Exp $
 *
       subroutine lcao_new_mix_dn(alpha,ispin,ne,n2ft3d,dn,
      >                           psimatrix,phi,rho_error)
@@ -85,13 +85,20 @@
       call D3dB_SumAll(rho_error)
 
 
-*     **** Calculate New Density = combination of MO DEN and old DN *
-      do ms=1,ispin
-         do k=1,n2ft3d
-            dn(k,ms) = alpha*dbl_mb(newdn(1)+(ms-1)*n2ft3d+k-1) 
-     >               + (1.0d0-alpha)*dn(k,ms)
-         end do
-      end do
+*     **** Calculate New Density = using DIIS *****
+      call lcao_diis_dn_generate(ispin,n2ft3d,
+     >                           dbl_mb(newdn(1)),
+     >                           rho_error,
+     >                           dn)
+
+c*     **** Calculate New Density = combination of MO DEN and old DN *
+c      do ms=1,ispin
+c         do k=1,n2ft3d
+c               dn(k,ms) = alpha*dbl_mb(newdn(1)+(ms-1)*n2ft3d+k-1) 
+c     >                  + (1.0d0-alpha)*dn(k,ms)
+c         end do
+c      end do
+
 
 c*     **** normalize densities ***
 c      do ms=1,ispin

@@ -1,0 +1,7 @@
+*
+* $Id: lcao_dnlist.fh,v 1.1 2001-12-04 02:39:31 bylaska Exp $
+*
+      integer dnlist(2),dnlist_tag(2),size,maxsize
+      common / lcao_dnlist / dnlist,dnlist_tag,size,maxsize
+
+

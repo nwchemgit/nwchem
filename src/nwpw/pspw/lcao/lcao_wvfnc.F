@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.4 2001-12-02 19:38:14 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.5 2001-12-04 02:39:31 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -243,6 +243,8 @@
      >                  dbl_mb(dn(1)),
      >                  dcpl_mb(phi2(1)))
 
+      call lcao_diis_dn_init(10)
+      rho_error = 100.0d0
       do it=0,it_max-1
          call lcao_generate_vhxcmatrix(ispin,n2ft3d,
      >                           dbl_mb(dn(1)),
@@ -288,7 +290,13 @@
      >                       rho_error)
 
         write(*,*) "rho error:",it,rho_error
+        if (rho_error.gt.1.0d0) then
+           write(*,*) "HERA"
+           call lcao_diis_dn_end()
+           call lcao_diis_dn_init(10)
+        end if
       end do
+      call lcao_diis_dn_end()
  50   call lcao_write_psi(wavefunction_filename,
      >                    version,
      >                    ngrid,

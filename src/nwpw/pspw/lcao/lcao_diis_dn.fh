@@ -1,0 +1,7 @@
+*
+* $Id: lcao_diis_dn.fh,v 1.1 2001-12-04 02:39:30 bylaska Exp $
+*
+      integer dnerror(2),maxsize
+      common / lcao_diis / dnerror,maxsize
+
+
