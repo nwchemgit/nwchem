@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.8 1997-02-13 19:02:12 d3h449 Exp $
+C$Id: cdft.fh,v 1.9 1997-02-18 01:31:49 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -16,14 +16,15 @@ c
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cfac, xfac, tol_rho, radius, rm, hl_tol
+     &     rcharge, rscale, cfac, xfac, tol_rho, radius, rm, hl_tol,
+     &     e_conv, d_conv, g_conv
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct
       integer
-     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
-     &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
+     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, 
+     &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf,
      &     nbf_ao, nbf_cd, nbf_xc, 
@@ -32,13 +33,16 @@ c     old common handles
 c
      &     AO_bas_han, CD_bas_han, XC_bas_han
 c
+      character*255 movecs_in, movecs_out
+      character*8 movecs_guess
       common /cdft/
 c
 c     Doubles
 c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(15), xfac(15),
-     &     tol_rho, radius, rm, hl_tol, 
+     &     tol_rho, radius, rm, hl_tol, e_conv, d_conv, g_conv,
+
 c
 c     Logicals
 c
@@ -49,8 +53,8 @@ c
 c
 c     Integers
 c
-     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
-     &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
+     &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, 
+     &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf,
      &     nbf_ao, nbf_cd, nbf_xc, 
@@ -62,7 +66,8 @@ c
 c     Characters
 c
       common /ccdft/ 
-     &     title, gridtype, xname(15), cname(15), xcname(15)
+     &     title, gridtype, xname(15), cname(15), xcname(15),
+     $     movecs_in, movecs_out, movecs_guess
 c
 c-->  old dimensions.fh
 c
