@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.6 1994-10-11 18:39:30 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.7 1994-10-14 19:44:56 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
@@ -80,6 +80,7 @@ C INCLUDE FILES
 #include "bas.fh"
 #include "geom.fh"
 #include "schwarz.fh"
+#include "rimp2_timers.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame      ! From BLAS-[23]
@@ -87,14 +88,16 @@ C EXTERNAL ROUTINES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer IAlo, IAhi, NI, NA
-      Integer MxBFSh, LInt, LScr, MySLo, MySHi, MxFitSh
+      Integer MxBFSh, LInt, LIntScr, LScr, MySLo, MySHi, MxFitSh
       Integer SShlo, SShhi, SSh, First, Last
       Logical Status, UseERI
       Integer Local_Idx, LDLocal, H_Int, H_Scr, Int_Idx, Scr_Idx
+      Integer H_IntScr, IntScr_Idx, H_Scr2, Scr2_Idx, LScr2
       Integer H_CP, H_CQ, CP_Idx, CQ_Idx, LCP, LCQ
       Integer NCent, CenP, CenQ, MxBFCe, PBFLo, PBFHi, QBFLo,
      $   QBFHi
-      IntegerH_CP2, H_CQ2, CP2_Idx, CQ2_Idx
+      Integer H_CP2, H_CQ2, CP2_Idx, CQ2_Idx
+      Integer PSh, PShLo, PShHi, PLo, PHi, NBFPSh
 C
 C     Dimensions of A and I ranges
 C
@@ -183,29 +186,16 @@ C
 C        This is what the integral package needs
 C
          If ( UseERI ) then
-            Call Int_Mem_2e3c( LInt, LScr)
+            Call Int_Mem_2e3c( LInt, LIntScr)
          Else
-            Call Int_Mem_3ov( LInt, LScr)
+            Call Int_Mem_3ov( LInt, LIntScr)
          EndIf
-C
-C        We also need to transpose the resulting integrals from Int to Scr
-C        so we have them in a convenient organization.  So we must make
-C        sure that Scr is at least the size of Int (though the integrals
-C        will probably already require this).
-C        
-         LScr = Max( LScr, LInt, NI*MxBFSh*MxFitSh )
-C
-C        And we reuse Int as the intermediate in the two transformation
-C        steps, where we need it to be large enough to hold the
-C        (aq|s) block for all a, a shell of q, and a single s.
-C
-         LInt = Max( LInt, NA*MxBFSh)
 C
          Status = .TRUE.
          Status = Status .AND. MA_Push_Get( MT_Dbl, LInt,
      $      'Integral eval', H_Int, Int_Idx)
-         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr,
-     $      'Integral scr', H_Scr, Scr_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LIntScr,
+     $      'Integral scr', H_IntScr, IntScr_Idx)
 C
 C        We also need to localize bits of the transformation matrix, C
 C
@@ -222,6 +212,16 @@ C
          Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
      $      H_CQ2, CQ2_Idx)
 C
+C        And some scratch space
+C
+         LScr  = MxBFSh * NI * (MySHi-MySLo+1)
+         LScr2 = NI * MxBFSh * MxFitSh
+C
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr,
+     $      'Transformation scr', H_Scr, Scr_Idx)
+         Status = Status .AND. MA_Push_Get( MT_Dbl, LScr2,
+     $      'Transformation scr', H_Scr2, Scr2_Idx)
+C
          If (.NOT. Status ) then
             Write (LuErr, *) 'XF3cI_Step12: Problem allocating local ',
      $         'memory.'
@@ -233,12 +233,14 @@ C        ********************************************
 C        * Grab our panel of G_I to access directly *
 C        ********************************************
 C        This avoids the need for a scratch matrix of size NA*NI
-C        and a copy operation.
+C        and a copy operation.  But the leading dimension
+C        of the local patch must be a multiple of NA, or the second
+C        transformation step will be wrong.
 C
          Call GA_Access( G_I, IAlo, IAhi, MySLo, MySHi, Local_Idx,
      $      LDLocal)
 C
-         If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .lt. NA * NI ) then
+         If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .ne. NA * NI ) then
             Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
      $         ' inconsistent with arguments. Distribution may be ',
      $         'wrong.'
@@ -253,6 +255,9 @@ C
             XF3cI_Step12 = .FALSE.
             Return
          EndIf
+c$$$C
+c$$$         Write (0, *) 'Starting actual transformation'
+c$$$         Call Util_Flush(0)
 C
          Do CenP = 1, NCent
             Status = Bas_Ce2BFR( AOBas, CenP, PBFLo, PBFHi)
@@ -261,30 +266,63 @@ C
             Call GA_Get(G_C, PBFlo, PBFhi, Ilo, Ihi,
      $         Dbl_MB(CP2_Idx), MxBFCe)
 C
-            Do CenQ = 1, CenP
-               Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
+            Status = Bas_Ce2CnR( AOBas, CenP, PShLo, PShHi)
+            Do PSh = PShLo, PShHi
+               Status = Bas_Cn2BFR( AOBas, PSh, Plo, Phi)
+               NBFPSh = Phi - Plo +1
 C
-               If ( Schwarz_Atom(CenP, CenQ) * Schwarz_Max() .gt.
-     $            Neglect ) then
-                  Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
-     $               Dbl_MB(CQ_Idx), MxBFCe)
-                  Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
-     $               Dbl_MB(CQ2_Idx), MxBFCe)
+               Call DFill(LScr, FP_Zero, Dbl_MB(Scr_Idx), 1)
 C
-                  Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
-     $               Dbl_MB(CP_Idx), MxBFCe, NA,
-     $               Dbl_MB(CP2_Idx), MxBFCe, NI,
-     $               Dbl_MB(CQ_Idx), MxBFCe, NI,
-     $               Dbl_MB(CQ2_Idx), MxBFCe, NA,
-     $               FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
-     $               Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr,
-     $               Neglect)
-c$$$              Else
-c$$$              Write (LuOut, *) 'Node ', GA_NodeID(),
-c$$$              $            ' neglecting atom ', CenP, CenQ
-               EndIf
-            EndDo
-         EndDo
+               Do CenQ = 1, NCent
+                  Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
+C
+                  If ( Schwarz_Atom(CenP, CenQ) * Schwarz_Max() .gt.
+     $               Neglect ) then
+                     Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
+     $                  Dbl_MB(CQ_Idx), MxBFCe)
+                     Call GA_Get(G_C, QBFlo, QBFhi, Alo, Ahi,
+     $                  Dbl_MB(CQ2_Idx), MxBFCe)
+C
+                     Call XF3cI_Step12a(UseERI, AOBas, CenP, PSh, CenQ,
+     $                  Dbl_MB(CP_Idx), MxBFCe, NA,
+     $                  Dbl_MB(CP2_Idx), MxBFCe, NI,
+     $                  Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $                  Dbl_MB(CQ2_Idx), MxBFCe, NA,
+     $                  FitBas, SShLo, SShhi,
+     $                  Dbl_MB(Local_Idx), LDLocal, 
+     $                  Dbl_MB(Int_Idx), LInt,
+     $                  Dbl_MB(IntScr_Idx), LIntScr,
+     $                  Dbl_MB(Scr_Idx), MxBFSh, MySLo, MySHi,
+     $                  Dbl_MB(Scr2_Idx), LScr2,
+     $                  Neglect)
+                  EndIf ! Schwarz screening
+C
+c$$$                  Write(0,*) 'Done with Q center ', CenP, CenQ
+c$$$                  Call Util_Flush(0)
+               EndDo    ! CenQ
+C
+C              C_{pa}^T (pi|s) --> (ai|s)
+C
+C              Notice that we are thinking of the result we generate
+C              as an NA by NI*NS matrix, while in reality, it is
+C              an NA*NI by NS matrix.  Therefore, of the leading dimension
+C              is not exactly NA*NI, we're in trouble!  This is checked
+C              when we get access to the local patch, above.
+C
+               Call PStat_On( PS_Step12)
+C
+               Call sgemm('T', 'N', NA, NI*(MySHi-MySLo+1), NBFPSh,
+     $            FP_One, Dbl_MB(CP_Idx + PLo-PBFLo), MxBfCe,
+     $            Dbl_MB(Scr_Idx), NBFPSh,
+     $            FP_One, Dbl_MB(Local_Idx), NA)
+               Call MA_Verify_Allocator_Stuff
+C
+               Call PStat_Off( PS_Step12)
+C
+            EndDo               ! PSh
+c$$$            Write(0,*) 'Done with P center ', CenP
+c$$$            Call Util_Flush(0)
+         EndDo                  ! CenP
 C
 C        ****************************
 C        * Clean up after ourselves *
@@ -292,11 +330,13 @@ C        ****************************
 C
          Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
 C
+         Status = Status .AND. MA_Pop_Stack( H_Scr2)
+         Status = Status .AND. MA_Pop_Stack( H_Scr)
          Status = Status .AND. MA_Pop_Stack( H_CQ2)
          Status = Status .AND. MA_Pop_Stack( H_CP2)
          Status = Status .AND. MA_Pop_Stack( H_CQ)
          Status = Status .AND. MA_Pop_Stack( H_CP)
-         Status = Status .AND. MA_Pop_Stack( H_Scr)
+         Status = Status .AND. MA_Pop_Stack( H_IntScr)
          Status = Status .AND. MA_Pop_Stack( H_Int)
 C
          If (.NOT. Status ) then
@@ -311,6 +351,9 @@ C
       Call GA_Sync
 C
       XF3cI_Step12 = .TRUE.
+c$$$C
+c$$$      Write( 0,*) 'Leaving first 2/3'
+c$$$      Call Util_Flush(0)
 C
       Return
       End
