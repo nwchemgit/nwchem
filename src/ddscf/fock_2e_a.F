@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.19 1996-01-10 15:58:25 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.20 1996-01-10 16:44:51 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.19 1996-01-10 15:58:25 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.20 1996-01-10 16:44:51 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -182,7 +182,8 @@ c
          if (oscfps) call pstat_off(ps_gaops)
       endif
 c
-      write(6,*) ' ncomputed ', ncomputed
+      if (util_print('ncomputed',print_debug))
+     $   write(6,*) ' ncomputed ', ncomputed
 c     
       next = nxtask(-nproc, 1)
       call ga_sync()
