@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.53 2000-05-09 21:49:40 d3j191 Exp $
+c $Id: pre_input.F,v 1.54 2000-06-01 05:20:08 d3j191 Exp $
 c
       implicit none
 c
@@ -1031,6 +1031,10 @@ c
       write(68,6824) nkeepw,item(1:index(item,' ')-1)
  6824 format('wr_xyz solute ',i10,a)
       endif
+      elseif(index(item,'.pdb').gt.0) then
+      write(68,6806) nkeepw,item(1:index(item,' ')-1)
+      elseif(index(item,'.xyz').gt.0) then
+      write(68,6824) nkeepw,item(1:index(item,' ')-1)
       else
       call errquit('pre_input: write solute',9999)
       endif
@@ -1065,6 +1069,16 @@ c
  6823 format('wr_xyz ',a)
       lwrcoo=.true.
       endif
+      elseif(index(item,'.pdb').gt.0) then
+      write(68,6807) item(1:index(item,' ')-1)
+      elseif(index(item,'.rst').gt.0) then
+      write(68,6808) item(1:index(item,' ')-1)
+      elseif(index(item,'.rst_old').gt.0) then
+      write(68,6848) item(1:index(item,'.rst_old')+3)
+      elseif(index(item,'.xyz').gt.0) then
+      write(68,6823) item(1:index(item,' ')-1)
+      else
+      call errquit('Problem with write file',0)
       endif
       needwt=.false.
       numcmd=numcmd+1
@@ -1096,6 +1110,18 @@ c
       if(numcmd.eq.0) rewind(68)
       write(68,6825) item(1:index(item,' ')-1)
  6825 format('rd_old ',a)
+      lrdcoo=.true.
+      elseif(index(item,'.pdb').gt.0) then
+      if(numcmd.eq.0) rewind(68)
+      write(68,6809) item(1:index(item,' ')-1)
+      lrdcoo=.true.
+      elseif(index(item,'.rst').gt.0) then
+      if(numcmd.eq.0) rewind(68)
+      write(68,6810) item(1:index(item,' ')-1)
+      lrdcoo=.true.
+      elseif(index(item,'.rst_old').gt.0) then
+      if(numcmd.eq.0) rewind(68)
+      write(68,6825) item(1:index(item,'.rst_old')+3)
       lrdcoo=.true.
       endif
       endif
