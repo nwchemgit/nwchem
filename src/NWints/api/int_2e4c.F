@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.36 2000-05-27 19:37:28 mg201 Exp $
+c $Id: int_2e4c.F,v 1.37 2000-06-06 00:43:36 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -183,8 +183,6 @@ c     get basis set handles; relativistic integral option valid
 c     if bra or ket are the ao basis and bra and ket have both
 c     functions relativistic
 c
-        bra_rel = .false.
-        ket_rel = .false.
         sbas = sc_bsh + BASIS_HANDLE_OFFSET
         abas = ao_bsh + BASIS_HANDLE_OFFSET
         bras = sbas
@@ -290,16 +288,16 @@ c
           call rel_2e4c_sf (
      &        coords(1,a_cent,ab_geom), dbl_mb(mb_exndcf(a_iexp,bra)),
      &        dbl_mb(mb_exndcf(a_icfp,bra)),
-     &        dbl_mb(mb_exndcf(a_icfps,bra)), a_prim,a_gen,La,a_cent,
+     &        dbl_mb(mb_exndcf(a_icfps,bras)), a_prim,a_gen,La,a_cent,
      &        coords(1,b_cent,ab_geom), dbl_mb(mb_exndcf(b_iexp,bra)),
      &        dbl_mb(mb_exndcf(b_icfp,bra)), 
-     &        dbl_mb(mb_exndcf(b_icfps,bra)), b_prim,b_gen,Lb,b_cent,
+     &        dbl_mb(mb_exndcf(b_icfps,bras)), b_prim,b_gen,Lb,b_cent,
      &        coords(1,c_cent,cd_geom), dbl_mb(mb_exndcf(c_iexp,ket)),
      &        dbl_mb(mb_exndcf(c_icfp,ket)), 
-     &        dbl_mb(mb_exndcf(c_icfps,ket)), c_prim,c_gen,Lc,c_cent,
+     &        dbl_mb(mb_exndcf(c_icfps,kets)), c_prim,c_gen,Lc,c_cent,
      &        coords(1,d_cent,cd_geom), dbl_mb(mb_exndcf(d_iexp,ket)),
      &        dbl_mb(mb_exndcf(d_icfp,ket)), 
-     &        dbl_mb(mb_exndcf(d_icfps,ket)), d_prim,d_gen,Ld,d_cent,
+     &        dbl_mb(mb_exndcf(d_icfps,kets)), d_prim,d_gen,Ld,d_cent,
 c...................... canAB   canCD   canPQ   DryRun
      &        eri,leri,.false.,.false.,.false.,.false.,scr,lscr,
      &        bra_rel,ket_rel,ss_one_cent,do_ssss,rel_dbg)
