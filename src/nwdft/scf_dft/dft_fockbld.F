@@ -10,7 +10,7 @@
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.4 2000-04-24 19:56:16 edo Exp $
+c     $Id: dft_fockbld.F,v 1.5 2000-04-24 21:44:31 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -134,7 +134,7 @@ c
 c     
 c        Restore alpha and beta densities.
 c     
-         call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
+         call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
 c     
 c        Note that g_dens(1) now contains the alpha density
 c        matrix and g_dens(2) contains the beta
