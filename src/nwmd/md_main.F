@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.60 2000-02-10 22:54:57 d3j191 Exp $
+c $Id: md_main.F,v 1.61 2000-02-12 00:04:50 d3j191 Exp $
 c
       implicit none
 c
@@ -988,7 +988,7 @@ c
       endif
 c
       write(projct,4000) irun,mrun,mequi,idacq,tmpext,filnam(1:35)
- 4000 format('ti ',i5,'/',i5,' :'i7,'+ ',i7,' @ ',f7.2,' K ',a)
+ 4000 format('ti ',i5,'/',i5,' :',i7,'+ ',i7,' @ ',f7.2,' K ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
