@@ -1,7 +1,7 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_guess_t2.F,v 1.2 2002-10-22 16:23:07 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -28,7 +28,6 @@ c
       integer next
       integer nxtval
       external nxtval
-      double precision mbpt2
 c
 c     ================
 c     Loop over blocks
@@ -37,7 +36,6 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
-      mbpt2 = 0.0d0
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab

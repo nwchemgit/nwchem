@@ -2292,12 +2292,12 @@ class ElementaryTensorContraction:
       newcode.inserttileddoloops(superglobalone)
       if (three):
          newcode.inserttileddoloops(superglobaltwo)
-      newcode.inserttileddoloops(subglobalone)
-      if (three):
-         newcode.inserttileddoloops(subglobaltwo)
       newcode.inserttileddoloops(superlocalone)
       if (three):
          newcode.inserttileddoloops(superlocaltwo)
+      newcode.inserttileddoloops(subglobalone)
+      if (three):
+         newcode.inserttileddoloops(subglobaltwo)
       newcode.inserttileddoloops(sublocalone)
       if (three):
          newcode.inserttileddoloops(sublocaltwo)
@@ -2418,9 +2418,12 @@ class ElementaryTensorContraction:
       ifblock = 0
       for superpermutation in superpermutations:
          superline = ""
-         permutation = superglobalone + superlocalone + supercommonone
+         if (self.tensors[1].type == "i"):
+            permutation = superlocalone + supercommonone
+         else:
+            permutation = superglobalone + superlocalone + supercommonone
          if (superpermutation[1] == "empty"):
-            permutation = permutation + superglobalone + superlocalone + supercommonone
+            permutation = permutation + permutation
          else:
             permutation = permutation + superpermutation[1:]
          if (self.tensors[1].type == "i"):
@@ -2432,6 +2435,8 @@ class ElementaryTensorContraction:
             for nindex in range(len(superpermutedindexes)-1):
                indexa = superpermutedindexes[nindex]
                indexb = superpermutedindexes[nindex+1]
+               if ((self.tensors[1].type == "i") and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
+                  continue
                if (indexa.isin(superglobalone) and indexb.isin(superglobalone)):
                   continue
                if (indexa.isin(superlocalone) and indexb.isin(superlocalone)):
@@ -2448,9 +2453,12 @@ class ElementaryTensorContraction:
                   superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
          for subpermutation in subpermutations:
             subline = superline
-            permutation = subglobalone + sublocalone + subcommonone
+            if (self.tensors[1].type == "i"):
+               permutation = sublocalone + subcommonone
+            else:
+               permutation = subglobalone + sublocalone + subcommonone
             if (subpermutation[1] == "empty"):
-               permutation = permutation + subglobalone + sublocalone + subcommonone
+               permutation = permutation + permutation
             else:
                permutation = permutation + subpermutation[1:]
             if (self.tensors[1].type == "i"):
@@ -2462,6 +2470,8 @@ class ElementaryTensorContraction:
                for nindex in range(len(subpermutedindexes)-1):
                   indexa = subpermutedindexes[nindex]
                   indexb = subpermutedindexes[nindex+1]
+                  if ((self.tensors[1].type == "i") and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
+                     continue
                   if (indexa.isin(subglobalone) and indexb.isin(subglobalone)):
                      continue
                   if (indexa.isin(sublocalone) and indexb.isin(sublocalone)):
@@ -2599,9 +2609,12 @@ class ElementaryTensorContraction:
          ifblock = 0
          for superpermutation in superpermutations:
             superline = ""
-            permutation = superglobaltwo + superlocaltwo + supercommontwo
+            if (self.tensors[2].type == "i"):
+               permutation = superlocaltwo + supercommontwo
+            else:
+               permutation = superglobaltwo + superlocaltwo + supercommontwo
             if (superpermutation[1] == "empty"):
-               permutation = permutation + superglobaltwo + superlocaltwo + supercommontwo
+               permutation = permutation + permutation
             else:
                permutation = permutation + superpermutation[1:]
             if (self.tensors[2].type == "i"):
@@ -2613,6 +2626,8 @@ class ElementaryTensorContraction:
                for nindex in range(len(superpermutedindexes)-1):
                   indexa = superpermutedindexes[nindex]
                   indexb = superpermutedindexes[nindex+1]
+                  if ((self.tensors[2].type == "i") and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
+                     continue
                   if (indexa.isin(superglobaltwo) and indexb.isin(superglobaltwo)):
                      continue
                   if (indexa.isin(superlocaltwo) and indexb.isin(superlocaltwo)):
@@ -2629,9 +2644,12 @@ class ElementaryTensorContraction:
                      superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
             for subpermutation in subpermutations:
                subline = superline
-               permutation = subglobaltwo + sublocaltwo + subcommontwo
+               if (self.tensors[2].type == "i"):
+                  permutation = sublocaltwo + subcommontwo
+               else:
+                  permutation = subglobaltwo + sublocaltwo + subcommontwo
                if (subpermutation[1] == "empty"):
-                  permutation = permutation + subglobaltwo + sublocaltwo + subcommontwo
+                  permutation = permutation + permutation
                else:
                   permutation = permutation + subpermutation[1:]
                if (self.tensors[2].type == "i"):
@@ -2643,6 +2661,8 @@ class ElementaryTensorContraction:
                   for nindex in range(len(subpermutedindexes)-1):
                      indexa = subpermutedindexes[nindex]
                      indexb = subpermutedindexes[nindex+1]
+                     if ((self.tensors[2].type == "i") and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
+                        continue
                      if (indexa.isin(subglobaltwo) and indexb.isin(subglobaltwo)):
                         continue
                      if (indexa.isin(sublocaltwo) and indexb.isin(sublocaltwo)):
@@ -5036,6 +5056,8 @@ class Code:
          return "Unknown language"
 
       # Standard headers
+      newline = "!$Id: tce.py,v 1.2 2002-10-22 16:23:07 sohirata Exp $"
+      self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
       newline = "!Copyright (c) Battelle & Pacific Northwest National Laboratory (2002)"

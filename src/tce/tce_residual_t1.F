@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.1 2002-10-21 21:59:11 sohirata Exp $
+c $Id: tce_residual_t1.F,v 1.2 2002-10-22 16:23:08 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -49,7 +49,7 @@ c
      1            int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
                 if (nodezero.and.util_print('residual',
      1            print_debug)) call ma_print_compact
-     2            (dbl_mb(k_r1),size,1,'residual')
+     2            (dbl_mb(k_r1),size,1,'t1 residual')
                 residual = ddot(size,dbl_mb(k_r1),1,dbl_mb(k_r1),1)
                 call ga_acc(g_residual,1,1,1,1,residual,1,1.0d0)
                 if (.not.ma_pop_stack(l_r1))
