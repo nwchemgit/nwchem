@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.81 2001-02-16 00:44:47 edo Exp $
+# $Id: DEFS,v 1.82 2001-04-13 22:25:24 edo Exp $
 #
 #======================================================================
 #
@@ -414,6 +414,22 @@ peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_BLASLIB = -lesslp2_r
 peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
 
+endif
+ifeq ($(peigs_TARGET),LAPI64)
+#
+# IBM AIX
+#
+peigs_CODEOBJ = DBLE
+peigs_CPU = RS600064
+peigs_COMM =TCGMSG
+peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
+peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
+-WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
+-qfloat=rsqrt:fltint:hssngl -qinline
+
+peigs_CPP +=   -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+peigs_BLASLIB   = -lessl_r
+peigs_LAPACKLIB = -llapack -lessl_r
 endif
 
 ifeq ($(peigs_TARGET),DECOSF)

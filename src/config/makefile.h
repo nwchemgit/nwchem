@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.353 2000-12-11 21:53:48 d3e129 Exp $
+# $Id: makefile.h,v 1.354 2001-04-13 22:25:25 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1020,6 +1020,39 @@ CORE_LIBS +=  -llapack -lblas
 #		-brename:.mpi_send_,.mpi_send \
 #		-brename:mpipriv_,mpipriv
 #endif
+
+ EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#
+endif
+
+ifeq ($(TARGET),LAPI64)
+#
+    CORE_SUBDIRS_EXTRA = lapack blas
+         FC = mpxlf_r 
+         CC = mpcc_r
+    ARFLAGS = urs
+     RANLIB = echo
+  MAKEFLAGS = -j 1 --no-print-directory
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+     MPILIB = 
+LARGE_FILES = YES
+
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
+   LINK.f   = mpcc_r   $(LDFLAGS)
+
+   FOPTIONS = -qEXTNAME -qnosave -q64 #-qalign=4k 
+       AR   = ar -X 64
+   COPTIONS = -q64
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  FOPTIMIZE += -qarch=auto -qtune=auto
+  COPTIMIZE = -O
+
+    DEFINES = -DEXT_INT -DLAPI64  -DIBM64 -DEXTNAME -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
+ CORE_LIBS += -lessl_r # need 64-bit essl
+
+CORE_LIBS +=  -llapack -lblas
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
