@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.30 2004-01-28 00:08:46 bylaska Exp $
+* $Id: electron.F,v 1.31 2004-01-29 01:40:14 bylaska Exp $
 *
 
 
@@ -1006,11 +1006,11 @@ c    >                     hml(shift+1))
          n     = ne(ms)
          if (n.le.0) go to 30
          shift = (ms-1)*ne(1)*ne(1)
-c        call Grsm_ggm_sym_dot(npack1,n,
+c        call Pack_ccm_sym_dot(1,n,
 c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
 c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
 c    >                     hmlt(shift+1))
-         call Pack_ccm_sym_dot(1,n,
+         call Pack_ccm_dot(1,n,
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     hmlt(shift+1))
