@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.10 2002-06-14 21:08:35 d3k958 Exp $
+c $Id: esp_denmat.F,v 1.11 2002-06-18 20:01:44 d3k958 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
 c
       real*8 ene(2*nbf),occ(2*nbf), scale
 c
-      integer ilo,ihi,jlo,jhi,lthi,lthj,i, j
+      integer ilo,ihi,jlo,jhi,lthi,lthj,i
       integer lg_s,k_scr,l_scr,icol,iset, lg_p(2)
       integer ioff
 c
