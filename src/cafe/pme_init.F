@@ -1,6 +1,6 @@
       subroutine pme_start(a,m,imffti,nodpmi,
      + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
-c $Id: pme_init.F,v 1.19 2002-11-08 21:16:20 d3j191 Exp $
+c $Id: pme_init.F,v 1.20 2002-11-10 12:25:42 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -39,6 +39,12 @@ c
       mgx=ngx
       mgy=ngy
       mgz=(ngz/nodpme)+1
+      ngrx=ngx+morder
+      ngry=ngy+morder
+      ngrz=ngz
+      mgrx=ngrx
+      mgry=ngry
+      mgrz=mgz
       if(nodpme*mgz.lt.ngz)
      + call errquit('Inconsistent number of pme nodes',0)
 c
@@ -56,6 +62,8 @@ c
      + call errquit('Failed to allocate grid1',0)
       if(.not.ma_push_get(mt_dbl,mem,'grid2',l_grd2,i_grd2))
      + call errquit('Failed to allocate grid2',0)
+      if(.not.ma_push_get(mt_dbl,mgrx*mgry*mgz,'grid',l_grd,i_grd))
+     + call errquit('Failed to allocate grid',0)
 c
 c     allocate memory for node arrays
 c
@@ -92,7 +100,7 @@ c
 c
 c     create the global arrays for the slabs
 c
-      call ga_create_list(2*np*mgx,mgy,'sl',2*mgx,mgy,mgz,lslab)
+      call ga_create_list(np*mgrx,mgry,'sl',mgrx,mgry,mgz,lslab)
 c
 c     create the flag array
 c
@@ -147,6 +155,8 @@ c
      + call errquit('Failed to deallocate kfrom',0)
       if(.not.ma_pop_stack(l_lnod))
      + call errquit('Failed to deallocate lnode',0)
+      if(.not.ma_pop_stack(l_grd))
+     + call errquit('Failed to deallocate grid',0)
       if(.not.ma_pop_stack(l_grd2))
      + call errquit('Failed to deallocate grid2',0)
       if(.not.ma_pop_stack(l_grd1))

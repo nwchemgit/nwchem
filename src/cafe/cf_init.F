@@ -6,7 +6,7 @@
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.84 2002-08-21 14:39:48 d3j191 Exp $
+c $Id: cf_init.F,v 1.85 2002-11-10 12:25:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -293,6 +293,9 @@ c
       ngy=jgy
       ngz=jgz
       ngmax=max(ngx,ngy,ngz)
+      ngrx=ngx+morder
+      ngry=ngy+morder
+      ngrz=ngz
       pmetol=spmet
       if(ipme.gt.0) then
       if(morder.gt.25) call errquit('morder too large',0)

@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.13 2002-11-08 22:27:55 d3j191 Exp $
+c $Id: cf_grid.F,v 1.14 2002-11-10 12:25:42 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -48,7 +48,7 @@ c
       integer isq(msa)
       integer knode(*),kfrom(*)
       logical lsldo(*)
-      real*8 grid(ngx,ngy,mgz)
+      real*8 grid(ngrx,ngry,mgz)
       integer mnx,mxx,mny,mxy,mnz,mxz
 c
       if(lset.or..not.lscr) then
@@ -82,15 +82,15 @@ c
       real*8 chg(mqt,mqp,6),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(np),kfrom(np)
       logical lsldo(np,*)
-      real*8 grid(ngx,ngy,mgz)
+      real*8 grid(ngrx,ngry,mgz)
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,isa,iwm,iwa,indx
       integer minx,miny,minz,maxx,maxy,maxz
       real*8 prod
 c
       do 1 k=1,mgz
-      do 21 j=1,ngy
-      do 31 i=1,ngx
+      do 21 j=1,ngry
+      do 31 i=1,ngrx
       grid(i,j,k)=zero
    31 continue
    21 continue
@@ -98,8 +98,8 @@ c
       lgrid=.false.
       indx=0
 c
-      minx=ngx
-      miny=ngy
+      minx=ngrx
+      miny=ngry
       minz=mgz
       maxx=1
       maxy=1
@@ -108,7 +108,7 @@ c
       do 2 iwa=1,mwa
       do 3 iwm=1,nwmloc
       indx=indx+1
-      k0=int(yw(iwm,3,iwa))-morder
+      k0=int(yw(iwm,3,iwa))-1
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
@@ -117,26 +117,32 @@ c
       if(knode(k).eq.node) then
       lgrid=.true.
       k=k-kfrom(node+1)+1
-      j0=int(yw(iwm,2,iwa))-morder
+      j0=int(yw(iwm,2,iwa))-1
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
       lsldo(node+1,k)=.true.
+      miny=min(miny,j0+2)
+      maxy=max(maxy,j0+1+morder)
       do 5 ith2=1,morder
       j0=j0+1
-      j=j0+1+(ngy-isign(ngy,j0))/2
-      if(j.gt.ngy) j=j-ngy
-      if(j.lt.1) j=j+ngy
+      j=j0+1
+c      j=j0+1+(ngy-isign(ngy,j0))/2
+c      if(j.gt.ngy) j=j-ngy
+c      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(iwq(iwa),1,ipset)
-      i0=int(yw(iwm,1,iwa))-morder
-      if(j.lt.miny) miny=j
-      if(j.gt.maxy) maxy=j
+      i0=int(yw(iwm,1,iwa))-1
+c      if(j.lt.miny) miny=j
+c      if(j.gt.maxy) maxy=j
+      minx=min(minx,i0+2)
+      maxx=max(maxx,i0+1+morder)
       do 6 ith1=1,morder
       i0=i0+1
-      i=i0+1+(ngx-isign(ngx,i0))/2
-      if(i.gt.ngx) i=i-ngx
-      if(i.lt.1) i=i+ngx
-      if(i.lt.minx) minx=i
-      if(i.gt.maxx) maxx=i
+      i=i0+1
+c      i=i0+1+(ngx-isign(ngx,i0))/2
+c      if(i.gt.ngx) i=i-ngx
+c      if(i.lt.1) i=i+ngx
+c      if(i.lt.minx) minx=i
+c      if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
     6 continue
     5 continue
@@ -148,33 +154,39 @@ c
       if(isolvo.eq.0) then
       do 7 isa=1,nsaloc
       indx=indx+1
-      k0=int(ys(isa,3))-morder
+      k0=int(ys(isa,3))-1
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
       if(knode(k).eq.node) then
       lgrid=.true.
       k=k-kfrom(node+1)+1
-      j0=int(ys(isa,2))-morder
+      j0=int(ys(isa,2))-1
       if(k.lt.minz) minz=k
       if(k.gt.maxz) maxz=k
       lsldo(node+1,k)=.true.
+      miny=min(miny,j0+2)
+      maxy=max(maxy,j0+1+morder)
       do 9 ith2=1,morder
       j0=j0+1
-      j=j0+1+(ngy-isign(ngy,j0))/2
-      if(j.gt.ngy) j=j-ngy
-      if(j.lt.1) j=j+ngy
+      j=j0+1
+c      j=j0+1+(ngy-isign(ngy,j0))/2
+c      if(j.gt.ngy) j=j-ngy
+c      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),1,ipset)
-      i0=int(ys(isa,1))-morder
-      if(j.lt.miny) miny=j
-      if(j.gt.maxy) maxy=j
+      i0=int(ys(isa,1))-1
+c      if(j.lt.miny) miny=j
+c      if(j.gt.maxy) maxy=j
+      minx=min(minx,i0+2)
+      maxx=max(maxx,i0+1+morder)
       do 10 ith1=1,morder
       i0=i0+1
-      i=i0+1+(ngx-isign(ngx,i0))/2
-      if(i.gt.ngx) i=i-ngx
-      if(i.lt.1) i=i+ngx
-      if(i.lt.minx) minx=i
-      if(i.gt.maxx) maxx=i
+      i=i0+1
+c      i=i0+1+(ngx-isign(ngx,i0))/2
+c      if(i.gt.ngx) i=i-ngx
+c      if(i.lt.1) i=i+ngx
+c      if(i.lt.minx) minx=i
+c      if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
    10 continue
     9 continue
@@ -410,7 +422,7 @@ c
       integer isq(msa)
       integer knode(*),kfrom(*)
       logical lsldo(*)
-      real*8 grid(ngx,ngy,mgz)
+      real*8 grid(ngrx,ngry,mgz)
 c
       call cf_forpme(dbl_mb(i_pmew),fw,int_mb(i_iwq),nwmloc,
      + dbl_mb(i_pmes),fs,isq,nsaloc,
@@ -434,7 +446,7 @@ c
       real*8 chg(mqt,mqp,6),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(*),kfrom(*)
       logical lsldo(*)
-      real*8 grid(ngx,ngy,mgz)
+      real*8 grid(ngrx,ngry,mgz)
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,iwm,iwa,isa,indx
       real*8 term,fx,fy,fz
@@ -447,7 +459,7 @@ c
       fx=zero
       fy=zero
       fz=zero
-      k0=int(yw(iwm,3,iwa))-morder
+      k0=int(yw(iwm,3,iwa))-1
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
@@ -455,18 +467,20 @@ c
       if(k.lt.1) k=k+ngz
       if(knode(k).eq.node) then
       k=k-kfrom(node+1)+1
-      j0=int(yw(iwm,2,iwa))-morder
+      j0=int(yw(iwm,2,iwa))-1
       do 5 ith2=1,morder
       j0=j0+1
-      j=j0+1+(ngy-isign(ngy,j0))/2
-      if(j.gt.ngy) j=j-ngy
-      if(j.lt.1) j=j+ngy
-      i0=int(yw(iwm,1,iwa))-morder
+      j=j0+1
+c      j=j0+1+(ngy-isign(ngy,j0))/2
+c      if(j.gt.ngy) j=j-ngy
+c      if(j.lt.1) j=j+ngy
+      i0=int(yw(iwm,1,iwa))-1
       do 6 ith1=1,morder
       i0=i0+1
-      i=i0+1+(ngx-isign(ngx,i0))/2
-      if(i.gt.ngx) i=i-ngx
-      if(i.lt.1) i=i+ngx
+      i=i0+1
+c      i=i0+1+(ngx-isign(ngx,i0))/2
+c      if(i.gt.ngx) i=i-ngx
+c      if(i.lt.1) i=i+ngx
       term=chg(iwq(iwa),1,iset)*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
@@ -492,20 +506,22 @@ c
       fx=zero
       fy=zero
       fz=zero
-      k0=int(ys(isa,3))-morder
+      k0=int(ys(isa,3))-1
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
       if(knode(k).eq.node) then
       k=k-kfrom(node+1)+1
-      j0=int(ys(isa,2))-morder
+      j0=int(ys(isa,2))-1
       do 9 ith2=1,morder
       j0=j0+1
-      j=j0+1+(ngy-isign(ngy,j0))/2
-      i0=int(ys(isa,1))-morder
+      j=j0+1
+c      j=j0+1+(ngy-isign(ngy,j0))/2
+      i0=int(ys(isa,1))-1
       do 10 ith1=1,morder
       i0=i0+1
-      i=i0+1+(ngx-isign(ngx,i0))/2
+      i=i0+1
+c      i=i0+1+(ngx-isign(ngx,i0))/2
       term=chg(isq(isa),1,iset)*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
