@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.15 1999-08-25 23:21:02 d3j191 Exp $
+c $Id: sp_main.F,v 1.16 1999-08-26 14:37:52 d3j191 Exp $
 c
       implicit none
 c
@@ -1560,7 +1560,7 @@ c
 c
       return
       end
-      subroutine sp_balanc(syntim)
+      subroutine sp_balanc(stime,syntim)
 c
       implicit none
 c
@@ -1570,17 +1570,17 @@ c
       logical sp_diffbb
       external sp_diffbb
 c
-      real*8 syntim
+      real*8 stime,syntim
 c
       integer l_dlb,i_dlb,i_nod,l_nod,i_nen,l_nen,i_lst,l_lst
 c
-      if(loadb.eq.0) return
+c      if(loadb.eq.0) return
 c
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 1',me)
       if(.not.ma_push_get(mt_int,np,'nod',l_nod,i_nod))
      + call errquit('Failed to allocate nod',me)
-      if(.not.ma_push_get(mt_int,np,'lst',l_lst,i_lst))
+      if(.not.ma_push_get(mt_int,2*np,'lst',l_lst,i_lst))
      + call errquit('Failed to allocate lst',me)
       if(.not.ma_push_get(mt_int,mbbl*np,'nen',l_nen,i_nen))
      + call errquit('Failed to allocate nen',me)
@@ -1589,8 +1589,8 @@ c
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 2',me)
 c
-      call sp_dldbal(syntim,int_mb(i_nod),int_mb(i_lst),int_mb(i_nen),
-     + int_mb(i_bb),dbl_mb(i_dlb))
+      call sp_dldbal(stime,syntim,int_mb(i_nod),int_mb(i_lst),
+     + int_mb(i_nen),int_mb(i_bb),dbl_mb(i_dlb))
       if(.not.ma_verify_allocator_stuff())
      + call errquit('Problems in sp_balanc at 3',me)
 c
@@ -1614,7 +1614,7 @@ c
 c
       return
       end
-      subroutine sp_dldbal(syntim,nod,nlst,nen,lbbl,dlb)
+      subroutine sp_dldbal(stime,syntim,nod,nlst,nen,lbbl,dlb)
 c
       implicit none
 c
@@ -1622,9 +1622,9 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer nod(np),nlst(np),nen(np,mbbl)
+      integer nod(np),nlst(np,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
-      real*8 syntim,synsum,dlb(np),factor
+      real*8 stime,syntim,synsum,dlb(np),factor
 c
       integer i,j,k,n,ibusy
 c
@@ -1641,8 +1641,8 @@ c
       call ga_dgop(msp_15,synsum,1,'+')
 cx
       if(me.eq.0) then
-      write(lfnsyn,3000) synsum
- 3000 format('synchronization time ',f12.6)
+      write(lfnsyn,3000) stime,synsum
+ 3000 format('synchronization',/,2f12.6)
       endif
 cx
       if(synsum.lt.1.0d-5) return
@@ -1696,53 +1696,69 @@ c
       do 6 j=1,mbbl
       nen(i,j)=0
     6 continue
-      nlst(i)=-1
+      nlst(i,1)=0
+      nlst(i,2)=0
     5 continue
       do 7 i=1,nbbl
       if(lbbl(i,1).eq.me) goto 7
+      nlst(me+1,2)=nlst(me+1,2)+1
       do 8 j=1,n
       if(lbbl(i,1)+1.eq.nen(me+1,j)) goto 7
     8 continue
       n=n+1
       nen(me+1,n)=lbbl(i,1)+1
     7 continue
+      nlst(me+1,1)=nbbl
 c
       call ga_igop(msp_16,nen,mbbl*np,'+')
+      call ga_igop(msp_17,nlst,2*np,'+')
+      if(me.eq.0) then
+      do 3031 i=1,np
+      write(lfnsyn,3030) i-1,nlst(i,1),nlst(i,2),
+     + dlb(i),(nen(i,j)-1,j=1,16)
+ 3030 format(i3,2i5,f12.6,20i3)
+ 3031 continue
+      endif
 c
 c     determine the least busy neighbor of each node
 c
-      do 9 i=1,np-1
-      do 10 j=np,i+1,-1
-      do 11 k=1,np
-      if(nlst(k).eq.nod(j)) goto 10
-   11 continue
-      do 12 k=1,mbbl
-      if(nod(j)+1.eq.nen(nod(i)+1,k)) then
-      nlst(i)=nod(j)
-      goto 9
-      endif
-   12 continue
-   10 continue
+      do 9 i=1,np
+      nlst(i,1)=-1
     9 continue
+      do 10 i=1,np-1
+      do 11 j=np,i+1,-1
+      do 12 k=1,np
+      if(nlst(k,1).eq.nod(j)) goto 11
+   12 continue
+      do 13 k=1,mbbl
+      if(nod(j)+1.eq.nen(nod(i)+1,k)) then
+      nlst(i,1)=nod(j)
+      goto 10
+      endif
+   13 continue
+   11 continue
+   10 continue
 c
 c     setup transfer list
 c
-      do 13 i=1,np
-      nen(nod(i)+1,1)=nlst(i)
-   13 continue
+      do 14 i=1,np
+      nen(nod(i)+1,1)=nlst(i,1)
+   14 continue
 c
       if(me.eq.0) then
-      do 14 i=1,np
-      write(lfnsyn,3001) i-1,dlb(i),nen(i,1)
+      do 15 i=1,np
+      write(lfnsyn,3001) nod(i),dlb(nod(i)+1),nen(nod(i)+1,1)
  3001 format(i5,f12.6,i5)
-   14 continue
+   15 continue
       endif
 c
-      call ga_brdcst(msp_17,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(msp_18,nen,np*ma_sizeof(mt_int,1,mt_byte),0)
 c
 c     cascade box-box pairs
 c
+      if(loadb.ge.2) then
       call sp_cascad(nen,int_mb(i_bb))
+      endif
 c
       return
       end
@@ -1841,7 +1857,7 @@ c
       endif
 c
       call ga_brdcst
-     + (msp_18,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
+     + (msp_19,boxsiz,ma_sizeof(mt_dbl,3*maxbox,mt_byte),0)
 c
       return
       end
@@ -1887,7 +1903,7 @@ c
       endif
 c
     4 continue
-      call ga_igop(msp_19,ltran(1,2),2*np,'+')
+      call ga_igop(msp_20,ltran(1,2),2*np,'+')
 c
       do 5 i=1,np
       if(ltran(i,1).eq.me.and.ltran(i,2).ge.0) then
