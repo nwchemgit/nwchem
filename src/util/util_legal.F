@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.2 1996-03-07 02:25:41 d3e129 Exp $
+* $Id: util_legal.F,v 1.3 1996-03-12 22:43:18 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -23,169 +23,96 @@ c
 c
       call util_print_centered(luout,
      &    ' COPYRIGHT (C) 1994, 1995, 1996,          ',
-     &    center_pt, FF)
+     &    center_pt+1, FF)
       call util_print_centered(luout,
      &    '    Pacific Northwest National Laboratory, ',
      &    center_pt, FF)
       call util_print_centered(luout,
      &    '    Battelle Memorial Institute.           ',
      &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
+      write(luout,*)
       call util_print_centered(luout,
      &    ' >>> All Rights Reserved <<< ',
      &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' '      ,
-     &    center_pt, FF)
+      write(luout,*)
+      write(luout,*)
+c
       call util_print_centered(luout,
      &    'DISCLAIMER',
      &    center_pt, FT)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' This material was prepared as an account of work',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' sponsored by an agency of the United States ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' Government.  Neither the United States Govern-',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ment nor the United States Department of Energy,',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' nor Battelle, nor any of their employees, MAKES',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' LEGAL LIABILITY OR RESPONSIBILITY FOR THE ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ACCURACY, COMPLETENESS, OR USEFULNESS OF ANY ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' INFORMATION, APPARATUS, PRODUCT, SOFTWARE, OR ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'LIMITED USE',
-     &    center_pt, FT)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' This software (including any documentation) is ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' being made available to you for your internal ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' use only, solely for use in performance of work ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' directly for the U.S. Federal Government or work',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' under contracts with the U.S. Department of ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' Energy or other U.S. Federal Government agencies.',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' This software is a version which has not yet ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' been evaluated and cleared for commercialization.',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' Adherence to this notice may be necessary for the',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' author, Battelle Memorial Institute, to success-',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' fully assert copyright in and commercialize this ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' software.  This software is not intended for ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' duplication or distribution to third parties ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' without the permission of the Manager of Software',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' Products at Pacific Northwest National Labora-',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' tory, Richland, Washington, 99352.',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'ACKNOWLEDGMENT',
-     &    center_pt, FT)
-      call util_print_centered(luout,
-     &    ' This software and its documentation were produced',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' with Government support under Contract Number ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' DE-AC06-76RLO-1830 awarded by the United States ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' Department of Energy.  The Government retains a ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' paid-up non-exclusive, irrevocable worldwide ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' license to reproduce, prepare derivative works, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' perform publicly and display publicly by or for ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' the Government, including the right to distribute',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' to other Government contractors.',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    ' ',
-     &    center_pt, FF)
+      write(luout,1)
+ 1    format(/
+     &     12x, 
+     &     'This material was prepared as an account of work sponsored'/
+     &     12x, 
+     &     'by an agency of the United States Government.  Neither the'/
+     &     12x, 
+     &     'United States Government nor the United States Department'/
+     &     12x, 
+     &     'of Energy, nor Battelle, nor any of their employees, MAKES'/
+     &     12x, 
+     &     'ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL'/
+     &     12x, 
+     &    'LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,'/
+     &     12x, 
+     &     'OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,'/
+     &     12x, 
+     &     'SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE'/
+     &     12x, 
+     &     'WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.'//)
+c
+      call util_print_centered(luout, 'LIMITED USE', center_pt, FT)
+      write(luout,2)
+ 2    format(/
+     &     12x,
+     &     'This software (including any documentation) is being made'/
+     &     12x, 
+     &    'available to you for your internal use only, solely for use'/
+     &     12x, 
+     &     'in performance of work directly for the U.S. Federal'/
+     &     12x, 
+     &    'Government or work under contracts with the U.S. Department'/
+     &     12x, 
+     &     'of Energy or other U.S. Federal Government agencies.  This'/
+     &     12x, 
+     &     'software is a version which has not yet been evaluated and'/
+     &     12x, 
+     &     'cleared for commercialization.  Adherence to this notice'/
+     &     12x, 
+     &     'may be necessary for the author, Battelle Memorial'/
+     &     12x, 
+     &     'Institute, to successfully assert copyright in and'/
+     &     12x, 
+     &     'commercialize this software. This software is not intended'/
+     &     12x, 
+     &     'for duplication or distribution to third parties without'/
+     &     12x, 
+     &     'the permission of the Manager of Software Products at'/
+     &     12x, 
+     &     'Pacific Northwest National Laboratory, Richland,'/
+     &     12x, 
+     &     'Washington, 99352.'//)
+c
+      call util_print_centered(luout, 'ACKNOWLEDGMENT', center_pt, FT)
+      write(luout,3)
+ 3    format(/
+     &     12x, 
+     &     'This software and its documentation were produced with'/
+     &     12x, 
+     &    'Government support under Contract Number DE-AC06-76RLO-1830'/
+     &     12x, 
+     &     'awarded by the United States Department of Energy.  The'/
+     &     12x, 
+     &     'Government retains a paid-up non-exclusive, irrevocable'/
+     &     12x, 
+     &     'worldwide license to reproduce, prepare derivative works,'/
+     &     12x, 
+     &     'perform publicly and display publicly by or for the'/
+     &     12x, 
+     &     'Government, including the right to distribute to other'/
+     &     12x, 
+     &     'Government contractors.'//)
+c
       end
       subroutine util_cite()
       implicit none
@@ -199,39 +126,19 @@ c
       FT = .true.
       center_pt = 40
 c
-      write(luout,*)' '
-      write(luout,*)' '
-      write(luout,*)' '
-      call util_print_centered(luout,
-     &    'If you wish to cite NWChem in the references section of ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'a publication, please use the following citation:',
-     &    center_pt, FF)
-      write(luout,*)' '
-      call util_print_centered(luout,
-     &    'High Performance Computational Chemistry Group, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'NWChem, A Computational Chemistry Package ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'for Parallel Computers, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'Version 1.2 (1995), ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'Pacific Northwest National Laboratory, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'Richland, Washington 99352, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    'USA',
-     &    center_pt, FF)
-      write(luout,*)' '
-      write(luout,*)' '
-      write(luout,*)' '
+      write(luout,1)
+ 1    format(//
+     $     1x,
+     $     'If you wish to cite NWChem in the references section of a'/
+     &     1x, 
+     &     'publication, please use the following citation:'//
+     &     1x, 
+     &    '   High Performance Computational Chemistry Group, "NWChem,'/
+     &     1x, 
+     &     '   A Computational Chemistry Package for Parallel'/
+     &     1x, 
+     &     '   Computers, Version 1.2," (1995), Pacific Northwest'/
+     &     1x, 
+     &     '   National Laboratory, Richland, Washington 99352, USA.'//)
 c
       end
