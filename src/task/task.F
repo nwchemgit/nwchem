@@ -26,11 +26,11 @@ c
       character*80 errmsg
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      logical  nwargos, property, gapss, task_shell, moints_full
+      logical  nwargos, property, dplot, gapss, task_shell, moints_full
       logical  task_energy, task_gradient, task_optimize, task_freq
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      external nwargos, property, gapss, task_shell, moints_full
+      external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
 c      
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
@@ -69,6 +69,8 @@ c
             status = task_shell(rtdb)
          else if (inp_compare(.false.,'moints', theory)) then
             status = moints_full(rtdb)
+         else if (inp_compare(.false.,'dplot', theory)) then
+            status = dplot(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
