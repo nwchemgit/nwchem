@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.4 1994-11-23 18:48:11 og845 Exp $
+# makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
-USES_BLAS = sym_put_in_geom.F
+USES_BLAS = sym_put_in_geom.F sym_print_all.F
 HEADERS = sym.fh
 
 OBJ =     dosymops.o \
