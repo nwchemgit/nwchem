@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.12 2000-03-28 23:15:33 d3j191 Exp $
+c $Id: cf_shake.F,v 1.13 2000-04-14 19:58:13 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -387,10 +387,12 @@ c
 c
       real*8 wsai,wsaj
       logical ready,dtl
-      integer i,j,isb,isa,jsa,isbmax,ndtl
+      integer i,j,k,isb,isa,jsa,isbmax,ndtl
       integer isaglo,jsaglo
       real*8 dmax,bs,ts,w,rsx1,rsx2,rsx3,rsi1,dif1,dif2,dif3,rsi2
       real*8 rsi6,ff1,ff2,ff3
+c
+      character*15 filerr
 c
 #include "bitops.fh"
 c
@@ -483,6 +485,31 @@ c
       if(dtl) then
       isaglo=ibnd(ndtl,1)
       jsaglo=ibnd(ndtl,2)
+      write(filerr,1000) me
+ 1000 format('shake_',i3.3,'.error')
+      open(unit=16,file=filerr)
+      do 4 i=1,nbonds
+      isb=indexl(i)
+      if(iand(ibnd(isb,3),icnstr).ne.0) then
+      isa=0
+      jsa=0
+      do 5 j=1,natoms
+      if(ibnd(isb,1).eq.igan(j)) isa=j
+      if(ibnd(isb,2).eq.igan(j)) jsa=j
+    5 continue
+      if(isb.eq.ndtl) then
+      write(16,1001) igan(isa),igan(jsa),
+     + (ys(isa,k),k=1,3),(ys(jsa,k),k=1,3),
+     + (xs(isa,k),k=1,3),(xs(jsa,k),k=1,3),' < '
+ 1001 format(2i7,12f8.3,a)
+      else
+      write(16,1001) igan(isa),igan(jsa),
+     + (ys(isa,k),k=1,3),(ys(jsa,k),k=1,3),
+     + (xs(isa,k),k=1,3),(xs(jsa,k),k=1,3)
+      endif
+      endif
+    4 continue
+      close(unit=16)
       call errquit('Deviation too large solute',isaglo)
       endif
 c
