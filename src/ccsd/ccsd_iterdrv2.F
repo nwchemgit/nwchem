@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E)
-C     $Id: ccsd_iterdrv2.F,v 2.13 1997-10-18 20:14:34 d3g681 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.14 1997-10-22 16:40:55 d3g681 Exp $
       implicit none
 c
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
@@ -32,12 +32,13 @@ c
       double precision eold,dabs,tx(4),rms,deccsd,
      &                 tstart,tend
 
-      Integer IAm, fd
-      logical file_read_ga,  file_write_ga
-      external file_read_ga, file_write_ga
-
+      Integer IAm
       logical orestart
       character*255 t1file, t2file
+
+      logical ccsd_read_restart, ccsd_write_restart
+      external ccsd_read_restart, ccsd_write_restart
+
 
 C
 #include "msgids.fh"
@@ -45,7 +46,6 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "eaf.fh"
 c
       double precision zip,ten
       data zip/0.0d00/,ten/10.0d00/
@@ -69,27 +69,10 @@ c - starting vectors
       if (.not.rtdb_get(rtdb, 'ccsd:restart',MT_LOG, 1, orestart))
      $    orestart = .false.
 
-      if (orestart) then
-	if (.not. file_read_ga(t2file,g_t2)) then
-	   if (iam .eq. 0) write(6,*) ' Restart from T2 failed'
-	   orestart = .false.
-	   goto 2451
-        endif
-        if (eaf_open(t1file, eaf_rw, fd) .ne. 0) then
-	   if (iam .eq. 0) write(6,*) ' Restart from T1 failed'
-	   orestart = .false.
-	   goto 2451
-        endif
-        if (eaf_read(fd, 0.0d0, t1, 8*lnov) .ne. 0) then
-	   if (iam .eq. 0) write(6,*) ' Restart from T1 failed'
-	   orestart = .false.
-	   goto 2451
-        endif
-        if (eaf_close(fd) .ne. 0) call errquit
-     $       ('ccsd: close of t1?',0)
-      endif
+      if (orestart) orestart = 
+     $     ccsd_read_restart(t1file, t2file, t1, g_t2, lnov)
 c Note that if restart fails orestart will be set false
-2451  if (.not. orestart) then
+      if (.not. orestart) then
         call dfill(lnov,zip,t1,1)
         if (nvp1.ge.ilo.and.nvp1.le.ihi)then
          call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
@@ -141,15 +124,9 @@ c ----------------------------------------------------------
 c
 c     Write out the current T1 and T2 for possible restart
 c
-	if (.not. file_write_ga(t2file,g_t2)) call errquit
-     $     ('ccsd: write of t2 failed', 0)
-        if (eaf_open(t1file, eaf_rw, fd) .ne. 0) call errquit
-     $     ('ccsd: opening t1 failed',0)
-        if (eaf_write(fd, 0.0d0, t1, 8*lnov) .ne. 0) call errquit
-     $     ('ccsd: writing t1 failed',0)
-        if (eaf_close(fd) .ne. 0) call errquit
-     $     ('ccsd: close of t1?',0)
-
+      if (.not. ccsd_write_restart(t1file, t2file, t1, g_t2, lnov))
+     $     call errquit('ccsd: failed saving vector for restart',0)
+c
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
@@ -243,3 +220,99 @@ c
       return
       end
 
+      logical function ccsd_read_restart(t1file, t2file, t1, g_t2, lnov)
+      implicit none
+#include "global.fh"
+#include "eaf.fh"
+      character*(*) t1file, t2file
+      integer lnov
+      double precision t1(lnov)
+      integer g_t2
+c
+      integer fd, iam, ierr
+      logical file_read_ga
+      external file_read_ga
+c
+      call ga_sync
+c
+      iam = ga_nodeid()
+c
+      ccsd_read_restart = .false.
+c
+      if (.not. file_read_ga(t2file,g_t2)) then
+         if (iam .eq. 0) write(6,*) ' Restart from T2 failed'
+         return
+      endif
+c
+      ierr = 0
+c
+      if (iam .eq. 0) then
+         ierr = eaf_open(t1file, eaf_rw, fd)
+         if (ierr .eq. 0) then
+            ierr = eaf_read(fd, 0.0d0, t1, 8*lnov)
+            if (ierr .ne. 0) write(6,*) ' Reading from T1 failed'
+            if (eaf_close(fd) .ne. 0) call errquit('ccsd:closing t1',0)
+         else
+            write(6,*) ' Opening T1 failed'
+         endif
+      endif
+c
+      call ga_igop(321,ierr,1,'+')
+      if (ierr .ne. 0) return
+c
+      call ga_brdcst(322,t1,8*lnov,0)
+c
+      call ga_sync
+c
+      ccsd_read_restart = .true.
+c
+      end
+
+         
+      logical function ccsd_write_restart(t1file, t2file, t1, g_t2,lnov)
+      implicit none
+#include "global.fh"
+#include "eaf.fh"
+      character*(*) t1file, t2file
+      integer lnov
+      double precision t1(lnov)
+      integer g_t2
+c
+      integer fd, iam, ierr
+      logical file_write_ga
+      external file_write_ga
+c
+      call ga_sync
+c
+      iam = ga_nodeid()
+c
+      ccsd_write_restart = .false.
+c
+      if (.not. file_write_ga(t2file,g_t2)) then
+         if (iam .eq. 0) write(6,*) ' Writing to T2 failed'
+         return
+      endif
+c
+      ierr = 0
+c
+      if (iam .eq. 0) then
+         ierr = eaf_open(t1file, eaf_rw, fd)
+         if (ierr .eq. 0) then
+            ierr = eaf_write(fd, 0.0d0, t1, 8*lnov)
+            if (ierr .ne. 0) write(6,*) ' Writing to T1 failed'
+            if (eaf_close(fd) .ne. 0) call errquit('ccsd:closing t1',0)
+         else
+            write(6,*) ' Opening T1 failed'
+         endif
+      endif
+c
+      call ga_igop(321,ierr,1,'+')
+      if (ierr .ne. 0) return
+c
+      call ga_sync
+c
+      ccsd_write_restart = .true.
+c
+      end
+
+         

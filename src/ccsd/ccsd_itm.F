@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.8 1997-10-18 20:14:35 d3g681 Exp $
+C     $Id: ccsd_itm.F,v 2.9 1997-10-22 16:40:55 d3g681 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -16,7 +16,6 @@ C     $Id: ccsd_itm.F,v 2.8 1997-10-18 20:14:35 d3g681 Exp $
 c
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
@@ -27,6 +26,9 @@ c
      &        i,j,k,l,ij,a,b,c,ad1,ad2,ad3,ad4,ad5,ad6,lnoo,lnov,lnvv
       integer inode,next
       Integer Nodes, IAm
+c
+      integer nxtval
+      external nxtval
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()

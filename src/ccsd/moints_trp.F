@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.8 1997-10-18 20:14:43 d3g681 Exp $
+c  $Id: moints_trp.F,v 2.9 1997-10-22 16:40:57 d3g681 Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -57,7 +57,6 @@ c
      $                        g_exch, oexch,
      $                        blen, cmo, ncor, nocc, nvir, Tol2E)
        implicit none
-#include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -100,11 +99,12 @@ c
        integer num_nodes, ploop, next, nmixed, i, iz, jz, kz
        integer l_sym, k_sym
        integer g_tmp                       
-       double precision scale, schw_ij, q2, d1, d2
+       double precision scale, schw_ij, q2
+*       double precision d1, d2
        logical status, osym, odoit, oblk, st
 c
-       integer moints_numgr, gr_len
-       external moints_numgr, gr_len
+       integer moints_numgr, gr_len, nxtval
+       external moints_numgr, gr_len, nxtval
 c
        double precision half
        data half/0.5d00/

@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_tz1,g_tz2,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.3 1997-10-18 20:14:42 d3g681 Exp $
+C     $Id: ccsd_zsig2.F,v 2.4 1997-10-22 16:40:56 d3g681 Exp $
       implicit none
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &        g_sht2,g_zx,g_zc,g_tz1,g_tz2,g_tz3,iprt
@@ -18,7 +18,6 @@ C     $Id: ccsd_zsig2.F,v 2.3 1997-10-18 20:14:42 d3g681 Exp $
 c
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "bas.fh"
 #include "ccsd_debug.fh"
 c
@@ -26,6 +25,8 @@ c
      &        g_jlo,g_jhi,g_ilo,g_ihi,
      &        i,j,k,ij,a,b,c,ad1,ad2,ad3,ad4,ad5,ad6,lnoo,lnov,lnvv
       integer inode,next
+      integer nxtval
+      external_nxtval
 c
       Integer Nodes, IAm
       Nodes = GA_NNodes()

@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.19 1997-10-18 20:14:08 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.20 1997-10-22 16:40:53 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -52,7 +52,8 @@ c triples
       integer moints_trp_mem
       external moints_trp_mem
 C
-      double precision zip, trace1, trace2, trace3, trace4
+      double precision zip
+*     double precision trace1, trace2, trace3, trace4
       integer lhoo,lhoov
 C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

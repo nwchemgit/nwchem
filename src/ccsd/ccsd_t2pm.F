@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.10 1997-10-18 20:14:39 d3g681 Exp $
+C     $Id: ccsd_t2pm.F,v 2.11 1997-10-22 16:40:56 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -8,7 +8,6 @@ C     $Id: ccsd_t2pm.F,v 2.10 1997-10-18 20:14:39 d3g681 Exp $
 
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "ccsd_debug.fh"
@@ -17,6 +16,8 @@ c
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
      &        x,y,xy,ymax,nfi,nfj,ipp,imm,ii,jj,iijj,
      &        jjii,i,j,k,l,ad1,ad2,ad3,iam,lnoo,a,b
+      integer nxtval
+      external nxtval
 c
       call qenter('ht2pm',0)
 c
@@ -294,6 +295,8 @@ c
       integer ad1,ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,next,
      &        icnt,nfi,nfk,lnijkl,offjl,offlj,lnoo,nfj,nfl,nodes,iam
       double precision schwarz1,schwarz2
+      integer nxtval
+      external_nxtval
 c
       call qenter('sxy',0)
 c
