@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.6 2002-01-14 17:47:14 bylaska Exp $
+c $Id: cpmd_input.F,v 1.7 2002-09-19 21:57:01 bylaska Exp $
 c
 
 
@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 50)
+      parameter (num_dirs = 51)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -68,6 +68,7 @@ c
      >            'ion_motion_filename',
      >            'mulliken',
      >            'energy',
+     >            'SA_decay',
      >            'end'/
 
        character*30 cell_name
@@ -112,7 +113,7 @@ c
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,
+     >       2500,2600,2700,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind)
@@ -423,6 +424,18 @@ c
       if (.not.value)
      > call errquit('cpmd_input: writing ', 2600)
       goto 10
+c
+c SA_decay
+c
+ 2700 if (.not. inp_f(scaling(1)))
+     >     scaling(1) = 1.0d0           !*** in units of picoseconds ***
+      if (.not. inp_f(scaling(2)))
+     >     scaling(2) = 1.0d0           !*** in units of picoseconds ***
+      value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
+      if (.not.value)
+     > call errquit('cpmd_input: writing sa_decay', 2700)
+      goto 10
+
 
 *     ***** add wavefunction to rtdb ****
  9999 continue

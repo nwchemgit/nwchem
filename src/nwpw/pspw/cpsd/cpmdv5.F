@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.17 2002-05-08 23:50:27 bylaska Exp $
+* $Id: cpmdv5.F,v 1.18 2002-09-19 21:57:01 bylaska Exp $
 *
 
 ***********************************************************************
@@ -73,7 +73,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken
+      logical verlet,mulliken,SA
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
@@ -84,6 +84,7 @@
       integer ii,jj,index
       integer icount,it_in,it_out
       real*8 w,sumall
+      real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2)
       integer nfft3
       parameter (nfft3=32)
       character*30 filename
@@ -153,6 +154,12 @@
 
       logical  control_out_of_time
       external control_out_of_time
+
+      logical  control_SA
+      real*8   control_SA_decay
+      external control_SA
+      external control_SA_decay
+     
 
 
 
@@ -320,9 +327,17 @@
       call ion_init_ke(ekg,eki0,eki1)
 
 *     **** Initialize thermostats ****
+      SA=.false.
       if (control_Nose()) then
          call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
          call Nose_Init(w)
+         if (control_SA()) then
+            SA          = .true.
+            sa_decay(1) = control_SA_decay(1)
+            sa_decay(2) = control_SA_decay(2)
+            Te_init     = control_Nose_Te()
+            Tr_init     = control_Nose_Tr()
+         end if
       end if
 
 *     **** initialize FixIon constraint ****
@@ -442,6 +457,9 @@
          write(6,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(6,1295)
+           if (control_SA()) then
+           write(6,1296) sa_decay(1),sa_decay(2)
+           end if
            write(6,1297) control_Nose_Te(),Nose_Qe(),
      >                   control_Nose_Pe(),Nose_Ee0()
            write(6,1298) control_Nose_Tr(),Nose_Qr(),
@@ -523,6 +541,8 @@
 
       dt = control_time_step()
 
+      Te_new = Te_init
+      Tr_new = Tr_init
    1  continue
          icount = icount + 1
          call inner_loop_md(verlet,ispin,ne,
@@ -540,7 +560,11 @@
 
          if (taskid.eq.MASTER) then 
 
-           write(6,1310) icount*it_in,E(1),E(2),E(3),E(4)
+           if (SA) then
+             write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),Te_new,Tr_new
+           else
+             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4)
+           end if
            call util_flush(6)
 
 *          **** write out EMOTION data ****
@@ -586,6 +610,15 @@
 
 *        **** write OMOTION data ****
          if (mulliken) call Orb_Write(dcpl_mb(psi1(1)))
+
+*        **** update thermostats using SA decay ****
+         if (SA) then
+           t1 = icount*it_in*dt/sa_decay(1)
+           t2 = icount*it_in*dt/sa_decay(2)
+           Te_new = Te_init*dexp(-t1)
+           Tr_new = Tr_init*dexp(-t2)
+           call Nose_reset_T(Te_new,Tr_new)
+         end if
 
 *        **** exit early ****
          if (control_out_of_time()) then
@@ -993,13 +1026,16 @@
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
+ 
  1294 format(/' Constant Energy Simulation                     ')
  1295 format(/' Nose-Hoover Simulation - thermostat parameters:')
+ 1296 format(5x, 'SA decay rates  =',e8.3,' (elc)',e8.3,' (ion)')
  1297 format(5x, 'Te =',f8.2,' Qe =',e8.3,' 2*pi/we=',e8.3,' Ee0=',e8.3)
  1298 format(5x, 'Tr =',f8.2,' Qr =',e8.3,' 2*pi/wr=',e8.3,' Er0=',e8.3)
  1299 format(//' Mulliken analysis output generated            ')
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
+ 1309 FORMAT(I8,2E19.10,2E14.5,2F6.1)
  1310 FORMAT(I8,2E19.10,2E14.5)
  1311 format(100e19.10)
  1312 format(e14.6,i3)
