@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.190 2001-10-09 02:04:34 edo Exp $
+c     $Id: dft_scf.F,v 1.191 2001-10-12 18:01:29 edo Exp $
 c     
       implicit none
 c
@@ -615,8 +615,8 @@ c
      &           ('dft_scf: could not destroy g_dens2', 0)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111)
-            goto 1970
          endif
+         goto 1970
       endif
  1000 continue
 
