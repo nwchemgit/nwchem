@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.58 2001-07-31 17:58:26 d3j191 Exp $
+c $Id: prp_main.F,v 1.59 2001-08-01 16:45:19 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm,box(3)
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
-      real*8 dwr,dsr(msm),gsm(msm,4),esa(nsa,2)
+      real*8 dwr,dsr(msm),gsm(msm,4,2),esa(nsa,2)
       real*8 prest(3,3),virt(3,3),ekct(3,3)
 c
       integer i,j,k,it
@@ -254,9 +254,14 @@ c
       it=maxp
       do 37 i=1,nsm
       it=it+1
-      p(it)=gsm(i,iset)
+      p(it)=gsm(i,iset,1)
       if(p(it).lt.tiny) lp(it)=.false.
    37 continue
+      do 55 i=1,nsm
+      it=it+1
+      p(it)=gsm(i,iset,2)
+      if(p(it).lt.tiny) lp(it)=.false.
+   55 continue
       endif
 c
       endif
