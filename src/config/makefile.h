@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.478 2004-09-10 18:52:11 edo Exp $
+# $Id: makefile.h,v 1.479 2004-09-21 00:52:42 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1559,16 +1559,25 @@ endif # end of ia32 bit
        _FC=ifc
       endif
       ifeq ($(_FC),ifc)
+       _IFCV81= $(shell ifc -v  2>&1|egrep 8|awk ' /8\.1/  {print "Y"}')
+       ifeq ($(_IFCV81),Y)
 # to get EM64T
 # Intel 8.1 is required
-        FOPTIONS +=  -align    -mp1 -w -g -vec_report3
+       else
+           @echo ifort 8.1 is required for x86_64 CPUs
+           @exit 1
+       endif
+        FOPTIONS += -align -mp1 -w -g -vec_report3
+        FOPTIONS += -mcmodel=medium
         ifdef  USE_GPROF
           FOPTIONS += -qp
         endif
         DEFINES+= -DIFCV8 -DIFCLINUX
-        FOPTIONS += -quiet
+        ifeq ($(FC),ifc)
+          FOPTIONS += -quiet
+        endif
         FOPTIMIZE = -O3 -prefetch  -unroll 
-        FOPTIMIZE +=  -tpp7 -xW    
+        FOPTIMIZE +=  -tpp7 -xW -ip
         LDOPTIONS += -g  -static
       endif	
 
