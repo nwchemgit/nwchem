@@ -42,17 +42,17 @@ C    5       1/
      4       1,    1,    1,    1,    0,    0,    0,    0,    1,
      5       1/
 C
-      NAMELIST /PRP/NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
-     1              NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
-     2              NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-     3              NOSTON
+c     NAMELIST /PRP/NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
+c    1              NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
+c    2              NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
+c    3              NOSTON
 C
       IF(NREST.GT.2) RETURN
       SOME=NPRINT.NE.-5
 C
-      REWIND IR
-      READ(IR,PRP,END=10,ERR=10)
-   10 CONTINUE
+c     REWIND IR
+c     READ(IR,PRP,END=10,ERR=10)
+c  10 CONTINUE
 c%%
 C*    RUNTYP=PROP
 c
