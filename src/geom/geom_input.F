@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.113 1999-06-21 21:30:22 windus Exp $
+C     $Id: geom_input.F,v 1.114 1999-06-21 23:58:32 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3586,17 +3586,10 @@ c
               enddo
             enddo
 c
-            if(out) then
-            write(6,*) 'New coordinates before theta'
-            do jat = 1, nat
-              write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
-            enddo
-            endif
-c
             call rot_theta_z (theta,c2,nat)
 c
             if(out) then
-            write(6,*) 'New coordinates after theta'
+            write(6,*) 'New coordinates after theta of ',theta*degree
             do jat = 1, nat
               write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
             enddo
@@ -3825,8 +3818,14 @@ c       theta = tan(-0.38d+0/0.92d+0)    !+ 8.72663d-03
 c
       if (((groupname(1:3).eq.'D5H').or.(groupname(1:3).eq.'D5 '))
      1      .and.symc2x) then  ! used to be mirrzx
-        pi2 = 2*atan(1d0)  ! pi divided by 2 (90 degrees)
+        pi2 = 2*atan(1.d+0)  ! pi divided by 2 (90 degrees)
         theta = pi2
+        call rot_theta_z (theta,c3,nat)
+      endif
+c
+      if ((groupname(1:3).eq.'D5D').and.symc2y) then
+        pi2 = 2*atan(1.d+0)
+        theta = -pi2
         call rot_theta_z (theta,c3,nat)
       endif
 c
