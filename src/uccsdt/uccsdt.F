@@ -200,15 +200,10 @@ c
 c
 c     Figure out frozen core options
 c
-      if (rtdb_get(rtdb,'uccsdt:frozen core:freeze by atoms',mt_log, 1, 
-     $     status)) then
-         if (.not. geom_num_core(geom,nc(1))) 
-     $        call errquit('semi_direct_uccsd: geom_num_core?',0)
-      else if (rtdb_get(rtdb, 'uccsdt:frozen core', mt_int, 1,
-     $        nc(1))) then
-      else
-         nc(1) = 0
+      if(.not. geom_freeze(rtdb, geom, 'uccsdt', nc(1))) then
+         call errquit('semi_direct_uccsd: unable get get frozen core',0)
       endif
+ 
       nc(2) = nc(1)
 c
 c     From the no. of electrons etc, figure out the no. of occupied

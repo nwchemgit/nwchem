@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.68 2000-10-23 15:52:29 windus Exp $
+C$Id: mointdriver.F,v 1.69 2003-02-20 01:24:19 mhackler Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -160,15 +160,10 @@ c
 c
 c Get frozen core and virtual offset
 c
-       if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
-     $              status)) then
-	  if (.not. geom_num_core(geom,occ_frozen)) 
-     $          call errquit('direct_mp2: geom_num_core?',0)
-       else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
-     $                   occ_frozen)) then
-       else
-         occ_frozen = 0
+       if(.not. geom_freeze(rtdb, geom, 'mp2', occ_frozen)) then
+          call errquit('direct_mp2: unable to get frozen core',0)
        endif
+
        if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
      $                   vir_frozen)) vir_frozen = 0
 

@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.53 2002-10-14 16:21:53 windus Exp $
+* $Id: mp2_energy.F,v 1.54 2003-02-20 01:24:51 mhackler Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -80,6 +80,9 @@ c
       external cphf
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
+      logical geom_freeze
+      external geom_freeze
+
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad, g_tmpa, g_tmpb
 c     
@@ -113,15 +116,19 @@ c
       if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
       nmo = nmos(1)
 c     
-      if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
-     $     status)) then
-         if (.not. geom_num_core(geom,noa_frozen)) 
-     $        call errquit('semi_direct_mp2: geom_num_core?',0)
-      else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
-     $        noa_frozen)) then
-      else
-         noa_frozen = 0
-      endif
+C      if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
+C     $     status)) then
+C         if (.not. geom_num_core(geom,noa_frozen)) 
+C     $        call errquit('semi_direct_mp2: geom_num_core?',0)
+C      else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
+C     $        noa_frozen)) then
+C      else
+C         noa_frozen = 0
+C      endif
+
+       if(.not. geom_freeze(rtdb,geom,'mp2',noa_frozen)) then
+            call errquit('mp2_grad: unable to get frozen core',0)
+       endif
 c
       if(.not.rtdb_put(rtdb,'mp2:number frozen core',MT_INT,1,
      $      noa_frozen))

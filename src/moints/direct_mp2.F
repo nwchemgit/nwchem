@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.47 2001-02-20 23:32:09 edo Exp $
+C$Id: direct_mp2.F,v 1.48 2003-02-20 01:24:18 mhackler Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -170,15 +170,10 @@ c
 c
 c Get frozen core and virtual offset
 c
-       if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
-     $              status)) then
-	  if (.not. geom_num_core(geom,occ_frozen)) 
-     $          call errquit('direct_mp2: geom_num_core?',0)
-       else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
-     $                   occ_frozen)) then
-       else
-         occ_frozen = 0
+       if(.not. geom_freeze(rtdb, geom, 'mp2', occ_frozen)) then
+          call errquit('direct_mp2: unable to get frozen core',0)
        endif
+
        if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
      $                   vir_frozen)) vir_frozen = 0
 c
