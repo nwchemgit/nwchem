@@ -1,13 +1,13 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.43 2000-01-05 00:25:48 windus Exp $
+c     $Id: grad_force.F,v 1.44 2000-02-04 01:34:43 mg201 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
-C     ___                 ___                         ___
-C     dE      \         dh(i,j)   \             d(mn|op)      \          dS(i,j)
-C     -- = 2   > D(i,j) ------- +  > P(m,n,o,p) -------- - 2   > Dw(i,j) -------
+C             ___                 ___                         ___
+C     dE      \         dh(i,j)   \             d(ij|kl)      \          dS(i,j)
+C     -- = 2   > D(i,j) ------- +  > P(i,j,k,l) -------- - 2   > Dw(i,j) -------
 C     dA      /           dA      /                dA         /            dA
-C     ---                 ---                         ---
-C     i,j                ijkl                         i,j
+C             ---                 ---                         ---
+C             i,j                ijkl                         i,j
 C     
 C     
 C     . dV(nuc-nuc)
@@ -16,7 +16,7 @@ C     .    dA
 C------------------------------------------------------------------------------
 C     RHF:(H.Schlegel & S. Wolfe, JCP 63, p3632)
 C     .                              1
-C     P(i,j,k,l) = [2 D(i,j)D(k,l) - -(D(i,k)D(j,l) + D(i,l)D(j,k) ]
+C     P(i,j,k,l) = [2 D(i,j)D(k,l) - -(D(i,k)D(j,l) + D(i,l)D(j,k)) ]
 C     .                              2
 C------------------------------------------------------------------------------
 C     UHF:(M. Dupuis & H.F. King, JCP 68, p3998)
@@ -428,7 +428,6 @@ C     initialize for integral gradients
       max2e = max(max2e,1296*100)          ! 100 D quartets 
       lbuf = max(max1e, max2e)
       lscratch = max(mscratch_1e, mscratch_2e)
-
 C     one-electron contribution
 C     buffers for one electron integral derivatives
 
