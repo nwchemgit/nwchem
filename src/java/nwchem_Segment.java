@@ -963,6 +963,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    ida[number][1]=idt[ToSgm.zmatrix[i].atomj];
 		    ida[number][2]=idt[ToSgm.zmatrix[i].atomk];
 		    ida[number][3]=idt[ToSgm.zmatrix[i].atoml];
+		    found=false;
 		    for(int j=0; j<number; j++){
 			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]
 			   && ida[j][3]==ida[number][3]) found=true;
