@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.95 1997-11-26 17:27:09 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.96 1997-11-26 23:06:43 d3h449 Exp $
 c     
       implicit none
 c
@@ -118,7 +118,6 @@ c
       character*4 scftype
       character*255 basis_name, basis_trans
       integer nopen, nclosed
-      integer mbf_ao
 c
       call ecce_print_module_entry('dft')
 c
@@ -288,14 +287,13 @@ c
          nscr = 3*nqmax*nbf_ao_mxcont + 
      &          max(3*nqmax*nbf_ao_mxprim,nqmax*max_elem_ang_scr) + 1
 c
-c        Assume exponent screening reduces nbf_ao to nbf_ao_mxnbf_ce*(nearest
-c        neighbors) with lets say 10 nearest neighbors - should actually
-c        try and compute this from nbf_to_mbf.F
+c        The big chunk is the memory needed for new_eval_gbsets 
+c        which is roughly 4*nqmax*nbf_ao.  This is reduced by
+c        screening and is computed at the end of xc_setquad to be
+c        4*max_pr_mbfnq.
 c
-         mbf_ao = nbf_ao_mxnbf_ce*10
-c
-         availm = availm - (nqmax*(natoms + 4*mbf_ao + 
-     &                             3*nbf_ao_mxnbf_ce + 1) +
+         availm = availm - (nqmax*(natoms + 3*nbf_ao_mxnbf_ce + 1) +
+     &                      4*max_pr_mbfnq + 
      &                      nbf_ao + nscr)
 c
 c        Subtract off a few extra bits
@@ -1071,6 +1069,17 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = iswitc+1
+c     
+c        Re-initialize DIIS
+c     
+c         if (icall(1).gt.0)then
+c            icall(1) = -1
+c            call diis_driver(derr(1), 1, ipol, icall, nfock, nbf_ao, 
+c     &                       geom, ao_bas_han, g_fock, g_dens(1), 
+c     &                       g_tmp, g_svecs, isvals, diising, nodiis)
+c            icall(1) = 0
+c            icall(2) = 0
+c         endif
       endif
 c     
       iter = iter + 1

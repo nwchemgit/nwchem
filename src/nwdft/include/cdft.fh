@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.18 1997-11-14 01:14:24 d3h449 Exp $
+C$Id: cdft.fh,v 1.19 1997-11-26 23:06:33 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -99,7 +99,8 @@ c
      &     iatype_pt_chg
       integer 
      &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
-     &     iatype, iqrot, ntypes
+     &     iatype, iqrot, ntypes,
+     &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -131,4 +132,4 @@ c
      & iqshell(4,MXqshells), nqshells, nqmax, 
      & nrad(dft_ntags_bsmx), nang(dft_ntags_bsmx), 
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
-     & ntypes
+     & ntypes, max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq

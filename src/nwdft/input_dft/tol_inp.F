@@ -113,8 +113,8 @@ c     accQrad; for use in setquad - r_max for quadrature points (distance in boh
 c             
   600 if (.not. inp_i(irqmax)) then
          write(6,*)' tol_inp: accQrad value not found; defaulting ',
-     &             ' to 15.'
-         irqmax = 15
+     &             ' to 9.'
+         irqmax = 9
       endif            
       if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
      &   call errquit('tol_inp: rtdb_put failed', 600)

@@ -2,7 +2,7 @@
      &                       geom, AO_bas_han, g_fock, g_dens, g_tmp, 
      &                       g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver.F,v 1.10 1997-04-23 21:19:08 d3h449 Exp $
+C$Id: diis_driver.F,v 1.11 1997-11-26 23:06:44 d3h449 Exp $
 c
       implicit none
 c      
@@ -71,6 +71,7 @@ c
         npulay  = ipol*(MXhist+1)*(MXhist+2)/2
         if (.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
      &     call errquit('diis_driver: cannot allocate Pulay',0)
+        call dfill(npulay, 0.0d0, dbl_mb(ipulay), 1)
 c
 c       Inquire about amount of global memory left.  DIIS uses
 c       several n^2 arrays to store fock and error matrices and
@@ -100,12 +101,13 @@ c
 c        call gacrea(geom,AO_bas_han,
 c     &    nbf,nbf*(2*mxhist*ipol),
 c     &    'diis bufs',g_diis,'row')
-      if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist*ipol), 
-     &                    'diis bufs', nbf, 1, g_diis)) 
-     &   call errquit('diis_driver: error creating g_diis',0)
+         if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist*ipol), 
+     &                       'diis bufs', nbf, 1, g_diis)) 
+     &      call errquit('diis_driver: error creating g_diis',0)
+         call ga_zero(g_diis)
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
-      end if
+      endif
  2118 format(/,10x,'Not enough global memory currently available for ',
      &       /,10x,'DIIS.  DIIS option disabled. ')
  2119 format(/,10x,'The amount of global memory currently available',
@@ -113,6 +115,7 @@ c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
      &       /,10x,'stored and used in the extrapolation.')
       if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
      &   call errquit('diis_driver: cannot allocate Fock wghts',0)
+      call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
 c
 c     Increment call counter.
 c
