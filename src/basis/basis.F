@@ -26,7 +26,7 @@ c
 c
       end
       logical function bas_version()
-c $Id: basis.F,v 1.52 1997-02-17 17:50:18 d3g681 Exp $
+c $Id: basis.F,v 1.53 1997-03-11 01:41:58 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -137,7 +137,7 @@ c
       integer basis             ! [output] returned handle
       character*(*)name         ! [input] name of basis set.  
 c
-*debug:      integer iiii
+*:debug:      integer iiii
 c
       external basis_data  ! This for the T3D linker
 c
@@ -191,14 +191,14 @@ c
       bsactive(basis) = .true.
       basis = basis - BASIS_HANDLE_OFFSET 
       bas_create = .true.
-*debug:c
-*debug:c debug print all basis sets that are active
-*debug:c
-*debug:      do iiii = 1,nbasis_bsmx
-*debug:        if (bsactive(iiii)) then
-*debug:          write(6,*)'bas_create:',bs_name(iiii),' ',iiii
-*debug:        endif
-*debug:      enddo
+c
+c debug print all basis sets that are active
+c
+*:debug:      do iiii = 1,nbasis_bsmx
+*:debug:        if (bsactive(iiii)) then
+*:debug:          write(6,*)'bas_create:',bs_name(iiii),' ',iiii
+*:debug:        endif
+*:debug:      enddo
 c
       end
 *.....................................................................
@@ -1043,13 +1043,16 @@ c::local
       integer atn
       character*16 element
       character*2  symbol
-*      character*2 geom_sym, bas_sym
       logical status
       logical foundit
+      logical is_bq
       integer int_dummy, num_elec
       integer h_tmp, k_tmp
-      character*15 name_tmp
+      character*2 tag12
+      character*16 name_tmp
       double precision erep_save
+      integer uce
+*debug:mem      integer inode
 c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
@@ -1062,6 +1065,12 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
       geom  = ibs_geom(basis)
 c
+*debug:mem      do inode = 0,(ga_nnodes() - 1)
+*debug:mem        if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
+*debug:mem        call ga_sync()
+*debug:mem      enddo
+c
+
       status = geom_ncent(geom, nat)
       if (nat.eq.0.or..not.status) then
         write(6,*)' bas_geobas_build: ERROR '
@@ -1080,6 +1089,8 @@ c.... set spherical flag
 c
 c... clear old ibs_ce2uce if it exists
       if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
+*debug:mem        write(6,*)' clearing old ce2uce data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         h_tmp = ibs_ce2uce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_ce2uce',911)
@@ -1087,15 +1098,23 @@ c... clear old ibs_ce2uce if it exists
         ibs_ce2uce(K_ibs,basis)  = 0
         ibs_ce2uce(SZ_ibs,basis) = 0 
       endif
-c                                 123456789101
-      write(name_tmp,'(a11,i4)') ' ibs_ce2uce ',basis
+c                                 123456789012
+      write(name_tmp,'(a12,i4)') ' ibs_ce2uce ',basis
       if (.not.ma_alloc_get(mt_int,nat,name_tmp,h_tmp,k_tmp)) then
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
       else
+*debug:mem        write(6,*)' generating ce2uce data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         ibs_ce2uce(H_ibs,basis)  = h_tmp
         ibs_ce2uce(K_ibs,basis)  = k_tmp
         ibs_ce2uce(SZ_ibs,basis) = nat
+*debug:mem        call ifill(nat,0,int_mb(ibs_ce2uce(K_ibs,basis)),1)
+*debug:mem        do inode = 0,(ga_nnodes() - 1)
+*debug:mem          if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
+*debug:mem          call ga_sync()
+*debug:mem          call util_flush(6)
+*debug:mem        enddo
       endif
 c
 c build center to unique center map
@@ -1107,55 +1126,65 @@ c
       endif
       do 00100 i=1,nat
         foundit = .false.
-*rak:        if (.not.geom_tag_to_element
-*rak:     &      (tags(i,geom),geom_sym,element,atn))
-*rak:     &      call errquit
-*rak:     &      ('bas_geobas_build: could not map geo tag to element',911)
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-*rak:          if (.not.geom_tag_to_element
-*rak:     &        (bs_tags(j,basis),bas_sym,element,atn))
-*rak:     &        call errquit
-*rak:     &        ('bas_geobas_build: could not map bstag to element',911)
           if(tags(i,geom) .eq. bs_tags(j,basis)) then
-*rak:          if(geom_sym .eq. bas_sym) then
             int_mb(mb_ibs_ce2uce(i,basis)) = j
             foundit = .true.
             goto 00102
           endif
 00101   continue
-        if (.not. foundit .and. ga_nodeid().eq.0 .and.
-     &      .not. Is_ECP(basis)) then
-           if (geom_tag_to_element(tags(i,geom), symbol, element,
-     $          atn)) then
-              write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
-     $             element(1:inp_strlen(element)),
-     $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
- 10           format(/' ERROR: geometry tag ',a,' (',a,
-     &            ') is an atom ',
-     $             'but has no functions in basis "',a,'"'/
-     $             ' ERROR: only bq* centers can have no functions')
-              call util_flush(6)
-              call errquit
-     &              ('bas_geobas_build: basis/geometry mismatch', 0)
-           else
-              write(6,11) i, tags(i,geom)(1:inp_strlen(tags(i,geom))),
-     $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
- 11           format(/'WARNING: geometry tag ',i4, ' ', a,
-     $             ' not found in basis "',a,'"'/)
-              int_mb(mb_ibs_ce2uce(i,basis)) = 0
-              call util_flush(6)
-           endif
+        if (.not. foundit .and. .not. Is_ECP(basis)) then
+          if (geom_tag_to_element(tags(i,geom), symbol, element,
+     $        atn)) then
+            if (ga_nodeid().eq.0)
+     &          write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     $          element(1:inp_strlen(element)),
+     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
+ 10         format(/' ERROR: geometry tag ',a,' (',a,
+     &          ') is an atom ',
+     $          'but has no functions in basis "',a,'"'/
+     $          ' ERROR: only bq* centers can have no functions')
+            call util_flush(6)
+            call errquit
+     &          ('bas_geobas_build: basis/geometry mismatch', 0)
+          else
+            tag12 = tags(i,geom)(1:2)
+            is_bq = inp_compare(.false.,'bq',tag12)
+            if (ga_nodeid().eq.0 .and.(.not.is_bq))
+     &          write(6,11) i,
+     &          tags(i,geom)(1:inp_strlen(tags(i,geom))),
+     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
+ 11         format(/'WARNING: geometry tag ',i4, ' ', a,
+     $          ' not found in basis "',a,'"'/)
+            int_mb(mb_ibs_ce2uce(i,basis)) = 0
+            call util_flush(6)
+          endif
         endif
 00102   continue
 00100 continue
 c
 c build total # of contractions 
 c      
+*debug:mem        do inode = 0,(ga_nnodes() - 1)
+*debug:mem          if (inode.eq.ga_nodeid()) then
+*debug:mem            call MA_summarize_allocated_blocks()
+*debug:mem            if (MA_verify_allocator_stuff()) then
+*debug:mem              write(6,*)' no errors'
+*debug:mem            else
+*debug:mem              write(6,*)' errors'
+*debug:mem            endif
+*debug:mem          endif
+*debug:mem          call ga_sync()
+*debug:mem          call util_flush(6)
+*debug:mem        enddo
+*debug:mem      call bas_print_allocated_info('bas_geobas_build 1')
       ncont_tot_gb(basis)  = 0
       do 10200 i=1,nat
-         if (sf_ibs_ce2uce(i,basis).gt.0) then
-            idum_cont =
-     &           infbs_tags(TAG_NCONT,sf_ibs_ce2uce(i,basis),basis)
+         uce = sf_ibs_ce2uce(i,basis)
+*debug:mem         write(6,*)' myuce = ',uce,i,ga_nodeid()
+*debug:mem         call util_flush(6)
+         if (uce.gt.0) then
+            idum_cont = infbs_tags(TAG_NCONT,uce,basis)
             ncont_tot_gb(basis)   = idum_cont + ncont_tot_gb(basis)
          endif
 10200 continue
@@ -1164,6 +1193,8 @@ c allocate space for center -> contraction range map
 c
 c... clear old ibs_ce2cnr if it exists
       if (ibs_ce2cnr(SZ_ibs,basis).gt.0) then
+*debug:mem        write(6,*)' clearing old ce2cnr data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         h_tmp = ibs_ce2cnr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_ce2cnr',911)
@@ -1171,16 +1202,23 @@ c... clear old ibs_ce2cnr if it exists
         ibs_ce2cnr(K_ibs,basis)  = 0
         ibs_ce2cnr(SZ_ibs,basis) = 0 
       endif
-c                                 123456789101
-      write(name_tmp,'(a11,i4)') ' ibs_ce2cnr ',basis
+c                                 123456789012
+      write(name_tmp,'(a12,i4)') ' ibs_ce2cnr ',basis
       if (.not.ma_alloc_get(mt_int,(2*nat),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
       else
+*debug:mem        write(6,*)' generating ce2cnr data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         ibs_ce2cnr(H_ibs,basis)  = h_tmp
         ibs_ce2cnr(K_ibs,basis)  = k_tmp
         ibs_ce2cnr(SZ_ibs,basis) = 2*nat
+*debug:mem        do inode = 0,(ga_nnodes() - 1)
+*debug:mem          if (inode.eq.ga_nodeid()) call MA_summarize_allocated_blocks()
+*debug:mem          call ga_sync()
+*debug:mem          call util_flush(6)
+*debug:mem        enddo
       endif
 c
 c build center -> contraction range map 
@@ -1213,6 +1251,8 @@ c allocate space for contraction -> center map
 c
 c... clear old ibs_cn2ce if it exists
       if (ibs_cn2ce(SZ_ibs,basis).gt.0) then
+*debug:mem        write(6,*)' clearing old cn2ce data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         h_tmp = ibs_cn2ce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2ce',911)
@@ -1220,12 +1260,14 @@ c... clear old ibs_cn2ce if it exists
         ibs_cn2ce(K_ibs,basis)  = 0
         ibs_cn2ce(SZ_ibs,basis) = 0 
       endif
-c                                 123456789101
-      write(name_tmp,'(a11,i4)') ' ibs_cn2ce  ',basis
+c                                 123456789012
+      write(name_tmp,'(a12,i4)') ' ibs_cn2ce  ',basis
       if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit('bas_geobas_build: error ma_alloc ibs_cn2ce',911)
       else
+*debug:mem        write(6,*)' generating cn2ce data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         ibs_cn2ce(H_ibs,basis)  = h_tmp
         ibs_cn2ce(K_ibs,basis)  = k_tmp
         ibs_cn2ce(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
@@ -1251,6 +1293,8 @@ c allocate space for ibs_cn2ucn map
 c
 c... clear old ibs_cn2ucn if it exists
       if (ibs_cn2ucn(SZ_ibs,basis).gt.0) then
+*debug:mem        write(6,*)' clearing old cn2ucn data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         h_tmp = ibs_cn2ucn(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2ucn',911)
@@ -1258,13 +1302,15 @@ c... clear old ibs_cn2ucn if it exists
         ibs_cn2ucn(K_ibs,basis)  = 0
         ibs_cn2ucn(SZ_ibs,basis) = 0 
       endif
-c                                 123456789101
-      write(name_tmp,'(a11,i4)') ' ibs_cn2ucn ',basis
+c                                 123456789012
+      write(name_tmp,'(a12,i4)') ' ibs_cn2ucn ',basis
       if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
       else
+*debug:mem        write(6,*)' generating cn2ucn data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         ibs_cn2ucn(H_ibs,basis)  = h_tmp
         ibs_cn2ucn(K_ibs,basis)  = k_tmp
         ibs_cn2ucn(SZ_ibs,basis) = 1+ncont_tot_gb(basis)
@@ -1310,6 +1356,8 @@ c allocate space for ibs_cn2bfr map
 c
 c... clear old ibs_cn2bfr if it exists
       if (ibs_cn2bfr(SZ_ibs,basis).gt.0) then
+*debug:mem        write(6,*)' clearing old cn2bfr data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         h_tmp = ibs_cn2bfr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_geobas_build: error freeing ibs_cn2bfr',911)
@@ -1317,13 +1365,15 @@ c... clear old ibs_cn2bfr if it exists
         ibs_cn2bfr(K_ibs,basis)  = 0
         ibs_cn2bfr(SZ_ibs,basis) = 0 
       endif
-c                                 123456789101
-      write(name_tmp,'(a11,i4)') ' ibs_cn2bfr ',basis
+c                                 123456789012
+      write(name_tmp,'(a12,i4)') ' ibs_cn2bfr ',basis
       if (.not.ma_alloc_get(mt_int,(2*(1+ncont_tot_gb(basis))),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
      &      ('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
       else
+*debug:mem        write(6,*)' generating cn2bfr data ',ga_nodeid()
+*debug:mem        call util_flush(6)
         ibs_cn2bfr(H_ibs,basis)  = h_tmp
         ibs_cn2bfr(K_ibs,basis)  = k_tmp
         ibs_cn2bfr(SZ_ibs,basis) = 2*(1+ncont_tot_gb(basis))
@@ -1361,6 +1411,7 @@ c
         myang   = abs(infbs_cont(CONT_TYPE,i,basis))
         angular_bs(basis) = max(angular_bs(basis),myang)
 00800 continue
+*
       if (Is_ECP(basis)) then
 * if ECP basis must modify geometry data appropriately
         do i = 1,nat
@@ -3150,4 +3201,64 @@ c
       if (.not.bas_check_handle(basis_handle,'ecp_get_parent_handle'))
      &      call errquit
      &      ('ecp_get_parent_handle: stored basis_handle invalid',911)
+      end
+      subroutine bas_print_allocated_info(msg)
+      implicit none
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "bas_ibs_dec.fh"
+#include "bas_exndcf_dec.fh"
+      character*(*) msg
+      integer basis
+      integer me, nproc, inode
+      integer inode_use
+c
+#include "bas_ibs_sfn.fh"
+#include "bas_exndcf_sfn.fh"
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+*
+      do inode = 0,(nproc-1)
+        inode_use = inode
+        call ga_sync()
+        call ga_brdcst(1234,inode_use,mitob(1),0)
+        call ga_sync()
+        if (inode_use.eq.me) then
+          write(luout,*)' msg: ',msg,me
+          write(luout,*)' basis data for node ',me
+          write(luout,*)' number of possible basis sets',nbasis_bsmx
+          do basis = 1,nbasis_bsmx
+            write(luout,*)' active :',bsactive(basis)
+            write(luout,*)' exndcf Handle/index/size :',
+     &          exndcf(H_exndcf,basis),exndcf(K_exndcf,basis),
+     &          exndcf(SZ_exndcf,basis)
+            write(luout,*)' cn2ucn (H/K/SZ) :',
+     &          ibs_cn2ucn(H_ibs,basis),
+     &          ibs_cn2ucn(K_ibs,basis),
+     &          ibs_cn2ucn(SZ_ibs,basis)
+            write(luout,*)' cn2ce (H/K/SZ)  :',
+     &          ibs_cn2ce(H_ibs,basis),
+     &          ibs_cn2ce(K_ibs,basis),
+     &          ibs_cn2ce(SZ_ibs,basis)
+            write(luout,*)' ce2uce (H/K/SZ) :',
+     &          ibs_ce2uce(H_ibs,basis),
+     &          ibs_ce2uce(K_ibs,basis),
+     &          ibs_ce2uce(SZ_ibs,basis)
+            write(luout,*)' cn2bfr (H/K/SZ) :',
+     &          ibs_cn2bfr(H_ibs,basis),
+     &          ibs_cn2bfr(K_ibs,basis),
+     &          ibs_cn2bfr(SZ_ibs,basis)
+            write(luout,*)' ce2cnr (H/K/SZ) :',
+     &          ibs_ce2cnr(H_ibs,basis),
+     &          ibs_ce2cnr(K_ibs,basis),
+     &          ibs_ce2cnr(SZ_ibs,basis)
+          enddo
+        endif
+        call util_flush(luout)
+      enddo
       end
