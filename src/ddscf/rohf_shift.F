@@ -48,7 +48,7 @@ c
       subroutine rohf_make_shift_2(g_fock, diag,
      $     ilo, ihi, alo, ahi, oadapt, irs, scale, shift)
       implicit none
-c
+*
 c     return scale * min(i,a) (F(a) - F(i))
 c     for i/a in given ranges and of same symmetry
 c
