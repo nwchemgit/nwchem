@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.34 1996-09-22 18:40:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.35 1996-10-01 21:09:56 d3e129 Exp $
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.
@@ -41,11 +41,6 @@ include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(close_3ci.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(get_3cints.o):	$(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/dra.fh 
-$(LIBRARY_PATH)(open_3ci.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./ftnio.fh 
-$(LIBRARY_PATH)(put_3cints.o):	$(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/dra.fh 
-$(LIBRARY_PATH)(rimp2.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ./rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(prog_report.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xform_3cints.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh ./rimp2_timers.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xf3ci_step3.o):	$(INCDIR)/stdio.fh ./rimp2_timers.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xf3ci_step12.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ./rimp2_timers.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
@@ -58,11 +53,16 @@ $(LIBRARY_PATH)(rimp2_timers.o):	./rimp2_timers.fh $(INCDIR)/pstat.fh
 $(LIBRARY_PATH)(rimp2_parm.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh 
 $(LIBRARY_PATH)(rimp2_e_mem.o):	$(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(rimp2_denom.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(put_3cints.o):	$(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/dra.fh 
+$(LIBRARY_PATH)(prog_report.o):	$(INCDIR)/global.fh 
+$(LIBRARY_PATH)(rimp2.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh ./rimp2_timers.fh $(INCDIR)/pstat.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(open_3ci.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./ftnio.fh 
 $(LIBRARY_PATH)(occ_ranges.o):	$(INCDIR)/numerical_constants.fh 
 $(LIBRARY_PATH)(mk_v.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(mk_corr_map.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
 $(LIBRARY_PATH)(mk_1d_shdist.o):	$(INCDIR)/stdio.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(max_v_diag.o):	$(INCDIR)/stdio.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(get_3cints.o):	$(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/dra.fh 
 $(LIBRARY_PATH)(ga_by_shells.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(eval_3ci.o):	$(INCDIR)/schwarz.fh $(INCDIR)/numerical_constants.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(dgewr.o):	./output.h 
