@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.111 1999-06-14 23:22:28 windus Exp $
+C     $Id: geom_input.F,v 1.112 1999-06-17 00:00:29 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -333,10 +333,28 @@ c
          if (geom_group_set(geom,groupname)) then
             if (.not.geom_cart_set(geom, ncenter, tags, coords, charge))
      $           call errquit('geom_input: geom_cart_set failed', 0)
+            if (ncenter_before_auto .ne. ncenter) call errquit
+     $        ('geom_input: autosym bug : number of atoms wrong',
+     $          ncenter)
          else
             write(6,*) ' autosym detected uknown group ', groupname
             call errquit('geom_input: autosym: invalid group',0)
          endif
+c
+c  symmetrize the coordinates
+c
+c        write(6,*) 'before symmetrization'
+c        do i=1,ncenter
+c              write(6,*) coords(1,i),coords(2,i),coords(3,i)
+c        enddo
+c        call sym_grad_symmetrize(geom,coords)
+c        write(6,*) 'after symmetrization'
+c        do i=1,ncenter
+c              write(6,*) coords(1,i),coords(2,i),coords(3,i)
+c        enddo
+c        if (.not.geom_cart_set(geom, ncenter, tags, coords, charge))
+c    $        call errquit('geom_input: geom_cart_set failed', 0)
+c        threquiv = 1d-3    ! Set back to default
       endif
 c
 c     Apply system and symmetry info to the list of
@@ -3080,9 +3098,9 @@ C
      2                        (GRPOH.AND.
      3                         C2AXS(IAXIS).AND.C4AXS(IAXIS))) THEN
                               NAXM=NAXM+1
-                              IF(NAXM.EQ.1) THEN
-                                 GOTONE=.TRUE.
-                              ENDIF
+c                             IF(NAXM.EQ.1) THEN
+c                                GOTONE=.TRUE.
+c                             ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3102,7 +3120,7 @@ C
                            WRITE(IW,*) 'T , TD , O = ',
      1                                  GRPT,GRPTD,GRPO
                         ENDIF
-                        GOTONE=.FALSE.
+c                       GOTONE=.FALSE.
                         DO IAXIS=1,3
                            IF((GRPO .AND.
      1                         (C2AXS(IAXIS).AND.C4AXS(IAXIS))).OR.
@@ -3111,9 +3129,9 @@ C
      4                        (GRPT .AND.
      5                         (C2AXS(IAXIS)                 ))) THEN
                               NAXM=NAXM+1
-                              IF(NAXM.EQ.1) THEN
-                                 GOTONE=.TRUE.
-                              ENDIF
+c                             IF(NAXM.EQ.1) THEN
+c                                GOTONE=.TRUE.
+c                             ENDIF
                               IF(NAXM.LE.3) THEN
                                  DO I=1,3
                                     AXM(I,NAXM)=AXS(I,IAXIS)
@@ -3125,23 +3143,25 @@ C
                      IF(OUT.AND.NAXM.GT.0) THEN
                         CALL HND_PRSQ(AXM,NAXM,3,3)
                      ENDIF
+                     IF(NAXM.GE.2) GO TO 10
 C
 C     ----- CHECK VALIDITY OF SECOND AXIS -----
 C
-                     IF(NAXM.EQ.2) THEN
-                        DUM =AXM(1,1)*AXM(1,2)+AXM(2,1)*AXM(2,2)+
-     1                       AXM(3,1)*AXM(3,2)
-                        DUMX=AXM(1,2)-DUM*AXM(1,1)
-                        DUMY=AXM(2,2)-DUM*AXM(2,1)
-                        DUMZ=AXM(3,2)-DUM*AXM(3,1)
-                        DUM =DUMX**2+DUMY**2+DUMZ**2
-                        DUM =SQRT(DUM)
-                        IF(DUM.GT.TENM02) THEN
-                           GO TO 10
-                        ELSE
-                           NAXM=1
-                        ENDIF
-                     ENDIF
+c                    IF(NAXM.EQ.2) THEN
+c                       DUM =AXM(1,1)*AXM(1,2)+AXM(2,1)*AXM(2,2)+
+c    1                       AXM(3,1)*AXM(3,2)
+c                       DUMX=AXM(1,2)-DUM*AXM(1,1)
+c                       DUMY=AXM(2,2)-DUM*AXM(2,1)
+c                       DUMZ=AXM(3,2)-DUM*AXM(3,1)
+c                       DUM =DUMX**2+DUMY**2+DUMZ**2
+c                       DUM =SQRT(DUM)
+c                       IF(DUM.GT.TENM02) THEN
+c                       IF(DUM.GT.THREQUIV) THEN
+c                          GO TO 10
+c                       ELSE
+c                          NAXM=1
+c                       ENDIF
+c                    ENDIF
 C
                   ENDIF
                ENDDO
@@ -3174,8 +3194,8 @@ C
          IF(SOME) THEN
             WRITE(IW,*) '2-FOLD DEGENERATE MOMENTS OF INERTIA'
          ENDIF
-         IF(ABS(EIG(2)-EIG(1)).LT.TENM05) KAXIS=3
-         IF(ABS(EIG(2)-EIG(3)).LT.TENM05) KAXIS=1
+         IF(ABS(EIG(2)-EIG(1)).LT.THREQUIV) KAXIS=3
+         IF(ABS(EIG(2)-EIG(3)).LT.THREQUIV) KAXIS=1
          IF(OUT) THEN
             WRITE(IW,*) 'KAXIS = ',KAXIS
          ENDIF
@@ -3404,13 +3424,20 @@ C
          ENDIF
       ENDDO
 C
-      IF((.NOT.PROPER(1)).AND.(.NOT.IMPROP(1)).AND.
-     1   (.NOT.PROPER(2)).AND.(.NOT.IMPROP(2)).AND.
-     2   (.NOT.PROPER(3)).AND.(.NOT.IMPROP(3))     ) THEN
-         WRITE(IW,*) 'AXES ARE NOT -PROPER- NOR -IMPROPER-.'
-         WRITE(IW,*) '-AUTO SYM- WILL STOP, THE CODE WILL CONTINUE.'
-         RETURN
-      ENDIF
+c     do a check to fix if there is a high order axis that is not
+c     proper and not improper
+c
+      if((.not.proper(1)).and.(.not.improp(1))) axordr(1)=1
+      if((.not.proper(2)).and.(.not.improp(2))) axordr(2)=1
+      if((.not.proper(3)).and.(.not.improp(3))) axordr(3)=1
+c
+c     IF((.NOT.PROPER(1)).AND.(.NOT.IMPROP(1)).AND.
+c    1   (.NOT.PROPER(2)).AND.(.NOT.IMPROP(2)).AND.
+c    2   (.NOT.PROPER(3)).AND.(.NOT.IMPROP(3))     ) THEN
+c        WRITE(IW,*) 'AXES ARE NOT -PROPER- NOR -IMPROPER-.'
+c        WRITE(IW,*) '-AUTO SYM- WILL STOP, THE CODE WILL CONTINUE.'
+c        RETURN
+c     ENDIF
 C
 C     ----- ALIGN AXIS OF HIGHEST ORDER ALONG -Z- -----
 C
@@ -3448,16 +3475,6 @@ C
          WRITE(IW,9987) KAXIS
          WRITE(IW,9988) (NEWAXS(K),K=1,3)
          WRITE(IW,9980) (NUORDR(K),K=1,3)
-      ENDIF
-C
-C     ----- C'2 AXES PERPENDICULAR TO PRINCIPAL AXIS -----
-C
-      SYMC2X=MOD(AXORDR(NEWAXS(1)),2).EQ.0.AND.
-     1           PROPER(NEWAXS(1))
-      SYMC2Y=MOD(AXORDR(NEWAXS(2)),2).EQ.0.AND.
-     1           PROPER(NEWAXS(2))
-      IF(SOME) THEN
-         WRITE(IW,9992) SYMC2X,SYMC2Y
       ENDIF
 C
 C     ----- ASSEMBLE PERMUTATION MATRIX -----
@@ -3538,6 +3555,62 @@ C
          DO IAT=1,NAT
             WRITE(IW,9989) IAT,(C3(I,IAT),I=1,3)
          ENDDO
+      ENDIF
+C
+C     ----- C'2 AXES PERPENDICULAR TO PRINCIPAL AXIS -----
+C
+      SYMC2X=MOD(AXORDR(NEWAXS(1)),2).EQ.0.AND.
+     1           PROPER(NEWAXS(1))
+      SYMC2Y=MOD(AXORDR(NEWAXS(2)),2).EQ.0.AND.
+     1           PROPER(NEWAXS(2))
+c
+c     Do more work if you don't find the C'2 axes right away
+c
+      if ((.not.symc2x).and.(.not.symc2y).and.
+     1    (axordr(newaxs(3)).gt.1)) then
+        fulltheta = TWOPI/DBLE(AXORDR(newaxs(3)))
+        step = 0.5d+0 * (twopi / 360.d+0)
+        do theta=0.d+0,fulltheta,step
+          if ((.not.symc2x).and.(.not.symc2y)) then
+            do jat = 1, nat
+              do iat = 1, 3
+                c2(iat,jat) = c3(iat,jat)
+              enddo
+            enddo
+c
+            if(out) then
+            write(6,*) 'New coordinates before theta'
+            do jat = 1, nat
+              write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
+            enddo
+            endif
+c
+            call rot_theta_z (theta,c2,nat)
+c
+            if(out) then
+            write(6,*) 'New coordinates after theta'
+            do jat = 1, nat
+              write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
+            enddo
+            endif
+c
+
+            call check_c2_perp(symc2x,symc2y,c2,nuc,
+     1                         nat,threquiv)
+          endif
+        enddo
+c
+        if (symc2x.or.symc2y) then
+          do jat = 1, nat
+            do iat = 1, 3
+              c3(iat,jat) = c2(iat,jat)
+            enddo
+          enddo
+        endif
+      endif
+c
+      IF(SOME) THEN
+         WRITE(IW,9992) SYMC2X,SYMC2Y
       ENDIF
 C
 C     ----- CHECK : AXES OF ORDER HIGHER THAN 1 MUST  -----
@@ -3702,34 +3775,51 @@ C
 C
 c fix a few symmetries after the fact to go into nwchem order
 c
+      if (out) then
       write(6,*) 'before I muck with the geometry'
       DO IAT=1,NAT
         WRITE(IW,9989) IAT,(C3(I,IAT),I=1,3)
       ENDDO
+      endif
       if ((groupname(1:3).eq.'C3V').or.(groupname(1:3).eq.'C6V').or.
-     1  (groupname(1:3).eq.'D3H').or.(groupname(1:3).eq.'D6H')) then
+     1  (groupname(1:2).eq.'D3').or.(groupname(1:3).eq.'D6H').or.
+     2  (groupname(1:3).eq.'D6 ')) then
+c    1  (groupname(1:3).eq.'D3H').or.(groupname(1:3).eq.'D6H').or.
+c    2  (groupname(1:3).eq.'D3 ').or.(groupname(1:3).eq.'D6 ')) then
         pi4 = atan(1d0)
-        if (mirrzx) theta = pi4
-        if (mirryz) theta = -pi4
-        cosa = cos(theta)
-        sina = sin(theta)
-          do iat=1,nat
-            temp = c3(1,iat)
-            c3(1,iat)=cosa*c3(1,iat) - sina*c3(2,iat)
-            c3(2,iat)=sina*temp + cosa*c3(2,iat)
-          enddo
+        if (symc2x) then
+          theta = pi4
+        else if (symc2y) then
+          theta = -pi4
+        else if (mirrzx) then
+          theta = pi4
+        else if (mirryz) then
+          theta = -pi4
+        else
+          theta = -1.d+0
+        endif
+        if (theta.eq.-1.d+0) call errquit
+     1    ('hnd_molops: could not determine rotation angle',555)
+        call rot_theta_z (theta,c3,nat)
       endif
 c
       if ((groupname(1:3).eq.'C5V').and.mirryz) then
         pi2 = 2*atan(1d0)
         theta = pi2
-        cosa = cos(theta)
-        sina = sin(theta)
-          do iat=1,nat
-            temp = c3(1,iat)
-            c3(1,iat)=cosa*c3(1,iat) - sina*c3(2,iat)
-            c3(2,iat)=sina*temp + cosa*c3(2,iat)
-          enddo
+        call rot_theta_z (theta,c3,nat)
+      endif
+c
+      if (groupname(1:3).eq.'D4D') then
+c       theta = tan(-0.38d+0/0.92d+0)    !+ 8.72663d-03
+        theta = 22.5d+0/degree
+        call rot_theta_z (theta,c3,nat)
+      endif
+c
+      if (((groupname(1:3).eq.'D5H').or.(groupname(1:3).eq.'D5 '))
+     1      .and.symc2x) then  ! used to be mirrzx
+        pi2 = 2*atan(1d0)  ! pi divided by 2 (90 degrees)
+        theta = pi2
+        call rot_theta_z (theta,c3,nat)
       endif
 c
       IF(OUT) THEN
@@ -3896,16 +3986,31 @@ C
 C     ----- SET GROUP SYMBOL -----
 C
       GROUP=BLANK
-      IF(NAXIS.EQ.1) THEN
-         GROUP(1:2)=C1(1:2)
-         IF(SYMINV) THEN
-            GROUP(1:2)=CI
-         ENDIF
-         IF(MIRRYZ.OR.MIRRZX.OR.MIRRXY) THEN
-            GROUP(1:2)=CS
-         ENDIF
-      ELSE
-         IF(.NOT.CUBIC) THEN
+      if (cubic) then
+C
+C     ----- CUBIC GROUPS -----
+C
+            IF(GRPOH) THEN
+               GROUP(1:2)=OH
+            ELSEIF(GRPTH) THEN
+               GROUP(1:2)=TH
+            ELSEIF(GRPTD) THEN
+               GROUP(1:2)=TD
+            ELSEIF(GRPT ) THEN
+               GROUP(1:2)=T
+            ELSEIF(GRPO ) THEN
+               GROUP(1:2)=O
+            ENDIF
+      else
+        IF(NAXIS.EQ.1) THEN
+            GROUP(1:2)=C1(1:2)
+            IF(SYMINV) THEN
+               GROUP(1:2)=CI
+            ENDIF
+            IF(MIRRYZ.OR.MIRRZX.OR.MIRRXY) THEN
+               GROUP(1:2)=CS
+            ENDIF
+        ELSE
             IF(MIRRYZ.OR.MIRRZX.OR.MIRRXY.OR.
      1         SYMC2X.OR.SYMC2Y.OR.
      2         PROPRX.OR.PROPRY.OR.PROPRZ.OR.
@@ -3922,7 +4027,7 @@ C
                   IF(MIRRXY) THEN
                      GROUP(3:3)=H
                   ELSE
-                     IF(MIRRYZ.OR.MIRRZX) THEN
+                     IF(MIRRYZ.OR.MIRRZX.or.(.not.proprz)) THEN
                         GROUP(3:3)=D
                         NAXIS=NAXIS/2
                      ELSE
@@ -3951,25 +4056,11 @@ C     ----- S2N GROUPS -----
 C
                NAXIS=NAXIS/2
                GROUP(1:1)=S
-               GROUP(2:2)=I2
-               GROUP(3:3)=N
+               write(GROUP(2:2),'(i1)') NAXIS
+c              GROUP(2:2)=I2
+c              GROUP(3:3)=N
             ENDIF
-         ELSE
-C
-C     ----- CUBIC GROUPS -----
-C
-            IF(GRPOH) THEN
-               GROUP(1:2)=OH
-            ELSEIF(GRPTH) THEN
-               GROUP(1:2)=TH
-            ELSEIF(GRPTD) THEN
-               GROUP(1:2)=TD
-            ELSEIF(GRPT ) THEN
-               GROUP(1:2)=T
-            ELSEIF(GRPO ) THEN
-               GROUP(1:2)=O
-            ENDIF
-         ENDIF
+        ENDIF
       ENDIF
 C
       if (group(2:2).eq.'N') then
@@ -3999,87 +4090,87 @@ c
 C
 C     ----- GET OPERATOR MATRICES -----
 C
-      IF(GROUP(1:2).EQ.CS) THEN
-         XPT1=TR(1)
-         YPT1=TR(2)
-         ZPT1=TR(3)
-         IF(MIRRYZ) THEN
-            XPT2=XPT1+RT(1,2)
-            YPT2=YPT1+RT(2,2)
-            ZPT2=ZPT1+RT(3,2)
-            XPT3=XPT1+RT(1,3)
-            YPT3=YPT1+RT(2,3)
-            ZPT3=ZPT1+RT(3,3)
-         ELSEIF(MIRRZX) THEN
-            XPT2=XPT1+RT(1,3)
-            YPT2=YPT1+RT(2,3)
-            ZPT2=ZPT1+RT(3,3)
-            XPT3=XPT1+RT(1,1)
-            YPT3=YPT1+RT(2,1)
-            ZPT3=ZPT1+RT(3,1)
-         ELSEIF(MIRRXY) THEN
-            XPT2=XPT1+RT(1,1)
-            YPT2=YPT1+RT(2,1)
-            ZPT2=ZPT1+RT(3,1)
-            XPT3=XPT1+RT(1,2)
-            YPT3=YPT1+RT(2,2)
-            ZPT3=ZPT1+RT(3,2)
-         ENDIF
-      ELSE
-         IF(SYMC2X) THEN
-            XPT0=TR(1)
-            YPT0=TR(2)
-            ZPT0=TR(3)
-            XPT1=XPT0+RT(1,3)
-            YPT1=YPT0+RT(2,3)
-            ZPT1=ZPT0+RT(3,3)
-            XPT2=XPT0+RT(1,1)
-            YPT2=YPT0+RT(2,1)
-            ZPT2=ZPT0+RT(3,1)
-         ELSEIF(SYMC2Y) THEN
-            XPT0=TR(1)
-            YPT0=TR(2)
-            ZPT0=TR(3)
-            XPT1=XPT0+RT(1,3)
-            YPT1=YPT0+RT(2,3)
-            ZPT1=ZPT0+RT(3,3)
-            XPT2=XPT0+RT(1,2)
-            YPT2=YPT0+RT(2,2)
-            ZPT2=ZPT0+RT(3,2)
-         ELSEIF(MIRRZX) THEN
-            XPT0=TR(1)
-            YPT0=TR(2)
-            ZPT0=TR(3)
-            XPT1=XPT0+RT(1,3)
-            YPT1=YPT0+RT(2,3)
-            ZPT1=ZPT0+RT(3,3)
-            XPT2=XPT0+RT(1,1)
-            YPT2=YPT0+RT(2,1)
-            ZPT2=ZPT0+RT(3,1)
-         ELSEIF(MIRRYZ) THEN
-            XPT0=TR(1)
-            YPT0=TR(2)
-            ZPT0=TR(3)
-            XPT1=XPT0+RT(1,3)
-            YPT1=YPT0+RT(2,3)
-            ZPT1=ZPT0+RT(3,3)
-            XPT2=XPT0+RT(1,2)
-            YPT2=YPT0+RT(2,2)
-            ZPT2=ZPT0+RT(3,2)
-         ELSE
-            XPT0=TR(1)
-            YPT0=TR(2)
-            ZPT0=TR(3)
-            XPT1=XPT0+RT(1,3)
-            YPT1=YPT0+RT(2,3)
-            ZPT1=ZPT0+RT(3,3)
-            XPT2=XPT0+RT(1,1)
-            YPT2=YPT0+RT(2,1)
-            ZPT2=ZPT0+RT(3,1)
-         ENDIF
-      ENDIF
-      CALL HND_MOLGRP(XPT0,YPT0,ZPT0,XPT1,YPT1,ZPT1,
-     1                XPT2,YPT2,ZPT2,XPT3,YPT3,ZPT3)
+c     IF(GROUP(1:2).EQ.CS) THEN
+c        XPT1=TR(1)
+c        YPT1=TR(2)
+c        ZPT1=TR(3)
+c        IF(MIRRYZ) THEN
+c           XPT2=XPT1+RT(1,2)
+c           YPT2=YPT1+RT(2,2)
+c           ZPT2=ZPT1+RT(3,2)
+c           XPT3=XPT1+RT(1,3)
+c           YPT3=YPT1+RT(2,3)
+c           ZPT3=ZPT1+RT(3,3)
+c        ELSEIF(MIRRZX) THEN
+c           XPT2=XPT1+RT(1,3)
+c           YPT2=YPT1+RT(2,3)
+c           ZPT2=ZPT1+RT(3,3)
+c           XPT3=XPT1+RT(1,1)
+c           YPT3=YPT1+RT(2,1)
+c           ZPT3=ZPT1+RT(3,1)
+c        ELSEIF(MIRRXY) THEN
+c           XPT2=XPT1+RT(1,1)
+c           YPT2=YPT1+RT(2,1)
+c           ZPT2=ZPT1+RT(3,1)
+c           XPT3=XPT1+RT(1,2)
+c           YPT3=YPT1+RT(2,2)
+c           ZPT3=ZPT1+RT(3,2)
+c        ENDIF
+c     ELSE
+c        IF(SYMC2X) THEN
+c           XPT0=TR(1)
+c           YPT0=TR(2)
+c           ZPT0=TR(3)
+c           XPT1=XPT0+RT(1,3)
+c           YPT1=YPT0+RT(2,3)
+c           ZPT1=ZPT0+RT(3,3)
+c           XPT2=XPT0+RT(1,1)
+c           YPT2=YPT0+RT(2,1)
+c           ZPT2=ZPT0+RT(3,1)
+c        ELSEIF(SYMC2Y) THEN
+c           XPT0=TR(1)
+c           YPT0=TR(2)
+c           ZPT0=TR(3)
+c           XPT1=XPT0+RT(1,3)
+c           YPT1=YPT0+RT(2,3)
+c           ZPT1=ZPT0+RT(3,3)
+c           XPT2=XPT0+RT(1,2)
+c           YPT2=YPT0+RT(2,2)
+c           ZPT2=ZPT0+RT(3,2)
+c        ELSEIF(MIRRZX) THEN
+c           XPT0=TR(1)
+c           YPT0=TR(2)
+c           ZPT0=TR(3)
+c           XPT1=XPT0+RT(1,3)
+c           YPT1=YPT0+RT(2,3)
+c           ZPT1=ZPT0+RT(3,3)
+c           XPT2=XPT0+RT(1,1)
+c           YPT2=YPT0+RT(2,1)
+c           ZPT2=ZPT0+RT(3,1)
+c        ELSEIF(MIRRYZ) THEN
+c           XPT0=TR(1)
+c           YPT0=TR(2)
+c           ZPT0=TR(3)
+c           XPT1=XPT0+RT(1,3)
+c           YPT1=YPT0+RT(2,3)
+c           ZPT1=ZPT0+RT(3,3)
+c           XPT2=XPT0+RT(1,2)
+c           YPT2=YPT0+RT(2,2)
+c           ZPT2=ZPT0+RT(3,2)
+c        ELSE
+c           XPT0=TR(1)
+c           YPT0=TR(2)
+c           ZPT0=TR(3)
+c           XPT1=XPT0+RT(1,3)
+c           YPT1=YPT0+RT(2,3)
+c           ZPT1=ZPT0+RT(3,3)
+c           XPT2=XPT0+RT(1,1)
+c           YPT2=YPT0+RT(2,1)
+c           ZPT2=ZPT0+RT(3,1)
+c        ENDIF
+c     ENDIF
+c     CALL HND_MOLGRP(XPT0,YPT0,ZPT0,XPT1,YPT1,ZPT1,
+c    1                XPT2,YPT2,ZPT2,XPT3,YPT3,ZPT3)
 C
       ODONE=.TRUE.
 C
@@ -5247,4 +5338,109 @@ c
 c
  1    format(1x,i5,' sane step ', a, f14.8)
 c     
+      end
+c
+      subroutine rot_theta_z (theta,coords,ncenter)
+c
+c     rotate the xy coordinates around the z axis by angle theta
+c
+      implicit none
+c
+      integer ncenter, iat
+      double precision theta, cosa, sina, temp
+      double precision coords(3,ncenter)
+c
+      cosa = cos(theta)
+      sina = sin(theta)
+      do iat=1,ncenter
+        temp = coords(1,iat)
+        coords(1,iat)=cosa*coords(1,iat) - sina*coords(2,iat)
+        coords(2,iat)=sina*temp + cosa*coords(2,iat)
+      enddo
+
+      end
+c
+      subroutine check_c2_perp(symc2x,symc2y,c2,nuc,
+     1                         nat,threquiv)
+c
+c     check for a c2 axis perpendicular to the z axis
+c
+      implicit none
+c
+      integer nat, i, j, k, iat, jat, iaxis, nuc(nat)
+      logical symc2x, symc2y, prpaxs, proper(2)
+      logical some, dbug
+      double precision theta, c2(3,nat)
+      double precision pi, rr, dd, dz
+      double precision threquiv
+      COMPLEX*16  QDUMI, QDUMJ
+c
+      some = .false.
+      dbug = .false.
+c
+c     do jat = 1, nat
+c       do iat = 1, 3
+c         c2(iat,jat) = c3(iat,jat)
+c       enddo
+c     enddo
+c
+c     write(6,*) 'New coordinates before theta'
+c     do jat = 1, nat
+c       write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
+c     enddo
+c
+c     call rot_theta_z (thetaz,c2,nat)
+c
+c     write(6,*) 'New coordinates after theta'
+c     do jat = 1, nat
+c       write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
+c     enddo
+c
+      PI=4.d+0*ATAN(1.d+0)
+      THETA=PI
+c
+      do iaxis = 1, 2
+        PROPER(IAXIS)=.TRUE.
+        if (iaxis.eq.1) then
+          i = 2
+          j = 3
+          k = 1
+        else
+          i = 3
+          j = 1
+          k = 2
+        endif
+        DO IAT=1,NAT
+           PRPAXS=.FALSE.
+           DO JAT=1,NAT
+              IF(NUC(JAT).EQ.NUC(IAT).AND..NOT.PRPAXS) THEN
+                 QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))
+                 RR=ABS(QDUMI)
+                 QDUMI=CMPLX(COS(THETA),SIN(THETA))*QDUMI
+                 QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
+                 DD=ABS(QDUMI-QDUMJ)
+                 DZ=C2(K,IAT)-C2(K,JAT)
+                 PRPAXS=(ABS(DD).LT.THREQUIV).AND.
+     1                  (ABS(DZ).LT.THREQUIV)
+                 IF(DBUG) THEN
+                    WRITE(6,*) ' IAT,JAT,PRPAXS = ',
+     1                            IAT,JAT,PRPAXS,RR,DD,DZ
+                 ENDIF
+              ENDIF
+           ENDDO
+           PROPER(IAXIS)=PROPER(IAXIS).AND.PRPAXS
+           IF(DBUG) THEN
+              WRITE(6,*) ' IAT,PRPAXS,PROPER(IAXIS) = ',
+     1                      IAT,PRPAXS,PROPER(IAXIS)
+           ENDIF
+        ENDDO
+        IF(SOME) THEN
+           WRITE(6,9982) IAXIS,PROPER(IAXIS)
+        ENDIF
+      enddo
+c
+      symc2x = proper(1)
+      symc2y = proper(2)
+c
+ 9982 FORMAT('   PROPER PRINCIPAL AXIS ',I1,' = ',L4)
       end
