@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.21 2004-06-23 20:20:48 bert Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.22 2004-07-01 18:44:02 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -110,7 +110,7 @@ c
       if(oconverged) then
          if (iam.eq.0)write(6,*) 'CCSD is already converged'
          offt2 = 0
-         if(.not.rtdb_put(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
+         if(.not.rtdb_get(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
      $      eccsd=zip
          call ga_sync()
          call qexit('iterdrv',0)
