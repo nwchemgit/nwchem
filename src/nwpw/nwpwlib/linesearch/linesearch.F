@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.5 2002-01-02 22:12:51 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.6 2002-01-09 22:35:37 bylaska Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -174,6 +174,7 @@ c     df(1) = DFUNC1(t(1))
           else
              tmin=t(indx(3))
              fmin=f(indx(3))+tolerance
+             iteration = maxiter+1
           endif
 
         end if
