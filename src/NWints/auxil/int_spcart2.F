@@ -6,8 +6,8 @@
 #include "global.fh"
 #include "stdio.fh"
 *:functions
-      logical spcart_init
-      external spcart_init
+      logical spcart_init, spcart_terminate
+      external spcart_init, spcart_terminate
 *
 * generate a matrix in local "ma" memory (heap)
 * matrix(cartesian,spherical)
@@ -25,11 +25,14 @@
       integer numcont
       integer type
       integer np, ng, sphcar
+      logical do_terminate
 c
       o_loc_debug = (.true.).and. (ga_nodeid().eq.0)
       ma_hp = 0
       ncart = 0
       nsph  = 0
+c
+      do_terminate = sph_cart_init.ne.SPH_CART_INIT_VALUE
 c
       if (.not.bas_check_handle(basis,'spcart_get_fullcs_ma'))
      &      call errquit
@@ -37,7 +40,6 @@ c
 c
       if (.not.bas_high_angular(basis,highang)) call errquit
      &      ('spcart_get_fullcs_ma:spcart_init failed',911)
-      call defNxyz(highang)
       if (.not.spcart_init(highang,.true.,.false.))call errquit
      &      ('spcart_get_fullcs_ma:spcart_init failed',911)
 c
@@ -48,8 +50,16 @@ c
      &        call errquit
      &      ('spcart_get_fullcs_ma:bas_continfo failed on shell',
      &        ishell)
-        ncart = ncart + ng*((type+1)*(type+2)/2)
-        nsph  = nsph  + ng*(2*type + 1)
+        if (type.ge.0) then
+          ncart = ncart + ng*((type+1)*(type+2)/2)
+          nsph  = nsph  + ng*(2*type + 1)
+        else if (type.eq.-1) then
+          ncart = ncart + 4
+          nsph  = nsph + 4
+        else
+          call errquit
+     &      ('spcart_get_fullcs_ma: unrecognized type',type)
+        endif
       enddo
 c
       if (o_loc_debug) then
@@ -70,6 +80,10 @@ c
       if (o_loc_debug) call output
      &      (dbl_mb(ma_hk),1,ncart,1,nsph,ncart,nsph,1)
 c
+      if (do_terminate) then
+        if (.not.spcart_terminate()) call errquit
+     &      ('spcart_get_fullcs_ma:spcart_terminate failed ',911)
+      endif
       end
       subroutine spcart_fill_fullcs_ma(numcont,ncart,nsph,matrx,
      &      basis,debug)
@@ -77,6 +91,7 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "spcartP.fh"
+#include "stdio.fh"
 *::passed:
       integer numcont
       integer ncart
@@ -111,15 +126,41 @@ c
      &        call errquit
      &      ('spcart_fill_fullcs_ma:bas_continfo failed on shell',
      &        ishell)
-        l2c = (type+1)*(type+2)/2
-        l2s = 2*type + 1
+        if (type.ge.0) then
+          l2c = (type+1)*(type+2)/2
+          l2s = 2*type + 1
+        else if(type.eq.-1) then
+          l2c = 4
+          l2s = 4
+        else
+          call errquit
+     &      ('spcart_fill_fullcs_ma: unrecognized type',type)
+        endif
         do ig = 1,ng
+          if (debug) then
+            write(luout,*)' matrx cart dim ',(off_cart+1),
+     &          ':',(off_cart+l2c),'(l2c=',l2c,')'
+            write(luout,*)' matrx sphr dim ',(off_sph+1),
+     &          ':',(off_sph+l2s),'(l2s=',l2s,')'
+          endif
           do is = 1,l2s
             iss = is-type-1
             ims = off_sph  + is
             do ic = 1,l2c
               imc = off_cart + ic
-              matrx(imc,ims) = Dtrans(ic,iss,type)
+              if (type.ge.2) then
+                matrx(imc,ims) = Dtrans(ic,iss,type)
+              else if (type.eq.-1.or.type.eq.0.or.type.eq.1) then
+*..................................         then unit matrix added
+                if (ic.eq.is) matrx(imc,ims) = 1.0d00
+                if (ic.ne.is) matrx(imc,ims) = 0.0d00
+              else
+                call errquit(
+     &              'spcart_fill_fullcs_ma: fatal type error',911)
+              endif
+              if (debug)
+     &            write(luout,*) 'matrx <',imc,',',ims,'> = ',
+     &            matrx(imc,ims)
             enddo
           enddo
           off_cart = off_cart + l2c

@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.24 1999-06-17 13:58:43 d3e129 Exp $
+c $Id: int_spcart.F,v 1.25 1999-06-17 17:21:52 d3e129 Exp $
 *::cr::7
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
@@ -61,6 +61,8 @@ c
       else
         sph_cart_allsph = .false.
       endif
+*
+      call defNxyz(lmaxin)
 c
       size_sp2c = lmaxin+1
       size_sp2c = size_sp2c*(2*lmaxin+1)
