@@ -1,7 +1,7 @@
 C
-C $Id: geninterface.F,v 1.10 2004-04-30 18:12:23 yuri Exp $
+C $Id: geninterface.F,v 1.11 2005-01-31 19:41:22 yuri Exp $
 C
-C This is a first attempt at an interface code for Venus written in F77.
+C Interface code for Venus written in F77.
 C
       Subroutine initialize_qm(theory, basis, natom, 
      $    coordinates, labels, charge, printName, stack, heap, global)
@@ -491,6 +491,39 @@ C
      $     ('evaluateObjectiveAndGradient:rtdb_get failed',555)
 
       evaluateObjectiveAndGradient = .true.
+
+      return
+      end
+
+      logical function evaluateHessian(coords,
+     $       hessian)
+
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geninterface.fh"
+
+      double precision coords(*), hessian(*)
+
+      external hess_read
+      external task_hessian
+      external setCoordinates
+      logical task_hessian
+      logical setCoordinates
+
+      evaluateHessian = .false.
+
+      if (.not.setCoordinates(coords))
+     $     call errquit('NWChem_TaskHessian: setCoordinates failed',
+     $    555,0)
+
+      if (.not.task_hessian(rtdb))
+     $     call errquit('NWChem_TaskHessian:task_hessian failed',555,0)
+
+      call hess_read(numatoms,hessian)
+
+      evaluateHessian = .true.
 
       return
       end
