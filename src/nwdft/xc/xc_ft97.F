@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.3 2003-02-15 22:43:42 d3j191 Exp $
+c$Id: xc_ft97.F,v 1.4 2003-02-16 00:14:48 edo Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,
@@ -14,7 +14,6 @@ c
       double precision func(*) ![input/output]
       double precision xfac ![input]
       double precision cfac ![input]
-      character*4 funcname ! functional name [input]
 c
       integer ipol  ! no. of spin states [input]
       integer nq    ! no. of quadrature pts [input]
@@ -33,8 +32,7 @@ c to hcth
       double precision rhob 
       double precision za   
       double precision zb   
-      double precision dfdzac,dfdzax,dfdza
-      double precision dfdzbc,dfdzbx,dfdzb
+      double precision dfdza,dfdzb
 c
       double precision fc_ft97,dfdrac,dfdgaac,dfdrbc,dfdgbbc
       double precision fx_ft97,dfdrax,dfdgaax,dfdrbx,dfdgbbx
@@ -47,13 +45,12 @@ c
      &           delrho(n,3,1)*delrho(n,3,1)
             call xc_rks_ft97(rho(n,1),gammaval,
      *           fc_ft97,dfdrac,dfdgaac,
-     *           fx_ft97,dfdrax,dfdgaax)
+     *           fx_ft97,dfdrax,dfdgaax,tol_rho)
             if(ldew) func(n)=func(n)+fc_ft97*cfac+
      *           fx_ft97*xfac
             Ex=Ex+qwght(n)*xfac*fx_ft97
             Ec=Ec+qwght(n)*cfac*fc_ft97
             Amat(n,1) = Amat(n,1)+dfdrax*xfac+dfdrac*cfac
-!            dfdza=(dfdgaa*xfac)*0.5d0 
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaac*cfac+
      +           dfdgaax*xfac
           endif
@@ -90,9 +87,16 @@ c
 cDFT functional repository: xc_ft97 fortran77 source
 CDFT repository Quantum Chemistry Group
 C
+C CCLRC Density functional repository Copyright notice
+C This database was prepared as a result of work undertaken by CCLRC. 
+C Users may view, print and download the content for personal use only
+C and the content must not be used for any commercial purpose without CCLRC
+C prior written permission
+C
 
 c-----------------------------------------------------------------------
-      subroutine xc_rks_ft97(r,g,fc,dfdrac,dfdgaac,fx,dfdrax,dfdgaax)
+      subroutine xc_rks_ft97(r,g,fc,dfdrac,dfdgaac,fx,dfdrax,dfdgaax,
+     ,     tol_rho)
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the closed shell case. 
@@ -140,7 +144,7 @@ c
 c
 c...  Parameters
 c
-      double precision r13
+      double precision r13,tol_rho
       parameter (r13=1.0d0/3.0d0)
 c
       rhoa   = 0.5d0*r
@@ -152,7 +156,7 @@ c
       call FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
      +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb)
       call FT97_EXFUN(rhoa,rhob,rhoa13,rhob13,
-     +                gama,gamb,fx,.false.,.false.)
+     +                gama,gamb,fx,.false.,.false.,tol_rho)
       call FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
       end
 c-----------------------------------------------------------------------
@@ -307,6 +311,7 @@ C     BETA   : Beta(sigma), eq.(16a) for variant B.
 C     DBDG   : Derivative of BETA w.r.t. square of density gradient.
       IF(VARIA) THEN
         BETA = BETAA
+        dbdg=0d0
       ELSE
         BETA = BETA0+AX*AM/(BX*BX+AM)
         DBDG = AX*BX*BX/(BX*BX+AM)**2
