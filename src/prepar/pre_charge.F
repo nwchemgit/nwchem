@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.18 1998-08-24 16:02:21 d3j191 Exp $
+c $Id: pre_charge.F,v 1.19 1998-12-23 19:31:50 d3j191 Exp $
 c
       implicit none
 c
@@ -43,6 +43,9 @@ c
       real*8 rcon,resa,resb,toler
       character*16 tag
       real*8 coord(3),chrge,qsum,charge
+      integer newgrd
+c
+      newgrd=1
 c
       do 1 i=1,matm
       qatm(i)=0.0d0
@@ -180,6 +183,9 @@ c
      + call errquit('pre_charge: geom_rtdb_store failed',9999)
 cx      if(.not.geom_destroy(igeom2))
 cx     + call errquit('pre_charge: geom_destroy failed',9999)
+c
+      if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
+     + call errquit('pre_charge: rtdb_put newgrd failed',0)
       nconst=0
       if(nout.gt.ihi-ilo+1) then
       ncon=ihi-ilo+1

@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.12 1998-09-23 21:59:02 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.13 1998-12-23 19:31:50 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -36,6 +36,7 @@ c
     1 continue
       read(lfnseq,1000,end=9999,err=9999) card
  1000 format(a)
+      if(card(1:1).eq.'#') goto 1
 c
       if(util_print('where',print_debug)) then
       write(lfnout,2001) card
