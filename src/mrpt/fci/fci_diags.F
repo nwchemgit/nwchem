@@ -1,3 +1,6 @@
+*
+* $Id: fci_diags.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+*
       subroutine fci_diags(hd,ecore,h,g,ionel,nonemx,kpt,mkpt)
       implicit none
 #include "fciinfo.fh"

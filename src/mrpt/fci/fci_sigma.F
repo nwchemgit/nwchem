@@ -1,3 +1,6 @@
+*
+* $Id: fci_sigma.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_sigma(c,s,ecore,h,g,ionel,i1dim,nonemx,
      $     dkl,bij,kblmax)
       implicit none

@@ -1,3 +1,6 @@
+*
+* $Id: dcopy.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
+*
       subroutine  dcopy(n,dx,incx,dy,incy)
 c
 c     copies a vector, x, to a vector, y.

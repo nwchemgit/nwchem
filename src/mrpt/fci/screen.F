@@ -1,3 +1,6 @@
+*
+* $Id: screen.F,v 1.2 1999-07-28 00:23:43 d3e129 Exp $
+*
       subroutine screen(thresh,x,ix,n)
       implicit none
       double precision thresh, x(*)

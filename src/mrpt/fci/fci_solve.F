@@ -1,3 +1,6 @@
+*
+* $Id: fci_solve.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_solve(nroot, thresh, maxvec, ecore, h, g, 
      $     work, lenwrk, roots, evecfilename, diagfilename)
       implicit none

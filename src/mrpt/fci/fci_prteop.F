@@ -1,3 +1,6 @@
+*
+* $Id: fci_prteop.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_prteop(ionel,nonel)
       implicit integer(a-z)
       integer ionel(5,*)

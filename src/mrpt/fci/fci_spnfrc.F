@@ -1,3 +1,6 @@
+*
+* $Id: fci_spnfrc.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_spin_force(c)
       implicit none
 #include "fciinfo.fh"

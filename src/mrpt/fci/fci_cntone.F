@@ -1,3 +1,6 @@
+*
+* $Id: fci_cntone.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+*
       subroutine fci_cntone(nonelt,nonemx)
       implicit none
 #include "fciinfo.fh"

@@ -1,3 +1,6 @@
+*
+* $Id: renorm.F,v 1.2 1999-07-28 00:23:43 d3e129 Exp $
+*
       subroutine renorm(n,x,xnorm)
       implicit none
       double precision x(*), xnorm, s

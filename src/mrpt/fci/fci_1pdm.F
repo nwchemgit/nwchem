@@ -1,3 +1,6 @@
+*
+* $Id: fci_1pdm.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+*
       subroutine fci_1pdm(vec, nvec, onepdm)
       implicit none
 #include "fciinfo.fh"

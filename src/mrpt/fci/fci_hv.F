@@ -1,3 +1,6 @@
+*
+* $Id: fci_hv.F,v 1.2 1999-07-28 00:23:40 d3e129 Exp $
+*
       subroutine fci_hv(ecore, h, g, work, lenwrk, v, s)
       implicit none
 #include "fciinfo.fh"

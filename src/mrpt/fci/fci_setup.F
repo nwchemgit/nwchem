@@ -1,3 +1,6 @@
+*
+* $Id: fci_setup.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_setup(multiplicity, nactive, nelectrons,
      $     orbsyms, symstate,
      $     norbitalconfig, ndeterminants, nconfigurations,

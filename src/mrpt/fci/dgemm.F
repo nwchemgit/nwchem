@@ -1,7 +1,10 @@
+*
+* $Id: dgemm.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
+*
       SUBROUTINE DGEMM (TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,
      $     BETA,C,LDC)
 *     .. Scalar Arguments ..
-C     $Id: dgemm.F,v 1.1 1997-08-25 21:29:24 d3g681 Exp $
+C     $Id: dgemm.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
       CHARACTER*1        TRANSA,TRANSB
       INTEGER            M,N,K,LDA,LDB,LDC
       DOUBLE PRECISION   ALPHA,BETA
@@ -362,7 +365,7 @@ c
       END
       LOGICAL          FUNCTION LSAME( CA, CB )
 *
-* $Id: dgemm.F,v 1.1 1997-08-25 21:29:24 d3g681 Exp $
+* $Id: dgemm.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
 *
 *
 *  -- LAPACK auxiliary routine (version 2.0) --

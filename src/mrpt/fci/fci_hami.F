@@ -1,3 +1,6 @@
+*
+* $Id: fci_hami.F,v 1.2 1999-07-28 00:23:40 d3e129 Exp $
+*
       subroutine fci_hami(hamil, ecore, h, g, work, lenwork)
       implicit none
 #include "fciinfo.fh"

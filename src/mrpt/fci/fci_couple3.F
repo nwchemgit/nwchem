@@ -1,3 +1,6 @@
+*
+* $Id: fci_couple3.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+*
       subroutine fci_couple3(vec, nvec, p, q, r, t, iocc, idim, 
      $     numsu, sulist, epqrstu)
       implicit none

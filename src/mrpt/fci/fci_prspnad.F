@@ -1,3 +1,6 @@
+*
+* $Id: fci_prspnad.F,v 1.2 1999-07-28 00:23:41 d3e129 Exp $
+*
       subroutine fci_prspnad(ns)
       implicit none
 #include "fciinfo.fh"

@@ -1,3 +1,6 @@
+*
+* $Id: dscal.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
+*
       subroutine  dscal(n,da,dx,incx)
 c
 c     scales a vector by a constant.

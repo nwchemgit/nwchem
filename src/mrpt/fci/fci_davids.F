@@ -1,3 +1,6 @@
+*
+* $Id: fci_davids.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+*
       logical function fci_davids(n, nroot, maxiter, maxsub, tol,
      $     work, lenwrk, evecfile, diagfile, eval, ecore, h, g)
       implicit none

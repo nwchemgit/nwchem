@@ -1,3 +1,6 @@
+*
+* $Id: timer.f,v 1.2 1999-07-28 00:23:43 d3e129 Exp $
+*
       implicit none
       integer maxn
       parameter (maxn = 100000)

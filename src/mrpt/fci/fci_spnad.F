@@ -1,3 +1,6 @@
+*
+* $Id: fci_spnad.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+*
       subroutine fci_spin_adapt_nvec
      $     (ns, direction, det, ldd, csf, ldc, nvec)
       implicit none

@@ -1,3 +1,6 @@
+*
+* $Id: fci_output.F,v 1.2 1999-07-28 00:23:41 d3e129 Exp $
+*
       subroutine fci_output (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
      $     nctl)
 c.......................................................................
@@ -21,7 +24,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: fci_output.F,v 1.1 1997-08-25 21:29:40 d3g681 Exp $
+C$Id: fci_output.F,v 1.2 1999-07-28 00:23:41 d3e129 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
