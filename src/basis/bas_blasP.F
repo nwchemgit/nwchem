@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.4 1998-04-29 07:29:50 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.5 1999-02-22 22:05:44 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -12,6 +12,7 @@
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
 #include "ecpso_decP.fh"
+#include "stdio.fh"
       integer basis ! [input] basis handle
       character*(*) tag ! [input] tag on which to add contraction
       character*(*) stdtag ! [input] standard basis set name associated
@@ -45,6 +46,20 @@ c
 c
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
+c
+      if (oIs_ecp.and.l_value.eq.(-1)) then
+        do i = 1,nprim
+          if (int(rex(i)).eq.0) then
+            write(luout,*)'This version of nwchem does not support ',
+     &          'local potentials with an r-exponent of 0'
+            call util_flush(luout)
+            write(luout,*)'This should be fixed in a future release',
+     &          ' of NWChem'
+            call util_flush(luout)
+            call errquit(' {ecp}bas_input fatal error ',911)
+          endif
+        enddo
+      endif
 c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
