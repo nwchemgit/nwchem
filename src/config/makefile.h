@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.78 1994-11-11 01:00:40 og845 Exp $
+# $Id: makefile.h,v 1.79 1994-11-11 01:24:30 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -365,29 +365,22 @@ ifeq ($(TARGET),IBM)
 	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas\
-	      -brename:.times_,.times \
-	      -brename:.dpotri_,.dpotri \
-	      -brename:.dsyrk_,.dsyrk \
-	      -brename:.dasum_,.dasum \
 	      -brename:.daxpy_,.daxpy \
+	      -brename:.dgesv_,.dgesv \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
 	      -brename:.dgemm_,.dgemm \
 	      -brename:.dgemv_,.dgemv \
-	      -brename:.dgesv_,.dgesv \
 	      -brename:.dgetrf_,.dgetrf \
 	      -brename:.dgetrs_,.dgetrs \
+	      -brename:.dpotri_,.dpotri \
 	      -brename:.dpotrf_,.dpotrf \
-	      -brename:.dnrm2_,.dnrm2 \
 	      -brename:.dscal_,.dscal \
-	      -brename:.dlamch_,.dlamch \
-	      -brename:.dlarnv_,.dlarnv \
-	      -brename:.dlagts_,.dlagts \
-	      -brename:.dlagtf_,.dlagtf \
-	      -brename:.lsame_,.lsame \
 	      -brename:.dspsvx_,.dspsvx \
+	      -brename:.idamax_,.idamax \
+	      -brename:.lsame_,.lsame \
 	      -brename:.xerbla_,.xerbla \
-	      -brename:.idamax_,.idamax 
+	      -brename:.times_,.times 
 
  EXPLICITF = TRUE
 #
