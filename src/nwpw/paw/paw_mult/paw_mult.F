@@ -1,8 +1,12 @@
 *
-* $Id: paw_mult.F,v 1.11 2003-02-22 03:10:44 bylaska Exp $
+* $Id: paw_mult.F,v 1.12 2003-02-23 20:53:08 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2003/02/22 03:10:44  bylaska
+* debugging multipole coefficients...There is currently a bug in
+* find_comp_coeff...EJB
+*
 * Revision 1.10  2003/02/21 22:37:26  bylaska
 * find_comp_coeff subroutine has been added....EJB
 *
@@ -212,7 +216,8 @@
 
 
       !*** intitalize self_energy_coeff and mult_energy_coeff ****
-      call find_self_energy_coeff(lmax,nkatm,self_energy_coeff)
+      call find_self_energy_coeff(lmax,nkatm,
+     >                            dbl_mb(self_energy_coeff(1)))
       call paw_set_mult_energy_coeff() !*needs to be recalled when geometry changes*
 
 
@@ -567,15 +572,18 @@
          do li=0,mult_li
            indx = li + (ia-1)*(lmax+1)
            do mi=-li,li
+
+       write(*,*) "v_mult 2.5:",ii,li,mi,
+     >            dcpl_mb(paw_qlm(1)+il),
+     >            dbl_mb(self_energy_coeff(1)+indx),
+     >            dcpl_mb(comp_coeff(1)+il)
+
              dcpl_mb(v_mult(1)+il) 
      >         = dcpl_mb(v_mult(1)+il) 
      >         - dconjg(dcpl_mb(paw_qlm(1)+il))
      >           *dbl_mb(self_energy_coeff(1)+indx)
      >         + dcpl_mb(comp_coeff(1)+il)
 
-       write(*,*) "v_mult 2.5:",ii,li,mi,dcpl_mb(paw_qlm(1)+il),
-     >     dbl_mb(self_energy_coeff(1)+indx),
-     >     dcpl_mb(comp_coeff(1)+il)
 
              il = il + 1
            end do !*mi*
@@ -740,12 +748,11 @@
         do l=0,mult_l
         do m=-l,l
 
-          jl = 0
+          indx_2 = mtrx_ptr2
           do j=1,basis_nbasis
             lj=paw_basis_orb_l(j,ia)
             do mj=-lj,lj
 
-            il = 0
             do i=1,basis_nbasis
               li=paw_basis_orb_l(i,ia)
               do mi=-li,li
@@ -757,21 +764,17 @@
                 indx = mtrx_ptr + (i-1) 
      >                          + (j-1)*basis_nbasis
      >                          +     l*basis_nbasis**2
-                indx_2 = mtrx_ptr2 + (il-1) 
-     >                             + (jl-1)*nbasis 
-
                 dcpl_mb(comp_coeff(1)+jj)
      >            = dcpl_mb(comp_coeff(1)+jj)
-     >            + gen_gaunt_coeff(l,m,li,mi,lj,mj)
-     >             *dcpl_mb(paw_comp_pot_matrix(1)+indx)
+     >            - gen_gaunt_coeff(l,m,li,mi,lj,mj)
+     >             *dbl_mb(paw_comp_pot_matrix(1)+indx)
      >             *dcpl_mb(paw_ovlp_w(1)+indx_2)
               end if !*non-zero gaunt*
 
-              il = il + 1
+              indx_2 = indx_2 + 1
               end do !*mi*
             end do !*i*
 
-            jl = jl + 1
             end do !*mj*
           end do !*j*
 
