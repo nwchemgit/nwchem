@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.13 2000-03-03 18:36:25 d3j191 Exp $
+c $Id: pre_rename.F,v 1.14 2000-03-03 18:43:52 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -11,11 +11,11 @@ c
 #include "util.fh"
 c
       integer lfnout,lfnmod
-      character*255 filmod,string
+      character*255 filmod
       character*80 ffield,card
       integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
       integer lseq(4,mseq),latm(5,matm)
-      character*5 cseq(2,mseq)
+      character*5 cseq(2,mseq),string
       character*6 catm(3,matm)
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
@@ -124,13 +124,14 @@ c
       read(card(1:i-1),*) j
       do 6 k=1,nseq
       if(lseq(1,k).eq.j) then
-      write(lfnout,1004) j,cseq(2,k),card(i+1:i+5)
- 1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
-      if(index(cseq(2,k),'_').eq.3) then
+      string=cseq(2,k)
+      if(index(cseq(2,k),'_').eq.4) then
       cseq(2,k)=card(i+1:i+3)//cseq(2,k)(4:5)
       else
       cseq(2,k)=card(i+1:i+5)
       endif
+      write(lfnout,1004) j,string,cseq(2,k)
+ 1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
       endif
     6 continue
       endif
