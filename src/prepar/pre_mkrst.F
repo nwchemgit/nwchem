@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.43 2000-03-17 17:22:56 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.44 2000-03-23 15:24:11 d3j191 Exp $
 c
       implicit none
 c
@@ -579,7 +579,7 @@ c
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + nxrep,nyrep,nzrep,drep))
+     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb)))
      + call errquit('pre_wrtpdb failed',9999)
       endif
 c

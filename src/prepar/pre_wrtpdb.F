@@ -1,16 +1,17 @@
       logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,box,
      + num,amass,mat,
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
-     + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep)
+     + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb)
 c
-c $Id: pre_wrtpdb.F,v 1.13 2000-02-20 16:05:15 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.14 2000-03-23 15:24:20 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
       character*2 pre_atnam
-      external pre_atnam
+      real*8 pre_atrad
+      external pre_atnam,pre_atrad
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       character*255 filpdb
@@ -21,12 +22,14 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
       integer nxrep,nyrep,nzrep
       real*8 drep(3)
+      integer msb,nsb
+      integer idsb(2,msb)
 c
       integer length
 c
       integer i,j,k,nats,nums,numslv,isoff,iaoff
       integer ixrep,iyrep,izrep
-      real*8 temp,dbx,dby,dbz
+      real*8 temp,dbx,dby,dbz,dist
 c
       isoff=0
       iaoff=0
@@ -53,6 +56,20 @@ c
 c
       if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
       nums=0
+      do 11 k=1,nsb
+      i=idsb(1,k)
+      j=idsb(2,k)
+      if(isgm(i).ne.isgm(j)) then
+      dist=sqrt((xs(1,j)-xs(1,i))*(xs(1,j)-xs(1,i))+
+     + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
+     + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
+      if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),
+     + csa(j)(11:14),csa(j)(1:3),isgm(j)
+ 1101 format('LINK',t13,a4,1x,a3,2x,i4,16x,a4,1x,a3,2x,i4)
+      endif
+      endif
+   11 continue
       do 1 i=1,nsa
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
@@ -69,6 +86,20 @@ c
       dby=(dble(iyrep)-0.5d0*dble(nyrep+1))*drep(2)
       do 6 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
+c
+      do 111 k=1,nsb
+      i=idsb(1,k)
+      j=idsb(2,k)
+      if(isgm(i).ne.isgm(j)) then
+      dist=sqrt((xs(1,j)-xs(1,i))*(xs(1,j)-xs(1,i))+
+     + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
+     + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
+      if(dist.gt.pre_atrad(num(isat(j)))+pre_atrad(num(isat(i)))) then
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i)+isoff,
+     + csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
+      endif
+      endif
+  111 continue
 c
       nums=0
 c
