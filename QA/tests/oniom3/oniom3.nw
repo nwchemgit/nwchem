@@ -39,9 +39,9 @@ end
 scf; print low geometry; thresh 1e-8; end
 
 oniom
-  high   scf 6-31g*
-  medium scf 3-21g
-  low    scf sto-3g
+  high   scf basis 6-31g*
+  medium scf basis 3-21g
+  low    scf basis sto-3g
   model 3  1 4 0.8  1 5 0.8
   inter 4  1 5 0.8
 end
