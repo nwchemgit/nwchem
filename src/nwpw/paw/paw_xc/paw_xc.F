@@ -1,6 +1,10 @@
-!$Id: paw_xc.F,v 1.12 2003-02-27 02:19:26 bylaska Exp $
+!$Id: paw_xc.F,v 1.13 2003-03-04 00:04:04 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.12  2003/02/27 02:19:26  bylaska
+!The electron gradient has been added.
+!The eigenvalues are not yet agreeing with the F90 code....EJB
+!
 !Revision 1.11  2003/02/24 23:35:04  marat
 !removed write statements
 !MV
@@ -684,6 +688,99 @@ c            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
       end do !in
 
       end 
+
+**********************************
+*
+*
+*
+*
+*
+**********************************
+      subroutine paw_xc_print()
+        
+        implicit none
+
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+#include "paw_density_data.fh"
+#include "paw_xc_work_data.fh"
+#include "paw_xc_data.fh"
+#include "integrate.fh"
+#include "mafdecls.fh"
+
+      double precision gen_gaunt_coeff
+      external gen_gaunt_coeff
+      integer i,j
+      integer in,ia
+      integer i_t,i_p
+      integer nion 
+      integer l,m
+      integer ng,ic,ig
+      integer i_rho0,i_rho
+      integer n_s
+      integer i_ylm,i_ylm1
+      integer nlmi
+      integer i_core_ps,i_core_ae
+      integer i_vxc0,i_vxc
+      integer i_pot0,i_pot
+      integer i_r
+      integer nb,nb2
+      integer i_phi_ae0,i_phi_ps0
+      integer i_mtr0,i_mtr
+      integer li,lj,mi,mj
+      integer nilm,njlm
+      double precision exc_tmp
+      double precision log_amesh
+      double precision tmp_ae,tmp_ps
+      complex*16 tmp
+      complex*16 ylm
+
+      nion = ion_nion() 
+
+      write(*,*) "paw_xc_pot_print"
+      write(43,*) paw_xc_pot_u(3)
+
+      do in=1,nion
+        ia = ion_katm(in)
+        ng = paw_basis_ngrid(ia)
+        ic = paw_basis_i_cut(ia)
+        i_r = paw_basis_i_rgrid(ia)
+        log_amesh = paw_basis_log_amesh(ia)
+        nb = paw_basis_nbasis(ia)
+  
+*       *** print out exc potenetial ***
+        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
+        nilm = 0
+        do i=1,nb
+        li = paw_basis_orb_l(i,ia)
+        njlm = 0
+        do j=1,nb
+        lj = paw_basis_orb_l(j,ia)
+          do mi=-li,li
+          do mj=-lj,lj
+            i_pot = i_pot0-1+(njlm+lj+mj+1)+
+     >                (nilm+li+mi)*paw_proj_nbasis(ia)
+
+
+
+            write(43,*) i,mi,j,mj,in,
+     >                dcpl_mb(paw_xc_pot_u(1)+i_pot),       
+     >                dcpl_mb(paw_xc_pot_d(1)+i_pot)       
+             
+            
+
+            end do !mi
+          end do !mj
+        njlm = njlm + 2*lj+1
+        end do !j
+        nilm = nilm + 2*li+1
+        end do !i  
+ 
+      end do !in
+
+      end
+
  
 **********************************
 *

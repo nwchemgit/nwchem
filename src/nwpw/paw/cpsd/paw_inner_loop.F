@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.25 2003-02-24 22:38:51 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.26 2003-03-04 00:04:03 marat Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2003/02/24 22:38:51  bylaska
+* Fixed bugs in ehartr_pw calculation....EJB
+*
 * Revision 1.24  2003/02/24 21:58:59  marat
 * ...
 * MV
@@ -218,6 +221,7 @@
 *       *************************************
         call paw_comp_charge_update()
         call paw_pot_comp_solve()
+        call paw_pot_comp_print()
 
 
 *       *********************
@@ -289,6 +293,7 @@
            call Pack_c_setzero(0,vzero,dcpl_mb(vcomp(1)))
 
            call paw_mult_coeff_set(dcpl_mb(vh(1)),dcpl_mb(vcomp(1)))
+           call paw_pot_mult_print()
            call Pack_cc_Sum(0,
      >                      dcpl_mb(vh(1)),
      >                      dcpl_mb(vcomp(1)),
@@ -309,6 +314,7 @@
 *       *** local portion
         call paw_density_solve()
         call paw_xc_solve()
+        call paw_xc_print()
         
 *       *** plane wave 
         if (control_gga().eq.0) then
@@ -340,6 +346,7 @@
      >             move,dbl_mb(fion(1)))
 
         
+        call paw_Gop_print()
 
 *       ************************************
 *       **** do a steepest descent step ****

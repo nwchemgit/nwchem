@@ -1,5 +1,5 @@
 *
-* $Id: paw_vosko.F,v 1.3 2003-02-19 01:10:46 marat Exp $
+* $Id: paw_vosko.F,v 1.4 2003-03-04 00:04:04 marat Exp $
 *
 
       subroutine paw_vosko(n2ft3d,ng,ispin,dn,xcp,xce,x)
@@ -72,7 +72,13 @@ c        rho=dn(k,1)+dn(k,ispin)+dncut
   120 continue
 
 *     return if spin-restricted lda
-      if(ispin.eq.1) go to 200
+*      if(ispin.eq.1) go to 200
+      if(ispin.eq.1) then
+        do k=1,ng
+          xcp(k,2) = xcp(k,1)
+        end do      
+        return
+      end if
 
 *     ferromagnetic correlation energy & potential
       do 130 k=1,ng

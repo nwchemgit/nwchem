@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_comp.F,v 1.9 2003-02-27 01:34:06 bylaska Exp $
+c $Id: paw_pot_comp.F,v 1.10 2003-03-04 00:04:03 marat Exp $
 c
 
 !**************************************************
@@ -190,6 +190,71 @@ c           end do
 c           nilm = nilm + 2*li+1
 c         end do
 c      end do
+
+      return
+      end 
+
+!**************************************************
+!
+!	name:
+!
+!	purpose 
+!
+!	created:	7/9/2002
+!************************************************
+      subroutine paw_pot_comp_print()
+      
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_ma.fh"
+#include "paw_matrix_comp_pot.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+#include "paw_pot_comp_data.fh"
+#include "paw_comp_charge_data.fh"
+
+      double precision gen_gaunt_coeff
+      external gen_gaunt_coeff
+      integer in,ia
+      integer i_mtr,i_mtr0
+      integer i,j,li,lj,mi,mj
+      integer nb,nb2,nb3,nb4
+      integer l,m,ilm
+      integer mult_l
+      integer i_cp,i_cp0
+      integer nilm,njlm
+      integer i_qlm,i_qlm0
+      complex*16 tmp_comp_pot
+
+
+*     *** print comp potential ***
+      write(38,*) paw_pot_comp(3)
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        i_cp0 = int_mb(i_paw_pot_comp(1) + in - 1)
+        nb = paw_basis_nbasis(ia)
+        nilm = 0
+        do i=1,nb
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            njlm = 0
+            do j=1,nb
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                 i_cp  = i_cp0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+
+                  write(38,*) i,mi,j,mj,in,
+     >                        dcpl_mb(paw_pot_comp(1)+i_cp)
+                end do
+                njlm=njlm + 2*lj+1
+             end do
+           end do   
+           nilm = nilm + 2*li+1
+         end do
+      end do
 
       return
       end 

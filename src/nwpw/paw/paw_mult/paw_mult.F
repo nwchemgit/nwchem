@@ -1,8 +1,12 @@
 *
-* $Id: paw_mult.F,v 1.18 2003-02-27 02:19:25 bylaska Exp $
+* $Id: paw_mult.F,v 1.19 2003-03-04 00:04:04 marat Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.18  2003/02/27 02:19:25  bylaska
+* The electron gradient has been added.
+* The eigenvalues are not yet agreeing with the F90 code....EJB
+*
 * Revision 1.17  2003/02/26 20:34:06  marat
 * fixed bug related to calculation of
 * comp_coeff, the i and j loop were incorrectly switched
@@ -675,7 +679,7 @@ c      end if
      >               dcpl_mb(v_mult(1) + i_qlm)
 
                   dcpl_mb(paw_pot_mult(1)+i_cp) =
-     >                  dcpl_mb(paw_pot_mult(1)+i_cp)-
+     >                  dcpl_mb(paw_pot_mult(1)+i_cp)+
      >                  tmp_mult_pot
 
 
@@ -703,6 +707,74 @@ c      end if
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_coeff_set: error popping stack',1)
+
+      return
+      end
+
+
+      subroutine paw_pot_mult_print()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_mult_data.fh"
+#include "paw_comp_charge_data.fh"
+#include "paw_comp_charge_matrix.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+
+
+      !**** local variables ***
+      logical ok
+      integer ia,ii,ja,jj,kk,l,m,nion,npack0,mult_l,mabs
+      integer i,il,li,mi,mult_li,ill,jll
+      integer j,jl,lj,mj,mult_lj
+      integer  isgn,lmax,lmax2,indx
+      integer exi(2),tmp1(2),gls(2),gl(2),t_mult(2)
+      real*8  omega
+      complex*16 csum1,csum2
+
+      integer i_mtr,i_mtr0
+      integer nb,nb2
+      integer ilm
+      integer i_cp,i_cp0
+      integer nilm,njlm
+      integer i_qlm,i_qlm0
+      complex*16 tmp_mult_pot
+
+
+
+      write(48,*) paw_pot_mult(3)
+      do ii=1,ion_nion()
+        ia = ion_katm(ii)
+        nb = paw_basis_nbasis(ia)
+        nb2 = nb*nb
+        mult_l = paw_basis_mult_l(ia)
+        i_cp0 = int_mb(i_paw_pot_mult(1) + ii - 1)
+        nilm = 0
+        do i=1,nb
+        li = paw_basis_orb_l(i,ia)
+        njlm = 0
+        do j=1,nb
+        lj = paw_basis_orb_l(j,ia)
+          do mi=-li,li
+          do mj=-lj,lj
+             i_cp  = i_cp0-1+(njlm+lj+mj+1)+
+     >                (nilm+li+mi)*paw_proj_nbasis(ia)
+
+
+                  write(48,*) i,mi,j,mj,ii,dcpl_mb(paw_pot_mult(1)+i_cp)
+
+
+          end do !mi
+          end do !mj
+
+       njlm = njlm + 2*lj+1
+        end do !j
+        nilm = nilm + 2*li+1
+        end do !i
+      end do !ii
+
 
       return
       end
