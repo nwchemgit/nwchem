@@ -2,7 +2,7 @@
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     mbf_ao,grad,ipol,iscratch)
 c
-c$Id: grid_pscreen.F,v 1.6 2001-11-09 02:18:02 edo Exp $
+c$Id: grid_pscreen.F,v 1.7 2002-01-09 22:49:48 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -71,7 +71,7 @@ c
 c
       integer maxqpts
       parameter(maxqpts=10000)
-      integer q,nzero,mq0,mq1,j,qj,iscr(*),
+      integer q,nzero,mq0,mq1,j,iscr(*),
      ,     nq_orig
 #if defined(DEBUG)
       integer nqxmbf
