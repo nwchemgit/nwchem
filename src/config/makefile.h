@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.116 1995-06-29 05:02:26 pg511 Exp $
+# $Id: makefile.h,v 1.117 1995-07-29 23:45:24 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -74,7 +74,7 @@ NW_CORE_SUBDIRS = include basis geom global inp input \
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper symmetry ideaz dftgrad scfaux cphf ccsd
+	rimp2 stepper symmetry ideaz dftgrad scfaux cphf ccsd vib
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -83,7 +83,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmoints -lrimp2 \
                     -lstepper -ldftgrad -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess -lsymmetry \
-                    -lutil -lnwints -lideaz
+                    -lvib -lutil -lnwints -lideaz
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
