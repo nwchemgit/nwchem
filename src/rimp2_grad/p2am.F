@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.4 1998-10-06 18:36:42 bernhold Exp $
+C     $Id: p2am.F,v 1.5 1998-10-09 21:26:11 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
@@ -114,6 +114,8 @@ C
 C
 C     THIS IS A TEMPORARY HACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 C
+      Write (LuOut, *)
+     $     'rimp2_p2am: WARNING: copying P(2) alpha to P(2) beta!!!!'
       Call GA_Copy(g_P2(1), g_P2(2) ) ! CHEATING!!!
 C
 C     Free temporary memory
