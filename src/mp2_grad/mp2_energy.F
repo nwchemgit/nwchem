@@ -470,8 +470,7 @@ c
             call ga_print(g_p_tot_b)
          endif
 c     
-         if (util_print('dipole',print_low))
-     $        call mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
+         call mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $        g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 c     
          call pstat_on(ps_wijfock)

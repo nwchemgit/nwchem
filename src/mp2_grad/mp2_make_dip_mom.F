@@ -1,6 +1,8 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
       implicit none
+#include "util.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -74,7 +76,7 @@ c
       if (.not. geom_nuc_dipole(geom,ndip)) 
      $     call errquit('mp2_dip: failed to get nuclear dipole',0)
 c
-      if (ga_nodeid() .eq. 0) then
+      if (ga_nodeid().eq.0 .and. util_print('dipole',print_low)) then
          write(6,1) 
          write(6,2) 'X', ndip(1), scfx+ndip(1),mp2x+scfx+ndip(1)
          write(6,2) 'Y', ndip(2), scfy+ndip(2),mp2y+scfy+ndip(2)
@@ -88,6 +90,16 @@ c
  2       format(1x,a1,3x,3f12.6)
          call util_flush(6)
       end if
+c
+c     Store the MP2 dipole in the database
+c
+      ndip(1) = mp2x+scfx+ndip(1)
+      ndip(2) = mp2y+scfy+ndip(2)
+      ndip(3) = mp2z+scfz+ndip(3)
+c
+      if (.not. rtdb_put(rtdb,'mp2:dipole',mt_dbl,3,ndip))
+     $     call errquit('mp2_dipole: database is corrupt',0)
+      call ecce_print1('total dipole', mt_dbl, ndip, 1)
 c
       end
 
