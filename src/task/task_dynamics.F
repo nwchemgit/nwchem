@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.1 1999-03-15 21:16:30 d3j191 Exp $
+* $Id: task_dynamics.F,v 1.2 1999-05-28 14:46:47 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -55,7 +55,8 @@ c
       prefix=theory           ! Most common scenario
       if(theory.eq.'md') then
       status=nwmd(rtdb)
-      elseif(theory.eq.'nwargos') then
+      elseif(theory.eq.'nwargos'.or.theory.eq.'scf'
+     + .or.theory.eq.'dft') then
       status=nwargos(rtdb)
       else
       call errquit('task_dynamics: unknown theory',0)
