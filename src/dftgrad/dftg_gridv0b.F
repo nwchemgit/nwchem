@@ -13,7 +13,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.2 2000-04-05 04:03:13 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.3 2000-04-14 01:47:45 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -117,12 +117,24 @@ c
      &           ibf_ao, iniz, ifin, expo, 
      .           minexp,ldiff, acc_AO_gauss)
             if (mbf_ao .eq. 0) return
+            if(ldew) then
+!               if(lssw) then
+                  call dftg_gridssw(d_qwght,qwght, qxyz, xyz, 
+     .                 rq, ictr_buf, natoms, iandex,
+     .                 nqpts,tol_rho,whichssw)
+!               else
+!                     call dftg_beckew(d_qwght, qwght, qxyz, xyzm,
+!     &                                Rij, rq, dbl_mb(ibp),
+!     &                                dbl_mb(izeta), dbl_mb(idzeta),
+!     &                                dbl_mb(idp), ictr, qcenters,
+!     &                                nq_orig,nq, iandex)
+!                  endif
+               endif
             
             if (do_hess .or. do_cpks_r) then
 c     
 c     Set up space for derivatives of density wrt significant nuclei
 c
-c                  write(*,*)'allocating deriv density space'
                if (.not.MA_push_get(MT_DBL, ipol*nqpts*3*nactive,
      &              'drhonuc', l_drhonuc, k_drhonuc)) call
      &              errquit('dftg_quadv0a: cannot allocate drhonuc',1)
@@ -262,11 +274,6 @@ c                 reduce delchi(nq,3,mbf_ao) to delchi(natoms)
          if(grad) 
      .        call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,           dbl_mb(idelchi_ao),rdelchi_atom)
-!               call grid_rchi3(ntot_cube+1,
-!     ,              nqpts, natoms,iniz,ifin,
-!     ,              dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
-!     ,              rchi_atom,dbl_mb(irdelchi_atom),
-!     ,              grad)
 c         
                if (.not.MA_Push_Get(mt_dbl, nqpts*natoms, 'bp', 
      &            lbp, ibp))call errquit
@@ -325,14 +332,12 @@ c
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
      &              do_hess .or. do_cpks_r)
 c     
-c         
-c              Exchange-correlation contribution
-c    
 c              exchange-correlation contribution, with or without gradient
 c              terms
 c     
                if (do_force) then
 c 
+!                 call dftg_quadv0_b(ictr_buf, .false., AO_bas_han, ipol,
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
      &                            grad, nbf_ao, mbf_ao, natoms, nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
@@ -440,17 +445,12 @@ c
                endif
 c
 c
-cedo no weight derivatives for the moment
-cedo               if (do_force.and.ldew)then
-cedo                  write(0,*) ictr_buf,natoms,nqpts
-cedo                  do i=1,natoms
-cedo                     iandex(ii)=ii
-cedo                  enddo
-cedo                  call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
-cedo     .                 iandex, 
-cedo     &                             qcenters, func, d_qwght,
-cedo     &                             force, oactive, nactive)
-cedo               endif
+               if (do_force.and.ldew)then
+                  call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
+     .                 iandex, 
+     &                             natoms, func, d_qwght,
+     &                             force, oactive, nactive)
+               endif
 c         
 c
       return 

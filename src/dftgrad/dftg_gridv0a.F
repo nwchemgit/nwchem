@@ -1,4 +1,4 @@
-      Subroutine dftg_gridv0a(rtdb, iga_dens,
+      Subroutine dftg_gridv0a(rtdb, iga_dens,ldew,
      &                         ncoef_max, NXprim, max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, 
@@ -11,7 +11,7 @@
      &                         nactive, rdens_atom, cntobfr,
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.3 2000-03-30 03:07:31 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.4 2000-04-14 01:47:45 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -131,9 +131,6 @@ c     and primitives comprising any given shell of this basis set.
 c
       acc_AO_gauss= iAOacc
 c
-      if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
-     &   ldew))ldew=.true.
-      ldew=.false.
 c
 c     weight derivatives switched off
 c

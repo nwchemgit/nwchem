@@ -8,7 +8,7 @@ c
      &                       nactive, rdens_atom, cntoce, cntobfr,
      &                       cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.2 2000-03-30 03:07:30 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.3 2000-04-14 01:47:45 edo Exp $
 c
       implicit none      
 c
@@ -35,7 +35,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cntoce, cntobfr, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.2 2000-03-30 03:07:30 edo Exp $
+c $Id: dftg_gridv0.F,v 1.3 2000-04-14 01:47:45 edo Exp $
 c     
       implicit none      
 c
@@ -110,7 +110,7 @@ c
 c     Determine the XC energy functionals.
 c
       if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
-     &   ldew))ldew=.true.
+     &   ldew))ldew=.false.
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
@@ -285,7 +285,7 @@ c !!! BGJ - probably don't need to allocate some of this if .not.do_force
      &     l_curatoms, k_curatoms)) call
      &     errquit('dftg_gridv0a: cant allocate curatoms',1)
 c
-      call dftg_gridv0a(rtdb, iga_dens,
+      call dftg_gridv0a(rtdb, iga_dens,ldew,
      &                   ncoef_max, NXprim, max_at_bf,
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),
