@@ -25,4 +25,5 @@ runtest.unix procs 2 \
   $NWCHEM_TEST/hess_c6h6 \
   $NWCHEM_TEST/intchk \
   $NWCHEM_TEST/sadbig \
-  $NWCHEM_TEST/br2_dk
+  $NWCHEM_TEST/br2_dk \
+  $NWCHEM_TEST/startag
