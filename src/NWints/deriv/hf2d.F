@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.10 1995-04-05 23:55:09 d3e129 Exp $
+C $Id: hf2d.F,v 1.11 1997-05-23 21:46:12 d3e129 Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -308,7 +308,7 @@ c Assign pointers to scratch space.
       
       if( i_left.ge.i_right )then
         
-        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
         write(*,*) '      allocated ',maxW0
         
@@ -344,7 +344,7 @@ c Assign pointers to scratch space.
       
       if( i_left.ge.i_right )then
         
-        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
         write(*,*) '      allocated ',maxW0
         
@@ -389,7 +389,7 @@ c... no integrals because one charge distribution P or Q has no overlap
       
       if( i_left.ge.i_right )then
         
-        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
         write(*,*) '      allocated ',maxW0
         
@@ -436,7 +436,7 @@ c Assign pointers to scratch space.
       
       if( i_top.gt.maxW0 )then
         
-        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_top
         write(*,*) '      allocated ',maxW0
         
@@ -496,7 +496,7 @@ c Assign pointers to scratch space.
       
       if( i_top.gt.maxW0 )then
         
-        write(*,*) 'HF2:  Insufficient scratch space.'
+        write(*,*) 'HF2D:  Insufficient scratch space.'
         write(*,*) '      needed    ',i_top
         write(*,*) '      allocated ',maxW0
         
