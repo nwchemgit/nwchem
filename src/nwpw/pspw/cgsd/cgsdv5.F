@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.29 2003-04-22 18:05:10 bylaska Exp $
+* $Id: cgsdv5.F,v 1.30 2003-07-19 20:47:55 bylaska Exp $
 *
 
 ***********************************************************************
@@ -357,6 +357,9 @@ c     end if
 
 *     **** calculate excited state orbitals ****
       call cgsd_excited()
+
+*     **** calculate oep eigenvalues ****
+      call cgsd_oep_eigenvalues()
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(6,1600) EV

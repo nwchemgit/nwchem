@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.1 2003-04-22 18:55:29 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.2 2003-07-19 20:47:55 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -84,7 +84,7 @@ c#include "rtdb.fh"
       end if
 
 *     **** write out excited wavefunctions ***
-      value = epsi_finalize()
+      value = epsi_finalize(.true.)
 
       end if
 
