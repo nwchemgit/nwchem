@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model)
 c
-c $Id: pre_rdpdb.F,v 1.14 1999-01-29 21:12:45 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.15 1999-06-17 20:06:24 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num,iw,length,mdl
+      integer i,last,nprv,num,iw,length,mdl,nump
       real*8 x,y,z
       character*3 namr
       character*4 nama
@@ -34,6 +34,7 @@ c
       iw=0
       iwater=0
       mdl=0
+      nump=0
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -125,6 +126,7 @@ c
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
       if(chain.eq.'*') then
+      if(num.lt.nump) then
       if(achain.eq.'B') num=num+1000
       if(achain.eq.'C') num=num+2000
       if(achain.eq.'D') num=num+3000
@@ -135,7 +137,9 @@ c
       if(achain.eq.'I') num=num+8000
       if(achain.eq.'J') num=num+9000
       endif
+      endif
       if(card(18:20).eq.namslv) lsolut=.false.
+      if(num.ne.nump) nump=num
 c
       if(.not.lsolut.or.num.gt.last.or.num.lt.nprv) then
       if(lnames) then
