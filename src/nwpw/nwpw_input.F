@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.21 2004-03-11 15:46:15 bylaska Exp $
+c $Id: nwpw_input.F,v 1.22 2004-04-22 17:46:42 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 61)
+      parameter (num_dirs = 62)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -76,6 +76,7 @@ c
      >            'efield',
      >            'occupations',
      >            'expand_cell',
+     >            'mapping',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -124,7 +125,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
-     >       4100,4200,4300,4400,
+     >       4100,4200,4300,4400,4500,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -635,6 +636,15 @@ c
      >       'nwpw_input: error writing to rtdb', 4400, RTDB_ERR)
       goto 10
 
+c
+c  mapping
+c
+ 4500 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 1
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
+      goto 10
 
 
 ************************************************************************
