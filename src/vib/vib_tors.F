@@ -1,6 +1,6 @@
       SUBROUTINE vib_TORS(EQVAL,NOINT,I,J,K,L,C,B,NDIM)
 C*MODULE VIB  *DECK TORS
-* $Id: vib_tors.F,v 1.2 1995-10-21 09:16:26 d3e129 Exp $
+* $Id: vib_tors.F,v 1.3 1995-11-15 00:53:50 d3g681 Exp $
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
 C
@@ -96,7 +96,7 @@ C
          EQVAL =   ACOS(DOT)
          IF(ABS(EQVAL).LT.TOL) EQVAL=ZERO
          IF(ABS(EQVAL-PI).LT.TOL) EQVAL=PI
-         SENSE = DDOT(3,CR2,1,RIJ,1)
+         SENSE = ddot(3,CR2,1,RIJ,1)
          IF(SENSE.LT.ZERO) EQVAL = -EQVAL
          RETURN
 C

@@ -2,7 +2,7 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb)
-* $Id: vib_rdinp.F,v 1.2 1995-10-21 09:16:22 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.3 1995-11-15 00:53:47 d3g681 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
@@ -19,6 +19,7 @@ C
       INTEGER NELS
       LOGICAL UPDATE,SETMAS,PROJEC,ZEROPE,HESOUT,INTERN
       logical dum_log
+      integer natom, nat3, nhess, nhesst
       DOUBLE PRECISION HESS(NAT3,NAT3)  ! Hessian matrix
       DOUBLE PRECISION HESST(NHESST)    ! Lower triangle of hessian matrix
       DOUBLE PRECISION COORD(3,NATOM)   ! Atom x,y,z coordinates
@@ -31,7 +32,6 @@ C
       character*2 symbol
       double precision q
       double precision xyz(3)
-      integer natom, nat3, nhess, nhesst
       COMMON /cvib_HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
       integer numans
       double precision ams, wave
