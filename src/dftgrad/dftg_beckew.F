@@ -1,18 +1,17 @@
-      Subroutine dftg_beckew(d_qwght,qwght,qxyz,xyz,Rij,aratio,rq,p,
-     &     zeta,dzeta,d_p,ictr,ncenters,iatype,nq,
+      Subroutine dftg_beckew(d_qwght,qwght,qxyz,xyz,Rij,rq,p,
+     &     zeta,dzeta,d_p,ictr,ncenters,nq,
      &     iandex)
 
-C     $Id: dftg_beckew.F,v 1.1 1995-12-22 22:41:15 og845 Exp $
+C     $Id: dftg_beckew.F,v 1.2 1997-03-13 01:38:25 d3h449 Exp $
       implicit none
-#include "bas_staticP.fh"
+c#include "bas_staticP.fh"
+#include "quad.fh"
       
       integer ncenters,nq
 
       double precision qxyz(3,nq),xyz(3,*)
 
-      double precision aratio(ntags_bsmx,*)
       double precision Rij(*)
-      integer iatype(*)
       integer ictr(*)
       integer iandex(ncenters)
       double precision p(nq,*),rq(nq,*),qwght(nq),zeta(nq),
