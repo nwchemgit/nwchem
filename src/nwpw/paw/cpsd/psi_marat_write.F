@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.5 2003-02-14 23:01:31 bylaska Exp $
+* $Id: psi_marat_write.F,v 1.6 2003-02-18 01:10:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -21,7 +21,7 @@
       integer version,l
       integer nfft3d,npack1
       integer nfft(3)
-      real*8  unita(3,3),scale
+      real*8  unita(3,3),scale,occupation
       character*255 full_filename
 
       integer MASTER,taskid
@@ -71,12 +71,14 @@ c     complex*16 tmp(*)
       unita(3,3) = control_unita(3,3)
       scale = 1.0d0/dsqrt(lattice_omega())
 
+      occupation = 1.0d0
+      if (ispin.eq.1) occupation = 2.0d0
       do n=1,ne(2)
-        dbl_mb(psi_occup(1)+n-1) = 1.0d0
+        dbl_mb(psi_occup(1)+n-1) = occupation
         int_mb(psi_spin(1)+n-1)  = -1
       end do
       do n=ne(2)+1,ne(1)+ne(2)
-        dbl_mb(psi_occup(1)+n-1) = 1.0d0
+        dbl_mb(psi_occup(1)+n-1) = occupation
         int_mb(psi_spin(1)+n-1)  = 1
       end do
 
