@@ -1,6 +1,6 @@
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1e1cpe.F,v 1.4 1999-07-14 00:28:43 d3e129 Exp $
+* $Id: intpd_1e1cpe.F,v 1.5 1999-10-26 22:23:03 mg201 Exp $
 *
       implicit none
 #include "apiP.fh"
@@ -75,7 +75,8 @@ c
      &      xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li, i_cent,
      &      xyz_new_i,DCexp,DCcoeff, 1, 1, 0, i_cent,
-     &      coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &      coords(1,1,i_geom),charge(1,i_geom),
+     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
 c.............................. doS     doT     doV    canonical
      &      scr,scr,Pea,mynint,.false.,.false.,.true.,.false.,
 c........... dryrun

@@ -1,7 +1,7 @@
       subroutine intpd_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,
      &    lOva,Ova,idatom)
 *
-* $Id: intpd_1eov.F,v 1.3 1999-07-14 00:28:43 d3e129 Exp $
+* $Id: intpd_1eov.F,v 1.4 1999-10-26 22:23:03 mg201 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -117,7 +117,8 @@ c
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li, i_cent,
      &      xyz_new,dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj, j_cent,
-     &      coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &      coords(1,1,i_geom),charge(1,i_geom),
+     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
 c.............................. doS    doT     doV     canonical
      &      Ova,scr,scr,mynint,.true.,.false.,.false.,.false.,
 c........... dryrun
