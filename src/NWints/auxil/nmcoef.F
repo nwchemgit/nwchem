@@ -1,5 +1,5 @@
       Subroutine nmcoef(z,cc,l,np,norm)
-c $Id: nmcoef.F,v 1.1 2000-02-04 20:20:11 mg201 Exp $
+c $Id: nmcoef.F,v 1.2 2002-03-26 18:39:49 edo Exp $
 
       Implicit none
 c passed
@@ -11,7 +11,8 @@ c local
       Double precision f      !  double factorial
       Double precision S,sum  !  overlap
       Double precision PI     !  pi
-      Parameter (PI=3.1415926535898D0)
+      double precision pi32
+!      Parameter (PI=3.1415926535898D0)
 #include "basdeclsP.fh"
 c
 c Generally, the normalization (norm=1) of the Gaussian primitives and 
@@ -32,6 +33,8 @@ c individual components.
 c
 c******************************************************************************
 
+      PI=acos(-1d0)
+      pi32=PI**(1.5d0)
       if( norm.eq.BasNorm_UN )then
  
 c Do not normalize the GTFs.
@@ -60,8 +63,9 @@ c Normalize the contractions.
           sum = 0.D0
           do 20 n1 = 1,np
             do 21 n2 = 1,np
-              S = ( (PI/(z(n1) + z(n2)))**1.5D0 )/
-     &            ( (2.D0*(z(n1) + z(n2)))**l )
+               S =pi32/(z(n1)+z(n2))**(1.5d0+l)/2d0**dble(l)
+!              S = ( (PI/(z(n1) + z(n2)))**1.5D0 )/
+!     &            ( (2.D0*(z(n1) + z(n2)))**l )
               sum = sum + cc(n1)*cc(n2)*S
    21       continue
    20     continue
@@ -74,7 +78,7 @@ c add in (2l-1)!!
    22     continue
           sum = sum * f
 c..
-          f = 1/sqrt(sum)
+          f = 1d0/sqrt(sum)
           do 30 n = 1,np
             cc(n) = cc(n)*f
    30     continue
@@ -104,19 +108,19 @@ c not all equal for each member of the given shell.
 
         f = sqrt(2.D0)*(PI/z(1))**2.5D0
 
-        cc(1) = 1/sqrt(f)
+        cc(1) = 1d0/sqrt(f)
 
        else if( l.eq.1 )then
 
         f = (sqrt(2.D0)*(PI/z(1))**2.5D0)/(12.D0*z(1))
 
-        cc(1) = 1/sqrt(f)
+        cc(1) = 1d0/sqrt(f)
 
        else if( l.eq.2 )then
 
         f = (sqrt(2.D0)*(PI/z(1))**2.5D0)/(80.D0*z(1)**2)
 
-        cc(1) = 1/sqrt(f)
+        cc(1) = 1d0/sqrt(f)
 
        end if
 
