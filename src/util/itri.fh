@@ -1,0 +1,8 @@
+c
+c     simple statement function for evaluating index into lower
+c     triangular packed array ... indices do not have to be ordered
+c
+c     This file must be include immediately before the first executable
+c     statement
+c
+      itri(i,j) = (max(i,j)*(max(i,j)-3))/2 + i + j

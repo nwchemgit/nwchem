@@ -1,0 +1,191 @@
+  All routines are declared in the header file 'inp.h'
+
+
+  subroutine inp_init(ir, iw)
+
+     Initialize free format input routines to take input from
+     fortran unit ir and send their output to fortran unit iw.
+     The input file is processed from the current location.
+
+     inp_init() shuld be invoked each time the input file is
+     repositioned using other than inp_*() routines (e.g., rewind).
+
+
+  logical function inp_read()
+
+     Read a line from the input and split it into white space (blank
+     or tab) separated fields.  White space may be incorporated into a
+     field by enclosing it in quotes (").  The case of input is
+     preserved.  Blank lines are ignored, and text from a pound or
+     hash symbol (#) to the end of the line is treated as a comment.
+     A backslash(\) at the end of a line (only white space may appear
+     after it) may be used to concatentate physical input lines into
+     one logical input line.  A semicolon (;) may be used to split a
+     physical input line into multiple logical input lines.  The
+     special meaning of hash (#), semicolon (;) and quotation (")
+     characters may be avoided only by prefacing them with a backslash
+     (this must be done even if the character is inside a quoted
+     character string).
+
+     The no. of fields read is set to 0, there being a total of
+     inp_nfield() fields in the line.
+
+     If a non-blank line is successfully parsed then .true. is returned.
+
+     Otherwise an internal error message is set and .false. is returned.
+
+     Possible errors include detection of EOF (inp_eof() may be used
+     to check for this condition) or failure to parse the line (e.g.,
+     a character string without a terminating quote).
+
+     EOF may be indicated by end of the physical input file, or by a
+     physical input line that begins with either asterisk (*), period
+     (.) or EOF (ignoring case), and has only trailing white space.
+
+     There is a maximum input line width of 256 characters.
+
+
+  logical function inp_i(integer i)
+
+     Attempt to read the next field as an integer.
+     Upon success return .true. and advance to the next field.
+     Otherwise return .false., save an internal error message and do
+     not change the current field.
+
+
+  logical function inp_f(double precision d)
+
+     Attempt to read the next field as a floating point number.
+     Upon success return .true. and advance to the next field.
+     Otherwise return .false., save an internal error message and do
+     not change the current field.
+
+
+  logical function inp_a(character*(*) a)
+
+     Attempt to read the next field as a character string.
+     Upon success return .true. and advance to the next field.
+     Otherwise return .false., save an internal error message and do
+     not change the current field.
+
+
+  logical function inp_a_trunc(character*(*) a)
+
+     Attempt to read the next field as a character string, quietly
+     discarding any data that does not fit in the user provided buffer.
+     Upon success return .true. and advance to the next field.
+     Otherwise return .false., save an internal error message and do
+     not change the current field.
+
+  logical function inp_line(character*(*) z)
+  character*(*) z
+
+     Return in z as much of the entire input line as it will hold and
+     quietly discard any overflow.  Upon success return .true.,
+     otherwise save an internal error message and return .false.
+
+  integer function inp_n_field()
+
+     Returns the no. of fields in the current input line (1, ...).  A
+     value of 0 implies either that EOF or some other error was
+     detected or inp_read() has not yet been called.
+
+  integer function inp_cur_field()
+
+     Returns the no. of fields in the input line that have been
+     processed so far (0, ...).  Thus if inp_cur_field() returns 2,
+     then the next field read by inp_f() etc. will be field 3.
+
+  subroutine inp_set_field(value)
+  integer value
+
+     Sets the current field (as returned by inp_cur_field) to be
+     value.  0 <= value <= inp_n_field().  An out of range value
+     results in error termination.
+
+
+  subroutine inp_prev_field()
+
+     A convenience routine that positions you to read the field (on
+     the current input line) that was last read.  It is simply
+     implemented as
+
+        call inp_set_field(max(0,inp_cur_field()-1))
+
+     At the beginning of the line this is a null operation.
+
+
+  logical function inp_compare(ocase, a, b)
+  logical ocase
+  character*(*) a, b
+
+  Return .true. iff all the characters in A match the first
+  len(A) characters of B.  If ocase is .true. then comparisons are
+  case sensitive, otherwise comparisons ignore case.
+
+
+  logical function inp_match(nrec, ocase, test, array, ind)
+  integer nrec
+  logical ocase
+  character*(*) test
+  character*(*) array(nrec)
+  integer ind
+
+     Let L be the length of the character string test ignoring
+     trailing blanks.  Attempt to find a unique match of test(1:L)
+     against elements of array(*).  If ocase is .true. then
+     comparisons are case sensitive, otherwise comparisons ignore
+     case.
+
+     If a unique match is made return the index of the element in ind
+     and return .true.
+
+     If the match is ambiguous set ind to 0, and return .false.
+
+     If no match is found set ind to -1 and return .false.
+
+
+  logical function inp_search(ocase, z)
+  character*(*) z
+  logical ocase	
+
+     Position the input file at the next logical input line which has
+     a first input field that matches the leading non-blank characters
+     in z. If ocase is .true. then matches are case sensitive.
+
+     If such a line is found then return .true., and reset the current
+     input field to 0 (i.e., as if inp_read() had just been called).
+
+     If no such line is found return .false..  The file will be either
+     at EOF or at a line which was not successfully parsed.  EOF may
+     be detected by inp_eof().
+
+
+  logical function inp_eof()
+
+     Return .true. if EOF has been detected, .false. otherwise.
+
+
+  subroutine inp_lcase(z)
+  character*(*) z
+
+     Lowercase the character string z
+
+
+  integer function inp_strlen(z)
+  character*(*) z
+
+     Return the index of the last non-blank character in z, 0 being
+     returned for a fully blank string.
+
+
+  subroutine inp_errout()
+
+     If there is an internal error message, print out its value, 
+     the current line number and its contents.  If appropriate
+     indicate the problematic position in the current input line.
+
+
+  subroutine inp_outrec()
+
+     Print out the current input line.

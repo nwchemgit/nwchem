@@ -1,0 +1,2 @@
+      double precision ddot
+      external ddot

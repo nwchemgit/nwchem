@@ -1,0 +1,26 @@
+c:geobasmapP.fh
+c
+cNOTE: this MUST follow basP.fh in the include order
+c
+c these are all in core 
+c mapping arrays   atoms <-> contr <-> bfn  (maybe add shells later)
+c
+c contraction -> unique_contr          ::  ibs_cn2ucn(ncont,nbasis)
+c contraction -> center_number         ::  ibs_cn2ce (ncont,nbasis)
+c center      -> unique_center         ::  ibs_ce2uce(nat,nbasis)
+c contraction -> basis function range  ::  ibs_cn2bfr(2,ncont,nbasis)
+c centers     -> contraction range     ::  ibs_ce2cnr(2,nat,nbasis)
+c
+      integer ibs_cn2ucn,ibs_cn2ce,ibs_ce2uce,ibs_cn2bfr,ibs_ce2cnr
+      integer ncont_tot_gb, nprim_tot_gb, nbf_tot_gb, ibs_geom
+      common /geobasmap/
+     &       ibs_cn2ucn(ncont_mx,nbasis_bsmx),
+     &       ibs_cn2ce (ncont_mx,nbasis_bsmx),
+     &       ibs_ce2uce(nat_mx,nbasis_bsmx),
+     &       ibs_cn2bfr(2,ncont_mx,nbasis_bsmx),
+     &       ibs_ce2cnr(2,nat_mx,nbasis_bsmx),
+     &       ncont_tot_gb(nbasis_bsmx),
+     &       nprim_tot_gb(nbasis_bsmx),
+     &       nbf_tot_gb(nbasis_bsmx),
+     &       ibs_geom(nbasis_bsmx)
+c

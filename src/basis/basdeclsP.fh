@@ -1,0 +1,39 @@
+#ifndef BASDECLSP_FH
+c
+c declarations for substitution by cpp for compressed array count meanings
+c only for capitalized versions
+c
+c define HEAD_NTAGS 1
+c define HEAD_NCONT 2
+c define HEAD_NPRIM 3
+c define HEAD_NCOEF 4
+c define TAG_NCONT  1
+c define TAG_NPRIM  2
+c define TAG_NCOEF  3
+c define TAG_FCONT  4
+c define TAG_LCONT  5
+c define CONT_TYPE  1
+c define CONT_NPRIM 2
+c define CONT_NGEN  3
+c define CONT_IEXP  4
+c define CONT_ICFP  5
+c define CONT_TAG   6
+
+#define HEAD_NTAGS 1
+#define HEAD_NCONT 2
+#define HEAD_NPRIM 3
+#define HEAD_NCOEF 4
+#define TAG_NCONT  1
+#define TAG_NPRIM  2
+#define TAG_NCOEF  3
+#define TAG_FCONT  4
+#define TAG_LCONT  5
+#define CONT_TYPE  1
+#define CONT_NPRIM 2
+#define CONT_NGEN  3
+#define CONT_IEXP  4
+#define CONT_ICFP  5
+#define CONT_TAG   6
+
+#define BASDECLSP_FH
+#endif

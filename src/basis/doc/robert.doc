@@ -1,0 +1,222 @@
+
+
+1) Minimize implementation effort
+
+2) Simplify data structures so that are flattened
+   more readily
+
+3) Enable local integral routines to work directly
+   from API interface and/or internal data structures
+
+4) Store info in the database to avoid having a 
+   zillion small files floating around
+
+
+In the database we store just the basis set description
+(i.e., the atomic basis sets for the unique atom tags)
+in as simple a format as possible
+
+In core, we have in addition mapping arrays that build
+the basis set from the geometry and the basis set description
+
+
+How to store the atomic basis set compactly, but so that
+it is readily stored and efficiently used?
+  
+   The integral routines will be given basis set handles and
+   shell indices.  These will be used to lookup 
+   the shell info (l-value, ngen, nprim) and find pointers
+   to the contraction info.  Since Fortran cannot have pointers
+   returned to it from a C interface we have to either store
+   the stuff both on the C and Fortran sides, or do it
+   all in Fortran (I know, double ugh).  I see no point
+   in doing things twice.
+
+   Since we are stuck with F77 we have no structures and 
+   are back using simple offsets etc.  This actually makes
+   storing the info externally easier since the internal
+   representation is flat.
+
+
+Detailed data structures ... derive from their usage by your
+integral routines.
+
+  int_2e_4c(ibasis, jbasis, ish, jsh, ksh, lsh, ...)
+
+      check basis handles
+      
+      get info (type, nprim, ngen, coords) on each shell
+
+      find pointers to coeffs/exponents for each shell
+      (this implies that they are stored packed into a
+       single array and we have offsets stored)
+
+      branch to the fastest routine depending on if generally contracted,
+      the angular momentum, if it is an sp shell, ...
+
+      in your API
+
+         call the primitive evaluation routine with explicit
+         coord/coeff/exponents
+
+      
+   So it seems that we have very similar data structures to the 
+   present int.h, except that the basis info is only stored for
+   unique atom types
+
+   Now do the mapping in detail
+
+
+   if (ibasis .le.0 .or. ibasis .gt. nbasis) call errquit(...)
+
+   if (ish .le. 0 .or. ish .gt. nshell(ibasis)) call errquit(...)
+
+   iuniq = shell_uniq(ish, ibasis) ... map shell to no. of the shell info
+                                       for unique tags only
+
+   itype = shell_type(iuniq, ibasis)  (1, 2, 3 for s, p, d
+                                     -1, -2, ... for sp, spd, ... shells)
+
+   iprim = shell_nprim(iuniq, ibasis)
+
+   igen  = shell_nprim(iuniq, ibasis)
+
+   iexpnt= shell_expt(iuniq, ibasis) ... offset in exp(1, ibasis) where
+                                       this shells exponents start
+
+   icoeff= shell_cofpt(iuniq, ibasis) ... offset in coeff(1, ibasis) ....
+
+
+   icent= shell_cent(ish, ibasis) ... center no. for this shell to get coords
+                                      (for efficiency should grab the
+                                       coords from the geometry)
+
+
+   Should be rolling at this point.
+
+   Also need the following arrays to support the other basis set
+   routines
+
+      cent_to_sh(1:2, icent, ibasis)  (contains hi-lo)
+      cent_to_bf(1:2, icent, ibasis)
+      sh_to_bf(1:2, ish, ibasis)
+
+
+  The info about each shell is simply
+
+    integer type, nprim, ngen
+    real    coeff(nprim,ngen), expnt(nprim)
+
+
+  Thus, the atomic basis set is just
+
+    integer nshell, nprim_tag, ncoeff_tag
+    integer type(nshell), nprim(nshell), ngen(nshell), 
+            cofpt(nshell), expt(nsehll)
+    real  coeff(ncoeff_tag), expnt(nprim_tag)
+
+
+  For external storage this can be compactly represented as
+  ... and there is no reason why the data cannot be also used
+      this way (so that coefpt and expt provide offsets into rdata)
+
+    integer dim_info(3)
+    integer idata(5*nshell)
+    real    rdata(ncoeff_tag+nprim_tag)
+
+    (the rtdb can automatically allocate the MA arrays and read into them)
+
+  These could be stored on the rtdb as
+
+     basis:basis_name:tag:dim_info
+     basis:basis_name:tag:idata
+     basis:basis_name:tag:rdata
+
+  along with a summary of all unique tag info
+
+     integer nshell_total, nprim_total, idata_total, rdata_total
+
+     basis:basis_name:dim_info  -> integer dim_info(4)
+
+
+
+  However, we can make things even easier by storing the whole
+  damn lot in one data structure since it will always be possible
+  to store info on the unqiue atom centers (even if the whole
+  periodic table is in there!).  Thus, my recomendation is that
+  the data base contain the following
+
+     basis:basis_name:dim_info    integer
+     basis:basis_name:tags        character
+     basis:basis_name:tdata       integer
+     basis:basis_name:idata       integer
+     basis:basis_name:rdata       double precision
+
+  Where
+
+     dim_info(1) -> nshell_uniq_total = total no. of shells on the unique tags
+     dim_info(2) -> nprim_uniq_total = total no. of prims on the unique tags
+     dim_info(3) -> idata_uniq_total = total length of idata
+     dim_info(4) -> idata_uniq_total = total length of rdata
+     dim_info(5) -> ntags_uniq = no. of unique tags
+
+     tags(1:ntags_uniq) = character array of tags (cannot be allocated 
+                          using MA !!)
+
+     tdata(1, itag_uniq) = first unique shell on this tag
+     tdata(2, itag_uniq) = last  last shell on this tag
+
+     idata(1, ish_uniq) = type of shell
+     idata(2, ish_uniq) = nprim in shell
+     idata(3, ish_uniq) = ngen of shell
+     idata(4, ish_uniq) = offset into rdata for coeffs
+     idata(5, ish_uniq) = offset into rdata for exponents
+     idata(6, ish_uniq) = no. of bf in this shell
+     
+
+
+  To load this lot into core and build the data structures
+  on the fly : 
+
+  logical function basis_load(rtdb, name, igeom, ibasis)
+
+  0) look for translations of name within the current or higher
+     context using context_rtdb_match().  With the name or available
+     translation look for basis:basis_name:dim_info ... if this is there
+     then the basis set is defined.  Can adopt a default at this
+     point if desired.  Check that have statically allocated enuf
+     space to read in the unique tags.
+
+     rtdb_cget( tags )
+     rtdb_ma_get (tdata, rdata, idata)
+
+  1) Get tags/coords info from the geometry (note .. only one geometry
+     being used by the integrals at a time ... I would suggest that
+     the geometry handle be removed from the int_init() call and
+     be stored internal to each basis sets structure ... this then
+     gives us a mechanism to compute integrals between different 
+     geometries (this sounds worth thinking about more)).
+
+  2) Loop thru centers checking that have a basis defined for that
+     tag and accumulate the no. of shells and basis functions.
+     At same time build map from atoms to shells and bf and 
+     map from shells to unique shell no.
+
+
+Done.
+
+How this info gets onto the database is another problem.  I would
+suggest that the input program provides the info in nearly this form
+to a basis set routine for output to the database.  Since the input
+routines want to be very general it's best to let them worry about
+the details and live with a very simple basis set interface.  We also
+need to consider how to handle plane waves, giaos etc ... let's talk
+about this and also to Jeff about giaos before casting this in
+FORTRAN.  I think that the above will suffice for the GTO basis
+sets and we can add additional RTDB entries for the plane waves etc.
+
+Robert
+
+
+
+

@@ -1,0 +1,92 @@
+c
+c     Header file for intial FORTRAN interface to RTDB
+c     (see the C header file rtdb.h for more detail)
+c
+c     All functions return .TRUE. on success, .FALSE. on failure
+c
+c     All functions are also mirrored by routines rtdb_* -> rtdb_par_*
+c     in which process 0 performs the operation and all other processes
+c     are broadcast the result of a read and discard writes.
+c
+c     rtdb_max_key  ... an integer parameter that defines the maximum
+c                       length of a character string key
+c
+c     rtdb_max_file ... an integer parameter that defines the maximum
+c                       length of a file name
+c
+c     logical function rtdb_open(filename, mode, handle)
+c     character *(*) filename   [input]
+c     character *(*) mode       [input]
+c     integer handle            [output]
+c
+c     logical function rtdb_close(handle, mode)
+c     integer handle            [input]
+c     character*(*) mode        [input]
+c
+c     logical function rtdb_put(handle, name, ma_type, nelem, array)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     integer ma_type           [input]
+c     integer nelem             [input]
+c     <ma_type>array(nelem)     [input]
+c
+c     logical function rtdb_get(handle, name, ma_type, nelem, array)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     integer ma_type           [input]
+c     integer nelem             [input]
+c     <ma_type>array(nelem)     [output]
+c     integer len               [output]
+c
+c     logical function rtdb_ma_get(handle, name, ma_type, nelem, ma_handle)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     integer ma_type           [output]
+c     integer nelem             [output]
+c     integer ma_handle         [output]
+c
+c     logical function rtdb_cput(handle, name, nelem, buf)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     character *(*) buf        [input]
+c
+c     logical function rtdb_cget(handle, name, nelem, buf)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c     character *(*) buf        [output]
+c
+c     logical function rtdb_print(handle, print_values)
+c     integer handle            [input]
+c     logical print_values      [input]
+c
+c     logical function rtdb_first(handle, name)
+c     integer handle            [input]
+c     character *(*) name       [output]
+c
+c     logical function rtdb_next(handle, name)
+c     integer handle            [input]
+c     character *(*) name       [output]
+c
+c     logical function rtdb_delete(handle, name)
+c     integer handle            [input]
+c     character *(*) name       [input]
+c
+      logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
+     $     rtdb_first, rtdb_next, rtdb_delete
+      external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
+     $     rtdb_first, rtdb_next, rtdb_delete
+      logical rtdb_par_open, rtdb_par_close, rtdb_par_put,
+     $     rtdb_par_get, rtdb_par_ma_get, rtdb_par_cput,
+     $     rtdb_par_cget, rtdb_par_print, rtdb_par_first,
+     $     rtdb_par_next, rtdb_par_delete
+      external rtdb_par_open, rtdb_par_close, rtdb_par_put,
+     $     rtdb_par_get, rtdb_par_ma_get, rtdb_par_cput,
+     $     rtdb_par_cget, rtdb_par_print, rtdb_par_first,
+     $     rtdb_par_next, rtdb_par_delete
+c
+c     Check these values against rtdb_f2c.c and rtdb_par_f2c.c
+c
+      integer rtdb_max_key, rtdb_max_file
+      parameter (rtdb_max_key=255, rtdb_max_file=255)

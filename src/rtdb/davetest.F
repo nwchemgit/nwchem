@@ -1,0 +1,48 @@
+      program dumpdb
+      implicit none
+#include "rtdb_fort.h"
+#include "mafdecls.h"
+      character*128 name
+      integer rtdb
+      integer crap
+c
+      name = 'h2o.db'
+c
+      if (.not. ma_initialize(MT_DBL, -1,-1))
+     $     call errquit(' ma_init failed ', 0)
+      if (.not.rtdb_open( name, 'empty', rtdb))
+     $     call errquit(' open 1 failed', 1)
+      if (.not. rtdb_put(rtdb, 'Test ', MT_INT, 1, 1))
+     $     call errquit(' put failed ', 1)
+      if (.not. rtdb_get(rtdb, 'Test ', MT_INT, 1, crap))
+     $     call errquit(' get failed ', 1)
+      write(6,*) ' crap = ', crap
+      call ffflush(6)
+      crap = 0
+      if (.not. rtdb_print( rtdb, .true.))
+     $     call errquit(' print failed ', 1)
+      if (.not. rtdb_close(rtdb, 'keep'))
+     $     call errquit(' close failed ', 1)
+c
+      if (.not. rtdb_open( name, 'old', rtdb))
+     $     call errquit(' open 2 failed', 1)
+      if (.not. rtdb_get(rtdb, 'Test ', MT_INT, 1, crap))
+     $     call errquit(' get 2 failed ', 1)
+      write(6,*) ' crap = ', crap
+      call ffflush(6)
+      if (.not. rtdb_put(rtdb, 'Crap ', MT_INT, 1, crap))
+     $     call errquit(' put 2 failed ', 1)
+      if (.not. rtdb_print( rtdb, .true.))
+     $     call errquit(' print failed ', 1)
+      if (.not. rtdb_close(rtdb, 'keep'))
+     $     call errquit(' close failed ', 1)
+c
+      end
+      subroutine parerr()
+      end
+      integer function nodeid()
+      nodeid = 0
+      end
+      subroutine ffflush(i)
+      call flush(i)
+      end

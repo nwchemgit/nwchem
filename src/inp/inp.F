@@ -1,0 +1,650 @@
+      block data inp_data
+      implicit none
+#include "inpP.fh"
+c
+      data iread   /5/
+      data iwrite  /6/
+      data jrec    /-1/
+      data jump    /0/
+      data oswit   /.false. /
+      data nerr    /999/
+      data nline   /0/
+      data noline  /0/
+      data ierrpos /-1/
+      data errmsg  /' '/
+      data input_line /0/
+      data xblnk /' '/
+      data xtab  /'\	'/      ! Tab ... note backslash for cpp
+      data xsplit/';'/
+      data xcomm /'#'/
+      data xback /'\\'/         ! Backslash ... note backslash for cpp
+      data xquote/'"'/
+c
+      end
+      subroutine inp_init(ir,iw)
+      implicit none
+#include "inpP.fh"
+c     
+      iread = ir
+      iwrite = iw
+      jrec = -1
+      jump = 0
+      oswit = .false. 
+      nerr = 999
+      nline = 0
+      noline = 0
+      ierrpos = -1
+      errmsg = ' '
+      input_line = 0
+c     
+      end
+      integer function inp_n_field()
+      implicit none
+#include "inpP.fh"
+c     
+c     return no. of fields in the input line ... 0 = EOF
+c     
+      inp_n_field = jump
+c     
+      end
+      integer function inp_cur_field()
+      implicit none
+#include "inpP.fh"
+c     
+c     return no. of fields processed so far (0,...,inp_n_field())
+c     
+      inp_cur_field = jrec
+c     
+      end
+      subroutine inp_set_field(ivalue)
+      implicit none
+#include "inpP.fh"
+      integer ivalue
+c     
+c     set field to be read next (ivalue=0,...,inp_n_field())
+c     
+      if (ivalue.lt.0 .or. ivalue.gt.inp_n_field())
+     $     call errquit('inp_set_field: stupid field value',ivalue)
+      jrec = ivalue
+c
+      ierrpos = -1
+      errmsg = ' '
+c     
+      end
+      logical function inp_line(z)
+      implicit none
+#include "inpP.fh"
+      character*(*) z
+c     
+c     set the variable z to be as much of the current input line
+c     that it can hold
+c     
+      if (jump .gt. 0) then
+         z = ia
+         inp_line = .true.
+         ierrpos = -1
+         errmsg = ' '
+      else
+         errmsg = 'no input line available'
+         ierrpos = -1
+         inp_line = .false.
+      endif
+c     
+      end
+      logical function inp_read()
+      implicit none
+#include "inpP.fh"
+c     
+c     this routine reads a data card and scans it for non - space fields
+c     the number of fields is stored in jump, the starting point of a
+c     field in istrt(i) and the number of characters in that field
+c     in inumb(i).
+c     
+      integer ncol(max_field)
+      logical ois_ws            ! Inline funtion  
+      ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
+c     
+      nline=nline+1
+      if(nline.le.noline)go to 150
+c
+      if (oswit) then
+         ierrpos = -1
+         errmsg = 'unexpected end of data file'
+         inp_read = .false.
+         jump=0
+         jrec=0
+         return
+      else
+         ierrpos = -1
+         errmsg = ' '
+      endif
+c
+c     read next physical input line
+c
+      lenja = 0
+ 100  read(iread,'(a)',end=300)ja(lenja+1:max_width)
+      input_line = input_line + 1
+      lenja = inp_strlen(ja)
+c
+c     Check for . * eof at beginning of line to indicate EOF
+c
+      if (lenja.eq.1 .and. (ja(1:1).eq.'.' .or. ja(1:1).eq.'*'))
+     $     goto 300
+      if (lenja.eq.3 .and. inp_compare(.false., 'eof', ja(1:3))) 
+     $     goto 300
+c
+c     handle blank lines and concatenation using backslash
+c
+      if (lenja.eq.0) then
+         goto 100
+      else
+         if (ja(lenja:lenja) .eq. xback) then
+            ja(lenja:lenja) = xblnk
+            goto 100
+         endif
+      endif
+      jwidth = inp_strlen(ja)
+c
+c     handle comments from # to eol ... allow for backslash quoting
+c
+      xprev = xblnk
+      do i=1, jwidth
+ 91      if (ja(i:i) .eq. xcomm .and. xprev.ne.xback) then
+            lenja = inp_strlen(ja)
+            write(iwrite,90) ja(i+1:lenja)
+ 90         format(/' comment :-',1x,a)
+            ja(i:max_width) = xblnk
+            goto 80
+         else if (ja(i:i) .eq. xcomm .and. xprev.eq.xback) then
+c     Shuffle string down to overwrite quoting backslash
+            tmp = ja
+            ja(i-1:jwidth) = tmp(i:jwidth)
+            xprev = xblnk
+            goto 91
+         endif
+         xprev = ja(i:i)
+      enddo
+c
+ 80   continue
+c
+c     figure out where ; splits physical line into multiple logical lines
+c     again handling quoted backslash
+c
+      k=jwidth
+      mark=0
+      xprev = xblnk
+      do i=1,jwidth
+ 81      if(ja(i:i).eq.xsplit .and. xprev.ne.xback) then
+            mark=mark+1
+            ncol(mark)=i
+         else if(ja(i:i).eq.xsplit .and. xprev.eq.xback) then
+c     Shuffle string down to overwrite quoting backslash
+            tmp = ja
+            ja(i-1:jwidth) = tmp(i:jwidth)
+            xprev = xblnk
+            goto 81
+         endif
+         xprev = ja(i:i)
+      enddo
+      noline=1
+      if(mark.eq.0) then
+         nstart(noline)=1
+         nend(noline)=jwidth
+      else
+         i=ncol(mark)+1
+         if(i.le.jwidth) then
+            do j=i,jwidth
+               if(.not. ois_ws(ja(j:j))) go to 170
+            enddo
+         endif
+         k=ncol(mark)-1
+         mark=mark-1
+c     
+ 170     noline=mark+1
+         nstart(1)=1
+         do i=1,mark
+            j=ncol(i)
+            nend(i)=j-1
+            nstart(i+1)=j+1
+         enddo
+         nend(noline)=k
+      endif
+      nline=1
+c     
+c     Start processing next logical input line (put into ia(1:iwidth))
+c
+ 150  jump=0
+      jrec=0
+      nbegin = nstart(nline)
+      nfini  = nend(nline)
+      iwidth = nfini-nbegin+1
+      ia = xblnk
+      ia(1:iwidth)=ja(nbegin:nfini)
+c     
+c     partition input line into strings inside double quotes or
+c     white space separated fields
+c
+      i = 1
+ 151  continue
+      do j = i, iwidth
+         if (.not. ois_ws(ia(j:j))) goto 152
+      enddo
+      goto 155                  ! Done
+ 152  i = j
+c
+      jump = jump + 1
+      istrt(jump) = i
+      if (ia(i:i) .eq. xquote) then
+c
+c     Quoted string ... look for closing quote
+c
+         do j = i+1, iwidth
+ 154        if (ia(j:j).eq.xquote .and. ia(j-1:j-1).ne.xback) then
+               goto 153
+            else if (ia(j:j).eq.xquote .and. ia(j-1:j-1).eq.xback) then
+               tmp = ia
+               ia(j-1:max_width) = tmp(j:max_width)
+               goto 154
+            endif
+         enddo
+         ierrpos = j
+         errmsg = 'no terminating quote for string'
+         inp_read = .false.
+         oswit = .false.
+         return
+ 153     continue
+      else
+c
+c     Simple field ... look for next ws
+c
+         do j = i+1, iwidth
+            if (ois_ws(ia(j:j))) goto 157
+         enddo
+ 157     j = j - 1
+      endif
+c
+      inumb(jump) = j - istrt(jump) + 1
+      i = j + 1
+      goto 151
+c
+ 155  continue                  ! Finished tokenizing
+      if (jump .gt. 0) iwidth = istrt(jump)+inumb(jump)-1
+      inp_read = .true.
+      return
+c
+ 300  oswit = .true.
+      ierrpos = -1
+      errmsg = 'unexpected end of data file'
+      inp_read = .false.
+      jump=0
+      jrec=0
+c
+      end
+      logical function inp_eof()
+      implicit none
+#include "inpP.fh"
+c      
+      inp_eof = oswit
+c
+      end
+      subroutine inp_errout
+      implicit none
+#include "inpP.fh"
+      character*1 xpt, xstp
+      data xpt,xstp/'*', '.'/
+c     
+c     If an error has occured print out the error message
+c     and the position in the current input line
+c     
+      if (errmsg .ne. ' ') then
+         length = inp_strlen(errmsg)
+         write(iwrite, 40) input_line, errmsg(1:length)
+ 40      format('input error at line', i5,': ', a)
+c
+         jrec=-1
+         write(iwrite,50)ia(1:iwidth)
+ 50      format(1x,a)
+         if (ierrpos .gt. 0) then
+            do 60 i=1,iwidth
+               tmp(i:i)=xstp
+ 60         continue
+            tmp(ierrpos:ierrpos)=xpt
+            write(iwrite,50)tmp(1:iwidth)
+         endif
+      endif
+c     
+      end
+      subroutine inp_outrec
+      implicit none
+#include "inpP.fh"
+c
+c     Write out the current input line
+c
+      write(iwrite,50) ia(1:iwidth)
+50    format(1x,a)
+c
+      end
+      logical function inp_a(a)
+      implicit none
+#include "inpP.fh"
+      character*(*) a
+c     
+c     Return field as character string, minus any enclosing quotes
+c     with an error if it does not fit
+c     
+      ierrpos = -1
+      errmsg = ' '
+      if(jrec .ge. jump) then
+         a = xblnk
+         inp_a = .false.
+         ierrpos = 0
+         errmsg = 'at end of line looking for character string'
+         return
+      endif
+      i1 = istrt(jrec+1)
+      i2 = istrt(jrec+1)+inumb(jrec+1)-1
+      if (ia(i1:i1).eq.xquote .and. ia(i2:i2).eq.xquote) then
+         i1 = i1+1
+         length = inumb(jrec+1)-2
+      else
+         length = inumb(jrec+1)
+      endif
+      if (len(a) .lt. length) then
+         a = xblnk
+         inp_a = .false.
+         ierrpos = 0
+         errmsg = 'inp_a: string is too large for argument'
+         return
+      else
+         jrec = jrec + 1
+         a = ia(i1:i1+length-1)
+         inp_a = .true.
+         return
+      endif
+c     
+      end
+      logical function inp_a_trunc(a)
+      implicit none
+#include "inpP.fh"
+      character*1 xblnk, xquote
+      character*(*) a
+c     
+c     Return field as character string, minus any enclosing quotes
+c     quietly truncating if it does not fit
+c     
+      ierrpos = -1
+      errmsg = ' '
+      if(jrec .ge. jump) then
+         a = xblnk
+         inp_a_trunc = .false.
+         ierrpos = 0
+         errmsg = 'at end of line looking for character string'
+         return
+      endif
+      i1 = istrt(jrec+1)
+      i2 = istrt(jrec+1)+inumb(jrec+1)-1
+      if (ia(i1:i1).eq.xquote .and. ia(i2:i2).eq.xquote) then
+         i1 = i1+1
+         length = inumb(jrec+1)-2
+      else
+         length = inumb(jrec+1)
+      endif
+      jrec = jrec + 1
+      a = ia(i1:i1+length-1)
+      inp_a_trunc = .true.
+      return
+c     
+      end
+      logical function inp_f (buf)
+      implicit none
+#include "inpP.fh"
+      double precision ten, buf
+      character*1 xchar(15)
+      data xchar /'0','1','2','3','4','5','6','7','8','9'
+     1     ,'+','-','.','e','d'/
+      data ten/10.0d0/
+c     
+      ierrpos = -1
+      errmsg = ' '
+      buf=0.0d0
+      if (jrec.ge.jump) then
+         inp_f = .false.
+         errmsg = 'at end of line looking for floating point number'
+         ierrpos=-1
+         return
+      endif
+      jrec=jrec+1
+      i1=istrt(jrec)
+      i2=i1+inumb(jrec)-1
+      ie2=i2
+c...  sign
+      isign=1
+      if (ia(i1:i1).eq.xchar(12))isign=-1
+      if (ia(i1:i1).eq.xchar(12).or.ia(i1:i1).eq.xchar(11)) i1=i1+1
+c...  exponent
+      do ie=i1,i2
+         if (ia(ie:ie).eq.xchar(14) .or. ia(ie:ie).eq.xchar(15)) goto 20
+      enddo
+      iexp=0
+      go to 50
+ 20   i2=ie-1
+      iexp=1
+      ie1=ie+1
+      if (ia(ie1:ie1).eq.xchar(12))iexp=-1
+      if (ia(ie1:ie1).eq.xchar(12).or.ia(ie1:ie1).eq.xchar(11))
+     *     ie1=ie1+1
+      ibuff=0
+      do i=ie1,ie2
+         do j=1,10
+            if (ia(i:i).eq.xchar(j)) go to 41
+         enddo
+         goto 100
+ 41      ibuff=ibuff*10+j-1
+      enddo
+      iexp=iexp*ibuff
+c.... the number itself
+ 50   orep=.false.
+      do i=i1,i2
+         if(ia(i:i).ne.xchar(13)) then
+            do j=1,10
+               if (ia(i:i).eq.xchar(j)) go to 70
+            enddo
+            goto 100
+ 70         buf=buf*ten+ dfloat(j-1)
+         else
+            if(orep)go to 100
+            iexp=iexp+i-i2
+            orep=.true.
+         endif
+      enddo
+      buf = buf * dfloat(isign) * ten**iexp
+      inp_f = .true.
+      return
+c
+ 100  inp_f = .false.
+      jrec = jrec-1             ! Position to re-read the field
+      ierrpos = i
+      errmsg = 'illegal character reading floating point number'
+c     
+      end
+      logical function inp_i(jbuf)
+      implicit none
+#include "inpP.fh"
+      character*1 xchar(12)
+      integer jbuf
+      data xchar /'0','1','2','3','4','5','6','7','8','9'
+     1     ,'+','-'/
+c     
+c     subroutine for reading integers from the array ia,
+c     starting at ia(istrt(jrec)) and going on for inumb(jrec))
+c     elements. plus signs are ignored, the answer is accumulated
+c     in jbuf
+c     
+      ierrpos = -1
+      errmsg = ' '
+      jbuf = 0
+      if(jrec.ge.jump) then
+         inp_i = .false.
+         ierrpos = -1
+         errmsg = 'at end of line looking for integer'
+         return
+      endif
+      jrec = jrec + 1
+      n = inumb(jrec)
+      ifact = 1
+      ist=istrt(jrec)
+      nstrt = ist + n - 1
+      do i = 1,n
+         xtemp = ia(nstrt:nstrt)
+         do j=1,12
+            if(xchar(j).eq.xtemp)go to 130
+         enddo
+         goto 120
+c
+ 130     if(j.ge.11) then
+            if(nstrt.ne.ist)go to 120
+            if(j.ge.12)jbuf=-jbuf
+            go to 160
+         endif
+         jbuf=jbuf+(j-1)*ifact
+         ifact = ifact * 10
+         nstrt=nstrt-1
+      enddo
+ 160  continue
+      inp_i = .true.
+      return
+c
+ 120  ierrpos = nstrt
+      errmsg  = 'illegal character when reading integer'
+      inp_i = .false.
+      jrec = jrec-1
+      return
+c     
+      end
+      logical function inp_compare(ocase, a, b)
+      implicit none
+      logical ocase
+      character*(*) a, b
+      integer la, lb, i
+      character*1 atest, btest
+      integer inp_strlen
+      external inp_strlen
+c
+      inp_compare = .false.
+      la = inp_strlen(a)
+      lb = inp_strlen(b)
+      if (la .gt. lb) then
+         return
+      else if (ocase) then
+         inp_compare = a .eq. b(1:la)
+         return
+      else
+         do i = 1, la
+            atest = a(i:i)
+            btest = b(i:i)
+            call inp_lcase(atest)
+            call inp_lcase(btest)
+            if (atest.ne.btest) return
+         enddo
+         inp_compare = .true.
+         return
+      endif
+c
+      end
+      logical function inp_match(nrec, ocase, test, array, ind)
+      implicit none
+      integer nrec, ind
+      logical ocase, inp_compare
+      character*(*) test, array(*)
+      integer i, l, inp_strlen
+      external inp_compare, inp_strlen
+c
+      l = inp_strlen(test)
+      inp_match = .false.
+      ind = -1
+c     
+      do i=1,nrec
+         if (inp_compare(ocase, test(1:l), array(i))) then
+            if (inp_match) then
+               inp_match = .false. ! Ambiguity
+               ind = 0
+               return
+            else
+               inp_match = .true. ! First match
+               ind = i
+            endif
+         endif
+      enddo
+c     
+      end
+      subroutine inp_prev_field()
+      implicit none
+#include "inp.fh"
+c
+      call inp_set_field(max(0,inp_cur_field()-1))
+c
+      end
+      integer function inp_strlen(a)
+      implicit none
+#include "inpP.fh"
+      character*(*) a
+      integer i
+      integer len
+      logical ois_ws
+      intrinsic len
+      ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
+c
+      do i = len(a),1,-1
+         if (.not. ois_ws(a(i:i))) goto 10
+      enddo
+c
+ 10   inp_strlen = i
+c
+      end
+      subroutine inp_lcase(string)
+      implicit none
+      character*(*) string
+      intrinsic ichar, len
+      integer i, length, uca, ucz, lca, shift, test
+c
+      uca = ichar('A')          ! MUST be uppercase A
+      ucz = ichar('Z')          ! MUST be uppercase Z
+      lca = ichar('a')          ! MUST be lowercase a
+      shift = lca - uca
+      if (shift .eq. 0) 
+     $     call errquit('inp_lcase: check case of program source', 0)
+c
+      length = len(string)
+      do i = 1, length
+         test = ichar(string(i:i))
+         if (test.ge.uca .and. test.le.ucz) 
+     $        string(i:i) = char(test+shift)
+      enddo
+c
+      end
+      logical function inp_search(ocase, z)
+      implicit none
+      character*(*) z
+      logical ocase
+      character*256 tmp
+      integer length
+      integer inp_strlen
+      logical inp_read, inp_a, inp_compare
+      external inp_read, inp_a, inp_compare, inp_strlen
+c
+      length = inp_strlen(z)
+c
+ 10   if (inp_read()) then
+         if (inp_a(tmp)) then
+            if (inp_compare(ocase, z(1:length), tmp)) then
+               call inp_prev_field()
+               inp_search = .true.
+               return
+            endif
+         endif
+         goto 10
+      endif
+c
+      inp_search = .false.
+c
+      end

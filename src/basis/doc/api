@@ -1,0 +1,138 @@
+
+
+
+   Program main
+
+   ----------------------
+
+   fix rtdb for arrays of characters
+
+
+   ----------------------
+
+   context management
+
+
+   ----------------------
+
+   get/set coords,charges,tags,masses,zmat(?),ncenters,
+
+   map 'geometry' -> name of geometry
+
+   logical geom_load(rtdb, 'geometry', geom)
+   logical geom_store(rtdb, 'geometry', geom)
+
+   ncent = geom_ncenter(geom)
+   call geom_tag(geom, icent, tag)
+   call geom_cent_coords(geom, icent, coords)
+   call geom_cent_charge(geom, icent, charge)
+   ...
+   call geom_cent_info(geom, icent, tag, coords, charge, mass, ...)
+
+   logical geom_zmat_defined()
+
+   nvariables = geom_zmat_nvars(geom)
+   nconstants ....
+
+   call geom_cart_get(geom, all info)
+   call geom_cart_set(geom, all info)
+
+   call geom_zmat_get
+   call geom_zmat_set
+
+   print
+
+
+   Also on the DB
+
+      - list of known geometry names
+
+
+   ----------------------
+
+   map 'mo basis' -> name of basis descriptor
+
+   ----------------------
+
+   logical basis_load(name_of_basis_descriptor, geom, basis)
+   nbasis_func = basis_nfunc(basis)
+   nbasis_shell = basis_nshell(basis)
+   natoms / basis_centers = 
+   map atom/center<->shell<->bf
+   get/set exponents/contraction coeffs
+   shell info (angular, gcontract, spherical/cart)
+   highest ang. mom.
+   print
+   load/store
+
+   On the data-base is
+
+       - list of known basis set names
+       - 
+
+   ----------------------
+
+   Cannot tweak geometry or basis between init/term calls
+
+... control
+   int_initialize(geom, num_basis, basis_array)  : generate internal int structures
+.................................................................................
+#  not needed if batmol writes to rtdb properly
+   int_initialize_tape10 ()                      : generate internal int structures (batmol?)
+.................................................................................
+   int_terminate()                               : throw away internal int structures
+   int_print_known_basis()
+   int_set_eri_timing()
+   int_report_eri_timings()
+   int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
+   int_mem_one(max1e, mscratch_1e)
+   int_mem_4(maxg, mscratch_2e)
+   int_mem_3(max3, mscratch_3_2e)
+   int_mem_2(max2, mscratch_2_2e)
+   int_mem_3ov(max3ov, mscratch_3ov)
+
+... two electron
+.   4 center 2e integrals
+   eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
+   int_two_4(bra_basis, ket_basis, ish, jsh, ksh, lsh, lscr,  
+                   scr, eri)
+   lab_two_4(bra_basis, ket_basis, ish, jsh, ksh, lsh, zerotol,
+             canonicalize, eri, nints, ilab, jlab, klab, llab)
+
+.   3 center 2e integrals
+   eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh)>
+   int_two_3 (bra_basis, ket_basis, ish, jsh, ksh, lscr, scr, eri)
+   lab_two_3 (bra_basis, ket_basis, canonical_bra, canonical_both, ish, jsh, ksh, zerotol, 
+              eri, nints, ilab, jlab, klab)
+
+.   2 center 2e integrals 
+   eri = <bra_g(ish)|ket_g(jsh)>
+   int_two_2 (bra_basis, ket_basis, ish, jsh, lscr, scr, eri)
+   lab_two_2 (bra_basis, ket_basis, canonical_both, ish, jsh, zerotol, lscr, scr, eri,
+              nints, ilab, jlab)
+
+... one electron integrals 
+   int_one_ke_basic (i_basis, j_basis, ish, jsh, lscr, scr, T)
+   int_one_pe_basic (i_basis, j_basis, ish, jsh, lscr, scr, V)
+   int_one_ov_basic (i_basis, j_basis, ish, jsh, lscr, scr, S)
+   int_one_h1_basic (i_basis, j_basis, ish, jsh, lscr, scr, H1)
+   int_one_all_basic(i_basis, j_basis, ish, jsh, lscr, scr, S, T, V)
+   lab_one_ke (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, T, numt) 
+   lab_one_pe (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, V, numv) 
+   lab_one_ov (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, nums) 
+   lab_one_h1 (i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, H1, numh1) 
+   lab_one_all(i_basis, j_basis, ish, jsh, zerotol, ilab, jlab, S, T, V, numstv) 
+
+   one_3c_int = <i_g(ish).j_g(jsh).k_g(ksh)>
+   int_one_3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, lscr,
+                     scr, OV3)
+   lab_one_3ov(i_basis, j_basis, k_basis, ish, jsh, ksh, zerotol,
+               OV3, ilab, jlab, klab, numov3)
+
+
+   int_mpole(i_basis, j_basis, Lvalue, ish, jsh, lscr, scr, MPINTS)
+   lab_mpole(i_basis, j_basis, Lvalue, ish, jsh, MPINTS, ilab, jlab, zerotol)
+
+   + periodic versions (with k vector)
+   ----------------------
+   

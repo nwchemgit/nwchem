@@ -1,0 +1,48 @@
+  The RTDB is a simple data base that stores typed, binary data
+using simple character string names.
+  
+  E.g.,
+     
+       To store an array of N integers with the name 'counts'
+
+       call rtdb_put(rtdb, 'counts', MA_INT, N, count_array)
+
+
+  The MA type definitions are used to support typing of data.
+
+  Fortran applications need to include
+
+           rtdb.fh
+
+  C applications need to include
+
+
+           rtdb.h
+
+  Routines are provided for sequential and parallel access.
+
+  a) Sequential access
+
+     Only process 0 can do this.  If any other process trys, an
+     error will result
+
+
+  b) Parallel access
+
+     All operations are globally synchronous.  Process 0 performs
+     all necessary operations and broadcasts results to other
+     processes.  Source for names and data for writes to the 
+     data base come from the arguments of process 0.
+
+     Parallel routines are named similarly to sequential routines
+     by using rtdb_par_ instead of just rtdb_
+
+     Once opened using rtdb_par_open() the RTDB may be used in parallel
+     by all processes through rtdb_par_*() or just by process 0
+     using rtdb_*().
+
+
+  The C interface is documented in the file rtdb.h
+
+  The Fortran interface is documented in the file rtdb.fh
+

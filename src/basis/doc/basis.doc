@@ -1,0 +1,149 @@
+/*  The basis set objects are written in C.  
+
+Proposal for basis set objects (rjh/rak)
+
+
+  1)  Currently have only general and segmented contractions of 
+      primitive gaussians but other basis sets should be anticipated
+
+  2)  The whole GTO basis is either cartesian or spherical harmonic
+
+  3)  Basis functions are associated with atomic tags, not coordinates,
+      the tags providing the connection to a geometry
+
+  4)  All basis functions associated with an 'atomic' center will be
+      numbered consecutively
+
+5)  General Basis Set Class:
+
+**** Attributes:
+Basis_type: Contracted Gaussian
+         or pseudo-potentails
+	 or plane wave
+         or .?.?.?.?.
+
+if (Basis_type.eq.1)   (sub class definition)
+  number_of_tags:      number of tags with information to be given/retrieved.
+                       (NOTE: generally equal to the number of centers to be 
+                              defined by the geometry object.)
+  cartesian:           is it cartesian or spherical (transformed).  
+  nprim_tot::          total number of primitive gaussians.
+  ncoeff_tot::         total number of contractraction coeffs
+  nshell_tot::         total number of shells (in the normal sense).
+  nbf_tot::            total number of basis functions (in the normal sense).
+
+  
+
+  for each (tag (1 .. number_of_tags)   (a.k.a. center))
+     tag:                  name of atomic center (o, bond_function, ghost center)
+     contraction_type:     Segmented or General?
+                           (note: basis sets may have mixed segmented and 
+                                  general contracted centers)
+     ngen:                 =1 (segmented) >1 (general).              
+     nshell:               number of shells for this tag (in normal sense).
+    :nGshell:              number of generally contracted shells. 
+	                   (what is the limit?? tradeoff memory vs cpu)
+     nbf_on_tag:           number of basis functions for this tag.
+    :nbf_cart:             number of cartesian basis functions 
+                           (note: evaluation most likely always in cartesians)
+    :nbf_sph:              number of spherical basis functions.
+     nprim:                number of primitives in contraction.         
+
+     for each (contraction set) [general or segmented]
+         type              basis function type = GTO (redundant??)
+         L                 angular momentum s,p,d  = 0, 1, 2                 
+         Ltype             =0 use only angular momentum L
+                           =1 implies use of all angular momenta up to L
+                              e.g., sp shells (like gaussian) or 
+                              spd shells (Rydberg, bond functions)
+         num_cnt           number of contractions coefs (always=1 for segmented)
+         nbf               number of basis functions in contraction (external view)
+        :nbf_cart:         number of cartesian basis functions in contraction
+        :nbf_sph:          number of spherical basis functions in contraction 
+         nprim             number of primitives in contraction set        
+      coef(nprim,num_cnt)  contraction coefs
+         ex(nprim)         exponents
+
+
+proposal: (some of what we need to decide!!)
+. above atributes that are :attribute: are to be used only by the api
+  and integral routines.  
+. attributes that are atribute:: are derived some how.
+
+
+other pointer arrays etc can be defined/derived from this information
+and the goemetry object and thus are application dependent.  There is
+no requirement that these pointer arrays match across applications/
+modules/libraries.  Mappings to the final integral code could be
+supplied by the api.  The major hash will be to determine what is
+defined a priori and what is derived information.  e.g., the total
+number of basis functions for a basis:<tag> is fixed but for a
+molecular or periodic system it is unknown until the geometry object
+defines the scope.
+
+else
+   it ain't been defined yet.
+endif
+
+****  Operations:   (lean and mean)
+query_on:  scope_set, number_of_tags, cartesian, nprim_tot, ncoeff_tot, nbf_tot etc. 
+open:
+close:
+define:  (later not now).
+set_scope:
+
+
+  6)  For compact and portable representation in the database this is
+      compacted into five entries.
+
+      a) dimension information
+ 
+      b) character information
+         
+      c) pointer information
+
+      d) integer information
+
+      e) real information
+      
+  7)  All basis set info is named as if components of a basis module
+      so all names are of the form
+
+      basis:<basis name>:<basis component> ...
+
+  8)  A data base entry  basis:list contains a list of the names
+      of all basis sets in the database so that it is easy to
+      examine what is in the database
+
+  9) a mixed basis set can be a sum of two basis sets object subclasses??
+     e.g., planewave + contracted gaussian
+           pseudo-potential + contracted gaussian.  
+            
+
+          
+objects:
+	basis set --> name --> on rtdb 
+operations:
+   ----------------------
+
+   map 'mo basis' -> name of basis descriptor
+
+   ----------------------
+
+   logical basis_load(name_of_basis_descriptor, geom, basis)
+   nbasis_func = basis_nfunc(basis)
+   nbasis_shell = basis_nshell(basis)
+   natoms / basis_centers = 
+   map atom/center<->shell<->bf
+   get/set exponents/contraction coeffs
+   shell info (angular, gcontract, spherical/cart)
+   highest ang. mom.
+   print
+   load/store
+
+   On the data-base is
+
+       - list of known basis set names
+       - 
+
+*/

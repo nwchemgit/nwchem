@@ -1,0 +1,215 @@
+c:basP.fh
+c
+c basis set object/api  
+c Rick A. Kendall and Robert J. Harrison (March 1994)
+c
+c What is the minimum basis set informaton?  
+c
+c What is a basis set?  A basis set is a set of tags nominally 
+c     associated with an atomic center through a geometry specification
+c     or geometry object.  What needs to be stored is the basis set for
+c     the unique tags ("atoms").  The concept of shell and general 
+c     contraction confuses the issue somewhat but in the limit of a 
+c     segmented basis set the "shell" concept is the same as the 
+c     "general contraction."  The basis set object and it's interaction 
+c     with the integral API is predicated upon this assumption.  
+c
+c A pseudo input deck with the minimum information is as follows.  
+c Basis Set: Name (as on the rtdb)
+c            ntags (number of unique tags for which basis set 
+c                   information is supplied)
+c            nucont (total number of unique contractions in basis) 
+c            nprim_t (total number of primitives in basis)
+c            ncoef_t (total number of coeffs in basis)
+c            foreach tag (ntags of them)
+c             tag   (character string identifier of tag)
+c             number_of_contractions on tag
+c             nprim_c in contractions on tag
+c             ncoeff  in contractions on tag 
+c             first contraction of tag
+c             last contraction of tag
+c              foreach contraction (number_of_contractions of them)
+c              itype, nprim, ngen, iexptr, icoeff, tag_cont_is_on
+c               foreach nprim in a contraction
+c               ex(1), coeff(1,...)   (ngen contractions)
+c
+c......................................................................
+c
+c The tag ("atomic") information pseudo-data structure is as follows:
+c  Integer num_cont        ! Number of contractions on tag
+c  Integer nprim_tag       ! Number of primitive exponents on tag
+c  Integer ncoeff_tag      ! Number of primitive coeffs on tag
+c  Integer ifirst_cont     ! first contraction on tag
+c  Integer ilast_cont      ! last contraction on tag
+c  Integer itype(num_cont) ! type of contraction 0=s,1=p,2=d...
+c                          ! later -1=sp,-2=spd etc.
+c  Integer nprim(num_cont) ! number of primitives in each cont. on tag
+c  Integer ngen(num_cont)  ! number of general conts in each cont.
+c                          ! 1= segmented basis, >1 general cont.
+c  Integer iexpt(num_cont) ! pointer into linearized real*8 array for 
+c                          ! first exponent 
+c  Integer icoeffpt(num_cont) ! pointer into linearized real*8 array for 
+c                             ! first coefficient 
+c  Integer itag(num_cont)  ! tag identifier for contraction 
+c                          ! (redundant for just atomic info)
+c  Real*8 exndcf(nprim_tag+ncoeff_tag) ! linearized real*8 array of 
+c                                      ! exponents and coefficients
+c
+c......................................................................
+c
+c The basis set information is the number of tags and the above tag 
+c  information.  
+c 
+c unique information only!!!!!!!
+c
+c The basis set information pseudo-data structure is as follows:
+c  Character*256 bs_name             !  (as "mo basis") 
+c  Integer num_tags                  ! number of tags in basis
+c  Integer num_cont_total            ! number of conts in basis
+c  Integer num_prim_total            ! number of prims in basis
+c  Integer num_coeff_total           ! number of coefs in basis
+c  Character*16 tags(num_tags)       ! character string of tags 
+c  Integer num_cont(num_tags)        ! Num of conts on tag
+c  Integer nprim_tag(num_tags)       ! Num of prim exponents on tag
+c  Integer ncoeff_tag(num_tags)      ! Num of prim coeffs on tag
+c  Integer itype(num_cont)           ! type of contraction 0=s,1=p,2=d...
+c                                    ! later -1=sp,-2=spd etc.
+c  Integer nprim(num_cont)           ! num of prims in each cont. on tag
+c  Integer ngen(num_cont)            ! num of general conts in each cont.
+c                                    ! on each tag 
+c                                    ! 1= segmented basis, >1 general cont.
+c  Integer iexpt(num_cont)           ! pointer into linearized real*8 array 
+c                                    ! for first exponent of each cont. 
+c                                    ! on each tag
+c  Integer icoeffpt(num_cont)        ! pointer into linearized real*8 
+c                                    ! array for first coefficient of 
+c                                    ! each cont. on each tag
+c  Integer itag(num_cont)            ! tag identifier for contraction
+c  Real*8 exndcf(*)                  ! linearized real*8 array of 
+c                                    ! exponents and coefficients
+c
+c  Note: exndcf does not carry the num_cont label because it is a 
+c        linearized real*8 array and the added dimensionality is 
+c        handled by proper evaluation of the pointer arrays 
+c        iexpt and icoeffpt.
+c
+c......................................................................
+c
+c The above data structure is too cumbersome to efficiently store to 
+c  and read from the run-time-data-base (one call per array).  The 
+c  integer and real*8 data needs to be linearized with appropriate 
+c  informaton accessable by pointers arrays.  
+c
+c The more appropriate "basis" data structure is as follows:
+c  Character*256 bs_name             ! as "mo basis" 
+c  Character*16 tags(num_tags)       ! character string of tags 
+c  Integer infbs_head(4)             ! header information
+c           ! 1 = num_tags           ! num of tags in basis
+c           ! 2 = num_cont_total     ! num of conts in basis
+c           ! 3 = num_prim_total     ! num of prims(ex) in basis
+c           ! 4 = num_coeff_total    ! num of coeffs in basis
+c  Integer infbs_tags(5,num_tags)      
+c           ! 1 = num_cont   ! Num of conts on tag
+c           ! 2 = nprim_tag  ! Num of prim exponents on tag
+c           ! 3 = ncoeff_tag ! Num of prim coeffs on tag
+c           ! 4 = first cont ! first contaction on tag
+c           ! 5 = last cont  ! last contaction on tag
+c  Integer infbs_cont(6,num_cont) 
+c           ! 1 = itype    ! type of contraction 0=s,1=p,2=d...
+c                          ! later -1=sp,-2=spd etc.
+c           ! 2 = nprim    ! num of prims in each cont. on tag
+c           ! 3 = ngen     ! num of general conts in each cont.
+c                          ! on each tag 
+c                          ! 1= segmented basis, >1 general cont.
+c           ! 4 = iexpt    ! pointer into linearized real*8 array 
+c                          ! for first exponent of each cont. 
+c                          ! on each tag
+c           ! 5 = icoeffpt ! pointer into linearized real*8 
+c                          ! array for first coefficient of 
+c                          ! each cont. on each tag
+c           ! 6 = itag     ! cunique tag number
+c  Real*8 exndcf(*)        ! linearized real*8 array of 
+c                          ! exponents and coefficients
+c
+c......................................................................
+c
+c The above data structure now must handle multiple basis sets.
+c The "multiple basis set" data structure is as follows:
+c  Character*256 bs_name(nbasis)       ! as "mo basis" 
+c  Character*16 tags(num_tags,nbasis)  ! character string of tags 
+c  Integer infbs_head(4,nbasis)
+c           ! 1 = num_tags             ! num of tags in basis
+c           ! 2 = num_cont_total       ! num of conts in basis
+c           ! 3 = num_prim_total       ! num of prims(ex) in basis
+c           ! 4 = num_coeff_total      ! num of coeffs in basis
+c  Integer infbs_tags(5,num_tags,nbasis)      
+c           ! 1 = num_cont_tag         ! Num of conts on tag
+c           ! 2 = nprim_tag            ! Num of prim exponents on tag
+c           ! 3 = ncoeff_tag           ! Num of prim coeffs on tag
+c           ! 4 = first cont           ! first contraction on tag
+c           ! 5 = last cont            ! last contraction on tag
+c  Integer infbs_cont(6,num_cont_total,nbasis) 
+c           ! 1 = itype      ! type of contraction 0=s,1=p,2=d...
+c                            ! later -1=sp,-2=spd etc.
+c           ! 2 = nprim      ! num of prims in each cont. on tag
+c           ! 3 = ngen       ! num of general conts in each cont.
+c                            ! on each tag 
+c                            ! 1= segmented basis, >1 general cont.
+c           ! 4 = iexpt      ! pointer into linearized real*8 array 
+c                            ! for first exponent of each cont. 
+c                            ! on each tag
+c           ! 5 = icoeffpt   ! pointer into linearized real*8 
+c                            ! array for first coefficient of 
+c                            ! each cont. on each tag
+c           ! 6 = tag number ! unique center lexical index
+c  Real*8 exndcf(*,nbasis)   ! linearized real*8 array of 
+c                            ! exponents and coefficients
+c
+c         
+c......................................................................
+c
+c actual names are set to protect name space between the geom and 
+c  basis objects
+c
+c offset for basis handle
+#define BASIS_HANDLE_OFFSET ((0-565))
+c
+c.. static dimension information for common blocks
+#include "bas_staticP.fh"
+c
+c leading dimensions of compressed arrays
+      integer ndbs_tags, ndbs_ucont, ndbs_head
+      parameter(ndbs_tags=5, ndbs_ucont=6, ndbs_head=4)
+c.. stored structures
+      character*256 bs_name
+      character*16  bs_tags
+      real*8  exndcf
+      integer infbs_head,infbs_tags,infbs_cont
+c.. incore sturctures
+      real*8 bsversion
+      character*256 bs_trans,bs_names_rtdb
+      integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
+      integer angular_bs
+      logical bsactive 
+c
+      common /cbsdatac/
+     &       bs_name(nbasis_bsmx),
+     &       bs_tags(ntags_bsmx,nbasis_bsmx),
+c......... above for each basis is stored ... below is in-core
+     &       bs_trans(nbasis_bsmx),
+     &       bs_names_rtdb(nbasis_rtdb_mx)
+     
+      common /cbsdata/
+     &       exndcf(mxbs_exndcf,nbasis_bsmx),bsversion,
+     &       infbs_head(ndbs_head,nbasis_bsmx),
+     &       infbs_tags(ndbs_tags,ntags_bsmx,nbasis_bsmx),
+     &       infbs_cont(ndbs_ucont,nucont_bsmx,nbasis_bsmx),
+c......... above for each basis is stored ... below is in-core
+     &       len_bs_name(nbasis_bsmx),
+     &       len_bs_trans(nbasis_bsmx),
+     &       len_bs_rtdb(nbasis_rtdb_mx),
+     &       bsactive(nbasis_bsmx),
+     &       angular_bs(nbasis_bsmx),
+     &       nbasis_rtdb
+c
+

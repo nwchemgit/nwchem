@@ -1,0 +1,180 @@
+
+1) All input is free format and is lower cased on input except for
+   file names and titles.
+
+2) Directive structure
+
+3) Most directives can appear in any order
+
+4) Sensible defaults + full error checking
+---------------------
+
+
+---------------------------------------------------------------------
+Directives
+----------
+
+  Syntax for definition of the directives
+
+      () used to group entries (not actually present in the input)
+      || separate exclusive formats
+      [] enclose optional entries with a default value
+      <> enclose a type and a name of a value to be specified
+      A string is just a sequence of characters, enclosed in
+        quotes if there is white space
+      \ is used to concatenate lines
+
+      The order of keyed optional entries should not matter
+      unless noted otherwise.
+
+---------------------------------------------------------------------
+The input must commence with either a START or a RESTART directive
+which have the same syntax
+
+(RESTART || START) \
+       [[PREFIX] <string file prefix> = (<data base path>-'.db' || 'calc')] \
+       [DATABASE <string data base path> = <file prefix>.db]
+
+   These directives determine if this is a restart or startup calculation
+   and provide definition of <file prefix> and <data base path>
+   In a startup calculation any existing data base is destroyed.
+
+   By default all filenames will be created by appending to a common
+   file prefix, which could include a path adjustment.  This defaults
+   to either the data base name, stripped of a trailing '.db', or
+   failing that 'calc'.
+
+   The data base path can be specified, or defaulted using the
+   file prefix.
+
+   E.g.
+
+      start
+
+        Startup using all defaults (<file prefix> = 'calc') and
+        <data base path> = 'calc.db'
+
+      restart water
+
+        Restart calculation with <file prefix> = 'water' and
+        <data base path> = 'water.db'
+
+      restart prefix water
+
+        Same as previous example
+
+      restart /tmp/rjh/ch2 database /tmp/rjh/ch2small.db
+
+        Restart calculation with <file prefix> = '/tmp/rjh/ch2' and
+        <data base path> = '/tmp/rjh/ch2/ch2small.db'
+
+      start database /disk2/mgo.db
+
+        Startup calculation with <file prefix> = '/disk2/mgo' and
+        <data base path> = '/disk2/mgo.db'
+
+      start database /disk2/mgo_dumpfile
+
+        Startup calculation with <file prefix> = 'calc' and
+        <data base path> = '/disk2/mgo_dumpfile'
+
+---------------------------------------------------------------------
+
+TITLE <string title>
+
+   Enters the string into the data base entry 'title'
+
+---------------------------------------------------------------------
+
+GEOMETRY [<string name> = 'geometry'] [[UNITS] <string units> = 'au']
+
+  read until encounter END
+
+     <string atom tag> <double charge> <double x> <double y> <double z>
+END
+
+   Enters atomic cartesian coordinates in either atomic units (units
+   = 'au') or angstroms (units = 'angstroms').
+
+   Geometries may be optionally named, however, the default name of
+   'geometry' must usually be present for a calculation to proceed.
+
+   The atomic tag serves to match against tags provided for basis
+   function centers.  Also, the first 1 or 2 characters of the atomic
+   tag may interpreted to identify the element.
+
+   e.g.
+
+   geometry 'water at 90 degrees' angs
+      o 8  0.0 0.0 0.0
+      h 1  1.0 0.0 0.0
+      h 1  0.0 1.0 0.0
+   end
+---------------------------------------------------------------------
+
+BASIS [<string name> = 'mo basis set'>] LIBRARY <string standard set>
+  Read until END encountered
+
+      <string atom tag> LIBRARY <string standard set>
+
+      or
+
+      <string atom tag> <string angular momentum>
+          read until next <atom tag> or END encountered
+
+          <double contraction coeff> <double exponent>
+END
+
+   If the basis directive is not provided in a startup calculation
+   then a default of 3-21g is adopted.
+
+   Basis sets may also be named, with the default name of 'mo basis set'
+   being that required by modules that compute MOs.
+
+   Many standard basis sets are available in a library.  These may be
+   used for the whole molecule or just for individual atoms.
+   Basis functions defined within the basis set directive add to those
+   adopted on the directive line.
+
+   e.g.
+
+   basis library ccpvdz
+
+       Just use the standard cpvdz basis set
+
+   basis 
+   h s
+     0.01   100.
+     0.8      7.
+   h p
+     1.0    1.0
+   end
+
+       Defines a rather stupid basis set for the atomic center with tag h.
+
+   basis library 3-21g
+   o d
+     1.0  0.001
+   si library "somebody's standard diffuse polarization functions"
+   end
+     
+       Adopts a 3-1g basis set which is augmented with a d function
+       on centers with tag o and a standard set of functions on centers
+       with tag si.
+
+---------------------------------------------------------------------
+
+RHF 
+
+
+
+
+---------------------------------------------------------------------
+
+The CALCULATION directive will eventually control what calculations
+are performed and in what order, with high level control of input
+and output to each module.  Right now, since there is only RHF
+energy, it does very little ... in fact it is not even implemented.
+
+---------------------------------------------------------------------
+

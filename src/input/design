@@ -1,0 +1,19 @@
+
+
+  separate routine input_mem_size() scans input for memory directive
+
+  separate routine input_rtdb_name() scans input to infer the rtdb name
+
+  top level recognizes simple directives and module names only
+
+  inp_read()
+  while (input available)
+
+     read name
+
+     match name against known directives and call appropriate
+     modules to handle the input
+
+  
+
+     

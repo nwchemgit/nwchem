@@ -1,0 +1,38 @@
+      subroutine errquit(string, icode)
+      character*(*) string
+      integer icode
+c     
+c     error termination 
+c     
+c     string = error message printed to stdout
+c     icode  = informative value printed to stdout
+c     
+      write(6,1)
+ 1    format(1x,72('-'))
+      write(6, 2) string, icode
+ 2    format(1x,a,i)
+      write(6,1)
+      call inp_errout
+      write(6,1)
+      write(6,*) ' current input line : '
+      call inp_outrec
+      write(6,1)
+      call ga_error(string, icode)
+*
+#ifdef TCGMSG
+      call parerr(icode)
+#endif
+*
+#ifdef DELTA
+*      call killproc(-1,0)
+#elif defined(IPSC)
+*      call killcube(-1,-1)
+#endif
+*
+#if defined(SUN) || defined(SGI)
+      call abort
+#else
+      stop 1
+#endif
+*
+      end

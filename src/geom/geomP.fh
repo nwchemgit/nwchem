@@ -1,0 +1,86 @@
+c
+c     Private fortran include file for the geometry routines
+c
+c     Parameters
+c
+c     max_geom = maximum no. of geometries
+c     max_cent = maximum no. of centers in a geometry
+c     max_geom_rtdb = maximum no. of geometries stored in the rtdb
+c     nelments = no. of elements that info is stored about
+c
+c     [The only thing that cannot be dynamically allocated are the
+c      character variables for the tags ... I was lazy and just statically
+c      dimensioned everything ... just drudge work to dynamically 
+c      allocate though if necessary ... which it hopefully won't be
+c      ... since only geom.F (and maybe the basis routines) include
+c      this header file only these need to be recompiled if the parameters
+c      are changed]
+c     
+c     Members of /cgeometry/
+c
+c     ngeom_rtdb = current no. of geometries on the rtdb
+c     active(1:max_geom) = true if this geometry is open
+c     ncenter(1:max_geom) = no. of centers in this geometry
+c     coords(1:3,1:max_cent,1:max_geom) = cartesian coords of this geometry
+c     charge(1:max_cent,1:max_geom) = charges associated with centers
+c     dipole ... not yet
+c     quadrupole ... not yet
+c     pseudopotential ... not yet
+c     efield(1:3,1:max_geom) = external electric field applied to this system
+c     oefield = true if efield is on
+c     latvec(1:3,1:3,1:max_geom) = vectors specifing periodicity
+c                                  (null vector gives no periodicity)
+c     operiodic = true if a lattice vector is non-null
+c     erep(1:max_geom) = interaction energy of centers with each other
+c                        and external fields.  At its simplest this is
+c                        just the nuclear repulsion energy
+c     ndipole(1:3,1:max_geom) = nuclear dipole moment
+c     Members of /ccgeometry/
+c
+c     names(1:max_geom) = names of open geometries
+c     trans(1:max_geom) = translations of names of open geoms
+c     names_rtdb(1:max_geom) = names of geometries in the rtdb
+c     tag(1:max_cent,1:max_geom) = tags associated with centers
+c     lenn(1:max_geom) = length of names(geom) minus trailing blanks
+c     lent(1:max_geom) = length of trans(geom) ...
+c     lenr(1:max_geom) = length of names_rtdb(geom) ...
+c     symbols(1:nelements) = symbols for elements
+c     elements(1:nelements) = names of elements
+c     
+      integer max_geom, max_cent, max_geom_rtdb, nelements
+      parameter (max_geom=2, max_cent=1000, max_geom_rtdb = 100)
+      parameter (nelements = 103)
+c
+      logical active, operiodic, oefield
+      integer ngeom_rtdb, ncenter, lenn, lent, lenr
+      double precision coords, charge, efield, latvec, ndipole, erep
+      common/cgeometry/
+     $     coords(3,max_cent,max_geom),
+     $     charge(max_cent,max_geom),
+     $     efield(3, max_geom),
+     $     latvec(3,3, max_geom),
+     $     erep(max_geom),
+     $     ndipole(3,max_geom),
+     $     ncenter(max_geom),
+     $     active(max_geom),
+     $     lenn(max_geom),
+     $     lent(max_geom),
+     $     lenr(max_geom),
+     $     operiodic(max_geom),
+     $     oefield(max_geom),
+     $     ngeom_rtdb
+c
+      character*256 names, names_rtdb, trans
+      character*2 symbols
+      character*16 elements
+      character*16 tags
+      common/ccgeometry/
+     $     names(1:max_geom),
+     $     trans(1:max_geom),
+     $     names_rtdb(1:max_geom_rtdb),
+     $     tags(max_cent, max_geom),
+     $     symbols(nelements),
+     $     elements(nelements)
+c
+
+
