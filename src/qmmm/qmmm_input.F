@@ -15,7 +15,8 @@ c
       character*32 pname
       character*255 token
       character*32 interface
-      real*8 eatoms
+      double precision  eatoms
+      double precision bqzone
       logical fixlinks,fixqm
       integer linkatm,bq_exclude
       logical status
@@ -138,6 +139,19 @@ c
      >       RTDB_ERR)
         goto 2
       endif
+c
+      if(inp_compare(.false.,'bqzone',token)) then
+        tag="qmmm:bqzone"
+        if (.not.inp_f(bqzone))
+     +    call errquit('qmmm_input: failed to read bqzone',0, INPUT_ERR)
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,1,bqzone))
+     >  call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
+        goto 2
+
+      end if
+
 c     
 c     print level 
 c     -------------------

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.26 2004-10-19 20:01:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.27 2004-10-21 20:21:42 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -77,9 +77,10 @@ c     --------------------------
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
  
-      if(.not.geom_print_xyz(igeom,22))
-     +    call errquit('qmmm: Failed to print geometry',0)
-      call util_flush(22)
+c      if(qmmm_master()) then
+c        if(.not.geom_print(igeom))
+c     +      call errquit('qmmm: Failed to print geometry',0)
+c      end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -322,6 +323,7 @@ c    --------------------------------------
      >                    dbl_mb(i_q_all),
      >                    byte_mb(i_t_all))
 
+       call mm_print_solute_coord()
 
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -491,17 +493,18 @@ c     -----------------------------
       double precision c(3,nt)
       double precision q(nt)
       character*16 t(nt)
-      character*16 myname
+      character*(*) myname
 
       integer i
       integer n
       character*(nw_max_path_len) filename
 
-      n=inp_strlen(myname)
-      call util_file_name(myname(1:n), .false.,
-     >               .false., filename)
+c      n=inp_strlen(myname)
+c      call util_file_name(myname(1:n), .false.,
+c     >               .false., filename)
       open(unit=46,status="unknown",form="formatted",file=myname)
 
+      write(*,*) "pdb file ",myname
 
       do i=1,nt
        write(46,FMT=9000)

@@ -23,6 +23,213 @@ c
 
       pname = "qmmm_data_init: "
 
+c      master = ga_nodeid().eq.0
+c      fixlinks = .false.
+c
+c      eatoms = 0.0d0
+c      linkatm=qmmm_halogen
+c      bq_exclude=qmmm_hydrogen
+c      optimization = "qm"
+c      link_ecp = "auto"
+cc
+cc     initialize rtdb parameters
+c      if(master)
+c     > call util_print_centered(6,
+c     >    "QM/MM Interface Parameters",32,.true.)
+c
+c      tag = "qmmm:uqmatm"
+c      if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
+c        write(*,*) pname//"Warning! qm reference energy is set to", 
+c     >             eatoms
+c        if (.not.rtdb_put(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
+c     >      call errquit(pname//'failed to store eatoms',0,
+c     >       RTDB_ERR)
+c      end if
+c      if(master) 
+c     > write(6,20) "reference energy",tag,eatoms
+c
+c      tag = "qmmm:fixlinks"
+c      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
+c        if (.not.rtdb_put(irtdb,tag,mt_log,1,fixlinks)) 
+c     >      call errquit(pname//'failed to store fixlinks',0,
+c     >       RTDB_ERR)
+c
+c       end if
+c      if(master)
+c     > write(6,21) "fixed link bonds",tag,fixlinks
+c
+c      tag ="qmmm:bq_exclude" 
+c      if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
+c        if (.not.rtdb_put(irtdb,tag,mt_int,1,bq_exclude)) 
+c     >      call errquit(pname//'failed to store bq_exclude',0,
+c     >       RTDB_ERR)
+c
+c       end if
+c      if(master) then
+c        if(bq_exclude.eq.qmmm_hydrogen) then
+c          write(6,22) "excluded bq's",tag,
+c     >                 "hydrogens bonded to link atoms"
+c        else if(bq_exclude.eq.qmmm_all_atoms) then
+c          write(6,22) "excluded bq's",tag,"all"
+c        else if(bq_exclude.eq.qmmm_no_atoms) then
+c          write(6,22) "excluded bq's",tag,"none"
+c        else
+c          call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
+c        end if
+c      end if
+c
+c      tag ="qmmm:linkatm" 
+c      if (.not.rtdb_get(irtdb,tag,mt_int,1,linkatm)) then
+c        if (.not.rtdb_put(irtdb,tag,mt_int,1,linkatm)) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c
+c       end if
+c       if(master) then
+c         if(linkatm.eq.qmmm_hydrogen) then
+c           write(6,22) "link atom type",tag,"hydrogens"
+c         else if(linkatm.eq.qmmm_halogen) then
+c           write(6,22) "link atom type",tag,"halogens"
+c         else
+c           call errquit(pname//'invalid link atom type',0,RTDB_ERR)
+c         end if
+c       end if
+c     
+c      tag ="qmmm:optimization"
+c      if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
+c        if (.not.rtdb_cput(irtdb,tag,1,optimization)) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c
+c       else if (optimization .ne. "all" .and.
+c     >          optimization .ne. "mm" .and.
+c     >          optimization .ne. "qm" ) then
+c            call errquit(pname//'unknown value'//tag,0,
+c     >       RTDB_ERR)
+c
+c       end if
+c      if (master) 
+c     >  write(6,22) "optimization region",tag,optimization
+c
+c      tag ="qmmm:link_ecp"
+c      if (.not.rtdb_cget(irtdb,tag,1,link_ecp)) then
+c       if (.not.rtdb_cput(irtdb,tag,1,link_ecp)) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c
+c       else if (link_ecp .ne. "auto" .and.
+c     >          link_ecp .ne. "user" ) then
+c            call errquit(pname//'unknown value'//tag,0,
+c     >       RTDB_ERR)
+c
+c       end if
+c      if (master) 
+c     >  write(6,22) "ecp on link atoms",tag,link_ecp
+c
+c      fixqm = .false.
+c      interface='qm'
+c
+c      tag='task:operation'
+c      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+c     $     operation = 'energy'
+c      if (master) 
+c     >  write(6,22) "operation",tag,operation
+cc
+c      if (inp_compare(.false., 'optimize', operation)) then
+c        if (optimization.eq.'all') then
+c           fixqm = .false.
+c           interface = "mm"
+c        else if (optimization.eq.'mm') then
+c           fixqm = .true.
+c           interface = "mm"
+c        else if (optimization.eq.'qm') then
+c           fixqm = .false.
+c           interface = "qm"
+c        endif
+c      else if (inp_compare(.false., 'saddle', operation)) then
+c        fixqm = .false.
+c        interface = "qm"
+c      else if (inp_compare(.false.,'dynamics',operation)) then
+c        interface = "mm"
+c      end if
+c
+c      tag ="qmmm:fixqm" 
+c      if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
+c     >      call errquit(pname//'failed to store fixqm',0,
+c     >       RTDB_ERR)
+c      if (master) 
+c     >  write(6,21) "fixed qm region",tag,fixqm
+c
+c
+c      tag ="qmmm:interface"
+c      if (.not.rtdb_cput(irtdb,tag,1,interface)) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c      if (master) 
+c     >  write(6,22) "interface api",tag,interface
+c
+c      if (master) 
+c     >  write(6,23) 
+       
+
+      call mm_get_tot_nqm(nqm)
+      call mm_get_tot_nlink(nlink)
+c
+c     allocate data arrays
+c     --------------------
+      call qmmm_data_alloc(nqm)
+
+c 
+c     establish persistent mapping between mm and qm atoms
+c     first go pure quantum atoms and then links
+c     ----------------------------------------------------
+      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
+      if(nlink.gt.0) then
+        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
+      end if
+
+      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
+        qcharge = 0.0d0    
+      end if
+
+       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
+     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
+     &       RTDB_ERR)
+
+
+20    FORMAT(1X,A,T24,A,T46,F12.6)
+21    FORMAT(1X,A,T24,A,T46,L3)
+22    FORMAT(1X,A,T24,A,T46,A)
+23    FORMAT(1X,54("-"),//)
+
+
+      end
+
+      subroutine qmmm_data_rdinp(irtdb)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "inp.fh"
+
+      integer irtdb
+c
+      character*32 tag
+      character*32 pname
+      character*32 optimization
+      character*32 interface
+      character*32 link_ecp
+      double precision  eatoms,qatoms
+      logical fixqm
+      integer linkatm,bq_exclude
+      character*30 operation
+
+      pname = "qmmm_data_init: "
+
       master = ga_nodeid().eq.0
       fixlinks = .false.
 
@@ -39,7 +246,8 @@ c     initialize rtdb parameters
 
       tag = "qmmm:uqmatm"
       if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
-        write(*,*) pname//"Warning! qm reference energy is set to", 
+        if(master)
+     >   write(*,*) pname//"Warning! qm reference energy is set to", 
      >             eatoms
         if (.not.rtdb_put(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
      >      call errquit(pname//'failed to store eatoms',0,
@@ -47,6 +255,16 @@ c     initialize rtdb parameters
       end if
       if(master) 
      > write(6,20) "reference energy",tag,eatoms
+
+      tag = "qmmm:bqzone"
+      if (.not.rtdb_get(irtdb,tag,mt_dbl,1,bqzone)) then
+        if (.not.rtdb_put(irtdb,tag,mt_dbl,1,bqzone)) 
+     >      call errquit(pname//'failed to store '//tag,0,
+     >       RTDB_ERR)
+      end if
+      if(master) 
+     > write(6,20) "bqzone radius",tag,bqzone
+
 
       tag = "qmmm:fixlinks"
       if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
@@ -171,31 +389,6 @@ c
       if (master) 
      >  write(6,23) 
        
-
-      call mm_get_tot_nqm(nqm)
-      call mm_get_tot_nlink(nlink)
-c
-c     allocate data arrays
-c     --------------------
-      call qmmm_data_alloc(nqm)
-
-c 
-c     establish persistent mapping between mm and qm atoms
-c     first go pure quantum atoms and then links
-c     ----------------------------------------------------
-      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
-      if(nlink.gt.0) then
-        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
-      end if
-
-      if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
-        qcharge = 0.0d0    
-      end if
-
-       if (.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,link_atom))
-     + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
-     &       RTDB_ERR)
-
 
 20    FORMAT(1X,A,T24,A,T46,F12.6)
 21    FORMAT(1X,A,T24,A,T46,L3)
@@ -490,4 +683,12 @@ c
 
       end 
 
+      function qmmm_get_bqzone()
+      implicit none
+#include "qmmm_data.fh"
+      double precision qmmm_get_bqzone
+
+      qmmm_get_bqzone = bqzone
+
+      end 
 

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.31 2004-10-19 20:01:49 marat Exp $
+c $Id: qmmm.F,v 1.32 2004-10-21 20:21:42 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -30,6 +30,7 @@ c
     
       qmmm_init = .true.
 
+      call qmmm_data_rdinp(irtdb)
 c     initialize mm part
 c     (note it will also want operation)
 c     --------------------------------------------

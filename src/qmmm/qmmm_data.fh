@@ -1,8 +1,9 @@
 c
-c $Id: qmmm_data.fh,v 1.12 2004-10-18 23:55:38 marat Exp $
+c $Id: qmmm_data.fh,v 1.13 2004-10-21 20:21:42 marat Exp $
 c
       logical master
       logical fixlinks
+      double precision bqzone
       integer nqm,nlink
       integer i_ai,h_ai
       integer i_c,h_c
@@ -19,6 +20,7 @@ c
       integer link_atom
 
       common/qmmm_data/ qcharge,
+     &                 bqzone,
      &                 nqm,
      &                 nlink,
      &                 i_ai,h_ai,

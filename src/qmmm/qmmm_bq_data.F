@@ -36,6 +36,12 @@ c
       call mm_get_tot_nbqs(nbqs,link)
       call mm_get_tot_nbqw(nbqw)
       nbq=nbqs+nbqw
+      
+c      if(qmmm_print_debug()) then
+         write(*,*) "Total number of Bq charges",nbq
+         write(*,*) "Number of solute Bq charges",nbqs
+         write(*,*) "Number of solvent Bq charges",nbqw
+c      end if
 
       if(nbq.eq.0) return
 

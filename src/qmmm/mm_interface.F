@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.24 2004-10-19 20:01:49 marat Exp $
+c $Id: mm_interface.F,v 1.25 2004-10-21 20:21:41 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -183,7 +183,10 @@ c
          if(mm_lqsoft(i)) then
            if((bq_exclude.eq.qmmm_hydrogen).and.(mm_element(i).eq.1))
      >     call mm_clear_bqzone(i)
-           if(bq_exclude.eq.qmmm_all_atoms) call mm_clear_bqzone(i)
+           if(bq_exclude.eq.qmmm_all_atoms) then
+             write(*,*) "clearing bq flag",i
+             call mm_clear_bqzone(i)
+           end if
          endif
       end do
 
@@ -694,10 +697,12 @@ c     mm local variables
       write(*,*) "mm_print_solute_coord"
 
       do i=1,nsa
-        do k=1,3
-          write(*,*) dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
-        end do
+          write(*,300) mm_solute_charge(i),
+     >      (dbl_mb(pxs+(i-1)+(k-1)*msa)*
+     >                  cnm2au*cau2ang,k=1,3)
       end do
+
+300   FORMAT(4F12.6)
 
       end
 
