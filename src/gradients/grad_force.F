@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.28 1998-01-07 18:51:44 d3e129 Exp $
+c     $Id: grad_force.F,v 1.29 1998-03-13 01:28:38 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -756,7 +756,9 @@ c
          if (.not. ma_get_index(l_actlist, k_actlist))
      $        call errquit('grad_act_at: ma_get_inded failed',l_actlist)
          if (nactive.le.0 .or. nactive.gt.natoms)
-     $        call errquit('invalid number of active atoms',110)
+     $        call errquit
+     $        ('grad_act_at: invalid number of active atoms',
+     $        natoms*10000+nactive)
 C     fill lookup table
          do i=1, natoms
             oactive(i) = .false.
