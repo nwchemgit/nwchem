@@ -40,6 +40,7 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #define ffabs(a) ((a) > (0.) ? (a) : (-a))
+#define fffabs(a) ((a) > (0.) ? (a) : (-a))
 
 /*
    Internal PeIGS routine
