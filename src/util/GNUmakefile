@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.73 1997-04-16 18:31:10 d3j191 Exp $
+# $Id: GNUmakefile,v 1.74 1997-04-29 18:04:50 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -39,7 +39,7 @@ ifeq ($(TARGET),DECOSF)
   EXTRA_OBJ = dec_fpe.o
 endif
 
-       BLAS = dfill.o ifill.o rsg.o
+       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
 
    LIB_TARGETS = testsolve testecce
 
