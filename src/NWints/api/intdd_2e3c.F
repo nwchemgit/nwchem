@@ -1,6 +1,6 @@
-      subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
+      subroutine intdd_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.6 1999-04-23 09:29:36 d3e129 Exp $
+c $Id: intdd_2e3c.F,v 1.1 1999-04-23 09:30:09 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -88,7 +88,6 @@ c::passed
       integer jsh   ! [input] lexical contraction index 
       integer ketin ! [input] basis set handle for ket basis
       integer ksh   ! [input] lexical contraction index 
-      integer lsh   ! [input] lexical contraction index 
       integer lscr  ! [input] length of scratch array
       integer leri  ! [input] length of eri array
       double precision scr(lscr) ! [scratch] scratch array for integral code.
@@ -102,8 +101,7 @@ c::local
       integer iatom
       integer jatom
       integer katom
-      integer latom
-ckw
+c
       double precision roff(3)
       integer txs_i, txs_j, txs_k, txs_l
       logical status_nw, status_txs
@@ -118,11 +116,12 @@ c
 #include "bas_ibs_sfn.fh"
 c
       used_nw = .false.
-      nint = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+      nint = int_nint_cart(brain,ish,0, 0,ketin,jsh,ketin,ksh)
+*
       if (nint*78.gt.leri) then
         write(luout,*) 'nint*78 = ',nint*78
         write(luout,*) 'leri     = ',leri
-        call errquit('intdd_2e4c: nint>leri error',911)
+        call errquit('intdd_2e3c: nint>leri error',911)
       endif
 c
       bra = brain + BASIS_HANDLE_OFFSET
@@ -132,29 +131,25 @@ c
       cd_geom = ibs_geom(ket)
       if (ab_geom.ne.cd_geom) then
         write(luout,*)
-     &      'intdd_2e4c.F: two different geometries for',
+     &      'intdd_2e3c.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intdd_2e4c: geom error ',911)
+        call errquit('intdd_2e3c: geom error ',911)
       endif
-      
 c
       ucont = (sf_ibs_cn2ucn(ish,bra))
       iatom = (sf_ibs_cn2ce(ish,bra))
       idatom(1)=iatom
+      idatom(2)=0
 c
-      ucont = (sf_ibs_cn2ucn(jsh,bra))
-      jatom = (sf_ibs_cn2ce(jsh,bra))
-      idatom(2)=jatom
+      ucont = (sf_ibs_cn2ucn(jsh,ket))
+      jatom = (sf_ibs_cn2ce(jsh,ket))
+      idatom(3)=jatom
 c
       ucont = (sf_ibs_cn2ucn(ksh,ket))
       katom = (sf_ibs_cn2ce(ksh,ket))
-      idatom(3)=katom
+      idatom(4)=katom
 c
-      ucont = (sf_ibs_cn2ucn(lsh,ket))
-      latom = (sf_ibs_cn2ce(lsh,ket))
-      idatom(4)=latom
-c
-      if (iatom.eq.jatom.and.jatom.eq.katom.and.katom.eq.latom) then
+      if (iatom.eq.jatom.and.jatom.eq.katom) then
         call dfill((nint*78),0.0d00,eri,1)
         call ifill(4,-1,idatom,1)
         return
@@ -163,15 +158,15 @@ c
       status_nw  = .false.
       status_txs =.true.
       status_txs = status_txs .and.
-     &    cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
+     &    cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
 c
       if (status_txs) then
         call dfill(3,0.0d00,roff,1)
         q4 = 1.0d00
         txs_i = ish
-        txs_j = jsh
-        txs_k = ksh
-        txs_l = lsh
+        txs_j = 0
+        txs_k = jsh
+        txs_l = ksh
         num_quart=1
         dum_log=.false.
 c
@@ -184,19 +179,20 @@ c...............................use roff set false
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c...............gen labs .. more_integrals
      &      nint, .false., dum_log, scr, lscr, 0.0d0,'der2_int')
+        write(6,*)' intdd:2e3c:txshfm:nint = ',nint
         if (nint .eq. 0) then
-          nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
+          nintzero = int_nint(brain,ish,0,0,ketin,jsh,ketin,ksh)
           nintzero = nintzero*78
           call dfill(nintzero, 0.0d0, eri, 1)
           call ifill(4,-9,idatom,1)
         endif
 c
       else
-        write(luout,*)'intdd_2e4c: could not use the texas '
+        write(luout,*)'intdd_2e3c: could not use the texas '
         write(luout,*)'           integral second derivatives'
         write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
         write(luout,*)'        the input deck and output available'
-        call errquit('intdd_2e4c: fatal error',911)     
+        call errquit('intdd_2e3c: fatal error',911)     
       endif
 c
       end
