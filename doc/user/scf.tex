@@ -1,32 +1,32 @@
 \label{sec:scf}
 
 The NWChem self-consistent field (SCF) module computes closed-shell
-restricted Hartree-Fock (RHF), restricted high-spin open-shell
-Hartree-Fock (ROHF) and spin-unrestricted Hartree-Fock (UHF)
-wavefunctions. 
+restricted Hartree-Fock (RHF) wavefunctions, restricted high-spin
+open-shell Hartree-Fock (ROHF) wavefunctions, and spin-unrestricted
+Hartree-Fock (UHF) wavefunctions.
 
-The \verb+SCF+ directive provides input to the SCF module
-and is a compound directive
+The \verb+SCF+ directive provides input to the SCF module and is a
+compound directive that encloses additional directives specific to the
+SCF module:
 \begin{verbatim}
   SCF
     ...
   END
 \end{verbatim}
-that encloses additional directives specific to the SCF module. 
 
 \section{Wavefunction type}
 
-By default a spin-restricted, closed shell RHF calculation is
-performed.  An error results if the number of electrons is
-inconsistent with this assumption.  The number of electrons is
-inferred from the total charge on the system and the sum of the
-effective nuclear charges of all centers (atoms and dummy atoms,
-Section \ref{sec:geom}).  The total charge on the system is zero by
-default, unless specified at some value by input on the \verb+CHARGE+
-directive (Section \ref{sec:toplevel}).
+A spin-restricted, closed shell RHF calculation is performed by
+default.  An error results if the number of electrons is inconsistent
+with this assumption.  The number of electrons is inferred from the
+total charge on the system and the sum of the effective nuclear
+charges of all centers (atoms and dummy atoms, Section
+\ref{sec:geom}).  The total charge on the system is zero by default,
+unless specified at some value by input on the \verb+CHARGE+ directive
+(Section \ref{sec:toplevel}).
 
 The options available to define the SCF wavefunction and multiplicity
-are as follows;
+are as follows:
 
 \begin{verbatim}
   SINGLET 
@@ -34,7 +34,7 @@ are as follows;
   TRIPLET 
   QUARTET 
   QUINTET 
-  SEXTEXT
+  SEXTET
   SEPTET
   OCTET
   NOPEN <integer nopen default 0>
@@ -77,7 +77,7 @@ scf
 end
 \end{verbatim}
 
-The user should be aware that by default molecular orbitals are
+The user should be aware that, by default, molecular orbitals are
 symmetry adapted in NWChem.  This may not be desirable for fully
 unrestricted wavefunctions.  In such cases, the user has the option of
 defeating the defaults by specifying the keywords \verb+ADAPT OFF+
@@ -87,7 +87,7 @@ defeating the defaults by specifying the keywords \verb+ADAPT OFF+
 The keywords \verb+RHF+ and \verb+ROHF+ are provided in the code for
 completeness. It may be necessary to specify these in order to modify
 the behavior of a previous calculation (see Section \ref{sec:persist}
-  for restart behavior).
+for restart behavior).
 
 \section{{\tt SYM} --- use of symmetry}
 \label{sec:sym}
@@ -96,14 +96,14 @@ the behavior of a previous calculation (see Section \ref{sec:persist}
    SYM <string (ON||OFF) default ON>
  \end{verbatim}
 
-This directive enables/disables use of symmetry to speedup Fock matrix
-construction (via the petite or skeleton algorithm) in the SCF if
+This directive enables/disables the use of symmetry to speed up Fock matrix
+construction (via the petite or skeleton algorithm) in the SCF, if
 symmetry was used in the specification of the geometry.  Symmetry
-adaption of the molecular orbitals is not affected by this option.
+adaptation of the molecular orbitals is not affected by this option.
 The default is to use symmetry if it is specified in the geometry
 directive (Section \ref{sec:geom}). 
 
-For example, to disable use of symmetry in Fock-matrix construction
+For example, to disable use of symmetry in Fock matrix construction:
 \begin{verbatim}
   sym off
 \end{verbatim}
@@ -123,7 +123,7 @@ calculation is started using orbitals from a distorted geometry.
 
 The underlying assumption in the use of symmetry in Fock matrix
 construction is that the density is totally symmetric.  If the orbitals
-are symmetry contaminated, this assumption may not be valid which
+are symmetry contaminated, this assumption may not be valid --- which
 could result in incorrect energies and poor convergence of the
 calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
 also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
@@ -132,43 +132,34 @@ also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 \label{sec:tol2e}
 
 \begin{verbatim}
-  TOL2E <real tol2e default 0.01*$thresh$>
+  TOL2E <real tol2e default min(10^-7 , 0.01*$thresh$)>
 \end{verbatim}
-
-It is generally not necessary to set this parameter directly.  Specify
-instead the required precision in the wavefunction using the
-\verb+THRESH+ directive (Section \ref{sec:thresh}).
 
 The variable \verb+tol2e+ is used in determining the integral
 screening threshold for the evaluation of the energy and related
-Fock-like matrices.  The Schwarz inequality is used to screen upon the
+Fock-like matrices.  The Schwarz inequality is used to screen the
 product of integrals and density matrices in a manner that results in
-approximately an accuracy of the value specified for \verb+tol2e+ in
-the energy and Fock-matrices.  This differs from many codes where the
-error in the energy is typically much greater than this threshold.
+an accuracy in the energy and Fock matrices that approximates the
+value specified for \verb+tol2e+.  This differs from many
+computational chemistry codes, where the error in the energy is
+typically much greater than this threshold.
 
-The default threshold is the minimum of $10^{-7}$ and $0.01$ times the
-requested convergence threshold of the SCF calculation.  This is
-suitable for nearly all purposes, though a more relaxed value of 
-$10^{-6}$ might accelerate inaccurate exploratory calculations.
+It is generally not necessary to set this parameter directly.  Specify
+instead the required precision in the wavefunction, using the
+\verb+THRESH+ directive (Section \ref{sec:thresh}). The default
+threshold is the minimum of $10^{-7}$ and $0.01$ times the requested
+convergence threshold for the SCF calculation (Section
+\ref{sec:thresh}).  This is suitable for nearly all purposes, though a
+more relaxed value of $10^{-6}$ might accelerate exploratory
+calculations where accuracy is not a high priority.
 
-The input to specify the threshold explicitly within the
-\verb+SCF+ directive is as follows, e.g.
+The input to specify the threshold explicitly within the \verb+SCF+
+directive is, for example:
 
 \begin{verbatim}
   tol2e 1e-6
 \end{verbatim}
 
-\section{{\tt LAGRANGIAN} --- orbital Lagrangian}
-
-\begin{verbatim}
-  LAGRANGIAN
-\end{verbatim}
-
-This keyword generates and dumps the orbital Lagrangian to disk. The
-Lagrangian is required to compute ROHF gradients but under most
-circumstances this option is automatically enabled and need not be set
-by the user.
 
 \section{{\tt VECTORS} --- input/output of MO vectors}
 \label{sec:vectors}
@@ -185,51 +176,50 @@ by the user.
 The \verb+VECTORS+ directive allows the user to specify the source and
 destination of the molecular orbital vectors.  In a startup
 calculation (see Section \ref{sec:start}), the default source for
-guess vectors is to diagonalize a Fock matrix constructed from a
+guess vectors is a diagonalized Fock matrix constructed from a
 superposition of the atomic density matrices for the particular
 problem.  This is usually a very good guess.  For a restarted or
 continued calculation, the default is to use the previous MO vectors.
 
-The optional keyword \verb+INPUT+ allows the specification the source
-of the input molecular orbital vectors as
+The optional keyword \verb+INPUT+ allows the user to specify the
+source of the input molecular orbital vectors as any of the following:
 \begin{itemize}
-\item \verb+ATOMIC+ --- the default guess of eigenvectors of a Fock-like
-  matrix formed from a superposition of the atomic densities.
-\item \verb+HCORE+ --- eigen vectors of the bare-nucleus or
-  one-electron Hamiltonian.
-\item \verb+filename+ --- the name of a file containing the MO
-  vectors of a previous calculation.
-\item \verb+PROJECT basisname filename+ --- projects existing MO
+\item \verb+ATOMIC+ --- eigenvectors of a Fock-like matrix formed from
+  a superposition of the atomic densities (the default guess).
+\item \verb+HCORE+ --- eigenvectors of the bare-nucleus Hamiltonian or
+  the one-electron Hamiltonian.
+\item \verb+filename+ --- the name of a file containing the MO vectors
+  from a previous calculation.
+\item \verb+PROJECT basisname filename+ --- projects the existing MO
   vectors in the file \verb+filename+ from the smaller basis with name
   \verb+basisname+ into the current basis.  The definition of the
   basis \verb+basisname+ must be available in the current database,
-  and the basis must be smaller than the current one.  In addition,
+  and the basis must be smaller than the current basis.  In addition,
   the geometry used for the previous calculations must have the atoms
   in the same order and in the same orientation as the current
   geometry.
 \end{itemize}
  
-The molecular orbitals are saved every iteration and also at the end
-of the calculation.  At completion (converged or not), the SCF module
-always canonicalizes the molecular orbitals by {\em separately}
-diagonalizing the closed--closed, open--open and virtual--virtual
-blocks of the Fock matrix.
+The molecular orbitals are saved every iteration if more than 600
+seconds have elapsed, and also at the end of the calculation.  At
+completion (converged or not), the SCF module always canonically
+transforms the molecular orbitals by {\em separately} diagonalizing
+the closed--closed, open--open, and virtual--virtual blocks of the
+Fock matrix.
 
 The name of the file used to store the MO vectors is determined as
 follows:
 \begin{itemize}
-  \item if the \verb+OUTPUT+ keyword was specified on the \verb+VECTORS+
-  directive, then the following filename is used, or
-  \item if the input vectors were read from a file, this file is
-    reused for the output vectors (overwriting the input vectors), else
-  \item a default file name is generated in the directory for
-    permanent files (Section \ref{sec:dirs}) by prepending
-    \verb+".movecs"+ with the file prefix, i.e.,
-    \verb+"<file_prefix>.movecs"+.
+\item if the \verb+OUTPUT+ keyword was specified on the \verb+VECTORS+
+  directive, then the filename that follows this keyword is used, or
+\item if the input vectors were read from a file, this file is reused
+  for the output vectors (overwriting the input vectors); else,
+\item a default file name is generated in the directory for permanent
+  files (Section \ref{sec:dirs}) by prepending \verb+".movecs"+ with
+  the file prefix, i.e., \verb+"<file_prefix>.movecs"+.
 \end{itemize}
 The name of this file is stored in the database so that a subsequent
 SCF calculation will automatically restart from these MO vectors.
-
 
 Applications of this directive are illustrated in the following
 examples.
@@ -257,8 +247,8 @@ Example 3:
 \end{verbatim}
 This directive will cause the calculation to start from vectors in the
 file \verb+"small.movecs"+ which are in a basis named \verb+"small
-basis"+.  The output vectors will be written to the default
-file \verb+"<file_prefix.movecs>"+.
+basis"+.  The output vectors will be written to the default file
+\verb+"<file_prefix.movecs>"+.
  
 Once starting vectors have been obtained using any of the possible
 options, they may be reordered through use of the \verb+SWAP+ keyword.
@@ -280,40 +270,44 @@ The swapping of orbitals occurs as a sequential process in the order
 (left to right) input by the user.  Thus, regarding each pair as an
 elementary transposition it is possible to construct arbitrary
 permutations of the orbitals.  For instance, to apply the permutation
-$(6 7 8 9)$ we note that this is equal to $(6 7)(7 8)(8 9)$, and thus
-may be specified as
+$(6 7 8 9)$\footnote{The cyclic permutation $(6 7 8 9)$ maps the
+  ordered list \verb+6 7 8 9+ into \verb+9 6 7 8+.} we note that this
+permutation is equal to $(6 7)(7 8)(8 9)$, and thus may be specified
+as
 \begin{verbatim}
   vectors swap 8 9  7 8  6 7
 \end{verbatim}
 
-Another example, now illustrating this feature for a UHF calculation
+Another example, now illustrating this feature for a UHF calculation,
 is the directive
 \begin{verbatim}
   vectors swap beta 4 5 swap alpha 5 6
 \end{verbatim}
-This input will result in the swapping of the 5--6 alpha orbital pair and 
-the 4--5 beta orbital pair.  (All other items in the input use the
+This input will result in the swapping of the 5--6 alpha orbital pair
+and the 4--5 beta orbital pair.  (All other items in the input use the
 default values.)
 
 The \verb+LOCK+ keyword allows the user to specify that the ordering
-of orbitals will be locked to that of the initial vectors, as far as
+of orbitals will be locked to that of the initial vectors, insofar as
 possible. The default is to order by ascending orbital energies within
-each orbital space. One application where this might be desirable is a
-calculation where it is necessary to preserve the ordering of a
-previous geometry despite flipping of orbital energies.  For such a
-case, the \verb+LOCK+ directive can be used to prevent the SCF
+each orbital space. One application where locking might be desirable
+is a calculation where it is necessary to preserve the ordering of a
+previous geometry, despite flipping of the orbital energies.  For such
+a case, the \verb+LOCK+ directive can be used to prevent the SCF
 calculation from changing the ordering, even if the orbital energies
 change.
 
 \subsection{Atomic guess orbitals with charged atoms}
+\label{sec:atomscf}
 
-If some atoms are significantly charged, then the default guess of
-superimposing the densities of the neutral atoms may be improved upon
-by modifying the atomic densities.  This is done by adding fractional
-charges to the occupation of the valence atomic orbitals.  This is
-accomplished by setting parameters used by the atomic SCF program which
-does not have its own input block, and therefore the \verb+SET+
-directive (Section \ref{sec:set}) must be used.
+As noted above, the default guess vectors are based on superimposing
+the density matrices of the neutral atoms.  If some atoms are
+significantly charged, this default guess may be improved upon by
+modifying the atomic densities.  This is done by setting parameters
+that add fractional charges to the occupation of the valence atomic
+orbitals.  Since the atomic SCF program does not have its own input
+block, the \verb+SET+ directive (Section \ref{sec:set}) must be used
+to set these parameters.
 
 The input specifies a list of tags (i.e., names of atoms in a
 geometry, see Section \ref{sec:geom}) and the charges to be added to
@@ -327,8 +321,8 @@ those centers.  Two parameters must be set as follows:
 
 The array of strings \verb+atomscf:tags_z+ should be set to the list
 of tags, and the array \verb+atomscf:z+ should be set to the list of
-charges.  All atoms that have the same tag as one specified in this
-list will be assigned the corresponding charge.
+charges.  All atoms that have a tag specified in the list of tags will
+be assigned the corresponding charge from the list of charges.
 
 \fussy
 
@@ -347,10 +341,10 @@ report an error, and it will not report further errors in the input
 for modifying the charge even when they are detected.
 
 Finally, recall that the database is persistent (Section
-\ref{sec:persist}) and the above settings will be used in subsequent
-atomic guess calculations unless the data is deleted from the database
-with the \verb+UNSET+ directive (Section \ref{sec:unset}).
-
+\ref{sec:persist}) and that the modified settings will be used in
+subsequent atomic guess calculations unless the data is deleted from
+the database with the \verb+UNSET+ directive (Section
+\ref{sec:unset}).
 
 \section{{\tt THRESH} --- convergence threshold}
 \label{sec:thresh}
@@ -367,21 +361,22 @@ The norm of the orbital gradient corresponds roughly to the precision
 available in the wavefunction, and the energy should be converged to
 approximately the square of this number.  It should be noted, however,
 that the precision in the energy will not exceed that of the integral
-selection tolerance.  This tolerance (Section \ref{sec:tol2e}) is
+screening tolerance.  This tolerance (Section \ref{sec:tol2e}) is
 automatically set from the convergence threshold, so that sufficient
 precision is usually available by default.
 
 The default convergence threshold suffices for most SCF energy and
 geometry optimization calculations, providing about 6--8 decimal
 places in the energy, and about four significant figures in the
-density and energy derivative w.r.t.\ nuclear coordinates.  However,
+density and energy derivative with respect to nuclear coordinates.
+However, greater precision may be required for calculations involving
 weakly interacting systems, floppy molecules, finite-difference of
-gradients to compute the Hessian, and post-Hartree-Fock calculations
-may require greater precision.  A threshold of $10^{-6}$ is adequate
-for most such purposes, and a threshold of $10^{-8}$ might be
-necessary for very high accuracy or very weak interactions.  A
-threshold of $10^{-10}$ should be regarded as the best that can be
-attained in most circumstances.
+gradients to compute the Hessian, and for post-Hartree-Fock
+calculations.  A threshold of $10^{-6}$ is adequate for most such
+purposes, and a threshold of $10^{-8}$ might be necessary for very
+high accuracy or very weak interactions.  A threshold of $10^{-10}$
+should be regarded as the best that can be attained in most
+circumstances.
 
 \section{{\tt MAXITER} --- iteration limit}
 \label{sec:max}
@@ -393,22 +388,23 @@ attained in most circumstances.
 \sloppy
 
 The maximum number of iterations for the SCF calculation defaults to
-eight for ROHF/RHF calculations and 20 for UHF.  For most molecules,
-this number of iterations is sufficient for the quadratically
-convergent SCF algorithm to obtain a solution converged to the
-default threshold (see Section \ref{sec:thresh} above).  If the SCF
-program detects that the quad\-ratically-con\-ver\-gent algorithm is not
-efficient, then it will resort to a lin\-early-con\-ver\-gent algorithm and
-increase the maximum number of iterations by 10.
+20 for both ROHF/RHF and UHF calculations.  For most molecules, this
+number of iterations is more than sufficient for the quadratically
+convergent SCF algorithm to obtain a solution converged to the default
+threshold (see Section \ref{sec:thresh} above).  If the SCF program
+detects that the quad\-ratically con\-ver\-gent algorithm is not
+efficient, then it will resort to a lin\-early con\-ver\-gent
+algorithm and increase the maximum number of iterations by 10.
 
 \fussy
 
 Convergence may not be reached in the maximum number of iterations for
-many reasons, including input error (e.g., an incorrect geometry or
+many reasons, including input error (e.g., an incorrect geometry or a
 linearly dependent basis), a very low convergence threshold, a poor
-initial guess, or the system is intrinsically hard to converge. 
+initial guess, or the fact that the system is intrinsically hard to
+converge due to the presence of many states with similar energies.
 
-The following sets the maximum no. of SCF iterations to 50
+The following sets the maximum number of SCF iterations to 50:
 \begin{verbatim}
   maxiter 50
 \end{verbatim}
@@ -419,13 +415,13 @@ The following sets the maximum no. of SCF iterations to 50
 The resolution of the identity (RI) approximation (using the
 V-approximation of Alml\"{o}f and Vahtras) is automatically invoked if
 a basis set named \verb+"riscf basis"+ is present in the database.
-This basis will be used as the fitting basis.  The RI-SCF method
-provides most computational speedup with least loss of accuracy when
-applied to relatively small molecules in large basis sets.
-Calculations on large molecules in modest basis sets will not realize
-a significant performance gain from RISCF.
+This basis will be used as the fitting basis.  The RISCF method
+provides the most computational speedup with the least loss of
+accuracy when applied to relatively small molecules in large basis
+sets.  Calculations on large molecules in modest basis sets will not
+realize a significant performance gain from RISCF.
 
-By default the full RISCF approximation will be applied and the
+The full RISCF approximation will be applied by default, and the
 \verb+RI+ directive serves to modify the extent of the approximation
 and the computational strategy.
 
@@ -444,36 +440,36 @@ The first three parameters determine the extent of the approximation:
 
 \item \verb+HESSIAN+ --- only the orbital Hessian will be calculated
   with an approximated Fock matrix.  This will yield an exact energy
-  and wavefunction and using the quadratically convergent SCF
-  algorithm should result in a 1.5--2 fold speedup over direct SCF.
+  and wavefunction and, using the quadratically convergent SCF
+  algorithm, should result in a 1.5--2-fold speedup over direct SCF.
 
 \item \verb+PRECONVERGE+ --- specifies a two-part calculation.  First,
-  the SCF calculation will be performed with the full RI
-  approximation.  Then an ``exact'' direct SCF calculation using the
-  RI approximated Hessian will be performed (the same as the above
-  \verb+HESSIAN+ option).  An exact energy and wavefunction will be
+  the SCF calculation is performed with the full RI
+  approximation.  Then an ``exact'' direct SCF calculation is performed, 
+using the RI approximated Hessian (the same as the 
+  \verb+HESSIAN+ option above).  An exact energy and wavefunction will be
   obtained.
 \end{itemize}
 
 The next three parameters determine the computational strategy:
 \begin{itemize}
-\item \verb+AUTO+ --- This is the default option which allows the code
+\item \verb+AUTO+ --- This is the default option, and allows the code
   to make its own decision on where to store the 3-center integrals.
-  If there is enough memory available, it will use the in-core option;
+  If there is enough memory available, it will use the in-core (memory) option;
   otherwise, the disk-based algorithm will be used, if available.
 
 \item \verb+MEMORY+ --- This forces storage of the 3-center integrals
-  in memory.  If insufficient memory is available an error results.
+  in memory.  If insufficient memory is available, an error results.
 
 \item \verb+DISK+ --- If the ''Disk Resident Array'' library is
   implemented in the user's installation of NWChem, the keyword
   \verb+DISK+ can be used to specify that the 3-center integrals will
-  be stored on disk.  Otherwise an error results.
+  be stored on disk.  Otherwise, an error results.
 \end{itemize}
 
 \section{{\tt PROFILE} --- performance profile}
 
-This directive allows the user to obtain a timing and parallel
+This directive allows the user to obtain timing and parallel
 execution information about the SCF module.  It is specified by the
 simple keyword
 
@@ -482,32 +478,29 @@ simple keyword
 \end{verbatim}
 
 This option can be helpful in understanding the computational
-performance of an SCF calculation.  However, on machines that have
-expensive timing routines, such as the SUN, it can introduce a
-significant overhead.
+performance of an SCF calculation.  However,
+it can introduce a significant overhead 
+on machines that have expensive timing routines, such as the SUN.
 
 \section{{\tt DIIS} --- DIIS convergence}
 
 This directive allows the user to specify DIIS convergence rather than
 second-order convergence for the SCF calculation.  The form of the
-directive is as follows;
+directive is as follows:
 
 \begin{verbatim}
   DIIS
 \end{verbatim}
 
-When this option is specified in the input, the \verb+MAXITER+
-directive (see Section \ref{sec:max}) must also be specified, with the
-macro-iteration count \verb+maxiter+ set to a value around 20.  The
-implementation of this option is currently fairly rudimentary.  It
-does not have level-shifting and damping, and does not support
-open-shells or UHF.  It is provided on an ``as is'' basis, and should
-be used with caution.
+The implementation of this option is currently fairly rudimentary.  It
+does not have level-shifting and damping, and does not support open
+shells or UHF.  It is provided on an ``as is'' basis, and should be
+used with caution.
 
 When the \verb+DIIS+ directive is specified in the input, the user has
-the additional option of specifying the size of the subspace for the DIIS
-extrapolation.  This is accomplished with the \verb+DIISBAS+ directive,
-which is of the form,
+the additional option of specifying the size of the subspace for the
+DIIS extrapolation.  This is accomplished with the \verb+DIISBAS+
+directive, which is of the form:
 \begin{verbatim}
   DIISBAS <integer diisbas default 5>
 \end{verbatim}
@@ -518,52 +511,61 @@ to specify a lower value for \verb+diisbas+, to conserve memory.
 \section{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
 \label{sec:semidirect}
 
+In the context of SCF calculations direct means that all integrals are
+recomputed as required and none are stored.  The other extreme are
+disk- or memory-resident (sometimes termed conventional) calculations
+in which all integrals are computed once and stored.  Semi-direct
+calculations are between these two extremes with some integrals being
+precomputed and stored, and all other integrals being recomputed as
+necessary.
+
 The default behavior of the SCF module is
 \begin{itemize}
-\item if there is enough memory available, the integrals are computed
-   once and cached in memory.
- \item If there is not enough memory to store all of the integrals at
-   once, then 95\% of the available disk space in the scratch
-   directory (see Section \ref{sec:dirs}) is assumed available for
-   this purpose, and as many integrals as possible are cached on disk
-   (with no memory being used for caching).  Some attempt is made to
-   store the most expensive integrals in the cache.  (Note that no
-   allowance is made for processes sharing disks when computing
-   available space.)
- \item If there is not enough room in memory or on disk for all of the
+\item If enough memory is available, the integrals are computed once
+  and are cached in memory.
+\item If there is not enough memory to store all the integrals at
+  once, then 95\% of the available disk space in the scratch directory
+  (see Section \ref{sec:dirs}) is assumed to be available for this
+  purpose, and as many integrals as possible are cached on disk (with
+  no memory being used for caching).  Some attempt is made to store
+  the most expensive integrals in the cache.  (Note that, in computing
+  available space, no allowance is made for processes sharing disks.)
+ \item If there is not enough room in memory or on disk for all the
    integrals, then the ones that are not cached are recomputed in a
-   semi-direct fashion.
+   semidirect fashion.
 \end{itemize}
 
 The integral file is deleted at the end of a calculation, so it is not
-possible to restart a semi-direct calculation when the integrals are
+possible to restart a semidirect calculation when the integrals are
 cached in memory or on disk.  Many computer systems (e.g., the EMSL
 IBM SP) clear the fast scratch space at the end of each job, adding a
 further complication to the problem of restarting a {\em parallel}
-semi-direct calculation.  Under some situations, it is possible to
-restart from integrals on disk, but this capability will not be made
-widely available until a later date.
+semidirect calculation.
+
+%Under some situations, it is possible to
+%restart from integrals on disk, but this capability will not be made
+%widely available until a later date.
 
 On the IBM SP or any other computer with fast disks local to each
-processor, semi-direct gives the best behavior.  It can result in
-{\em quadratic speedup} as more processors are added.  On other
-machines, it may be necessary to resort to additional strategies to
-achieve faster performance, such as limiting the use of disk space,
+processor, semidirect calculation offers the best behavior.  It can
+result in {\em quadratic speedup} as more processors are added.  On
+other machines, it may be necessary to resort to additional strategies
+to achieve faster performance, such as limiting the use of disk space,
 forcing the use of more memory for caching, changing the default file
-names, or using fully-direct SCF.
+names, or using fully direct SCF.
 
-The user has the option of forcing a fully-direct calculation (with
-recomputation of the integrals each iteration).  This is accomplished
-by specifying the directive
+The user has the option of forcing a fully direct calculation (with
+recomputation of the integrals at each iteration).  This is
+accomplished by specifying the directive
 
 \begin{verbatim}
   DIRECT
 \end{verbatim}
 
 Alternatively, the \verb+SEMIDIRECT+ directive can be used to control
-the default semi-direct calculation by defining the amount of disk
+the default semidirect calculation by defining the amount of disk
 space and the cache memory size.  The form of this directive is as
-follows;
+follows:
 
 \begin{verbatim}
    SEMIDIRECT [filesize <integer filesize default disksize>] 
@@ -571,17 +573,16 @@ follows;
               [filename <string filename default $file_prefix.aoints$>]
 \end{verbatim}
 
-The keyword \verb+FILESIZE+ allows the user to define an integer value
-for \verb+filesize+ to specify the amount of disk space to be used per
-process for storing integrals in 64-bit words.  Similarly, the keyword
-\verb+MEMSIZE+ allows the user to specify \verb+memsize+, the number
-of 64-bit words to be used per process for caching integrals in
-memory. (Note: If the amount of storage space specified by the entry
-for \verb+memsize+ is not available, the code cuts the value in half
-and checks again for available space.  This process is repeated until
-the request is satisfied.)  
+The keyword \verb+FILESIZE+ allows the user to specify the amount of
+disk space to be used per process for storing the integrals in 64-bit
+words.  Similarly, the keyword \verb+MEMSIZE+ allows the user to
+specify the number of 64-bit words to be used per process for caching
+integrals in memory. (Note: If the amount of storage space specified
+by the entry for \verb+memsize+ is not available, the code cuts the
+value in half and checks again for available space.  This process is
+repeated until the request is satisfied.)
 
-By default, the integral file is placed into the scratch directory
+By default, the integral files are placed into the scratch directory
 (see Section \ref{sec:dirs}). Specifying the keyword \verb+FILENAME+
 overrides this default.  The user-specified name entered in the string
 \verb+filename+ has the process number appended to it, so that each
@@ -590,18 +591,18 @@ Therefore, it is not possible to use this keyword to specify different
 disks for different processes.  The \verb+SCRATCH_DIR+ directive (see
 Section \ref{sec:dirs}) can be used for this purpose.
 
-For example, to force full recomputation of all integrals
+For example, to force full recomputation of all integrals:
 \begin{verbatim}
   direct
 \end{verbatim}
 
-Exactly the same result could be obtained by entering the directive
+Exactly the same result could be obtained by entering the directive:
 \begin{verbatim}
   semidirect filesize 0 memsize 0
 \end{verbatim}
 
 To disable the use of memory for caching integrals and limit disk
-usage by each process to 100 MW:
+usage by each process to 100 megawords (MW):
 \begin{verbatim}
   semidirect memsize 0 filesize 100000000
 \end{verbatim}
@@ -609,22 +610,22 @@ usage by each process to 100 MW:
 
 \subsection{Integral File Size and Format for the SCF Module}
 
-The file format is rather complex since it accommodates a variety of
-packing and compression options and distribution of data.  This
+The file format is rather complex, since it accommodates a variety of
+packing and compression options and the distribution of data.  This
 section presents some information that may help the user understand
-the output and illustrates how to use the output information to
+the output, and illustrates how to use the output information to
 estimate file sizes.
 
 If integrals are stored with a threshold of greater than $10^{-10}$,
-then the integrals themselves are stored in a 32-bit fixed-point
-format (with special treatment for large values to retain precision).
-If integrals are stored with a threshold that is less than $10^{-10}$,
-however, the values are stored in 64-bit floating-point format.  If a
+then the integrals are stored in a 32-bit fixed-point format (with
+appropriate treatment for large values to retain precision).  If
+integrals are stored with a threshold less than $10^{-10}$, however,
+the values are stored in 64-bit floating-point format.  If a
 replicated-data calculation is being run, then 8 bits are used for
 each basis function label, unless there are more than 256 functions,
-in which case 16 bits are used.  If distributed-data is being used,
-then the labels are always packed to 8-bits (the distributed blocks
-always being less than 256 and labels are relative to the start of the
+in which case 16 bits are used.  If distributed data is being used,
+then the labels are always packed to 8 bits (the distributed blocks
+always being less than 256; labels are relative to the start of the
 block).
 
 Thus, the number ($W$) of 64-bit words required to store $N$
@@ -640,15 +641,15 @@ integrals, may be computed as
       \right.
 \end{displaymath}
 
-The actual number of words required can be up to about one percent
-larger than the value of $W$ computed by the above relationship.  This
-is due to bookkeeping overhead, and because the file itself is
+The actual number of words required can 
+exceed this computed value by up to one percent, due to 
+bookkeeping overhead, and because the file itself is
 organized into fixed-size records.
 
 With at least the default print level, all semidirect (not direct)
 calculations will print out information about the integral file and
 the number of integrals computed.  The form of this output is as
-follows;
+follows:
 
 \begin{verbatim}
  Integral file          = ./c6h6.aoints.0
@@ -659,11 +660,12 @@ follows;
  #quartets = 2.0D+04  #integrals = 7.9D+05  direct = 63.6%  cached = 36.4%
 \end{verbatim}
 
-The above file information relates only to process 0.  The information
-about the number of integrals, etc., is a sum over all processes.
+The file information above relates only to process 0.  The line of
+information about the number of quartets, integrals, etc., is a sum
+over all processes.
 
 When the integral file is closed, additional information of the following
-form is printed.
+form is printed:
 
 \begin{verbatim}
 ------------------------------------------------------------
@@ -679,45 +681,45 @@ rate(mb/s): 1.44e+01  1.01e+02
 
  Parallel integral file used       4 records with       0 large values
 \end{verbatim}
-The detailed file information relates just to process 0, but the 
-line below that indicates the total number of integral records stored
-by all processes.  
+Again, the detailed file information relates just to process 0, but
+the final line indicates the total number of integral records stored
+by all processes. 
 
-This information may be used to optimize subsequent calculations.
-
+This information may be used to optimize subsequent calculations, for
+instance by assigning more memory or disk space.
 
 \section{SCF Convergence Control Options}
 \label{sec:scfconv}
 
 {\em Note to users:} It is desired that the SCF program converge
 reliably with the default options for a wide variety of molecules.  In
-addition, it should be guaranteed to converge sufficient with
-iterations for any system.  Please report significant convergence
-problems to \verb+nwchem+-\verb+support@+\-\verb+emsl.pnl.gov+,
-including the input file.
+addition, it should be guaranteed to converge for any system, with
+sufficient iterations.  Please report significant convergence problems
+to \verb+nwchem+-\verb+support@+\-\verb+emsl.pnl.gov+, and include the
+input file.
 
 % An understanding of the output of the SCF program and the options
 % controlling convergence requires some knowledge of the convergence
 % scheme.
 
 The SCF program uses a preconditioned conjugate gradient (PCG) method
-that is unconditionally convergent.  Basically, the orbital gradient
-(the derivative of the energy with respect to the orbital rotations)
-is multiplied by an approximation to the inverse of the level-shifted
-orbital Hessian to form a search direction.  In the initial iterations
-(see Section \ref{sec:nrswitch}) an inexpensive one-electron
-approximation to the inverse orbital Hessian is used.  Closer to
-convergence, the full orbital Hessian is used, which should provide
-quadratic convergence.  For both the full or one-electron orbital
-Hessians, the inverse-Hessian matrix-vector product is formed
+that is unconditionally convergent.  Basically, a search direction is
+generated by multiplying the orbital gradient (the derivative of the
+energy with respect to the orbital rotations) by an approximation to
+the inverse of the level-shifted orbital Hessian.  In the initial
+iterations (see Section \ref{sec:nrswitch}), an inexpensive
+one-electron approximation to the inverse orbital Hessian is used.
+Closer to convergence, the full orbital Hessian is used, which should
+provide quadratic convergence.  For both the full or one-electron
+orbital Hessians, the inverse-Hessian matrix-vector product is formed
 iteratively.  Subsequently, an approximate line search is performed
 along the new search direction.  If the exact Hessian is being
-employed then the line search should require a single step (of unity).
-Preconditioning with approximate Hessians may require additional
-steps, especially in the initial iterations.  It is the (approximate)
-line search that provides the convergence guarantee.  The iterations
-required to solve the linear equations are referred to as
-micro-iterations.  A macro-iteration comprises both the iterative
+employed, then the line search should require a single step (of
+unity).  Preconditioning with approximate Hessians may require
+additional steps, especially in the initial iterations.  It is the
+(approximate) line search that provides the convergence guarantee.
+The iterations required to solve the linear equations are referred to
+as micro-iterations.  A macro-iteration comprises both the iterative
 solution and a line search.
 
 Level-shifting plays {\em exactly} the same role in this algorithm as
@@ -725,38 +727,57 @@ it does in the conventional iterative solution of the SCF equations.
 The approximate Hessian used for preconditioning should be positive
 definite.  If this is not the case, then level-shifting by a positive
 constant ($\Delta$) serves to make the preconditioning matrix positive
-definite by adding $\Delta$ onto all of its eigenvalues.  The
+definite, by adding $\Delta$ to all of its eigenvalues.  The
 level-shifts employed for the RHF orbital Hessian should be
 approximately four times (only twice for UHF) the value that one would
 employ in a conventional SCF\footnote{This can be seen by considering
   a one-electron approximation to the closed-shell RHF Hessian in
   canonical orbitals, $A_{ia,jb} = 4 \delta_{ij} \delta_{ab}
-  (\epsilon_a - \epsilon_i)$.  Similarly, for UHF the level shift
-  should be twice as large.}.  Level-shifting is automatically enabled
-in the early iterations and the default options suffice for most test
+  (\epsilon_a - \epsilon_i)$.  Similarly, the level shift
+  should be twice as large for UHF.}.  Level-shifting is automatically enabled
+in the early iterations, and the default options suffice for most test
 cases.
 
 So why do things go wrong and what can be done to fix convergence
-problems?  Most problems encountered so far arise from small or
-negative eigenvalues of the orbital Hessian which can occur even
-though you seem to be close to convergence (as measured by the
-gradient norm, or off diagonal Fock matrix elements).  Small
+problems?  Most problems encountered so far arise either poor initial
+guesses or from small or negative eigenvalues of the orbital Hessian.
+The atomic orbital guess is usally very good.  However, in
+calculations on charged systems, especially with open shells,
+incorrect initial occupations may result.  The SCF might then coverge
+very slowly since very large orbital rotations might be required to
+achieve the correct occupation or move charge large distances in the
+molecule.  Possible actions are
+\begin{itemize}
+\item Modify the atomic guess by assigning charges to the atoms
+  known to carry substantial charges (Section \ref{sec:atomscf})
+\item Examining an analysis of the initial orbitals (Section
+  \ref{sec:scfprint}) and then swapping them to attain the desired
+  occupation (Section \ref{sec:vectors}).
+\item Converging the calculation in a minimial basis set, which is
+  usually easier, and then projecting into a larger basis set (Section
+  \ref{sec:vectors}).
+\end{itemize}
+
+Small or negative Hessian eigenvalues can occur even though the
+calculation seem to be close to convergence (as measured by the
+gradient norm, or the off-diagonal Fock matrix elements).  Small
 eigenvalues will cause the iterative linear equation solver to
-converge slowly, causing an excessive number of micro-iterations.
+converge slowly, resulting in an excessive number of micro-iterations.
 This makes the SCF expensive in terms of computation time, and it is
 possible to exceed the maximum number of iterations without achieving
-the accuracy required for quadratic convergence which causes more
+the accuracy required for quadratic convergence --- which causes more
 macro-iterations to be performed.  A negative eigenvalue in the
 Hessian will usually also cause slow convergence of the
-micro-iterations (since negative eigenvalues are usually small) and
-also cause components of the line-search direction to point uphill,
-which again slows convergence of the macro-iterations and causes more
-steps to be taken in the line search.
+micro-iterations (since negative eigenvalues are usually small), and
+will also cause components of the line-search direction to point
+uphill --- which again slows convergence of the macro-iterations and
+causes more steps to be taken in the line search.
 
-There are two main options available when a problem will not converge;
-Newton-Raphson can be disabled temporarily or permanently, and
-level-shifting can be applied to the matrix.  In some cases, both
-options may be necessary to acheive final convergence.
+Two main options are available when a problem will not converge:
+Newton-Raphson can be disabled temporarily or permanently (see Section
+\ref{sec:nrswitch}), and level-shifting can be applied to the matrix
+(see Section \ref{sec:level}).  In some cases, both options may be
+necessary to achieve final convergence.
 
 If there is reason to suspect a negative eigenvalue, the first course
 is to disable the Newton-Raphson iteration until the solution is
@@ -779,7 +800,6 @@ time than it would with the unshifted Hessian.
 The following sections describe the directives needed to disable the
 Newton-Raphson iteration and specify level-shifting.
 
-
 \section{{\tt NR} --- controlling the Newton-Raphson}
 \label{sec:nrswitch}
 
@@ -791,8 +811,8 @@ The exact orbital Hessian is adopted as the preconditioner when the
 maximum element of the orbital gradient is below the value specified
 for \verb+nr_switch+.  The default value is 0.1, which means that
 Newton-Raphson will be disabled until the maximum value of the orbital
-gradient (twice the largest off-diagonal Fock-matrix element) is less
-than 0.1.   To disable the second-order Newton-Raphson entirely, the
+gradient (twice the largest off-diagonal Fock matrix element) is less
+than 0.1.   To disable the Newton-Raphson entirely, the
 value of \verb+nr_switch+ must be set to zero.  The directive to accomplish
 this is as follows:
 \begin{verbatim}
@@ -807,10 +827,10 @@ positive-definite preconditioning matrix for the SCF solution
 procedure.  Separate level shifts can be set for the first-order
 convergent one-electron approximation to the Hessian used with the
 preconditioned conjugate gradient (PCG) method, and for the full
-Hessian used with the Newton Raphson (NR) approach.  It is also
+Hessian used with the Newton-Raphson (NR) approach.  It is also
 possible to change the level-shift automatically as the solution
 attains some specified accuracy.  The form of the directive is as
-follows;
+follows:
 \begin{verbatim}
    LEVEL [pcg <real initial default 20.0> \
            [<real tol default 0.5> <real final default 0.0>]] \
@@ -818,7 +838,7 @@ follows;
            [<real tol default 0.0> <real final default 0.0>]]
 \end{verbatim}
 
-This directive contains only two keywords; one for the PCG method and
+This directive contains only two keywords: one for the PCG method and
 the other for the exact Hessian (Newton Raphson, or NR).  Use of PCG
 or NR is determined by the input specified for \verb+nr_switch+ on the
 \verb+NR+ directive, Section \ref{sec:nrswitch} above.  
@@ -844,24 +864,24 @@ to zero.
 For the exact Hessian (as specified using the keyword \verb+nr+), the
 defaults are all zero.  The exact Hessian is usually not shifted since
 this destroys quadratic convergence.  An example of an input directive
-that applies a shift of 0.2 to the exact Hessian is as follows;
+that applies a shift of 0.2 to the exact Hessian is as follows:
 \begin{verbatim}
   level nr 0.2
 \end{verbatim}
 
 To apply this shift to the exact Hessian only until the maximum
 element of the gradient falls below 0.005, the required input
-directive is as follows;
+directive is as follows:
 \begin{verbatim}
   level nr 0.2 0.005 0
 \end{verbatim}
 
-Note that for both of these examples the parameters for the PCG method
+Note that in both of these examples, the parameters for the PCG method
 are at the default values.  To obtain values different from the
-defaults, the keyword \verb+pcg+ must be specified also.  For example,
+defaults, the keyword \verb+pcg+ must also be specified.  For example,
 to specify the level shifting in the above example for the exact
 Hessian {\em and} non-default shifting for the PCG method, the
-directive would be something like the following;
+directive would be something like the following:
 \begin{verbatim}
   level pcg 20 0.3 0.0 nr 0.2 0.005 0.0
 \end{verbatim}
@@ -884,7 +904,7 @@ The default options correspond to
 All output from the SCF module is controlled using the \verb+PRINT+
 directive described in Section \ref{sec:printcontrol}.  The following 
 list describes the items from SCF that are currently under direct 
-print control, along with the print level or each one.
+print control, along with the print level for each one.
 
 \begin{tabbing}
   Very\_long\_descriptive\_name \= Print level space \= \kill
@@ -897,6 +917,8 @@ print control, along with the print level or each one.
  ``initial vectors''      \> debug  \> \\
  ``intermediate vectors'' \> debug  \> \\
  ``final vectors''        \> debug  \> \\
+ ``final vectors analysis''        \> default  \> \\
+ ``initial vectors analysis''        \> never  \> \\
  ``intermediate evals''   \> debug  \> \\
  ``final evals''          \> default\> \\
  ``schwarz''              \> high   \> integral screening info \&
