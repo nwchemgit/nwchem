@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.5 2000-04-13 20:34:23 mg201 Exp $
+C $Id: ecp_local2.F,v 1.6 2000-05-16 20:33:03 windus Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -232,7 +232,9 @@ C $Id: ecp_local2.F,v 1.5 2000-04-13 20:34:23 mg201 Exp $
             end if
             log_prefac = tmp(i_alp+i)**2-tmp(i_ab+j)*tmp(i_rpc+j)**2
      &          -tmp(i_prod+j)
-            tmp(i_pre+i) = exp(log_prefac)
+            tmp(i_pre+i) = zero
+            if (log_prefac.gt.ln_thr_ecp) 
+     &         tmp(i_pre+i) = exp(log_prefac)
             i = i+1
           end do
         end do
