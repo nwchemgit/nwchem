@@ -11,7 +11,7 @@ c
 c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.7 1998-09-23 21:46:19 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.8 1998-09-25 11:39:49 bjohnson Exp $
 *
       implicit none
 c      
@@ -54,7 +54,7 @@ c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
 *
-* $Id: dftg_grad2.F,v 1.7 1998-09-23 21:46:19 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.8 1998-09-25 11:39:49 bjohnson Exp $
 *
       implicit none
 c      
@@ -73,7 +73,7 @@ c
       integer lscr
       integer g_dj(3, nat)
       double precision tol2e,  s34(nat), s12, q2, q4, scale
-      logical osym, oskel, oadapt, oschwarz12
+      logical osym, oskel, oschwarz12, diagb, diagk, ijij
       integer calc_type
 c
       logical status, oij, okl, oikjl, oactive(nat)
@@ -88,9 +88,8 @@ c
      &     iac2f,iac2l,iac3f,iac3l,iac4f,iac4l,
      &     ish1,ish2,ish3,ish4,iac1l,itop3,itop4,
      &     if1,il1,if2,il2,if3,il3,if4,il4,iac1f,
-     &     id1,id2,id3,id4,
-     &     nshbfp,nshbfq,Nintegrals,icount,i,icart,ip1,ip2,ip3,ip4
-      double precision dE,den2
+     &     id1,id2,id3,id4,ig1,im1,ig2,im2,ig3,im3,ig4,im4,
+     &     nshbfp,nshbfq,Nintegrals
 c
       logical do_force, do_cpks_r, do_hess
       integer l_dfij, k_dfij, l_dfkl, k_dfkl
@@ -177,6 +176,12 @@ c
      &                   iab3f.le.0 .or.
      &                   iab4f.le.0)goto 1010
 c                              
+#if 0
+                     write(*,*)'Center 1:',iat1,iab1f,iab1l
+                     write(*,*)'Center 2:',iat2,iab2f,iab2l
+                     write(*,*)'Center 3:',iat3,iab3f,iab3l
+                     write(*,*)'Center 4:',iat4,iab4f,iab4l
+#endif
                      status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
                      if (.not.status)call errquit 
      &                  ('dftg_grad2: error with bas_ce2cnr',0)
@@ -209,12 +214,16 @@ c
                         oikjl = iat1.eq.iat3 .and. iat2.eq.iat4
                         do 75 ish1 = iac1f, iac1l
                            status = bas_cn2bfr(basis,ish1,if1,il1)
+                           ig1 = if1
+                           im1 = il1
                            if1 = if1 - iab1f + 1
                            il1 = il1 - iab1f + 1
                            id1 = il1 - if1   + 1
                            if (oij) iac2l = ish1
                            do 70 ish2 = iac2f, iac2l
                               status = bas_cn2bfr(basis,ish2,if2,il2)
+                              ig2 = if2
+                              im2 = il2
                               if2 = if2 - iab2f + 1
                               il2 = il2 - iab2f + 1
                               id2 = il2 - if2   + 1
@@ -226,6 +235,8 @@ c
                                  do 65 ish3 = iac3f, itop3
                                     status = bas_cn2bfr
      &                                       (basis,ish3,if3,il3)
+                                    ig3 = if3
+                                    im3 = il3
                                     if3 = if3 - iab3f + 1
                                     il3 = il3 - iab3f + 1
                                     id3 = il3 - if3   + 1
@@ -239,6 +250,8 @@ c
      &                                     .ge. tol2e) then
                                           status = bas_cn2bfr
      &                                             (basis,ish4,if4,il4)
+                                          ig4 = if4
+                                          im4 = il4
                                           if4 = if4 - iab4f + 1
                                           il4 = il4 - iab4f + 1
                                           id4 = il4 - if4   + 1
@@ -258,29 +271,36 @@ c
      &                                            ish4, lscr, scr, lbuf,
      &                                            buf, idatom)
                                           else if (do_hess) then
-         write(*,*)'Uncomment call to 2nd deriv API in dftg_grad2!'
-c         write(*,*)'Hope call to 2nd deriv API in dftg_grad2 is right'
-#if 0
+c         write(*,*)'Uncomment call to 2nd deriv API in dftg_grad2!'
+         write(*,*)'Hope call to 2nd deriv API in dftg_grad2 is right'
                                              call intdd_2e4c(basis,
      &                                            ish1, ish2, basis,
      &                                            ish3, ish4, lscr, scr,
      &                                            lbuf, buf, idatom)
-#endif
                                           endif
 c
-            if (.not.do_force) write(*,*)'*** Scale factor?'
-                                          scale = 1.0d0
-                                          if (.not.oij .or. 
-     &                                       ish1.ne.ish2) 
-     &                                       scale = scale*2.0d0
-                                          if (.not.okl .or. 
-     &                                       ish3.ne.ish4) 
-     &                                       scale = scale*2.0d0
-                                          if (.not. do_cpks_r) then
+            if (do_hess) write(*,*)'*** Scale factor?'
+                                          if (do_force .or. do_hess)
+     &                                       then
+                                             scale = 1.0d0
+                                             if (.not.oij .or. 
+     &                                          ish1.ne.ish2) 
+     &                                          scale = scale*2.0d0
+                                             if (.not.okl .or. 
+     &                                          ish3.ne.ish4) 
+     &                                          scale = scale*2.0d0
                                              if (.not.oikjl .or. 
      &                                          ish1.ne.ish3 .or. 
      &                                          ish2.ne.ish4) 
      &                                          scale = scale*2.0d0
+                                          else if (do_cpks_r) then
+                                             diagb = oij .and. 
+     &                                          ish1.eq.ish2
+                                             diagk = okl .and. 
+     &                                          ish3.eq.ish4 
+                                             ijij = oikjl .and.
+     &                                          ish1.eq.ish3 .and.
+     &                                          ish2.eq.ish4
                                           endif
 c
 c - indent - region redefine
@@ -293,9 +313,10 @@ c
 c
       else if (do_cpks_r) then
 c
-         call dint_block_jdmat(d_ija, d_kla, ldim, g_dj, dbl_mb(k_dfij),
-     &        dbl_mb(k_dfkl), buf, q4*scale, idatom, if1, il1, if2, il2,
-     &        if3, il3, if4, il4)
+         call dint_block_jdmat(d_ija(if1,if2), d_kla(if3,if4), ldim,
+     &        g_dj, dbl_mb(k_dfij), dbl_mb(k_dfkl), buf, q4,
+     &        diagb, diagk, ijij, idatom, ig1, im1, ig2, im2,
+     &        ig3, im3, ig4, im4)
 c
       else if (do_hess) then
 c
