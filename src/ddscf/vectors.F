@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.28 1997-03-06 20:56:54 d3g681 Exp $
+C$Id: vectors.F,v 1.29 1997-04-25 06:49:48 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -492,9 +492,9 @@ c
      $        ('movecs_swap: invalid list of pairs',nelem)
 c
          call ga_sync()
+         call ga_inquire(g_vecs, type, dim1, dim2)
          if (ga_nodeid() .eq. 0) then
             if (oprint) write(6,*)
-            call ga_inquire(g_vecs, type, dim1, dim2)
             if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
      $           call errquit('movecs_swap: no scratch space', dim1)
             if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
