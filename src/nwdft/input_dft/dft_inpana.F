@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.34 1997-11-05 00:17:27 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.35 1997-11-19 04:52:18 d3j191 Exp $
 c
 c*********************************************************************
 c     
@@ -29,7 +29,7 @@ c
       integer me,ichg,nel
       integer noc1
       integer n, na, nb
-      integer nshells_cd, nshells_xc, nshells
+      integer nshells
       integer ictr
       double precision ratom(ntypes), bsr
       double precision anucl_charg, ckfac, t1, r1
