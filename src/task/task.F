@@ -100,6 +100,8 @@ c
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics', operation)) then
          status = nwargos(rtdb)
+      else if (inp_compare(.false.,'thermodynamics', operation)) then
+         status = nwargos(rtdb)
       else
          call errquit('task: unknown generic operation',0)
       endif

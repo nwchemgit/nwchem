@@ -24,8 +24,8 @@ c     Also returns status through the function value
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2
-      external semi_dir_mp2
+      logical semi_dir_mp2, nwargos
+      external semi_dir_mp2, nwargos
       
 c
       logical status
@@ -70,6 +70,10 @@ c
          status = selci(rtdb)
       else if (theory .eq. 'semi_dir_mp2') then
          status = semi_dir_mp2(rtdb)
+      else if (theory .eq. 'md') then
+         status = nwargos(rtdb)
+      else if (theory .eq. 'nwargos') then
+         status = nwargos(rtdb)
       else
          call errquit('task_energy: unknown theory',0)
       endif

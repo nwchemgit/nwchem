@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.2 1996-09-27 22:16:08 mdupuis Exp $
+c     $Id: task_optimize.F,v 1.3 1996-09-29 09:53:39 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -31,10 +31,12 @@ c     geometry             - final geometry from optimization
 c
       double precision cpu, wall
 c
-      logical ousedriver
+      logical ousedriver, status
 c
-      logical  task_gradient, stpr_walk, drv_opt
-      external task_gradient, stpr_walk, drv_opt
+      character*20 theory
+c
+      logical  task_gradient, stpr_walk, drv_opt, nwargos
+      external task_gradient, stpr_walk, drv_opt, nwargos
 c
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .false.
@@ -55,6 +57,11 @@ c
          write(6,*)
       endif
 c
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     + call errquit('task_optimize: failed rtdb_cget task:theory',0)
+      if(theory.eq.'md'.or.theory.eq.'nwargos') then
+      status=nwargos(rtdb)
+      else
       if (ousedriver) then
          task_optimize = drv_opt(rtdb)
       else
@@ -67,6 +74,7 @@ c
             call util_flush(6)
             task_optimize = .false.
          endif
+      endif
       endif
 c
       cpu  = util_cpusec() - cpu
