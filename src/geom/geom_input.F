@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.166 2003-12-12 20:04:55 marat Exp $
+C     $Id: geom_input.F,v 1.167 2003-12-13 02:37:37 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -33,11 +33,13 @@ c
       logical ofinite, oatomfinite
       logical include_bqbq
       logical oprint_sym
+      integer i
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
       double precision threquiv ! Threshold for autosym atom equivalence
 c     .                           and for forcing symmetry
       parameter (max_center = nw_max_atom)
+      double precision tot_charge, qcharge
       double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
       double precision invnucexp(max_center)
@@ -556,6 +558,22 @@ c
 c     
       if (include_bqbq) status = geom_set_bqbq(geom, .true.)
 c     
+c**** check if the total charge was already set (mv) ****
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, tot_charge)) then
+        if (.not. rtdb_get(rtdb, 'qcharge', MT_DBL, 1, qcharge)) then
+        qcharge = 0.0d0
+        end if
+        tot_charge=qcharge
+        do i=1,ncenter
+          if(inp_compare(.false.,tags(i),'bq')) then
+            tot_charge=tot_charge + charge(i)
+          end if
+        end do
+        if (.not. rtdb_put(rtdb, 'charge', MT_DBL, 1, tot_charge)) then
+          call errquit("geom_input: total charge",0,0)
+        end if
+      endif
+
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0, GEOM_ERR)
