@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.240 2004-04-03 00:23:45 edo Exp $
+c     $Id: dft_scf.F,v 1.241 2004-06-24 23:59:26 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -147,6 +147,7 @@ c
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear,quickguess,diisreset
+      integer ndisrst
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -195,6 +196,8 @@ c
       derr(2)=1d99
       n_rabuck=0
       rabuck_act=.false.
+      if (.not.rtdb_get(rtdb, 'dft:diisreset', mt_int, 1,
+     &   ndisrst))ndisrst=9999
       if (.not.rtdb_get(rtdb, 'dft:spinset', mt_log, 1,
      &   spinset))spinset=.false.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
@@ -843,7 +846,7 @@ c
 c
 c     reset diis when smearing is on to avoid noise accumulation
 c
-      if(gotsmear(ssmear).and.mod(iter,25).eq.0) then
+      if(gotsmear(ssmear).and.mod(iter,ndisrst).eq.0) then
          if(iter.gt.1.and.diising) diisreset=.true.
       endif
       if(diisreset) then
