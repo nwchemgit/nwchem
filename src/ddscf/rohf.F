@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.14 1996-08-06 05:33:00 d3g681 Exp $
+C$Id: rohf.F,v 1.15 1996-11-02 07:05:02 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -49,10 +49,16 @@ c
 c
 c     Newton-Raphson based SCF
 c
+      call ecce_print_module_entry('optimize orbitals')
       if (odiis) then
-        converged = rohf_diis_solve( rtdb, energy, eone, etwo, enrep )
+         converged = rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
       else
-        converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+         converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+      endif
+      if (converged) then
+         call ecce_print_module_exit('optimize orbitals', 'ok')
+      else
+         call ecce_print_module_exit('optimize orbtials', 'failed')
       endif
 c
       call ga_sync()
@@ -72,20 +78,27 @@ c
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
      $        '         Total SCF energy =', f20.12/
-     $        '      One electron energy =', f20.12/
-     $        '      Two electron energy =', f20.12/
+     $        '      One-electron energy =', f20.12/
+     $        '      Two-electron energy =', f20.12/
      $        ' Nuclear repulsion energy =', f20.12//
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(6)
       endif
-C
-      if (util_print('schwarz',print_high)) then
-         if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
-     $        'rohf: problem with call to geom_ncent', geom)
-         if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
-     $        'rohf: problem with call to bas_numcont', basis)
-         call schwarz_print(natoms, nshells)
-      endif
+c
+      call ecce_print1('total energy', mt_dbl, energy, 1)
+      call ecce_print1('one-electron energy', mt_dbl, eone, 1)
+      call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
+      call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
+c
+c     These statistics are currently junk and need to be reworked
+c
+c$$$      if (util_print('schwarz',print_high)) then
+c$$$         if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
+c$$$     $        'rohf: problem with call to geom_ncent', geom)
+c$$$         if ( .NOT. bas_numcont(basis, nshells) ) Call ErrQuit(
+c$$$     $        'rohf: problem with call to bas_numcont', basis)
+c$$$         call schwarz_print(natoms, nshells)
+c$$$      endif
 C
       if (oadapt) then
          nprint = min(nclosed+nopen+10,nmo)
@@ -95,6 +108,8 @@ C
      $        print_default)
          call scf_movecs_sym_adapt(basis, g_movecs, oprint_sym,
      $        nprint, '- final', .true., int_mb(k_irs))
+         call ecce_print1('orbital symmetries', mt_int,
+     $        int_mb(k_irs), nmo)
       endif
 c
       if (ga_nodeid() .eq. 0) then
@@ -104,9 +119,11 @@ c
             call output(dbl_mb(k_eval),
      $           1, nprint,
      $           1, 1, nmo, 1, 1)
+            call ecce_print1('orbital energies', mt_dbl, 
+     $           dbl_mb(k_eval), nmo)
             call util_flush(6)
          endif
-C
+c
          if (util_print('final vectors', print_debug)) then
             write(6,*)
             call util_print_centered(6,'Final MO vectors',40,.true.)
@@ -115,12 +132,12 @@ C
          endif
       endif
 c
-      if (util_print('mulliken', print_default)) then
-         call rohf_mulliken()
-      endif
-c
       if (util_print('final vectors', print_debug)) then
          call ga_print(g_movecs)
+      endif
+c
+      if (util_print('mulliken', print_default)) then
+         call rohf_mulliken()
       endif
 c
 c     Clean up common blocks and allocated data and return

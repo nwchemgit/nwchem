@@ -26,11 +26,12 @@ c
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2, nwargos
       external semi_dir_mp2, nwargos
-      
 c
       logical status
       double precision energy, cpu, wall
       character*80 theory, key, prefix
+c
+      call ecce_print_module_entry('task energy')
 c
       task_energy = .false.
 c
@@ -99,6 +100,12 @@ c
      $        call errquit('task_energy: failed to set status',0)
       endif
 c
+      if (status) then
+         call ecce_print_module_exit('task energy', 'ok')
+      else
+         call ecce_print_module_exit('task energy', 'failed')
+      endif
+         
       task_energy = status
 c
       end

@@ -44,6 +44,8 @@ c
       double precision energy, cpu, wall
       character*80 theory, key, prefix
 c
+      call ecce_print_module_entry('task gradient')
+c
       task_gradient = .false.
 c
       cpu  = util_cpusec()
@@ -125,6 +127,12 @@ c
      $     call errquit('task_gradient: failed storing walltime',0)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
      $     call errquit('task_gradient: failed to set status',0)
+c
+      if (status) then
+         call ecce_print_module_exit('task gradient', 'ok')
+      else
+         call ecce_print_module_exit('task gradient', 'failed')
+      endif
 c
       task_gradient = status
 c

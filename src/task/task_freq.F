@@ -41,6 +41,7 @@ c
       logical stpr_gen_hess_at
       external stpr_gen_hess_at
 c     
+      call ecce_print_module_exit('task frequencies', 'ok')
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -104,6 +105,9 @@ c
      $     call errquit('task_freq: failed storing walltime',0)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
      $     call errquit('task_freq: failed to set status',0)
+c
+c
+      call ecce_print_module_exit('task frequencies', 'ok')
 c
       task_freq = .true.
 c

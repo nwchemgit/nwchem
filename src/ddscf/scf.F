@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.42 1996-11-01 22:04:18 d3g681 Exp $
+C$Id: scf.F,v 1.43 1996-11-02 07:05:03 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -35,6 +35,7 @@ c
       status = rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'scf')
+      call ecce_print_module_entry('scf')
       oprint = util_print('information', print_low)
 c
 c     Extract high level info from the data-base setting defaults
@@ -227,6 +228,13 @@ c
 c     Nothing else for now ... return convergence status
 c
       call util_print_pop
+c
+      if (converged) then
+         call ecce_print_module_exit('scf', 'ok')
+      else
+         call ecce_print_module_exit('scf', 'failed')
+      endif
+c
       scf = converged
 c
       end

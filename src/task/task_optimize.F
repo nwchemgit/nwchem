@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.3 1996-09-29 09:53:39 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.4 1996-11-02 07:05:14 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -38,6 +38,8 @@ c
       logical  task_gradient, stpr_walk, drv_opt, nwargos
       external task_gradient, stpr_walk, drv_opt, nwargos
 c
+      call ecce_print_module_entry('task optimize')
+c
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .false.
 c     
@@ -63,16 +65,16 @@ c
       status=nwargos(rtdb)
       else
       if (ousedriver) then
-         task_optimize = drv_opt(rtdb)
+         status = drv_opt(rtdb)
       else
  10      if (task_gradient(rtdb)) then
             if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
-            task_optimize = .true. ! Finished
+            status = .true. ! Finished
          else if (ga_nodeid().eq.0) then
             write(luout,*)' task_optimize: energy+gradients failed ',
      $           ' ... optimization incomplete'
             call util_flush(6)
-            task_optimize = .false.
+            status = .false.
          endif
       endif
       endif
@@ -83,7 +85,15 @@ c
      $     call errquit('task_optimize: failed storing cputime',0)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
      $     call errquit('task_optimize: failed storing walltime',0)
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_optimize: failed to set status',0)
+c
+      if (status) then
+         call ecce_print_module_exit('task optimize', 'ok')
+      else
+         call ecce_print_module_exit('task optimize', 'failed')
+      endif
+c
+      task_optimize = status
 c
       end

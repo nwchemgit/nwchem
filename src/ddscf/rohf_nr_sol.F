@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_nr_sol.F,v 1.7 1996-10-10 20:32:04 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.8 1996-11-02 07:05:03 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -124,6 +124,9 @@ c
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
+c
+            call ecce_print1('total energy', mt_dbl, energy, 1)
+            call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
             eprec = max(gnorm*0.01d0, eprec_tol) ! Aovid noise in LS
 *            write(6,*) ' EPREC ', eprec
             goto 10
