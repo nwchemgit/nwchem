@@ -31,18 +31,19 @@ global minima, explicit simulation of solvated molecules, and simulations
 of complex vibrational modes that cannot be described within the harmonic 
 approximation.
 
-Section \ref{sec:pspw_tasks} describes the tasks contained within the PSPW module, 
-and section \ref{sec:pspw_nose} describes the input parameters for a Car-Parrinello
-simulation at constant temperature.  Then the RTDB entries and datafiles used by the 
-PSPW module are described in section \ref{sec:pspw_data}, and Car-Parrinello output data files are 
-described in section \ref{sec:pspw_cp_data}.  Examples of how to setup and run
+Section \ref{sec:pspw_tasks} describes the tasks contained within the PSPW module. 
+Then the RTDB entries and datafiles used by the 
+PSPW module are described in section \ref{sec:pspw_data},  Car-Parrinello output 
+data files are described in section \ref{sec:pspw_cp_data}, and the minimization 
+and Car-Parrinello algorithms are described in sections 
+\ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how to setup and run
 a steepest descent simulation and a Car-Parrinello simulation are presented
 in sections \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.  Finally in section
 \ref{sec:pspw_limits} the capabilities and limitations of the PSPW
 module are discussed.
 
 If you are a first time user of this module it is recommended that you skip
-the next two sections and proceed directly to the tutorials in sections 
+the next five sections and proceed directly to the tutorials in sections 
 \ref{sec:pspw_sd}-\ref{sec:pspw_cp}.
 
 \section{PSPW Tasks}
@@ -713,13 +714,31 @@ PSPW
       [CUTOFF: <integer lmax> \
          {l=(s||p||d||f||g) <real rcut[l]> i=1,lmax}
       ]
-      [PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS||HAMANN default HAMANN)]
-      [SOLVER_TYPE: (PAULI||SCRHODINGER default PAULI)]
-      [EXCHANGE_TYPE: (dirac || PBE96 default DIRAC)]
-      [CORRELATION_TYPE: (VOSKO || PBE96 default VOSKO)]
+      PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS||HAMANN default HAMANN)
+      SOLVER_TYPE: (PAULI||SCRHODINGER default PAULI)
+      EXCHANGE_TYPE: (dirac || PBE96 default DIRAC)
+      CORRELATION_TYPE: (VOSKO || PBE96 default VOSKO)
+      [SEMICORE_RADIUS: <real rcore>]
+      
    end
 ... 
 END
+The following list describes the input for the PSP\_GENERATOR
+sub-block.
+\begin{itemize}
+
+	\item $<$psp\_name$>$ - name that points to a.
+	\item $<$element$>$ - Atomic symbol.
+        \item $<$charge$>$ - charge of the atom
+        \item $<$mass$>$ - mass number for the atom
+        \item $<$ncore$>$ - number of core states
+        \item $<$nvalence$>$ - number of valence states.
+        \item .....
+	\item $<$rcore$>$ - value for the semicore radius. 
+\end{itemize}
+
+
+
 \end{verbatim}
 
 
@@ -863,291 +882,6 @@ and the format of it is:
 \section{PSPW Car-Parrinello Output Datafiles}
 \label{sec:pspw_cp_data}
 
-
-\section{Minimizing the one-electron orbitals: Running a Steepest Descent and Conjuagate Gradient Simulation in Tandem}
-\label{sec:pspw_sd}
-
-In this section we show how to setup and run a steepest descent
-simulation followed by a conjugate gradient simulation to optimize 
-the one-electron orbitals with respect to 
-the total energy for a NaCl molecule.  It is practical to
-start most simulation in such a tandem fashion because the
-conjugate gradient optimizer does not work well when the
-one-electron orbitals are far from minimized. 
-
-Before running a steepest\_descent or conjugate\_gradient simulation several files and
-RTDB structures must be defined or initialized.  Specifically, the user 
-is required to have defined:
-\begin{enumerate}
-  \item {\bf ion positions} 
-  \item {\bf simulation cell} in the RTDB 
-  \item {\bf formatted pseudopotential file} for each kind of ion 
-  \item {\bf file containing the one-electron orbitals} 
-  \item {\bf steepest\_descent PSPW sub-block} 
-  \item {\bf conjugate\_gradient PSPW sub-block}
-\end{enumerate}
-
-In the following tutorial we show the input needed to find an
-energy for an NaCl molecule.  In this example default Hamann pseudopotentials
-are used for Na and Cl, the exchange correlation functional is LSDA, and
-the cutoff energy is 12 au.  This example input deck can be found in the nwchem
-source tree in the file: nwchem/examples/pspw/NaCl.nw
-\begin{enumerate}
-\item Define the ion positions using the geometry directive.
- \tiny     \begin{verbatim}
-         ...
-         geometry units au 
-         Na    2.23 0.0 0.0
-         Cl   -2.23 0.0 0.0
-         end
-         ...
-      \end{verbatim}
-\normalsize
-\item Generate a pseudopotential for Sodium atoms and store it in a
-      one-dimensional pseudopotential datafile called Na.psp.  
-      The following input can be used to generate a default
-      Hamann pseudopotential.  
- \tiny     \begin{verbatim}
-         ...
-         PSPW
-            PSP_GENERATOR
-               pseudopotential_filename: Na.psp
-                element: Na
-                charge: 11.0
-                mass_number: 23.0
-                solver_type: pauli
-                pseudopotential_type: hamann
-                atomic_filling: 3 1
-                  1 s 2.0
-                  2 s 2.0
-                  2 p 6.0
-                  3 s 1.0
-            END
-         END
-         task PSPW PSP_GENERATOR
-         ...
-      \end{verbatim}
-\normalsize
-\item Use the same proceedure as above generate a pseudopotential 
-      for Chlorine. 
- \tiny     \begin{verbatim}
-         ...
-         PSPW 
-            PSP_GENERATOR
-               pseudopotential_filename: Cl.psp
-               element: Cl
-               charge: 17.0
-               mass_number: 35.0
-               solver_type: pauli
-               pseudopotential_type: hamann
-               atomic_filling: 3 2
-                  1 s 2.0
-                  2 s 2.0
-                  2 p 6.0
-                  3 s 2.0
-                  3 p 5.0
-            
-            END
-         END
-         task PSPW PSP_GENERATOR
-         ...
-      \end{verbatim}
-\normalsize
-
-\item Define the simulation cell.  
-      The following input defines a simulation cell called ``small.'' This
-      cell is periodic and cubic with a side length of 20.0 au and has
-      32 grid points in each direction.  
-\tiny   \begin{verbatim}
-         ...
-         PSPW
-            SIMULATION_CELL
-               cell_name: small
-               boundry_conditions: periodic
-               lattice_vectors:
-                  20.0  0.0  0.0 
-                   0.0 20.0  0.0 
-                   0.0  0.0 20.0 
-               ngrid: 32 32 32
-            END
-         END
-         ...
-   \end{verbatim}
-\normalsize
-\item Format the Na pseudopotential onto the ``small'' simulation cell.
-\tiny   \begin{verbatim}
-         ...
-         PSPW
-            PSP_FORMATTER
-               cell_name: small
-               psp_name: Na.psp
-               formatted_name: Na.vpp
-            END
-         END
-         task PSPW PSP_FORMATTER
-         ...
-   \end{verbatim}
-\normalsize
-\item Format the Cl pseudopotential onto the ``small'' simulation cell.
-\tiny   \begin{verbatim}
-         ...
-         PSPW
-            PSP_FORMATTER
-               cell_name: small
-               psp_name: Cl.psp
-               formatted_name: Cl.vpp
-            END
-         END
-         task PSPW PSP_FORMATTER
-         ...
-   \end{verbatim}
-\normalsize
-\item Generate an initial guess for the one-electron orbitals.
-\tiny   \begin{verbatim}
-         ...
-         PSPW
-            WAVEFUNCTION_INITIALIZER
-               cell_name: small
-               unrestricted
-               up_filling: 4
-                  0 0 0   0 
-                  1 0 0  -1
-                  0 1 0  -1
-                  0 0 1  -1
-               down_filling: 4
-                  0 0 0   0
-                  1 0 0  -1
-                  0 1 0   1
-                  0 0 1  -1
-               wavefunction_filename: NaCl.small.00.elc
-            END
-         END
-         task PSPW WAVEFUNCTION_INTITALIZER
-         ...
-   \end{verbatim}
-\normalsize
-\item Do a coarse optimization of the one-electron orbitals with respect to energy using
-      steepest descent.
-\tiny \begin{verbatim}
-         ...
-         PSPW
-            STEEPEST_DESCENT
-               cell_name: small
-               formatted_filename: Na.vpp
-               formatted_filename: Cl.vpp
-               input_wavefunction_filename:  NaCl.small.00.elc
-               output_wavefunction_filename: NaCl.small.00.elc
-               fake_mass: 400000.0d0
-               time_step: 51.8d0
-               loop: 10 100
-               tolerances: 1.0d-4 1.0d-4 1.0d-4
-               energy_cutoff:       21.0d0
-               wavefunction_cutoff: 21.0d0
-            END 
-         END
-         task PSPW STEEPEST_DESCENT
-         ...
-      \end{verbatim}
-\normalsize
-\item Do a finer optimization of the one-electron orbitals with respect to energy using
-      conjugate gradient, and perform a Mulliken analysis. Note that an analysis
-      block must be defined. 
-   \tiny \begin{verbatim}
-         ...
-         PSPW
-           
-            CONJUGATE_GRADIENT
-               cell_name: small
-               formatted_filename: Na.vpp
-               formatted_filename: Cl.vpp
-               input_wavefunction_filename:  NaCl.small.00.elc
-               output_wavefunction_filename: NaCl.small.00.elc
-               loop: 25 10
-               tolerances: 1.0d-9 1.0d-9 
-               energy_cutoff:       21.0d0
-               wavefunction_cutoff: 21.0d0
-               Mulliken
-            END 
-            ANALYSIS
-                psp_name: Na.psp
-                psp_name: Cl.psp
-            END
-         END
-         task PSPW CONJUGATE_GRADIENT
-         ...
-      \end{verbatim}
-
-
-\end{enumerate}
-\normalsize
-
-
-\normalsize
-\section{Running a Car-Parrinello Simulation}
-\label{sec:pspw_cp}
-
-In this section we show how to perform a Car-Parrinello
-molecular dynamic simulation for an NaCl molecule.  As with the example in 
-the previous tutorial,  this example uses default Hamann 
-pseudopotentials for Na and Cl, LSDA exchange 
-correlation functional, and a cutoff energy of 12 au.
-
-Before running a PSPW Car-Parrinello  simulation the system should be
-on the Born-Oppenheimer surface, i.e. the one-electron
-orbitals should be minimized with respect to the total energy using steepest
-descent and conjugate gradient simulations(see section~\ref{sec:pspw_sd}).  
-
-Continuning where we left off in section ~\ref{sec:pspw_sd} we now 
-continue the simulation to run a MD simulation of an NaCl molecule.  
-This example input deck can be found in the nwchem source tree in 
-the file: nwchem/examples/pspw/NaCl-md.nw
-
-\begin{enumerate}
-\item Optimize wavefunctions - See previous section
-
-\normalsize
-\item Generate an initial guess for the one-electron orbitals velocities.
-\tiny   \begin{verbatim}
-         ...
-         PSPW
-            V_WAVEFUNCTION_INITIALIZER
-               cell_name: small
-               unrestricted
-               up_filling: 4
-               down_filling: 4
-               v_wavefunction_filename: NaCl.small.00.velc
-            END
-         END
-         task PSPW WAVEFUNCTION_INTITALIZER
-         ...
-   \end{verbatim}
-\normalsize
-\item Run an MD simulation using Car-Parrinello.
-\tiny \begin{verbatim}
-         PSPW
-            Car-Parrinello
-               cell_name: small
-               formatted_filename: Na.vpp
-               formatted_filename: Cl.vpp
-               input_wavefunction_filename:    NaCl.small.00.elc
-               output_wavefunction_filename:   NaCl.small.01.elc
-               v_input_wavefunction_filename:  NaCl.00.velc
-               v_output_wavefunction_filename: NaCl.01.velc
-               fake_mass: 800.0d0
-               time_step: 5.0d0
-               loop: 10 100
-               scaling: 1.0d0 1.0d0
-               energy_cutoff:       21.0d0
-               wavefunction_cutoff: 21.0d0
-            END 
-         END
-         task PSPW Car-Parrinello
-         ...
-      \end{verbatim}
-
-
-\end{enumerate}
-\normalsize
 
 
 \section{Minimizing the DFT Energy Functional}
@@ -1820,6 +1554,295 @@ P_e &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
 \end{eqnarray}
 where $P_R$ and $P_e$ are the periods of oscillation for the ionic and ficatious
 electronic thermostats.  
+
+
+
+
+\section{PSPW Tutorial 1: Minimizing the one-electron orbitals by Running a Steepest Descent and Conjuagate Gradient Simulation in Tandem}
+\label{sec:pspw_sd}
+
+In this section we show how to setup and run a steepest descent
+simulation followed by a conjugate gradient simulation to optimize 
+the one-electron orbitals with respect to 
+the total energy for a NaCl molecule.  It is practical to
+start most simulation in such a tandem fashion because the
+conjugate gradient optimizer does not work well when the
+one-electron orbitals are far from minimized. 
+
+Before running a steepest\_descent or conjugate\_gradient simulation several files and
+RTDB structures must be defined or initialized.  Specifically, the user 
+is required to have defined:
+\begin{enumerate}
+  \item {\bf ion positions} 
+  \item {\bf simulation cell} in the RTDB 
+  \item {\bf formatted pseudopotential file} for each kind of ion 
+  \item {\bf file containing the one-electron orbitals} 
+  \item {\bf steepest\_descent PSPW sub-block} 
+  \item {\bf conjugate\_gradient PSPW sub-block}
+\end{enumerate}
+
+In the following tutorial we show the input needed to find an
+energy for an NaCl molecule.  In this example default Hamann pseudopotentials
+are used for Na and Cl, the exchange correlation functional is LSDA, and
+the cutoff energy is 12 au.  This example input deck can be found in the nwchem
+source tree in the file: nwchem/examples/pspw/NaCl.nw
+\begin{enumerate}
+\item Define the ion positions using the geometry directive.
+ \tiny     \begin{verbatim}
+         ...
+         geometry units au 
+         Na    2.23 0.0 0.0
+         Cl   -2.23 0.0 0.0
+         end
+         ...
+      \end{verbatim}
+\normalsize
+\item Generate a pseudopotential for Sodium atoms and store it in a
+      one-dimensional pseudopotential datafile called Na.psp.  
+      The following input can be used to generate a default
+      Hamann pseudopotential.  
+ \tiny     \begin{verbatim}
+         ...
+         PSPW
+            PSP_GENERATOR
+               pseudopotential_filename: Na.psp
+                element: Na
+                charge: 11.0
+                mass_number: 23.0
+                solver_type: pauli
+                pseudopotential_type: hamann
+                atomic_filling: 3 1
+                  1 s 2.0
+                  2 s 2.0
+                  2 p 6.0
+                  3 s 1.0
+            END
+         END
+         task PSPW PSP_GENERATOR
+         ...
+      \end{verbatim}
+\normalsize
+\item Use the same proceedure as above generate a pseudopotential 
+      for Chlorine. 
+ \tiny     \begin{verbatim}
+         ...
+         PSPW 
+            PSP_GENERATOR
+               pseudopotential_filename: Cl.psp
+               element: Cl
+               charge: 17.0
+               mass_number: 35.0
+               solver_type: pauli
+               pseudopotential_type: hamann
+               atomic_filling: 3 2
+                  1 s 2.0
+                  2 s 2.0
+                  2 p 6.0
+                  3 s 2.0
+                  3 p 5.0
+            
+            END
+         END
+         task PSPW PSP_GENERATOR
+         ...
+      \end{verbatim}
+\normalsize
+
+\item Define the simulation cell.  
+      The following input defines a simulation cell called ``small.'' This
+      cell is periodic and cubic with a side length of 20.0 au and has
+      32 grid points in each direction.  
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            SIMULATION_CELL
+               cell_name: small
+               boundry_conditions: periodic
+               lattice_vectors:
+                  20.0  0.0  0.0 
+                   0.0 20.0  0.0 
+                   0.0  0.0 20.0 
+               ngrid: 32 32 32
+            END
+         END
+         ...
+   \end{verbatim}
+\normalsize
+\item Format the Na pseudopotential onto the ``small'' simulation cell.
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            PSP_FORMATTER
+               cell_name: small
+               psp_name: Na.psp
+               formatted_name: Na.vpp
+            END
+         END
+         task PSPW PSP_FORMATTER
+         ...
+   \end{verbatim}
+\normalsize
+\item Format the Cl pseudopotential onto the ``small'' simulation cell.
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            PSP_FORMATTER
+               cell_name: small
+               psp_name: Cl.psp
+               formatted_name: Cl.vpp
+            END
+         END
+         task PSPW PSP_FORMATTER
+         ...
+   \end{verbatim}
+\normalsize
+\item Generate an initial guess for the one-electron orbitals.
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            WAVEFUNCTION_INITIALIZER
+               cell_name: small
+               unrestricted
+               up_filling: 4
+                  0 0 0   0 
+                  1 0 0  -1
+                  0 1 0  -1
+                  0 0 1  -1
+               down_filling: 4
+                  0 0 0   0
+                  1 0 0  -1
+                  0 1 0   1
+                  0 0 1  -1
+               wavefunction_filename: NaCl.small.00.elc
+            END
+         END
+         task PSPW WAVEFUNCTION_INTITALIZER
+         ...
+   \end{verbatim}
+\normalsize
+\item Do a coarse optimization of the one-electron orbitals with respect to energy using
+      steepest descent.
+\tiny \begin{verbatim}
+         ...
+         PSPW
+            STEEPEST_DESCENT
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:  NaCl.small.00.elc
+               output_wavefunction_filename: NaCl.small.00.elc
+               fake_mass: 400000.0d0
+               time_step: 51.8d0
+               loop: 10 100
+               tolerances: 1.0d-4 1.0d-4 1.0d-4
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+            END 
+         END
+         task PSPW STEEPEST_DESCENT
+         ...
+      \end{verbatim}
+\normalsize
+\item Do a finer optimization of the one-electron orbitals with respect to energy using
+      conjugate gradient, and perform a Mulliken analysis. Note that an analysis
+      block must be defined. 
+   \tiny \begin{verbatim}
+         ...
+         PSPW
+           
+            CONJUGATE_GRADIENT
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:  NaCl.small.00.elc
+               output_wavefunction_filename: NaCl.small.00.elc
+               loop: 25 10
+               tolerances: 1.0d-9 1.0d-9 
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+               Mulliken
+            END 
+            ANALYSIS
+                psp_name: Na.psp
+                psp_name: Cl.psp
+            END
+         END
+         task PSPW CONJUGATE_GRADIENT
+         ...
+      \end{verbatim}
+
+
+\end{enumerate}
+\normalsize
+
+
+\normalsize
+\section{PSPW Tutorial 2: Running a Car-Parrinello Simulation}
+\label{sec:pspw_cp}
+
+In this section we show how to perform a Car-Parrinello
+molecular dynamic simulation for an NaCl molecule.  As with the example in 
+the previous tutorial,  this example uses default Hamann 
+pseudopotentials for Na and Cl, LSDA exchange 
+correlation functional, and a cutoff energy of 12 au.
+
+Before running a PSPW Car-Parrinello  simulation the system should be
+on the Born-Oppenheimer surface, i.e. the one-electron
+orbitals should be minimized with respect to the total energy using steepest
+descent and conjugate gradient simulations(see section~\ref{sec:pspw_sd}).  
+
+Continuning where we left off in section ~\ref{sec:pspw_sd} we now 
+continue the simulation to run a MD simulation of an NaCl molecule.  
+This example input deck can be found in the nwchem source tree in 
+the file: nwchem/examples/pspw/NaCl-md.nw
+
+\begin{enumerate}
+\item Optimize wavefunctions - See previous section
+
+\normalsize
+\item Generate an initial guess for the one-electron orbitals velocities.
+\tiny   \begin{verbatim}
+         ...
+         PSPW
+            V_WAVEFUNCTION_INITIALIZER
+               cell_name: small
+               unrestricted
+               up_filling: 4
+               down_filling: 4
+               v_wavefunction_filename: NaCl.small.00.velc
+            END
+         END
+         task PSPW WAVEFUNCTION_INTITALIZER
+         ...
+   \end{verbatim}
+\normalsize
+\item Run an MD simulation using Car-Parrinello.
+\tiny \begin{verbatim}
+         PSPW
+            Car-Parrinello
+               cell_name: small
+               formatted_filename: Na.vpp
+               formatted_filename: Cl.vpp
+               input_wavefunction_filename:    NaCl.small.00.elc
+               output_wavefunction_filename:   NaCl.small.01.elc
+               v_input_wavefunction_filename:  NaCl.00.velc
+               v_output_wavefunction_filename: NaCl.01.velc
+               fake_mass: 800.0d0
+               time_step: 5.0d0
+               loop: 10 100
+               scaling: 1.0d0 1.0d0
+               energy_cutoff:       21.0d0
+               wavefunction_cutoff: 21.0d0
+            END 
+         END
+         task PSPW Car-Parrinello
+         ...
+      \end{verbatim}
+
+
+\end{enumerate}
+\normalsize
+
 
 
 \section{PSPW Capabilities and Limitations}
