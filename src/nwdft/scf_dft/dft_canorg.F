@@ -1,0 +1,55 @@
+      subroutine dft_canorg(toll_s, nmo, svals, g_svecs, g_xij)
+c
+c     Canonical Orthogonalization
+c     Szabo & Ostlund page 144 (Dover Ed.)
+c     
+c     $Id: dft_canorg.F,v 1.1 2001-10-05 09:16:00 edo Exp $
+c     
+      implicit none
+c
+      double precision svals(*) !  S evals [input]
+      integer g_svecs ! GA handle for S evecs [input]
+      integer g_xij  ! GA [ouput]
+      integer nmo ! [out]
+c
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "stdio.fh"
+#include "cdft.fh"
+#include "rtdb.fh"
+c     
+      integer me, nproc, i
+      integer ltmpm, itmpm,ndep
+      double precision toll_s, aaz
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      ndep=nbf-nmo
+      
+c
+      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
+     &   call errquit('diis_bld12: failed to alloc tmpm',0)
+c     
+c        Build Xij
+c     
+      call ga_zero(g_xij)
+      do i = me+1, nmo, nproc
+         aaz = svals(i+ndep)
+!         if (aaz.ge.toll_s)  then
+            call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
+            aaz = 1.d0/sqrt(aaz)
+            call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
+            call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
+!         else
+!            call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
+!            call dfill(nbf_ao,0d0,dbl_mb(itmpm),1)
+!            call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
+!         endif
+      enddo
+      if(.not.MA_Pop_Stack(ltmpm)) call errquit(
+     . 'failed popstack in dftcanorg ',0)
+c
+      return
+      end
+
