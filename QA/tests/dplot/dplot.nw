@@ -47,4 +47,4 @@ pspw
      orbital 1      orb1.cube
    end
 end
-task pspw dplot
+task pspw pspw_dplot
