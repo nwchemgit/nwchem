@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.14 1997-05-20 16:28:23 d3e129 Exp $
+c     $Id: mcscf_fock.F,v 1.15 1997-06-24 02:51:34 d3g681 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -626,32 +626,36 @@ c
       call mcscf_mpole(rtdb, geom, basis, g_gfock)
 c
       g_over  = ga_create_atom_blocked(geom, basis, 'cas_mull:over')
-      call ga_zero(g_over)
-      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
-      if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         call util_print_centered(6,
-     $        'Mulliken analysis of the total density', 20,.true.)
-      endif
-      call mull_pop(geom, basis, g_gfock, g_over, 'total')
+c
+      if (util_print('mulliken', print_low)) then
+         call ga_zero(g_over)
+         call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
+         if (ga_nodeid() .eq. 0) then
+            write(6,*)
+            call util_print_centered(6,
+     $           'Mulliken analysis of the total density', 20,.true.)
+         endif
+         call mull_pop(geom, basis, g_gfock, g_over, 'total')
 c     
-      if (ga_nodeid() .eq. 0) then
-         write(6,*)
-         call util_print_centered(6,
-     $        'Mulliken analysis of the active space density',25,.true.)
+         if (ga_nodeid() .eq. 0) then
+            write(6,*)
+            call util_print_centered(6,
+     $           'Mulliken analysis of the active space density',
+     $           25,.true.)
+         endif
+c     
+         call ga_zero(g_gfock)
+         if (ga_nodeid() .eq. 0) then
+            call ga_put(g_gfock,
+     $           nclosed+1,nclosed+nact,nclosed+1,nclosed+nact,dm1,nact)
+         endif
+         call ga_dgemm('n','t',nocc,nbf,nocc,1.0d0,g_gfock,g_movecs,
+     $        0.0d0,g_afock)
+         call ga_dgemm('n','n',nbf,nbf,nocc,1.0d0,g_movecs,g_afock,
+     $        0.0d0,g_gfock)
+c     
+         call mull_pop(geom, basis, g_gfock, g_over, 'open shell')
       endif
-c
-      call ga_zero(g_gfock)
-      if (ga_nodeid() .eq. 0) then
-         call ga_put(g_gfock,
-     $        nclosed+1,nclosed+nact,nclosed+1,nclosed+nact, dm1, nact)
-      endif
-      call ga_dgemm('n','t',nocc,nbf,nocc,1.0d0,g_gfock,g_movecs,
-     $     0.0d0,g_afock)
-      call ga_dgemm('n','n',nbf,nbf,nocc,1.0d0,g_movecs,g_afock,
-     $     0.0d0,g_gfock)
-c
-      call mull_pop(geom, basis, g_gfock, g_over, 'open shell')
 c
       if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0)
       if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0)

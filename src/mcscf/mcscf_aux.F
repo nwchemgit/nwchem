@@ -303,13 +303,14 @@ C      integer nclosed, nact
       character*255 title_vecs, bas_vecs       ! Basis names from movecs_in
       character*255 trans, name                ! Basis names from rtdb
       character*255 movecs_in                  ! Input/output filenames
+      character*255 movecs_out
       character*20 scftype_vecs
       integer i, nbf_vecs, nsets, nmo_vecs(2)
       integer l_oph, k_oph
       integer l_v, k_v
       integer j, j1, j2, nn
       integer nmo
-      logical oskel, oprint, status, ovecs
+      logical oskel, oprint, status, ovecs, oldvectors
       double precision tol2e, charge, nuclear_charge
       double precision vphase
 c
@@ -321,6 +322,8 @@ c
       external ga_create_atom_blocked
       external movecs_read_header
       external movecs_read
+c
+      oldvectors = .false.
 c
 c  Get misc info
 c
@@ -343,10 +346,10 @@ c
 c
 c  Get filenames
 c
-       if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,movecs_in)) then
-         if (.not.rtdb_cget(rtdb,'scf:input vectors',1,movecs_in))
-     $      call util_file_name('movecs', .false., .false., movecs_in)
-       endif
+      if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,movecs_in)) then
+         if (.not.rtdb_cget(rtdb,'scf:input vectors',1,movecs_in)) 
+     $        movecs_in = 'atomic'
+      endif
 c
 c  Starting MO's determined from movecs_in string
 c
@@ -377,6 +380,7 @@ c
 c  Read vectors from file movecs_in and see if 
 c  they make sense
 c
+         call util_file_name_resolve(movecs_in, .false.)
          status = movecs_read_header( movecs_in, title_vecs, bas_vecs,
      $        scftype_vecs,
      $                                nbf_vecs, nsets, nmo_vecs, 2)
@@ -403,6 +407,7 @@ c
          endif
          call movecs_swap(rtdb,'mcscf','mcscf',g_movecs,occ,evals)
          if (.not. status) call errquit('rhf: failed to load vectors',0)
+         oldvectors = .true.
       endif
 c
 c     Optional MO vector phase adjustment (for getting exactly the same vectors
@@ -475,14 +480,38 @@ c
          endif
          call ga_print(g_movecs)
       endif
-      return
+c
+c     Tie the input vectors for the next job to the output vectors
+c     of this job
+c
+       if (.not.rtdb_cget(rtdb,'mcscf:output vectors',1,movecs_out))then
+          if (oldvectors) then
+             movecs_out = movecs_in
+          else
+             call util_file_name('movecs', .false., .false., movecs_out)
+          endif
+       endif
+
+       call util_file_name_resolve(movecs_out, .false.)
+
+       if (.not.rtdb_cput(rtdb,'mcscf:input vectors',1,movecs_out))
+     $      call errquit('mcscf: failed resetting input vectors', 0)
+       if (.not.rtdb_cput(rtdb,'mcscf:output vectors',1,movecs_out))
+     $      call errquit('mcscf: failed resetting output vectors', 0)
+c
+c     Let the user know what is going on
+c
+       if (ga_nodeid().eq.0 .and. util_print('information',print_low))
+     $      then
+          write(6,17) movecs_in(1:inp_strlen(movecs_in)),
+     $         movecs_out(1:inp_strlen(movecs_out))
+ 17       format(/
+     $         '   input molecular orbitals = ', a/
+     $         '  output molecular orbtials = ', a/)
+          call util_flush(6)
+       endif
+c
       end
-
-
-
-
-
-
 
 
       subroutine mcscf_movecs_read( rtdb, basis, nbf, occ,
@@ -520,9 +549,7 @@ c
 c  Get filenames
 c
       if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_in)) then
-        if (.not.rtdb_cget(rtdb,'scf:input vectors',1,v_in)) then
-          call util_file_name('movecs', .false.,.false.,v_in)
-        endif
+         call errquit('mcscf: failed to get name of input vectors',0)
       endif
 c
 c
@@ -597,13 +624,7 @@ c
 c  Get filenames
 c
       if (.not.rtdb_cget(rtdb,'mcscf:output vectors',1,v_out)) then
-        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,v_out)) then
-          if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_out)) then
-            if (.not.rtdb_cget(rtdb,'scf:input vectors',1,v_out)) then
-              call util_file_name('movecs', .false.,.false.,v_out)
-            endif
-          endif
-        endif
+         call errquit('mcscf: failed to get name for output vectors',0)
       endif
 c
 c
@@ -634,7 +655,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.24 1997-03-25 19:10:57 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.25 1997-06-24 02:51:31 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -725,7 +746,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.24 1997-03-25 19:10:57 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.25 1997-06-24 02:51:31 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

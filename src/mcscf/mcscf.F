@@ -229,9 +229,10 @@ c     See if we are already converged
 
       if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,movecs_in)) then
          if (.not.rtdb_cget(rtdb,'scf:input vectors',1,movecs_in))
-     $        call util_file_name('movecs', .false., .false., movecs_in)
+     $        movecs_in = 'atomic'
       endif
       if (.not. (movecs_in.eq.'atomic'.or.movecs_in.eq.'hcore')) then
+         call util_file_name_resolve(movecs_in, .false.)
          if (movecs_converged(rtdb, basis, 'mcscf', movecs_in)) then
             if (.not. rtdb_get(rtdb, 'mcscf:energy', mt_dbl, 1, energy))
      $           call errquit('mcscf:failed getting converged energy',0)
@@ -273,11 +274,9 @@ c     Create and get MO vectors
 c     
       if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,1,g_movecs))
      $     call errquit('mcscf: cannot allocate MO vectors',0)
+
       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_movecs )
-
-      if (.not.rtdb_cput(rtdb,'mcscf:input vectors',1,movecs_in))
-     $     call errquit('mcscf: rtdb corrupt?',0)
 c     
 c     Orbital irreps
 c     
