@@ -1,0 +1,170 @@
+\label{sec:arch}
+
+As noted above, NWChem consists of independent modules that perform
+the various functions of the code.  Examples of modules include the
+input parser, SCF energy, SCF analytic gradient, and DFT energy.  The
+independent NWChem modules can share data only through a disk-resident
+database, which is a similiar to the GAMESS dumpfile or the Gaussian
+checkpoint file.  This allows the modules to share data, or to share
+access to files containing data.
+
+It is not necessary for the user to be intimately familiar with the
+contents of the database in order to run NWChem.  However, a nodding
+acquaintance with the design of the code will help in clarifying the
+logic behind the input requirements, especially when restarting jobs
+or performing multiple tasks within one job.  Section
+\ref{sec:database} gives a general description of the database.
+
+As described above (Section \ref{sec:inputstructure}), all
+start-up directives are processed at the beginning of the job
+by the main program, and
+then the input module is invoked.  Each input directive usually
+results in one or more entries being made in the database.  When a
+\verb+TASK+ directive is encountered, control is passed to the
+appropriate module, which extracts relevant data from the database and
+any associated files.  Upon completion of the task, the module will store
+significant results in the database, and may also modify other
+database entries in order to modify the behaviour of subsequent
+computations.
+
+\subsection{Database Structure}
+\label{sec:database}
+
+\sloppy
+
+Data is shared between modules of NWChem by means of the database.  There
+are three main types of information stored in the data base; (1) arrays of
+data, (2) names of files that contain data, and (3) objects.  
+Arrays are stored directly in the database, and contain the following
+information;
+\begin{enumerate}
+\item the name of the array, which is a string of ASCII characters (e.g., 
+      \verb+"reference energies"+)
+\item the type of the data in the array 
+(i.e., real, integer, logical, or character) 
+\item the number (N) of data items in the array (Note: A scalar is stored as an array of unit length.)
+\item the N items of data of the specified type
+\end{enumerate}
+
+\fussy
+
+From the NWChem input deck it is possible to enter data directly into
+the database using the \verb+SET+ directive (see Section
+\ref{sec:set}).  For example, to store a (64-bit precision)
+three-element real array with the name \verb+"reference energies"+ in
+the database, the directive is as follows;
+\begin{verbatim}
+  set "reference energies" 0.0 1.0 -76.2
+\end{verbatim}
+NWChem determines the data to be real (based on the type of the first
+element, \verb+0.0+), counts the number
+of elements in the array, and enters the array into the database.
+
+Much of the data stored in the database is internally managed by
+NWChem and should not be modified by the user.  However, other data,
+including some NWChem input options, can be freely modified.  
+
+Objects are built in the database by storing associated data as
+multiple entries using an internally consistent naming convention.
+This data is exclusively managed by the subroutines (or methods) that
+are associated with the object.  Currently, the code has two main
+objects; basis sets and geometries.  Sections \ref{sec:geom}, 
+\ref{sec:basis}, and
+\ref{sec:ecp} present a complete discussion of the input to describe
+these objects.  
+
+As an illustration of what comprises a geometry object, the following
+table contains a partial listing of the NWChem output of a water molecule
+geometry named \verb+"test geom"+.  Each entry contains the field 
+\verb+test geom+, which is the unique name of the object.
+
+\begin{verbatim}
+ Contents of RTDB h2o.db
+ -----------------------
+
+ Entry                                   Type[nelem]
+ ---------------------------  ----------------------
+ geometry:test geom:efield             double[3]    
+ geometry:test geom:coords             double[9]    
+ geometry:names                          char[10]   
+ geometry:test geom:ncenter               int[1]    
+ geometry:ngeom                           int[1]    
+ geometry:test geom:charges            double[3]    
+ geometry:test geom:tags                 char[6]
+ ...
+\end{verbatim}
+
+Using this convention, multiple instances of objects may be stored with
+different names in the same database.  If a user needed to do calculations 
+considering alternative geometries
+for the water molecule, for example, an input file could be constructed with 
+all of the geometries of interest by storing them in the 
+database under different names.  
+
+% The {\tt
+%   GEOMETRY} directive (Section \ref{sec:geom}) permits geometries to
+% be named (the default name is \verb+geometry+).  For example, the
+% input directive to define a geometry object in the database with the
+% name \verb+"test water geometry"+ can be specified as follows;
+
+The run-time database contents for the file \verb+h2o.db+ listed 
+above were generated from the user-specified input directive,
+\begin{verbatim}
+  geometry "test geom"
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+    H     0.00000000   -1.43042809   -1.10715266
+  end
+\end{verbatim}
+
+Obviously, the geometry object contains more information than merely the
+numerical input specified in this directive.  The \verb+GEOMETRY+
+directive allows the user to specify different values for the x,y,z
+coordinates of the atoms (or centers), and identify that object under
+a unique name.  In addition, all of the other information in the 
+geometry object is also available
+to the specifically named objects.  (Refer to Section
+\ref{sec:geom} for a complete description of the {\tt GEOMETRY}
+directive.)
+
+Unless a specific name is defined for the geometry object in the
+database (such as the name \verb+"test geom"+ shown in the
+example), the object in the database is assigned the default name of
+\verb+geometry+.  This is the geometry object name that computational
+modules will look for when executing a calculation.  The {\tt SET}
+directive can be used in the input to force a module (or modules) to
+look for a geometry object with a name other than \verb+geometry+
+for a particular task.  For example, to specify use of the 
+\verb+"test geom"+ object in the example above, the \verb+SET+
+directive is as follows;
+
+\begin{verbatim}
+  set geometry "test geom"
+\end{verbatim}
+
+NWChem will automatically check for such indirections when loading
+geometries.  The basis set object functions in an identical fashion,
+using the default name \verb+"ao basis"+.
+
+% , and it is intended that all
+% future such objects will do so.  (Note: the naming conventions and
+% internal mechanisms for associating data with specific modules or
+% tasks is expected to change in the future, but the directive for
+% specifying names should remain the same.)
+
+\subsection{Persistence of data and restart}
+\label{sec:persist}
+
+The database is persistent, meaning that all input data and results
+that are not destroyed in the course of execution are permanently
+stored.  These data are therefore available to subsequent tasks or
+jobs.  This makes the input for restart jobs very simple, since only
+new or changed data must be provided.  It also makes the behavior of
+successive restart jobs {\em identical} to that of multiple tasks
+within one job.  
+
+Sometimes, however, this persistence is undesirable, and it is
+necessary to return an NWChem module to its default (input-free)
+behavior. In such a case, the \verb+UNSET+ directive (see Section
+\ref{sec:unset}) can be used to delete all database entries associated
+with a given module (including both inputs and outputs).
