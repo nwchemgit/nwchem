@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm(urange,vrange)
 c
-c$Id: aterm.F,v 1.6 2002-10-10 01:24:25 bert Exp $
+c$Id: aterm.F,v 1.7 2002-10-22 23:51:17 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -13,7 +13,7 @@ c
       integer symnj,symnv,symmi,symmu,symj,symv,symn,symi,symu,symm
       integer dimmi,dimnj,dimi,dimj,dimu,dimv,dimm,dimn
       integer ulo,vlo
-      integer list_offset,mnpairs,m,n
+      integer list_offset,list_nr,mnpairs,m,n
       integer n_address,m_address
       integer g_t2_iejf, g_x
       integer l_vulist,k_vulist,l_upart,k_upart,l_vpart,k_vpart
@@ -118,24 +118,29 @@ c     here use list_offset+4
      &                      'c part vj',l_vpart,k_vpart)) call
      &                      errquit('aterm: k_vpart alloc failed',0)
                         call ga_get(g_part(ispin),ulo,uhi,
-     &                      o_sym(1,symi,ispin),o_sym(2,symi,espin),
+     &                      o_sym(1,symi,ispin),o_sym(2,symi,ispin),
      &                      k_upart,ld)
                         call ga_get(g_part(jspin),vlo,vhi,
-     &                      o_sym(1,symj,jspin),o_sym(2,symj,fspin),
+     &                      o_sym(1,symj,jspin),o_sym(2,symj,jspin),
      &                      k_vpart,ld)
                         call dgemm('n','n',dimv,dimi,dimu,1.0d0,
      &                      dbl_mb(k_vulist),dimv,dbl_mb(k_upart),dimu,
      &                      1.0d0,dbl_mb(k_ijlist),dimv)
                         call dgemm('t','n',dime,dimj,dimv,1.0d0,
-     &                      dbl_mb(k_ijlist),dimv,dbl_mb(K_vpart),dimv,
+     &                      dbl_mb(k_ijlist),dimv,dbl_mb(k_vpart),dimv,
      &                      0.0d0,dbl_mb(k_ijlist),dimi)
-                        if (.not. ma_pop_stack(l_upart)) call 
-     &                      errquit('aterm: k_upart dealloc failed',0)
                         if (.not. ma_pop_stack(l_vpart)) call 
      &                      errquit('aterm: k_vpart dealloc failed',0)
-                        call ga_put(g_x(list_offset),n_address,dimi,dimm,
-     &                      m_address,dimj,dimn,dbl(k_ijlist),dimi,
-     &                      1.0d0)
+                        if (.not. ma_pop_stack(l_upart)) call 
+     &                      errquit('aterm: k_upart dealloc failed',0)
+C
+C    CANNOT DO A PUT AS G_X ALREADY HAS X-TERM IN IT. 
+C    1. DO A GA_ACC (BUT IS THIS STRIDED)
+C    2. DO A GA_GET_STRIDED FROM G_X, ADD NEW CONTRIBUTION AND DO GA_PUT_STRIDED
+C
+                        call ga_put(g_x(list_offset),n_address,dimi,
+     &                      dimm,m_address,dimj,dimn,dbl(k_ijlist),
+     &                      dimi,1.0d0)
                         if (.not. ma_pop_stack(l_vulist)) call 
      &                      errquit('aterm: k_vulist dealloc failed',0)
                         if (.not. ma_pop_stack(l_ijlist)) call 
@@ -144,9 +149,12 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
                      end do
                   end do
                end do
-c              prefactor*t(ie,jf)*x(ij,mn) -> r(me,nf)
+c              prefactor*t(ie,jf)*X(nj,mi) -> r(me,nf)
+c              need only occupied f's
+               flo = 
+               fhi =
                call uccsdt_ampfile_read_t2(D_AMP,ispin,espin,jspin,
-     &                                     fspin,symnj,flo_a,fhi_a,
+     &                                     fspin,symnj,flo,fhi,
      &                                     g_t2_iejf,.true.,'block')
                call ga_dgemm('n','n',dimnj,dimnj,dimnj,prefactor,
      &                       g_t2_iejf,g_x,1.0d0,g_r)
