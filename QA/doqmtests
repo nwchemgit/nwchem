@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.45 2004-05-21 01:09:10 edo Exp $
+# $Id: doqmtests,v 1.46 2004-09-24 18:12:53 edo Exp $
 #
 #---   small tests
 set np = 1
@@ -8,7 +8,7 @@ if ($1 !="") then
 set np = $1
 endif
 ./runtests.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
-./runtests.unix procs $np rimp2_ne  scf_feco5 small_intchk tagcheck testtab
+./runtests.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
 ./runtests.unix procs $np dplot neda_nbo  dft_meta
