@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.44 1999-10-26 21:43:44 d3j191 Exp $
+c $Id: md_main.F,v 1.45 1999-10-28 15:04:28 d3j191 Exp $
 c
       implicit none
 c
@@ -1029,23 +1029,12 @@ c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
-c     average forces
+c     self-guided forces
 c
       if(iguide.gt.0) then
-c
       call md_guided(dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_gw),dbl_mb(i_gs))
-c
-c     time step
-c
-      call cf_mdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
-     + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_gw),nwmloc,
-     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
-     + dbl_mb(i_gs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
-     + int_mb(i_is+(lsgan-1)*msa))
-c
-      else
+      endif
 c
 c     time step
 c
@@ -1055,7 +1044,6 @@ c
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
      + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
      + int_mb(i_is+(lsgan-1)*msa))
-      endif
 c
 c     shake
 c
@@ -1310,14 +1298,16 @@ c
       do 1 k=1,nwa
       do 2 j=1,3
       do 3 i=1,nwmloc
-      gw(i,j,k)=factgg*gw(i,j,k)+factgf*fw(i,j,k,1)
+      gw(i,j,k)=factgg*gw(i,j,k)+factgf*(fw(i,j,k,1)+fguide*gw(i,j,k))
+      fw(i,j,k,1)=fw(i,j,k,1)+fguide*gw(i,j,k)
     3 continue
     2 continue
     1 continue
 c
       do 4 j=1,3
       do 5 i=1,nsaloc
-      gs(i,j)=factgg*gs(i,j)+factgf*fs(i,j,1)
+      gs(i,j)=factgg*gs(i,j)+factgf*(fs(i,j,1)+fguide*gs(i,j))
+      fs(i,j,1)=fs(i,j,1)+fguide*gs(i,j)
     5 continue
     4 continue
 c

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.18 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: md_common.fh,v 1.19 1999-10-28 15:04:23 d3j191 Exp $
 c
 c     parameters
 c
@@ -118,7 +118,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0(6),shift1(6),
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect(3),xffreq,xfield,drdf,uqmatm,tguide,factgf,factgg
+     + xfvect(3),xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg
       integer nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
@@ -146,7 +146,7 @@ c
      + compr,tmpext,tmprlx,tmsrlx,tgauss,dielec,field,factld,sil,
      + urlow,hbdis1,hbdis2,hbang1,hbang2,verinp,shift0,shift1,
      + pmetol,drsscl,disrlx,rqmmm,frgaus,delta,dxmcg,rbox,ealpha,
-     + xfvect,xffreq,xfield,drdf,uqmatm,tguide,factgf,factgg,
+     + xfvect,xffreq,xfield,drdf,uqmatm,fguide,tguide,factgf,factgg,
      + nptopw,nptops,nptopt,npstep,npener,nptmng,npmemo,
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,

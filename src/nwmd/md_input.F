@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.8 1999-10-27 00:02:04 d3j191 Exp $
+c $Id: md_input.F,v 1.9 1999-10-28 15:04:28 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
-      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide
+      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide
 c
       integer i,mtimes,mdold
 c
@@ -197,6 +197,7 @@ c
       drsscl=one
       eqm=0.0d0
       tguide=0.0d0
+      fguide=0.0d0
 c      do 4 i=1,msf
 c      lsffix(i)=1
 c    4 continue
@@ -504,7 +505,8 @@ c     guided dynamics
 c
       if(inp_compare(.false.,'guided',item)) then
       iguide=1
-      if(.not.inp_f(tguide)) tguide=0.1d0
+      if(.not.inp_f(fguide)) fguide=0.2d0
+      if(.not.inp_f(tguide)) tguide=0.2d0
       goto 2
       endif
 c
@@ -1321,6 +1323,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))
+     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:tguide',mt_dbl,1,tguide))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:dx0sd',mt_dbl,1,dx0sd))

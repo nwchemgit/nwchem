@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.36 1999-10-27 00:02:04 d3j191 Exp $
+c $Id: md_start.F,v 1.37 1999-10-28 15:04:29 d3j191 Exp $
 c
       implicit none
 c
@@ -812,6 +812,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
      + call errquit('md_rtdbin: rtdb_get failed',99)
 c
+      if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))
+     + call errquit('md_rtdbin: rtdb_get failed',100)
       if(.not.rtdb_get(irtdb,'md:tguide',mt_dbl,1,tguide))
      + call errquit('md_rtdbin: rtdb_get failed',100)
       if(.not.rtdb_get(irtdb,'md:dx0sd',mt_dbl,1,dx0sd))
@@ -1099,9 +1101,11 @@ c
       msa=msareq
       mwm=mwmreq
 c
-      factgg=zero
-      if(tguide.gt.zero) factgg=exp(-tstep/tguide)
-      factgf=one-factgg
+      factgf=one
+      if(iguide.gt.0) factgf=tstep/tguide
+      factgg=one-factgf
+      write(*,'(a,4f16.10)') 'Guided MD factors ',
+     + factgg,factgf,tguide,fguide
 c
 c     open recording file
 c
