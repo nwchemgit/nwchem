@@ -2,14 +2,14 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: grad_dens.F,v 1.2 1995-11-07 20:01:33 vg038 Exp $
+c$Id: grad_dens.F,v 1.3 1995-11-07 22:36:32 vg038 Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
 
       implicit none
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 
       integer geom, basis, g_dens, g_wdens, g_eigen_diag, ndens, 
      $     nbf, nbf2, nopen, nclosed
