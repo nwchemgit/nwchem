@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
+c     $Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -126,56 +126,49 @@ c
      &            g_dens_LUMO(1), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header('  Condensed Fukui function [fnn(+)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(0.5d00, g_dens_HOMO(2), 0.5d00,
      &             g_dens_HOMO(1), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fnn(-)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(-0.5d00, g_dens_LUMO(2), 0.5d00,
      &             g_dens_LUMO(1), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fsn(+)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
-c
-      call ga_zero(g_dens_ss)
-      call ga_add(-0.5d00, g_dens_HOMO(2), 0.5d00,
-     &             g_dens_HOMO(1), g_dens_ss)
-      if (me.eq.0.and.oprint_fukui)
-     &   call dft_header(' Condensed Fukui function [fsn(-)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(0.5d00, g_dens_HOMO(2), 0.5d00,
      &             g_dens_LUMO(1), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fss(+)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(-0.5d00, g_dens_HOMO(2), 0.5d00,
      &             g_dens_LUMO(1), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fns(+)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(0.5d00, g_dens_HOMO(1), 0.5d00,
      &             g_dens_LUMO(2), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fss(-)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       call ga_zero(g_dens_ss)
       call ga_add(0.5d00, g_dens_HOMO(1), -0.5d00,
      &             g_dens_LUMO(2), g_dens_ss)
       if (me.eq.0.and.oprint_fukui)
      &   call dft_header(' Condensed Fukui function [fns(-)]')
-      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s, 'total')
+      call mull_pop_fuk(geom, AO_bas_han, g_dens_ss, g_s)
 c
       mu_n_men = 0.5d00*(eig_homo(1) + eig_homo(2))
       mu_n_cer = 0.5*(mu_n_mas + mu_n_men)
@@ -504,16 +497,14 @@ c
       return
       end
 
-      Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
+      Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
+C$Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
       integer iga_dens           ! dens. mat GA handle
       integer iga_ps             ! product   GA handle
-      character*(*) string      ! Identifier for ecce output
-                                ! total/open/alpha/beta/mp2/ccsd/...
 
       integer natoms,nshells
       integer lPSmat,iPSmat,lqatom,iqatom,lqshell,iqshell
@@ -561,7 +552,7 @@ c
       call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,
      &     iga_dens,iga_s,0.d0,iga_PS)
       call mull_calc_fuk(basis,natoms, nshells,max_at_bf2,iga_PS,
-     &     dbl_mb(iqatom),dbl_mb(iqshell),dbl_mb(iPSmat), string)
+     &     dbl_mb(iqatom),dbl_mb(iqshell),dbl_mb(iPSmat))
       
       call ga_sync
 
@@ -581,7 +572,7 @@ c
 c
 c
       Subroutine mull_calc_fuk(basis, natoms, nshells,max_at_bf2,iga_PS,
-     &     qatom,qshell,PSmat, string)
+     &     qatom,qshell,PSmat)
 
       Implicit none
 #include "geom.fh"
@@ -603,7 +594,6 @@ c
       character*2 symbol
       character*16 tag
       character*32 element
-      character*(*) string
       integer atn
 c     
       me=ga_nodeid()
@@ -666,7 +656,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.11 2000-04-24 18:50:45 edo Exp $
+C$Id: fukui.F,v 1.12 2000-04-24 19:17:08 edo Exp $
 c
       implicit none
 #include "stdio.fh"
