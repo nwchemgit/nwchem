@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.33 2000-05-06 07:08:53 mdupuis Exp $
+C$Id: rohf.F,v 1.34 2000-05-06 22:41:27 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -54,7 +54,7 @@ c
 c
 c     ----- cosmo cavity -----
 c
-      if(ga_nodeid().eq.0) then
+cedo      if(ga_nodeid().eq.0) then
          if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
             if(ocosmo) then
                odbug=.false.
@@ -66,7 +66,7 @@ c
                call cosmo_initialize(rtdb,osome)
             endif
          endif
-      endif
+cedo      endif
 c
 c     Start timer
 c
