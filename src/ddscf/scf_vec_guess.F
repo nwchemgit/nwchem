@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.49 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id: scf_vec_guess.F,v 1.50 2004-02-17 17:42:37 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -84,6 +84,7 @@ c
       parameter (zero = 0.d0, one = 1.d0, two = 2.d0)
       external movecs_read_header, movecs_write, movecs_read
       external ga_create_atom_blocked
+      logical quickguess
 c
       if (.not. oinitialized) call errquit
      &     ('scf_v_g: not initialized?', 0, UNKNOWN_ERR)
@@ -171,6 +172,9 @@ c
          if (movecs_in .eq. 'atomic') then
             call guess_dens(rtdb, geom, basis, g_dens(1))
          endif
+         if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
+     .        quickguess=.false.
+         if (quickguess) return
 c
 c     Since the caching of integrals may be turned on automagically
 c     we always need to use the full integral precision in the starting 

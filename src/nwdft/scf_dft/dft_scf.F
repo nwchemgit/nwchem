@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.238 2004-01-20 19:08:43 edo Exp $
+c     $Id: dft_scf.F,v 1.239 2004-02-17 17:42:34 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -146,7 +146,7 @@ c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
-      logical gotsmear
+      logical gotsmear,quickguess,diisreset
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       call ecce_print_module_entry('dft')
@@ -453,7 +453,9 @@ c
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
       endif
-
+      if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
+     .     quickguess=.false.
+      if(quickguess) goto 1789
 
       if(ldmix) then
          tdots=0.d0
@@ -489,6 +491,7 @@ c Jorge Garza/End/Exact_pot
 c
 c     Tidy up SCF
 c
+ 1789    continue
       call fock_2e_tidy(rtdb)
 c
       if (CDFIT)then
@@ -823,27 +826,35 @@ c
 
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
-      
+      diisreset=.false.
       if((.not.rabuck_act).and.
      .gotsmear(ssmear).and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
 c     swap alpha and beta
 c
-      if (.not.MA_Push_Get(MT_Dbl,nbf_ao,'ssccrr',l_tmp,k_tmp))
-     &     call errquit('dft_scf: cannot allocate ktmp',0, MA_ERR)
+         if (.not.MA_Push_Get(MT_Dbl,nbf_ao,'ssccrr',l_tmp,k_tmp))
+     &        call errquit('dft_scf: cannot allocate ktmp',0, MA_ERR)
          call dft_swapab(g_dens, g_movecs,nbf_ao,noc,
      ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
-      if (.not.ma_pop_stack(l_tmp))
-     &   call errquit('dft_scf: cannot pop stack',33, MA_ERR)
-            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
-            if(diising) then
-            call diis_driver(toll_s, derr,  ipol, icall, nfock, 
-     &                       nbf_ao, geom, ao_bas_han, g_focks, 
-     &                       g_dens, g_tmp, g_svecs, svals, 
-     &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p,.true.)
-            endif
+         if (.not.ma_pop_stack(l_tmp))
+     &        call errquit('dft_scf: cannot pop stack',33, MA_ERR)
+         if(diising) diisreset=.true.
       endif
+c
+c     reset diis when smearing is on to avoid noise accumulation
+c
+      if(gotsmear(ssmear).and.mod(iter,25).eq.0) then
+         if(iter.gt.1.and.diising) diisreset=.true.
+      endif
+      if(diisreset) then
+         if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+         call diis_driver(toll_s, derr,  ipol, icall, nfock, 
+     &        nbf_ao, geom, ao_bas_han, g_focks, 
+     &        g_dens, g_tmp, g_svecs, svals, 
+     &        diising, nodiis,int_mb(k_gdiis),
+     ,        lkeeps,g_s12m,g_s12p,.true.)
+      endif
+
          etnew=etnew+tdots
 c
       delta = -etold+etnew
