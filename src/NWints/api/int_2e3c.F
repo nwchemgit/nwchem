@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.21 2003-10-17 22:53:41 carlfahl Exp $
+c $Id: int_2e3c.F,v 1.22 2004-09-08 19:21:55 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -180,6 +180,8 @@ cedo#endif
 *
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
      &    .and. (ketin .eq. ao_bsh)
+      k_rel=.false.
+      j_rel=.false.
       if (status_rel) then
 c
 c     get basis set handles; relativistic integral option valid
