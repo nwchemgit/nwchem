@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.432 2003-10-23 19:45:15 edo Exp $
+# $Id: makefile.h,v 1.433 2003-10-25 00:10:24 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1304,7 +1304,7 @@ endif
 # this are for PowerPC
     ifeq ($(FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
-      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap
       FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
       FDEBUG= -O2 -g
       EXPLICITF = TRUE
@@ -1321,12 +1321,12 @@ endif
       COPTIONS   = -Wall
       COPTIMIZE  = -g -O2
     endif
-    LDOPTIONS = -v
+    LDOPTIONS += -v
   endif
 
 
 
-      LINK.f = $(FC) $(LDFLAGS) 
+      LINK.f = $(FC) $(FOPTIONS) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
    LDOPTIONS=-g
@@ -1493,11 +1493,14 @@ endif
 endif
 
     ifeq ($(_CPU),ppc64)
+      FC=xlf
+      CC=/opt/cross/bin/powerpc64-linux-gcc
       ifeq ($(FC),xlf)
         FOPTIONS  =  -q64 -qextname -qfixed -qnosave   -qalign=4k
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192
         ifdef  USE_GPROF
           FOPTIONS += -pg
+          COPTIONS += -pg
         endif
         FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=rsqrt:fltint
 #        FVECTORIZE = -O5 -qhot -qfloat=fltint 
