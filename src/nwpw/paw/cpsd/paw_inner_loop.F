@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.17 2003-02-21 02:30:15 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.18 2003-02-21 18:41:12 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -32,6 +32,7 @@
 #include "paw_energy_ion_atom.fh"
 #include "paw_energy_core_atom.fh"
 #include "paw_energy_hartree_atom.fh"
+#include "paw_xc.fh"
 
 
 *     **** local variables ****
@@ -47,7 +48,10 @@
       double precision paw_evloc_atom
       double precision paw_eion_atom
       double precision paw_ecore_atom
+      double precision paw_ecore_ion_atom
+      double precision paw_ecore_self_atom
       double precision paw_ehartree_atom
+      double precision paw_exc_atom
 
 
 *     **** MA local variables ****
@@ -478,11 +482,17 @@ c     get paw atom energies
       paw_evloc_atom = paw_energy_vloc_atom()
       paw_eion_atom = paw_energy_ion_atom()
       paw_ecore_atom = paw_energy_core_atom()
+      paw_ecore_ion_atom = paw_energy_core_ion_atom()
+      paw_ecore_self_atom = paw_energy_core_self_atom()
+      paw_exc_atom = paw_energy_xc_atom()
       write(*,*) "paw atom kin energy",paw_ekin_atom
       write(*,*) "paw atom vloc energy",paw_evloc_atom 
       write(*,*) "paw atom ion energy",paw_eion_atom 
       write(*,*) "paw atom core energy",paw_ecore_atom 
       write(*,*) "paw atom hartree energy",paw_ehartree_atom 
+      write(*,*) "paw atom core_ion energy",paw_ecore_ion_atom
+      write(*,*) "paw atom core_self energy",paw_ecore_self_atom
+      write(*,*) "paw atom xc energy",paw_exc_atom
 
       call Pack_c_unpack(0,dn_cmp_smooth)
       call D3dB_cr_fft3b(1,dn_cmp_smooth)
