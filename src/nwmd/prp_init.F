@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg)
 c
-c $Id: prp_init.F,v 1.32 2000-07-17 20:04:11 d3j191 Exp $
+c $Id: prp_init.F,v 1.33 2000-07-17 21:27:10 d3j191 Exp $
 c
       implicit none
 c
@@ -178,7 +178,7 @@ c
       pronam( 69)='Mean square displacement solvent /6          nm**2'
       lp(69)=nwm.gt.0.and.ntype.gt.1
       pronam( 70)='Diffusion constant solvent * e9             m**2/s'
-      lp(70)=nwm.gt.0
+      lp(70)=nwm.gt.0.and.ntype.gt.1
       pronam( 71)='Dipole moment solvent permanent            e30 C m'
       pronam( 72)='Dipole moment solvent induced              e30 C m'
       pronam( 73)='Dipole moment solvent                      e30 C m'
