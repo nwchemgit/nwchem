@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.89 1998-12-16 23:21:14 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.90 1998-12-29 17:58:22 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad nwaprep oimp2 \
-        property gapss fft rimp2_grad nbo python
+        property gapss fft rimp2_grad nbo python analyz
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -67,9 +67,9 @@ EXP_alldev = develop $(EXP_all)
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
 EXP_ver2 = nwaprep prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
-           driver
+           driver analyz
 #plane_wave ... broken? RJH
-EXP_argos = nwaprep prepar nwargos
+EXP_argos = nwaprep prepar nwargos analyz
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
 
@@ -181,6 +181,7 @@ MOD_LIBS := $(patsubst nwaprep,-lnwaprep,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst analyz,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
@@ -219,6 +220,7 @@ STUBROUTINES := $(patsubst vib,vib_vib,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst driver,drv_lst drv_opt driver_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwargos,nwargos arg_input qmmm_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
