@@ -74,6 +74,13 @@ cross-product integral terms ignored in the \verb+DKH+ approach (see for example
 H\"{a}berlen and R\"{o}sch\footnote{O.D.~H\"{a}berlen, N.~R\"{o}sch, 
 Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}).
 
+The contracted basis sets used in the calculations should reflect the relativistic
+effects. I.e. one should use contracted basis sets which were generated using the 
+Douglas-Kroll Hamiltonian. Basis sets that were contracted using the 
+non-relativistic (Sch\"{o}dinger Hamiltonian WILL PRODUCE ERRONEOUS RESULTS for
+elements beyond the first row. See chapter \ref{sec:knownbasis} for available
+basis sets and their naming convention.
+
 In order to compute the integrals needed for the Douglas-Kroll approximation
 the implementation makes use of a fitting basis set (see literature given
 above for details). The current code will create this fitting basis set
