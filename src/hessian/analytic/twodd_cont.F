@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.35 2002-03-06 20:57:27 windus Exp $
+C $Id: twodd_cont.F,v 1.36 2002-09-25 23:46:58 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -184,7 +184,7 @@ c
       call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
       call int_terminate()
-      call intdd_init(rtdb, nbasis, basis_list)
+      call intd_init(rtdb, nbasis, basis_list)
 c
 c For now I am not dealing with the active atom stuff, just setting every
 c atom to active.
@@ -238,6 +238,8 @@ c
      *   tol2e, g_dens2, g_rhs,.true.)
       if (scftype .eq. 'UHF') call uhf_fock_finish(g_dens2,g_rhs,
      *   jfac,kfac,ndens,nfock,nbf,otwoprint)
+      call intd_terminate()
+      call intdd_init(rtdb, nbasis, basis_list)
 c will eventually bring back - log_mb(k_act))
 c
 c Get rid of temporary memory
