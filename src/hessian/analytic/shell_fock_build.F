@@ -1,10 +1,11 @@
 c
-c $Id: shell_fock_build.F,v 1.1 2000-08-08 20:46:06 windus Exp $
+c $Id: shell_fock_build.F,v 1.2 2000-08-10 02:57:59 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
      $     kfac, tol2e, g_dens, g_fock, oactive)
       implicit none
 #include "mafdecls.fh"
+#include "global.fh"
 #include "bas.fh"
       integer geom, basis, nder, nfock 
       integer g_dens(nfock), g_fock(nder, nfock)
@@ -20,7 +21,8 @@ c
      $     k_bfglo, k_bfghi, k_labels, k_list, k_q4, k_bftoat
       integer l_shbflo, l_shbfhi, l_eri, l_scr
       integer k_shbflo, k_shbfhi, k_eri, k_scr
-      integer i, iat
+      integer i, j, iat
+      integer ld(3),ilo(4),ihi(4),g_tfock,l_fock,k_fock
 c
       integer 
      $     k_d_ij,  k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
@@ -33,6 +35,8 @@ c
       integer maxq              ! max quartets in a request
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       if (nfock .ne. 1) call errquit('NFOCK', nfock)
       call dscal(nfock, 0.5d0, kfac, 1)
@@ -154,11 +158,39 @@ c    $        .true., int_mb(k_bfmap))
 c
       call dscal(nfock, 2.0d0, kfac, 1)
 c
-c     do i = 1, nfock
-c        call ga_dscal(g_fock(i), 4.0d0)
-c        call ga_symmetrize(g_fock(i))
-c     end do
       call ga_dscal(g_fock, 4.0d0)
+c        call ga_dscal(g_fock(i), 4.0d0)
+
+      if (.not. ma_push_get(mt_dbl,nbf*nbf,'lfock',l_fock,k_fock))
+     $     call errquit('new_fock:could not allocate lfock',555)
+      g_tfock = ga_create_atom_blocked
+     *            (geom, basis, 'shell_fock_build:tdens')
+      ld(1) = 1
+      ld(2) = 1
+      ilo(3) = 1
+      ihi(3) = nbf
+      ld(3) = nbf
+      ilo(4) = 1
+      ihi(4) = nbf
+      do j = 1, nder
+         ilo(1) = j
+         ihi(1) = j
+      do i = 1, nfock
+         ilo(2) = i
+         ihi(2) = i
+         call nga_get(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
+         call ga_put(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
+         write(6,*) 'before ga_symmetrize'
+         call ga_print(g_tfock)
+         call ga_symmetrize(g_tfock)
+         write(6,*) 'after ga_symmetrize'
+         call ga_print(g_tfock)
+         call ga_get(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
+         call nga_put(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
+      end do
+      end do
+      if (.not. ga_destroy(g_tfock)) call errquit
+     *  ('shell_fock_build: g_tfock destroy failed',555)
 c        call ga_symmetrize(g_fock(i))
 c
 c  Clean up memory allocated in this routine
