@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.46 2003-10-13 21:18:31 pollack Exp $
+c     $Id: xc_eval_fnl.F,v 1.47 2003-10-21 23:50:22 pollack Exp $
 c
       implicit none
 c
@@ -356,7 +356,7 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, Ec, qwght,ldew,func)
          else
-            call errquit('2nds not available ',0)
+            call errquit('2nds not available ',0,0)
 !            call xc_ft97_d2()
          endif
       endif
