@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.119 2002-03-29 03:31:53 d3j191 Exp $
+c $Id: md_start.F,v 1.120 2002-04-12 23:03:47 d3j191 Exp $
 c
       implicit none
 c
@@ -323,6 +323,7 @@ c
       filsfl=filnam(1:ibl)//'.sfl'
       filtst=filnam(1:ibl)//'.tst'
       filcmd=filnam(1:ibl)//'.cmd'
+      filtri=filnam(1:ibl)//'.tri'
 c
 c     set logical file numbers
 c
@@ -366,6 +367,7 @@ c
       lfnday=46
       lfncmd=47
       lfnpmf=48
+      lfntri=49
 c
 c     set defaults
 c
@@ -784,6 +786,12 @@ c
       if(.not.rtdb_get(irtdb,'md:nfconv',mt_int,1,nfconv))
      + call errquit('md_rtdbin: rtdb_get failed',58)
       if(.not.rtdb_get(irtdb,'md:nffet',mt_int,1,nffet))
+     + call errquit('md_rtdbin: rtdb_get failed',59)
+      if(.not.rtdb_get(irtdb,'md:impfr',mt_int,1,impfr))
+     + call errquit('md_rtdbin: rtdb_get failed',59)
+      if(.not.rtdb_get(irtdb,'md:impto',mt_int,1,impto))
+     + call errquit('md_rtdbin: rtdb_get failed',59)
+      if(.not.rtdb_get(irtdb,'md:nftri',mt_int,1,nftri))
      + call errquit('md_rtdbin: rtdb_get failed',59)
       if(.not.rtdb_get(irtdb,'md:iformt',mt_int,1,iformt))
      + call errquit('md_rtdbin: rtdb_get failed',60)
@@ -1226,6 +1234,10 @@ c
       endif
       if(ntype.eq.3) then
       open(unit=lfngib,file=filgib(1:index(filgib,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(ntype.eq.0.and.nftri.gt.0) then
+      open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nftime.gt.0) then

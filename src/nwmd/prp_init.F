@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.46 2002-02-07 00:13:38 d3j191 Exp $
+c $Id: prp_init.F,v 1.47 2002-04-12 23:03:47 d3j191 Exp $
 c
       implicit none
 c
@@ -73,9 +73,9 @@ c
     1 continue
 c
       pronam(  1)='Step                                              '
-      lp(1)=ntype.gt.1
+      lp(1)=ntype.gt.1.or.ntype.eq.0
       pronam(  2)='Time                                            ps'
-      lp(2)=ntype.gt.1
+      lp(2)=ntype.gt.1.or.ntype.eq.0
       pronam(  3)='Number solvent-solvent interactions SR            '
       lp(3)=nwm.gt.0
       pronam(  4)='Number solvent-solvent interactions LR            '

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.59 2002-03-29 03:31:53 d3j191 Exp $
+c $Id: md_input.F,v 1.60 2002-04-12 23:03:47 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer ipolt,mshitw,mshits,npstep,npener,npdist,nptmng,nfpair
       integer nfrdf,nfcntr,nfoutp,nfstat,nfrest,keepr,nfcoor,nfscoo
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
-      integer nfforc,nfwfor,nfsfor,npstat,nfesp
+      integer nfforc,nfwfor,nfsfor,npstat,nfesp,impfr,impto,nftri
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
@@ -99,6 +99,9 @@ c
       nfpair=1
       nfesp=0
       nfrdf=0
+      impfr=0
+      impto=0
+      nftri=0
       ngl=1000
       nflong=1
       nfcntr=0
@@ -1307,6 +1310,25 @@ c
       goto 2
       endif
 c
+c     recording
+c
+      if(inp_compare(.false.,'import',item)) then
+      if(.not.inp_i(impfr)) then
+      impfr=1
+      impto=1
+      nftri=1
+      goto 2
+      endif
+      if(.not.inp_i(impto)) then
+      impto=impfr
+      impfr=1
+      nftri=1
+      goto 2
+      endif
+      if(.not.inp_i(nftri)) nftri=1
+      goto 2
+      endif
+c
 c     other stuff
 c
       if(inp_compare(.false.,'memory',item)) then
@@ -1582,6 +1604,12 @@ c
       if(.not.rtdb_put(irtdb,'md:nfconv',mt_int,1,nfconv))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nffet',mt_int,1,nffet))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:impfr',mt_int,1,impfr))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:impto',mt_int,1,impto))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nftri',mt_int,1,nftri))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iformt',mt_int,1,iformt))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.56 2002-03-29 03:31:53 d3j191 Exp $
+c $Id: md_common.fh,v 1.57 2002-04-12 23:03:47 d3j191 Exp $
 c
 c     parameters
 c
@@ -71,14 +71,14 @@ c     ---------------------------------------------------
 c
       integer
      + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,lfntri,
      + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,lfnpmf,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnfld,lfnsfl,lfncmd,lfntri,
      + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,lfnpmf,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
@@ -95,13 +95,13 @@ c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
-     + filgib,filppd,filhis,filhbo,filsfl,filcmd,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
      + filmro,filmri,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
-     + filgib,filppd,filhis,filhbo,filsfl,filcmd,
+     + filgib,filppd,filhis,filhbo,filsfl,filcmd,filtri,
      + filmro,filmri,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
@@ -127,11 +127,11 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,npstat,linkatm,nobq,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
-     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
+     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
@@ -157,11 +157,11 @@ c
      + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
-     + nfforc,nfsfor,npstat,linkatm,nobq,
+     + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
-     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
+     + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.124 2002-04-10 03:12:19 d3j191 Exp $
+c $Id: md_main.F,v 1.125 2002-04-12 23:03:47 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,11 @@ c
 c     single energy
 c     -------------
 c
+      if(nftri.eq.0) then
       call md_sp()
+      else
+      call md_spi()
+      endif
 c
       elseif(ntype.eq.1) then
 c
@@ -110,6 +114,105 @@ c
       endif
 c
       if(itest.eq.1) call md_test()
+c
+      return
+      end
+      subroutine md_spi()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+c
+      external sp_rdtrj,sp_skip,frequency
+      logical sp_rdtrj,sp_skip,frequency
+c
+      integer i_wws,l_wws
+      integer import
+c
+      if(impfr.gt.1) then
+      if(.not.sp_skip(lfntri,impfr-1)) return
+      endif
+c
+      do 1 import=impfr,impto
+c
+      if(.not.frequency(import+1-impfr,nftri)) then
+      if(.not.sp_skip(lfntri,1)) return
+      goto 1
+      endif
+c
+      lpair=.true.
+      llong=ltwin
+c
+c     read frame from trajectory file
+c
+      if(.not.sp_rdtrj(lfntri,lxw,lvw,lfw,lxs,lvs,lfs,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs),nwmloc,nsaloc)) return
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
+c
+c     periodic boundary conditions
+c
+      call md_fold(int_mb(i_iw),int_mb(i_is),
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     atom redistribution
+c
+      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+c
+      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
+     + call errquit('Failed to allocate memory for wws',me)
+c
+      call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
+     + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+c
+      call md_eminit(dbl_mb(i_xw),dbl_mb(i_yw),
+     + dbl_mb(i_xs),dbl_mb(i_ys))
+c
+c     atomic forces and potential energies
+c
+      call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      call prp_proper(import,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box)
+c
+      call prp_print()
+c
+      call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
+c
+      if(.not.ma_pop_stack(l_wws))
+     + call errquit('Failed to deallocate memory for wws',me)
+c
+c     print energies
+c
+      call cf_print_energy(lfnout)
+      if(me.eq.0.and.frequency(import,nfprop)) call prp_record()
+c
+      call sp_printf(lfnout,filtop,lfntop,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
+c
+      if(ifidi.ne.0) then
+      call md_fd(int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_fs),
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw))
+      endif
+c
+      if(itest.eq.1) call md_test()
+c
+    1 continue
 c
       return
       end
@@ -2252,7 +2355,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.124 2002-04-10 03:12:19 d3j191 Exp $
+c $Id: md_main.F,v 1.125 2002-04-12 23:03:47 d3j191 Exp $
 c
       implicit none
 c
