@@ -28,7 +28,7 @@
      character string).
 
      The no. of fields read is set to 0, there being a total of
-     inp_nfield() fields in the line.
+     inp_n_field() fields in the line.
 
      If a non-blank line is successfully parsed then .true. is returned.
 
