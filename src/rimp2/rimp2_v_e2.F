@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.14 1995-03-29 06:05:56 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.15 1995-04-10 01:39:30 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -68,6 +68,7 @@ C INCLUDE FILES
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "rimp2_timers.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
       Logical Open_3ci_File, Get_3cInts, Close_3cI_File,
@@ -108,9 +109,12 @@ C LOCAL VARIBLES
 c$$$      Double precision ChkSum, MxElem
       Character*255 String1
       Integer NewIBlk, NewJBlk
+      Logical PrInfo
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
+C
+      PrInfo = Util_Print('information', Print_Low)
 C
 C     ************************
 C     * Check inputs & setup *
@@ -188,9 +192,10 @@ C
          JBlock = Min(JBlock, NewJBlk)
       EndIf
       Call PStat_Off( PS_E_Blocking)
-      If ( GA_NodeID() .eq. 0)
+C
+      If ( PrInfo .AND. GA_NodeID() .eq. 0)
      $   Write (LUOut, 9100) IBlock, JBlock
- 9100 Format(1X, 'Block sizes for energy evaluation: ', 2I5)
+ 9100 Format(1X, 'Energy evaluation using block sizes ', 2I5)
 C
 C     *****************************************************************
 C     * Loop over occupied orbitals of both spins for the first index *
@@ -336,10 +341,14 @@ C
      $               FP_One, G_bigI, G_bigJ, FP_Zero, G_bigA)
                   Call PStat_Off( PS_form_4ci)
 C
-                  Write (String1, 9210) ILo, IHi, JLo, JHi
-                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
- 9210             Format('RIMP2_V_E2: Approx. ints. done (',
-     $               I5, ':', I5, ',', I5, ':', I5, ')')
+                  If ( Util_Print('progress reports', Print_Default))
+     $               then
+                     Write (String1, 9210) ILo, IHi, JLo, JHi
+                     Call Progress_Report(LuOut,
+     $                  String1(:LNBlnk(String1)))
+ 9210                Format('RIMP2_V_E2: Approx. ints. done (',
+     $                  I5, ':', I5, ',', I5, ':', I5, ')')
+                  EndIf
 C
 C                 The J integral block is no longer needed and can
 C                 now be freed.  This alows us to reuse the space
@@ -441,10 +450,14 @@ C
                   EndIf
                   Call PStat_Off( PS_form_ab)
 C
-                  Write (String1, 9220) ILo, IHi, JLo, JHi
-                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
- 9220             Format('RIMP2_V_E2: Copy to B done (',
-     $               I5, ':', I5, ',', I5, ':', I5, ')')
+                  If ( Util_Print('progress reports', Print_Default))
+     $               then
+                     Write (String1, 9220) ILo, IHi, JLo, JHi
+                     Call Progress_Report(LuOut,
+     $                  String1(:LNBlnk(String1)))
+ 9220                Format('RIMP2_V_E2: Copy to B done (',
+     $                  I5, ':', I5, ',', I5, ':', I5, ')')
+                  EndIf
 C
 C                 ***************************
 C                 * Apply denominators to B *
@@ -459,10 +472,14 @@ C
      $               Eig(1+NOcc(JSpin), JSpin) )
                   Call PStat_Off( PS_denom)
 C
-                  Write (String1, 9230) ILo, IHi, JLo, JHi
-                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
- 9230             Format('RIMP2_V_E2: Denominators done (',
-     $               I5, ':', I5, ',', I5, ':', I5, ')')
+                  If ( Util_Print('progress reports', Print_Default))
+     $               then
+                     Write (String1, 9230) ILo, IHi, JLo, JHi
+                     Call Progress_Report(LuOut,
+     $                  String1(:LNBlnk(String1)))
+ 9230                Format('RIMP2_V_E2: Denominators done (',
+     $                  I5, ':', I5, ',', I5, ':', I5, ')')
+                  EndIf
 C
 C                 ***********************
 C                 * Form IJ pair energy *
@@ -528,12 +545,14 @@ C
                      Return
                   EndIf
 C
-c$$$                  If ( .NOT. (ILo .eq. 1 .AND. IHi .eq. NOcc(ISpin))
-c$$$     $               .OR..NOT. (JLo .eq. 1 .AND. JHi .eq. NOcc(JSpin))))
-                  Write (String1, 9200) ILo, IHi, JLo, JHi
-                  Call Progress_Report(LuOut, String1(:LNBlnk(String1)))
- 9200             Format('RIMP2_V_E2: Completed block (',
-     $               I5, ':', I5, ',', I5, ':', I5, ')')
+                  If ( Util_Print('progress reports', Print_Default))
+     $               then
+                     Write (String1, 9200) ILo, IHi, JLo, JHi
+                     Call Progress_Report(LuOut,
+     $                  String1(:LNBlnk(String1)))
+ 9200                Format('RIMP2_V_E2: Completed block (',
+     $                  I5, ':', I5, ',', I5, ':', I5, ')')
+                  EndIf
 C
                EndDo            ! J (blocks)
             EndDo               ! JSpin
@@ -564,27 +583,29 @@ C
          RIMP2_V_E2 = .FALSE.
          Return
       EndIf
-c$$$C
-c$$$C     ***********************
-c$$$C     * Print pair energies *
-c$$$C     ***********************
-c$$$C
-c$$$      If ( Proc .eq. 0 ) then
-c$$$         If ( TopSpin .eq. 1) then
-c$$$            Call Banner(LuOut,
-c$$$     $         'Pair Correlation Energies (spin adapted)',
-c$$$     $         '-', .TRUE., .TRUE., .FALSE.)
-c$$$         Else
-c$$$            Call Banner(LuOut, 'Pair Correlation Energies',
-c$$$     $         '-', .TRUE., .TRUE., .FALSE.)
-c$$$         EndIf
-c$$$      EndIf
-c$$$C
-c$$$      Do ISpin = 1, TopSpin
-c$$$         Do JSpin = ISpin, TopSpin
-c$$$            Call GA_Print( Int_MB(IH_PairE+ISpin+JSpin-2) )
-c$$$         EndDo
-c$$$      EndDo
+C
+C     ***********************
+C     * Print pair energies *
+C     ***********************
+C
+      If ( Util_Print('pair energies', Print_Debug) ) then
+         If ( Proc .eq. 0 ) then
+            If ( TopSpin .eq. 1) then
+               Call Banner(LuOut,
+     $            'Pair Correlation Energies (spin adapted)',
+     $            '-', .TRUE., .TRUE., .FALSE.)
+            Else
+               Call Banner(LuOut, 'Pair Correlation Energies',
+     $            '-', .TRUE., .TRUE., .FALSE.)
+            EndIf
+         EndIf
+C
+         Do ISpin = 1, TopSpin
+            Do JSpin = ISpin, TopSpin
+               Call GA_Print( Int_MB(IH_PairE+ISpin+JSpin-2) )
+            EndDo
+         EndDo
+      EndIf
 C
 C     ***********************************
 C     * Compute total energy from pairs *

@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.18 1995-03-31 01:42:57 d3g681 Exp $
+C$Id: rimp2.F,v 1.19 1995-04-10 01:39:29 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -13,6 +13,7 @@ C
 #include "pstat.fh"
 #include "rimp2_timers.fh"
 #include "numerical_constants.fh"
+#include "util.fh"
 C
       Logical MOVecs_Read_Header, MOVecs_Read, Int_Normalize
       External MOVecs_Read_Header, MOVecs_Read, Int_Normalize
@@ -43,11 +44,13 @@ C
       Integer AOBas, FitBas, Bases(2), Geom
       Integer NAOBF, TopSpin, NFit
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
+      Integer RefALo(MaxSpin), RefAHi(MaxSpin), RefILo(MaxSpin),
+     $   RefIHi(MaxSpin)
       Integer NMO(MaxSpin), I, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
-      Character*(255) AOName, AONameT, FitName, FitNameT
+      Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
 C
 C     Handles and indices to for the "correlated" basis
@@ -68,7 +71,18 @@ C
       Integer G_Full_AOXF(MaxSpin)
       Integer MxNMO
 C
+C     Print controls
+C
+      Logical PrInfo, PrWarn, PrRef
+C
       Logical FullRef
+C
+C     Start by flushing all previous output
+C
+      Call Util_Flush(LuOut)
+      Call Util_Flush(LuErr)
+C
+C     Initialize this module
 C
       Status = .TRUE.
       Status = Status .AND. Context_Push(My_Ctx)
@@ -78,18 +92,16 @@ C
 C
       Me = GA_NodeID()
 C
-C     Print a headline
+C     Get necessary info from database
 C
-      If ( Me .eq. 0)
-     $   Call Util_Print_Centered(LuOut, 'NWCHEM RI-MP2 Energy', 40,
-     $   .TRUE.)
+      Call Util_Print_Push
+      Call Util_Print_RTDB_Load(RTDB, My_Ctx)
+      PrInfo = Util_Print('information', Print_Low)
 C
-C     Load the geometry and basis sets
+      If (.NOT. RTDB_CGet(RTDB, 'title', 1, JobTitle)) JobTitle = ' '
 C
       Status = Status .AND. Geom_Create( Geom, Geom_Name)
       Status = Status .AND. Geom_RTDB_Load( RTDB, Geom, Geom_Name)
-c$$$      If ( Me .eq. 0 )
-c$$$     $   Status = Status .AND. Geom_Print(Geom)
 C
       Status = Status .AND. Bas_Create( AOBas, AOBasName)
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName)
@@ -99,12 +111,6 @@ C
       Status = Status .AND. Bas_RTDB_Load( RTDB, Geom, FitBas,
      $   FitBasName)
       Status = Status .AND. Int_Normalize( FitBas)
-c$$$      If ( Me .eq. 0) then
-c$$$         Call Banner( LuOut, 'Fitting basis after normalization',
-c$$$     $      '-', .TRUE., .TRUE., .FALSE.)
-c$$$         Status = Status .AND. Bas_Print(FitBas)
-c$$$c$$$         Status = Status .AND. GBS_Map_Print( FitBas)
-c$$$      EndIf
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
@@ -215,7 +221,18 @@ C
      $      Dbl_MB(I_Eval + MxNCorBF * (I-1) ), G_AOXF(I) )
       EndDo
 C
-C     Now we can get rid of the full reference
+C     Determine ranges to transform.  We also determine the info for 
+C     the SCF reference, but only for informational purposes.
+C
+      Do I = 1, TopSpin
+         Call Occ_Ranges( NMO(I), Dbl_MB(I_Full_Occ + MxNMO * (I-1) ),
+     $      RefILo(I), RefIHi(I), RefALo(I), RefAHi(I) )
+         Call Occ_Ranges( NCorBF(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
+     $      ILo(I), IHi(I), ALo(I), AHi(I) )
+      EndDo
+C
+C     Now we can get rid of the full reference 
+C     & correlated basis occ. vector
 C
       Status = .TRUE.
       Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
@@ -226,54 +243,93 @@ C
       If (.NOT. Status) Call ErrQuit(
      $   'RIMP2: Unable destroy local arrays', 1)
 C
+      If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
+     $   'RIMP2: Unable to free local array H_Occ', H_Occ)
+C
 C     **********************************************
 C     * Print out calculation information for user *
 C     **********************************************
 C
-      If ( Me .eq. 0) then
+      If ( Me .eq. 0 .AND. PrInfo) then
+C
+         Call Util_Print_Centered(LuOut, 'NWCHEM RI-MP2 Energy', 40,
+     $   .TRUE.)
+         If ( JobTitle .ne. ' ') Call Util_Print_Centered( LuOut,
+     $      JobTitle, 40, .FALSE.)
+         Write (LuOut, '(//)')
+C
+         Write (LuOut, 8520) 'Nr. of AO basis functions:', NAOBF
+         Write (LuOut, 8520) 'Nr. of fitting basis functions:', NFit
+         Write (LuOut, 8520) 'Nr. of MO spin cases:', TopSpin
+         If ( .NOT. FullRef ) then
+            Write (LuOut, 8520) 'Nr. of MOs in SCF reference:',
+     $         (NMO(i), i = 1, TopSpin)
+            Write (LuOut, 8520) 'Nr. of occupied MOs in SCF ref.:',
+     $         (RefIHi(i)-RefILo(i)+1, i = 1, TopSpin)
+            Write (LuOut, 8520) 'Nr. of virtual MOs in SCF ref.:',
+     $         (RefAHi(i)-RefALo(i)+1, i = 1, TopSpin)
+         EndIf
+         Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
+     $      (NMO(i), i = 1, TopSpin)
+         Write (LuOut, 8520) 'Nr. of occupied MOs correlated:',
+     $      (IHi(i)-ILo(i)+1, i = 1, TopSpin)
+         Write (LuOut, 8520) 'Nr. of virtual MOs correlated:',
+     $      (AHi(i)-ALo(i)+1, i = 1, TopSpin)
+         Write (LuOut, *)
+C
          Write (LuOut, 8500) 'RI integral approximation:',
      $      Approx(:LNBlnk(Approx))
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
          If ( MxTBatch .gt. 0) then
             Write (LuOut, 8520) 'Max. batch size for transformation:',
      $         MxTBatch
-         Else
-            Write (LuOut, 8505) 'Max. batch size for transformation:',
-     $         'Determined by available memory'
          EndIf
-         If ( MxEBatch(1) .gt. 0 .AND. MxEBatch(2) .gt. 0) then
+         If ( MxEBatch(1) .gt. 0 .OR. MxEBatch(2) .gt. 0) then
             Write (LuOut, 8520) 'Max. batch size for energy:',
      $         MxEBatch
-         Else
-            Write (LuOut, 8505) 'Max. batch size for energy:',
-     $         'Determined by available memory'
          EndIf
          Write (LuOut, 8500) 'Base file name for MO integrals',
      $      FNInt(:LNBlnk(FNInt))
-         Write (LuOut, 8500) 'AO basis set name:',
-     $      AONameT(:LNBlnk(AONameT))
-         Write (LuOut, 8520) 'Nr. of AO functions:', NAOBF
-         Write (LuOut, 8500) 'Fitting basis set name:',
-     $      FitName(:LNBlnk(FitName))
-         Write (LuOut, 8520) 'Nr. of fitting functions:', NFit
+         Write (LuOut, *)
 C
-         Write (LuOut, 8500) 'SCF reference from file:',
+         Write (LuOut, 8500) 'SCF reference file:',
      $      FNVec(:LNBlnk(FNVec))
          Write (LuOut, 8500) 'SCF reference title:',
      $      Title(:LNBlnk(Title))
-         Write (LuOut, 8500) 'SCF reference basis:',
-     $      SCFBasNam(:LNBlnk(SCFBasNam))
-         Write (LuOut, 8520) 'Nr. of AOs in SCF reference:', NAOBF
-         Write (LuOut, 8520) 'Nr. of sets of orbitals:', TopSpin
-         Write (LuOut, 8520) 'Nr. of MOs in full reference:',
-     $      (NMO(i), i = 1, TopSpin)
-         Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
-     $      (NCorBF(i), i = 1, TopSpin)
+         Write(LuOut,*)
 C
-C        Warn users that everything from this point is labeled
-C        in a different basis.
+         if (util_print('geometry',print_high)) then
+            if (.not. geom_print(geom))
+     $         call errquit('RIMP2: geom_print', 0)
+            write(LuOut,*)
+         endif
+         if (util_print('basis', print_high)) then
+            if (.not. bas_print(AOBas)) 
+     $           call errquit('RIMP2: bas_print', 0)
+            write(LuOut,*)
+            if (.not. bas_print(FitBas)) 
+     $           call errquit('RIMP2: bas_print', 0)
+            write(LuOut,*)
+         endif
+         if (util_print('geombas', print_debug)) then
+            if (.not. gbs_map_print(AOBas)) 
+     $           call errquit('RIMP2:gmp', 0)
+            write(LuOut,*)
+            if (.not. gbs_map_print(FitBas)) 
+     $           call errquit('RIMP2:gmp', 0)
+            write(LuOut,*)
+         endif
+         call util_flush(LuOut)
+      EndIf
 C
-         If ( .NOT. FullRef ) then
+C     Warn users that everything from this point is labeled
+C     in a different basis.
+C
+      PrWarn = Util_Print('warnings', Print_Low)
+      PrRef  = Util_Print('reference', Print_High)
+C
+      If ( .NOT. FullRef .AND. Me .eq. 0) then
+         If ( PrRef) then
             Write (LuOut, '(A)')
             Call Banner(LuOut, 'IMPORTANT NOTE', '*',
      $         .TRUE., .TRUE., .TRUE.)
@@ -284,6 +340,12 @@ C
      $         Int_MB(I_CorMap), MxNCorBF, 'I5',
      $         Dbl_MB(I_Occ), MxNCorBF, 'F3.1',
      $         Dbl_MB(I_Eval), MxNCorBF, 'F12.3', 80)
+         ElseIf( PrWarn ) then
+            Write (LuOut, '(A)')
+            Call Banner(LuOut, 'IMPORTANT NOTE', '*',
+     $         .TRUE., .TRUE., .TRUE.)
+C
+            Write (LuOut, 9051)
          EndIf
       EndIF
       Call Util_Flush(LuOut)
@@ -303,22 +365,18 @@ C
      $       'basis.  From this'/
      $   1X, 'point on, orbitals are labeled in the ''correlated ',
      $       'basis''.'/)
+ 9051 Format(1X, 'This correlated calculation is based on an SCF ',
+     $       'reference in which'/
+     $   1X, 'orbitals have been frozen or rearranged relative to ',
+     $        'the result of the'/
+     $   1X, 'SCF calculation.  From this point on, the orbitals ',
+     $       'are labeled in the'/
+     $   1X, '''correlated basis''.'/)
 C
 C     *************************************
 C     * Integral transformation (to disk) *
 C     *************************************
 C
-C     Determine ranges to transform
-C
-      Do I = 1, TopSpin
-         Call Occ_Ranges( NCorBF(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
-     $      ILo(I), IHi(I), ALo(I), AHi(I) )
-      EndDo
-C
-C     Done with occupation vector
-C
-      If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
-     $   'RIMP2: Unable to free local array H_Occ', H_Occ)
 C
 C     Initialize integrals
 C
@@ -422,6 +480,11 @@ C
       Status = Status .AND. Context_Pop(My_Ctx)
       If (.NOT. Status) Call ErrQuit(
      $   'RIMP2: Failed to pop context', 0)
+C
+C     Make sure the user gets everything we've written before going on
+C
+      Call Util_Flush(LuOut)
+      Call Util_Flush(LuErr)
 C
       RIMP2 = .TRUE.
       Return

@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.11 1994-10-31 21:25:08 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.12 1995-04-10 01:39:32 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
@@ -270,9 +270,9 @@ C
       Call XF3cI_Mem12(MemAvail, PMin, QMin, SMin, PMax, QMax, SMax, NA,
      $   NI, PDim, QDim, SDim, MemUsed, LCP, LCQ, LInterm, LOut,
      $   LIBuf)
-C
-      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(), ' using ',
-     $   MemUsed, ' of ', MemAvail, ' with ', PDim, QDim, SDim
+c$$$C
+c$$$      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(), ' using ',
+c$$$     $   MemUsed, ' of ', MemAvail, ' with ', PDim, QDim, SDim
 C
 C     If there isn't enough memory the actual dimensions will be zero
 c     and LUsed will contain the minimum memory required to proceed.
@@ -336,11 +336,11 @@ C
      $   Dbl_MB(I_CQ), ILo, IHi, G_C,
      $   Dbl_MB(I_Interm), Dbl_MB(I_Out), PDim,
      $   Dbl_MB(Local_Idx), LDLocal, NodeSLo, NodeSHi, FLOPs)
-C
-C     Eventually, this should be accumulated into PStat-managed memory
-C
-      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(),
-     $   ' did approximately ', FLOPs, ' FLOPs'
+c$$$C
+c$$$C     Eventually, this should be accumulated into PStat-managed memory
+c$$$C
+c$$$      Write (LuOut, *) 'XF3cI_Step12: Node ', GA_NodeID(),
+c$$$     $   ' did approximately ', FLOPs, ' FLOPs'
 C
 C     ****************************
 C     * Clean up after ourselves *

@@ -1,5 +1,5 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.4 1995-02-02 23:21:16 d3g681 Exp $
+C$Id: put_3cints.F,v 1.5 1995-04-10 01:39:28 gg502 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
@@ -11,30 +11,9 @@ C LOCAL VARIABLES
       Logical Status
       Integer AILo, AIHi, SLo, SHi, NS, H_Local, Local_Idx, I, LocalI
       Integer Junk, Dim1, Dim2
-c$$$      Double precision ChkSum, MxElem
-c$$$C
-c$$$      External GA_DASum_Patch, GA_DAMax_Patch
-c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
 C
       Call GA_Distribution( G_I, GA_NodeID(), AIlo, AIhi, Slo, Shi)
       NS = SHi-SLo+1
-C
-c$$$      Call GA_Inquire(G_I, Junk, Dim1, Dim2)
-c$$$      Do I = ILo, IHi
-c$$$         LocalI = I - ILo + 1
-c$$$         ChkSum = GA_DASum_Patch( G_I, 1+NA*(LocalI-1), NA*LocalI,
-c$$$     $      1, Dim2)
-c$$$         If ( GA_NodeID() .eq. 0)
-c$$$     $      Write (LuOut, 9000) I, LocalI, ChkSum
-c$$$         MxElem = GA_DAMax_Patch( G_I, 1+NA*(LocalI-1), NA*LocalI,
-c$$$     $      1, Dim2)
-c$$$         If ( GA_NodeID() .eq. 0)
-c$$$     $      Write (LuOut, 9010) I, LocalI, MxElem
-c$$$      EndDo
-c$$$ 9000 Format(1X, 'Put_3cInts: Writing record ', I6, ' from GA block ',
-c$$$     $   I6, ' with checksum ', F30.15)
-c$$$ 9010 Format(1X, 'Put_3cInts: Writing record ', I6, ' from GA block ',
-c$$$     $   I6, ' with maximum ', F30.15)
 C
       If (NS*NA .gt. 0) then
 C

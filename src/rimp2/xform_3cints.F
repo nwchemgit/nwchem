@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.9 1994-11-03 16:46:01 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.10 1995-04-10 01:39:33 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -68,6 +68,7 @@ C INCLUDE FILES
 #include "global.fh"
 #include "rimp2_timers.fh"
 #include "mafdecls.h"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame     ! From BLAS-[23]
@@ -209,57 +210,60 @@ C
 C
 C     Provide some info to the user
 C
-      If ( GA_NodeID() .eq. 0) then
-         Call Banner(LuOut, 'Three-Center Integral Transformation',
-     $      '-', .TRUE., .TRUE., .FALSE.)
-         If ( LSame( Type3ci, 'E') ) then
-            Write (LuOut, 9100) 'ERIs', Alo, AHi, ILo, IHi, '|',
-     $         1, NFit
-         ElseIf ( LSame( Type3ci, 'O') ) then
-            Write (LuOut, 9100) 'overlaps', Alo, AHi, ILo, IHi, ',',
-     $         1, NFit
-         Else
-            Write (LuOut, 9100) 'integrals of unknown type',
-     $         Alo, AHi, ILo, IHi, ',', 1, NFit
-         EndIf
+      If ( Util_Print('information', Print_Low)
+     $   .AND. GA_NodeID() .eq. 0) then
+c$$$         Call Banner(LuOut, 'Three-Center Integral Transformation',
+c$$$     $      '-', .TRUE., .TRUE., .FALSE.)
+c$$$         If ( LSame( Type3ci, 'E') ) then
+c$$$            Write (LuOut, 9100) 'ERIs', Alo, AHi, ILo, IHi, '|',
+c$$$     $         1, NFit
+c$$$         ElseIf ( LSame( Type3ci, 'O') ) then
+c$$$            Write (LuOut, 9100) 'overlaps', Alo, AHi, ILo, IHi, ',',
+c$$$     $         1, NFit
+c$$$         Else
+c$$$            Write (LuOut, 9100) 'integrals of unknown type',
+c$$$     $         Alo, AHi, ILo, IHi, ',', 1, NFit
+c$$$         EndIf
 C
-         Write (LuOut, 9110) (NI + IBlkSiz - 1) / IBlkSiz
+         Write (LuOut, 9110) IBlkSiz, (NI + IBlkSiz - 1) / IBlkSiz
 C
-         Status = Bas_Name( AOBas, String1, String2)
-         Write( LuOut, '(1X, A, 1X, A)')
-     $      'Bra basis:', String1(:LNBlnk(String1))
-C
-         Status = Bas_Name( FitBas, String1, String2)
-         Write( LuOut, '(1X, A, 1X, A)')
-     $      'Ket basis:', String1(:LNBlnk(String1))
-C
-         Write (LuOut, 9120) Neglect
-C
-         Call GA_Inquire_Name( G_C, String1)
-         Write( LuOut, '(1X, A, 1X, A)')
-     $      'Bra transformation:', String1(:LNBlnk(String1))
-         If ( TransFit ) then
-            Call GA_Inquire_Name( G_V, String1)
-            Write( LuOut, '(1X, A, 1X, A)')
-     $         'Ket transformation:', String1(:LNBlnk(String1))
-         Else
-            Write( LuOut, '(1X, A)') 'Ket is not transformed.'
-         EndIf            
-C
-         If ( Disk ) then
-            Write ( LuOut, '(1X, A)')
-     $         'Transformed integrals stored on disk.'
-         Else
-            Write ( LuOut, '(1X, A)')
-     $         'Transformed integrals stored in memory.'
-         EndIf
+c$$$         Status = Bas_Name( AOBas, String1, String2)
+c$$$         Write( LuOut, '(1X, A, 1X, A)')
+c$$$     $      'Bra basis:', String1(:LNBlnk(String1))
+c$$$C
+c$$$         Status = Bas_Name( FitBas, String1, String2)
+c$$$         Write( LuOut, '(1X, A, 1X, A)')
+c$$$     $      'Ket basis:', String1(:LNBlnk(String1))
+c$$$C
+c$$$         Write (LuOut, 9120) Neglect
+c$$$C
+c$$$         Call GA_Inquire_Name( G_C, String1)
+c$$$         Write( LuOut, '(1X, A, 1X, A)')
+c$$$     $      'Bra transformation:', String1(:LNBlnk(String1))
+c$$$         If ( TransFit ) then
+c$$$            Call GA_Inquire_Name( G_V, String1)
+c$$$            Write( LuOut, '(1X, A, 1X, A)')
+c$$$     $         'Ket transformation:', String1(:LNBlnk(String1))
+c$$$         Else
+c$$$            Write( LuOut, '(1X, A)') 'Ket is not transformed.'
+c$$$         EndIf            
+c$$$C
+c$$$         If ( Disk ) then
+c$$$            Write ( LuOut, '(1X, A)')
+c$$$     $         'Transformed integrals stored on disk.'
+c$$$         Else
+c$$$            Write ( LuOut, '(1X, A)')
+c$$$     $         'Transformed integrals stored in memory.'
+c$$$         EndIf
 C
       EndIf
 C
- 9100 Format(1X, 'Generating three-center ', A,
-     $   ' (', I5, ':', I5, ',', I5, ':', I5, A, I5, ':', I5, ')')
- 9110 Format(1X, 'in ', I5, ' passes through the integrals.')
- 9120 Format(1X, 'Integrals < ', E10.3, ' will be neglected.')
+ 9110 Format(1X, 'Transformation block size', I5, ', requiring ',
+     $   I5, ' integral passes.')
+c$$$ 9100 Format(1X, 'Generating three-center ', A,
+c$$$     $   ' (', I5, ':', I5, ',', I5, ':', I5, A, I5, ':', I5, ')')
+c$$$ 9110 Format(1X, 'in ', I5, ' passes through the integrals.')
+c$$$ 9120 Format(1X, 'Integrals < ', E10.3, ' will be neglected.')
 C
 C     ****************************************************
 C     * Cover the requested range of I in several passes *
@@ -290,12 +294,6 @@ C
          EndIf
  9020    Format( 1x, 'XForm_3cInts: Error occurred in integral block ',
      $      I5, ':', I5, ' of requested ', I5, ':', I5, '.')
-c$$$C
-c$$$         Write (LuOut, *) 'Results of steps 12 ', JLo, JHi,
-c$$$     $      GA_DDot( G_Int, G_Int)
-c$$$         Call GA_Print(G_Int)
-c$$$C
-c$$$         Call PStat_Print_Handles( PS_Step12, 1)
 C
 C        Transform fitting basis & write out the result
 C
@@ -324,12 +322,6 @@ C
                   XForm_3cInts = .FALSE.
                   Return
                EndIf
-c$$$C
-c$$$         Write (LuOut, *) 'Results of step 3 ', KLo, KHi,
-c$$$     $            GA_DDot(G_Out, G_Out)
-c$$$         Call GA_Print(G_Out)
-c$$$         Call GA_DAdd(-FP_One, G_Int, FP_One, G_Out, G_Out)
-c$$$         Call GA_Print(G_Out)
 C
 C              Now we're back to actual indices of the occupied
 C              and virtual orbitals.
@@ -374,9 +366,11 @@ C
 C        Print out a progress report.  Eventually want to make this
 C        dependent on user desires and time required by each pass.
 C
-         Write (String1, 9200) JLo, JHi
- 9200    Format('XForm_3cInts: Completed ', I5, ':', I5, ' pass.')
-         Call Progress_Report(LuOut, String1(:LNBlnk(String1)) )
+         If ( Util_Print('progress reports', Print_Default) ) then
+            Write (String1, 9200) JLo, JHi
+ 9200       Format('XForm_3cInts: Completed ', I5, ':', I5, ' pass.')
+            Call Progress_Report(LuOut, String1(:LNBlnk(String1)) )
+         EndIf
       EndDo                     ! JLo
 C
       Call GA_Sync
