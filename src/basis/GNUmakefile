@@ -1,4 +1,4 @@
-       HEADERS = bas.fh basP.fh bas_staticP.fh
+       HEADERS = bas.fh basP.fh bas_staticP.fh geobasmapP.fh basdeclsP.fh
            OBJ = basis.o newbasis.o bas_input.o
        LIBRARY = libbasis.a
    LIB_TARGETS = testbasis testbasis.o
