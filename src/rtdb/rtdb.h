@@ -1,4 +1,4 @@
-/*$Id: rtdb.h,v 1.6 2004-08-05 14:57:21 edo Exp $*/
+/*$Id: rtdb.h,v 1.7 2004-08-13 11:23:27 edo Exp $*/
 #ifndef RTDB_H
 #define RTDB_H
 
@@ -142,6 +142,7 @@
 
 extern int rtdb_open(const char *, const char *, int *);
 extern int rtdb_clone(const int, const char *);
+extern int rtdb_getfname(const int,  char [36]);
 extern int rtdb_close(const int, const char *);
 extern int rtdb_put(const int, const char *, const int, const int, 
 		    const void *);
@@ -162,6 +163,7 @@ extern int rtdb_parallel(const int);
 
 extern int rtdb_seq_open(const char *, const char *, int *);
 extern int rtdb_seq_copy(const int, const char *);
+extern int rtdb_seq_getfname(const int,  char [36]);
 extern int rtdb_seq_close(const int, const char *);
 extern int rtdb_seq_put(const int, const char *, const int, const int, 
 		    const void *);

@@ -1,5 +1,5 @@
       program test
-C$Id: test.F,v 1.5 2004-08-12 15:26:24 edo Exp $
+C$Id: test.F,v 1.6 2004-08-13 11:23:27 edo Exp $
       implicit none
 c
 #include "rtdb.fh"
@@ -10,7 +10,7 @@ c
       real ftest(4), fbuf(4)
       double precision dtest(5), dbuf(5)
       character *20 cbuf(4), ccbuf(4)
-      character *20 name
+      character *20 name,rtdb_fname
       character *26 date
       logical status
       integer type, nelem, i
@@ -82,8 +82,9 @@ c
          goto 10
       endif
 c
+      if (.not. rtdb_getfname(rtdb, rtdb_fname)) stop 9
       if (.not. rtdb_close(rtdb, 'keep')) stop 10
-      call testclone(rtdb,'fortran.db')
+      call testclone(rtdb,rtdb_fname)
 c
       call pend()
 c
@@ -116,20 +117,32 @@ c
      .        call errquit('oo ',0,0)
       enddo
 c
-c     try  to open fortran.db.2
+c     try  to open rtdbname.2
 c
       call util_pname0(rtdbname,grtdbname,2,ngroups)
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) stop 123
+c
+c     get the dtest() doubles
+c
       if (.not. rtdb_get(rtdb, 'Double array', MT_DBL, 5, dtest))
      $     stop 4
       write(0,*) 'me=',ga_nodeid(),' got dtest(2) =',dtest(2)
+c
+c     modify dtest(2)
+c
       dtest(2)=dtest(2)-.33d0
+c
+c     rtdb_put for dtest
+c
       if (.not. rtdb_put(rtdb, 'Double array', MT_DBL, 5, dtest))
      $     stop 5
       if (.not. rtdb_get(rtdb, 'Double array', MT_DBL, 5, dtest))
      $     stop 6
       write(0,*) 'me=',ga_nodeid(),' got dtest(2) =',dtest(2)
       if (.not. rtdb_close(rtdb, 'keep')) stop 103
+c
+c     delete all the rtdb we cloned earlier
+c
       do ii=1,ngroups
          call util_pname0(rtdbname,grtdbname,ii,ngroups)
          if (.not. rtdb_open(grtdbname, 'old', rtdb)) stop 123

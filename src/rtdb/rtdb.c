@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.20 2004-08-12 15:26:23 edo Exp $*/
+/*$Id: rtdb.c,v 1.21 2004-08-13 11:22:58 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -16,6 +16,7 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define TYPE_RTDB_NAME    30006
 #define TYPE_RTDB_DATE    30007
 #define TYPE_RTDB_TYPE    30008
+#define TYPE_RTDB_FNAME   30009
 //#define GAGROUPS 1
 
 #ifndef GAGROUPS
@@ -131,6 +132,42 @@ int rtdb_clone(const int handle, const char *suffix)
 
   return status;
 }
+int rtdb_getfname(const int handle,
+		  char fname[36])
+{
+  int status;
+#ifdef GAGROUPS
+  int me = ga_nodeid_();
+#endif
+
+  if (!verify_parallel_access()) return 0;
+
+  if (handle < 0 || handle >= MAX_RTDB) {
+    (void) fprintf(stderr, "rtdb_getfname: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+
+  if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
+    (void) fprintf(stderr, "rtdb_getfname: seq. open and par. get\n");
+    (void) fflush(stderr);
+    return 0;
+  }
+
+  if (parallel_mode == SEQUENTIAL || me == 0)
+    status = rtdb_seq_getfname(handle, fname);
+
+  if (parallel_mode == PARALLEL) {
+    rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
+    
+    if (status) {
+      rtdb_broadcast(TYPE_RTDB_FNAME,  MT_CHAR, 36,  (void *) fname);
+    }
+  }
+
+  return status;
+}
+
 int rtdb_close(const int handle, const char *mode)
 {
   int status;

@@ -87,12 +87,14 @@ c     integer handle            [input]
 c     character *(*) name       [input]
 c
       logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
-     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_clone,
-     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
-C$Id: rtdb.fh,v 1.6 2004-08-05 14:57:21 edo Exp $
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, 
+     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel,
+     $     rtdb_clone,rtdb_getfname
+C$Id: rtdb.fh,v 1.7 2004-08-13 11:23:27 edo Exp $
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
-     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_clone,
-     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, 
+     $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel,
+     $     rtdb_clone,rtdb_getfname
 c
 c     Check these values against rtdb_f2c.c
 c
