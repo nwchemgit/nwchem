@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.113 1998-09-09 13:03:13 bjohnson Exp $
+c     $Id: nwchem.F,v 1.114 1999-05-30 21:28:49 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -157,7 +157,7 @@ c
 c
 c     Trap SIGFPE after GA to override handler
 c
-**      call ieeetrap()
+*****      call ieeetrap()
 C
 c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
@@ -337,7 +337,7 @@ c
       write(6,*)
       write(6,*)
       call util_print_centered(6,
-     $     'Northwest Computational Chemistry Package (NWChem) 3.2.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 3.3',
      $     40, .true.)
       write(6,*)
       write(6,*)
