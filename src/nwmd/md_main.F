@@ -289,8 +289,11 @@ c
 c
 c     reassign velocities
 c
-c     if(frequency(mdstep,nfgaus))
-c    + call cf_gauss(nwmloc,nsaloc,vw,vs,tgaus)
+      if(frequency(mdstep,nfgaus)) then
+      call cf_gauss(tgauss,frgaus,nwmloc,nsaloc,
+     + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      endif
 c
       lpair=mdstep.eq.1.or.frequency(mdstep,nfpair)
       llong=(mdstep.eq.1.or.frequency(mdstep,nflong).or.lpair).and.ltwin
@@ -359,6 +362,14 @@ c
      + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
      + dbl_mb(i_esk),nsaloc,box,pres,temp,tempw,temps)
+c
+c     velocity scaling to preset temperature
+c
+      if(frequency(mdstep,nfgaus)) then
+      call cf_vscale(tgauss,nwmloc,nsaloc,
+     + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      endif
 c
 c     update decomposition module
 c
