@@ -49,6 +49,13 @@ INPUTS
         Selects the RI integral approximation to be used.  Currently
         understood are "V" and "SVS".
 
+"freeze orbitals"       no default
+        List of molecular orbitals from the SCF reference to be frozen
+        or dropped from the correlated calculation.  Order is
+        irrelevant. the "set" input routine presently has an internal
+        limit of 100 elements in arrays.  This is easily changed with
+        recomilation, if necessary.
+
 OUTPUTS
 -------
 "correlation energy"
