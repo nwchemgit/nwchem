@@ -1,29 +1,58 @@
 \label{sec:functionality}
 
-Current functionality includes:
+\subsection{Molecular electronic structure}
+
+The following methods are available with energies and analytic first
+derivatives w.r.t. atomic coordinates.  Second derivatives are
+computed by finite difference of first derivatives.
 \begin{itemize}
-\item Self Consistent Field or Hartree Fock energy and analytic
-  gradients (RHF, UHF, high-spin ROHF).  Analytic second derivatives
-  under development.
-\item Gaussian Density Functional Theory (DFT) energy and analytic
-  gradients with many local and non-local exchange-correlation potentials
-\item MP2 semi-direct energy and analytic gradients for RHF and UHF
-  references (frozen core under development).  Direct MP2 energy (RHF
-  only) and resolution of the identity (RI) integral approximation MP2
-  (RHF and UHF).
-\item Coupled-cluster (RHF) with linear triples (gradients under
-  development).
-\item Complete active space SCF (CASSCF) energy (gradients under
-  development).
-\item Selected-CI with perturbation correction energy.
-\item First derivatives for all methods by numerical difference of the
-  energy if analytic derivative is not available.
-\item Second derivatives by numerical difference of gradients if
-  analytic seconds are not available.
-\item Geometry Optimization (Minimization and Transition State) for
-  all methods.
+\item Self Consistent Field or Hartree Fock (RHF, UHF, high-spin
+  ROHF).  Analytic second derivatives in alpha testing.  
+\item Gaussian Density Functional Theory (DFT) with many local and
+  non-local exchange-correlation potentials.
+\item MP2 semi-direct with frozen core with RHF and UHF reference.
+\item Coupled-cluster single and double excitations (CCSD) with RHF
+  reference.
+\item Complete active space SCF (CASSCF).
+\end{itemize}
+
+The following methods are available with energies only.  First and
+second derivatives are computed by finite difference of the energy.
+\begin{itemize}
+\item MP3, MP4, CCSD(T) (RHF reference).
+\item Selected-CI with second-order perturbation correction.
+\item MP2 fully-direct (RHF reference).
+\item Resolution of the identity integral approximation MP2 (RI-MP2)
+  (RHF and UHF reference).
+\end{itemize}
+
+For all methods, the following operations may be performed
+\begin{itemize}
+\item Numerical first and second derivatives automatically computed if
+  analytic derivatives are not available.
+\item Geometry Optimization (Minimization and Transition State).
 \item Generation of the electron density file for the {\em Insight}
       graphical program.
-\item Interface to the natural bond orbital package.
-\item Interface to the COLUMBUS multi-reference CI package.
+\item Interface to 
+\item 
 \end{itemize}
+
+In addition, automatic interfaces are provided to
+\begin{itemize}
+\item The COLUMBUS multi-reference CI package.
+\item The natural bond orbital package.
+\end{itemize}
+
+\subsection{Periodic system electronic structure}
+
+Currently available are energies with Gaussian Density Functional
+Theory (DFT) with many local and non-local exchange-correlation
+potentials.
+
+\subsection{Molecular dynamics}
+
+I'm singing in the rain\\
+Just singing in the rain\\
+What a glorious feeling, I'm happy again\\
+\ldots
+
