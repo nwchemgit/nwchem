@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.57 1997-05-29 23:43:09 d3e129 Exp $
+# $Id: GNUmakefile,v 1.58 1997-06-17 19:25:58 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -19,7 +19,7 @@ endif
           int_projpole.o int_term.o \
           intd_1eh1.o    intd_1eov.o    intd_2e2c.o \
           intd_2e3c.o    intd_2e4c.o    intd_init.o \
-          intd_1e3ov.o \
+          intd_1e3ov.o   intbd_init4c.o intbd_2e4c.o \
           intp_1eke.o    intp_1eov.o    intp_1epe.o \
           intp_2e2c.o    intp_2e3c.o    intp_mpole.o \
           intp_1e1cpe.o  intp_txyz.o 

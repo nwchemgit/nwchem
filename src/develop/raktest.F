@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.68 1997-05-29 00:54:28 d3e129 Exp $
+c $Id: raktest.F,v 1.69 1997-06-17 19:26:05 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,7 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110, 00120, 00130, 00140) raktask
+     &    00090, 00100, 00110, 00120, 00130, 00140, 00150) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -62,6 +62,10 @@ c
       goto 00001
 00140 write(6,*)' test derivative overlap '
       call raktest_ovd(rtdb)
+      goto 00001
+00150 write(6,*)' test blocking 2e derivative integral interface'
+      call raktest_bd2e(rtdb)
+      goto 00001
 c
 00001 continue
       raktest = .true.
@@ -4043,3 +4047,272 @@ c
 10004 format(' finite diff value (',i3,',',i3,',',i3,',',
      &    i3,') is an INFINITY')
       end
+      subroutine raktest_bd2e(rtdb)
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+      integer rtdb
+c
+      integer basis
+      integer geom
+      integer nat
+      integer nbf, nq_tot
+      integer maxg, maxs, bufsz
+      integer h_txs, h_nw, h_g, h_l, h_scr
+      integer k_txs, k_nw, k_g, k_l, k_scr
+      double precision norm
+      logical int_normalize
+      external int_normalize
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+      if (.not.geom_print(geom)) stop ' print error'
+c
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &    call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (.not.bas_print(basis)) stop ' print error'
+      if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+c
+      call intd_init(rtdb,1,basis)
+      if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
+      if (.not.bas_numbf(basis,nbf)) stop 'bas_numbf fe'
+      if (.not.bas_numcont(basis,nq_tot)) stop 'bas_numcont fe'
+      call int_mem_2e4c(maxg,maxs)
+      maxg = maxg*2
+      maxs = maxs*2
+      bufsz = nbf*nbf*nbf*nbf*nat*3
+c
+      if (.not.ma_push_get(mt_dbl,bufsz,'texas',h_txs,k_txs))
+     &    stop ' ma texas'
+      call dfill(bufsz,0.0d00,dbl_mb(k_txs),1)
+      if (.not.ma_push_get(mt_dbl,bufsz,'nwchem',h_nw,k_nw))
+     &    stop ' ma nwchem'
+      call dfill(bufsz,0.0d00,dbl_mb(k_nw),1)
+      if (.not.ma_push_get(mt_dbl,12*maxg,'g',h_g,k_g))
+     &    stop ' ma g'
+      call dfill(12*maxg,0.0d00,dbl_mb(k_g),1)
+      if (.not.ma_push_get(mt_int,4*maxg,'labels',h_l,k_l))
+     &    stop ' ma labs'
+      call ifill(4*maxg,0,int_mb(k_l),1)
+      if (.not.ma_push_get(mt_dbl,maxs,'scratch',h_scr,k_scr))
+     &    stop ' ma scratch'
+      call dfill(maxs,0.0d00,dbl_mb(k_scr),1)
+      write(6,*)' computing with texas '
+      call raktest_bd2e_getg(nq_tot,
+     &    nbf,nat,rtdb,basis,geom,
+     &    dbl_mb(k_txs),
+     &    maxg,dbl_mb(k_g),int_mb(k_l),
+     &    maxs,dbl_mb(k_scr))
+c
+      call intd_terminate()
+      call int_app_set_no_texas(rtdb)
+      call intd_init(rtdb,1,basis)
+      write(6,*)' computing with texas off'
+      call raktest_bd2e_getg(nq_tot,
+     &    nbf,nat,rtdb,basis,geom,
+     &    dbl_mb(k_nw),
+     &    maxg,dbl_mb(k_g),int_mb(k_l),
+     &    maxs,dbl_mb(k_scr))
+      call intd_terminate()
+      call int_app_unset_no_texas(rtdb)
+      call raktest_bd2e_print(basis,nbf,nat,
+     &    dbl_mb(k_txs),dbl_mb(k_nw))
+      write(6,*)' computing norm'
+      call daxpy(((nbf**4)*nat*3),-1.0d00,
+     &    dbl_mb(k_txs),1,dbl_mb(k_nw),1)
+      norm = ddot(((nbf**4)*nat*3),dbl_mb(k_nw),1,dbl_mb(k_nw),1)
+      write(6,*)' difference norm ',norm
+c
+      if (.not.ma_pop_stack(h_scr)) stop 'ma pop failed for h_scr'
+      if (.not.ma_pop_stack(h_l)) stop 'ma pop failed for h_l'
+      if (.not.ma_pop_stack(h_g)) stop 'ma pop failed for h_g'
+      if (.not.ma_pop_stack(h_nw)) stop 'ma pop failed for h_nw'
+      if (.not.ma_pop_stack(h_txs)) stop 'ma pop failed for h_txs'
+      end
+      subroutine raktest_bd2e_print(basis,nbf,nat,txs,nw)
+      implicit none
+#include "bas.fh"
+      integer nbf,nat
+      double precision txs(3,nat,nbf,nbf,nbf,nbf)
+      double precision nw(3,nat,nbf,nbf,nbf,nbf)
+      integer basis
+c
+      integer i,j,k,l,xyz,atom
+      integer ia,ja,ka,la
+      double precision tval 
+      double precision nval
+      double precision dval
+      double precision thresh
+      logical printit
+      thresh = 1.0d-08
+      do i = 1,nbf
+        do j = 1,nbf
+          do k = 1,nbf
+            do l = 1,nbf
+              do atom = 1,nat
+                do xyz = 1,3
+                  tval = txs(xyz,atom,i,j,k,l)
+                  nval = nw(xyz,atom,i,j,k,l)
+                  dval = abs((tval-nval))
+                  printit = dval.gt.thresh
+                  if (printit) then
+                    write(6,10000)xyz,atom,i,j,k,l,
+     &                  tval,nval,dval
+                    if (.not.bas_bf2ce(basis,i,ia)) stop 'bf2ce i'
+                    if (.not.bas_bf2ce(basis,j,ja)) stop 'bf2ce j'
+                    if (.not.bas_bf2ce(basis,k,ka)) stop 'bf2ce k'
+                    if (.not.bas_bf2ce(basis,l,la)) stop 'bf2ce l'
+                    write(6,10001)ia,ja,ka,la
+                  endif
+                enddo
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+10000 format(1x,'deri [',6i5,'] ',1x,1pd20.10,1x,1pd20.10,1x,1pd20.10)
+10001 format(1x,6x,10x,4i5)
+      end
+      subroutine raktest_bd2e_getg(nq_total,nbf,nat,rtdb,basis,geom,
+     &    deri,lbuf,buf,labels,lscr,scr)
+      implicit none
+#include "bas.fh"
+      integer nq_total, nbf, nat, rtdb, basis,geom, lbuf, lscr
+      double precision deri(3,nat,nbf,nbf,nbf,nbf)
+      double precision buf(lbuf), scr(lscr)
+      integer labels(lbuf,4)
+c
+      logical intbd_init4c, intbd_2e4c
+      external intbd_init4c, intbd_2e4c
+c
+      integer nqs
+      parameter (nqs = 20)
+      double precision q4(nqs)
+      integer iq(nqs),jq(nqs),kq(nqs),lq(nqs)
+      integer qi,qj,qk,ql, q
+      double precision dbl_dum
+      integer ii,jj,kk,ll,iatom,jatom,katom,latom,xyz,int
+      integer count, nintout
+      logical more, lastq
+c
+
+      q = 0
+      do qi = 1,nq_total
+        do qj = 1,qi
+          do qk = 1,qj
+            do ql = 1,qk
+              lastq =           qi.eq.nq_total
+              lastq = lastq.and.qj.eq.qi
+              lastq = lastq.and.qk.eq.qj
+              lastq = lastq.and.ql.eq.qk
+              if ((q+1).gt.nqs.or.lastq) then
+                if (.not.intbd_init4c(
+     &              basis,iq,jq,basis,kq,lq,q,q4,.false.,
+     &              lscr,scr,lbuf,dbl_dum)) call errquit
+     &              ('intbd_init4c failed')
+00010           continue
+                more = intbd_2e4c(basis,iq,jq,basis,kq,lq,q,q4,.false.,
+     &              1.0d-8,.false.,
+     &              labels(1,1),labels(1,2),labels(1,3),labels(1,4),
+     &              buf,lbuf,nintout,lscr,scr)
+                count = 0
+                do int = 1,nintout
+                  ii = labels(int,1)
+                  jj = labels(int,2)
+                  kk = labels(int,3)
+                  ll = labels(int,4)
+                  if (.not.bas_bf2ce(basis,ii,iatom)) stop 'bf2ce i'
+                  if (.not.bas_bf2ce(basis,jj,jatom)) stop 'bf2ce j'
+                  if (.not.bas_bf2ce(basis,kk,katom)) stop 'bf2ce k'
+                  if (.not.bas_bf2ce(basis,ll,latom)) stop 'bf2ce l'
+                  do xyz = 1,3
+                    count = count + 1
+                    deri(xyz,iatom,ii,jj,kk,ll) = buf(count)
+                  enddo
+                  do xyz = 1,3
+                    count = count + 1
+                    deri(xyz,jatom,ii,jj,kk,ll) = buf(count)
+                  enddo
+                  do xyz = 1,3
+                    count = count + 1
+                    deri(xyz,katom,ii,jj,kk,ll) = buf(count)
+                  enddo
+                  do xyz = 1,3
+                    count = count + 1
+                    deri(xyz,latom,ii,jj,kk,ll) = buf(count)
+                  enddo
+                  if (iatom.eq.jatom) then
+                    do xyz = 1,3
+                      deri(xyz,iatom,ii,jj,kk,ll) =
+     &                    deri(xyz,iatom,ii,jj,kk,ll) +
+     &                    deri(xyz,jatom,ii,jj,kk,ll) 
+                      deri(xyz,jatom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+                  if (iatom.eq.katom) then
+                    do xyz = 1,3
+                      deri(xyz,iatom,ii,jj,kk,ll) =
+     &                    deri(xyz,iatom,ii,jj,kk,ll) +
+     &                    deri(xyz,katom,ii,jj,kk,ll) 
+                      deri(xyz,katom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+                  if (iatom.eq.latom) then
+                    do xyz = 1,3
+                      deri(xyz,iatom,ii,jj,kk,ll) =
+     &                    deri(xyz,iatom,ii,jj,kk,ll) +
+     &                    deri(xyz,latom,ii,jj,kk,ll) 
+                      deri(xyz,latom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+                  if (jatom.eq.katom) then
+                    do xyz = 1,3
+                      deri(xyz,jatom,ii,jj,kk,ll) =
+     &                    deri(xyz,jatom,ii,jj,kk,ll) +
+     &                    deri(xyz,katom,ii,jj,kk,ll) 
+                      deri(xyz,katom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+                  if (jatom.eq.latom) then
+                    do xyz = 1,3
+                      deri(xyz,jatom,ii,jj,kk,ll) =
+     &                    deri(xyz,jatom,ii,jj,kk,ll) +
+     &                    deri(xyz,latom,ii,jj,kk,ll) 
+                      deri(xyz,latom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+                  if (katom.eq.latom) then
+                    do xyz = 1,3
+                      deri(xyz,katom,ii,jj,kk,ll) =
+     &                    deri(xyz,katom,ii,jj,kk,ll) +
+     &                    deri(xyz,latom,ii,jj,kk,ll) 
+                      deri(xyz,latom,ii,jj,kk,ll) = 0.0d00
+                    enddo
+                  endif
+
+                enddo
+                if (more) goto 00010
+                q = 1
+              else
+                q = q + 1
+              endif
+              iq(q) = qi
+              jq(q) = qj
+              kq(q) = qk
+              lq(q) = ql
+            enddo
+          enddo
+        enddo
+      enddo
+c
+      end
+      
