@@ -1,11 +1,12 @@
 \label{sec:geom}
 
-\verb+******************************************************************+
+\Large
+% comments follow
 WARNING -- I have substantially re-written this section, and may have
 guessed wrong on the more obscure points.  Someone (preferably the original
 author), should read this draft and correct the more egregious 
 errors. -- J.M. Cuta
-\verb+******************************************************************+
+\normalsize
 
 The \verb+GEOMETRY+ directive is used to define specific geometry objects
 for a calculation or series of calculations.  The input for this directive
@@ -83,7 +84,7 @@ the geometry information.
 The default in the code is to specify the geometry using
 Cartesian coordinates, but the user has the option of specifying
 the geometry for some (or all) of the atoms using a Z-matrix-like format
-(see Section \ref{sec:zmat}).
+(see Section \ref{sec:Z-matrix}).
 This option is flagged by specifying the keyword \verb+zmat+ on the
 first line of the directive.  If this keyword is omitted, the geometry
 input must be specified using Cartesian coordinates (see section 
@@ -177,7 +178,7 @@ specifying the charge of the atom (or center) and its mass.
 
 The default charge for an
 atom is its atomic number, adjusted for the presence of ECPs (see Section
-\ref{sec:ecpbasis}).  In order to specify a different value for the
+\ref{sec:ecp}).  In order to specify a different value for the
 charge on a particular atom, the user must enter
 the keyword \verb+charge+, then enter a real number for the unit charge
 of the atom in \verb+charge+.  The values specified for the charges of 
