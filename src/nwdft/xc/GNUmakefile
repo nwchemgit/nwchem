@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.50 1999-03-05 06:37:24 edo Exp $
+# $Id: GNUmakefile,v 1.51 1999-03-11 01:36:41 edo Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o xc_ssw.o
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -9,7 +9,7 @@ ifeq ($(TARGET),SGITFP)
 	qpts.o		gausquad.o			   \
 	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o \
         xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o \
-	xc_eval_fnl.o xc_pbe96.o xc_hcth.o xc_chkgrad.o xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o xc_signf.o
+	xc_eval_fnl.o xc_pbe96.o xc_hcth.o xc_chkgrad.o xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o xc_signf.o   xc_interp.o
 else
 #      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
 #
@@ -61,7 +61,7 @@ else
 	xc_vwn_4.o \
 	xc_vwn_5.o \
 	xc_eval_fnl.o xc_pbe96.o   xc_chkgrad.o\
-	xc_hcth.o  xc_xpbe96.o xc_ssw.o  xc_xpw91.o xc_tarad.o xc_murakn.o xc_signf.o
+	xc_hcth.o  xc_xpbe96.o xc_ssw.o  xc_xpw91.o xc_tarad.o xc_murakn.o xc_signf.o   xc_interp.o
 
 endif
 
