@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.33 2003-07-02 15:01:23 bylaska Exp $
+* $Id: psi.F,v 1.34 2003-07-04 03:08:53 d3j191 Exp $
 *
 
 *     ***********************************
@@ -794,7 +794,7 @@ c      end
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,theta,e1,de1
+      real*8 x,y,pi,e1,de1
       real*8 theta2,e2,de2
 
       if (psi_number.eq.1) then
