@@ -432,7 +432,9 @@ ifeq ($(TARGET),IBM)
 
     CORE_SUBDIRS_EXTRA = lapack
 #blas
-         FC = xlf
+#        FC = xlf
+CC              = xlc -DSTD_INT -DSTD_DBL -DRIOS -DEXTNAME  -I$(HDIR) -DIBM -O2
+FC              = xlf -qEXTNAME -I$(HDIR) -DIBM -O2
     ARFLAGS = urs
      RANLIB = echo
   MAKEFLAGS = -j 1 --no-print-directory
