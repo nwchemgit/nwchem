@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.16 1999-02-14 04:45:20 d3g681 Exp $
+* $Id: dftg_getxc.F,v 1.17 1999-06-17 18:25:10 edo Exp $
 *
       implicit none
 c      
@@ -116,7 +116,7 @@ c$$$c
 c$$$      endif
       call ga_sync
       tot = -xfac(1)
-      do i = 1, 15
+      do i = 1, numfunc
          tot = tot + xfac(i) + cfac(i)
       enddo
 c
