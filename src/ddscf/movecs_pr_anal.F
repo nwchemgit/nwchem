@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.11 1999-08-02 23:35:04 d3e129 Exp $
+* $Id: movecs_pr_anal.F,v 1.12 2000-04-13 18:19:09 hvd Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -10,6 +10,7 @@
 #include "global.fh"
 #include "inp.fh"
 #include "cscfps.fh"
+#include "stdio.fh"
 c
       integer basis
       integer ilo, ihi          ! [input] Range of vectors to print
@@ -81,9 +82,9 @@ c
 c     
          call bas_vec_info(basis, byte_mb(k_tags))
 c
-         write(6,*)
-         call util_print_centered(6,title, 40, .true.)
-         write(6,*)
+         write(LuOut,*)
+         call util_print_centered(LuOut,title, 40, .true.)
+         write(LuOut,*)
 c
 
          do i = ilo, ihi
@@ -131,7 +132,7 @@ c
                write(buf(ibuf:),'(''Symmetry='',a4)') zir(irs(i))
                ibuf = ibuf + 18
             endif
-            write(6,1) i, buf(1:max(inp_strlen(buf),1))
+            write(LuOut,1) i, buf(1:max(inp_strlen(buf),1))
  1          format(' Vector',i5,2x,a) 
             if (or2) then
 c
@@ -147,28 +148,28 @@ c
                write(buf(ibuf:),'(''r^2='',1p,d8.1)')
      &         dbl_mb(k_r_r2+(i-1)*7+6)
                ibuf = ibuf + 14
-               write(6,3) buf(1:max(inp_strlen(buf),1))
+               write(LuOut,3) buf(1:max(inp_strlen(buf),1))
  3             format('       ',7x,a) 
             endif
 c
 c     Output the analysis
 c
-            write(6,22)
+            write(LuOut,22)
  22         format(1x,2('  Bfn.  Coefficient  Atom+Function  ',5x))
-            write(6,23)
+            write(LuOut,23)
  23         format(1x,2(' ----- ------------  ---------------',5x))
             do klo = 0, min(n-1,9), 2
                khi = min(klo+1,n-1)
-               write(6,2) (
+               write(LuOut,2) (
      $              int_mb(k_list+k)+1, 
      $              dbl_mb(k_vecs+int_mb(k_list+k)),
      $              (byte_mb(k_tags+int_mb(k_list+k)*16+m),m=0,15), 
      $              k = klo,khi)
  2             format(1x,2(i5,2x,f12.6,2x,16a1,4x))
             enddo
-            write(6,*)
+            write(LuOut,*)
          enddo
-         call util_flush(6)
+         call util_flush(LuOut)
          if (.not. ma_chop_stack(l_vecs)) call errquit
      $        ('bas_vec_info: ma pop?', 0)
       endif
@@ -186,6 +187,7 @@ c
 c
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
 c
       integer basis                    ! [input] basis 
       double precision r_and_r2(7,*) ! [output] x,y,z,x^2,y^2,z^2,r^2 for each mo
@@ -224,7 +226,7 @@ c
      $           r_and_r2(1,i), 1)
          enddo
 c
-c         write(6,*)' x, y, z, x^2, y^2, z^2 at (0,0,0)'
+c         write(LuOut,*)' x, y, z, x^2, y^2, z^2 at (0,0,0)'
 c         call output(r_and_r2, 1, 7, 1, nmo, 7, nmo, 1)
 c
 c        shift and sum
@@ -235,7 +237,7 @@ c
            enddo
            r_and_r2(7,i) = r_and_r2(4,i) + r_and_r2(5,i) + r_and_r2(6,i)
          enddo
-c         write(6,*)' x, y, z, x^2, y^2, z^2, r^2 shifted'
+c         write(LuOut,*)' x, y, z, x^2, y^2, z^2, r^2 shifted'
 c         call output(r_and_r2, 1, 7, 1, nmo, 7, nmo, 1)
       endif
 c      
@@ -251,6 +253,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c     
       integer basis             ! [input] basis 
       double precision center(3) ! [input] the expansion center
@@ -326,43 +329,43 @@ c     then m, then i ... we must put m first
 c     
                call dfill(6*idim*jdim,0.0d0,dbl_mb(k_xlm),1)
 c
-c               write(6,*)' ishell, jshell = ', ishell, jshell
+c               write(LuOut,*)' ishell, jshell = ', ishell, jshell
                ind = k_mp
                do l = 0, lmax
                   do i = 1, idim
                      do mcart = 1, ((l+1)*(l+2))/2
                         do j = 1, jdim
                            ioff = k_xlm + 6*(j-1 + jdim*(i-1))
-c       write(6,*)' l, i, mcart, j, ind-k_mp, dbl_mb(ind) ',
+c       write(LuOut,*)' l, i, mcart, j, ind-k_mp, dbl_mb(ind) ',
 c     &             l, i, mcart, j, ind-k_mp, dbl_mb(ind)
                            if (l.eq.1.and.mcart.eq.1)then
                               dbl_mb(ioff) = dbl_mb(ind)*autoang
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.1.and.mcart.eq.2)then
                               ioff = ioff + 1
                               dbl_mb(ioff) = dbl_mb(ind)*autoang
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.1.and.mcart.eq.3)then
                               ioff = ioff + 2
                               dbl_mb(ioff) = dbl_mb(ind)*autoang
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.2.and.mcart.eq.1)then
                               ioff = ioff + 3
                               dbl_mb(ioff) = dbl_mb(ind)*autoang2
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.2.and.mcart.eq.4)then
                               ioff = ioff + 4
                               dbl_mb(ioff) = dbl_mb(ind)*autoang2
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.2.and.mcart.eq.6)then
                               ioff = ioff + 5
                               dbl_mb(ioff) = dbl_mb(ind)*autoang2
-c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
+c                              write(LuOut,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            ind = ind + 1
                         end do
@@ -379,7 +382,7 @@ c
 c
       call ga_sync
 c
-c      write(6,*) ' THE AO MPOLES '
+c      write(LuOut,*) ' THE AO MPOLES '
 c      call ga_print(g_xlm)
 c     
 c     clean up stack
@@ -393,6 +396,7 @@ c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
       integer lmax, g_vecs, g_xlm
 c
 c     Transform the multipoles from AO to MO basis overwriting
@@ -438,7 +442,7 @@ c
          call ga_sync()
       end do
 c
-c      write(6,*) ' THE MO MPOLES'
+c      write(LuOut,*) ' THE MO MPOLES'
 c      call ga_print(g_xlm)
 c
       if (.not. ga_destroy(g_tmp1)) call errquit('xlm_ao_mo?',1)
