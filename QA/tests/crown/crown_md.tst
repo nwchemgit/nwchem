@@ -1,6 +1,6 @@
 Time             =     0.001
-Temperature      =   286.37
-Volume           =    19.65
-Pressure         =     1.65E+08
-Energy           =   -1.317E+04
+Temperature      =   292.78
+Volume           =     0.33
+Pressure         =     8.81E+08
+Energy           =   -9.727E+01
 

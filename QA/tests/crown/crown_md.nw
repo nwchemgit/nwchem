@@ -19,7 +19,9 @@ task md optimize
 prepare
  system crown_md
  read rst crown_em.qrs
- solvate troct 3.2
+ touch 0.25
+ expand 0.1
+ solvate
  write rst crown_md.rst
 end
 
@@ -31,8 +33,6 @@ md
  print step 1 stat 5
  record rest 0
  isotherm 298.15
- boxes 3 3 2
- nodes 1 1 2
  test 1
 end
 
