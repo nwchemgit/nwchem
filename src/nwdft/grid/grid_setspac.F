@@ -1,7 +1,7 @@
       subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
-     ,     lssw, whichf, expo, rad)
+     ,     lssw, whichf, expo, rad,trunc_neigh)
 c
-c$Id: grid_setspac.F,v 1.5 1999-07-14 22:59:20 edo Exp $
+c$Id: grid_setspac.F,v 1.6 1999-07-21 22:57:09 edo Exp $
 c
       implicit none
       integer rtdb
@@ -31,8 +31,6 @@ c     set scratch space for grid compression
 c
       lgth_scr=nq
       if(lssw) lgth_scr=max(lgth_scr,ncenters)
-      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
-     &   trunc_neigh))trunc_neigh=.true.
       if (.not.MA_Push_get(mt_dbl,3*ncenters,' xyzm',lxyzm,ixyzm))
      &   call errquit('grid_setspac: cannot allocate xyzm',1)
       if (.not.MA_Push_get(mt_int,lgth_scr,' scr gridcmp',lscr,iscr))
