@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.45 1998-09-09 13:32:34 bjohnson Exp $
+# $Id: GNUmakefile,v 1.46 1998-09-15 19:03:56 d3e129 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -72,7 +72,8 @@ endif
 LIB_INCLUDES = -I../include
 
 
-   USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F
+   USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F \
+               ../include/xc_rhogen.fh ../include/xc_tabcd.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
