@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi)
+     + msmi,nsmi)
 c
-c $Id: prp_init.F,v 1.21 2000-04-11 19:38:29 d3j191 Exp $
+c $Id: prp_init.F,v 1.22 2000-04-25 17:20:17 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
 c
       integer nserie,ntyp,lfn,iout,iprp,igib
       integer nwmtot,msfi,nsfi,mpei,nf1,nf2,nf3
-      integer mdacq,mrn,ipset,isetp1,isetp2,msmi
+      integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep
       real*8 tstp
       character*255 fil
@@ -44,6 +44,7 @@ c
       mrun=mrn
       nwm=nwmtot
       msm=msmi
+      nsm=nsmi
 c
       iset=ipset
       ipset1=isetp1
@@ -209,6 +210,7 @@ c
       it=0
       do 3 i=1,nsf
       it=isprop+(i-1)*27
+      if(it+27.gt.maxpro) call errquit('Increase dimension maxpro',0)
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
       pronam(it+2)='Energy solute     intra-electrostatic       kJ/mol'
       lp(it+2)=.true.
@@ -257,8 +259,11 @@ c
       write(pronam(it+26)(30:32),'(i3)') i
       write(pronam(it+27)(30:32),'(i3)') i
     3 continue
-      if(nsf.gt.1) then
       it=it+27
+c
+      if(nsf.gt.1) then
+      if(it+nsf*(nsf-1)*2.gt.maxpro)
+     + call errquit('Increase dimension maxpro',0)
       do 5 i=1,nsf-1
       do 6 j=i+1,nsf
       it=it+1
@@ -282,6 +287,18 @@ c
     6 continue
     5 continue
       endif
+c
+      if(msm.gt.0) then
+      if(it+nsm.gt.maxpro)
+     + call errquit('Increase dimension maxpro',0)
+      do 7 i=1,nsm
+      it=it+1
+      pronam(it)='Moment of inertia solute molecule       kg nm2/mol'
+      write(pronam(it)(34:38),'(i5)') i
+      lp(it)=.true.
+    7 continue
+      endif
+c
       endif
 c
       nprop=0

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.76 2000-04-21 21:55:39 d3j191 Exp $
+c $Id: md_main.F,v 1.77 2000-04-25 17:20:16 d3j191 Exp $
 c
       implicit none
 c
@@ -56,7 +56,7 @@ c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     periodic boundary conditions
 c
@@ -88,7 +88,7 @@ c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
       call prp_print()
 c
@@ -123,7 +123,7 @@ c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     periodic boundary conditions
 c
@@ -267,7 +267,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
       epsd=epot
       epsdw=epotw
@@ -353,7 +353,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -466,7 +466,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
       ecgnew=epot
       eqrs=epot
@@ -699,7 +699,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
       ecg2=epot
       epcgw=epotw
@@ -779,7 +779,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
 c
       dxmax=zero
       dxwmax=zero
@@ -940,7 +940,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
       call md_server
       call timer_stop(1)
     1 continue
@@ -956,7 +956,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -1077,7 +1077,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit)
+     + npolit,dbl_mb(i_gsm))
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -1169,7 +1169,7 @@ c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     periodic boundary conditions
 c
@@ -1207,7 +1207,7 @@ c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     subtract center of mass coordinates from reference coordinates
 c
@@ -1274,7 +1274,7 @@ c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     add center of mass coordinates from reference coordinates
 c
@@ -2020,7 +2020,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.76 2000-04-21 21:55:39 d3j191 Exp $
+c $Id: md_main.F,v 1.77 2000-04-25 17:20:16 d3j191 Exp $
 c
       implicit none
 c

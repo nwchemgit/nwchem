@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.33 2000-04-14 19:58:31 d3j191 Exp $
+c $Id: prp_main.F,v 1.34 2000-04-25 17:20:17 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
      + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
-     + npolit)
+     + npolit,gsm)
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
-      real*8 dwr,dsr(msm)
+      real*8 dwr,dsr(msm),gsm(msm,4)
 c
       integer i,j,k,it
 c
@@ -192,8 +192,8 @@ c
       p(it+16)=esk(i)
       endif
    33 continue
-      if(nsf.gt.1) then
       it=it+27
+      if(nsf.gt.1) then
       do 35 i=1,nsf-1
       do 36 j=i+1,nsf
       it=it+1
@@ -206,6 +206,16 @@ c
    35 continue
       endif
       maxp=it
+c
+      if(nsm.gt.0) then
+      it=maxp
+      do 37 i=1,nsm
+      it=it+1
+      p(it)=gsm(i,iset)
+   37 continue
+      maxp=it
+      endif
+c
       endif
 c
       if(np.gt.0) then
@@ -248,7 +258,7 @@ c
       epots=zero
       epotsw=zero
       epotw=zero
-      do 37 i=1,mpe
+      do 42 i=1,mpe
       epotw=epotw+eww(i,1)
       do 38 j=1,msf
       epotsw=epotsw+esw(j,i,1)
@@ -256,7 +266,7 @@ c
       epots=epots+ess(k,j,i,1)
    39 continue
    38 continue
-   37 continue
+   42 continue
 c
       vol=volume
       ekin=p(27)

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.42 2000-04-20 16:27:39 d3j191 Exp $
+c $Id: cf_main.F,v 1.43 2000-04-25 17:20:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -128,7 +128,7 @@ c
 c
       return
       end
-      subroutine cf_cenmas(numw,xw,xwm,nums,isat,isml,xs,xsm)
+      subroutine cf_cenmas(numw,xw,xwm,nums,isat,isml,xs,xsm,gsm)
 c
       implicit none
 c
@@ -137,13 +137,13 @@ c
 c
       integer numw,nums
       real*8 xw(mwm,3,mwa),xwm(mwm,3)
-      real*8 xs(msa,3),xsm(msm,3)
+      real*8 xs(msa,3),xsm(msm,3),gsm(msm,4)
       integer isat(msa),isml(msa)
 c
       if(.not.ma_verify_allocator_stuff()) stop '00'
       call cf_comw(xw,xwm,1,numw)
       if(.not.ma_verify_allocator_stuff()) stop '01'
-      call cf_coms(isat,isml,xs,xsm,1,nums)
+      call cf_coms(isat,isml,xs,xsm,gsm,1,nums)
       if(.not.ma_verify_allocator_stuff()) stop '02'
 c
       return
@@ -194,7 +194,7 @@ c
 c
       return
       end
-      subroutine cf_coms(isat,isml,xs,xsm,isfr,isto)
+      subroutine cf_coms(isat,isml,xs,xsm,gsm,isfr,isto)
 c
       implicit none
 c
@@ -203,14 +203,14 @@ c
 c
       integer isfr,isto
       integer isat(msa),isml(msa)
-      real*8 xs(msa,3),xsm(msm,3)
+      real*8 xs(msa,3),xsm(msm,3),gsm(msm,4)
 c
-      call cf_cms(isat,isml,xs,xsm,isfr,isto,dbl_mb(i_wsm),
+      call cf_cms(isat,isml,xs,xsm,gsm,isfr,isto,dbl_mb(i_wsm),
      + dbl_mb(i_mas))
 c
       return
       end
-      subroutine cf_cms(isat,isml,xs,xsm,isfr,isto,wsm,wgt)
+      subroutine cf_cms(isat,isml,xs,xsm,gsm,isfr,isto,wsm,wgt)
 c
       implicit none
 c
@@ -219,14 +219,19 @@ c
 #include "global.fh"
 c
       integer isfr,isto,isat(msa),isml(msa)
-      real*8 xs(msa,3),xsm(msm,3),wsm(msm),wgt(mat,6)
+      real*8 xs(msa,3),xsm(msm,3),gsm(msm,4),wsm(msm),wgt(mat,6)
 c
       integer i,j
+      real*8 dist2
 c
       do 1 i=1,msm
       xsm(i,1)=zero
       xsm(i,2)=zero
       xsm(i,3)=zero
+      gsm(i,1)=zero
+      gsm(i,2)=zero
+      gsm(i,3)=zero
+      gsm(i,4)=zero
     1 continue
 c
       if(isfr.gt.0.and.isfr.le.isto) then
@@ -243,6 +248,22 @@ c
       endif
 c
       if(np.gt.0) call ga_dgop(mcf_36,xsm,3*msm,'+')
+c
+      if(isfr.gt.0.and.isfr.le.isto) then
+c
+      do 5 i=isfr,isto
+      dist2=zero
+      do 6 j=1,3
+      dist2=dist2+(xs(i,j)-xsm(isml(i),j))**2
+    6 continue
+      do 7 j=1,4
+      gsm(isml(i),j)=gsm(isml(i),j)+wgt(isat(i),j)*dist2
+    7 continue
+    5 continue
+c
+      endif
+c
+      if(np.gt.0) call ga_dgop(mcf_67,gsm,4*msm,'+')
 c
       return
       end

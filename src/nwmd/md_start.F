@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.55 2000-04-20 16:27:24 d3j191 Exp $
+c $Id: md_start.F,v 1.56 2000-04-25 17:20:16 d3j191 Exp $
 c
       implicit none
 c
@@ -60,7 +60,7 @@ c
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
-     + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm)
+     + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -101,6 +101,8 @@ c
      + call errquit('Failed to allocate memory for xwcr',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xsm',l_xsm,i_xsm))
      + call errquit('Failed to allocate memory for xsm',0)
+      if(.not.ma_push_get(mt_dbl,4*msm,'gsm',l_gsm,i_gsm))
+     + call errquit('Failed to allocate memory for gsm',0)
       if(.not.ma_push_get(mt_dbl,3*msm,'xscr',l_xscr,i_xscr))
      + call errquit('Failed to allocate memory for xscr',0)
       if(.not.ma_push_get(mt_dbl,msm,'dsr',l_dsr,i_dsr))
@@ -180,7 +182,7 @@ c     -------------------------
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_xsm))
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
 c     print decomposition information
 c     -------------------------------
