@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.53 2001-12-05 21:25:44 bert Exp $
+c $Id: bas_input.F,v 1.54 2001-12-07 04:41:54 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -284,7 +284,7 @@ c
 10000 write(LuOut,10001)
 10001 format(' basis|ecp|so [<name>] [library <standard set>] \\',/,
      $    '      [file <filename>] [spherical|cartesian] [segment]\\',
-     &    '      [print|noprint] [ecpset name_of_ecp]',
+     &    '      [print|noprint] [rel] [ecpset name_of_ecp]',
      &    ' [soset name_of_so_potential]')
       call errquit('bas_input: invalid format for basis directive', 0)
 c
@@ -543,18 +543,27 @@ c
 10000 write(LuOut,1)
  1    format(' basis directive body format is:',/,
      $       '       tag library <standard set> [file <filename>]',/,
-     $       '       tag <contraction type>',/,
+     $       '                   [except <exceptions list>] [rel]',/,
+     $       '       tag <contraction type> [rel]',/,
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end basis',/,/,/,'or',/,
      &       ' ecp directive body format is:',/,
      $       '       tag library <standard set> [file <filename>]',/,
+     $       '                   [except <exceptions list>] [rel]',/,
      $       '       tag nelec <number of electrons ',
      &            'replaced on tag>',/,
      $       '       tag <contraction type>',/,
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
-     $       ' end ecp')
+     $       ' end ecp',/,/,/,'or',/,
+     &       ' so directive body format is:',/,
+     $       '       tag library <standard set> [file <filename>]',/,
+     $       '                   [except <exceptions list>] [rel]',/,
+     $       '       tag <contraction type>',/,
+     $       '           <exponent> <contraction coefficients>',/,
+     $       '           ... ',/,
+     $       ' end so')
       call errquit('bas_input_body: format error in the input', 0)
 c
       end
@@ -754,7 +763,7 @@ c
 c
 10000 write(LuOut,1)
  1    format(' basis/ecp contraction format is:',/,
-     $       '       tag <contraction type>',/,
+     $       '       tag <contraction type> [rel]',/,
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end basis/ecp')
@@ -789,8 +798,9 @@ c
       character*2 symbol
       character*16 element
       character*255 string
+      character*255 filestring
       character*4 type_of_cont
-      integer atn, lenn
+      integer atn, lenn, lena
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       parameter (nltypes = 7, nsptypes = 3)
@@ -800,6 +810,7 @@ c
       logical status
       logical oIs_ecp           ! ecp library function read?
       logical oIs_so            ! so library function read?
+      logical file_exists
       logical inp_search_fast
       external inp_search_fast
       integer spvalues(nsptypes)
@@ -841,10 +852,49 @@ c
          if (string(ind:ind).eq.' ') string(ind:ind) = '_'
       enddo
 c
+c two possibilities for filename:
+c 1. user defined file -> don not do anything, just read file
+c 2. default path or user defined path -> append a file, check if it exists
+c
+      filestring = filename
+      lenn = inp_strlen(filename)
+      if (filestring(lenn:lenn) .eq. '/') then
+c
+c we have to append the name of a basis set file to the path
+c append, but remove some problem characters from basis name in standard:
+c ( and ) -> remove
+c , and / -> replace with underscore
+c * -> replace with s
+c
+          lena = lenn 
+          do 31 ind = 1, inp_strlen(standard)
+             if (standard(ind:ind) .eq. '(' .or. 
+     &           standard(ind:ind) .eq. ')' ) goto 31
+             lena = lena + 1
+             if (standard(ind:ind) .eq. ',' .or.
+     &           standard(ind:ind) .eq. '/' ) then
+                 filestring(lena:lena) = '_'
+             elseif (standard(ind:ind) .eq. '*') then
+                 filestring(lena:lena) = 's'
+             else
+                 filestring(lena:lena) = standard(ind:ind)
+             endif
+ 31       continue
+          call inp_lcase(filestring(lenn+1:))
+          file_exists = .false.
+          inquire(file=filestring,exist=file_exists)
+          if (.not. file_exists) then
+             write(LuOut,32) filestring
+ 32          format(' Attempting to read a basis set from a ',
+     &              ' non-existing file:'/' ',A)
+             call errquit('bas_tag_lib: failed opening basis file',0)
+          endif
+      endif
+c
 c     Open the library file and try to locate the basis
 c
       if (filename .eq. ' ') filename = 'library'
-      open(33, file=filename, status='old', err=1000)
+      open(33, file=filestring, status='old', err=1000)
 
       call inp_save_state()     ! Save state for unit 5.
 
