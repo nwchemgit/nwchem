@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.14 1998-10-09 21:20:57 bernhold Exp $
+C$Id: rimp2g.F,v 1.15 1998-11-09 17:44:25 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -17,8 +17,10 @@ C
 #include "inp.fh"
 C
 C EXTERNAL ROUTINES
-      Logical  Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
-      External Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
+      Logical  Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E,
+     $     Corr_Mk_Ref
+      External Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E, 
+     $     Corr_Mk_Ref
 C
 C CONSTANTS
       Integer MaxSpin
@@ -123,6 +125,10 @@ C
 C
       PrInfo = Util_Print('information', Print_Low) .AND. (Me .eq. 0)
 C
+C     ***********************
+C     * Print module header *
+C     ***********************
+C
       If ( PrInfo) then
          Call Util_Print_Centered(LuOut,
      $      'NWChem RI-MP2 Energy/Gradient Module', 40, .TRUE.)
@@ -173,9 +179,10 @@ C     For the time being, we must keep frozen orbitals if we're doing
 C     gradients, but otherwise we don't _need_ them, so we drop them.
 C
       KeepFrz = DoDens .OR. DoGrad
-      Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NMO,
-     $     G_AOXF, MinChunk, MinChunk, MaxSpin, H_Occ, H_EVal,
-     $     NFrzOcc, NFrzVir, KeepFrz)
+      If ( .NOT. Corr_Mk_Ref(RTDB, My_Ctx, Geom, AOBas, .TRUE., 
+     $     RefNAO, TopSpin, NMO, G_AOXF, MinChunk, MinChunk, MaxSpin,
+     $     H_Occ, H_EVal, NFrzOcc, NFrzVir, KeepFrz) ) Call ErrQuit(
+     $     'RIMP2G: Failed to get reference', 0) 
 C
       String1 = 'RIMP2G: density & gradients support frozen core only, '
      $     // 'not frozen virtuals.'
