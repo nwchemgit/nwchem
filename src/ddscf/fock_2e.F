@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.16 2000-08-25 20:07:12 edo Exp $
+c$Id: fock_2e.F,v 1.17 2000-09-19 21:57:22 bjohnson Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -131,7 +131,15 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
 
       do ifock = 1, nfock
          if (xc_active) then
-            call ga_add(1.0d0, g_xc(ifock), 1.0d0, vg_fock(ifock),
+c     Scale the XC matrices by the same scaling factor as J in this case
+c     since there is no explicit way to pass in an XC scaling factor, yet
+c     the 2nd derivative code uses a scale factor of 8 for the OO part of
+c     the CPSCF RHS that needs to be applied to XC also.
+            if (facj(ifock) .ne. 1d0 .and. facj(ifock) .ne. 8d0) then
+               write(*,*)'*** Scaling XC matrix',ifock,' by',facj(ifock)
+               call errquit('Unexpected XC scale factor in fock_2e',0)
+            endif
+            call ga_add(facj(ifock), g_xc(ifock), 1.0d0, vg_fock(ifock),
      &           vg_fock(ifock))
          endif
          if (bgj_print() .gt. 1) then
