@@ -12,6 +12,8 @@ c
      $     file_read_ga
       external movecs_read,movecs_read_header, cphf, file_write_ga,
      $     file_read_ga
+      logical int_normalize
+      external int_normalize
       character*(nw_max_path_len) movecs, fname
       character*10 scftype
       character*20 scftype_vecs
@@ -38,7 +40,8 @@ c
      $     call errquit('cphf_poliz: bas_create?', 0)
       if(.not.bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('cphf_poliz: no ao basis ', 0)
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     $     call errquit('cphf_poliz: int_normalize failed ', 0)
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
      $     call errquit('cphf_poliz: no SCF MO vectors',0)
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))

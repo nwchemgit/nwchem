@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.32 1997-03-25 01:33:44 rg240 Exp $
+C$Id: direct_mp2.F,v 1.33 1997-03-25 18:02:48 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -52,6 +52,8 @@ c
        external moints_occrange
        logical scf
        external scf
+       logical int_normalize
+       external int_normalize
 c
        data g_coul,g_exch/-1,-1/
        data charge/0.d0/
@@ -206,7 +208,8 @@ c
 c
 c Initialise integrals and screening
 c
-       call int_normalize(basis)
+       if (.not.int_normalize(basis))
+     &     call errquit('direct_mp2: int_normalize failed',0)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c

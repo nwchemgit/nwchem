@@ -34,6 +34,8 @@ c
       character*20 scftype_vecs
       logical movecs_read_header
       external movecs_read_header
+      logical int_normalize
+      external int_normalize
 c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
@@ -51,7 +53,8 @@ c
      $     call errquit('cphf: no SCF MO vectors',0)
 c     
       call scf_init(rtdb)
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     &    call errquit('cphf_solve: int_normalize failed',911)
       call int_init(rtdb,1,basis)
       call schwarz_init(geom, basis)
       oskel=sym_number_ops(geom).gt.0

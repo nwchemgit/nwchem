@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.4 1997-02-13 01:14:15 d3g681 Exp $
+C$Id: movecs_proj.F,v 1.5 1997-03-25 18:02:38 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -47,6 +47,8 @@ c
       external movecs_read_header, movecs_read
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical int_normalize
+      external int_normalize
 
       data   one,  zero,  mone ! Because of KSR2 bug?
      $     /1.0d0, 0.0d0, -1.0d0/
@@ -72,7 +74,8 @@ c
      $     ('movecs_project: bas_create', 0)
       if (.not. bas_rtdb_load(rtdb, geom, old_basis, old_basis_name))
      $     call errquit('movecs_project: no old basis?', 0)
-      call int_normalize(old_basis)
+      if (.not.int_normalize(old_basis))
+     $     call errquit('movecs_project: int_normalize failed', 0)
       if (.not. movecs_read_header(old_filename, old_title,
      $     basis_name_from_file, old_scftype, 
      $     file_nbf, old_nsets, old_nmo, 1)) 

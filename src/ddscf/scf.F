@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.48 1997-02-17 17:53:53 d3g681 Exp $
+C$Id: scf.F,v 1.49 1997-03-25 18:02:43 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -28,6 +28,8 @@ c
       integer natoms, Nff
       logical rohf, uhf, riscf_init, movecs_converged
       external rohf, uhf, riscf_init, movecs_converged
+      logical int_normalize
+      external int_normalize
 c     logical cphf_poliz
 c     external cphf_poliz
 c
@@ -137,7 +139,8 @@ c
          call util_flush(6)
       endif
 c
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     $           call errquit('scf:int_normalize failed', 0)
 c
 c     If input and output movecs are same then might be converged MOs
 c

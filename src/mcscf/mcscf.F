@@ -51,6 +51,8 @@ c
       external ga_create_JKblocked
       logical movecs_converged
       external movecs_converged
+      logical int_normalize
+      external int_normalize
 c     
       data ohalf/.true./
       data blen/25/
@@ -181,7 +183,8 @@ c
      $        5x,35('-'))
       endif
 c     
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     &    call errquit('mcscf:int_normalize failed',0)
 c     
 c     See if we are already converged
 

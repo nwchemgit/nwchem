@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.17 1997-03-25 01:33:51 rg240 Exp $
+C     $Id: moints_full.F,v 1.18 1997-03-25 18:02:52 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -85,6 +85,8 @@ c
       external moints_numoper
       integer moints_occrange
       external moints_occrange
+      logical int_normalize
+      external int_normalize
 c     
       data g_coul/-1/
       data ohalf/.true./
@@ -195,7 +197,8 @@ c
 c
 c     Initialise integrals and screening
 c     
-      call int_normalize(basis)
+      if (.not.int_normalize(basis))
+     &    call errquit('moints_full: int_normalize failed',911)
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom,basis)
 c     

@@ -64,6 +64,8 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
+       logical int_normalize
+       external int_normalize
 c
        double precision zip,one,two
        data zip/0.0d00/,one/1.0d00/,two/2.0d00/
@@ -180,7 +182,8 @@ c
 c     
 c Initialise integrals and screening
 c
-       call int_normalize(basis)
+       if (.not.int_normalize(basis))
+     &     call errquit('ccsd_driver: int_normalize failed',911)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c

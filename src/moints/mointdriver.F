@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.55 1997-03-25 01:33:46 rg240 Exp $
+C$Id: mointdriver.F,v 1.56 1997-03-25 18:02:50 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -55,6 +55,8 @@ c
        external moints_occrange
        integer moints_lmem
        external moints_lmem
+       logical int_normalize
+       external int_normalize
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.false./
@@ -171,7 +173,8 @@ c
 c
 c Initialise integrals and screening
 c
-       call int_normalize(basis)
+       if (.not.int_normalize(basis))
+     &     call errquit('moint_driver: int_normalize failed',911)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
