@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.18 2000-08-25 22:47:01 edo Exp $
+C $Id: hess_cphf.F,v 1.19 2000-09-19 21:59:52 bjohnson Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -316,8 +316,19 @@ c
         call int_init(rtdb,1,basis)
         call schwarz_init(geom,basis)
         call scf_get_fock_param(rtdb,tol2e) ! need to change for DFT?
+c     Activate XC contribution to OO derivative Fock matrix
+        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $       call errquit('hess_cphf: rtdb_put of xc_active failed',0)
+        if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+     $       call errquit('hess_cphf: rtdb_put of calc_type failed',0)
+        if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $       call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
         call fock_2e(geom,basis,nfock,jfact,kfact,tol2e,skelsym,
      &              g_modx,g_rhs(ind), .false.)
+        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $       call errquit('hess_cphf: rtdb_put of xc_active failed',1)
+        if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
+     $       call errquit('hess_cphf: rtdb_put of calc_type failed',0)
         call fock_2e_tidy(rtdb)
         call int_terminate()
         call schwarz_tidy()
