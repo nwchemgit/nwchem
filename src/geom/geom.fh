@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.18 1996-07-14 18:13:37 gutowski Exp $
+C$Id: geom.fh,v 1.19 1996-08-22 21:34:23 d3e863 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -36,6 +36,7 @@ cnew ones
       logical geom_include_bqbq
       logical geom_set_bqbq
       logical geom_default_charge_with_ecp
+      logical geom_uniquecent_get
 c
       logical geom_num_core
       logical geom_tag_to_default_mass
@@ -77,6 +78,7 @@ cnew ones
       external geom_recipvec_get
       external geom_recipang_get
       external geom_volume_get
+      external geom_uniquecent_get
 c
       external geom_efield_set
       external geom_efield_get
