@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.176 2001-04-04 00:22:32 edo Exp $
+c     $Id: dft_scf.F,v 1.177 2001-04-07 01:02:50 edo Exp $
 c     
       implicit none
 c
@@ -1444,8 +1444,10 @@ c
 c     
 c     computation of moments
 c
-      if (natoms .gt. 1)
-     &   call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
+      if (natoms .gt. 1) then
+         call geom_momint(geom)
+         call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
+      endif
 c     
 c     print stolen for uhf.F
 c     
