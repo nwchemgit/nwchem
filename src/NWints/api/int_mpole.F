@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.13 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: int_mpole.F,v 1.14 2000-01-25 20:09:02 mg201 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mpole}
@@ -34,8 +34,8 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
-#include "apiP.fh"
 #include "nwc_const.fh"
+#include "apiP.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -44,6 +44,7 @@ c:tex-\end{verbatim}
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "rel_nwc.fh"
 c
 c::functions
       logical int_chk_init
@@ -66,11 +67,12 @@ c . . . . . . . . . . . . . . . . !   multipole integrals in this batch
 c:tex-\end{verbatim}
 c::local      
       logical any_spherical
-      logical shells_ok
-      integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
-      integer jbas, Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
+      logical shells_ok, orel, oirel, ojrel, oNR
+      integer ibas, isbas, jbas, jsbas, lbas, sbas, abas
+      integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom, i_icfpS
+      integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom, j_icfpS
       integer i_gen_save, j_gen_save
-      integer ucont, lval
+      integer ucont, uconts, lval
       integer l_int, ij_int, ij_int_x, num_int
       integer int_point, int_size
       logical inline_chk_sh      
@@ -103,6 +105,22 @@ c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
 c
+      oNR = .true.
+      oirel = .false.
+      ojrel = .false.
+      orel = .false.
+c
+      if (dyall_mod_dir) then
+c
+c     get basis set handles; relativistic integral option only valid
+c     if both ibas and jbas are the ao basis.
+c
+        lbas = lc_bsh + BASIS_HANDLE_OFFSET
+        sbas = sc_bsh + BASIS_HANDLE_OFFSET
+        abas = ao_bsh + BASIS_HANDLE_OFFSET
+        orel = ibas .eq. abas .and. jbas .eq. abas
+      end if
+c
       lmpsiz = lmpint
 c
       shells_ok = inline_chk_sh(ibas,ish)
@@ -113,9 +131,28 @@ c
 ***   set defNxyz such that it can handle the maximum multi-pole
 c
       lpole = lmax/4 + 1
+      if (dyall_mod_dir) lpole = lpole+1
       call defNxyz(lpole)
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
+c
+c     check for relativistic shell
+c
+      if (orel .and. (infbs_cont(CONT_RELLS ,ucont,ibas) .ne. 0)) then
+        oirel = .true.
+        isbas = sbas
+        uconts = ao_to_ls(ucont)
+        if (uconts .eq. 0) call errquit (
+     &      'int_mpole: no relativistic pointer',911)
+        if (nesc_1e_approx) then
+          ibas = lbas
+          ucont = uconts
+        end if
+      else
+        uconts = ucont
+        isbas = ibas
+      end if
+c
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
       i_prim  = infbs_cont(CONT_NPRIM,ucont,ibas)
       i_gen   = infbs_cont(CONT_NGEN ,ucont,ibas)
@@ -123,8 +160,29 @@ c
       i_icfp  = infbs_cont(CONT_ICFP ,ucont,ibas)
       i_cent  = (sf_ibs_cn2ce(ish,ibas))
       i_geom  = ibs_geom(ibas)
+      i_icfpS = infbs_cont(CONT_ICFP ,uconts,isbas)
+c
+c   j shell
 c
       ucont   = (sf_ibs_cn2ucn(jsh,jbas))
+c
+c     check for relativistic shell
+c
+      if (orel .and. (infbs_cont(CONT_RELLS ,ucont,jbas) .ne. 0)) then
+        ojrel = .true.
+        jsbas = sbas
+        uconts = ao_to_ls(ucont)
+        if (uconts .eq. 0) call errquit (
+     &      'int_1estv: no relativistic pointer',911)
+        if (nesc_1e_approx) then
+          jbas = lbas
+          ucont = uconts
+        end if
+      else
+        uconts = ucont
+        jsbas = jbas
+      end if
+c
       Lj      = infbs_cont(CONT_TYPE ,ucont,jbas)
       j_prim  = infbs_cont(CONT_NPRIM,ucont,jbas)
       j_gen   = infbs_cont(CONT_NGEN ,ucont,jbas)
@@ -132,6 +190,10 @@ c
       j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
       j_cent  = (sf_ibs_cn2ce(jsh,jbas))
       j_geom  = ibs_geom(jbas)
+      j_icfpS = infbs_cont(CONT_ICFP ,uconts,jsbas)
+c
+      oNR = .not.(oirel.and.ojrel)
+      orel = oirel.or.ojrel
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
         write(luout,*)
@@ -172,15 +234,30 @@ c
           call errquit('int_mpole: lmpint too small ',911)
         endif
         num_int = num_int + l_int*ij_int
-        call hf3ois(
-     &       coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &       dbl_mb(mb_exndcf(i_icfp,ibas)),i_prim, Li,
-     &       centerl,DCexp,
-     &       DCcoeff, 1,  lval,
-     &       coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &       dbl_mb(mb_exndcf(j_icfp,jbas)),j_prim, Lj,
+        if (orel) then
+          call rel_mpole (
+     &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &        dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &        dbl_mb(mb_exndcf(i_icfpS,isbas)),i_prim, Li,
+     &        centerl,DCexp,
+     &        DCcoeff, 1,  lval,
+     &        coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &        dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &        dbl_mb(mb_exndcf(j_icfps,jsbas)),j_prim, Lj,
+c....................................TriDiag......DryRun
+     &        MP(int_point),int_size,.false.,oNR,.false.,
+     &        scr,lscr,rel_dbg,rel_typ)
+        else
+          call hf3ois(
+     &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &        dbl_mb(mb_exndcf(i_icfp,ibas)),i_prim, Li,
+     &        centerl,DCexp,
+     &        DCcoeff, 1,  lval,
+     &        coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &        dbl_mb(mb_exndcf(j_icfp,jbas)),j_prim, Lj,
 c...................................TriDiag..DryRun
-     &       MP(int_point),int_size,.false.,.false.,scr,lscr)
+     &        MP(int_point),int_size,.false.,.false.,scr,lscr)
+        end if
         if (any_spherical) then
           if (Li.eq.-1) then
             i_gen_save = i_gen
