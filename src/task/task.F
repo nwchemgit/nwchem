@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.25 1998-08-26 00:27:52 d3e129 Exp $
+* $Id: task.F,v 1.26 1998-09-25 18:32:08 mg201 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -32,7 +32,7 @@ c
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical  esp, prepar
+      logical  esp, prepar, kgdtest
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian, task_saddle, task_lst
       logical  task_qmmm, task_python, task_nbo
@@ -43,7 +43,7 @@ c
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst
       external task_version, task_python, task_nbo
-      external esp,prepar
+      external esp,prepar, kgdtest
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
@@ -93,6 +93,8 @@ c
             status = task_python(rtdb)
          else if (inp_compare(.false.,'raktest', theory)) then
             status = raktest(rtdb)
+         else if (inp_compare(.false.,'kgdtest', theory)) then
+            status = kgdtest(rtdb)
          else if (inp_compare(.false.,'version', theory)) then
             status = task_version(rtdb)
          else if (inp_compare(.false.,'atwtest', theory)) then
