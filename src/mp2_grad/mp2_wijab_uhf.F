@@ -44,11 +44,20 @@
       parameter(msg_w_ab_b_sum=9993)
       integer wijacnt,wijbcnt,wabacnt,wabbcnt
       double precision dsum
-c
+c     
       integer k_w_ij_a,k_w_ij_b
       integer l_w_ij_a,l_w_ij_b
       integer k_w_ab_a,k_w_ab_b
       integer l_w_ab_a,l_w_ab_b
+c     
+c     inline functions to compute offset to diagonal symmetry
+c     blocks in square arrays of dimension occupied and virtual
+c     
+      integer off_oa, off_va, off_ob, off_vb
+      off_oa(symj) = sym_lo_oa(symj)-noa_lo+(sym_lo_oa(symj)-noa_lo)*noa
+      off_ob(symj) = sym_lo_ob(symj)-nob_lo+(sym_lo_ob(symj)-noa_lo)*nob
+      off_va(symb) = sym_lo_va(symb)-nva_lo+(sym_lo_va(symb)-nva_lo)*nva
+      off_vb(symb) = sym_lo_vb(symb)-nvb_lo+(sym_lo_vb(symb)-nvb_lo)*nvb
 c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
@@ -62,7 +71,7 @@ c
      $     call errquit('could not alloc w_ij_b',nob*nob)
       if(.not.ma_push_get(mt_dbl,nvb*nvb,'w_ab_b',l_w_ab_b,k_w_ab_b))
      $     call errquit('could not alloc w_ab_b',nvb*nvb)
-c
+c     
       zero=0.0d0
       one=1.0d0
       minusone=-1.0d0
@@ -79,10 +88,10 @@ c
          do a_a=nva_lo_local,nva_hi_local
             syma=irs_a(a_a)
             symia=ieor(syma,symi)
-c
+c     
             call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
      $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
-c
+c     
             tcounta=1
             do b=nva_lo,nva_hi
                symb=irs_a(b)
@@ -98,10 +107,10 @@ c
                   tcounta=tcounta+counta
                endif
             enddo
-c
+c     
             call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
      $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
-c
+c     
             tcountb=1
             do b=nvb_lo,nvb_hi
                symb=irs_b(b)
@@ -119,37 +128,34 @@ c
             enddo
             tcounta=1
             tcountb=1
-            wijacnt=k_w_ij_a
-            wijbcnt=k_w_ij_b
-            wabacnt=k_w_ab_a
-            wabbcnt=k_w_ab_b
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
+                  wijacnt = off_oa(symj)+k_w_ij_a
                   call dgemm('n','t',num_oa(symj),
      $                 num_oa(symj),num_va(symb),half,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
-     $                 num_oa(symj),one,dbl_mb(wijacnt),num_oa(symj))
-                  wijacnt=wijacnt+num_oa(symi)*num_oa(symj)
+     $                 num_oa(symj),one,dbl_mb(wijacnt),noa)
+                  wabacnt = off_va(symb)+k_w_ab_a
                   call dgemm('t','n',num_va(symb),
      $                 num_va(symb),num_oa(symj),half,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
-     $                 num_oa(symj),one,dbl_mb(wabacnt),num_va(symb))
+     $                 num_oa(symj),one,dbl_mb(wabacnt),nva)
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
                   wabacnt=wabacnt+num_va(syma)*num_va(symb)
                endif
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
+                  wijbcnt = off_ob(symj)+k_w_ij_b
                   call dgemm('n','t',num_ob(symj),
      $                 num_ob(symj),num_vb(symb),one,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
-     $                 num_ob(symj),one,dbl_mb(wijbcnt),num_ob(symj))
-                  wijbcnt=wijbcnt+num_ob(symi)*num_ob(symj)
+     $                 num_ob(symj),one,dbl_mb(wijbcnt),nob)
+                  wabbcnt = off_vb(symb)+k_w_ab_b
                   call dgemm('t','n',num_vb(symb),
      $                 num_vb(symb),num_ob(symj),one,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
-     $                 num_ob(symj),one,dbl_mb(wabbcnt),num_vb(symb))
+     $                 num_ob(symj),one,dbl_mb(wabbcnt),nvb)
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
-                  wabbcnt=wabbcnt+num_vb(syma)*num_vb(symb)
                endif
             enddo
          enddo
@@ -159,10 +165,6 @@ c
       call ga_dgop(msg_w_ij_b_sum,dbl_mb(k_w_ij_b),nob*nob,'+')
       call ga_dgop(msg_w_ab_b_sum,dbl_mb(k_w_ab_b),nvb*nvb,'+')
       call ga_sync()
-c$$$      write(6,*) 'trace of w_ij_a',dsum(noa,dbl_mb(k_w_ij_a),noa+1)
-c$$$      write(6,*) 'trace of w_ij_b',dsum(nob,dbl_mb(k_w_ij_b),nob+1)
-c$$$      write(6,*) 'trace of w_ab_a',dsum(nva,dbl_mb(k_w_ab_a),nva+1)
-c$$$      write(6,*) 'trace of w_ab_b',dsum(nvb,dbl_mb(k_w_ab_b),nvb+1)
       if(ga_nodeid().eq.0)then
          call util_inplace_transpose(noa, dbl_mb(k_w_ij_a))
          call ga_acc(g_w_ij_a,1,noa,1,noa,dbl_mb(k_w_ij_a),noa,one)
@@ -173,10 +175,10 @@ c$$$      write(6,*) 'trace of w_ab_b',dsum(nvb,dbl_mb(k_w_ab_b),nvb+1)
          call util_inplace_transpose(nvb, dbl_mb(k_w_ab_b))
          call ga_acc(g_w_ab_b,1,nvb,1,nvb,dbl_mb(k_w_ab_b),nvb,one)
       endif
-c
+c     
       if (.not. ma_chop_stack(l_w_ij_a)) call errquit
      $     ('mp2_wijab_uhf: chop stack failed',0)
-c
+c     
       end
 
       double precision function dsum(n,x,ix)

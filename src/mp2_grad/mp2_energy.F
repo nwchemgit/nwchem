@@ -36,7 +36,7 @@
       integer k_occ_a,k_occ_b,l_occ_a,l_occ_b
       integer pass
       integer noa,nob,nva,nvb
-      double precision tol2e,escf,e2,e_total
+      double precision tol2e,escf,e2,e_total,norm
       integer ga_create_atom_blocked
       logical otrace, omatrix
       external ga_create_atom_blocked
@@ -66,8 +66,7 @@ c
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad
 c
-      otrace = util_print('matrix trace',print_debug) .and.
-     $     ga_nodeid().eq.0
+      otrace = util_print('matrix trace',print_debug)
       omatrix = util_print('matrix debug', print_debug)
 c     
 c     get some space for the derivatives
@@ -372,12 +371,16 @@ c
          call mp2_print_trace_norm(g_w_ab_a,'w_ab_a',nva)
          call mp2_print_trace_norm(g_w_ij_b,'w_ij_b',nob)
          call mp2_print_trace_norm(g_w_ab_b,'w_ab_b',nvb)
-         write(6,771) 'Norm of lai_a',sqrt(ga_ddot(g_lai_a,g_lai_a))
-         write(6,771) 'Norm of lai_b',sqrt(ga_ddot(g_lai_b,g_lai_b))
-         write(6,771) 'Norm of w_ai_a',sqrt(ga_ddot(g_w_ai_a,g_w_ai_a))
-         write(6,771) 'Norm of w_ai_b',sqrt(ga_ddot(g_w_ai_b,g_w_ai_b))
+         norm = sqrt(ga_ddot(g_lai_a,g_lai_a))
+         if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_a', norm
+         norm = sqrt(ga_ddot(g_lai_b,g_lai_b))
+         if (ga_nodeid().eq.0) write(6,771) 'Norm of lai_b', norm
+         norm = sqrt(ga_ddot(g_w_ai_a,g_w_ai_a))
+         if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_a', norm
+         norm = sqrt(ga_ddot(g_w_ai_b,g_w_ai_b))
+         if (ga_nodeid().eq.0) write(6,771) 'Norm of w_ai_b', norm
  771     format(1x,a,1x,f20.12)
-         call util_flush(6)
+         if (ga_nodeid().eq.0) call util_flush(6)
       endif
       call ga_sync()
 c
@@ -408,8 +411,8 @@ c
 c
          if (omatrix) call ga_print(g_rhs)
          if (otrace) then
-            write(6,771) 'Norm of RHS', sqrt(ga_ddot(g_rhs,g_rhs))
-            call util_flush(6)
+            norm = sqrt(ga_ddot(g_rhs,g_rhs))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of RHS', norm
          endif
 c     
          call pstat_on(ps_cphf)
@@ -424,8 +427,8 @@ c
 c
          if (omatrix) call ga_print(g_rhs)
          if (otrace) then
-            write(6,771) 'Norm of soln', sqrt(ga_ddot(g_rhs,g_rhs))
-            call util_flush(6)
+            norm = sqrt(ga_ddot(g_rhs,g_rhs))
+            if (ga_nodeid().eq.0) write(6,771) 'Norm of soln', norm
          endif
 c     
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,1,
@@ -437,6 +440,7 @@ c
 c
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,nmo,
+     $        int_mb(k_map_a), int_mb(k_map_b),
      $        g_vecs_a,g_vecs_b,basis,scftype)
 c
          if (util_print('dipole',print_low))
@@ -552,16 +556,19 @@ c
       character*(*) text        ! [input] info to print
       integer n                 ! [input] dimension of ga
 c
-      double precision sum, xx
+      double precision sum, xx, norm
       integer i
 c
-      sum = 0.0d0
-      do i = 1, n
-         call ga_get(g,i,i,i,i,xx,1)
-         sum = sum + xx
-      enddo
-      write(6,1) text,sum,sqrt(ga_ddot(g,g))
- 1    format(1x,a,' trace=',f20.12,' norm=',f20.12)
-      call util_flush(6)
+      norm = sqrt(ga_ddot(g,g))
+      if (ga_nodeid() .eq. 0) then
+         sum = 0.0d0
+         do i = 1, n
+            call ga_get(g,i,i,i,i,xx,1)
+            sum = sum + xx
+         enddo
+         write(6,1) text,sum,norm
+ 1       format(1x,a,' trace=',f20.12,' norm=',f20.12)
+         call util_flush(6)
+      endif
 c
       end

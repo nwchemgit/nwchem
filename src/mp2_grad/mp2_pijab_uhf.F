@@ -24,10 +24,9 @@
       integer nir
       double precision zero,one,minusone,half,mhalf
       integer syma,symi,symb,symj,symia
-      integer irs_a(*),irs_b(*),b
+      integer irs_a(*),irs_b(*)
       integer nva_lo_local,nva_hi_local
       double precision t_a(*),t_b(*)
-      integer counta,countb
       double precision tunitptra,tunitptrb
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer msg_p_ij_a_sum,msg_p_ij_b_sum
@@ -45,10 +44,31 @@ c
       integer k_p_ab_a,k_p_ab_b
       integer l_p_ab_a,l_p_ab_b
 c
+c     inline functions to compute offset to diagonal symmetry
+c     blocks in square arrays of dimension occupied and virtual
+c
+      integer off_oa, off_va, off_ob, off_vb
+      off_oa(symj) = sym_lo_oa(symj)-noa_lo+(sym_lo_oa(symj)-noa_lo)*noa
+      off_ob(symj) = sym_lo_ob(symj)-nob_lo+(sym_lo_ob(symj)-noa_lo)*nob
+      off_va(symb) = sym_lo_va(symb)-nva_lo+(sym_lo_va(symb)-nva_lo)*nva
+      off_vb(symb) = sym_lo_vb(symb)-nvb_lo+(sym_lo_vb(symb)-nvb_lo)*nvb
+c
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
+c
+c$$$      do symj = 0, nir-1
+c$$$         write(6,*) symj, ' occa ', sym_lo_oa(symj), sym_hi_oa(symj)
+c$$$         write(6,*) symj, ' occb ', sym_lo_ob(symj), sym_hi_ob(symj)
+c$$$         write(6,*) symj, ' vira ', sym_lo_va(symj), sym_hi_va(symj)
+c$$$         write(6,*) symj, ' virb ', sym_lo_vb(symj), sym_hi_vb(symj)
+c$$$         write(6,*) symj, ' oa ', off_oa(symj)
+c$$$         write(6,*) symj, ' ob ', off_ob(symj)
+c$$$         write(6,*) symj, ' va ', off_va(symj)
+c$$$         write(6,*) symj, ' vb ', off_vb(symj)
+c$$$      enddo
+c
       if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',l_p_ij_a,k_p_ij_a))
      $     call errquit('could not alloc p_ij_a',noa*noa)
       if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',l_p_ab_a,k_p_ab_a))
@@ -83,41 +103,38 @@ c
 c
             tcounta=1
             tcountb=1
-            pijacnt=k_p_ij_a
-            pabacnt=k_p_ab_a
+c
             do symb=0,nir-1
                symj=ieor(symia,symb)
-               if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
+               if(num_oa(symj).gt.0 .and. num_va(symb).gt.0) then
+                  pijacnt = off_oa(symj)+k_p_ij_a
                   call dgemm('n','t',num_oa(symj),
      $                 num_oa(symj),num_va(symb),mhalf,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,dbl_mb(pijacnt),num_oa(symj))
-                  pijacnt=pijacnt+num_oa(symi)*num_oa(symj)
+     $                 one,dbl_mb(pijacnt),noa)
+                  pabacnt = off_va(symb)+k_p_ab_a
                   call dgemm('t','n',num_va(symb),
      $                 num_va(symb),num_oa(symj),half,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,dbl_mb(pabacnt),num_va(symb))
+     $                 one,dbl_mb(pabacnt),nva)
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
-                  pabacnt=pabacnt+num_va(syma)*num_va(symb)
                endif
-               pijbcnt=k_p_ij_b
-               pabbcnt=k_p_ab_b
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
+                  pijbcnt = off_ob(symj)+k_p_ij_b
                   call dgemm('n','t',num_ob(symj),
      $                 num_ob(symj),num_vb(symb),minusone,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,dbl_mb(pijbcnt),num_ob(symj))
-                  pijbcnt=pijbcnt+num_ob(symi)*num_ob(symj)
+     $                 one,dbl_mb(pijbcnt),nob)
+                  pabbcnt = off_vb(symb)+k_p_ab_b
                   call dgemm('t','n',num_vb(symb),
      $                 num_vb(symb),num_ob(symj),one,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,dbl_mb(pabbcnt),num_vb(symb))
+     $                 one,dbl_mb(pabbcnt),nvb)
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
-                  pabbcnt=pabbcnt+num_vb(syma)*num_vb(symb)
                endif
             enddo
          enddo

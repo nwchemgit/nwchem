@@ -32,7 +32,10 @@
       integer syma,symi,symb,symj,symia,symc,symk
       integer irs_a(*),irs_b(*)
       integer nva_lo_local,nva_hi_local
-      double precision l_ai3_a(*),l_ai3_b(*),l_ai1_a(*),l_ai1_b(*)
+      double precision l_ai1_a(noa_lo:noa_hi,nva_lo:nva_hi)
+      double precision l_ai1_b(nob_lo:nob_hi,nvb_lo:nvb_hi)
+      double precision l_ai3_a(noa_lo:noa_hi,nva_lo:nva_hi)
+      double precision l_ai3_b(nob_lo:nob_hi,nvb_lo:nvb_hi)
       double precision t_a(*),t_b(*),ia_cb(*),ia_jk(*),tmp(*),ia_uv(*)
       integer g_lai_a,g_lai_b
       integer tunita,tunitb
@@ -45,7 +48,6 @@
       parameter(msg_l_ai1_a_sum=9990)
       parameter(msg_l_ai1_b_sum=9989)
       integer i_batch
-      integer laiacnt,laibcnt
       integer g_wai_a,g_wai_b
 c     
       zero=0.0d0
@@ -58,6 +60,7 @@ c
       call dfill((nob*nvb),zero,l_ai3_b,1)
       call dfill((noa*nva),zero,l_ai1_a,1)
       call dfill((nob*nvb),zero,l_ai1_b,1)
+c     
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          i_batch=i-oseg_lo+1
@@ -70,13 +73,12 @@ c
             call scatter(nnbf,tmp,indx_v,ia_uv)
             call dfill((nbf*nbf),zero,ia_uv,1)
             call upper2square(nbf,tmp,ia_uv)
-c
+c     
 c...  form pure spin t*(vv|vo) and t*(vo|oo) terms 
-c
+c     
             call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
      $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
             tcounta=1
-            laiacnt=1
             do symb=0,nir-1
                symc=ieor(symia,symb)
                symj=symc
@@ -88,44 +90,46 @@ c
                   call dgemm('t','n',num_va(symc),num_va(symb),
      $                 nbf,one,tmp,nbf,c_a(1,sym_lo_va(symb)),
      $                 nbf,zero,ia_cb,num_va(symc))
+c     
+c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
+c     
                   call dgemm('n','t',num_oa(symj),
      $                 num_va(symc),num_va(symb),
      $                 one,t_a(tcounta),num_oa(symj),
      $                 ia_cb,num_va(symc),one,
-     $                 l_ai3_a(laiacnt),num_oa(symj))
-                  tcounta=tcounta+num_oa(symj)*num_va(symb)
-                  laiacnt=laiacnt+num_oa(symj)*num_va(symc)
-               endif
-            enddo
+     $                 l_ai3_a(sym_lo_oa(symj),sym_lo_va(symc)),noa)
+               end if
+               tcounta=tcounta+num_oa(symj)*num_va(symb)
+            end do
             tcounta=1
-            laiacnt=1
-            do symj=0,nir-1
-               symk=ieor(symia,symj)
-               symb=symk
+            do symb=0,nir-1
+               symk=symb
+               symj=ieor(symia,symk)
                if(num_oa(symj).gt.0.and.num_oa(symk).gt.0.
      $              and.num_va(symb).gt.0)then
                   call dgemm('n','n',nbf,num_oa(symj),nbf,one,
      $                 ia_uv,nbf,c_a(1,sym_lo_oa(symj)),nbf,
      $                 zero,tmp,nbf)
-                  call dgemm('t','n',num_oa(symk),num_oa(symj),
+                  call dgemm('t','n',num_oa(symj),num_oa(symk),
      $                 nbf,one,tmp,nbf,c_a(1,sym_lo_oa(symk)),
-     $                 nbf,zero,ia_jk,num_oa(symk))
-                  call dgemm('n','n',num_oa(symk),
+     $                 nbf,zero,ia_jk,num_oa(symj))
+c     
+c     Lkb = sum(iaj) (ia|jk)*Tjb,ia
+c     
+                  call dgemm('t','n',num_oa(symk),
      $                 num_va(symb),num_oa(symj),
-     $                 minusone,ia_jk,num_oa(symk),
-     $                 t_a(tcounta),num_oa(symj),
-     $                 one,l_ai1_a(laiacnt),num_oa(symk))
-                  tcounta=tcounta+num_oa(symj)*num_va(symb)
-                  laiacnt=laiacnt+num_oa(symk)*num_va(symb)
-               endif
-            enddo
-c
+     $                 minusone,ia_jk,num_oa(symj),
+     $                 t_a(tcounta),num_oa(symj),one,
+     $                 l_ai1_a(sym_lo_oa(symk),sym_lo_va(symb)),noa)
+               end if
+               tcounta=tcounta+num_oa(symj)*num_va(symb)
+            end do
+c     
 c...  form mixed spin t*(vv|vo) and t*(vo|oo) terms
-c
+c     
             call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
      $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
             tcountb=1
-            laibcnt=1
             do symb=0,nir-1
                symc=ieor(symia,symb)
                symj=symc
@@ -137,47 +141,43 @@ c
                   call dgemm('t','n',num_vb(symc),num_vb(symb),
      $                 nbf,one,tmp,nbf,c_b(1,sym_lo_vb(symb)),
      $                 nbf,zero,ia_cb,num_vb(symc))
+c     
+c     Ljc <- sum(iab) Tjb,ia*(cb|ia)
+c     
                   call dgemm('n','t',num_ob(symj),
      $                 num_vb(symc),num_vb(symb),
      $                 one,t_b(tcountb),num_ob(symj),
      $                 ia_cb,num_vb(symc),one,
-     $                 l_ai3_b(laibcnt),num_ob(symj))
-                  tcountb=tcountb+num_ob(symj)*num_vb(symb)
-                  laibcnt=laibcnt+num_ob(symj)*num_vb(symc)
-               endif
-            enddo
+     $                 l_ai3_b(sym_lo_ob(symj),sym_lo_vb(symc)),nob)
+               end if
+               tcountb=tcountb+num_ob(symj)*num_vb(symb)
+            end do
             tcountb=1
-            laibcnt=1
-            do symj=0,nir-1
-               symk=ieor(symia,symj)
-               symb=symk
+            do symb=0,nir-1
+               symk=symb
+               symj=ieor(symia,symk)
                if(num_ob(symj).gt.0.and.num_ob(symk).gt.0.
      $              and.num_vb(symb).gt.0)then
                   call dgemm('n','n',nbf,num_ob(symj),nbf,one,
      $                 ia_uv,nbf,c_b(1,sym_lo_ob(symj)),nbf,
      $                 zero,tmp,nbf)
-                  call dgemm('t','n',num_ob(symk),num_ob(symj),
+                  call dgemm('t','n',num_ob(symj),num_ob(symk),
      $                 nbf,one,tmp,nbf,c_b(1,sym_lo_ob(symk)),
-     $                 nbf,zero,ia_jk,num_ob(symk))
-                  call dgemm('n','n',num_ob(symk),
+     $                 nbf,zero,ia_jk,num_ob(symj))
+c     
+c     Lkb = sum(iaj) (ia|kj)*Tjb,ia
+c     
+                  call dgemm('t','n',num_ob(symk),
      $                 num_vb(symb),num_ob(symj),
-     $                 minusone,ia_jk,num_ob(symk),
-     $                 t_b(tcountb),num_ob(symj),
-     $                 one,l_ai1_b(laibcnt),num_ob(symk))
-                  tcountb=tcountb+num_ob(symj)*num_vb(symb)
-                  laibcnt=laibcnt+num_ob(symk)*num_vb(symb)
-               endif
-            enddo
-         enddo
-      enddo
-c$$$  write(6,*) 'lai3_a'
-c$$$  call output(l_ai3_a,1,noa,1,nva,noa,nva,1)
-c$$$  write(6,*) 'lai3_b'
-c$$$  call output(l_ai3_b,1,nob,1,nvb,nob,nvb,1)
-c$$$  write(6,*) 'lai1_a'
-c$$$  call output(l_ai1_a,1,noa,1,nva,noa,nva,1)
-c$$$  write(6,*) 'lai1_b'
-c$$$  call output(l_ai1_b,1,nob,1,nvb,nob,nvb,1)
+     $                 minusone,ia_jk,num_ob(symj),
+     $                 t_b(tcountb),num_ob(symj),one,
+     $                 l_ai1_b(sym_lo_ob(symk),sym_lo_vb(symb)),nob)
+               end if
+               tcountb=tcountb+num_ob(symj)*num_vb(symb)
+            end do
+         end do
+      end do
+c     
       call ga_dgop(msg_l_ai3_a_sum,l_ai3_a,noa*nva,'+')
       call ga_dgop(msg_l_ai3_b_sum,l_ai3_b,nob*nvb,'+')
       call ga_dgop(msg_l_ai1_a_sum,l_ai1_a,noa*nva,'+')
@@ -190,12 +190,8 @@ c$$$  call output(l_ai1_b,1,nob,1,nvb,nob,nvb,1)
          call ga_acc(g_lai_b,1,nob,1,nvb,l_ai1_b,nob,one)
          call ga_acc(g_wai_a,1,noa,1,nva,l_ai1_a,noa,minusone)
          call ga_acc(g_wai_b,1,nob,1,nvb,l_ai1_b,nob,minusone)
-      endif
-c$$$      write(6,*) 'wai term'
-c$$$      call ga_print(g_wai_a)
-c$$$      call ga_print(g_wai_b)
-c$$$      call ga_zero(g_wai_a)
-c$$$      call ga_zero(g_wai_b)
+      end if
+c     
       end
 
 

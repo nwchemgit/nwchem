@@ -11,6 +11,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "eaf.fh"
+#include "util.fh"
       character*8 task
       integer nbf,i
       integer noa_lo,noa_hi,nva_lo,nva_hi
@@ -41,7 +42,11 @@ c
       integer nva_lo_local,nva_hi_local,jb
       double precision eval_a(*),eval_b(*)
 c
+      logical otdebug
+c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
+c
+      otdebug = util_print('tdebug',print_debug)
 c     
       eaa=0.0d0
       eab=0.0d0
@@ -70,10 +75,10 @@ c
          call ga_zero(g_t_a)
          call ga_zero(g_t_b)
          do syma=0,nir-1
+            symia=ieor(syma,symi)
             counter=0
             do symb=0,nir-1
                do b=sym_lo_va(symb),sym_hi_va(symb)
-                  symia=ieor(syma,symi)
                   symj=ieor(symia,symb)
                   toff_a(b,syma)=counter
                   counter=counter+num_oa(symj)
@@ -81,10 +86,10 @@ c
             enddo
          enddo
          do syma=0,nir-1
+            symia=ieor(syma,symi)
             counter=0
             do symb=0,nir-1
                do b=sym_lo_vb(symb),sym_hi_vb(symb)
-                  symia=ieor(syma,symi)
                   symj=ieor(symia,symb)
                   toff_b(b,syma)=counter
                   counter=counter+num_ob(symj)
@@ -94,7 +99,6 @@ c
          i_batch=i-oseg_lo+1
          do a_a=nva_lo_local,nva_hi_local 
             syma=irs_a(a_a)
-            symi=irs_a(i)
             symia=ieor(syma,symi)
             call dfill((nbf*nbf),0.0d0,dbl_mb(k_tmp),1)
             call moints_rdhfint(kunit,nva_lo_local,nva_hi_local,
@@ -166,10 +170,15 @@ c
                   counta=counta+(sym_hi_oa(symj)-sym_lo_oa(symj)+1)
                endif
             enddo
-            if(task.eq.'gradient')then
-               if (eaf_write(tunita,tunitptra,dbl_mb(k_ia_jb),8*counta)
+            if(task.eq.'gradient' .and. counta.gt.0)then
+               if (eaf_write(tunita,tunitptra,dbl_mb(k_ia_jb),8*counta) 
      $              .ne. 0) call errquit('mp2_make_t:IO on ta?',0)
                tunitptra=tunitptra+8*counta
+               if (otdebug) then
+                  write(6,12) 'aa', i, a_a, ddot(counta,dbl_mb(k_ia_jb),
+     $                 1,dbl_mb(k_ia_jb),1)
+ 12               format(1x,a,2i5,f20.8)
+               endif
             endif
 c
             countb = 0
@@ -193,10 +202,14 @@ c
                   countb=countb+(sym_hi_ob(symj)-sym_lo_ob(symj)+1)
                endif
             enddo
-            if(task.eq.'gradient')then
+            if(task.eq.'gradient' .and. countb.gt.0)then
                if (eaf_write(tunitb,tunitptrb,dbl_mb(k_ia_jb),8*countb)
      $              .ne. 0) call errquit('mp2_make_t:IO on tb?',0)
                tunitptrb=tunitptrb+8*countb
+               if (otdebug) then
+                  write(6,12) 'ab', i, a_a, ddot(countb,dbl_mb(k_ia_jb),
+     $                 1,dbl_mb(k_ia_jb),1)
+               endif
             endif
          enddo
       enddo
