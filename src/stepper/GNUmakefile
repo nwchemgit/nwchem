@@ -1,13 +1,13 @@
-# $Id: GNUmakefile,v 1.9 1995-01-30 21:04:41 og845 Exp $
+# $Id: GNUmakefile,v 1.10 1995-01-31 18:55:05 d3e129 Exp $
        HEADERS = 
-       OBJ_OPTIMIZE = stpr_sjacobi.o
+       OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
                  stpr_cneed.o      stpr_cross.o      stpr_driver.o  \
                  stpr_fndmde.o     stpr_formup.o     stpr_gmass.o   \
                  stpr_hesupd.o     stpr_hmass.o      stpr_inihes.o  \
                  stpr_face.o       stpr_locate.o     stpr_matout.o  \
                  stpr_mgeom.o      stpr_mkstep.o     stpr_mktri.o   \
-                 stpr_output.o     stpr_partit.o     stpr_place.o   \
+                 stpr_output.o     stpr_place.o   \
                  stpr_pmat.o       stpr_prntpd.o     stpr_projec.o  \
                  stpr_putbck.o     stpr_readsq.o     stpr_save.o    \
                  stpr_setmass.o    stpr_stepcor.o \
@@ -18,7 +18,7 @@
        LIBRARY = libstepper.a
    LIB_TARGETS = 
 
-     USES_BLAS = 
+     USES_BLAS = stpr_partit.F
 
 include ../config/makefile.h
 include ../config/makelib.h
