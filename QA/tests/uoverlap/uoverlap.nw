@@ -179,7 +179,6 @@ basis spherical
  rn g 
  0.3745056345  1
 end
-end
 
 scf
   vectors atomic
