@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.41 1995-12-21 01:42:06 d3e129 Exp $
+c $Id: raktest.F,v 1.42 1995-12-27 20:19:08 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -155,6 +155,7 @@ c
       integer jbf, jsh, jlow, jhi, jlow_sp, jhi_sp, nbfj, nbfj_sp
       integer typei, typej, nprim, ngen, spsp
       integer nint, nint_sp, count, hi_ang, st_ang
+      integer ii, jj
       double precision value
 c
       logical spcart_init, spcart_terminate
@@ -247,6 +248,13 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
       call output(s,1,nbf,1,nbf,nbf,nbf,1)
       write(6,*)' spherical overlap matrix '
       call output(s_sp,1,nbf_sp,1,nbf_sp,nbf_sp,nbf_sp,1)
+      do ii = 2, nbf_sp
+        do jj = 1,(ii-1)
+          write(6,'(a,2i5,2f15.8)')
+     &          ' ratios ',ii,jj,(s_sp(ii,ii)/s_sp(jj,jj)),
+     &          (s_sp(jj,jj)/s_sp(ii,ii))
+        enddo
+      enddo
       if (.not.spcart_terminate()) stop ' fuck sp term'
       end
 *rak:      subroutine raktest0(rtdb)
@@ -4212,7 +4220,7 @@ c put scf:gradients = 3*nat reals
      &        ('raktest_stpr: reading gradients failed',911)
 c free memory
         if (.not. ma_pop_stack(h_grad))
-     &      call errquit('raktest_stpr: pop failed')
+     &      call errquit('raktest_stpr: pop failed',911)
       endif
       call ga_sync()
       call ga_sync()
