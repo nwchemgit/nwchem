@@ -1,6 +1,6 @@
       subroutine ana_pltgrd
 c
-c $Id: ana_pltgrd.F,v 1.2 1999-07-16 16:34:37 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.3 1999-07-16 17:08:30 d3j191 Exp $
 c
       implicit none
 c
@@ -83,6 +83,9 @@ c
       do 1 i=1,nsa
       read(lfnchg,1000) t(i),(x(i,j),j=1,3),(q(i,j),j=1,nq)
  1000 format(a2,3f12.6,4f12.6)
+      x(i,1)=0.1d0*x(i,1)
+      x(i,2)=0.1d0*x(i,2)
+      x(i,3)=0.1d0*x(i,3)
       if(i.eq.1) then
       do 2 j=1,3
       xmin(j)=x(i,j)
