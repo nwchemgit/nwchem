@@ -13,12 +13,17 @@ c
 c Non-destructive interface (see below).
 c ------------------------------------------------------------------------
       SUBROUTINE nwfft3d(nd1,nd2,nd3,isign,
-     .                   x1,x2,map1,map2,doMap,jstatus)
+     .                   x1,x2,map1,map2,doMap,
+     .                   rwrklen,rwrk,iwrklen,iwrk,jstatus)
       implicit none
       INTEGER nd1,nd2,nd3, isign, jstatus
       INTEGER map1(*), map2(*)
       INTEGER doMap
       DOUBLE PRECISION x1(*),x2(*)
+      INTEGER rwrklen
+      DOUBLE PRECISION rwrk(*)
+      INTEGER iwrklen
+      INTEGER iwrk(*)
 #include "mafdecls.fh"
 c *** input parameters described
 c
@@ -36,9 +41,10 @@ c        NOTE1: map1 and map2 dimensions are greater than nd3-1
 c        NOTE2: map1 and map2 are NOT used for ESSL call (may dimension to 1)
 c  doMap: (EMSL) forces recomputation of map; map computed on first
 c              call and saved.  Can also be use 
+c  rwrklen,iwrklen: if <> 0, use for EMSL routine scratch memory 
 c
 c *** local variables
-      integer d1,d2,d3, owner, n123
+      integer d1,d2,d3, owner
       double precision scale
       integer blksz, computedMap
       data computedMap /0/
@@ -50,12 +56,12 @@ c *** local variables
       save iESSL
 #endif
 #ifdef EMSLFFT
-      integer  nwords, nscratch
+      integer  nwords, nrealscr,ma_nrealscr, ma_nintscr
       logical  bstatus
-      integer  dblh,inth, idbl,iint
-      integer  initSCRATCH, n123ma
-      data initSCRATCH,n123ma /0,0/
-      save initSCRATCH, n123ma, dblh,inth,idbl,iint
+      integer  dblh,inth, idbl,iint, n123
+      integer  initSCRATCH, mamem 
+      data initSCRATCH,ma_nrealscr,ma_nintscr /0,0,0/
+      save initSCRATCH, ma_nrealscr,ma_nintscr, dblh,inth,idbl,iint
 #endif
         integer isize
 c       parameter (isize=128*128*128)
@@ -101,33 +107,51 @@ c     ** fft x1(nd1,nd2,*)
 #endif
 
 #ifdef EMSLFFT
-c allocate scratch space: number of (complex) elements x 2 
-      if (n123.GT.n123ma.OR.initSCRATCH.EQ.0) then
-        initSCRATCH = 1
+c The following scratch memory calculation is derived from code in 
+c pfft1.0/comm/chk3d.f. Apparently, a buffer of size 10,000/nbyted 
+c is needed in the communication routines there. (Also see peigs/src/comm.)
+c                v doesn't always work, but gets through chk3d.F
+c     nrealscr = MAX(nd2,MAX(nd3,10000) + nproc
+      nrealscr = MAX(n123,10000) + nproc
+
+        
+      if (rwrklen.NE.0.AND.iwrklen.NE.0) then
+        mamem = 0 
+      else
+        mamem = 1 
+      endif
+
+      if(mamem.EQ.1.AND.
+     .         (nrealscr.GT.ma_nrealscr.OR.initSCRATCH.EQ.0))then
 c free previous space if present 
-        if (n123ma.GT.0) then
+        if (ma_nrealscr.GT.0) then
            bstatus = MA_free_heap(dblh) 
-           bstatus = MA_free_heap(inth) 
         endif
-        nscratch = n123*2*2 
         nwords = MA_inquire_heap(MT_DBL)
-        if (nwords.LT.nscratch) then
+        if (nwords.LT.nrealscr) then
           call errquit('nwfft3d: insufficient heap for dscratch',me)
         else 
-           if(.NOT.MA_alloc_get(MT_DBL,nscratch,'fftdbl',dblh,idbl))then
+           if(.NOT.MA_alloc_get(MT_DBL,nrealscr,'fftdbl',dblh,idbl))then
             call errquit('nwfft3d: insufficient heap for dscratch',me)
            endif
         endif
+        ma_nrealscr = nrealscr
+      endif
 
+c integer scratch depends on the number of processes. Assume, therefore,
+c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
+      if (mamem.EQ.1.AND.initSCRATCH.EQ.0) then
+        ma_nintscr = 2*nproc+1
         nwords = MA_inquire_heap(MT_INT)
-        if (nwords.LT.nscratch) then
+        if (nwords.LT.ma_nintscr) then
            call errquit('nwfft3d: insufficient heap for iscratch',me)
         else 
-           if(.NOT.MA_alloc_get(MT_INT,nscratch,'fftint',inth,iint))then
-            call errquit('nwfft3d: insufficient heap for iscratch',me)
-           endif
+          if (.NOT.MA_alloc_get(MT_INT,ma_nintscr,
+     .                         'fftint',inth,iint)) then
+           call errquit('nwfft3d: insufficient heap for iscratch',me)
+          endif
         endif
-        n123ma = n123
+        initSCRATCH = 1
       endif
 #endif
 
@@ -160,8 +184,13 @@ c     * make the EMSL destructive interface, nondestructive
 c	print*,'-->',isign,nd1,nd2,nd3,x2(1),map1(1),map2(1),blksz
 c     call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
 c    .            isize,work,isize,iwork,jstatus)
-      call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
-     .            nscratch,dbl_mb(idbl),nscratch,int_mb(iint),jstatus)
+      if (mamem.EQ.1) then
+        call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
+     .       ma_nrealscr,dbl_mb(idbl),ma_nintscr,int_mb(iint),jstatus)
+      else
+        call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
+     .       rwrklen,rwrk,iwrklen,iwrk,jstatus)
+      endif
       if (isign.EQ.-1) then
         do d1 = 1, nd1*nd2*blksz*2
           x2(d1) = x2(d1)*scale
