@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.7 1999-05-12 18:39:22 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.8 1999-05-26 05:36:50 d3j191 Exp $
 c
       implicit none
 c
@@ -177,7 +177,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.7 1999-05-12 18:39:22 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.8 1999-05-26 05:36:50 d3j191 Exp $
 c
       implicit none
 c
@@ -256,13 +256,13 @@ c
  1007 format(i1,1x,3f13.8)
     1 continue
       endif
-      print*,nwmc,nwm
+c      print*,nwmc,nwm
       do 2 i=nwmc+1,nwm
       read(lfnrst,1006) ((xw(k,j,i),k=1,3),(vw(k,j,i),k=1,3),j=1,nwa)
       read(lfnrst,1007) iwmr(i),(rdummy,k=1,3)
     2 continue
       endif
-      print*,nsa
+c      print*,nsa
       if(nsa.gt.0) then
       read(lfnrst,1008)
      + (isar(i),(xs(k,i),k=1,3),(vs(k,i),k=1,3),i=1,nsa)

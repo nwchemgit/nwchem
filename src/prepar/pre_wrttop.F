@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.24 1999-05-10 23:23:49 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.25 1999-05-26 05:36:51 d3j191 Exp $
 c
       implicit none
 c
@@ -285,9 +285,9 @@ c
       iql(1)=latm(7,i)
       iql(2)=latm(8,i)
       iql(3)=latm(9,i)
-      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+1
+      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') iq=iq+4
       if(catt(1,lats(2,latm(3,i)))(6:6).eq.'S') iq=iq+2
-      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+4
+      if(catt(1,lats(3,latm(3,i)))(6:6).eq.'S') iq=iq+1
 c      if(catt(1,lats(1,latm(3,i)))(6:6).eq.'S') then
 c      iq=3
 c      iql(1)=nqu
