@@ -1,6 +1,16 @@
+      logical function task_drdy(rtdb)
+      implicit none
+*
+      logical drdy_nwchem
+      external drdy_nwchem
+*
+      integer rtdb
+*
+      task_drdy = drdy_nwchem(rtdb)
+      end
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.2 1999-08-19 19:39:59 d3e129 Exp $
+* $Id: drdy.F,v 1.3 1999-08-20 18:47:29 d3e129 Exp $
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code
