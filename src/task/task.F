@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.52 2003-01-30 22:48:07 bylaska Exp $
+* $Id: task.F,v 1.53 2003-03-08 02:00:46 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -108,6 +108,8 @@ c
             status = rjhtest(rtdb)
          else if (inp_compare(.false.,'jantest', theory)) then
             status = jantest(rtdb)
+         else if (inp_compare(.false.,'test', theory)) then
+            call util_test(rtdb)
          else if (inp_compare(.false.,'mcstep', theory)) then
             status = mcstep_main(rtdb)
          else if (inp_compare(.false.,'uccsdtest', theory)) then
