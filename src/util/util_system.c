@@ -1,3 +1,7 @@
+/*
+ $Id: util_system.c,v 1.2 1997-10-31 20:45:39 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 

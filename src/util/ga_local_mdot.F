@@ -1,4 +1,7 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
+*
+* $Id: ga_local_mdot.F,v 1.2 1997-10-31 20:45:32 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,7 @@
       program test
+*
+* $Id: testecce.F,v 1.2 1997-10-31 20:45:36 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
       double precision a(2,3)

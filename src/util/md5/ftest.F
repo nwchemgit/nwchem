@@ -1,4 +1,7 @@
       program main
+*
+* $Id: ftest.F,v 1.2 1997-10-31 20:45:42 d3e129 Exp $
+*
       implicit none
 c
 c     The definitive MD5 test program is in mddriver.c

@@ -1,4 +1,7 @@
       integer function ishft(i,j)
+*
+* $Id: linux_shift.F,v 1.3 1997-10-31 20:45:33 d3e129 Exp $
+*
       implicit none
       integer i,j
 c

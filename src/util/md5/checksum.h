@@ -1,3 +1,6 @@
+/*
+ $Id: checksum.h,v 1.2 1997-10-31 20:45:41 d3e129 Exp $
+ */
 #ifndef CHECKSUM_H
 #define CHECkSUM_H
 

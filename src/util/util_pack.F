@@ -1,5 +1,8 @@
 #ifdef HAVE_FORTRAN_INTEGER2
       subroutine util_pack_16(nunpacked, packed, unpacked)
+*
+* $Id: util_pack.F,v 1.11 1997-10-31 20:45:38 d3e129 Exp $
+*
       implicit none
       integer nunpacked
       integer*2 packed(*), unpacked(2,*)

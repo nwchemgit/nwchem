@@ -1,3 +1,7 @@
+/*
+ $Id: ecce_print.c,v 1.10 1997-10-31 20:45:31 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

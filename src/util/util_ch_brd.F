@@ -1,4 +1,7 @@
       subroutine util_char_ga_brdcst(type, string, origin)
+*
+* $Id: util_ch_brd.F,v 1.3 1997-10-31 20:45:37 d3e129 Exp $
+*
       implicit none
 #include "inp.fh"
 #include "global.fh"

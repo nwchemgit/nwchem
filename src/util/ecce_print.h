@@ -1,3 +1,7 @@
+/*
+ $Id: ecce_print.h,v 1.2 1997-10-31 20:45:32 d3e129 Exp $
+ */
+
 void ecce_print_module_entry(const char *module);
 void ecce_print_module_exit(const char *module, const char *status);
 void ecce_print1(const char *keyword, int ma_type,

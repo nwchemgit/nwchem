@@ -1,6 +1,10 @@
 /* MDDRIVER.C - test driver for MD2, MD4 and MD5
  */
 
+/*
+ $Id: mddriver.c,v 1.2 1997-10-31 20:45:43 d3e129 Exp $
+ */
+
 /* Copyright (C) 1990-2, RSA Data Security, Inc. Created 1990. All
 rights reserved.
 

@@ -1,3 +1,6 @@
+*
+* $Id: bitops_decls.fh,v 1.7 1997-10-31 20:45:30 d3e129 Exp $
+*
 c
 c     Machine dependent defintion of the standard
 c     iand/ior/ieor/rshift/lshift bit operations

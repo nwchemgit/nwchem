@@ -5,6 +5,10 @@
 #include <fortran.h>
 #endif
 
+/*
+ $Id: md5wrap.c,v 1.4 1997-10-31 20:45:43 d3e129 Exp $
+ */
+
 #ifdef CRAY
 extern int string_to_fortchar(_fcd f, int flen, char *buf);
 #else

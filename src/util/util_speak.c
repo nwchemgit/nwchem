@@ -1,3 +1,7 @@
+/*
+ $Id: util_speak.c,v 1.6 1997-10-31 20:45:39 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #include <string.h>
 

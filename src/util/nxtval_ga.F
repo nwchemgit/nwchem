@@ -1,4 +1,7 @@
       block data nxtval_ga_data
+*
+* $Id: nxtval_ga.F,v 1.2 1997-10-31 20:45:34 d3e129 Exp $
+*
       implicit none
       integer g_x
       common/c_nxtval_ga/g_x

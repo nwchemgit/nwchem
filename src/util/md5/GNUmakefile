@@ -1,3 +1,7 @@
+#
+# $Id: GNUmakefile,v 1.5 1997-10-31 20:45:42 d3e129 Exp $
+#
+
 
            OBJ = md5wrap.o md5.o
        LIBRARY = libutil.a

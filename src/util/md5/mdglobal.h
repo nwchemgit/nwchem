@@ -1,6 +1,10 @@
 /* GLOBAL.H - RSAREF types and constants
  */
 
+/*
+ $Id: mdglobal.h,v 1.2 1997-10-31 20:45:44 d3e129 Exp $
+ */
+
 /* PROTOTYPES should be set to one if and only if the compiler supports
   function argument prototyping.
 The following makes PROTOTYPES default to 0 if it has not already

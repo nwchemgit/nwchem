@@ -1,4 +1,7 @@
       subroutine util_pname(name, pname)
+*
+* $Id: util_pname.F,v 1.4 1997-10-31 20:45:38 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "inp.fh"
