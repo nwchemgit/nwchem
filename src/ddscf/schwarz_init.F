@@ -26,6 +26,8 @@ c
      $     numint, integ, len_csh, len_cat, ijat, me, nproc
       double precision at_max, sh_max
       logical status, odebug
+      integer nxtval, next
+      external nxtval
       integer itri, i, j
 #include "itri.fh"
 c
@@ -72,17 +74,24 @@ c
 c     make sure that the integrals are being evaluated to sufficient precision
 c
       call int_acc_high()
+c
+c     For debug ... everyone compute one shell of integrals
 c     
+*      call int_2e4c(basis, 1, 1, basis, 1, 1,
+*     $     mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
+c     
+      at_max = 0.0d0
       sch_max = 0.0d0
       ijat  = 0
       nproc = ga_nnodes()
       me    = ga_nodeid()
+      next  = nxtval(nproc)
 c
       do iat = 1, natoms
          if (.not. bas_ce2cnr(basis, iat, ishlo, ishhi))
      $        call errquit('schwarz_init: bas_ce2cnr failed', ish)
          do jat = 1, iat
-            if (mod(ijat,nproc) .eq. me) then
+            if (ijat .eq. next) then
                if (.not. bas_ce2cnr(basis, jat, jshlo, jshhi))
      $              call errquit('schwarz_init: bas_ce2cnr failed', jsh)
                at_max = 0.0d0
@@ -135,10 +144,12 @@ c
      $                 schwarz_atom(iat,jat)/at_max
                   call util_flush(6)
                endif
+               next = nxtval(nproc)
             endif
             ijat = ijat + 1
          enddo
       enddo
+      next = nxtval(-nproc)
 c     
 c     A global OR is required to piece together the parts made in parallel
 c

@@ -83,7 +83,6 @@ c
      $     dbl_mb(k_fij), dbl_mb(k_fik), dbl_mb(k_fli), 
      $     dbl_mb(k_fjk), dbl_mb(k_flj), dbl_mb(k_flk), maxd,
      $     tol2e, ocoul, oexch)
-c     call ga_print(g_fock)
 c     
       status = .true.
       status = status .and. ma_pop_stack(l_flk)
