@@ -1,7 +1,6 @@
-# $Id: GNUmakefile,v 1.25 2000-03-27 19:15:30 edo Exp $
+# $Id: GNUmakefile,v 1.26 2000-03-28 19:52:36 edo Exp $
 
       OBJ_OPTIMIZE= \
-        grid_balance.o \
         grid_sphere.o \
 	grid_ssw.o \
         grid_beckew.o \
@@ -15,9 +14,11 @@
         grid_qpts.o \
         grid_bucket.o \
 	grid_utils.o  \
+	grid_sympts.o  \
         grid_file.o 
       OBJ= \
 	grid_checks.o \
+        grid_balance.o \
 	grid_daul.o \
 	grid_rtrunc.o \
 	grid_atom_type_info.o \

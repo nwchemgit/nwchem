@@ -1,6 +1,6 @@
       Subroutine grid_memory(rtdb)
 c
-c$Id: grid_memory.F,v 1.2 1999-07-09 22:41:57 edo Exp $
+c$Id: grid_memory.F,v 1.3 2000-03-28 19:52:36 edo Exp $
 c
       implicit none
 c      
@@ -23,14 +23,14 @@ c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
-     &   icoord))call errquit('grid_memory: failed to alloc 
-     &   coordinates',0)
+     &   icoord))call errquit(
+     .     'grid_memory: failed to alloc coordinates',0)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
-     &   icharge))call errquit('grid_memory: failed to alloc 
-     &   charges',0)
+     &   icharge))call errquit(
+     .     'grid_memory: failed to alloc charges',0)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &   ltags, itags))call errquit('grid_memory: failed to alloc 
-     &   center tags',0)
+     &   ltags, itags))call errquit(
+     .     'grid_memory: failed to alloc center tags',0)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))

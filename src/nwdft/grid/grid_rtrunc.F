@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.31 2000-03-23 18:09:00 edo Exp $
+c$Id: grid_rtrunc.F,v 1.32 2000-03-28 19:52:37 edo Exp $
 c
       implicit none
 c      
@@ -367,8 +367,8 @@ c     get minimum exponent of all basis functions
 c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
      &        call errquit('Exiting in radtur.',11)
-         if(ic2.lt.0) call errquit('gridrtunc:
-     .   no basis on ghost atom?',ic2)
+         if(ic2.lt.0) call errquit(
+     .        'gridrtunc: no basis on ghost atom?',ic2)
          range_max=0d0
          do icset = ic1,ic2
             min_exp=1d20
@@ -436,8 +436,8 @@ c
      ,     'coord       ',l_charge,k_charge))
      &   call errquit('rdatru: cannot allocate DENS',2)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &   ltags, itags))call errquit('gridtru: failed to 
-     &   alloc center tags',0)
+     &   ltags, itags))call errquit(
+     .     'gridtru: failed to alloc center tags',0)
 
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(k_coord), Dbl_MB(k_charge)))

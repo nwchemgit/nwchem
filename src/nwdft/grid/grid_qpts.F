@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
-     *     nx,ny,nz)
+     *     nx,ny,nz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.10 2000-03-20 21:11:49 edo Exp $
+c$Id: grid_qpts.F,v 1.11 2000-03-28 19:52:36 edo Exp $
 c
       implicit none
 c      
@@ -18,6 +18,7 @@ c
       double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
       integer nx,ny,nz      ! [in] cube def
       double precision r ! [in]
+      integer nxyz
       logical grid_incube
       external grid_incube
 c
@@ -63,7 +64,7 @@ c
 c
 c           Define the quadrature point and weight.
 c            
-            if(grid_incube(xor,yor,zor,nx,ny,nz,
+            if(grid_incube(xor,yor,zor,nx,ny,nz,nxyz,
      ,           lcube(ia_ictr))) then
                nq = nq + 1
                
@@ -101,7 +102,7 @@ c
 c
 c              Define the quadrature point and weight.
 c             
-            if(grid_incube(xor,yor,zor,nx,ny,nz,
+            if(grid_incube(xor,yor,zor,nx,ny,nz,nxyz,
      ,              lcube(ia_ictr))) then
                nq = nq + 1
                aqbuf(1,nq) = xyz(1) + xor

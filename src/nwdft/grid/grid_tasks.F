@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.23 2000-03-27 19:15:32 edo Exp $
+c$Id: grid_tasks.F,v 1.24 2000-03-28 19:52:37 edo Exp $
 c
       implicit none
 c
@@ -135,7 +135,8 @@ c     get no of segment
 c
          iaia=iatype(i_a)
          rad=dble(rad_cutoff(1,iaia))
-         nxyz=nint((rad*2d0-lcube(iaia))/(lcube(iaia)*2d0))
+cedo         nxyz=nint((rad*2d0-lcube(iaia))/(lcube(iaia)*2d0))
+         nxyz=nint(rad/lcube(iaia))*2d0
 c
 c     loop over cubes centers on i_a
 c
