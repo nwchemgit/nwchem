@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.7 2000-05-02 18:51:08 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.8 2000-05-02 19:16:51 d3j191 Exp $
 c
       implicit none
 c
@@ -148,6 +148,11 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+c
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      real*8 cf_anint
+      external cf_anint
+#endif
 c
       real*8 x(nsa,3),q(nsa,nq),g(ngx,ngy,ngz)
       character*2 t(nsa)
