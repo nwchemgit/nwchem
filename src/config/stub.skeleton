@@ -1,0 +1,6 @@
+      Subroutine STUBROUTINE(RTDB)
+      Integer RTDB
+      Call ErrQuit(
+     $   'STUBROUTINE is not in this build of NWChem', 0)
+      Return
+      End

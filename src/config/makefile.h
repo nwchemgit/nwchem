@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.80 1994-11-16 19:13:04 gg502 Exp $
+# $Id: makefile.h,v 1.81 1994-11-16 22:31:09 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -35,24 +35,13 @@ error2:
 endif
 
      TARGET = $(NWCHEM_TARGET)
-
      TOPDIR = $(NWCHEM_TOP)
+
      SRCDIR = $(TOPDIR)/src
      LIBDIR = $(TOPDIR)/lib/$(TARGET)
      BINDIR = $(TOPDIR)/bin/$(TARGET)
      INCDIR = $(TOPDIR)/src/include
      CNFDIR = $(TOPDIR)/src/config
-
-#
-# Define NWSUBDIRS to be list of subdirectories of SRC to be made
-#
-# The include directory should be first so that the include
-# files are all present and correct before any compilation
-#
-
-    NWSUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
-                moints atomscf geom input ma tcgmsg gradients rimp2 riscf \
-                stepper pstat nwdft symmetry $(SUBDIRS_EXTRA)
 
 #
 # Define LIBPATH to be paths for libraries that you are linking in
@@ -69,6 +58,49 @@ endif
 #
     INCPATH = 
 
+
+# These subdirectories will build the core, or supporting libraries
+# that are required by all NWChem modules.  The include directory is
+# first to insure that all include files will be properly installed
+# prior to trying to compile anything.
+#
+# The core libraries are usually rather platform-dependent and are
+# specified below.
+
+NW_CORE_SUBDIRS = include basis blas db geom global inp input \
+	lapack ma pstat rtdb tcgmsg util $(CORE_SUBDIRS_EXTRA)
+
+# These are the directories required to build the various high-level
+# computational modules for NWChem.  They are built after the core
+# directories.
+
+KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
+	rimp2 riscf stepper symmetry ideaz
+
+# These are the libraries for the high-level modules.  They should be
+# specified in an order that will link correctly, but that shouldn't
+# be too hard to come up with.  These should be platform-independent.
+
+KNOWN_MODULE_LIBS = -ltest -lmoints -lriscf -lrimp2 -lnwdft -lstepper \
+	-lgradients -lddscf -lguess -lsymmetry -lutil -lnwints -lideaz
+
+# This include file handles configuration of the NW_MODULE_SUBDIRS and
+# NW_MODULE_LIBS macros for what we actually want to build.  It
+# works from KNOWN_MODULE_SUBDIRS and KNOWN_MODULES_LIBS (keeping the order
+# but removing unneeded elements) and produces the following
+# additional macros:
+#
+# NW_MODULE_SUBDIRS:	List of directories that must be built
+# NW_MODULE_LIBS:	List of libraries to be linked against
+# EXCLUDED_SUBDIRS:	Those directories that were removed from
+# 			KNOWN_MODULE_SUBDIRS to produce NW_MODULE_SUBDIRS
+
+include $(TOPDIR)/src/config/nwchem_config.h
+
+# Finally, we can set the full list of interesting directories, which
+# is what most makefile will care about.
+
+NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 
 ##########################################################
 #                                                        #
@@ -115,11 +147,14 @@ endif
 #
 #    DEFINES = C preprocessor defines for both C and Fortran
 #
-#       LIBS = List of libraries and paths for libraries in addition 
+#       CORE_LIBS = List of libraries and paths for libraries in addition 
 #              to the LIBDIR and LIBPATH options.
 #
-# SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
+# CORE_SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
 #                 are needed on this machine.
+# MODULE_SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
+#                 are needed for top-level modules on this machine.
+#		  (Should not normally be used)
 #
 #
 # The following are defined for all machines at the bottom of this file
@@ -153,7 +188,7 @@ ifeq ($(TARGET),SUN)
 # Sun running SunOS
 #
 
-    SUBDIRS_EXTRA = blas lapack
+    CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = ranlib
   MAKEFLAGS = -j2
@@ -166,10 +201,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       LIBS = -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil -lnwints \
-              -lstepper -lmoints \
-              -lguess -lglobal -lutil -lnwints  -lglobal \
-	      -ltcgmsg -llapack -lblas
+       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
 endif
@@ -178,7 +210,7 @@ ifeq ($(TARGET),KSR)
 #
 # KSR running OSF
 #
-    SUBDIRS_EXTRA = blas
+    CORE_SUBDIRS_EXTRA = blas
      RANLIB = @echo
   MAKEFLAGS = -j20
     INSTALL = @echo $@ is built
@@ -190,11 +222,8 @@ ifeq ($(TARGET),KSR)
 
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-       LIBS = -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil\
-              -lnwints -lstepper -lmoints \
-              -lguess -lglobal -lutil \
-	      -lpeigs \
+     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+       CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
 
   EXPLICITF = FALSE
@@ -205,7 +234,7 @@ ifeq ($(TARGET),PARAGON)
 # Intel Paragon running OSF
 # (native build, or cross-compiled -- the latter is faster in most cases)
 #
-    SUBDIRS_EXTRA = lapack
+    CORE_SUBDIRS_EXTRA = lapack
 
          FC = if77
          CC = icc
@@ -234,10 +263,8 @@ FVECTORIZE = -O2 -Minline=1000 -Mvect
 
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
-       LIBS = -L/home/delilah11/gifann/lib \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
-	      -lnwints -lstepper -lmoints \
-              -lguess -lglobal -lutil \
+       LIBPATH += -L/home/delilah11/gifann/lib
+       CORE_LIBS = -lglobal -lutil \
 	      -lpeigs_paragon -ltcgmsg -llapack $(LIBDIR)/liblapack.a \
               -lkmath -nx
 
@@ -248,7 +275,7 @@ ifeq ($(TARGET),DELTA)
 #
 # DELTA/IPSC running NX
 #
-    SUBDIRS_EXTRA = lapack
+    CORE_SUBDIRS_EXTRA = lapack
 # blas
         FC = if77
         CC = icc
@@ -261,16 +288,14 @@ ifeq ($(TARGET),DELTA)
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
- FOPTIMIZE = -O2 	# -Minline=1000 ## Inlining fails on dtrtri.f
-FVECTORIZE = -O2 -Mvect # -Minline=1000 ## Inlining fails on dtrtri.f
+ FOPTIMIZE = -O2 -Minline=1000
+FVECTORIZE = -O2 -Miniline=1000 -Mvect
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
-      LIBS = -L/home/delilah11/gifann/lib \
-             -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
-	     -lnwints -lstepper -lmoints \
-             -lguess -lglobal -lutil \
-             -lglobal -lpeigs_delta -ltcgmsg $(LIBDIR)/liblapack.a -llapack -lkmath -node
+      LIBPATH += -L/home/delilah11/gifann/lib
+      CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta -ltcgmsg \
+	$(LIBDIR)/liblapack.a -llapack -lkmath -node
 
  EXPLICITF = FALSE
 endif
@@ -280,9 +305,9 @@ ifeq ($(TARGET),SGITFP)
 #
 # SGI power challenge
 #
-# SUBDIRS_EXTRA are those machine specific libraries required 
+# CORE_SUBDIRS_EXTRA are those machine specific libraries required 
 
-    SUBDIRS_EXTRA = blas lapack
+    CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
          AR = ar
@@ -299,11 +324,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
  COPTIMIZE = -O
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
-       LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
-	      -lnwints -lstepper -lmoints \
-              -lguess -lutil -lglobal\
-	      -ltcgmsg -llapack -lblas
+       CORE_LIBS = -lguess -lutil -lglobal -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
 endif
@@ -313,9 +334,9 @@ ifeq ($(TARGET),SGI)
 #
 # SGI normal
 #
-# SUBDIRS_EXTRA are those machine specific libraries required 
+# CORE_SUBDIRS_EXTRA are those machine specific libraries required 
 
-    SUBDIRS_EXTRA = blas lapack
+    CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
          AR = ar
@@ -330,11 +351,7 @@ ifeq ($(TARGET),SGI)
  COPTIMIZE = -O2
 
     DEFINES = -DSGI 
-       LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
-	      -lnwints -lstepper -lmoints \
-              -lguess -lutil -lglobal\
-	      -ltcgmsg -llapack -lblas -lmalloc 
+       CORE_LIBS = -lutil -lglobal -ltcgmsg -llapack -lblas -lmalloc 
 
   EXPLICITF = FALSE
 endif
@@ -345,7 +362,7 @@ ifeq ($(TARGET),IBM)
 # note: using only source blas.
 #
 
-    SUBDIRS_EXTRA = 
+    CORE_SUBDIRS_EXTRA = 
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
@@ -360,11 +377,8 @@ ifeq ($(TARGET),IBM)
 
     DEFINES = -DIBM -DEXTNAM 
 
-       LIBS = -L/usr/lib -L/msrc/apps/lib -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lriscf -lrimp2 -lnwdft -lgradients -lutil \
-	      -lnwints -lstepper -lmoints \
-              -lguess -lglobal -lutil \
-	      -ltcgmsg -llapack -lblas\
+       LIBPATH += -L/usr/lib -L/msrc/apps/lib
+       CORE_LIBS = -lglobal -lutil -ltcgmsg -llapack -lblas\
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dgesv_,.dgesv \
 	      -brename:.dcopy_,.dcopy \
@@ -403,6 +417,7 @@ endif
   INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
   CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
    LDFLAGS = $(LDOPTIONS) -L$(LIBDIR) $(LIBPATH)
+      LIBS = $(NW_MODULE_LIBS) $(CORE_LIBS) 
 
 # I think this will work everywhere, but it might have to become
 # machine-dependent 
@@ -439,7 +454,3 @@ endif
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
 endif
-
-
-
-

@@ -1,32 +1,34 @@
 
-# $Id: GNUmakefile,v 1.17 1994-11-10 23:47:48 gg502 Exp $
+# $Id: GNUmakefile,v 1.18 1994-11-16 22:31:33 gg502 Exp $
 
 include config/makefile.h
 
-  SUBDIRS = $(NWSUBDIRS)
+  SUBDIRS =  $(NWSUBDIRS)
 
 #
 # This should be the first target so that a simple make builds
 # the entire world
 #
 
+.PHONY:	nwchem_config
+
 .PRECIOUS:	$(BINDIR)/nwchem nwchem
 $(BINDIR)/nwchem nwchem:	directories libraries
-	$(MAKE) nwchem.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $(BINDIR)/nwchem nwchem.o $(LIBS)
+	$(MAKE) nwchem.o stubs.o
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
 #
 
-link nwchem_link:    nwchem.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $(BINDIR)/nwchem nwchem.o $(LIBS)
+link nwchem_link:    nwchem.o stubs.o
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
 	$(INSTALL)
 #
 # This for linking test version
 #
 nwchem_test:	
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ nwchem.o $(LIBS)
+	$(LINK.f) -o $@ nwchem.o stubs.o $(LIBS)
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
@@ -58,12 +60,44 @@ sngl_to_dbl dbl_to_sngl:
 	done
         
 #
-# This rule to make necessary directories
+# This rule to make necessary subdirectories in lib and bin (normally)
 #
 
 directories:
 	test -d $(LIBDIR) || $(MKDIR) $(LIBDIR)
 	test -d $(BINDIR) || $(MKDIR) $(BINDIR)
 	
+# This target will change config/nwchem_config.h include file which
+# controls what we're going to build.
+nwchem_config:
+ifeq ($(NWCHEM_MODULES),)
+	@echo
+	@echo -----
+	@echo You must set NWCHEM_MODULES to the list of modules to be \
+		included in NWChem builds.
+	@$(MAKE) -C config -f make_nwchem_config list-options
+else
+	$(MAKE) -C config -f make_nwchem_config NWCHEM_MODULES=$(NWCHEM_MODULES)
+endif
 
+# This is a convenience target that will make sure all subdirectories
+# listed in $(SUBDIRS) exist. Useful because CVS will only update
+# directories that already exist in your working tree, so this is a
+# way ot make sure all that are relevant to the code exist.
 
+make_source_dirs:
+ifneq ($(SUBDIRS),)
+	for dir in $(SUBDIRS); do \
+	   test -d $$dir  || $(MKDIR) $$dir; \
+	done
+endif
+
+# This is a convenience target to remove source directories that are
+# configured out of the program.  Useful to save disk space.
+
+remove_unused_dirs:
+ifneq ($(EXCLUDED_SUBDIRS),)
+	for dir in $(EXCLUDED_SUBDIRS); do \
+	   $(RM) -r $$dir; \
+	done
+endif

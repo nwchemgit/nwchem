@@ -1,0 +1,77 @@
+		    How to add a module to NWChem
+                    -----------------------------
+
+0) Identify whether the modules (subdirectory) you're going to add is
+   a top-level computational chemistry module or a "core" support module
+   which is used by (nearly) all of the computational modules.  Core
+   modules are always included in the build and are often fairly
+   platform-dependent (i.e. BLAS and LAPACK, where on some platforms we
+   use vendor-provided libraries instead of compiling our own).
+   Computational modules can be configured in or out of the build
+   according to the needs of the particular user.  Due to
+   interdependencies, there are occasional cases in which a routine that
+   is nominally "core" may have to be put in the configurable
+   computational modules section in order to get everything to link.
+   Such "promotions" should be considered temporary workarounds only.
+
+1) Adding a core module
+	a) Add the directory name to NW_CORE_SUBDIRS in
+	   src/config/makefile.h, folloing the instructions there as
+	   to ordering.
+	b) Add the library to CORE_LIBS in src/config/makefile.h.
+	   This is platform-dependent and must be done for every
+	   platform.  Order is important.  The test is if you can
+	   successfully link the program on all platforms.
+
+2) Adding a computational module
+	a) Add the directory name to KNOWN_MODULE_SUBDIRS in
+	   src/config/makefile.h, and the library to KNOWN_MODULE_LIBS
+	   in the same file. Follow the instructions in the file.
+	b) Edit the makefile make_nwchem_config.  Does the new module
+	   need to be added to any of the shorthand expansions? (EXP_*
+	   macros). New expansions may be created if appropriate.
+	c) In the next section of the makefile, the dependencies of
+	   your module on other computational modules must be listed.
+	   Following the style of existing entries, you should expand
+	   your module (first argument of patsubst) to your module
+	   plus all other modules that yours calls directly (second
+	   argument of patsubst).  Your entry must be placed in the
+	   list so that it is ahead of the expansions for any of your
+	   dependencies (second argument).  If your module does not
+	   call any other computational modules, you do not need to
+	   add anything here.
+	d) In the next section you must add a patsubst command that
+	   would replace you module name (directory name) with the
+	   library specification.
+	e) In the final section, you add a patsubst command that would
+	   replace your module name with a blank-separated list of
+	   routines that must be replaced with stubs if your modules
+	   is excluded from the build.  Typically this will be the
+	   routine called from the CONTROL subroutine in src/nwchem.F
+	   and possible an input parsing routine.  All routines to be
+	   replaced with stubs must have the form:
+                Subroutine Something(RTDB)
+                Integer RTDB
+	f) Don't forget to reconfigure the program once you have
+	   changed make_nwchem_config.
+
+3) For future reference, most of the data within the
+   make_nwchem_config makefile is summarized in the chart below.  The
+   only thing that is missing is the proper ordering of entries so that
+   the dependencies would be expanded correctly.  In principle, one could
+   write a script to produce the makefile from a specification such as
+   this.  That may happen in the future.
+
+#MODULE|DEPENDENCIES|LIBRARY|ROUTINES
+NWints||-lnwints|task_check_sum
+atomscf||-lguess|
+ddscf|atomscf|-lddscf|scf scf_input vectors_input
+develop|rimp2|-ltest|rjhtest raktest debtest
+gradients|ddscf|-lgradients|scf_gradients
+moints|NWints|-lmoints|atwtest
+nwdft|ddscf NWints|-lnwdft|nwdft dft_input
+rimp2|ddscf NWints|-lrimp2|rimp2
+riscf|rimp2 ddscf NWints|-lriscf|ri_scf
+stepper|gradients|-lstepper|scf_optimize stepper_input
+symmetry||-lutil|
+ideaz||-lideaz|mdmain md_input
