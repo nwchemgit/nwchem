@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.51 2000-01-11 21:58:19 d3j191 Exp $
+c $Id: sp_init.F,v 1.52 2000-01-21 07:48:05 d3j191 Exp $
 c
       implicit none
 c
@@ -473,6 +473,7 @@ c
 c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
       real*8 boxi(3)
+      character*10 hdate,htime
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       real*8 arg_nint
       external arg_nint
@@ -541,10 +542,30 @@ c
       endif
       read(lfntop,2001,end=9897,err=9898) cdum
 c
-      do 1 i=1,4
+      do 1 i=1,3
       read(lfnrst,1001,end=9997,err=9998) cdum
  1001 format(a1)
     1 continue
+      read(lfnrst,1016) nhist
+ 1016 format(32x,i5)
+      if(nhist.gt.0) then
+      do 21 i=1,nhist
+      read(lfnrst,1017) hist(1,i),hist(2,i),hist(3,i)
+ 1017 format(3a10)
+   21 continue
+      endif
+      if(nhist.lt.20) then
+      nhist=nhist+1
+      else
+      do 22 i=1,nhist-1
+      hist(1,i)=hist(1,i+1)
+      hist(2,i)=hist(2,i+1)
+      hist(3,i)=hist(3,i+1)
+   22 continue
+      endif
+      hist(1,nhist)=hdate
+      hist(2,nhist)=htime
+      hist(3,nhist)='          '
       read(lfnrst,1002,end=9997,err=9998) npbtyp,nbxtyp
  1002 format(i5,i5)
       read(lfnrst,1003,end=9997,err=9998) ((vlat(i,j),j=1,3),i=1,3)
@@ -1677,8 +1698,12 @@ c
       rewind(lfnrst)
       write(lfnrst,1000)
  1000 format('Restart file',/,' ',/,' ')
-      write(lfnrst,1001) 3.3,rdate,rtime
- 1001 format(f12.6,2a10)
+      write(lfnrst,1001) 3.3,rdate,rtime,nhist
+ 1001 format(f12.6,2a10,i5)
+      do 10 i=1,nhist
+      write(lfnrst,1009) hist(1,i),hist(2,i),hist(3,i)
+ 1009 format(3a10)
+   10 continue
       write(lfnrst,1002) npbtyp,nbxtyp,((vlat(i,j),j=1,3),i=1,3)
  1002 format(2i5,/,(3f12.6))
       write(lfnrst,1003) pres

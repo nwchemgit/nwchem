@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.10 2000-01-19 21:30:58 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.11 2000-01-21 07:45:03 d3j191 Exp $
 c
       implicit none
 c
@@ -179,7 +179,7 @@ c
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.10 2000-01-19 21:30:58 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.11 2000-01-21 07:45:03 d3j191 Exp $
 c
       implicit none
 c
@@ -191,9 +191,10 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
       integer iwmr(mwm),iwmrc(mwmc),isar(msa),inoe(2,mnoe)
 c
-      integer i,j,k,length,kinsep,nprev,nbxp,nbyp,nbzp
+      integer i,j,k,length,kinsep,nprev,nbxp,nbyp,nbzp,nhist
       character*10 rstdat,rsttim
       real*8 rdummy
+      character*1 cdummy
 c
 #include "util.fh"
 c
@@ -207,8 +208,14 @@ c
 c
       call swatch(rstdat,rsttim)
 c
-      read(lfnrst,1001) rdummy,rstdat,rsttim
- 1001 format(///,f12.6,2a10)
+      read(lfnrst,1001) rdummy,rstdat,rsttim,nhist
+ 1001 format(///,f12.6,2a10,i5)
+      if(nhist.gt.0) then
+      do 1 i=1,nhist
+      read(lfnrst,1000) cdummy
+ 1000 format(a1)
+    1 continue
+      endif
       read(lfnrst,1002) npbtyp,nbxtyp,box(1),rdummy,rdummy,rdummy,
      + box(2),rdummy,rdummy,rdummy,box(3)
  1002 format(2i5,/,(3f12.6))
@@ -251,17 +258,17 @@ c     read coordinates
 c
       if(nwm.gt.0) then
       if(nwmc.gt.0) then
-      do 1 i=1,nwmc
+      do 2 i=1,nwmc
       read(lfnrst,1006) ((xwc(k,j,i),k=1,3),(vwc(k,j,i),k=1,3),j=1,nwa)
  1006 format(2x,6f13.8)
       read(lfnrst,1007) iwmrc(i),(rdummy,k=1,3)
  1007 format(i1,1x,3f13.8)
-    1 continue
+    2 continue
       endif
-      do 2 i=1,nwm-nwmc
+      do 3 i=1,nwm-nwmc
       read(lfnrst,1006) ((xw(k,j,i),k=1,3),(vw(k,j,i),k=1,3),j=1,nwa)
       read(lfnrst,1007) iwmr(i),(rdummy,k=1,3)
-    2 continue
+    3 continue
       endif
       if(nsa.gt.0) then
       read(lfnrst,1008)

@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.38 1999-12-22 21:34:13 d3j191 Exp $
+c $Id: sp_main.F,v 1.39 2000-01-21 07:48:06 d3j191 Exp $
 c
       implicit none
 c
@@ -186,6 +186,7 @@ c
 c
       if(npack.eq.mis2) npack=0
       if(npackw.eq.miw2) npackw=0
+c      npackw=0
 c
       if(npack.gt.0) then
       if(.not.ma_push_get(mt_int,msa*npack,'lpack',l_pack,i_pack))

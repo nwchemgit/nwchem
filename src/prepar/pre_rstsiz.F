@@ -1,6 +1,6 @@
       logical function pre_rstsz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.6 1999-09-11 03:43:34 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.7 2000-01-21 07:45:11 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       end
       logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.6 1999-09-11 03:43:34 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.7 2000-01-21 07:45:11 d3j191 Exp $
 c
       implicit none
 c
@@ -53,17 +53,24 @@ c
       character*255 filrst
 c
       character*1 cdummy
-      integer i,j,nsa,npbtyp,nbxtyp,nsm
+      integer i,j,nsa,npbtyp,nbxtyp,nsm,nhist
       real*8 rdummy
 c
       open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
      + status='old',err=9999)
       rewind(lfnrst)
 c
-      do 1 i=1,4
+      do 1 i=1,3
       read(lfnrst,1000) cdummy
  1000 format(a1)
     1 continue
+      read(lfnrst,1006) nhist
+ 1006 format(32x,i5)
+      if(nhist.gt.0) then
+      do 2 i=1,nhist
+      read(lfnrst,1000) cdummy
+    2 continue
+      endif
       read(lfnrst,1002) npbtyp,nbxtyp,(rdummy,j=1,9)
  1002 format(2i5,/,(3f12.6))
       read(lfnrst,1003) rdummy
