@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.23 2002-02-07 00:13:28 d3j191 Exp $
+c $Id: pme_grid.F,v 1.24 2002-06-04 23:13:03 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -196,6 +196,8 @@ c
 c
 c     retrieve local slab from global array space
 c
+      call timer_stop(36)
+      call timer_start(35)
       if(ngzloc.gt.0) then
       do 23 k=ngzloc,1,-1
       call ga_distribution(lslab(k),me,ilsl,ihsl,jlsl,jhsl)
@@ -209,7 +211,7 @@ c
    24 continue
    23 continue
       endif
-      call timer_stop(36)
+      call timer_stop(35)
 c
       return
       end

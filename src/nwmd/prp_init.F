@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi,
      + nodpme)
 c
-c $Id: prp_init.F,v 1.54 2002-05-20 18:49:28 d3j191 Exp $
+c $Id: prp_init.F,v 1.55 2002-06-04 23:13:48 d3j191 Exp $
 c
       implicit none
 c
@@ -469,7 +469,7 @@ c
       pronam(it)='Prof: PME Charge Grid Communication              s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: PME Charge Grid Retrieval                  s'
+      pronam(it)='Prof: PME Charge Grid Wait                       s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Reverse 3D-pFFT                        s'
