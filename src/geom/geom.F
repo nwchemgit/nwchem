@@ -748,16 +748,16 @@ c
       write(6,41) erep(geom)
  41   format(/' Effective nuclear repulsion energy (au) ', f18.10/)
 c
-         write(6,91)
- 91      format('             Nuclear Dipole moment (au) ')
-         write(6,101)
- 101     format('             --------------------------')
-         write(6,111)
- 111     format('        X                 Y               Z'/
-     $        ' ---------------- ---------------- ----------------')
-         write(6,121) (ndipole(i,geom), i=1,3)
- 121     format(' ',3f17.10)
-         write(6,*)
+      write(6,91)
+ 91   format('             Nuclear Dipole moment (au) ')
+      write(6,101)
+ 101  format('             --------------------------')
+      write(6,7)
+ 7    format('        X                 Y               Z'/
+     $     ' ---------------- ---------------- ----------------')
+      write(6,8) (ndipole(i,geom), i=1,3)
+ 8    format(3(1x,f16.10))
+      write(6,*)
 c
 c
       if (operiodic(geom)) then
@@ -766,11 +766,8 @@ c
          write(6,6)
  6       format('         -----------------------------')
          write(6,7)
- 7       format('        X                 Y               Z'/
-     $        ' ---------------- ---------------- ----------------')
          do ivec = 1, 3
             write(6,8) (latvec(i,ivec,geom), i=1,3)
- 8          format(' ',3f17.10)
          enddo
          write(6,*)
       endif
@@ -780,11 +777,8 @@ c
  9       format('         Electric Field (au) ')
          write(6,10)
  10      format('         -------------------')
-         write(6,11)
- 11      format('        X                 Y               Z'/
-     $        ' ---------------- ---------------- ----------------')
-         write(6,12) (efield(i,geom), i=1,3)
- 12      format(' ',3f17.10)
+         write(6,7)
+         write(6,8) (efield(i,geom), i=1,3)
          write(6,*)
       endif
 c
