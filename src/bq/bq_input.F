@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.1 2005-03-30 02:21:41 marat Exp $
+c $Id: bq_input.F,v 1.2 2005-03-30 23:34:28 marat Exp $
       subroutine bq_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -20,6 +20,7 @@ c
       integer h_qbq,i_qbq
       integer ncenter
       double precision x,y,z,q
+      integer i
       integer handle
 c
       pname = "bq_input"
@@ -90,8 +91,53 @@ c     --------------------
      &       call errquit('bq_set failed',0,0)
 
       call bq_print_info(handle)
+      
+      do i=1,ncenter
+         dbl_mb(i_qbq+i) = 0
+         dbl_mb(i_cbq+3*i)   = 0
+         dbl_mb(i_cbq+3*i+1) = 0
+         dbl_mb(i_cbq+3*i+2) = 0
+      end do
 
-      stop     
+      if(.not.bq_get(handle,ncenter,dbl_mb(i_qbq),dbl_mb(i_cbq)))
+     &       call errquit('bq_set failed',0,0)
+
+      write(*,*) "testing"
+      do i=0,ncenter-1
+         write(*,*) dbl_mb(i_qbq+i) 
+         write(*,*) dbl_mb(i_cbq+3*i)   
+         write(*,*) dbl_mb(i_cbq+3*i+1) 
+         write(*,*) dbl_mb(i_cbq+3*i+2) 
+      end do
+
+      ncenter = 0
+      if(.not.bq_ncenter(handle,ncenter))
+     &       call errquit('bq_ncenter failed',0,0)
+      
+      write(*,*) "bq_ncenter",ncenter
+      write(*,*) "testing"
+
+      if(.not.bq_rtdb_store(rtdb,handle))
+     &       call errquit('bq_store failed',0,0)
+
+      if(.not.rtdb_print(rtdb))
+     &       call errquit('rtdb print failed',0,0)
+
+      if(.not.bq_destroy(handle))
+     &       call errquit('bq_destroy failed',0,0)
+
+      write(*,*) "before load"
+      call bq_print_info(handle)
+
+      if(.not.bq_create(namespace,handle))   
+     &       call errquit('bq_create failed',0,0)
+
+      if(.not.bq_rtdb_load(rtdb,handle))   
+     &       call errquit('bq_create failed',0,0)
+
+      write(*,*) "after load"
+      call bq_print_info(handle)
+  
       return
       end
 c

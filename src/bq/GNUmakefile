@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.1 2005-03-30 02:21:41 marat Exp $
+# $Id: GNUmakefile,v 1.2 2005-03-30 23:34:28 marat Exp $
   LIBRARY = libbq.a
   
-  OBJ = bq_input.o bq_data.o
+  OBJ = bq_input.o bq_data.o bq_rtdb.o
  
  
 

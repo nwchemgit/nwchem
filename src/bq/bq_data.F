@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.1 2005-03-30 02:21:41 marat Exp $
+c $Id: bq_data.F,v 1.2 2005-03-30 23:34:28 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.1 2005-03-30 02:21:41 marat Exp $
+C$Id: bq_data.F,v 1.2 2005-03-30 23:34:28 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -87,6 +87,36 @@ c      local variables
        return
        end
 
+      function bq_pset(handle,n,h_q,h_c)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       integer n
+       integer h_q,h_c
+       logical bq_pset
+c      local variables
+       integer i
+       character(32) pname
+
+       pname = "bq_pset"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_pset = .false.
+         return
+       else
+         bq_pset = .true.
+       end if
+
+       bq_ncent(handle)  = n
+       bq_charge(handle) = h_q
+       bq_coord(handle)  = h_c
+
+       return
+       end
+
       function bq_get(handle,n,q,c)
       implicit none
 #include "mafdecls.fh"
@@ -142,6 +172,77 @@ c      local variables
        return
        end
 
+      function bq_ncenter(handle,n)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       integer n
+       logical bq_ncenter
+c      local variables
+       character(32) pname
+
+       pname = "bq_ncenter"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_ncenter = .false.
+         return
+       else
+         bq_ncenter = .true.
+       end if
+
+       n = bq_ncent(handle)
+
+       return
+       end
+
+      function bq_namespace(handle,namespace)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       character*(*) namespace
+       logical bq_namespace
+c      local variables
+       character(32) pname
+
+       pname = "bq_namespace"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_namespace = .false.
+         return
+       else
+         bq_namespace = .true.
+       end if
+
+       namespace = bq_name(handle)
+
+       return
+       end
+
+      function bq_check_handle(handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_check_handle
+c      local variables
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_check_handle = .false.
+       else
+         bq_check_handle = .true.
+       end if
+
+       return
+       end
+
       subroutine bq_print_info(handle)
       implicit none
 #include "mafdecls.fh"
@@ -157,6 +258,7 @@ c      local variables
        integer h_c,i_c
        integer h_q,i_q
        character(32) pname
+       logical status
 
        pname = "bq_print_info"
 
@@ -164,6 +266,11 @@ c      local variables
            call errquit(
      &      pname//' unable to locate handle ',
      &      0,0)
+       end if
+
+       if(bq_ncent(handle).eq.0) then
+          write(*,*) "no bqs"
+          return
        end if
 
        h_q = bq_charge(handle)
@@ -189,6 +296,107 @@ c      local variables
          end do
 
        end if
+
+       return
+       end
+
+      function bq_destroy(handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_destroy
+c      local variables
+       integer h_c
+       integer h_q
+       character(32) pname
+
+       pname = "bq_destroy"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_destroy = .false.
+         return
+       else
+         bq_destroy = .true.
+       end if
+
+       bq_name(handle)=" "
+       if(bq_ncent(handle).eq.0) return
+        
+       h_q = bq_charge(handle)
+       h_c = bq_coord(handle)
+
+       if(.not.ma_free_heap(h_q))
+     &      call errquit(
+     &      pname//' unable to deallocate heap space',
+     &      0, MA_ERR)
+
+       if(.not.ma_free_heap(h_c))
+     &      call errquit(
+     &      pname//' unable to deallocate heap space',
+     &      0, MA_ERR)
+
+       bq_ncent(handle) = 0 
+
+       return
+       end
+
+      function bq_index_coord(handle,i_c)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+       integer handle
+       logical bq_index_coord
+c      local variables
+       integer h_c,i_c
+       character(32) pname
+
+       pname = "bq_index_coord"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_index_coord = .false.
+         return
+       else
+         bq_index_coord = .true.
+       end if
+
+       h_c = bq_coord(handle)
+
+       if(.not.ma_get_index( h_c, i_c) ) call errquit(
+     &      pname//' uunable to locate coord handle',
+     &      0, MA_ERR)
+
+       return
+       end
+
+      function bq_index_charge(handle,i_q)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+       integer handle
+       logical bq_index_charge
+c      local variables
+       integer h_q,i_q
+       character(32) pname
+
+       pname = "bq_index_charge"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_index_charge = .false.
+         return
+       else
+         bq_index_charge = .true.
+       end if
+
+       h_q = bq_charge(handle)
+
+       if(.not.ma_get_index( h_q, i_q) ) call errquit(
+     &      pname//' unable to locate charge handle',
+     &      0, MA_ERR)
 
        return
        end

@@ -1,0 +1,36 @@
+       logical  bq_create
+       external bq_create
+
+       logical  bq_pset
+       external bq_pset
+
+       logical  bq_set
+       external bq_set
+
+       logical  bq_get
+       external bq_get
+
+       logical  bq_ncenter
+       external bq_ncenter
+
+       logical  bq_check_handle
+       external bq_check_handle
+
+       logical  bq_namespace
+       external bq_namespace
+
+       logical  bq_index_coord
+       external bq_index_coord
+
+       logical  bq_index_charge
+       external bq_index_charge
+
+       logical  bq_rtdb_store
+       external bq_rtdb_store
+
+       logical  bq_rtdb_load
+       external bq_rtdb_load
+
+       logical  bq_destroy
+       external bq_destroy
+
