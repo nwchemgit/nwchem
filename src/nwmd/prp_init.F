@@ -3,9 +3,9 @@
      + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci)
+     + nodpme,nipmf,lguide,lqmmm,lqmd,iradgi,idifci,nbget)
 c
-c $Id: prp_init.F,v 1.66 2003-11-25 16:40:07 d3j191 Exp $
+c $Id: prp_init.F,v 1.67 2004-01-31 17:27:18 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
-      integer ipropi,nipmf,iradgi,idifci
+      integer ipropi,nipmf,iradgi,idifci,nbget
       logical lcf,lsp,ltwn,lpol,lpmei,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
@@ -550,6 +550,7 @@ c
       it=it+1
       pronam(it)='Prof: PME Synchronization                        s'
       lp(it)=lpme
+      if(nbget.eq.0) then
       it=it+1
       pronam(it)='Prof: Local Coordinates Retrieval                s'
       lp(it)=.true.
@@ -568,6 +569,26 @@ c
       it=it+1
       pronam(it)='Prof: Non-Local Force Accumulation               s'
       lp(it)=.true.
+      else
+      it=it+1
+      pronam(it)='Prof: Prefetching coordinates                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Blocking Wait for Coordinates          s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Local Forces Evaluation                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Local Forces Evaluation                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Forces Accumulation                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Blocking Wait for Forces               s'
+      lp(it)=.true.
+      endif
       it=it+1
       pronam(it)='Prof: PME Wait                                   s'
       lp(it)=lpme

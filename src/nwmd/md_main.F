@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.186 2004-01-31 16:52:33 d3j191 Exp $
+c $Id: md_main.F,v 1.187 2004-01-31 17:27:18 d3j191 Exp $
 c
       implicit none
 c
@@ -2245,14 +2245,15 @@ c
       if(nbget.eq.0) then
       call sp_nbbl(nbbl)
       else
-      call timer_start(36)
+      itforc=35
+      call timer_start(33)
       if(ipolt.eq.0) then
       call sp_prefetch(nbbl,iwl,xw,isl,xs)
       else
       call sp_prefetch_p(nbbl,iwl,xw,dbl_mb(i_pw),dbl_mb(i_pwp),
      + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp))
       endif
-      call timer_stop(36)
+      call timer_stop(33)
       endif
 c
       lforce=.true.
@@ -2272,10 +2273,11 @@ c
       itforc=37
       itcom2=38
       local=.false.
+      if(nbget.ne.0) itforc=36
       endif
 c
-      call timer_start(itcom1)
       if(nbget.eq.0) then
+      call timer_start(itcom1)
       if(ipolt.eq.0) then
       call sp_getxbl(ibbl,lhandl,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
@@ -2286,11 +2288,13 @@ c
      + isl,xs,dbl_mb(i_ps),dbl_mb(i_psp),isfr,isto,jsfr,jsto,
      + lself,lpbcs)
       endif
+      call timer_stop(itcom1)
       else
+      call timer_start(34)
       call sp_nbwait(ibbl,lhandl,lself,lpbcs,
      + iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto,iwl,isl)
+      call timer_stop(34)
       endif
-      call timer_stop(itcom1)
 c
       call timer_start(itforc)
       call cf_comw(xw,xwm,jwfr,jwto)
@@ -2316,19 +2320,25 @@ c
       endif
       call timer_stop(itforc)
 c
-      call timer_start(itcom2)
       if(nbget.eq.0) then
+      call timer_start(itcom2)
       call sp_accfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
+      call timer_stop(itcom2)
       else
+      call timer_stop(37)
       call sp_nbaccfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
+      call timer_stop(37)
       endif
-      call timer_stop(itcom2)
 c
     1 continue
 c
-      if(nbget.ne.0) call sp_nbwaitf()
+      if(nbget.ne.0) then
+      call timer_stop(38)
+      call sp_nbwaitf()
+      call timer_stop(38)
+      endif
 c
       if(.not.ldone) then
       if(cf_hopping(stime,isl(1,lssgm),isl(1,lsgan),isl(1,lshop),
@@ -2752,7 +2762,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.186 2004-01-31 16:52:33 d3j191 Exp $
+c $Id: md_main.F,v 1.187 2004-01-31 17:27:18 d3j191 Exp $
 c
       implicit none
 c
