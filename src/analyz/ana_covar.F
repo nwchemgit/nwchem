@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.9 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_covar.F,v 1.10 2001-01-18 22:18:48 d3j191 Exp $
 c
       implicit none
 c
@@ -64,6 +64,7 @@ c
 c
       implicit none
 c
+#include "ana_params.fh"
 #include "ana_common.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -94,7 +95,7 @@ c
       jx=mod(j+2,3)+1
       cov(j-jl+1)=(x(ia,ix)-xa(ia,ix))*(x(ja,jx)-xa(ja,jx))
     3 continue
-      call ga_acc(ga_cov,i,i,jl,jh,cov,1,1.0)
+      call ga_acc(ga_cov,i,i,jl,jh,cov,1,one)
     2 continue
 c
       call ga_sync()
