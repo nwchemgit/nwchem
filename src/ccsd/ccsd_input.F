@@ -3,6 +3,11 @@
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+C
+C     We need the LenDbg parameter only, not the arrays themselves
+C     (the data goes into the RTDB!)
+C
+#include "ccsd_debug.fh"
 c
       integer rtdb
 c
@@ -12,13 +17,14 @@ c
       character*8 dirs(num_dirs)
       character*255 test
       integer maxit, convi, iprt, MaxDIIS
-      Integer ListLen
-      Parameter (ListLen = 15) ! Length of the arrays in the /debug/ common
-      Integer IList(ListLen), NGiven
+C
+C     Length of debugging arrays (LenDbg) is defined in ccsd_debug.fh
+C
+      Integer IList(LenDbg), NGiven
       data dirs /'maxiter','thresh','        ','iprt',
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
-     $   'dissbas', 'end'/
+     $   'diisbas', 'end'/
 c
  10   if (.not. inp_read()) call errquit
      $     ('ccsd_input: inp_read failed', 0)
@@ -69,58 +75,58 @@ C
 C     Debugging term switches
 C
  700  Continue                  ! doa
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:doa', MT_Int, NGiven,
      $   IList)) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  705  Continue                  ! dob
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dob', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  710  Continue                  ! dog
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dog', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  715  Continue                  ! doh
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:doh', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  720  Continue                  ! dojk
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dojk', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  725  Continue                  ! dos
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dos', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
  730  Continue                  ! dod
-      if ( .not. Inp_IList(ListLen, IList, Ngiven) ) Call ErrQuit(
+      if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
-      If ( NGiven .ne. ListLen ) Call ErrQuit(
-     $   'ccsd: number of elements is fixed', ListLen)
+      If ( NGiven .ne. LenDbg ) Call ErrQuit(
+     $   'ccsd: number of elements is fixed', LenDbg)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dod', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
