@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.25 2000-01-26 16:29:15 d3j191 Exp $
+c $Id: cf_main.F,v 1.26 2000-01-28 22:01:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1793,8 +1793,13 @@ c
      + '      i      j      c     b_0        C          b          U',/)
 c
       do 1 i=1,nsb
+      if(ibnd(i,3).eq.0) then
       write(lfnout,1001) (ibnd(i,j),j=1,3),(bnd(i,j,iset),j=1,2),
      + (rbnd(i,j),j=1,2)
+      else
+      write(lfnout,1001) (ibnd(i,j),j=1,3),(bnd(i,j,iset),j=1,2),
+     + rbnd(i,1)
+      endif
  1001 format(3i7,f10.5,e12.5,f10.5,f12.6)
     1 continue
 c

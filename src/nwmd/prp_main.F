@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.27 2000-01-21 17:31:56 d3j191 Exp $
+c $Id: prp_main.F,v 1.28 2000-01-28 22:01:47 d3j191 Exp $
 c
       implicit none
 c
@@ -233,10 +233,14 @@ c
       do 40 i=1,msf
       epotsw=epotsw+esw(i,5,1)+esw(i,6,1)+esw(i,8,1)
       do 41 j=1,msf
+      epots=epots+ess(i,j,1,1)+ess(i,j,2,1)+ess(i,j,3,1)+ess(i,j,4,1)
       epots=epots+ess(i,j,5,1)+ess(i,j,6,1)+ess(i,j,8,1)
    41 continue
    40 continue
-c
+c 
+      epots=zero
+      epotsw=zero
+      epotw=zero
       do 37 i=1,mpe
       epotw=epotw+eww(i,1)
       do 38 j=1,msf
@@ -251,7 +255,7 @@ c
       ekin=p(27)
       etot=ekin+epot
 c
-c      write(*,'(3e12.5)') epot,ekin,etot
+c      write(*,'(6e12.5)') epotw,epotsw,epots,epot,ekin,etot
 c
       return
       end
