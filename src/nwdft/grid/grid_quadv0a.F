@@ -8,9 +8,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d)
+     ,     donewbf,l3d,triplet)
 c
-c$Id: grid_quadv0a.F,v 1.29 2001-11-16 02:12:41 edo Exp $
+c$Id: grid_quadv0a.F,v 1.30 2002-03-22 02:37:37 sohirata Exp $
 c
       implicit none
 c
@@ -39,6 +39,7 @@ c
       external xc_chkgrad
       logical donewbf           !!! !!!! *** temp
       logical l3d
+      logical triplet
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -103,7 +104,7 @@ c
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,
      ,           Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,           nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,           donewbf,l3d)
+     ,           donewbf,l3d,triplet)
             ntot_cube=ntot_cube+1
          endif
       enddo

@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.27 2002-02-21 21:29:55 edo Exp $
+C$Id: grid_quadv0.F,v 1.28 2002-03-22 02:37:37 sohirata Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -9,12 +9,12 @@ c
       double precision Exc(2)
       double precision tmat(*)  ! XC fit
       call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,     1,1,tmat,.false.)
+     ,     1,1,tmat,.false.,.false.)
       return
       end
 c
       Subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-     ,      nmat,  calc_type ,tmat,l3d)
+     ,      nmat,  calc_type ,tmat,l3d,triplet)
       implicit none
 c
       integer rtdb
@@ -31,6 +31,7 @@ c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
 c                               !   3 = XC matrices for CPKS RHS
       logical l3d               ! true if 3d GA is used
+      logical triplet           ! true if triplet excitation energy calc
 c
 #include "cgridfile.fh"
 #include "geom.fh"
@@ -296,7 +297,7 @@ c
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, tmat,donewbf,
-     ,        l3d)
+     ,        l3d,triplet)
       else
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
      &        call errquit('gridv0: rtdb_get failed', 119)
@@ -334,7 +335,7 @@ c
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,           l3d)
+     ,           l3d,triplet)
          else
          call grid_quadvw(rtdb,
      ,     int_mb(iqs),nq_list,dbl_mb(iaqbuf),
@@ -353,7 +354,7 @@ c
      ,        ex,ec,dbl_mb(iamat),dbl_mb(icmat),g_vxc,
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
-     ,           l3d)
+     ,           l3d,triplet)
          endif
          if (.not. MA_chop_Stack(lqs))
      &        call errquit('gridv0: pop stack failed.',1)

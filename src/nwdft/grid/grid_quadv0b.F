@@ -15,9 +15,9 @@
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d)
+     ,     donewbf,l3d,triplet)
 c
-c$Id: grid_quadv0b.F,v 1.30 2002-02-21 21:29:55 edo Exp $
+c$Id: grid_quadv0b.F,v 1.31 2002-03-22 02:37:37 sohirata Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -51,6 +51,7 @@ c !!! temp !!! ***
       double precision acc_xc_gauss
       logical donewbf           !!! !!!! *** temp
       logical l3d
+      logical triplet
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -240,38 +241,39 @@ c
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr)
-            else if (do_cpks_l) then
+         else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
-               call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &              Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &              Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &              nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &              AO_bas_han, 
-     &              natoms, iniz, ifin, g_vxc, ibf_ao,
-     &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr)
+            call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
+     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
+     &           AO_bas_han, 
+     &           natoms, iniz, ifin, g_vxc, ibf_ao,
+     &           rchi_atom, rdelchi_atom,
+     &           rdens_atom, cetobfr)
 #else
 c
 c     Combine derivs of functional with deriv densities to get coeffs
 c     of bfn pairs in CPKS LHS - these are written back into rho and
 c     delrho
 c
-               call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
-     &              delrho(iscf_delrho), nmat, ipol, nqpts, GRAD)
-               call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
-     &             delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &             Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
-     &             nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, AO_bas_han,
-     &             natoms, iniz, ifin, g_vxc, ibf_ao,
-     &             rchi_atom, rdelchi_atom,
-     &             rdens_atom, cetobfr)
+            call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
+     &           delrho(iscf_delrho), nmat, ipol, nqpts, GRAD,
+     &           triplet)
+            call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
+     &          delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &          Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
+     &          nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, AO_bas_han,
+     &          natoms, iniz, ifin, g_vxc, ibf_ao,
+     &          rchi_atom, rdelchi_atom,
+     &          rdens_atom, cetobfr)
 #endif
-            else if (do_cpks_r) then
-               call errquit('gridquadv0b: what do do for cpks rhs?',0)
-            endif
+         else if (do_cpks_r) then
+            call errquit('gridquadv0b: what do do for cpks rhs?',0)
+         endif
 
-            if (.not.ma_pop_stack(lDmat))
-     &        call errquit('grid_quadv0b: cannot pop stack', 1)
+         if (.not.ma_pop_stack(lDmat))
+     &      call errquit('grid_quadv0b: cannot pop stack', 1)
       endif
  2010 continue
       if (sic_orb_index.eq.1) then

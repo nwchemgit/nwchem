@@ -11,8 +11,8 @@
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     donewbf,l3d)
-C$Id: grid_quadvc.F,v 1.13 2001-11-16 02:12:41 edo Exp $
+     ,     donewbf,l3d,triplet)
+C$Id: grid_quadvc.F,v 1.14 2002-03-22 02:37:37 sohirata Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -38,6 +38,7 @@ c
       logical buffwrite
       logical donewbf           !!! !!!! *** temp
       logical l3d
+      logical triplet
 c
 c     Allocate and create info for new basis function evaluator
 c
@@ -91,7 +92,7 @@ c
      '        log_mb(idocset),rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,        donewbf,l3d)
+     ,        donewbf,l3d,triplet)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

@@ -11,9 +11,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
-     .     l3d)
+     .     l3d,triplet)
 c
-c$Id: grid_quadvw.F,v 1.30 2002-02-15 00:44:19 edo Exp $
+c$Id: grid_quadvw.F,v 1.31 2002-03-22 02:37:37 sohirata Exp $
 c
       implicit none
 #define USE_BP
@@ -67,6 +67,7 @@ c
       logical oprint
       logical donewbf           !!! !!!! *** temp
       logical l3d
+      logical triplet
 C      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -188,7 +189,7 @@ c
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,                    donewbf,l3d)
+     ,                    donewbf,l3d,triplet)
 
                   endif
  100           continue ! end loop over angular shells
@@ -207,7 +208,8 @@ c
      &                 Pmat, rq, rdens_atom, cetobfr, 
      ,                 ibf_ao,rchi_atom,rdelchi_atom,
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
-     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,l3d)
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,l3d,
+     ,     triplet)
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1
