@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.9 2000-05-31 18:27:45 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.10 2002-02-09 04:36:48 d3j191 Exp $
 c
       implicit none
 c
@@ -41,6 +41,7 @@ c
       integer ndx,ndy,mset,multip
       real*8 charge,polar,value,forcon
       character*5 type
+      logical foundit
 c
       integer i,j,k,l,m,n
 c
@@ -153,13 +154,16 @@ c
       write(lfnout,2005) isgm,aname,mset
  2005 format(' modify atom ',i5,':',a6,' set',i2,' quantum ')
       endif
+      foundit=.false.
       do 12 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      foundit=.true.
       do 13 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
    13 continue
       endif
    12 continue
+      if(.not.foundit) call errquit('Atom not found for quantum',0)
       endif
       endif
 c
