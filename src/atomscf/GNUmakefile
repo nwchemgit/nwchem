@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1995-11-16 20:38:06 d3g681 Exp $
+# $Id: GNUmakefile,v 1.9 1995-11-19 19:40:22 d3g681 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -39,14 +39,14 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-atomd.o :	 $(INCDIR)/inp.fh cguess.fh 
-creded.o :	 $(INCDIR)/global.fh cguess.fh 
-datoms.o :	 $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
-denat.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
-guess_mem.o :	 cguess.fh 
-hamild.o :	 cguess.fh 
-oeigd.o :	 cguess.fh 
-osatod.o :	 $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
-outpud.o :	 cguess.fh 
-printbasis.o :	 cguess.fh 
-teigd.o :	 cguess.fh 
+$(LIBRARY_PATH)(atomd.o):	 $(INCDIR)/inp.fh cguess.fh 
+$(LIBRARY_PATH)(creded.o):	 $(INCDIR)/global.fh cguess.fh 
+$(LIBRARY_PATH)(datoms.o):	 $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(denat.o):	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(guess_mem.o):	 cguess.fh 
+$(LIBRARY_PATH)(hamild.o):	 cguess.fh 
+$(LIBRARY_PATH)(oeigd.o):	 cguess.fh 
+$(LIBRARY_PATH)(osatod.o):	 $(INCDIR)/geom.fh cguess.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(outpud.o):	 cguess.fh 
+$(LIBRARY_PATH)(printbasis.o):	 cguess.fh 
+$(LIBRARY_PATH)(teigd.o):	 cguess.fh 

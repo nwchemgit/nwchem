@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.21 1995-11-16 20:38:26 d3g681 Exp $
+#$Id: GNUmakefile,v 1.22 1995-11-19 19:41:34 d3g681 Exp $
 
  LIBRARY = libutil.a
 
@@ -19,22 +19,22 @@ $(LIBRARY_PATH)(get_input_filename.o):	get_input_filename.F
 endif
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-ccsd_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-dft_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
-get_input_filename.o :	 $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-gradients_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-input_echo.o :	 $(INCDIR)/inp.fh 
-input_mem_size.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-input_parse.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-input_set.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-input_start_opt.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-input_title.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
-mcscf_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-md_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
-memory_defaults.o :	 $(INCDIR)/inp.fh 
-memory_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
-plnwv_input.o :	 $(INCDIR)/types.f2c.h $(INCDIR)/rtdb.h $(INCDIR)/macommon.h 
-scf_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-stepper_input.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh 
-task_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
-vectors_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(ccsd_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(dft_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(get_input_filename.o):	 $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(gradients_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_echo.o):	 $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_mem_size.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_parse.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_set.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(input_start_opt.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_title.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(mcscf_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(md_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(memory_defaults.o):	 $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(memory_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(plnwv_input.o):	 $(INCDIR)/types.f2c.h $(INCDIR)/rtdb.h $(INCDIR)/macommon.h 
+$(LIBRARY_PATH)(scf_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(stepper_input.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(task_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(vectors_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/context.fh 

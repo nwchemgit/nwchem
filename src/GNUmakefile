@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.30 1995-11-16 16:24:20 d3g681 Exp $
+# $Id: GNUmakefile,v 1.31 1995-11-19 19:39:22 d3g681 Exp $
 
 include config/makefile.h
 
@@ -134,4 +134,4 @@ depend:
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-nwchem.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(nwchem.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 

@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom, movecs )
-c$Id: grad_force.F,v 1.1 1995-11-07 20:00:04 vg038 Exp $
+c$Id: grad_force.F,v 1.2 1995-11-19 19:41:18 d3g681 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -188,7 +188,7 @@ C     symmetry or not
       if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
      $     oskel)) oskel = sym_number_ops(geom) .gt. 0
 c
-      if (oskel) then
+      if (oskel .and. ga_nodeid().eq.0) then
          write(6,*) ' Using symmetry'
          call util_flush(6)
       endif
