@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.18 2000-01-05 00:25:53 windus Exp $
+* $Id: task_input.F,v 1.19 2000-01-06 03:11:13 d3g681 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -62,6 +62,9 @@ c
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
+         else if (inp_compare(.false.,test,'debug')) then
+            if (.not. rtdb_put(rtdb, 'task:debug', MT_LOG, 1, .true.))
+     $           call errquit('task_input: failed putting debug flag',0)
          else if (inp_compare(.false.,test,'ignore')) then
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then

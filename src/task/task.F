@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.37 2000-01-05 00:25:53 windus Exp $
+* $Id: task.F,v 1.38 2000-01-06 03:11:13 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -29,7 +29,7 @@ c
       logical status, ignore
       character*80 errmsg
       double precision task_cpu, task_wall
-      logical oprint_task_times
+      logical oprint_task_times, odebug
 c
       logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical nwargos, property, dplot, gapss, task_shell, moints_full
@@ -54,6 +54,9 @@ c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
       task_cpu  = -util_cpusec()
+*
+      if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
+     $     call util_debug(rtdb)
 *
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
