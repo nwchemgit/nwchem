@@ -1,0 +1,13 @@
+c $Id: apispP.fh,v 1.1 1994-06-07 00:29:48 d3e129 Exp $
+      integer hszspa,kszspa
+      integer hszspb,kszspb
+      integer hszspc,kszspc
+      integer hszspd,kszspd
+      integer hspscat,kspscat
+      integer max_sp_blksz
+      integer sp_scat_sz
+      logical no_sp_conts
+      common /apisppc/ hszspa,kszspa,hszspb,kszspb,hszspc,kszspc,
+     &       hszspd,kszspd,hspscat,kspscat,
+     &       max_sp_blksz,sp_scat_sz,no_sp_conts
+c

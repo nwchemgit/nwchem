@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.6 1994-05-05 19:22:23 d3e129 Exp $
+c $Id: exact_mem.F,v 1.7 1994-06-07 00:29:51 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -87,7 +87,7 @@ c::local
       integer i_type, j_type, k_type
       integer i_prim, j_prim, k_prim
       integer memdum, j_lim, k_lim
-      integer nbfimax, nbfjmax, nbfkmax, mynbf
+      integer nbfimax, nbfjmax, nbfkmax
 c
       memsize = 0
       nbfimax = 0
@@ -103,10 +103,12 @@ c
       kt_ucont = infbs_head(HEAD_NCONT,kbas)
 c
       do 00100 iic = 1,it_ucont
-        mynbf = nbf_from_ucont(iic,ibasin)
-        nbfimax = max(nbfimax,mynbf)
-        i_type = infbs_cont(CONT_TYPE,iic,ibas)
+        i_type = abs(infbs_cont(CONT_TYPE,iic,ibas))
         i_prim = infbs_cont(CONT_NPRIM,iic,ibas)
+c
+c
+c  ... not SP aware
+c
 c
 c... currently hf3ois does not allow for general contractions
 c... so *_gen is not needed
@@ -116,18 +118,14 @@ c
         if (ibas.eq.jbas) j_lim = iic
 c
         do 00200 ijc = 1, j_lim
-          mynbf = nbf_from_ucont(ijc,jbasin)
-          nbfjmax = max(nbfjmax,mynbf)
-          j_type = infbs_cont(CONT_TYPE,ijc,jbas)
+          j_type = abs(infbs_cont(CONT_TYPE,ijc,jbas))
           j_prim = infbs_cont(CONT_NPRIM,ijc,jbas)
 c**          j_gen  = infbs_cont(CONT_NGEN,ijc,jbas)
 c
           k_lim = kt_ucont
           if (kbas.eq.jbas) k_lim = ijc
           do 00300 ikc = 1, k_lim
-            mynbf = nbf_from_ucont(ikc,kbasin)
-            nbfkmax = max(nbfkmax,mynbf)
-            k_type = infbs_cont(CONT_TYPE,ikc,kbas)
+            k_type = abs(infbs_cont(CONT_TYPE,ikc,kbas))
             k_prim = infbs_cont(CONT_NPRIM,ikc,kbas)
 c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
             
@@ -143,6 +141,12 @@ c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
 00200   continue
 00100 continue
 c
+      if (.not.bas_nbf_cn_max(ibasin,nbfimax))
+     &       call errquit('emem_3ov:bas_nbf_cn_max error ibasin',2)
+      if (.not.bas_nbf_cn_max(jbasin,nbfjmax))
+     &       call errquit('emem_3ov:bas_nbf_cn_max error jbasin',2)
+      if (.not.bas_nbf_cn_max(kbasin,nbfkmax))
+     &       call errquit('emem_3ov:bas_nbf_cn_max error kbasin',2)
       lsz_buf = nbfimax*nbfjmax*nbfkmax
       end
       subroutine emem_1e(brain, ketin, max1e, memsize)
@@ -159,9 +163,8 @@ c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
       integer bra_prim, ket_prim, ket_lim
-      integer bra_gen, ket_gen, bra_ang, ket_ang, angm
-      logical status
-c
+      integer bra_gen, ket_gen
+      integer max_nbf_bra,max_nbf_ket
 c
       memsize = 0
       max1e = 0
@@ -176,6 +179,10 @@ c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_type.lt.0) then
+          bra_type = abs(bra_type)
+          bra_gen  = 1
+        endif
 c
         if (bra.eq.ket) then
           ket_lim = ibc
@@ -187,6 +194,10 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_type.lt.0) then
+            ket_type = abs(ket_type)
+            ket_gen  = 1
+          endif
 c
           memdum = 9 000 000
           call hf1(exndcf,exndcf,exndcf,bra_prim,bra_gen,bra_type,
@@ -198,19 +209,13 @@ c
 00200   continue
 00100 continue
 c
-      status = bas_high_angular(brain,bra_ang)
-      status = status .and. bas_high_angular(ketin,ket_ang)
-      if (.not.status) then
-        write(6,*)' angular momentum not set for basis '
-        write(6,*)' ket_ang = ',ket_ang
-        write(6,*)' bra_ang = ',bra_ang
-        stop ' error '
-      endif
-      angm = max(bra_ang,ket_ang)
-      max1e = (angm+1)*(angm+2)/2
-      max1e = max1e*max1e
+      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+      max1e = max_nbf_bra*max_nbf_ket
 c... insure scratch is large enough to hold 3*max1e
-      memsize = max(max1e,memsize)
+      memsize = max(3*max1e,memsize)
 c
       write(6,'(a,i10)')'emem_1e: memsize =',memsize
       write(6,'(a,i10)')'emem_1e: max1e   =',max1e
@@ -221,6 +226,9 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+c::functions
+      integer nbf_from_ucont
+      external nbf_from_ucont
 c::passed
       integer brain   ! [input] bra basis set handle
       integer ketin   ! [input] ket basis set handle
@@ -230,8 +238,8 @@ c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
       integer bra_prim, ket_prim, ket_lim
-      integer bra_gen, ket_gen, bra_ang, ket_ang, angm
-      logical status
+      integer bra_gen, ket_gen
+      integer max_nbf_bra,max_nbf_ket
 c
       memsize = 0
       maxg = 0
@@ -246,6 +254,10 @@ c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_type.lt.0) then
+          bra_type = abs(bra_type)
+          bra_gen  = 1
+        endif
 c
         if (bra.eq.ket) then
           ket_lim = ibc
@@ -257,6 +269,10 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_type.lt.0) then
+            ket_type = abs(ket_type)
+            ket_gen  = 1
+          endif
 c
           memdum = 9 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
@@ -300,17 +316,14 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
 00200   continue
 00100 continue
 c
-      status = bas_high_angular(brain,bra_ang)
-      status = status .and. bas_high_angular(ketin,ket_ang)
-      if (.not.status) then
-        write(6,*)' angular momentum not set for basis '
-        write(6,*)' ket_ang = ',ket_ang
-        write(6,*)' bra_ang = ',bra_ang
-        stop ' error '
-      endif
-      angm = max(bra_ang,ket_ang)
-      maxg = (angm+1)*(angm+2)/2
-      maxg = maxg**4
+      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
+     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+c
+      maxg = max_nbf_bra*max_nbf_bra
+      maxg = maxg*max_nbf_ket*max_nbf_ket
+      
 c
       write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
       write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg

@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.6 1994-06-02 18:47:25 d3e129 Exp $
+c $Id: int_init.F,v 1.7 1994-06-07 00:29:59 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -43,6 +43,7 @@ c
 c... generate memory requirements and store in structures in apiP.fh
 c
       call exact_mem(bases,nbas)
+      call sp_init(nbas,bases)
       init_int = 1
       end
       block data api_data
@@ -68,4 +69,68 @@ c
       data DCexp     /0.0000000000D00/
       data DCcoeff   /1.0000000000D00/
       end
+      subroutine sp_init(nbas,bases)
+      implicit none
+#include "apispP.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+c::passed
+      integer nbas
+      integer bases(nbas)
+c::local
+      integer ncont,icont,ibas
+      integer mytype,nprim,ngen,sphorcart
+      integer myang, testang
 c
+      no_sp_conts = .true.
+      do 00100 ibas = 1,nbas
+        if (.not.bas_numcont(bases(ibas),ncont))
+     &         call errquit('sp_init: bas_numcont failed',911)
+        do 00200 icont = 1,ncont
+          if(.not.bas_continfo
+     &           (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
+     &           call errquit('sp_init: bas_continfo failed',911)
+
+          if (mytype.lt.0) then
+            no_sp_conts = .false.
+            goto 00201
+          endif
+00200   continue
+00100 continue
+00201 continue
+c
+      if (no_sp_conts) return
+c... arbitrary set max number of blocks to 2 for sp's if spd's set to 3
+      max_sp_blksz = 2
+c
+      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block A',
+     &       hszspa,kszspa))
+     &       call errquit('sp_init:ma_alloc_get A failed',911)
+      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block B',
+     &       hszspb,kszspb))
+     &       call errquit('sp_init:ma_alloc_get B failed',911)
+      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block C',
+     &       hszspc,kszspc))
+     &       call errquit('sp_init:ma_alloc_get C failed',911)
+      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block D',
+     &       hszspd,kszspd))
+     &       call errquit('sp_init:ma_alloc_get D failed',911)
+c
+      myang = -56565
+      do 00300 ibas = 1,nbas
+        if (.not.bas_high_angular(bases(ibas),testang))
+     &         call errquit('sp_init:bas_high_angular failed',911)
+        myang = max(myang,testang)
+00300 continue
+      myang = (myang+1)*(myang+2)/2
+* max of (sp,sp|sp,sp) and (sp,X,X,X) and permutations
+      sp_scat_sz = max((4*4*4*4),(4*4*4*myang))
+      sp_scat_sz = max(sp_scat_sz,(4*4*myang*myang))
+      sp_scat_sz = max(sp_scat_sz,(4*myang*myang*myang))
+      sp_scat_sz = max(sp_scat_sz,(myang*myang*myang*myang))
+c
+      if (.not.MA_alloc_get(mt_int,sp_scat_sz,'sp scatter array',
+     &       hspscat,kspscat))
+     &       call errquit('sp_init:ma_alloc_get scat failed',911)
+      end
+      
