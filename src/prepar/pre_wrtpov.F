@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.7 2001-10-10 21:01:58 d3j191 Exp $
+c $Id: pre_wrtpov.F,v 1.8 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -51,13 +51,8 @@ c
       zbmax=max(zbmax,xs(3,i))
       zbmin=min(zbmin,xs(3,i))
     1 continue
-      print*,xbmin,xbmax
-      print*,ybmin,ybmax
-      print*,zbmin,zbmax
-      print*,'scale=',scale
       if(scale.le.0.0d0) then
       scale=2.0d0/max(xbmax-xbmin,ybmax-ybmin,zbmax-zbmin)
-      print*,'scale=',scale
       xbmax=scale*xbmax
       xbmin=scale*xbmin
       ybmax=scale*ybmax

@@ -6,7 +6,7 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: pre_rdsgm.F,v 1.16 2003-08-01 23:35:55 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.17 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -91,8 +91,8 @@ c
       read(lfnsgm,1004) catm(1,natm),latm(3,natm),latm(4,natm),
      + latm(10,natm),latm(1,natm),latm(2,natm)
  1004 format(5x,a6,5i5)
-      write(*,1004) catm(1,natm),latm(3,natm),latm(4,natm),
-     + latm(10,natm),latm(1,natm),latm(2,natm)
+c      write(*,1004) catm(1,natm),latm(3,natm),latm(4,natm),
+c     + latm(10,natm),latm(1,natm),latm(2,natm)
       read(lfnsgm,1005) (catm(j+1,natm),qatm(j,1,natm),qatm(j,2,natm),
      + j=1,npar)
  1005 format(5x,a6,2f12.6)

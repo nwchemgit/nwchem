@@ -1,6 +1,6 @@
       logical function pre_rot(irot,jrot,arot,xrot,is,xs,msa,nsa)
 c
-c $Id: pre_rot.F,v 1.3 2002-08-22 20:45:32 d3j191 Exp $
+c $Id: pre_rot.F,v 1.4 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -49,7 +49,7 @@ c
       endif
     3 continue
 c
-      print*,'rotation done ',arot
+c      print*,'rotation done ',arot
       pre_rot=.true.
 c
       return

@@ -1,7 +1,7 @@
       logical function pre_gensgm(lfnout,lfnfrg,lfnsgm,
      + lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_gensgm.F,v 1.8 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_gensgm.F,v 1.9 2003-08-07 21:47:55 d3j191 Exp $
 c
 c     function to generate segment files
 c
@@ -39,7 +39,6 @@ c
       endif
 c
       do 1 i=1,nsgm
-      print*,i,lsgm(2,i)
       if(lsgm(2,i).lt.0) then
 c
       length=index(csgm(i),' ')-1

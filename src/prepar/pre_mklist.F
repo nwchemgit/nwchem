@@ -9,7 +9,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: pre_mklist.F,v 1.28 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.29 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -78,7 +78,6 @@ c
 c     generate segment filename
 c     -------------------------
 c
-      print*,'cseq=',cseq(i)
       if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm))
      + call errquit('pre_sgmfil failed',9998)
 c

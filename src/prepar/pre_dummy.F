@@ -3,7 +3,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + nparms,mparms)
 c
-c $Id: pre_dummy.F,v 1.2 2003-07-17 19:38:56 d3j191 Exp $
+c $Id: pre_dummy.F,v 1.3 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -56,6 +56,7 @@ c      if(k.eq.0) call errquit('Error in pre_dummy',1)
 c
       do 4 i=1,nang
       k=-lang(4,i)
+c      print*,i,k
 c      write(*,'(4i5)') (lang(j,i),j=1,4)
 c      if(k.eq.0) call errquit('Error in pre_dummy',3)
       if(k.gt.0) then
@@ -65,15 +66,17 @@ c      if(k.eq.0) call errquit('Error in pre_dummy',3)
     5 continue
       if(kpar.eq.0) call errquit('Error in pre_dummy',4)
       do 6 j=1,nparms
-      if(iand(k,2**(j-1)).eq.0) then
+c      if(iand(k,2**(j-1)).eq.0) then
       if(catm(j+1,lang(1,i))(6:6).eq.'D'.or.
      +   catm(j+1,lang(2,i))(6:6).eq.'D'.or.
      +   catm(j+1,lang(3,i))(6:6).eq.'D') then
       rang(j,1,i)=rang(kpar,1,i)
-      rang(j,2,i)=rang(kpar,2,i)
+      rang(j,2,i)=0.0d0
+c      print*,'Dummy',i,j
+cx      rang(j,2,i)=rang(kpar,2,i)
       k=ior(k,2**(j-1))
       endif
-      endif
+c      endif
     6 continue
       lang(4,i)=-k
       endif

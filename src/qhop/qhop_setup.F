@@ -2,7 +2,7 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.1 2003-07-17 19:36:52 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.2 2003-08-07 21:47:40 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c      real*8 deq(mxar),aneq(mxar)
 c      real*8 e12fxy(maxpar,3),defe12(maxpar,7),zpef(maxpar,6),
 c     + tdsgl(maxpar,6),tunnel(maxpar,7),tstval(maxpar,5) 
 c
-      print*,'QHOP_SETUP',filhop(1:index(filhop,' ')-1)
+c      print*,'QHOP_SETUP',filhop(1:index(filhop,' ')-1)
 c
       fileinp='qhop.par'
       open(unit=lfnhdb,file=fileinp(1:index(fileinp,' ')-1),err=112)
@@ -104,10 +104,10 @@ c     Setting pointers to static array cuseq(numseq) and calculating max
 c     heavy atom # and prot states  
 c       
 c     print*,'prima loop'
-      do 36 i=1,nbnd
-      write(*,101)i,(lbnd(j,i),j=1,2),rbnd(1,1,i)
-  101 format(3i5,f12.6)
-   36 continue
+c      do 36 i=1,nbnd
+c      write(*,101)i,(lbnd(j,i),j=1,2),rbnd(1,1,i)
+c  101 format(3i5,f12.6)
+c   36 continue
 c      print*,'setup 1'
 c
       do i=1,nang
@@ -117,13 +117,13 @@ c  102 format(4i5,f12.6)
 c	
       do 1 i=1,natm 
 c
-      write(*,1000) i,catm(1,i),latm(5,i),cseq(latm(5,i)),latm(10,i),
-     + lseq(5,latm(5,i)),lseq(6,latm(5,i))
+c      write(*,1000) i,catm(1,i),latm(5,i),cseq(latm(5,i)),latm(10,i),
+c     + lseq(5,latm(5,i)),lseq(6,latm(5,i))
 c
  1000 format(i5,1x,a6,1x,i5,1x,a10,3i5)
 c	
       if((i.gt.1.and.latm(5,i).ne.latm(5,i-1)).or.i.eq.1)then
-      print*,'flhv=',flhv
+c      print*,'flhv=',flhv
       if(flhv.eq.1)then
       ptat(2)=i-1
       flhv=0
@@ -224,7 +224,7 @@ c
 c
 c     Writing array arat for last unique res   
 c  
-      print*,'setup 2 ',ptat(1),ptat(2)
+c      print*,'setup 2 ',ptat(1),ptat(2)
       if(ptat(1).ge.0)then
       ihv=0 
       ptarat(numseq)=larat+1
@@ -238,7 +238,7 @@ c
       l=2**(2-m)
       if(lbnd(m,j).eq.k.and.(latm(10,k).lt.0.or.latm(10,lbnd(l,j))
      + .ge.0))then
-      print 2012,k,latm(10,k),l,m,lbnd(l,j),lbnd(m,j)
+c      print 2012,k,latm(10,k),l,m,lbnd(l,j),lbnd(m,j)
  2012 format('kappa ',6i5)
       nbnat=nbnat+1
       arat(larat,nbnat)=lbnd(l,j)-k
@@ -269,7 +269,7 @@ c
    29 continue
    16 continue
    15 continue
-      print*,'fine loop k'
+c      print*,'fine loop k'
       endif
 
 c

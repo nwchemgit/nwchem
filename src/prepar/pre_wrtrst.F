@@ -4,7 +4,7 @@
      + isar,isgm,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep,
      + mseq,nseq,lseq,ips,istat,lfnmod,filmod,itopol)
 c
-c $Id: pre_wrtrst.F,v 1.17 2003-07-17 19:38:58 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.18 2003-08-07 21:47:56 d3j191 Exp $
 c
       implicit none
 c
@@ -36,8 +36,8 @@ c
       do 111 i=1,nsa
       idhop=2**(lseq(isgm(i))-1)
       if(iand(istat(i),idhop).eq.0) ips(i)=-ips(i)
-      write(*,'(a,5i5)') 'wrtrst ',i,isgm(i),lseq(isgm(i)),istat(i),
-     + ips(i)
+c      write(*,'(a,5i5)') 'wrtrst ',i,isgm(i),lseq(isgm(i)),istat(i),
+c     + ips(i)
   111 continue
       else
       do 112 i=1,nsa

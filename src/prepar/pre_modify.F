@@ -4,7 +4,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
      + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.16 2003-07-23 02:38:46 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.17 2003-08-07 21:47:55 d3j191 Exp $
 c
       implicit none
 c
@@ -237,14 +237,11 @@ c      print*,'MSET=',mset
   218 continue
       endif
       if(card(21:23).eq.'qtm') then
-      print*,'IT IS qtm'
       if(util_print('where',print_default)) then
       write(lfnout,2008) isgm,mset
  2008 format(' modify segment ',i5,' set',i2,' quantum ')
       endif
-      print*,'NATM=',natm
       do 18 i=1,natm
-      write(*,'(3i7)') i,lseq(1,latm(5,i)),isgm
       if(lseq(1,latm(5,i)).eq.isgm) then
       do 19 j=1,nparms
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
