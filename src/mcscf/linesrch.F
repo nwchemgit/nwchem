@@ -6,10 +6,9 @@
       double precision g(n)
       integer ia, ib, ic
       double precision dx, tol, prec
-      double precision dlamch, step
+      double precision step
       logical linebracket
       external linebracket
-      external dlamch
 
       write(6,*)
       write(6,*)
@@ -26,7 +25,7 @@
           return
         endif
       endif
-      tol = dlamch('e')
+      tol = 1.d-13
       step = (g(n)*x(n-1) - g(n-1)*x(n))/(g(n) - g(n-1))
 c
 c  Bracketing
