@@ -1,12 +1,13 @@
 #
-# $Id: GNUmakefile,v 1.18 1999-11-13 02:53:46 bjohnson Exp $
+# $Id: GNUmakefile,v 1.19 2000-02-28 21:43:14 d3g270 Exp $
 #
 
 include ../../../config/makefile.h
 include ../../DEFS
 
 ifeq ($(peigs_CODEOBJ),DBLE)
-FOBJ = damax.o \
+FOBJ = inverm.o \
+	damax.o \
        dlaebz2.o \
        dstebz3.o \
        heapsort.o \
@@ -28,7 +29,8 @@ FOBJ = damax.o \
 	dlasq2a.o \
 	dlasq3a.o \
 	dlasq4a.o \
-	dlasq5a.o 
+	dlasq5a.o \
+	dlasq5.o 
 endif
 
 ifeq ($(peigs_CODEOBJ),SINGLE)
