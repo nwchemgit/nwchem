@@ -31,12 +31,13 @@ end
 
 ccsd
   freeze core atomic
-  thresh 1e-7
+  thresh 1e-8
 end
 
 driver
 clear
 end
+set tolguess 1e-8
 task mp2 optimize
 
 task ccsd optimize
