@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.7 2000-05-30 14:47:30 windus Exp $
+C $Id: onedd_cont.F,v 1.8 2000-07-18 15:00:57 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -75,7 +75,7 @@ c
      *    call errquit('onedd_cont: DFT MO vectors not defined',555)
       else
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $    call errquit('gradients: SCF MO vectors not defined',0)           
+     $    call errquit('onedd_cont: SCF MO vectors not defined',0)           
       endif
 c
 c get density and weighted density
@@ -121,7 +121,7 @@ c
 c     write(6,*) 'before onedd_calc'
 c     call flush(6)
 c
-      doS = .true.
+      doS = .true. 
       doV = .true.
       doT = .true.
       call onedd_calc(dbl_mb(k_exy),ncent*3,dbl_mb(k_buf),
