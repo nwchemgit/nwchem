@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.51 2000-04-04 18:08:17 d3j191 Exp $
+c $Id: md_start.F,v 1.52 2000-04-13 20:22:54 d3j191 Exp $
 c
       implicit none
 c
@@ -194,7 +194,7 @@ c     ------------------
 c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
-     + call cf_trjhdr(lfncoo)
+     + call cf_trjhdr(lfntrj)
       if(nfem.gt.0) call cf_trjhdr(lfnemt)
       endif
 c
@@ -259,13 +259,10 @@ c
       filinp=filnam(1:ibl)//'.inp'
       filrst=filnam(1:ibl)//'.rst'
       filtop=filnam(1:iun)//'.top'
-      filcoo=filnam(1:ibl)//'.trj'
+      filtrj=filnam(1:ibl)//'.trj'
       filprp=filnam(1:ibl)//'.prp'
-      filvel=filnam(1:ibl)//'.vel'
       filgib=filnam(1:ibl)//'.gib'
       filppd=filnam(1:ibl)//'.ppd'
-      filsco=filnam(1:ibl)//'.sco'
-      filsvl=filnam(1:ibl)//'.svl'
       filhis=filnam(1:ibl)//'.his'
       filhbo=filnam(1:ibl)//'.hbo'
       filmro=filnam(1:ibl)//'.mro'
@@ -275,8 +272,6 @@ c
       filout=filnam(1:ibl)//'.out'
       filmem=filnam(1:ibl)//'.mem'
       fildef=filnam(1:ibl)//'.def'
-      filqpr=filnam(1:ibl)//'.qpr'
-      filqco=filnam(1:ibl)//'.qco'
       filqsc=filnam(1:ibl)//'.qsc'
       filsur=filnam(1:ibl)//'.sur'
       filqrs=filnam(1:ibl)//'.qrs'
@@ -302,20 +297,15 @@ c
       lfnout=11
       lfntop=12
       lfnrst=13
-      lfncoo=14
+      lfntrj=14
       lfnprp=15
-      lfnvel=16
       lfngib=17
       lfnrdf=19
       lfnppd=20
-      lfnsco=21
-      lfnsvl=22
       lfndip=25
       lfndef=26
       lfnemt=27
       lfnqrs=28
-      lfnqco=29
-      lfnqpr=30
       lfnhis=31
       lfnhbo=32
       lfnkrk=33
@@ -1136,7 +1126,7 @@ c
       endif
       endif
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
-      open(unit=lfncoo,file=filcoo(1:index(filcoo,' ')-1),
+      open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nfprop.gt.0) then

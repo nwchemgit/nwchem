@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.26 2000-03-29 17:46:46 d3j191 Exp $
+c $Id: md_common.fh,v 1.27 2000-04-13 20:22:54 d3j191 Exp $
 c
 c     parameters
 c
@@ -70,16 +70,16 @@ c     md_lfn : logical file numbers and filename lengths
 c     ---------------------------------------------------
 c
       integer
-     + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
-     + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
+     + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
+     + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
-     + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
-     + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
-     + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
+     + lfninp,lfnout,lfntop,lfnrst,lfntrj,lfnprp,lfngib,lfnsur,
+     + lfnrdf,lfnppd,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
+     + lfnqrs,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
      + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
@@ -94,15 +94,15 @@ c     md_nam : filenames
 c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum,server,projct
-      character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+      character*70 filday,filinp,filrst,filtop,filtrj,filprp,filfld,
+     + filgib,filppd,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
-     + filnam,filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+     + filnam,filday,filinp,filrst,filtop,filtrj,filprp,filfld,
+     + filgib,filppd,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + fdarg,fdlog,fsum,server,projct

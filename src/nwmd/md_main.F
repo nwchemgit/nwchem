@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.70 2000-04-11 15:20:40 d3j191 Exp $
+c $Id: md_main.F,v 1.71 2000-04-13 20:22:54 d3j191 Exp $
 c
       implicit none
 c
@@ -374,10 +374,16 @@ c
       ltr=frequency(isdit,nfem)
 c
       if(ltr) then
+      if(lqmd) then
+      call qmd_wrttrj(lfnemt,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+      else
       call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
       endif
 c
       ldone=.not.(dxmax.gt.dxsdmx.and.isdit.lt.msdit)
@@ -860,10 +866,16 @@ c
       ltr=frequency(icgit,nfem)
 c
       if(ltr) then
+      if(lqmd) then
+      call qmd_wrttrj(lfnemt,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+      else
       call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
       endif
 c
 c     write restart file
@@ -947,10 +959,16 @@ c
       lvs=frequency(mdstep,nfsvel)
 c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
-      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+      if(lqmd) then
+      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+      else
+      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
       endif
 c
       write(projct,4000) mequi,idacq,tmpext,filnam(1:48)
@@ -1060,10 +1078,16 @@ c
       lvs=frequency(mdstep,nfsvel)
 c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
-      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+      if(lqmd) then
+      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+      else
+      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
       endif
 c
       write(projct,4000) irun,mrun,mequi,idacq,tmpext,filnam(1:35)
@@ -1187,10 +1211,16 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
-      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+      if(lqmd) then
+      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+     + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
+     + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
+      else
+      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
       endif
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
@@ -1918,7 +1948,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.70 2000-04-11 15:20:40 d3j191 Exp $
+c $Id: md_main.F,v 1.71 2000-04-13 20:22:54 d3j191 Exp $
 c
       implicit none
 c
@@ -1968,4 +1998,3 @@ c
 c
       return
       end
-
