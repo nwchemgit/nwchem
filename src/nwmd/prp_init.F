@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg)
 c
-c $Id: prp_init.F,v 1.31 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: prp_init.F,v 1.32 2000-07-17 20:04:11 d3j191 Exp $
 c
       implicit none
 c
@@ -215,6 +215,8 @@ c
       lp(99)=ntype.ge.1
 c
       isprop=99
+      it=isprop
+c
       if(nsf.gt.0) then
       it=0
       do 3 i=1,nsf
@@ -309,6 +311,8 @@ c
     7 continue
       endif
 c
+      endif
+c
       if(iprof.eq.1) then
       if(it+17.gt.maxpro)
      + call errquit('Increase dimension maxpro',0)
@@ -363,8 +367,6 @@ c
       it=it+1
       pronam(it)='Prof: synchronization                            s'
       lp(it)=.true.
-      endif
-c
       endif
 c
       nprop=0
