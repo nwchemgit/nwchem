@@ -312,7 +312,7 @@ ifeq ($(peigs_TARGET),LINUX)
 #
 # Linux running on an x86 using f77 on f2c
 #
-# peigs_CPU = PENTIUM
+peigs_CPU = PENTIUM
 peigs_CODEOBJ = DBLE
 peigs_CPP += -P -C
 endif
