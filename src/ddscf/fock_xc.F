@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.28 2005-02-11 18:40:12 edo Exp $
+c     $Id: fock_xc.F,v 1.29 2005-02-11 19:12:29 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -60,7 +60,7 @@ cold      parameter(maxxcd=65536)
 cold      integer g_dens_xc(maxxcd)
       integer igxcd,lgxcd
 #else
-      integer g_dens_xc
+      integer g_dens_xc(2)
 #endif
       integer xc_getipol
       logical oprint
