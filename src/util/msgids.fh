@@ -40,7 +40,7 @@ c
       integer msg_orthog_1, msg_orthog_2
       integer msg_3c_index
       integer msg_gblmem
-      integer msg_rimp2_mem
+      integer msg_rimp2_mem, msg_rimp2g_mem
       integer msg_uhf
       integer msg_gen_at_nat, msg_gen_at_restart
       integer msg_gen_at_iatom, msg_gen_at_ixyz
@@ -603,3 +603,5 @@ c
       parameter(mrg_d99=msg_ftn_base-405) ! arg_rdstrt
 C
       parameter (Msg_NormF = msg_ftn_base -  406) ! GA_NormF
+C
+      parameter (msg_rimp2g_mem = msg_ftn_base - 407) ! rimp2g memory usage igops

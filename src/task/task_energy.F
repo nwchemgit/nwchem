@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.13 1997-12-03 10:09:03 d3e129 Exp $
+* $Id: task_energy.F,v 1.14 1998-04-17 21:15:41 gg502 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,8 +30,8 @@ c     Also returns status through the function value
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, nwargos
-      external semi_dir_mp2, nwargos
+      logical semi_dir_mp2, nwargos, rimp2g
+      external semi_dir_mp2, nwargos, rimp2g
 c
       logical status
       double precision energy, cpu, wall, dipole(3)
@@ -64,6 +64,8 @@ c
          status = nwdft(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
+      else if (theory .eq. 'rimp2_grad') then
+         status = rimp2g(rtdb)
       else if (theory .eq. 'oimp2') then
          status = oimp2(rtdb)
       else if (theory .eq. 'direct_mp2') then
