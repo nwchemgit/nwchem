@@ -1,5 +1,5 @@
 *
-* $Id: bitops_decls.fh,v 1.9 1998-01-28 00:08:42 d3h449 Exp $
+* $Id: bitops_decls.fh,v 1.10 2000-11-14 19:03:37 edo Exp $
 *
 c
 c     Machine dependent defintion of the standard
@@ -22,6 +22,6 @@ c
       integer iiibit, jjjbit
 #endif
 #if defined(HPUX)
-      integer rshift, lshift
+      integer*8 rshift, lshift
       integer iiibit, jjjbit
 #endif

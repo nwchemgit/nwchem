@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.342 2000-11-08 00:25:07 windus Exp $
+# $Id: makefile.h,v 1.343 2000-11-14 19:03:38 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -706,9 +706,11 @@ ifeq ($(TARGET),HPUX)
   MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
   CC = cc
-  FC = f77
+#  FC = f77
+  FC = f90
   LDOPTIONS = -Wl,+vallcompatwarnings -g -L/usr/lib +U77
-  LINK.f = fort77   $(LDFLAGS) 
+#  LINK.f = fort77   $(LDFLAGS) 
+  LINK.f = f90   $(LDFLAGS) 
   CORE_LIBS +=   -llapack $(BLASOPT) -lblas   -lm
   FDEBUG = -g
   FOPTIONS =  +ppu
@@ -733,8 +735,13 @@ ifeq ($(TARGET),HPUX64)
   CC = cc
   FC = f90
   LDOPTIONS = -Wl,+vallcompatwarnings  
+<<<<<<< makefile.h
+  LINK.f = mpif90   $(LDFLAGS) $(FOPTIONS)
+  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -llapack -lblas -lm
+=======
   LINK.f = f90   $(LDFLAGS) $(FOPTIONS)
   CORE_LIBS +=  -llapack $(BLASOPT) -lblas -lm
+>>>>>>> 1.342
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu +i8 +DA2.0W +U77  
