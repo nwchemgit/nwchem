@@ -1,6 +1,9 @@
 /*
- $Id: nwchem_wrap.c,v 1.11 1999-10-27 18:30:31 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.12 2000-07-07 01:17:51 edo Exp $
 */
+#if defined(DECOSF)
+#include <alpha/varargs.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
