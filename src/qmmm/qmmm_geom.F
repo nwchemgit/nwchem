@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.16 2004-09-17 20:07:00 marat Exp $
+c $Id: qmmm_geom.F,v 1.17 2004-09-21 22:57:07 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -22,10 +22,13 @@ c     local variables
       integer i_ind
       integer i_num
       integer i_q
-      character*255 basis_string
+      character*255 basis_string,namespace
       integer qmmm_geom_heavy_neighbor
       external qmmm_geom_heavy_neighbor
-
+      integer tmp(2)
+      logical old_mode
+      logical ignore
+      logical fixlinks
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
@@ -52,13 +55,7 @@ c     --------------------------
         int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
       end do
       if(nlink.gt.0) then
-c       call qmmm_link_atoms(nlink,
-c     >                      int_mb(i_num+(nqm-nlink)),
-c     >                      dbl_mb(i_q+(nqm-nlink)),
-c     >                      byte_mb(i_t+16*(nqm-nlink)),
-c     >                      dbl_mb(i_c+3*(nqm-nlink)),
-c     >                      dbl_mb(i_m+(nqm-nlink)))
-       call qmmm_link_atoms1(nlink,
+       call qmmm_link_atoms(nlink,
      >                       nqm,
      >                      int_mb(i_num),
      >                      dbl_mb(i_q),
@@ -66,11 +63,6 @@ c     >                      dbl_mb(i_m+(nqm-nlink)))
      >                      dbl_mb(i_c),
      >                      dbl_mb(i_m))
 
-c       do i=1,nlink
-c          i1=qmmm_geom_heavy_neighbor(nqm-nlink+i,nqm,int_mb(i_num),
-c     >                                dbl_mb(i_c))
-c          write(*,*) "qmmm link",i1,int_mb(i_num+i1-1)
-c       end do
       end if
 
       if(.not.geom_create(igeom,'geometry'))
@@ -84,12 +76,6 @@ c       end do
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
  
-c     print geometry
-c     -------------
-c      call util_print_centered(6,"QM/MM geometry", 36, .true.)
-c      if(.not.geom_print(igeom))
-c     +    call errquit('qmmm: Failed to print geometry',0)
-
       if(.not.geom_print_xyz(igeom,22))
      +    call errquit('qmmm: Failed to print geometry',0)
       call util_flush(22)
@@ -103,7 +89,27 @@ c     +    call errquit('qmmm: Failed to print geometry',0)
       basis_string = 'ecp; F library "qmmm_zhang_6-31Gs_ecp"; end'
       call nw_inp_from_character(irtdb, basis_string)
 
-    
+      if (.not.rtdb_get(irtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
+     + call errquit('qmmm_geom: failed to get qmmm:fixlinks',
+     &       0,RTDB_ERR)
+        
+      if(fixlinks .and. nlink.gt.0) then
+
+        namespace = "qmmm-cons"
+        if(.not. rtdb_cput(irtdb,"constraints" , 1, namespace)) then
+           call errquit('qmmm: Failed constraints',0,0)
+        end if
+     
+        do i=nqm-nlink+1,nqm
+          i1=qmmm_geom_heavy_neighbor(i,nqm,int_mb(i_num),dbl_mb(i_c))
+          tmp(1) = i
+          tmp(2) = i1
+          call cons_add_fixed_atoms(namespace,2,tmp,irtdb)
+        end do
+        call cons_info_fixed_atoms(namespace,irtdb)
+        call cons_activate(namespace,irtdb)
+      end if
+
       end
 
       subroutine qmmm_sync_qm_geom(irtdb)
@@ -171,7 +177,8 @@ c     get coord information from combined
 c     qm and bq geometry
 c     -----------------------------------
       if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
-     + call errquit('qmmm: Failed to allocate memory for c_all',
+     + call errquit('qmmm_sync_geom: 
+     +              Failed to allocate memory for c_all',
      + 3*ntot, MA_ERR)
 
       if(.not.geom_create(igeom,'geometry'))
@@ -199,7 +206,8 @@ c     ------------------
 
 
       if(.not.ma_pop_stack(h_c_all))
-     & call errquit('qmmm: Failed to deallocate stack c_all',ntot,
+     & call errquit('qmmm_sync_geom: 
+     >              Failed to deallocate stack c_all',ntot,
      &       MA_ERR)
 
 
@@ -418,7 +426,8 @@ c     get coord information from combined
 c     qm and bq geometry
 c     -----------------------------------
       if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
-     + call errquit('qmmm: Failed to allocate memory for c_all',
+     + call errquit('qmmm_restore_qm_geom: 
+     +              Failed to allocate memory for c_all',
      + 3*ntot, MA_ERR)
 
       if(.not.geom_create(igeom,'geometry'))
@@ -444,7 +453,8 @@ c     ------------------
       end do
 
       if(.not.ma_pop_stack(h_c_all))
-     & call errquit('qmmm: Failed to deallocate stack c_all',ntot,
+     & call errquit('qmmm_restore_qm_geom: 
+     >                Failed to deallocate stack c_all',ntot,
      &       MA_ERR)
 
 c
@@ -598,32 +608,7 @@ c     ----------
 
       end
 
-      subroutine qmmm_link_atoms(n,inum,q,t,c,m)
-      implicit none
-#include "geom.fh"
-#include "errquit.fh"
-      integer n
-      double precision inum(n)
-      double precision q(n)
-      double precision c(3,n)
-      character*16 t(n)
-      double precision m(n)
-
-c     local variables
-c     ---------------
-      integer i
-      integer i1
-
-      do i=1,n
-        q(i)=9.0
-        t(i)="F_L"
-        if(.not.geom_tag_to_default_mass(t(i),m(i)))
-     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
-      end do
-
-      end
-
-      subroutine qmmm_link_atoms1(nl,n,inum,q,t,c,m)
+      subroutine qmmm_link_atoms(nl,n,inum,q,t,c,m)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
@@ -638,6 +623,7 @@ c     ---------------
 
 c     local variables
 c     ---------------
+      integer tmp(2)
       integer i
       integer i1
       integer k
@@ -657,6 +643,8 @@ c     ---------------
          r2(k)=c(k,i1)
         end do
         write(*,*) "qmmm link bond",t(i),t(i1),qmmm_geom_distance(r1,r2)
+        tmp(1)=i
+        tmp(2)=i1
         call qmmm_adjust_link(r1,r2)
         do k=1,3
          c(k,i) =r1(k)

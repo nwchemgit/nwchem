@@ -13,7 +13,7 @@ c
 c
       character*255 token
       real*8 eatoms,qatoms
-      logical xyz,xyzq
+      logical xyz,xyzq,fixlinks
       integer linkatm,bq_exclude
 c
       call inp_set_field(0)
@@ -21,6 +21,7 @@ c
 c**** default values for parameters
       xyz  = .false.
       xyzq = .false.
+      fixlinks = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
 c
@@ -46,6 +47,10 @@ c
       if (token.eq.'xyz') then
        xyz = .true.
        write(*,*) " found xyz",xyz
+       goto 2 
+      end if
+      if (token.eq.'fixlinks') then
+       fixlinks = .true.
        goto 2 
       end if
       if (token.eq.'xyzq') then
@@ -115,7 +120,10 @@ c
       if (.not.rtdb_put(rtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
      + call errquit('qmmm_input: failed to store qmmm:bq_exclude',
      &       bq_exclude,RTDB_ERR)
-      return
+      if (.not.rtdb_put(rtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
+     + call errquit('qmmm_input: failed to store qmmm:fixlinks',
+     &       0,RTDB_ERR)
+       return
       endif
 c
       write(luout,*)' unrecognized token in qmmm input:',
