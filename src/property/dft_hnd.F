@@ -2,7 +2,7 @@
      1                               da,db,d1nw,d2nw,
      2                               scftyp,g_movecs)
 c     
-c     $Id: dft_hnd.F,v 1.1 2000-07-21 22:42:14 edo Exp $
+c     $Id: dft_hnd.F,v 1.2 2001-05-15 22:56:50 mdupuis Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -32,6 +32,7 @@ c
       integer ndens
       integer nmo(2)
       integer noc(2)
+
 c
       integer ir, iw, ip
       common/hnd_iofile/ir,iw,ip
@@ -83,7 +84,7 @@ c
 c     ----- make density matrices -----
 c
       call hnd_cos_dens_make_dft(rtdb, g_movecs, g_dens, ndens, 
-     $                           da, db, d1nw, d2nw)
+     $                           da, db, d1nw, d2nw )
 c
       return
       end
@@ -105,7 +106,7 @@ c
 
       integer  noc(2)
       integer  nmo(2)
-
+ 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 
