@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.89 2003-02-21 20:07:19 d3j191 Exp $
+c $Id: prp_main.F,v 1.90 2003-03-12 15:34:30 d3j191 Exp $
 c
       implicit none
 c
@@ -993,7 +993,7 @@ c
 c
       return
       end
-      logical function prp_rdmri(lfnmri,ndec)
+      logical function prp_rdmri(lfnmri,ndec,mropt)
 c
       implicit none
 c
@@ -1003,9 +1003,9 @@ c
       logical prp_rmri
       external prp_rmri
 c
-      integer lfnmri,ndec
+      integer lfnmri,ndec,mropt
 c
-      prp_rdmri=prp_rmri(lfnmri,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm))
+      prp_rdmri=prp_rmri(lfnmri,ndec,mropt,dbl_mb(i_dfr),dbl_mb(i_dfrm))
 c
       return
       end
@@ -1037,7 +1037,7 @@ c
 c
       return
       end
-      logical function prp_rmri(lfnmri,ndec,dfr,dfrm)
+      logical function prp_rmri(lfnmri,ndec,mropt,dfr,dfrm)
 c
       implicit none
 c
@@ -1046,17 +1046,19 @@ c
       logical cf_rdmri
       external cf_rdmri
 c
-      integer lfnmri,ndec
+      integer lfnmri,ndec,mropt
       real*8 dfr(mda),dfrm(mda),dtmp
 c
       integer i,nprp,nmxp
 c
       read(lfnmri,err=9,end=9) nderiv,nda,nprp,nsum,nsumt,ndec,nmxp
+      if(mropt.ne.2) then
       if(nprop.ne.nprp) then
       call errquit('Number of properties nprop changed',0)
       endif
       if(maxp.ne.nmxp) then
       call errquit('Number of properties maxp changed',0)
+      endif
       endif
       read(lfnmri,err=9,end=9) deriv
       if(mda.lt.nda) then
@@ -1067,12 +1069,18 @@ c
       read(lfnmri,err=9,end=9) (dfrm(i),i=1,nda)
       endif
       read(lfnmri,err=9,end=9) tsum,t2sum,tsumt,t2sumt
+      if(mropt.ne.2) then
       read(lfnmri,err=9,end=9) (psum(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (p2sum(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (pslop(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (psumt(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (p2sumt(i),i=1,maxp)
       read(lfnmri,err=9,end=9) (pslopt(i),i=1,maxp)
+      else
+      do 1 i=1,6
+      read(lfnmri,err=9,end=9) dtmp
+    1 continue
+      endif
       if(ndec.gt.0) then
       prp_rmri=cf_rdmri(lfnmri)
       else
