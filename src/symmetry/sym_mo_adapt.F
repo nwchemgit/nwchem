@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.8 1996-08-06 05:38:02 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.9 1996-08-06 05:55:53 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -242,15 +242,15 @@ c
          endif
          if (abs(v2-v1) .lt. 0.01d0) then
 c
-c	Two (or more) irreps are strongly occupied.  If we have
-c       most of the function in these two then assume that they are
-c       consecutive and assign using odd/even.  Otherwise fail.
+c     Two (or more) irreps are strongly occupied. On the assumption
+c     that only two are involved and they are consecutive just
+c     assign them to symmetries based on odd/even ... if the assumption
+c     is wrong then linear dependence will result.
 c
-           if (abs(1.0d0-v1-v2).gt.0.01) 
-     $       call errquit('sym_movecs_adapt: unable to assign MO'//
-     $          ' irrep - try restarting from another geometry',0)
-           if (mod(i,2).eq.0) i1 = i2
-         endif
+*     call errquit('sym_movecs_adapt: unable to assign MO'//
+*     $          ' irrep - try restarting from another geometry',0)
+          if (mod(i,2).eq.0) i1 = i2
+       endif
 c     
 c     Have found the irrep
 c
