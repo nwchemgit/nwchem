@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.7 2004-12-01 02:15:26 edo Exp $
+C$Id: pstat_pr_all.F,v 1.8 2004-12-16 23:02:14 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -42,12 +42,12 @@ C
      $   10X,
      $   '   ---------------    -------------------  ',
      $     '   ------------------------------',
-     $     '   ----------------------'/,
+     $     '   -------------------'/,
      $   'Name', 6X, '   Min', 1X, '  Avg', 1X,
      $                     '  Max',1X,
      $  '   Min',1X, '    Avg',1X, '    Max',1X,
      $  '    Min',1X, '    Avg',1X, '    Max',1X, '  Mx/calls',1X,
-     $  '   Min',1X, '    Max',1X, '    Sum')
+     $  '  Min',1X, '    Max',1X, '    Sum')
 C
       Do I = 1, PStat_max_items
          if (pstat_active(i)) then
@@ -100,9 +100,17 @@ c
             If ( GA_NodeID() .eq. 0) then
               icalls = iMAM(1) + iMAM(2) + iMAM(3)
               total_calls = total_calls + iMAM(2)
-              if (icalls.gt.0)
-     &            Write (luout, 9010) PStat_Name(I), iMAM, dMAM,
-     ,             dmam(3,2)/imam(3),fmam
+              if (icalls.gt.0) then
+                 if(imam(1).gt.99999.or.imam(2).gt.99999.
+     O                or.imam(3).gt.9999) then
+                    Write (luout, 9110) PStat_Name(I), 
+     ,                   dble(iMAM(1)),dble(iMAM(2)),dble(iMAM(3)), 
+     ,                   dMAM, dmam(3,2)/imam(3),fmam
+                 else
+                    Write (luout, 9010) PStat_Name(I), iMAM, dMAM,
+     ,                   dmam(3,2)/imam(3),fmam
+                 endif
+              endif
             endif
          endif
       EndDo
@@ -114,6 +122,8 @@ c
       endif
 C
  9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1X,G7.2E1), 1X, 4(1X,G7.2E1),
+     $     1X, 3(1X,G7.2E1))
+ 9110 Format(A9, 1X, 3(1PE6.0),1X,1P,3(1X,G7.2E1),1X,4(1X,G7.2E1),
      $     1X, 3(1X,G7.2E1))
  9011 Format(/1p,' The average no. of pstat calls per process was',
      $     d9.2,/' with a timing overhead of',d9.2,'s'/)
