@@ -103,7 +103,7 @@ peigs_CODEOBJ = SINGLE
 peigs_CC +=  -DSTD_DBL -DCRAY_T3D
 peigs_NODE = uniproc
 peigs_COMM = TCGMSG
-peigs_FC += -DCRAY_T3D -DCRAY_T3E -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_FC += -DCRAY_T3D -DCRAY_T3E -D$(peigs_COMM) -e 0 -D$(peigs_CPU)
 peigs_FOPT +=
 peigs_CPP += -DCRAY_T3E -DCRAY_T3D -P
 endif
