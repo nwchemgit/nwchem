@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.45 2000-05-25 16:39:55 edo Exp $
+c     $Id: grad_force.F,v 1.46 2000-05-25 16:43:14 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -696,10 +696,14 @@ c
      $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
      $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
      $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
-     $   dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),dbl_mb(ld_jk5),
-     $   dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),dbl_mb(ld_jk6),
-     $   dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),dbl_mb(ld_jk7),
-     $   dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),dbl_mb(ld_jk8),
+     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),
+     .     dbl_mb(ld_jk5),
+     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),
+     .     dbl_mb(ld_jk6),
+     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),
+     .     dbl_mb(ld_jk7),
+     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),
+     .     dbl_mb(ld_jk8),
      $     dbl_mb(k_frc_2el), g_dens, g_force, blen,
      $     geom, basis, nproc, nat, 
      $     lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
@@ -713,7 +717,7 @@ c
      $     int_mb(k_bfglo), int_mb(k_bfghi), 
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $     jfac, kfac)
+     $     jfac, kfac,.false.)
       cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
       wall_tim(2) = util_wallsec() - wall_tim(2)
 c     
