@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_message.F,v 1.3 2003-03-18 18:55:34 bylaska Exp $
+* $Id: nwpw_message.F,v 1.4 2003-03-18 18:57:53 bylaska Exp $
 *
 
       SUBROUTINE nwpw_MESSAGE(N)
@@ -26,7 +26,7 @@
       WRITE(luout,1000) MSG(N), dd
       IF(N.EQ.2)  WRITE(luout,1001)
       IF(N.EQ.6)  WRITE(luout,1002)
-      IF(N.EQ.7)  WRITE(luout,1001)
+      IF(N.EQ.7)  WRITE(luout,1003)
       RETURN
 
  1000 FORMAT(5X,'>>>  ',A,' AT ',A24,'  <<<')
