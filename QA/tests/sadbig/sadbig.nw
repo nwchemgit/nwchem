@@ -1,0 +1,191 @@
+start
+
+# Assorted transition state optimizations, mostly 
+# from Peng and Schlegel
+
+basis
+  c library 3-21g
+  o library 3-21g
+  f library 3-21g
+ si library 3-21g
+  h library 3-21g
+end
+
+scf; print low; end
+driver; nptopt 100; end
+
+title; Pyrolysis of ethylformate -> Formic acid + ethylene
+geometry
+   zcoord
+     bond 3 9
+     bond 5 4
+     bond 8 9
+   end
+   C  0.65111318     0.46328833    -1.08643832
+   H  1.08681996     0.76810268    -2.02774590
+   O  0.29629756     1.41036892    -0.29424436
+   O  0.51390505    -0.74594157    -0.82856238
+   C -0.57300315    -1.19758410     0.78842586
+   H  0.26225055    -1.77654557     1.11879351
+   H -1.23975601    -1.70057595     0.12117995
+   C -0.94488353    -0.03596991     1.44113180
+   H -0.30178707     0.88139979     0.60157204
+   H -1.96838927     0.28671853     1.35327241
+   H -0.45778276     0.19248540     2.37432354
+end
+scf; singlet; rhf; end
+driver; clear; end
+task scf saddle
+
+
+title; CH3 + HF -> CH4 + F
+geometry 
+  zmatrix
+    c
+    h 1 ch0
+    h 1 ch  2 a1
+    h 1 ch  2 a1  3  a120
+    h 1 ch  2 a1  3 -a120
+    x 2 one 1 a90 3  a180
+    f 2 hf  6 a90 1  a180
+  variables
+    ch0    1.25
+    hf     1.25
+    a1   100.
+    ch     1.08
+  constants
+    one    1.0
+    a90   90.0
+    a120 120.0
+    a180 180.0
+  end
+end
+scf; uhf; doublet; end
+driver; clear; end
+task scf saddle
+
+
+title; H3CO <-> H2COH
+geometry
+  c    -0.01768833     0.00000000    -0.68118028
+  o    -0.01768833     0.00000000     0.79881972
+  h     1.29788134     0.00000000    -0.20235208
+  h    -0.52512235    -0.87890150    -1.05056203
+  h    -0.52512235     0.87890150    -1.05056203
+end
+scf; uhf; doublet; end
+driver; clear; end
+task scf saddle
+
+title; SiH2 + H2 <-> SiH4
+geometry
+  zmatrix
+    si
+    x 1 1.0
+    h 1 hsi 2 asi
+    h 1 hsi 2 asi 3 180.
+    h 1 hsi5 2 hsix 3 90.
+    h 1 hsi6 5 hsih 2 180.
+  variables
+    hsi 1.48
+    asi 55.0
+    hsi5 1.80
+    hsi6 1.80
+    hsix 95.0
+    hsih 50.0
+  end
+end
+scf; singlet; rhf; end
+driver; clear; end
+task scf saddle
+
+
+title; H2CCH2 + HF <-> H3CCFH2
+geometry
+  zmatrix
+    c
+    c 1 cc
+    h 1 hc  2 ah
+    f 2 fc  1 af 3  0.
+    h 1 hc1 2 a1 4  xd1
+    h 1 hc1 2 a1 4 -xd1
+    h 2 hc2 1 a2 4  xd2
+    h 2 hc2 1 a2 4 -xd2
+  variables
+    cc 1.43
+    hc 1.50
+    fc 1.90
+    hc1 1.08
+    hc2 1.08
+    ah 100.
+    af 100.
+    a1 115
+    a2 115.
+    xd1 105.
+    xd2 105.
+  end
+end
+scf; singlet; rhf; end
+driver; clear; end
+task scf saddle
+
+
+title; Claisen rearrangement
+geometry
+  zmatrix
+    c
+    c 1 r1
+    c 2 r2 1 a2
+    o 3 r3 2 a3 1 xd3
+    c 4 r4 3 a4 2 xd4
+    c 5 r5 4 a5 3 xd5
+    h 1 rh1 2 ah1 3 xdh1
+    h 1 rh2 2 ah2 3 xdh2
+    h 2 rh3 1 ah3 3 xdh3
+    h 3 rh4 2 ah4 1 xdh4
+    h 3 rh5 2 ah5 1 xdh5
+    h 6 rh6 5 ah6 4 xdh6
+    h 6 rh7 5 ah7 4 xdh7
+    h 5 rh8 6 ah8 4 xdh8
+  variables
+    r1 1.42
+    r2 1.405
+    r3 2.008
+    r4 1.310
+    r5 1.410
+    a2 120.
+    a3 101.1
+    a4 103.5
+    a5 120.
+    xd3 -66.8
+    xd4 56.6
+    xd5 -67.8
+    rh1 1.09
+    rh2 1.09
+    rh3 1.09
+    rh4 1.09
+    rh5 1.09
+    rh6 1.09
+    rh7 1.09
+    rh8 1.09
+    ah1 115.
+    ah2 115.
+    ah3 120.
+    ah4 115.
+    ah5 115.
+    ah6 115.
+    ah7 115.
+    ah8 120.
+    xdh1 -30.
+    xdh2 180.
+    xdh3 180.
+    xdh4 180.
+    xdh5 30.
+    xdh6 180.
+    xdh7 -30.
+    xdh8 180.
+  end
+end
+scf; singlet; rhf; end
+driver; clear; end
+task scf saddle
