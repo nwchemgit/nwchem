@@ -1,8 +1,11 @@
 *
-* $Id: Grassman.F,v 1.11 2003-10-23 01:37:55 bylaska Exp $
+* $Id: Grassman.F,v 1.12 2003-10-26 22:24:04 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2003/10/23 01:37:55  bylaska
+* Added Grsm_ggm2_dot subroutine ....EJB
+*
 * Revision 1.10  2003/10/20 16:46:18  bylaska
 * ..EJB
 *
@@ -411,8 +414,9 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 
       do k=1,n
         call Pack_c_unpack(1,A(1,k))
-        call D3dB_cr_fft3b(1,A(1,k))
+        !call D3dB_cr_fft3b(1,A(1,k))
       end do
+      call D3dB_ncr_fft3b(1,n,A)
 
       return
       end
@@ -437,8 +441,9 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
       integer k
 
 
+      call D3dB_nrc_fft3f(1,n,A)
       do k=1,n
-        call D3dB_rc_fft3f(1,A(1,k))
+        !call D3dB_rc_fft3f(1,A(1,k))
         call Pack_c_pack(1,A(1,k))
       end do
 
