@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.44 2001-08-09 22:19:55 bjohnson Exp $
+C$Id: xc_getv.F,v 1.45 2001-08-10 18:42:11 bjohnson Exp $
 c
       implicit none
 c      
@@ -137,10 +137,10 @@ c                Do J
                  call fock_2e(geom, AO_bas_han, 1, jfac(2), kfac(2),
      &                tol2e, oskel, g_dens(2), g_vxc(2), .false.)
 c                Do K
-                 call bettis_enable_screened_operator()
+                 call bettis_enable_scroperator()
                  call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &                tol2e, oskel, g_dens, g_vxc, .false.)
-                 call bettis_disable_screened_operator()
+                 call bs_disable_screened_operator()
               endif
 #endif
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
@@ -210,10 +210,10 @@ c                 Do K
                   kfac(2) = 1.0d0
                   g_d(3) = g_jk(2)
                   g_d(4) = g_jk(4)
-                  call bettis_enable_screened_operator()
+                  call bettis_enable_scroperator()
                   call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &                 tol2e, oskel, g_d(1), g_d(3), .false.)
-                  call bettis_disable_screened_operator()
+                  call bs_disable_screened_operator()
                endif
 #endif
                ecoul = 0.5d0*( ! Alpha coulomb energy

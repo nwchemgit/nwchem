@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.53 2001-08-10 18:37:26 bjohnson Exp $
+c     $Id: grad_force.F,v 1.54 2001-08-10 18:43:33 bjohnson Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -789,7 +789,7 @@ c           Calculate Coulomb only with unscreened operator
          if (bettis_screened_x()) then
 c           Calculate screened K gradient'
             kfac = kfac_save
-            call bettis_enable_screened_operator()
+            call bettis_enable_scroperator()
             call grad2(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
@@ -821,7 +821,7 @@ c           Calculate screened K gradient'
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     0d0, kfac,.false.)
-            call bettis_disable_screened_operator()
+            call bs_disable_screened_operator()
          endif
 #endif
       endif
