@@ -90,7 +90,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    no = Integer.parseInt(card.substring(31,40).trim());
             number=nb+nh+nd+no+1;
 	    
-	    data = new double[number][25000];
+	    data = new double[number][250000];
 	    numdat=0;
 	    
 	    while((card=br.readLine()) != null){
@@ -143,7 +143,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 
         number=0;
 	for(int i=0; i<nb; i++){
-	    propList.addElement("Bond "+(i+1));
+	    propList.addElement("Distance "+(i+1));
 	    number++;
 	};
 
@@ -187,8 +187,9 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 		hist[id]=hist[id]+1;
 	    };
 	    boolean first=true;
+	    double dstep=(dmax-dmin)/1000.0;
 	    for(int i=0; i<1000; i++){
-		anaPlot.addData(iset,i,hist[i],!first,false); first=false;
+		anaPlot.addData(iset,dmin+(i+0.5)*dstep,hist[i],!first,false); first=false;
 	    };
 	} else {
 	    boolean first=true;
