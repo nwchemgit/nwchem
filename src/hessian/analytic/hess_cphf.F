@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.22 2001-04-11 16:30:14 edo Exp $
+C $Id: hess_cphf.F,v 1.23 2001-06-21 19:09:10 zzhang Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -295,8 +295,11 @@ c
       if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      $  tol2e = 1.0d-9
       g_tmp =ga_create_atom_blocked ( geom, basis, 'temp' )
+      ind = 0
       do ndns = 1, ndens
-      do ind = 1, nc
+c      do ind = 1, nc
+      do in = 1, nc
+         ind = ind+1
         call ga_copy(g_rhs(ind),g_tmp)  ! copy Ta to temp
         call ga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                g_vecs(1),    1, num,         1, nocc(ndns),
@@ -373,7 +376,6 @@ c     Activate XC contribution to OO derivative Fock matrix
      .   write(LuOut,*) 'after transformation back to MO basis',ind
           call ga_print(g_rhs(ind))
         endif
-
 c
 c Now form the Wax and Aa contributions
 c
