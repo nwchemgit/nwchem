@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.4 1994-11-07 02:51:12 og845 Exp $
+# $Id: GNUmakefile,v 1.5 1994-11-27 10:15:14 og845 Exp $
 
-      OBJ_OPTIMIZE = \
+      OBJ = \
 	inpana.o \
 	rdinput.o			   \
 	rdquad.o			   \
