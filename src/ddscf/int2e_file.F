@@ -844,7 +844,7 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 c
-      integer i, ind, v1, v2, two31, laboff
+      integer i, ind, v1, v2, two31
 #include "bitops_decls.fh"
 #include "cint2esave.fh"
 #include "bitops_funcs.fh"

@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.6 1996-05-14 18:03:27 d3g681 Exp $
+C     $Id: moints_full.F,v 1.7 1996-07-08 17:37:26 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -828,7 +828,7 @@ c
       character*8 bfnlab(255)
       integer numsym
 c
-      integer ifmt1,l1rec,n1max,ifmt1,ifmt2,l2rec,n2max,info,ierr,i
+      integer ifmt1,l1rec,n1max,ifmt2,l2rec,n2max,info,ierr,i
       common/cmointssifs/info(5)
 c
       if (intfmt .eq. 'ascii') then
