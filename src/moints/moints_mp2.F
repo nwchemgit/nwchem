@@ -113,19 +113,12 @@ c
        integer k,l,kk,ll
 
        xx = 0.d0
-#ifdef DEBUG
-       write(6,*)
-#endif
        do kk=1,nvir
          do ll=1,nvir
            k = vstart + kk
            l = vstart + ll
            yy = xk(l,k)*(4.d0*xk(l,k) - 2.d0*xk(k,l))
            xx = xx + yy/(denom - orbe(nocc+kk) - orbe(nocc+ll))
-#ifdef DEBUG
-           write(6,933) k,l,xk(l,k),xk(k,l),yy,xx
- 933       format(2i5,2f12.6,5x,2f12.6)
-#endif
          enddo
        enddo
        moint_epair_eval = xx
