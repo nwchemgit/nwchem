@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.58 2002-01-15 19:17:44 edo Exp $
+c $Id: bas_input.F,v 1.59 2002-05-07 18:15:15 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -1076,7 +1076,11 @@ c
       length = inp_strlen(libname)
       if (length.gt.0) then
         does_it_exist = .false.
-        inquire(file=libname,exist=does_it_exist)
+        if (libname(length:length).eq.'/') then
+           does_it_exist=util_find_dir(libname)
+        else
+           inquire(file=libname,exist=does_it_exist)
+        endif
         if (does_it_exist)then
           from_environment = .true.
           goto 99999
@@ -1140,8 +1144,13 @@ c
           if (foundit) then
             if (.not.inp_a(test)) call errquit('inp_a error 2',911)
             libname = test
+            length = inp_strlen(libname)
             does_it_exist = .false.
-            inquire(file=libname,exist=does_it_exist)
+            if (libname(length:length).eq.'/') then
+               does_it_exist=util_find_dir(libname)
+            else
+               inquire(file=libname,exist=does_it_exist)
+            endif
             if (does_it_exist)then
               from_nwchemrc = .true.
               call inp_restore_state() ! restore state of any inp unit
