@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.5 2002-01-16 18:25:28 windus Exp $
+* $Id: cphf_solve2.F,v 1.6 2002-03-28 18:34:56 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -47,9 +47,6 @@ c
       external int_normalize
 c
       logical hf_job
-      logical cphf_tddft, cphf_triplet
-      cphf_tddft = .false. 
-      cphf_triplet = .false. ! true for triplet, false for singlet
 c
       hf_job = .not. bgj_have_xc()      
 c
