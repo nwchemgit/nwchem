@@ -1,7 +1,7 @@
       logical function pre_wrtxyz(lfnout,lfnxyz,filxyz,lfnqqq,filqqq,
-     + num,mat,isat,xs,qsa,msa,nsa)
+     + num,mat,isat,xs,qsa,msa,nsa,box)
 c
-c $Id: pre_wrtxyz.F,v 1.3 2000-02-20 16:05:15 d3j191 Exp $
+c $Id: pre_wrtxyz.F,v 1.4 2000-05-02 18:50:48 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       character*255 filxyz,filqqq
       integer num(mat)
       integer isat(msa)
-      real*8 xs(3,msa),qsa(msa)
+      real*8 xs(3,msa),qsa(msa),box(3)
 c
       integer length
 c
@@ -51,8 +51,8 @@ c
       open(unit=lfnqqq,file=filqqq(1:length),form='formatted',
      + status='unknown',err=9999)
 c
-      write(lfnqqq,2000) nsa,1
- 2000 format(i7,i3)
+      write(lfnqqq,2000) nsa,1,box
+ 2000 format(i7,i3,3f12.6)
       do 2 i=1,nsa
       write(lfnqqq,2001) pre_atnam(num(isat(i))),(1.0d1*xs(k,i),k=1,3),
      + qsa(i)

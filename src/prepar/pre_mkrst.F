@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.48 2000-04-24 14:50:01 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.49 2000-05-02 18:50:48 d3j191 Exp $
 c
       implicit none
 c
@@ -752,7 +752,7 @@ c
       filxyz=filnam
       if(.not.pre_wrtxyz(lfnout,lfnxyz,filxyz,lfnqqq,filqqq,
      + int_mb(i_num),mat,
-     + int_mb(i_sat),dbl_mb(i_xs),dbl_mb(i_qsa),msa,nsa))
+     + int_mb(i_sat),dbl_mb(i_xs),dbl_mb(i_qsa),msa,nsa,box))
      + call errquit('pre_wrtxyz failed',9999)
       endif
 c
