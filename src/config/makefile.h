@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.401 2003-02-19 18:19:22 fruechtl Exp $
+# $Id: makefile.h,v 1.402 2003-02-20 01:19:41 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -338,6 +338,7 @@ ifeq ($(TARGET),SOLARIS64)
          FC = f77
    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DPARALLEL_DIAG
 ifdef USE_INTEGER4
+else
    DEFINES  +=  -DEXT_INT
 endif
 
