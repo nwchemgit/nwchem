@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.19 2000-04-28 20:13:08 d3j191 Exp $
+c $Id: md_finish.F,v 1.20 2000-07-14 19:54:03 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,8 @@ c      call ma_summarize_allocated_blocks()
       if(.not.ma_pop_stack(l_gw))
      + call errquit('Failed to deallocate memory for gw',0)
       endif
+      if(.not.ma_pop_stack(l_esa))
+     + call errquit('Failed to deallocate memory for esa',0)
       if(.not.ma_pop_stack(l_esk))
      + call errquit('Failed to deallocate memory for esk',0)
       if(.not.ma_pop_stack(l_ess))

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
       implicit none
 c
@@ -494,14 +494,14 @@ c
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpsw(xs,xsm,fs,zs,ps,psp,
      + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,
+     + isfrom,nums,xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,isrx,list,pl,pj)
 #elif defined(CAFE_FORCES)
       subroutine cf_fsw(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,isrx,list,dera)
@@ -509,7 +509,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
       implicit none
 c
@@ -522,6 +522,7 @@ c
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
       integer isml(msa),isss(msa),isq1(msa)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),rtos(mwm)
+      real*8 esa(nsa)
       integer iwdt(mwm)
       integer isfrom
       logical lpbc,lpbcs
@@ -760,9 +761,9 @@ c      endif
       rwi6(iax)=rwi2(iax)*rwi2(iax)*rwi2(iax)
       rw(iax)=facu(iax)*(c12*rwi6(iax)-c6)*rwi6(iax)
       eterml=eterml+rw(iax)
-c      if(npener.ne.0) then
-c      u(iax)=u(iax)+(c12*rwi6(iax)-c6)*rwi6(iax)
-c      endif
+      if(npener.ne.0) then
+      esa(isga(isa))=esa(isga(isa))+half*rw(iax)
+      endif
       f(iax)=f(iax)+(cf12*rwi6(iax)-cf6)*rwi6(iax)*rwi2(iax)
    28 continue
       esw(isf,5,ipsw)=esw(isf,5,ipsw)+eterml
@@ -784,9 +785,9 @@ c
       q=qwas*chg(isq1(isa),1,iset)
       rw(iax)=facu(iax)*q*rwi1(iax)
       etermq=etermq+rw(iax)
-c      if(npener.ne.0) then
-c      u(iax)=u(iax)+q*rwi1(iax)
-c      endif
+      if(npener.ne.0) then
+      esa(isga(isa))=esa(isga(isa))+half*rw(iax)
+      endif
       f(iax)=f(iax)+q*rwi1(iax)*rwi2(iax)
    30 continue
       else
@@ -797,9 +798,9 @@ c      endif
       fderfc=ealpha*derfc(ealpha/rwi1(iax))
       rw(iax)=facu(iax)*q*rwi1(iax)
       etermq=etermq+ferfc*rw(iax)
-c      if(npener.ne.0) then
-c      u(iax)=u(iax)+ferfc*q*rwi1(iax)
-c      endif
+      if(npener.ne.0) then
+      esa(isga(isa))=esa(isga(isa))+half*rw(iax)
+      endif
       f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
    31 continue
       endif
@@ -813,9 +814,9 @@ c
       isa=isal(iax)
       q=qwas*chg(isq1(isa),1,iset)
       rw(iax)=facu(iax)*q*rffsw/rwi2(iax)
-c      if(npener.ne.0) then
-c      u(iax)=u(iax)+q*rffsw/rwi2(iax)
-c      endif
+      if(npener.ne.0) then
+      esa(isga(isa))=esa(isga(isa))+half*q*rffsw/rwi2(iax)
+      endif
       f(iax)=f(iax)-two*rffsw*q
    32 continue
       do 33 isa=lswndx(ispm-1,ipsw)+1,lswndx(ispm,ipsw)
@@ -1222,7 +1223,7 @@ c
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpss(xs,xsm,fs,zs,ps,psp,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,lpbcs,ess,
+     + isfrom,nums,lpbc,lpbcs,ess,esa,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1230,7 +1231,7 @@ c
 #elif defined(CAFE_FORCES)
       subroutine cf_fss(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,lpbcs,ess,
+     + isfrom,nums,lpbc,lpbcs,ess,esa,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1239,7 +1240,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
       implicit none
 c
@@ -1247,6 +1248,7 @@ c
 c
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
       real*8 zs(msf,3,2),ess(msf,msf,mpe,2)
+      real*8 esa(nsa)
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
       integer isml(msa),isss(msa),isq2(msa),isq3(msa)
 c
@@ -1500,6 +1502,10 @@ c
       if(ireact.ne.0) then
       ess(isf,jfal(iax),6,ipss)=ess(isf,jfal(iax),6,ipss)+
      + facu(iax)*q*rffss/rwi2(iax)
+      if(npener.ne.0) then
+      esa(isga(isa))=esa(isga(isa))+half*facu(iax)*q*rffss/rwi2(iax)
+      esa(isga(jsa))=esa(isga(jsa))+half*facu(iax)*q*rffss/rwi2(iax)
+      endif
       f(iax)=f(iax)-two*q*rffss
       endif
 cx      if(ihess.gt.0) then
@@ -1564,6 +1570,10 @@ c
       sumen=zero
       do 28 iax=1,nax
       if(jfal(iax).eq.jsf) sumen=sumen+rw(iax)
+      if(npener.ne.0) then
+      esa(isga(isal(iax)))=esa(isga(isal(iax)))+half*rw(iax)
+      esa(isga(jsal(iax)))=esa(isga(jsal(iax)))+half*rw(iax)
+      endif
    28 continue
       ess(isf,jsf,6,ipss)=ess(isf,jsf,6,ipss)+sumen
       etermq=etermq+sumen
@@ -1595,6 +1605,10 @@ c
       sumen=zero
       do 31 iax=1,nax
       if(jfal(iax).eq.jsf) sumen=sumen+rw(iax)
+      if(npener.ne.0) then
+      esa(isga(isal(iax)))=esa(isga(isal(iax)))+half*rw(iax)
+      esa(isga(jsal(iax)))=esa(isga(jsal(iax)))+half*rw(iax)
+      endif
    31 continue
       ess(isf,jsf,5,ipss)=ess(isf,jsf,5,ipss)+sumen
       eterml=eterml+sumen
@@ -2179,7 +2193,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2458,7 +2472,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2724,7 +2738,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3057,7 +3071,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3372,9 +3386,9 @@ c
       return
       end
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
-     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera)
+     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3426,7 +3440,7 @@ c
       real*8 vdw(mat,mat,map,6),chg(mqt,mqp,6)
       integer iatt(ndim),igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
       real*8 xs(ndim,3),fs(ndim,3)
-      real*8 ess(msf,msf,mpe,2)
+      real*8 ess(msf,msf,mpe,2),esa(nsa)
 c
 #if defined(CAFE_FORCES)
       real*8 dera(5,nsatot)
@@ -3550,6 +3564,10 @@ c      q=q14fac*qs(isa,iset)*qs(jsa,iset)
       q=q14fac*chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)
       etermq=factu*q*r1i
       ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+etermq
+      if(npener.gt.0) then
+      esa(igan(isa))=esa(igan(isa))+half*(eterml+etermq)
+      esa(igan(jsa))=esa(igan(jsa))+half*(eterml+etermq)
+      endif
 c
 c     calculate the electrostatic force contribution
 c
@@ -3566,6 +3584,10 @@ c
       epmecs=epmecs-(one-ferfc)*qij*r1i*factu
       ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*(one-ferfc)*qij*r1i*factu
       ess(isf,jsf,6,1)=ess(jsf,jsf,6,1)-half*(one-ferfc)*qij*r1i*factu
+      if(npener.gt.0) then
+      esa(igan(isa))=esa(igan(isa))+half*(one-ferfc)*qij*r1i*factu
+      esa(igan(jsa))=esa(igan(jsa))+half*(one-ferfc)*qij*r1i*factu
+      endif
 c
 c     calculate the electrostatic force contribution
 c
@@ -3577,6 +3599,10 @@ c     reaction field contributions
 c
       if(ireact.ne.0) then
       ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+factu*q*rffss/r2i
+      if(npener.gt.0) then
+      esa(igan(isa))=esa(igan(isa))+half*factu*q*rffss/r2i
+      esa(igan(jsa))=esa(igan(jsa))+half*factu*q*rffss/r2i
+      endif
       dfs=dfs-two*q*rffss
       endif
 c
@@ -3706,7 +3732,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.27 2000-06-08 22:26:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.28 2000-07-14 19:54:14 d3j191 Exp $
 c
       implicit none
 c

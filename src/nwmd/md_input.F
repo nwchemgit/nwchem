@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.25 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: md_input.F,v 1.26 2000-07-14 19:54:03 d3j191 Exp $
 c
       implicit none
 c
@@ -850,7 +850,7 @@ c
       goto 500
       endif
       if(inp_compare(.false.,'energy',item)) then
-      npener=1
+      if(.not.inp_i(npener)) npener=1
       goto 500
       endif
       if(inp_compare(.false.,'matrix',item)) then

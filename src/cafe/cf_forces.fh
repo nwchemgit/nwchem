@@ -1,16 +1,16 @@
-c $Id: cf_forces.fh,v 1.14 2000-07-13 19:08:19 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.15 2000-07-14 19:54:15 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,esa)
 #elif defined(CAFE_FORCES)
       subroutine forces(lself,lpbcs,
      + xw,xwm,fw,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,esa)
 #else
 c     error
 #endif
@@ -82,7 +82,7 @@ c
       integer lstptr
       logical lself,lpbc,lupden,lpbcs
       real*8 rtos(mwm),zs(msf,2)
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),esa(nsa)
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
@@ -188,7 +188,7 @@ c
 #if defined(CAFE_POLARIZATION)
       call cf_fpsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
-     + xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,
+     + xw,xwm,fw,pw,pwp,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -200,7 +200,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
-     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -221,7 +221,7 @@ c
 #if defined(CAFE_POLARIZATION)
       call cf_fpsw(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
-     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
@@ -233,7 +233,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
-     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
@@ -253,7 +253,7 @@ c
       if(npairs.gt.0) then
 #if defined(CAFE_POLARIZATION)
       call cf_fpss(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
-     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -265,7 +265,7 @@ c
      + dbl_mb(i_smr5),dbl_mb(i_smr6))   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -339,7 +339,7 @@ c
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + max(isto,jsto),msa,isat,isga,ismf,isdt,isq3,
-     + xs,fs,ess,lpbc,lpbcs,dbl_mb(i_sti))
+     + xs,fs,ess,lpbc,lpbcs,dbl_mb(i_sti),esa)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1

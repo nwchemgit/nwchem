@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld)
 c
 c
-c $Id: sp_init.F,v 1.73 2000-06-09 17:18:31 d3j191 Exp $
+c $Id: sp_init.F,v 1.74 2000-07-14 19:53:44 d3j191 Exp $
 c
       implicit none
 c
@@ -2026,7 +2026,8 @@ c
 c
       return
       end
-      subroutine sp_printf(lfnout,filtop,lfntop,isl,xs,fs)
+      subroutine sp_printf(lfnout,filtop,lfntop,isl,xs,fs,
+     + npener,esa)
 c
       implicit none
 c
@@ -2037,8 +2038,8 @@ c
 c
       integer lfnout,lfntop
       character*70 filtop
-      integer isl(msa,mis2)
-      real*8 xs(msa,3),fs(msa,3,2)
+      integer isl(msa,mis2),npener
+      real*8 xs(msa,3),fs(msa,3,2),esa(nsa,2)
 c
       integer lenscr
 c
@@ -2058,7 +2059,8 @@ c
 c
       call sp_prt_s(lfnout,filtop,lfntop,
      + int_mb(i_ipl),isl,int_mb(i_pack),xs,fs,
-     + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
+     + lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
+     + npener,esa)
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -2074,7 +2076,8 @@ c
       return
       end
       subroutine sp_prt_s(lfnout,filtop,lfntop,
-     + ipl,isl,islp,xs,fs,nb,ibs,bxs,bfs)
+     + ipl,isl,islp,xs,fs,nb,ibs,bxs,bfs,
+     + npener,esa)
 c
       implicit none
 c
@@ -2082,11 +2085,12 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer lfnout,lfntop,nb
+      integer lfnout,lfntop,nb,npener
       character*70 filtop
       integer ipl(mbox,mip2),isl(msa,mis2),islp(msa,npack),ibs(nb)
       real*8 xs(msa,3),fs(msa,3)
       real*8 bxs(nb,3),bfs(nb,3)
+      real*8 esa(nsa,2)
 c
       integer i,j,number,icyc,ncyc,node,nums,nsan,idyn,ism,iss
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ils,ihs,jls,jhs
@@ -2107,10 +2111,18 @@ c
 c
       if(me.ne.0) return
 c
+      if(npener.le.0) then
       write(lfnout,1007)
  1007 format(//,' Solute coordinates and forces',//,
      + '   mol  segment     atom  dt     x       y       z ',
      + '             fx          fy          fz',/)
+      else
+      write(lfnout,1008)
+ 1008 format(//,' Solute coordinates, forces and energies',//,
+     + '   mol  segment     atom  dt     x       y       z ',
+     + '             fx          fy          fz        enb',
+     + '          eb          ep',/)
+      endif
 c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + status='old',form='formatted')
@@ -2204,9 +2216,16 @@ c
       read(lfntop,2009) cat,ism,iss
  2009 format(a16,5x,2i5)
       idyn=iand(ibs(i),3)
-      write(lfnout,1008) ism,iss,cat,idyn,
+      if(npener.le.0) then
+      write(lfnout,1009) ism,iss,cat,idyn,
      + (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
- 1008 format(2i5,':',a16,i1,1x,3f8.4,3x,3f12.3)
+ 1009 format(2i5,':',a16,i1,1x,3f8.4,3x,3f12.3)
+      else
+      write(lfnout,1010) ism,iss,cat,idyn,
+     + (bxs(i,j),j=1,3),(bfs(i,j),j=1,3),esa(i,1),esa(i,2),
+     + esa(i,1)+esa(i,2)
+ 1010 format(2i5,':',a16,i1,1x,3f8.4,3x,3f12.3,3(2x,1pe10.3))
+      endif
     9 continue
     6 continue
       endif

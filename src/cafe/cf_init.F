@@ -4,8 +4,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq)
-c $Id: cf_init.F,v 1.51 2000-06-02 15:37:50 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg)
+c $Id: cf_init.F,v 1.52 2000-07-14 19:54:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -21,7 +21,7 @@ c
       integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
-      integer issscl
+      integer issscl,npenrg
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc
 c
@@ -59,6 +59,7 @@ c
       ndxp=0
       maxl=0
       lanal=nfanal.gt.0
+      npener=npenrg
 c
       npgdec=npgi
 c
@@ -108,7 +109,6 @@ c
       ngrss=0
       ireact=0
       iset=idset
-      npener=0
       issscl=0
       nrwrec=0
       isolvo=0
@@ -1257,7 +1257,7 @@ c
 c
       return
       end
-      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess)
+      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess,esa)
 c     + vw,vwt,vs,vst,zwi,zs,eww,esw,ess)
 c
 c     in r*8 : bx(3) : box dimensions
@@ -1271,6 +1271,7 @@ c
 c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
       real*8 bx(3),vl(3,3),vli(3,3),zwi(3,2),zs(msf,3,2)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
+      real*8 esa(nsa,2)
       logical lp,llng
 c
       integer i,j,k,l,m
@@ -1323,6 +1324,13 @@ c
       ep2(l)=zero
       ep3(l)=zero
     8 continue
+c
+      if(npener.gt.0) then
+      do 10 i=1,nsa
+      esa(i,1)=zero
+      esa(i,2)=zero
+   10 continue
+      endif
 c
       if(me.eq.0) eww(6,1)=dble(nwm)*ewc(iset)
 c

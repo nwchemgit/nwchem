@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.93 2000-07-13 23:15:27 edo Exp $
+c $Id: md_main.F,v 1.94 2000-07-14 19:54:03 d3j191 Exp $
 c
       implicit none
 c
@@ -88,7 +88,7 @@ c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
       call prp_print()
 c
@@ -102,7 +102,7 @@ c
       call cf_print_energy(lfnout)
 c
       call sp_printf(lfnout,filtop,lfntop,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs))
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(itest.gt.0) call md_test()
 c
@@ -173,7 +173,7 @@ c
       call cf_print_energy(lfnout)
 c
       call sp_printf(lfnout,filtop,lfntop,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs))
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       return
       end
@@ -258,7 +258,7 @@ c
       lpair=.true.
 c
 c     atomic forces and potential energies
-c
+cl forces
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
@@ -267,7 +267,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
       epsd=epot
       epsdw=epotw
@@ -353,7 +353,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -467,7 +467,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
       ecgnew=epot
       eqrs=epot
@@ -700,7 +700,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
       ecg2=epot
       epcgw=epotw
@@ -780,7 +780,7 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
 c
       dxmax=zero
       dxwmax=zero
@@ -943,7 +943,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
       call md_server
       call timer_stop(1)
     1 continue
@@ -959,7 +959,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -1090,7 +1090,7 @@ c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm))
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa))
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -1485,7 +1485,7 @@ c
 c     initialize cf
 c
       call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
-     + dbl_mb(i_esw),dbl_mb(i_ess))
+     + dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_esa))
 c
       if(lpair) call md_zinit(int_mb(i_iwz),int_mb(i_isz))
 c
@@ -1689,7 +1689,7 @@ c
      + dbl_mb(i_zs),isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),
      + isl(1,lsfrc),isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),
      + isl(1,lsct3),int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
-     + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
+     + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_esa))
       else
       call forcep(lself,lpbcs,xw,xwm,fw,dbl_mb(i_pw),dbl_mb(i_pwp),zw,
      + dbl_mb(i_rtos),iwl(1,lwdyn),int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,
@@ -1697,7 +1697,7 @@ c
      + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
      + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
-     + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
+     + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess),dbl_mb(i_esa))
       endif
       call timer_stop(itforc)
 c
@@ -2070,7 +2070,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.93 2000-07-13 23:15:27 edo Exp $
+c $Id: md_main.F,v 1.94 2000-07-14 19:54:03 d3j191 Exp $
 c
       implicit none
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.67 2000-07-13 19:08:19 d3j191 Exp $
+c $Id: cf_main.F,v 1.68 2000-07-14 19:54:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2732,6 +2732,123 @@ c
       do 1 i=1,nsatot
       write(lfnout,1009) snam(i),(dec(j,i),j=1,5)
  1009 format(1x,a16,5f12.3)
+    1 continue
+c
+      return
+      end
+      subroutine cf_add_esa(esa)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      real*8 esa(nsa,2)
+c
+      if(numb(2).gt.0) call cf_add_ebonds(numb(2),mbt(2),mbp(2),
+     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),esa)
+c
+      if(numh(2).gt.0) call cf_add_eangles(numh(2),mht(2),mhp(2),
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),esa)
+c
+      if(numd(2).gt.0) call cf_add_edihes(numd(2),mdt(2),mdp(2),
+     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),esa)
+c
+      if(numi(2).gt.0) call cf_add_eimprs(numi(2),mit(2),mip(2),
+     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),esa)
+c
+      return
+      end
+      subroutine cf_add_ebonds(nsb,msb,msp,ibnd,bnd,rbnd,esa)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nsb,msb,msp
+      integer ibnd(msb,3)
+      real*8 bnd(msb,msp,6),rbnd(msb,2),esa(nsa,2)
+c
+      integer i,j
+c
+      do 1 i=1,nsb
+      if(ibnd(i,3).eq.0) then
+      write(*,'(2i5,f12.6)') ibnd(i,1),ibnd(i,2),rbnd(i,2)
+      esa(ibnd(i,1),2)=esa(ibnd(i,1),2)+half*rbnd(i,2)
+      esa(ibnd(i,2),2)=esa(ibnd(i,2),2)+half*rbnd(i,2)
+      endif
+    1 continue
+c
+      return
+      end
+      subroutine cf_add_eangles(nsh,msh,msp,iang,ang,rang,esa)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nsh,msh,msp
+      integer iang(msh,4)
+      real*8 ang(msh,msp,6),rang(msh,2),esa(nsa,2)
+c
+      integer i,j
+c
+      do 1 i=1,nsh
+      esa(iang(i,1),2)=esa(iang(i,1),2)+third*rang(i,2)
+      esa(iang(i,2),2)=esa(iang(i,2),2)+third*rang(i,2)
+      esa(iang(i,3),2)=esa(iang(i,3),2)+third*rang(i,2)
+    1 continue
+c
+      return
+      end
+      subroutine cf_add_edihes(nsd,msd,msp,idih,dih,rdih,esa)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nsd,msd,msp
+      integer idih(msd,5)
+      real*8 dih(msd,msp,6),rdih(msd,2),esa(nsa,2)
+c
+      integer i,j
+c
+      do 1 i=1,nsd
+      esa(idih(i,1),2)=esa(idih(i,1),2)+fourth*rdih(i,2)
+      esa(idih(i,2),2)=esa(idih(i,2),2)+fourth*rdih(i,2)
+      esa(idih(i,3),2)=esa(idih(i,3),2)+fourth*rdih(i,2)
+      esa(idih(i,4),2)=esa(idih(i,4),2)+fourth*rdih(i,2)
+    1 continue
+c
+      return
+      end
+      subroutine cf_add_eimprs(nso,mso,msp,ioop,oop,roop,esa)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nso,mso,msp
+      integer ioop(mso,5)
+      real*8 oop(mso,msp,6),roop(mso,2),esa(nsa,2)
+c
+      integer i,j
+c
+      do 1 i=1,nso
+      esa(ioop(i,1),2)=esa(ioop(i,1),2)+fourth*roop(i,2)
+      esa(ioop(i,2),2)=esa(ioop(i,2),2)+fourth*roop(i,2)
+      esa(ioop(i,3),2)=esa(ioop(i,3),2)+fourth*roop(i,2)
+      esa(ioop(i,4),2)=esa(ioop(i,4),2)+fourth*roop(i,2)
     1 continue
 c
       return

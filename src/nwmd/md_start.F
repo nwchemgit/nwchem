@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.72 2000-07-13 19:14:18 d3j191 Exp $
+c $Id: md_start.F,v 1.73 2000-07-14 19:54:03 d3j191 Exp $
 c
       implicit none
 c
@@ -43,7 +43,8 @@ c
      + tstep,tlwsha,mshitw,mshits,noshak,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
-     + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq)
+     + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
+     + npener)
 c
 c     print topology information
 c     --------------------------
@@ -61,7 +62,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof,npmf)
+     + nsa,ddacq,edacq,iprof,npmf,npener)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -116,6 +117,14 @@ c
      + call errquit('Failed to allocate memory for ess',0)
       if(.not.ma_push_get(mt_dbl,msf,'esk',l_esk,i_esk))
      + call errquit('Failed to allocate memory for esk',0)
+      if(npener.eq.0) then
+      if(.not.ma_push_get(mt_dbl,1,'esa',l_esa,i_esa))
+     + call errquit('Failed to allocate memory for esa',0)
+      else
+      if(.not.ma_push_get(mt_dbl,2*nsa,'esa',l_esa,i_esa))
+     + call errquit('Failed to allocate memory for esa',0)
+      print*,'2*nsa=',2*nsa
+      endif
       if(ipolt.gt.0) then
       if(.not.ma_push_get(mt_dbl,6*mwa*mwm,'pw',l_pw,i_pw))
      + call errquit('Failed to allocate memory for pw',0)

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.37 2000-06-09 17:18:17 d3j191 Exp $
+c $Id: md_common.fh,v 1.38 2000-07-14 19:54:03 d3j191 Exp $
 c
 c     parameters
 c
@@ -194,10 +194,10 @@ c
      + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
      + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
-     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa
       common/md_ptr/i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
      + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
      + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
-     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm
+     + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.49 2000-07-14 01:04:58 edo Exp $
+c $Id: prp_main.F,v 1.50 2000-07-14 19:54:04 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
      + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
-     + npolit,gsm)
+     + npolit,gsm,esa)
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
-      real*8 dwr,dsr(msm),gsm(msm,4)
+      real*8 dwr,dsr(msm),gsm(msm,4),esa(nsa,2)
 c
       integer i,j,k,it
 c
@@ -273,6 +273,7 @@ c      endif
 c
       endif
 c
+      if(npener.gt.0) call cf_add_esa(esa)
       if(np.gt.0) then
       call ga_dgop(mrg_d44,p(9),3,'max')
       if(me.ne.0) then
@@ -285,6 +286,7 @@ c
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
       call ga_dgop(mrg_d43,epme,3,'+')
+      if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
 c
       if(p(98).ne.0) then
