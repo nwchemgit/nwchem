@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.54 2003-02-20 01:24:51 mhackler Exp $
+* $Id: mp2_energy.F,v 1.55 2003-02-20 17:27:08 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -80,8 +80,6 @@ c
       external cphf
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
-      logical geom_freeze
-      external geom_freeze
 
       character*(nw_max_path_len) cphf_sol
       integer natoms, l_grad, k_grad, g_tmpa, g_tmpb
