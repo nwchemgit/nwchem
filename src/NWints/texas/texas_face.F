@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.15 1996-02-12 19:44:44 d3g681 Exp $
+c $Id: texas_face.F,v 1.16 1996-02-14 17:12:40 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -237,12 +237,9 @@ c::passed
       integer l_blsize
 c::local
       integer geom, basis 
-      integer type, i, j, k, nprim, icoef, nshells, ishell, ngen
-      integer sphcart, kend
       integer nat ! number of atoms
-      integer center ! center for a given contr. shell
       integer npshells ! total number of primitive shells
-      integer ipshell 
+      integer nshells
       integer size_from_ma
       integer inuc,ibas
 c----------------------------------------------------------------
@@ -268,7 +265,6 @@ c only for tests - end
 c----------------------------------------------------------------------
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
-      character*255 basis_name,trans_bname
       integer bas
 c
 c

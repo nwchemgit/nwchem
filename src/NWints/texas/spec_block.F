@@ -539,20 +539,20 @@ c checking :
          stop 'pair conflict'
       endif
 c---------------------------------------------------------------
-d     do 2500 ibl=1,nbl2
-d     ijcs1=ijbl(ibl,1)
-d     ics1=iis(ijcs1)
-d     jcs1=jjs(ijcs1)
-d     it1=inx(12,ics1)
-d     jt1=inx(12,jcs1)
-d     ic1=inx(5,ics1)-inx(1,ics1)
-d     jc1=inx(5,jcs1)-inx(1,jcs1)
-d     ijpar=npar(ibl)
-d     write(8,502) ibl,ijpar,it1,jt1,ic1,jc1
-d2500 continue
-d 502 format(/'Block no=',i3,2x,'  contains ',i3,' pairs of contracted s
-d    *hells'/
-d    *'   Itype=',i2,' Jtype=',i2,'   Icontr=',i2,' Jcontr=',i2/)
+c>>d     do 2500 ibl=1,nbl2
+c>>d     ijcs1=ijbl(ibl,1)
+c>>d     ics1=iis(ijcs1)
+c>>d     jcs1=jjs(ijcs1)
+c>>d     it1=inx(12,ics1)
+c>>d     jt1=inx(12,jcs1)
+c>>d     ic1=inx(5,ics1)-inx(1,ics1)
+c>>d     jc1=inx(5,jcs1)-inx(1,jcs1)
+c>>d     ijpar=npar(ibl)
+c>>d     write(8,502) ibl,ijpar,it1,jt1,ic1,jc1
+c>>d2500 continue
+c>>d 502 format(/'Block no=',i3,2x,'  contains ',i3,' pairs of contracted s
+c>>d    *hells'/
+c>>d    *'   Itype=',i2,' Jtype=',i2,'   Icontr=',i2,' Jcontr=',i2/)
 c---------------------------------------------------------------
       end
 c===============================================================
