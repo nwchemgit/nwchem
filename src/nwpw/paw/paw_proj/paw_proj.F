@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.19 2003-01-30 21:44:07 marat Exp $
+* $Id: paw_proj.F,v 1.20 2003-01-30 21:54:08 marat Exp $
 *
 
 
@@ -95,13 +95,7 @@ c     *** allocate kspace arrays***
      >            dcpl_mb(prj(1)+int_mb(prj_indx(1)+ia-1)))
       end do
 
-c     *** set the size of overlap weights ***      
-      w(3) = 0
-      do ia=1,prj_nkatm
-        w(3) = w(3) + paw_proj_nbasis(ia)*ion_nion(ia) 
-      end do
-
-      write(*,*) "paw_proj:w(3):",w(3)
+     
       return
       end
 
