@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.69 1994-10-07 19:39:42 d3g681 Exp $
+# $Id: makefile.h,v 1.70 1994-10-07 21:00:51 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -324,14 +324,14 @@ ifeq ($(TARGET),SGI)
 
   FOPTIONS = -mips2
   COPTIONS = -mips2 -fullwarn
- FOPTIMIZE = -g
- COPTIMIZE = -g
+ FOPTIMIZE = -O2
+ COPTIMIZE = -O2
 
     DEFINES = -DSGI 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	      -lstepper -lmoints \
-              -lguess -lglobal -lutil -lglobal\
+              -lguess -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas -lmalloc 
 
   EXPLICITF = FALSE
