@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.5 2004-05-24 13:43:18 bylaska Exp $
+   $Id: psp1d.c,v 1.6 2004-09-22 00:39:00 bylaska Exp $
 */
 
 #include	<stdio.h>
@@ -385,9 +385,11 @@ void	init_Psp(char *filename)
    }
 
    /* define the ion charge */
-   //Zion=0.0;
-   //for (p=Ncore_Atom(); p<(Ncore_Atom()+Nvalence_Atom()); ++p)
-   //   Zion += fill_Atom(p);
+   /*
+     Zion=0.0;
+     for (p=Ncore_Atom(); p<(Ncore_Atom()+Nvalence_Atom()); ++p)
+        Zion += fill_Atom(p);
+   */
 
    Zion = Zion_Atom();
    for (p=0; p<(Ncore_Atom()); ++p)

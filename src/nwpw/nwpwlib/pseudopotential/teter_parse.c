@@ -1,5 +1,5 @@
 /*
- $Id: teter_parse.c,v 1.1 2004-05-24 13:43:19 bylaska Exp $
+ $Id: teter_parse.c,v 1.2 2004-09-22 00:39:00 bylaska Exp $
 */
 
 #include <math.h>
@@ -264,9 +264,11 @@ Integer	*n3;
    {
       for (i=0; i<Ngrid; ++i)
       {
-        //xx = rgrid[i]/(rchrg);
-        //  gg=sin(2.0*pi*xx)/( (2.0*pi*xx)*(1.0-4.0*xx*xx)*(1.0-xx*xx) );
-        //gg=gg*gg;
+        /*
+          xx = rgrid[i]/(rchrg);
+          gg=sin(2.0*pi*xx)/( (2.0*pi*xx)*(1.0-4.0*xx*xx)*(1.0-xx*xx) );
+          gg=gg*gg;
+        */
         xx = rgrid[i]/(rchrg);
         sc_rho[i] = 4*pi*fchrg*tetercc(xx);
       }

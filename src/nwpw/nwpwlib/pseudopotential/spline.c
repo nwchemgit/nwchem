@@ -1,5 +1,5 @@
 /*
- $Id: spline.c,v 1.3 2004-05-24 13:43:19 bylaska Exp $
+ $Id: spline.c,v 1.4 2004-09-22 00:39:00 bylaska Exp $
    spline.c -
     Taken from Numerical recipies, with slight modifications as
 suggested by hamman's code.
@@ -179,7 +179,9 @@ double	rl[];
 double	ulin[];
 {
    int i,Ngrid;
-   //int	nl[5000];
+   /*
+     int	nl[5000];
+   */
    double r0,al;
    double *r;
    double *tmp;
