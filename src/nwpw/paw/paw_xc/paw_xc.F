@@ -1,6 +1,10 @@
-!$Id: paw_xc.F,v 1.9 2003-02-21 21:09:38 marat Exp $
+!$Id: paw_xc.F,v 1.10 2003-02-24 01:13:55 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.9  2003/02/21 21:09:38  marat
+!...
+!MV
+!
 !Revision 1.8  2003/02/20 18:19:26  edo
 !removed f90-isms
 !
@@ -699,6 +703,19 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
       ok = ok .and. my_dealloc(vxc_ae)
       ok = ok .and. my_dealloc(rho_ps)
       ok = ok .and. my_dealloc(rho_ae)
+     
+      ok = ok .and. my_dealloc(xc_temp)
+      ok = ok .and. my_dealloc(xc_c_temp)
+      ok = ok .and. my_dealloc(xc_c_temp1)
+
+      ok = ok .and. my_dealloc(paw_xc_pot_d)
+      ok = ok .and. my_dealloc(paw_xc_pot_u)
+      ok = ok .and. my_dealloc(i_paw_xc_pot)
+      ok = ok .and. my_dealloc(paw_xc_matr_d)
+      ok = ok .and. my_dealloc(paw_xc_matr_u)
+      ok = ok .and. my_dealloc(i_paw_xc_matr)
+      ok = ok .and. my_dealloc(paw_xc_e)
+
 
       ok = ok. and. my_dealloc(paw_xc_ylm) 
       if (.not.ok)
