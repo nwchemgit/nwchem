@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.197 1997-01-29 17:02:54 bmeng Exp $
+# $Id: makefile.h,v 1.198 1997-01-31 22:04:11 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -237,7 +237,7 @@ ifeq ($(TARGET),SOLARIS)
 #
 # setenv PURECOV 1
 # FLINT = 1
-  FLINT = 1
+#  FLINT = 1
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
