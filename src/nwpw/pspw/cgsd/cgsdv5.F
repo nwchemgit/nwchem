@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.45 2004-03-15 15:17:42 bylaska Exp $
+* $Id: cgsdv5.F,v 1.46 2004-05-05 19:32:37 bylaska Exp $
 *
 
 ***********************************************************************
@@ -58,7 +58,7 @@
       logical oprint,lprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      integer i,k,ia,nion,icharge,minimizer
+      integer i,k,ia,nion,icharge,minimizer,mapping
   
 
 
@@ -129,6 +129,8 @@
       external control_ks_alpha
       logical  control_print
       external control_print
+      integer  control_mapping
+      external control_mapping
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -153,6 +155,7 @@
       oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
       hprint= ((taskid.eq.MASTER).and.control_print(print_high))
+
 
       if (oprint) call current_second(cpu1)
 
@@ -183,6 +186,7 @@
       ngrid(3) = control_ngrid(3)
       nwave = 0
       minimizer = control_minimizer()
+      mapping   = control_mapping()
 
 
       ierr = 0 
@@ -198,13 +202,13 @@
 
 
 *     **** initialize D3dB data structure ****
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4)
-     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),1)
+     >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 
  
@@ -282,6 +286,8 @@ c     value = psi_initialize()
 
       if (oprint) then
          write(6,1111) np
+         if (mapping.eq.1) write(6,1112) 
+         if (mapping.eq.2) write(6,1113) 
          write(6,1115)
 
          write(6,1121) control_boundry(),control_version()
@@ -610,6 +616,8 @@ c     end if
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
+ 1112 FORMAT( ' parallel mapping         : slab')
+ 1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
