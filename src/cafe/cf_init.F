@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl,ltwn)
-c $Id: cf_init.F,v 1.80 2002-08-09 22:16:13 d3j191 Exp $
+c $Id: cf_init.F,v 1.81 2002-08-13 02:54:31 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -379,6 +379,7 @@ c
      + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5),ipmf(i,8)
  1000 format(3i5,2f12.6,2e12.5,5i5)
+      if(ipmf(i,8).eq.0) ipmf(i,8)=1
       if(ipmf(i,6).ne.0) nbias=nbias+1
       do 2 j=1,2
       rpmf(j,2,i)=rpmf(j,1,i)
@@ -425,7 +426,7 @@ c
       endif
 c
       call ga_sync()
-      call ga_brdcst(mcf_60,ipmf,7*numpmf*lenint,0)
+      call ga_brdcst(mcf_60,ipmf,8*numpmf*lenint,0)
       call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
       call ga_brdcst(mcf_62,rpmf,18*numpmf*lendbl,0)
       if(ithint) call ga_brdcst(mcf_30,ith,24*lenlog,0)
