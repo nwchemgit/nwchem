@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.28 2000-04-22 01:05:43 edo Exp $
+c     $Id: dft_fitvc.F,v 1.29 2000-04-25 20:09:10 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -44,7 +44,7 @@ c
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
      ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,next,
-     ,     ntasks,nshbf_cd,imat
+     ,     ntasks,nshbf_cd,imat,ninteg_api
       integer lcd_shell,icd_shell,lsvec,isvec,
      ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
@@ -361,8 +361,8 @@ c
                 if( .not.bas_cn2bfr(CD_bas_han, ishp, ifirstp, ilastp))
      &            call errquit('Exiting in fitvcoul.',5)
                 nshbf_cd=ilastp-ifirstp+1
-c                Nintegrals=nshbf_cd*Nao2
-                Nintegrals=maxg
+                Nintegrals=nshbf_cd*Nao2
+                Ninteg_api=maxg
                 Vcoul_est = Dbl_MB((icd_shell-1)+ishp)*ERI_est
                 if( Vcoul_est.gt.THRESHOLD )then
 c                  
@@ -375,7 +375,7 @@ c
                   if (oskel .and. .not.dermat) then
                      if (sym_shell(cd_bas_han, ishp, q1))then
                         call int_2e3c(CD_bas_han,ishp,AO_bas_han,
-     &                  ishc,ishd,nscr,Dbl_MB(iscr),Nintegrals,
+     &                  ishc,ishd,nscr,Dbl_MB(iscr),Ninteg_api,
      &                  Dbl_MB(iERI))
                         call dscal(Nintegrals, q1, Dbl_MB(iERI), 1)
 c                   
