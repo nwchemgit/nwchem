@@ -50,6 +50,10 @@ OBJ_ENERGY = \
       ecp_t2_p0pow.o \
       ecp_t2_p1pow.o \
       ecp_up_k.o     \
+      ecp_local0.o   \
+      ecp_local1.o   \
+      ecp_local2.o   \
+      ecp_locint1.o  \
       ecp_local.o    \
       ecp_ind_var.o  
 
@@ -78,6 +82,10 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_int2.F     \
       ecp_integral.F \
       ecp_local.F    \
+      ecp_local0.F   \
+      ecp_local1.F   \
+      ecp_local2.F   \
+      ecp_locint1.F  \
       ecp_radint0.F  \
       ecp_radint1.F  \
       ecp_radint2.F  \
