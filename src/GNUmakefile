@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.12 1994-09-22 21:28:27 d3g681 Exp $
+# $Id: GNUmakefile,v 1.13 1994-09-22 21:35:02 d3g681 Exp $
 
 include config/makefile.h
 
@@ -43,6 +43,7 @@ clean:
 	done
 
 realclean:
+	-/bin/rm -f nwchem core *.o *.a *.trace ../lib/*.a
 	-/bin/rm -f *~ \#*\#
 	for dir in $(SUBDIRS) ../tests; do \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
