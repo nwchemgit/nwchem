@@ -13,9 +13,9 @@ c
 c
 c
       parameter(detci_maxsy=8)
-      parameter(detci_maxorb=11)
-      parameter(detci_maxelec_tot=10)
-      parameter(detci_maxelec=6)
+      parameter(detci_maxorb=14)
+      parameter(detci_maxelec_tot=18)
+      parameter(detci_maxelec=10)
       parameter(detci_maxguess_cfg=6)
 c
 c
