@@ -23,7 +23,7 @@ c
       integer lenbas
       integer ok, i
 c
-      call pstat_on(ps_vecio)
+      if (oscfps) call pstat_on(ps_vecio)
       ok = 0
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
@@ -62,7 +62,7 @@ c
       call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
       call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)
 c
-      call pstat_off(ps_vecio)
+      if (oscfps) call pstat_off(ps_vecio)
 c
       return
 c
@@ -113,7 +113,7 @@ c
       integer unitno
       parameter (unitno = 67)
 c     
-      call pstat_on(ps_vecio)
+      if (oscfps) call pstat_on(ps_vecio)
       ok = 0
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
@@ -162,7 +162,7 @@ c
       endif
 c
       movecs_read = ok .eq. 1
-      call pstat_off(ps_vecio)
+      if (oscfps) call pstat_off(ps_vecio)
       return
 c
  1000 write(6,*) ' movecs_read: failed to open ', filename
@@ -214,7 +214,7 @@ c
       integer l_vecs, k_vecs
       integer ok, iset, i, j
 c
-      call pstat_on(ps_vecio)
+      if (oscfps) call pstat_on(ps_vecio)
       ok = 0
       if (ga_nodeid() .eq. 0) then
          if (nsets .gt. 2) then
@@ -254,7 +254,7 @@ c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
 c
       movecs_write = ok .eq. 1
-      call pstat_off(ps_vecio)
+      if (oscfps) call pstat_off(ps_vecio)
       return
 c
  1000 write(6,*) ' movecs_write: failed to open ', filename
