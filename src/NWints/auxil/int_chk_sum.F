@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.5 1994-08-21 22:00:29 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.6 1994-08-22 23:36:47 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -213,6 +213,10 @@ c
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       do 01000 i = 1,ncont
+        if((me.eq.0).and.(mod(i,10).eq.0)) then
+          write(6,*)' 2e4c outer loop counter ',i,' of ',ncont
+          call util_flush(6)
+        endif
         do 02000 j = 1, i
           do 03000 k = 1, i
             lend = k
@@ -250,6 +254,10 @@ c
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       do 01001 i = 1,ncont
+        if((me.eq.0).and.(mod(i,10).eq.0)) then
+          write(6,*)' 2e3c outer loop counter ',i,' of ',ncont
+          call util_flush(6)
+        endif
         do 02001 j = 1, i
           do 03001 k = 1, j
             idoit = idoit + 1
@@ -283,6 +291,10 @@ c
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       do 01002 i = 1,ncont
+        if((me.eq.0).and.(mod(i,10).eq.0)) then
+          write(6,*)' 2e2c outer loop counter ',i,' of ',ncont
+          call util_flush(6)
+        endif
         do 02002 j = 1, i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
@@ -366,6 +378,7 @@ c::local
       write(6,10001)
       write(6,10002)stats
       write(6,10001)
+      call util_flush(6)
 10000 format(/,75('-'))
 10001 format(75('-'))
 10002 format(5(1pd12.5,3x))
