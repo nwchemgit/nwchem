@@ -1,5 +1,5 @@
-      logical function int_normalize(basisin,rtdb)
-c $Id: int_norm.F,v 1.9 2000-02-04 17:33:56 mg201 Exp $
+      logical function int_normalize(rtdb,basisin)
+c $Id: int_norm.F,v 1.10 2000-02-04 19:43:33 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "bas.fh"
@@ -37,15 +37,15 @@ c
       if (dyall_mod_dir .and.
      &    ((basisin. eq. ao_bsh) .or. (basisin .eq. sc_bsh) .or.
      &     (basisin .eq. lc_bsh .and. nesc_1e_approx))) then
-        norm_typ = 3
+        norm_typ = BasNorm_rel
       else
-        norm_typ = 1
+        norm_typ = BasNorm_STD
       end if
       write (6,*) 'int_norm: norm_typ =',norm_typ,'; basis =',basisin
 c
 c check and set basis normalization
 c
-      norm_ok = bas_norm_id(basis).eq.BasNorm_STD
+      norm_ok = bas_norm_id(basis).eq.norm_typ
       if (norm_ok) return ! basis has been normalized properly
       norm_ok = bas_norm_id(basis).eq.BasNorm_UN
       if (.not.norm_ok) then
@@ -54,7 +54,7 @@ c
         write(luout,*)' basis has already been normalized somehow'
         call errquit('int_norm: basis normalization error ',911)
       endif
-      bas_norm_id(basis) = BasNorm_STD
+      bas_norm_id(basis) = norm_typ
 c
       nucont = infbs_head(HEAD_NCONT,basis)
       do iucont = 1, nucont
