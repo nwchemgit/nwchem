@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.18 2003-03-21 23:42:08 bylaska Exp $
+* $Id: electron.F,v 1.19 2003-04-22 18:05:11 bylaska Exp $
 *
 
 
@@ -1003,6 +1003,78 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *   electron_get_gradient_virtual *
+*     *					*
+*     ***********************************
+
+      subroutine electron_get_gradient_virtual(ms,orb,Horb)
+      implicit none
+      integer    ms
+      complex*16 orb(*)
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer nne(2),n2ft3d
+      integer tmp_r(2)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+      if (ms.eq.1) then
+        nne(1) = 1
+        nne(2) = 0
+      else
+        nne(1) = 0
+        nne(2) = 1
+      end if 
+
+      n2ft3d = 2*nfft3d
+
+      value = MA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
+      if (.not. value)
+     >   call errquit('electron_get_gradient_virtual: push stack',0)
+
+
+      call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
+      call Pack_c_unpack(1,  dbl_mb(tmp_r(1)))
+      call D3dB_cr_fft3b(1,  dbl_mb(tmp_r(1))) 
+
+
+*     **** get Hpsi ****
+      if (control_version().eq.3)
+     >  call psi_Horb(ispin,nne,orb,
+     >             dbl_mb(tmp_r(1)),
+     >             dbl_mb(vall(1)),
+     >             Horb)
+
+      if (control_version().eq.4)
+     >  call psi_Horbv4(ispin,nne,orb,
+     >             dbl_mb(tmp_r(1)),
+     >             dbl_mb(vall(1)),
+     >             Horb)
+
+      call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
+
+      value = MA_pop_stack(tmp_r(2))
+      if (.not. value) call errquit(
+     >     'electron_get_gradient_virtual: poping stack',1)
+
+
+      return
+      end
+
+
+
+
 
 
 *     ***************************

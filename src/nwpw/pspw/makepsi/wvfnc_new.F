@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.4 2003-04-22 18:05:11 bylaska Exp $
 *
 
       subroutine wvfnc_new(wavefunction_filename,
@@ -152,6 +152,17 @@ c       CFULL(L1)=CC(1)
         if (filling(4,1,ms).eq.0) cc=zx
         if (filling(4,1,ms).gt.0) cc=cx
         dcpl_mb(cfull_indx+l1) = cc
+        do k=1,nfft3d
+c         dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
+c    >           + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+          dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
+     >           + (0.5d0-util_random(9))
+        end do
+        P=gcdotc(nfft1,nfft2,nfft3,
+     >           dcpl_mb(cfull_indx),
+     >           dcpl_mb(cfull_indx))
+        P=1.0d0/dsqrt(P)
+        call dscal(n2ft3d,P,dcpl_mb(cfull_indx),1)
 
         call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
 
@@ -177,10 +188,11 @@ c           CFULL(L2)=DCONJG(CC(N))
           end if
 
           IF((ABS(filling(4,n,ms)).gt.1)) THEN
-            do 125 K=1,NFFT3D-1
-c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
+            do 125 K=0,NFFT3D-1
+c             dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
+c    >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-     >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+     >                   + (0.5d0-util_random(9))
   125       continue
             P=gcdotc(nfft1,nfft2,nfft3,
      >               dcpl_mb(cfull_indx),

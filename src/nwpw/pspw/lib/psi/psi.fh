@@ -1,9 +1,11 @@
 *
-* $Id: psi.fh,v 1.1 2002-06-25 19:51:26 bylaska Exp $
+* $Id: psi.fh,v 1.2 2003-04-22 18:05:11 bylaska Exp $
 *
 
 *     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer ispin,ne(2),nfft3d,npack1,npack0,ne_excited(2)
+      integer psi1_excited(2)
+      integer psi2_excited(2)
       integer psi1(2)
       integer psi2(2)
       integer rho1(2)
@@ -12,6 +14,10 @@
       integer dng2(2)
       integer hml(2)
       integer eig(2)
+      integer eig_excited(2)
       common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
      >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+      common / epsi_block / psi1_excited,psi2_excited,
+     >                      eig_excited,ne_excited
 

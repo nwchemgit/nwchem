@@ -1,6 +1,497 @@
 *
-* $Id: psi.F,v 1.27 2003-03-23 22:21:54 bylaska Exp $
+* $Id: psi.F,v 1.28 2003-04-22 18:05:11 bylaska Exp $
 *
+
+*     ***********************************
+*     *				        *
+*     *	     psi_minimize_virtual       *
+*     *				        *
+*     ***********************************
+      subroutine psi_minimize_virtual()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      !*** local variables ***
+      integer maxit_orb
+      integer i,ii,jj,ms,shift,shifte,l
+      real*8  sum,maxerror,error_out,e0
+
+      !*** external functions ***
+      real*8   control_tole
+      external control_tole
+
+      call psi_gen_density_potentials(1)
+      maxit_orb=120
+      maxerror = control_tole()
+
+      do ii=1,(ne_excited(1)+ne_excited(2))
+
+         !*** orthogonalize to lower orbitals  ****
+         call psi_project_out_virtual1(
+     >           ii,
+     >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
+
+         !*** normalize ****
+         call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            sum)
+         sum = 1.0d0/dsqrt(sum)
+         call Pack_c_SMul(1,sum,
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
+     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+
+         !*** minimize orbital ****
+          l = 0
+ 2        call psi_KS_update_virtual(maxit_orb,
+     >                               maxerror,
+     >                               0.001d0,ii,error_out,e0)
+          l = l+1
+          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+
+          dbl_mb(eig_excited(1)+ii-1) = e0
+
+      end do
+      call psi_sort_virtual()
+      
+     
+      return
+      end
+
+      subroutine psi_sort_virtual()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      logical value
+      integer i,j,ii,jj,ms
+      integer r1(2)
+      real*8  ei,ej
+
+      value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: out of stack memory',0)
+
+      do ms=1,ispin
+
+        !*** Bubble sort ***
+        do ii=1,ne_excited(ms)
+         do jj=ii+1,ne_excited(ms)
+           i = ii + (ms-1)*ne_excited(1)
+           j = jj + (ms-1)*ne_excited(1)
+           ei = dbl_mb(eig_excited(1)+i-1)
+           ej = dbl_mb(eig_excited(1)+j-1)
+
+           !*** swap ***
+           if (ej.lt.ei) then
+             write(*,*) "swap:",ii,jj,ei,ej
+             dbl_mb(eig_excited(1)+i-1) = ej
+             dbl_mb(eig_excited(1)+j-1) = ei
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(i-1)*npack1),
+     >                          dcpl_mb(r1(1)))
+             call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(j-1)*npack1),
+     >                          dcpl_mb(psi1_excited(1)+(i-1)*npack1))
+             call Pack_c_Copy(1,dcpl_mb(r1(1)),
+     >                          dcpl_mb(psi1_excited(1)+(j-1)*npack1))
+           end if
+
+         end do
+        end do
+
+      end do
+
+      value = MA_pop_stack(r1(2))
+      if (.not. value) call errquit(
+     >     'psi_sort_virtual: popping stack memory',1)
+      return
+      end
+
+*     ***********************************
+*     *				        *
+*     *	     psi_KS_update_virtual      *
+*     *				        *
+*     ***********************************
+
+*    This routine performs a KS update on virtual ii
+*
+      subroutine psi_KS_update_virtual(maxiteration,
+     >                             maxerror,perror,ii,
+     >                             error_out,e0)
+      implicit none
+      integer maxiteration
+      real*8  maxerror,perror 
+      integer ii
+      real*8 error_out
+      real*8 e0
+      
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical value,done,oneloop
+      integer it
+      real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      integer r1(2),t0(2),t(2),g(2)
+      integer psi_ptr
+
+      psi_ptr=psi1_excited(1)
+
+      call Parallel_taskid(taskid)
+
+      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_virtual: out of stack memory',0)
+
+      done = .false.
+      error0 = 0.0d0 
+      e0 = 0.0d0
+      it = 0
+ 2    continue
+
+         it = it + 1
+         eold = e0
+
+*        *** calculate residual (steepest descent) direction for a single band ***
+         call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+         call Pack_cc_dot(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(g(1)),
+     >                    e0)
+   
+         e0 = -e0
+         
+         if (it.eq.1) then
+           percent_error = 1.0d0
+         else if (it.eq.2) then
+           error0 = dabs(e0-eold)
+           percent_error = 1.0d0
+         else
+           percent_error = dabs(e0-eold)/error0
+         end if
+
+         done = ((it.gt.maxiteration) 
+     >           .or.
+     >           ((percent_error.lt.perror)
+     >           .and.(dabs(e0-eold).lt.maxerror)))
+
+         if (done) go to 4
+
+         call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+         call Pack_cc_daxpy(1,(e0),
+     >                 dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                 dcpl_mb(r1(1)))
+
+
+         !*** determine conjuagate direction ***
+         call Pack_cc_dot(1,dcpl_mb(r1(1)),
+     >                   dcpl_mb(r1(1)),
+     >                   lmbda_r1)
+         call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
+
+         if (it.gt.1) then
+         call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
+     >                   dcpl_mb(t0(1)),
+     >                   dcpl_mb(t(1)))
+         end if
+         lmbda_r0 = lmbda_r1
+         oneloop = .true.
+ 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+
+
+*        *** normalize search direction, t ****
+         call psi_project_out_virtual(ii,dcpl_mb(t(1)))
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                   dcpl_mb(t(1)),
+     >                   de0)
+         de0 = 1.0d0/dsqrt(de0)
+         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                   dcpl_mb(g(1)),
+     >                   de0)
+
+*        *** bad direction ***
+         if ((de0.lt.0.0d0).and.oneloop) then
+           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+           oneloop = .false.
+           go to 3
+         end if
+
+         de0 = -2.0d0*de0
+         call psi_linesearch_virtual(ii,e0,de0,dcpl_mb(t(1)))
+
+      go to 2
+
+
+*     **** release stack memory ****
+ 4    value =           MA_pop_stack(t(2)) 
+      value = value.and.MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(r1(2))
+      value = value.and.MA_pop_stack(t0(2))
+      if (.not. value) call errquit(
+     >     'psi_KS_update_virtual: popping stack memory',1)
+
+      error_out = dabs(e0-eold)
+      e0        = -e0
+      return
+      end
+
+*     ***********************************
+*     *				        *
+*     *	     psi_linesearch_virtual
+*     *				        *
+*     ***********************************
+
+*    This routine performs a linesearch on orbital ii, in the direction t.  
+* This routine is needed for a KS minimizer.
+*  e0 = <orb|g>
+*  de0 = 2*<t|g>
+*
+      subroutine psi_linesearch_virtual(ii,e0,de0,t)
+      implicit none
+      integer ii
+      real*8  e0,de0
+      complex*16 t(*) !search direction
+      
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+*     **** local variables ****
+      logical value
+      integer orb(2),g(2),psi_ptr
+      real*8 x,y,pi,theta,e1
+
+      psi_ptr=psi1_excited(1)
+
+      pi = 4.0d0*datan(1.0d0)
+
+*     **** allocate stack memory ****
+      value = MA_push_get(mt_dcpl,npack1,'orb',
+     >                       orb(2),orb(1))
+      value = value.and. 
+     >        MA_push_get(mt_dcpl,npack1,'g',
+     >                       g(2),g(1))
+      if (.not. value) call errquit(
+     >     'psi_linesearch_virtual: out of stack memory',0)
+ 
+
+      call Pack_c_Copy(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(orb(1)))
+
+*     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
+      x = cos(pi/300.0d0)
+      y = sin(pi/300.0d0)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+*     *** determine theta ***
+      call psi_get_gradient_virtual(ii,dcpl_mb(g(1)))
+      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                   dcpl_mb(g(1)),
+     >                   e1)
+      e1 = -e1
+      x = (e0 - e1 + 0.5d0*de0*sin(2*pi/300.0d0))
+     >    /(1.0d0-cos(2*pi/300.0d0))
+      theta = 0.5d0*datan(0.5d0*de0/x) 
+
+
+*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+      x = cos(theta)
+      y = sin(theta)
+      call Pack_c_SMul(1,x,
+     >                  dcpl_mb(orb(1)),
+     >                  dcpl_mb(psi_ptr+(ii-1)*npack1))
+      call Pack_cc_daxpy(1,y,
+     >                   t,
+     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
+
+
+*     **** release stack memory ****
+      value =           MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(orb(2))      
+      if (.not. value) call errquit(
+     >     'psi_linesearch_virtual: popping stack memory',1)
+
+      return
+      end
+
+
+*     ***********************************
+*     *				        *
+*     *	     psi_get_gradient_virtual	*
+*     *				        *
+*     ***********************************
+
+*    This routine returns the Hpsi(i).  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_get_gradient_virtual(ii,Horb)
+      implicit none
+      integer psi_number
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer psi_ptr,ms
+
+      psi_ptr=psi1_excited(1)+(ii-1)*npack1
+
+      if (ii.le.ne_excited(1)) then
+         ms = 1
+      else
+         ms = 2
+      end if
+
+      call electron_get_gradient_virtual(ms,dcpl_mb(psi_ptr),Horb)
+      
+      return
+      end
+
+*     *******************************************
+*     *				                *
+*     *	         psi_project_out_virtual1        *
+*     *				                *
+*     *******************************************
+*
+*    This routine projects out non-orthogonal components of Horb.  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_project_out_virtual1(ii,Horb)
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,i,jj,kk,shift,shifte
+      real*8  sum
+
+*     **** spin up orbital ****
+      if (ii.le.ne_excited(1)) then
+
+         shift  = 0
+         shifte = 0
+         ms     = 1
+         kk     = ii
+*     **** spin down orbital ****
+      else
+         shift  = ne(1)*npack1
+         shifte = ne_excited(1)*npack1
+         ms     = 2
+         kk     = ii-ne_excited(1)
+      end if 
+
+      !**** project out filled orbitals ****
+      do i=1,ne(ms)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb)
+      end do      
+
+      !**** project out virtual orbitals ****
+      do jj=1,(kk-1)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(jj-1)*npack1+shifte),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1_excited(1) +(jj-1)*npack1+shifte),
+     >            Horb)
+      end do
+
+
+      return
+      end
+
+
+
+
+*     *******************************************
+*     *				                *
+*     *	         psi_project_out_virtual        *
+*     *				                *
+*     *******************************************
+*
+*    This routine projects out non-orthogonal components of Horb.  
+* This routine is needed for a KS minimizer.
+*
+      subroutine psi_project_out_virtual(ii,Horb)
+      integer ii
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,i,jj,kk,shift,shifte
+      real*8  sum
+
+*     **** spin up orbital ****
+      if (ii.le.ne_excited(1)) then
+
+         shift  = 0
+         shifte = 0
+         ms     = 1
+         kk     = ii
+*     **** spin down orbital ****
+      else
+         shift  = ne(1)*npack1
+         shifte = ne_excited(1)*npack1
+         ms     = 2
+         kk     = ii-ne_excited(1)
+      end if 
+
+      !**** project out filled orbitals ****
+      do i=1,ne(ms)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1(1) +(i-1)*npack1+shift),
+     >            Horb)
+      end do      
+
+      !**** project out virtual orbitals ****
+      do jj=1,(kk)
+        call Pack_cc_dot(1,
+     >            dcpl_mb(psi1_excited(1) +(jj-1)*npack1+shifte),
+     >            Horb,
+     >            sum)
+
+        call Pack_cc_daxpy(1,(-sum),
+     >            dcpl_mb(psi1_excited(1) +(jj-1)*npack1+shifte),
+     >            Horb)
+      end do
+
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -199,6 +690,7 @@
       error_out = dabs(e0-eold)
       return
       end
+
 
 *     ***********************************
 *     *				        *
@@ -486,6 +978,9 @@
  
       return
       end
+
+
+
 
 
 
@@ -2229,6 +2724,24 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
+*     *                                 *
+*     *          psi_virtual            *
+*     *                                 *
+*     ***********************************
+      real*8  function psi_virtual(ms,i)
+      implicit none
+      integer ms
+      integer i
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      psi_virtual=dbl_mb(eig_excited(1)+(i-1)+(ms-1)*ne_excited(1))
+
+      return
+      end
+
+*     ***********************************
 *     *					*
 *     *		psi_hml		   	*
 *     *					*
@@ -2555,6 +3068,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       return
       end
 
+
+
 *     ***************************
 *     *				*
 *     *		psi_initialize 	*
@@ -2651,8 +3166,6 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       end if
 
-
-
       psi_initialize = value
       return
       end
@@ -2685,20 +3198,115 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
     
       value = MA_free_heap(eig(2))
-      value = MA_free_heap(hml(2))
-      value = MA_free_heap(dng2(2))
-      value = MA_free_heap(dng1(2))
-      value = MA_free_heap(rho2(2))
-      value = MA_free_heap(rho1(2))
-      value = MA_free_heap(psi2(2))
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(rho2_all(2))
-      value = MA_free_heap(rho1_all(2))
+      value = value.and.MA_free_heap(hml(2))
+      value = value.and.MA_free_heap(dng2(2))
+      value = value.and.MA_free_heap(dng1(2))
+      value = value.and.MA_free_heap(rho2(2))
+      value = value.and.MA_free_heap(rho1(2))
+      value = value.and.MA_free_heap(psi2(2))
+      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.MA_free_heap(rho2_all(2))
+      value = value.and.MA_free_heap(rho1_all(2))
+      if (.not. value) 
+     >  call errquit('psi_finalize: error freeing heap',0)
 
       psi_finalize = value
       return
       end
 
+
+*     ***************************
+*     *                         *
+*     *      psi_ne_excited     *
+*     *                         *
+*     ***************************
+      integer function psi_ne_excited(ms)
+      implicit none
+      integer ms
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      psi_ne_excited = ne_excited(ms)
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *     epsi_initialize 	*
+*     *				*
+*     ***************************
+
+      logical function epsi_initialize()
+      implicit none 
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value
+      integer nemax,ispin0
+      real*8 sum1,sum2
+
+*     ***** get ispin, and ne, and nfft3d ****
+      call psi_get_ne_excited(ispin0,ne_excited)
+      nemax = ne_excited(1)+ne_excited(2)
+
+*     **** allocate memory ****
+      value = MA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi2_excited',psi2_excited(2),psi2_excited(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi1_excited',psi1_excited(2),psi1_excited(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
+     >                     eig_excited(2),eig_excited(1))
+      if (.not. value) call errquit('out of heap memory',0)
+
+      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2_excited(1)),1)
+      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi1_excited(1)),1)
+      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig_excited(1)),1)
+
+*     *****  read initial wavefunctions into psi1  ****
+      call epsi_read(ispin0,ne_excited,dcpl_mb(psi1_excited(1)))
+
+
+
+      epsi_initialize = value
+      return
+      end
+
+
+
+*     ***************************
+*     *				*
+*     *		epsi_finalize	*
+*     *				*
+*     ***************************
+
+      logical function epsi_finalize()
+      implicit none 
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+
+*     ***** write psi1 wavefunctions ****
+      call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
+    
+      value = MA_free_heap(eig_excited(2))
+      value = value.and.MA_free_heap(psi2_excited(2))
+      value = value.and.MA_free_heap(psi1_excited(2))
+      if (.not. value) 
+     >  call errquit('epsi_finalize: error freeing heap',0)
+
+      epsi_finalize = value
+      return
+      end
 
 
 *     ***********************
