@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.54 2001-10-18 03:33:24 edo Exp $
+C$Id: nwdft.F,v 1.55 2001-10-18 20:10:17 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -216,7 +216,7 @@ c
 c     terminate integrals 
 c     
       call int_terminate
-      if (i3 .gt. 1) call int_app_unset_no_texas(rtdb)
+!      if (i3 .gt. 1) call int_app_unset_no_texas(rtdb)
 c
 c     Go here if already converged
 c

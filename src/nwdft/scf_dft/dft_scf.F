@@ -1,8 +1,9 @@
+
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.192 2001-10-17 18:04:05 edo Exp $
+c     $Id: dft_scf.F,v 1.193 2001-10-18 20:10:19 edo Exp $
 c     
       implicit none
 c
@@ -336,10 +337,6 @@ c
 c     SCF energy convergence criterion. 
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
-      ncanorg=0
-      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
-     &     nbf, 0, g_xij)) 
-     . call errquit(' ddftdiagn: ga_create failed ',0)
       g_focks(1)=g_fock
 c     
 c     Set up local convergence parameters
@@ -428,12 +425,17 @@ c
 c
       vecs_or_dens='density'
       ldmix=.false.
+      ncanorg=0
       if((movecs_in.ne.'atomic'.and.
      *     movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
      .     .or.fon) then
          vecs_or_dens='vectors'
          ldmix=.true.
          ncanorg=1
+      else
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
+     &        nbf, 0, g_xij)) 
+     .        call errquit(' ddftdiagn: ga_create failed ',0)
       endif
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 

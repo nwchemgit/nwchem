@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.19 2001-06-13 01:31:25 edo Exp $
+c     $Id: dft_scf_so.F,v 1.20 2001-10-18 20:10:19 edo Exp $
 c     
       implicit none
 c     
@@ -250,13 +250,10 @@ c
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
      &     call errquit('dft_scf: failed to alloc',999)
 c     
-c     get/set orbital overlap tolerance
+c     get orbital overlap tolerance
 c     
-      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
-         toll_s = 1.d-6
-         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     &     call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
-      endif
+      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
+     .     call errquit('dftscf: lost toll_s ',0)
 c     
       nTotEl = noc(1) + noc(2)
       nmo(1) = nbf_ao
