@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.2 1999-08-26 14:45:46 d3j191 Exp $
+* $Id: nwc_const.fh,v 1.3 2000-06-01 18:51:27 mg201 Exp $
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 
@@ -12,8 +12,19 @@
 *
 *==============================================================================
 *==============================================================================
-* This first block of parameters are ones that contain simple mappings for 
-* scailing the code size. 
+* System-dependent parameters
+*==============================================================================
+*
+*
+*------------------------------------------------------------------------------
+* Number of integer words per real word
+*
+      integer nw_int_per_real
+      parameter (nw_int_per_real = 2)
+*==============================================================================
+*==============================================================================
+* This block of parameters is one that contain simple mappings for 
+* scaling the code size. 
 *==============================================================================
 *
 *
