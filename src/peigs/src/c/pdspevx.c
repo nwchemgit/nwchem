@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.34 1999-11-04 22:41:37 d3g270 Exp $
+ $Id: pdspevx.c,v 1.35 1999-11-05 20:16:03 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -778,24 +778,23 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
    /*
-     for ( iii = 0; iii < *n; iii++ )
+   for ( iii = 0; iii < *n; iii++ )
      printf(" d[%d] = %g \n", iii, dd[iii]);
-     for ( iii = 0; iii < *n; iii++ )
+   for ( iii = 0; iii < *n; iii++ )
      printf(" e[%d] = %g \n", iii, ee[iii]);
-   */
-  
-
+     */
+   
    /*
   if ( me == 0 ) {
      file = fopen(filename, "a+");
      fprintf(file, "info = %d \n", linfo);
      fprintf(file, "%d \n", msize);
      for ( iii = 0; iii < msize; iii++)
-     fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
+       fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
      fflush(file);
      fclose(file);
-     }
-*/
+  }
+  */
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
