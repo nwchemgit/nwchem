@@ -1,6 +1,6 @@
       subroutine intdd_1eecp1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eecp1.F,v 1.2 2003-02-20 02:06:43 bert Exp $
+C $Id: intdd_1eecp1.F,v 1.3 2003-03-28 17:11:52 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -110,7 +110,7 @@ c::passed
       integer nint      ! [input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3*3 integral derivatives returned per unique center
       double precision scr(lscr) ! [input] scratch array
-      double precision H1a(nint,3,nat,3,nat)    ! [output] derivative integrals (nint,3,3,n_atoms,3)
+      double precision H1a(nint,3,3,nat*(nat-1)/2+nat)    ! [output] derivative integrals (nint,3,3,n_atoms)
 c::local
       logical doT
       integer ucont
@@ -195,6 +195,75 @@ c     as a block of 4.
 c
       if (itype.eq.-1) igen = 1
       if (jtype.eq.-1) jgen = 1
+c
+      if (bas_spherical(ibas).and.bas_spherical(jbas)) then
+*... transform both i and j integrals
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+c
+        do zatom = 1,(nat*(nat-1)/2+nat)
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(H1a(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = j_nbf_x
+        do zatom = 1,(nat*(nat-1)/2+nat)
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(H1a(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,0,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else if (bas_spherical(jbas)) then
+*.. transform on j component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = i_nbf_x
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+        do zatom = 1,(nat*(nat-1)/2+nat)
+         do zyx2 = 1,3
+          do zyx1 = 1,3
+            call spcart_tran1e(H1a(1,zyx1,zyx2,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,0,igen,
+     &          .false.)
+          enddo
+         enddo
+        enddo
+      else
+      call errquit(
+     &        'intdd_1eecp1P: cant do sphericals',911)
+      endif
+c
+c now shuffle transformed buffers to contiguous space
+c
+      nint_x = i_nbf_x*j_nbf_x
+      nint_s = i_nbf_s*j_nbf_s
+      if (nint_s.gt.nint_x) then
+        call errquit
+     &   ('intdd_1eecp1P: nint_s >.nint_x diff=',(nint_s-nint_x))
+      elseif (nint_s.eq.nint_x) then
+        return
+      else
+        call int_c2s_mv 
+     &      (H1a,nint_x,nint_s,(9*(nat*(nat-1)/2+nat)),scr,lscr,
+     &       'intdd_1eecp1P')
+      endif
 c
       end
       

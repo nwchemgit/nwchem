@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.10 2003-02-20 03:35:28 edo Exp $
+C $Id: ecp_hessian.F,v 1.11 2003-03-28 17:12:04 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -95,7 +95,7 @@ C $Id: ecp_hessian.F,v 1.10 2003-02-20 03:35:28 edo Exp $
      &    mem,max_type1,max_type2,l_scr,
      &    n_cart_a,n_cart_b,n_cont_ab,
      &    n_all_a,n_all_b,n_ab,n_abblk,n_ab9blk
-      integer lcsco, i_loc
+      integer lcsco, i_loc, ibugt
       logical DryRun,debug_gen,debug_addresses,debug_arrays
       double precision 
      &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
@@ -156,8 +156,10 @@ C $Id: ecp_hessian.F,v 1.10 2003-02-20 03:35:28 edo Exp $
       n_cartp2_B = n_cartp1_B+l_B+3
       n_cartm1_A = n_cart_A-l_A-1
       n_cartm1_B = n_cart_B-l_B-1
-      n_cartm2_A = n_cartm1_A-l_A-2
-      n_cartm2_B = n_cartm1_B-l_B-2
+      n_cartm2_A = n_cartm1_A-l_A
+      n_cartm2_B = n_cartm1_B-l_B
+c     n_cartm2_A = n_cartm1_A-l_A-2
+c     n_cartm2_B = n_cartm1_B-l_B-2
 *
       n_allp1_A = n_cartp1_A*n_cont_A
       n_allp1_B = n_cartp1_B*n_cont_B
@@ -186,10 +188,11 @@ C $Id: ecp_hessian.F,v 1.10 2003-02-20 03:35:28 edo Exp $
       i_xcb = i_xxca+n_prim_A*n_cont_A
       i_xxcb = i_xcb+n_prim_B*n_cont_B
       i_lp = i_xxcb+n_prim_B*n_cont_B
-      i_lm = i_lp+max(n_intpaa,n_intpbb,n_intppab)*n_blk
-      i_grdp = i_lm+max(n_ab,n_intpmab,n_intmpab)*n_blk
+      i_lm = i_lp+max(n_intpaa,n_intpbb,n_intppab,n_intmbb,
+     &                n_intmaa,n_intpmab)*n_blk
+      i_grdp = i_lm+max(n_ab,n_intmmab,n_intmpab)*n_blk
       i_grdm = i_grdp+max(n_intpa,n_intpb)*3*n_blk
-      i_scr = i_grdm+max(n_intpa,n_intpb)*3*n_blk
+      i_scr = i_grdm+max(n_intma,n_intmb)*3*n_blk
       if (debug_addresses) then
         write (LuOut,*) 'i_xca,i_xcb',i_xca,i_xcb
         write (LuOut,*) 'i_lp,i_lm',i_lp,i_lm
@@ -731,16 +734,16 @@ C        end if
           if (.not.DryRun) 
      &        call dfill (n_intmpab*n_blk,zero,scr(i_lm),1)
           if (l_A .gt. 0) then
-            call ecp_int2 (mem,DryRun,
+            if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
      &          n_prim_B,n_cont_B,scr(i_xcb),zeta_B,
      &          R_AC,X_AC,Y_AC,Z_AC,l_A-1,
      &          n_prim_A,n_cont_A,coef_A,zeta_A,
-     &          l_c(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &          ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
-     &          zeta_C,coef_C,0,2,tol,0,scr(i_scr),l_scr,
+     &          n_prim_C(0,-1,i),n_colc_C(-1,i),
+     &          zeta_C(i_zeta),coef_C(i_coef),0,2,
+     &          tol,0,scr(i_scr),l_scr,
      &          csco,lcsco,
-     &          scr(i_lm),n_intmpab,n_blk,ibug/10)
+     &          scr(i_lm),n_intmpab,ibug/10)
             if (DryRun) max_type2 = max(mem,max_type2)
             call ecp_int2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B+1,
@@ -767,8 +770,10 @@ C        end if
 *         Calculate integrals for l_A+1, l_B-1
 *
           if (l_B .gt. 0) then
-            if (.not.DryRun) 
-     &          call dfill (n_intpmab*n_blk,zero,scr(i_lp),1)
+             if (.not.DryRun) then
+               call dfill (n_intpmab*n_blk,zero,scr(i_lp),1)
+               call dfill (n_intmmab*n_blk,zero,scr(i_lm),1)
+             endif
             if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &          R_BC,X_BC,Y_BC,Z_BC,l_B-1,
      &          n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -794,8 +799,6 @@ C        end if
 *
 *         Calculate integrals for l_A-1, l_B-1
 *
-            if (.not.DryRun) 
-     &          call dfill (n_intmmab*n_blk,zero,scr(i_lm),1)
             if (l_A .gt. 0) then
               if (n_blk .ne. 3) call ecp_local2 (mem,DryRun,
      &            R_BC,X_BC,Y_BC,Z_BC,l_B-1,
@@ -842,18 +845,18 @@ C        end if
             do j = 1,3 ! centre B
               do k = 1,3 ! centre A
                 if (i_c_A .eq. i_c_B) then
-                   i_loc = i_c_B * (i_c_B-1) / 2 + i_c_A
+                   i_loc = i_c_A * (i_c_A-1) / 2 + i_c_B
                    call daxpy (n_abblk,one,scr(i_s),1,
-     &                 ecp_hess(1,k,j,i_loc),1)
+     &                 ecp_hess(1,j,k,i_loc),1)
                 endif
                 i_loc = i_c_A * (i_c_A-1) / 2 + i_c_B
                 call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,j,k,i_loc),1)
                 i_loc = i_c_C * (i_c_C-1) / 2 + i_c_C
                 call daxpy (n_abblk,one,scr(i_s),1,
-     &              ecp_hess(1,k,j,i_loc),1)
-                call daxpy (n_abblk,one,scr(i_s),1,
      &              ecp_hess(1,j,k,i_loc),1)
+                call daxpy (n_abblk,one,scr(i_s),1,
+     &              ecp_hess(1,k,j,i_loc),1)
                 if (i_c_A .lt. i_c_C) then
                    i_loc = i_c_C * (i_c_C-1) / 2 + i_c_A
                    call daxpy (n_abblk,-one,scr(i_s),1,
@@ -868,7 +871,7 @@ C        end if
                    call daxpy (n_abblk,-one,scr(i_s),1,
      &                 ecp_hess(1,k,j,i_loc),1)
                 else
-                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_A
+                   i_loc = i_c_C * (i_c_C-1) / 2 + i_c_B
                    call daxpy (n_abblk,-one,scr(i_s),1,
      &                 ecp_hess(1,j,k,i_loc),1)
                 endif

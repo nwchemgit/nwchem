@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.12 2002-06-17 22:36:02 bert Exp $
+c $Id: onedd_calc.F,v 1.13 2003-03-28 17:12:04 bert Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,doECP,
@@ -248,8 +248,10 @@ c
                   do icart2 = 1, 3
                   do icart1 = 1, 3
                     dE = 0.D0
-                    do ip2 = if2, il2
-                      do ip1 = if1, il1
+c                   do ip2 = if2, il2
+c                     do ip1 = if1, il1
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
                         ic = ic + 1
                         dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
                       enddo
