@@ -1,5 +1,6 @@
       subroutine cputime(time)
       Implicit NONE
+C     $Id: cputime.F,v 2.2 1997-06-05 17:39:31 gg502 Exp $
       real*8 time
 #include "tcgmsg.fh"
 c -  convex
