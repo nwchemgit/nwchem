@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.99 2003-10-06 18:39:41 edo Exp $
+# $Id: DEFS,v 1.100 2003-10-07 20:11:17 edo Exp $
 #
 #======================================================================
 #
@@ -612,6 +612,11 @@ peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 endif
 
 ifeq ($(peigs_TARGET),FUJITSU_VPP)
+peigs_CODEOBJ = DBLE
+peigs_CPU = VPP
+endif
+
+ifeq ($(peigs_TARGET),FUJITSU_VPP64)
 peigs_CODEOBJ = DBLE
 peigs_CPU = VPP
 endif
