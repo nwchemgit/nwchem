@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.148 2000-04-03 05:49:06 edo Exp $
+c     $Id: dft_scf.F,v 1.149 2000-04-05 01:41:24 edo Exp $
 c     
       implicit none
 c
@@ -964,7 +964,9 @@ c
                call ga_copy(g_s,g_sf)
             endif
          call ga_diag_reuse(reuse,
-     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
+     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
+!        call ga_diag(
+!     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
          reuse=reuse+1
 #else 
          call ga_diag_seq(g_fock, g_s,g_tmp, Dbl_MB(k_eval(ispin)))
@@ -1715,6 +1717,14 @@ c
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0)
       endif
+      if(reuse.ne.0) then
+         write(0,*) ' 0 '
+         call ga_diag_reuse(-1,
+     .           g_fock, g_sf, g_tmp, Dbl_MB(k_eval(ispin)))
+         write(0,*) ' 1'
+      if (.not. ga_destroy(g_sf)) call errquit
+     &   ('dft_scf: could not destroy g_sf', 0)
+      endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
       if(lkeeps) then
@@ -1722,10 +1732,6 @@ c
      &   ('dft_scf: could not destroy g_s12p', 0)
       if (.not. ga_destroy(g_s12m)) call errquit
      &   ('dft_scf: could not destroy g_s12m', 0)
-      endif
-      if(reuse.ne.0) then
-      if (.not. ga_destroy(g_sf)) call errquit
-     &   ('dft_scf: could not destroy g_sf', 0)
       endif
 c
       call fock_2e_tidy(rtdb)

@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.18 2000-03-30 03:05:59 edo Exp $
+* $Id: grid_file.F,v 1.19 2000-04-05 01:41:23 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -643,9 +643,11 @@ c     Check to see if buffer needs dumping before adding more pts.
 c
       if ((nctr .eq. 0) .or. 
      &    (nctr. ne. cur_rec_ctr).or.
+     .     ((n_in_rec+nqpts.gt.n_per_rec)
 c     to avoid excessive fragmentation of a single cube
-     .     ((n_in_rec+nqpts.gt.n_per_rec).and.
-     .     (n_in_rec.gt.n_per_rec*7/8))
+     .     .and.(n_in_rec.gt.n_per_rec*3/5)
+     .     )
+!     .     .or.(cur_cub.ne.ncube.and.ncube.ne.-99)
      .     ) then
 !         write(6,*) '0bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)

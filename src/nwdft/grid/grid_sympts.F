@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.3 2000-03-30 03:06:00 edo Exp $
+c$Id: grid_sympts.F,v 1.4 2000-04-05 01:41:23 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -51,7 +51,7 @@ c
       end
       Subroutine grid_sympts(dosympts,r,xyz, ictr, irsh, 
      ,     iang, iang_done,nq_left,
-     ,     aqbuf, nq, nx,ny,nz,nxyz,
+     ,     aqbuf, nq, fnxyz,nxyz,
      ,     gridscr,nops,ops,iscr)
       implicit none
 #include "cdft.fh"
@@ -71,9 +71,10 @@ c
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
       double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
-      integer nx,ny,nz      ! [in] cube def
+      integer fnxyz      ! [in] cube def
+      integer nx,ny,nz      !  cube def
       double precision r ! [in]
-      integer nxyz
+      integer nxyz,nxyz2
       logical grid_incube
       external grid_incube
       integer iang_done ! [in/out] angular quadra analyzed
@@ -89,6 +90,8 @@ c
       oprint_grid = util_print('griddebug', print_debug)
 c
 c
+      call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
+      nxyz2=nxyz/2
       ia_ictr = iatype(ictr)
       if(iang_done.ne.iang) then
          nq_left = 0
@@ -199,7 +202,7 @@ cedo         zor=(gridscr(3,k)-xyz(3))*r+xyz(3)
          xor=gridscr(1,k)*r
          yor=gridscr(2,k)*r
          zor=gridscr(3,k)*r
-         if(grid_incube(xor,yor,zor,nx,ny,nz,nxyz,
+         if(grid_incube(xor,yor,zor,nx,ny,nz,fnxyz,nxyz2,
      ,        lcube(ia_ictr))) then
             nq=nq+1
             aqbuf(1,nq) = xyz(1) +xor

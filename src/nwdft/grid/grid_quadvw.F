@@ -11,7 +11,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadvw.F,v 1.4 2000-03-30 03:06:00 edo Exp $
+c$Id: grid_quadvw.F,v 1.5 2000-04-05 01:41:23 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -57,8 +57,8 @@ c
       integer k_iscr,l_iscr ! [out] iscr handles
       integer nq_left
       logical dosympts
-
-
+      integer grid_nxyz,nq_in
+      external grid_nxyz
       double precision symfact,rmax,rmin,rad_write,rad_sh
 C      
       nproc=ga_nnodes()
@@ -111,7 +111,7 @@ c
      &   trunc_neigh))trunc_neigh=.true.
       call dft_tstamp(' Before buckinit.')
 
-      call grid_buckinit()
+      call grid_buckinit(rtdb)
 cedo rchi business off
 cedo      call grid_rchi0
       nqtotc=0
@@ -148,7 +148,7 @@ c     get no of segment
 c
          iaia=iatype(i_a)
          rad=dble(rad_cutoff(1,iaia))
-         nxyz=nint(rad/lcube(iaia))*2d0
+         nxyz=grid_nxyz(rad,lcube(iaia))
 c
 c     loop over cubes centers on i_a
 c
@@ -156,8 +156,7 @@ c
             nq_out=0
             if (n1.eq.n2 )then
                fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
-               call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-               call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia),nxyz)
+               call grid_rmaxmin(fnxyz,rmax,rmin,lcube(iaia),nxyz)
                rad_write=rmax
                nq_cube=0
                cube_done=.false.
@@ -180,14 +179,14 @@ c
                         call grid_sympts(dosympts,
      .                    rad_sh,xyz(1,ictr), ictr, 
      .                    irsh, iang, iang_done,nq_left,
-     ,                    aqbuf, nq, nx,ny,nz,nxyz,
+     ,                    aqbuf, nq, fnxyz,nxyz,
      ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
      .                    int_mb(k_iscr))
                         else
                            call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
      ,                          irsh, iang, 
      .                          aqbuf, nq, 
-     *                          nx,ny,nz,nxyz)
+     *                          fnxyz,nxyz)
 
                         endif
 c     
@@ -207,8 +206,9 @@ c     copy to buffer for XC stuff and compute if needed
 c
                         nqtotc=nqtotc+nq
                         nq_cube=nq_cube+nq
+                        nq_in=nq
                         call grid_quadvc(cube_done,nwrbuf,
-     ,                       aqbuf,nq,nq_out,
+     ,                       aqbuf,nq_in,nq_out,
      ,                       ntot_cube,ictr,qxyz, qwght, 
      ,                       rad_write,grad,
      .                       rtdb, g_dens, ncoef_max, natoms, 
@@ -226,13 +226,15 @@ c     (write and update task counter as needed)
 c     
                         call grid_file_write(nq, ictr, 
      ,                       rad_write, aqbuf,  ncu)
+!                        if(nq_out.ne.0)call grid_file_write(nq, ictr, 
+!     ,                       rad_write, aqbuf,  ncu)
                         
                      endif
                   endif
  100           continue ! end loop over angular shells
                if(nq_cube.ne.0) then
                   cube_done=.true.
-                  call grid_quadvc(cube_done,nwrbuf,
+                   call grid_quadvc(cube_done,nwrbuf,
      ,                 aqbuf,nq,nq_out,
      ,                 ntot_cube,ictr,qxyz, qwght, 
      ,                 rad_write,grad,
@@ -255,10 +257,12 @@ c
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
       if(dosympts)call grid_sympts2(l_symops,l_gridscr,l_iscr)
-      write(LuOut,*) ' me ',me,
+      if(ncubenz.eq.0) call errquit(
+     .     ' grid_quadvw: no cube detected - nqtot ',nqtotc)
+      write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
+ 16   format(A,I3,A,2I8)
       call grid_buckend()
-!      if(.true.) call errquit(' out ',1948)
 c
 c     Write last buffer of grid pts and close file     
 c

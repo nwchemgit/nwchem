@@ -11,7 +11,7 @@
      &     cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
-C$Id: grid_quadvc.F,v 1.2 2000-03-30 03:06:00 edo Exp $
+C$Id: grid_quadvc.F,v 1.3 2000-04-05 01:41:23 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -37,15 +37,17 @@ c
  30   continue
       buffwrite=((n.eq.0).and.(nwrbuf+1.ge.n_per_rec-1)
      .     .and.(nq_out.ne.0)).or.
-     .   (n.eq.0).and.((n_in_rec+nq.gt.n_per_rec).and.
-     .     (n_in_rec.gt.n_per_rec*7/8)).or.
+     .   (n.eq.0).and.((n_in_rec+nq.gt.n_per_rec)
+     .     .and.(n_in_rec.gt.n_per_rec*3/5)
+     .     ).or.
      .     ((n.gt.0).and.(nwrbuf+1.eq.n_per_rec))
       if(buffwrite.or.cube_done) then
 !      write(6,11) ictr_buf,ntot_cube,nq_out,nwrbuf,cube_done,
 !     ,        buffwrite
 ! 11   format(' ictr ',i2,' nrchi ',i4,' nq_out ',i4,' nwrb ',i4,
 !     ,     ' cd ',i1,' bw ',i1) 
-         call grid_quadv0b(
+         if(nq_out.ne.0) 
+     .    call grid_quadv0b(
      ,        ntot_cube,ictr_buf,qxyz, qwght, nq_out,
      ,        rad_write,grad,
      .        rtdb, g_dens, ncoef_max, natoms, 
@@ -58,14 +60,12 @@ c
      ,        ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc)
          ntot_cube=ntot_cube+1
-!         write(0,*) ' incr ntot_c ',ntot_cube
          if(cube_done) then
             nwrbuf=nwrbuf+1
-!      write(0,*) ' cubc ',nwrbuf+1,nq,nq_out
+cedo            nwrbuf=1
             return
          endif
          if(buffwrite) then
-!            write(0,*) ' reset2'
             nwrbuf=1
          endif
          nq_out=0

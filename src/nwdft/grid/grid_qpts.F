@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
-     *     nx,ny,nz,nxyz)
+     *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.13 2000-03-30 03:07:05 edo Exp $
+c$Id: grid_qpts.F,v 1.14 2000-04-05 01:41:23 edo Exp $
 c
       implicit none
 c      
@@ -16,9 +16,10 @@ c
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
       double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
-      integer nx,ny,nz      ! [in] cube def
+      integer fnxyz      ! [in] cube def
+      integer nx,ny,nz      !cube def
       double precision r ! [in]
-      integer nxyz
+      integer nxyz,nxyz2
       logical grid_incube
       external grid_incube
 c
@@ -33,9 +34,9 @@ c
 c
       nq = 0
 c
+      call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
+      nxyz2=nxyz/2
       ia_ictr = iatype(ictr)
-c
-      
 c
 c     debug writes
 c
@@ -64,8 +65,8 @@ c
 c
 c           Define the quadrature point and weight.
 c            
-            if(grid_incube(xor,yor,zor,nx,ny,nz,nxyz,
-     ,           lcube(ia_ictr))) then
+            if(grid_incube(xor,yor,zor,nx,ny,nz,fnxyz,nxyz2,
+     ,              lcube(ia_ictr))) then
                nq = nq + 1
                
                aqbuf(1,nq) = xyz(1) + xor
@@ -102,7 +103,7 @@ c
 c
 c              Define the quadrature point and weight.
 c             
-            if(grid_incube(xor,yor,zor,nx,ny,nz,nxyz,
+            if(grid_incube(xor,yor,zor,nx,ny,nz,fnxyz,nxyz2,
      ,              lcube(ia_ictr))) then
                nq = nq + 1
                aqbuf(1,nq) = xyz(1) + xor

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.26 2000-03-29 18:06:57 edo Exp $
+c$Id: grid_tasks.F,v 1.27 2000-04-05 01:41:23 edo Exp $
 c
       implicit none
 c
@@ -44,6 +44,8 @@ c
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       integer nq_left	
+      integer grid_nxyz
+      external grid_nxyz
 c
 c     input   
 c        qsh(1,iqsh) = irsh | where within nrad
@@ -143,8 +145,7 @@ c     get no of segment
 c
          iaia=iatype(i_a)
          rad=dble(rad_cutoff(1,iaia))
-cedo         nxyz=nint((rad*2d0-lcube(iaia))/(lcube(iaia)*2d0))
-         nxyz=nint(rad/lcube(iaia))*2d0
+         nxyz=grid_nxyz(rad,lcube(iaia))
 c
 c     loop over cubes centers on i_a
 c

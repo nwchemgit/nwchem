@@ -1,0 +1,4 @@
+      double precision l_cube
+      integer shft
+      logical sub4
+      common /grspher/ shft,sub4,l_cube

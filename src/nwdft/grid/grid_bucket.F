@@ -1,16 +1,19 @@
-      subroutine grid_buckinit()
+      subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.10 2000-03-28 19:52:36 edo Exp $
+c$Id: grid_bucket.F,v 1.11 2000-04-05 01:41:22 edo Exp $
 c
       implicit none
 c     
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "cdft.fh"
 #include "cgridfile.fh"
 #include "geom.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "grid_cube.fh"
 c
+      integer rtdb
       integer i,nctrs,dum
       integer grid_ncubes,ipts
       double precision grid_lcube
@@ -18,6 +21,19 @@ c
 c
       if(.not.geom_ncent(geom, nctrs))
      . call errquit(' gridb_buck: geom cent failed',0)
+c
+c     get cubes definition
+c
+      if (.not. rtdb_get(rtdb, 'dft:l_cube',
+     $     mt_dbl, 1, l_cube)) l_cube = 5.5d0
+      if (.not. rtdb_get(rtdb, 'dft:sub4',
+     $     mt_log, 1, sub4)) sub4=.false.
+      shft=0
+      if(sub4) shft=64
+      if(ga_nodeid().eq.0) write(LuOut,'(A,F12.6)') 
+     .     ' l_cube',l_cube
+      if(ga_nodeid().eq.0.and.sub4) write(LuOut,'(A,I4)') 
+     .     ' central subdivision by',shft
 c
 c     get ncubes
 c
@@ -28,7 +44,7 @@ c
      ,        .false.,dum,lcube(i))
          ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
-      if(ga_nodeid().eq.0) write(6,*) ' NCUBES ',ncubesmx
+      if(ga_nodeid().eq.0) write(LuOut,'(A,I4)') ' NCUBESMX ',ncubesmx
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)
