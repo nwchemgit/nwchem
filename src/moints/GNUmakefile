@@ -5,15 +5,14 @@
 	      ga_check_moblocked.o \
 	      mointdriver.o \
 	      moints_mp2.o \
-	      moints_a.o \
 	      moints_xx.o \
 	      moints.o 
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F moints_a.F moints_xx.F
+  USES_BLAS = moints.F moints_xx.F
 
- LIB_DEFINES =  -DDEBUG_PRINT -DDEBUG_PARALLEL -DIHALF_LOOP
+ LIB_DEFINES =  -DDEBUG_PRINT -DDEBUG_PARALLEL
 
 #	       -DINTS_ONLY
 #              -DMOINTS_INTS_DUMMY
@@ -21,7 +20,6 @@
 #              -DDEBUG_PARALLEL
 #	       -DPERMUT_SYMM
 #              -DOLD_ALGORITHM
-#	       -DIHALF_LOOP
 
 
 include ../config/makefile.h
