@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.39 2000-04-05 15:01:50 d3j191 Exp $
+c $Id: cf_main.F,v 1.40 2000-04-12 20:41:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1103,7 +1103,7 @@ c
       do 1 j=1,nwa
       factor=(one/wgt(iwat(j),iset))*(one/wgt(iwat(j),iset))
       do 2 i=1,numw
-      if(iwdt(i).eq.0) then
+      if(iand(iwdt(i),lfixed).eq.0) then
       fm=fw(i,1,j)**2+fw(i,2,j)**2+fw(i,3,j)**2
       fnorm=fnorm+fm
       fmax=max(fmax,factor*fm)
@@ -1114,7 +1114,7 @@ c
 c
       if(nums.gt.0) then
       do 3 i=1,nums
-      if(isdt(i).eq.0) then
+      if(iand(isdt(i),lfixed).eq.0) then
       fm=fs(i,1)**2+fs(i,2)**2+fs(i,3)**2
       fnorm=fnorm+fm
       factor=(one/wgt(isat(i),iset))*(one/wgt(isat(i),iset))
