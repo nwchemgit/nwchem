@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 1994-12-29 06:54:22 og845 Exp $
+# $Id: GNUmakefile,v 1.17 1995-03-29 06:05:42 gg502 Exp $
 
 LIBRARY =	librimp2.a
 
@@ -13,7 +13,7 @@ OBJ =		rimp2_v_e2.o \
 		int_2c_ga.o     max_v_diagonal.o	rimp2_get_param.o \
 		rimp2_timers.o  mk_fit_xf.o     drop_orbitals.o \
                 mk_correl_map.o print_correl_map.o      progress_report.o \
-		xf3ci_mem12.o
+		xf3ci_mem12.o	iamax.o		rimp2_e_mem.o
 
 OBJ_OPTIMIZE =      rimp2_denom.o   \
                 sum_pairs.o     eval_3ci_block.o xf3ci_step12a.o \

@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.16 1995-03-12 21:05:32 d3g681 Exp $
+C$Id: rimp2.F,v 1.17 1995-03-29 06:05:45 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -29,7 +29,7 @@ C
       Integer MinChunk
       Parameter (MinChunk = 64)
 C
-      Integer MxTBatch, MxEBatch
+      Integer MxTBatch, MxEBatch(2)
 C
       Character*(*) Def_Int, Def_MOVec
       Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs')
@@ -234,10 +234,20 @@ C
          Write (LuOut, 8500) 'RI integral approximation:',
      $      Approx(:LNBlnk(Approx))
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
-         Write (LuOut, 8520) 'Max. batch size for transformation:',
-     $      MxTBatch
-         Write (LuOut, 8520) 'Max. batch size for energy:',
-     $      MxEBatch
+         If ( MxTBatch .gt. 0) then
+            Write (LuOut, 8520) 'Max. batch size for transformation:',
+     $         MxTBatch
+         Else
+            Write (LuOut, 8505) 'Max. batch size for transformation:',
+     $         'Determined by available memory'
+         EndIf
+         If ( MxEBatch(1) .gt. 0 .AND. MxEBatch(2) .gt. 0) then
+            Write (LuOut, 8520) 'Max. batch size for energy:',
+     $         MxEBatch
+         Else
+            Write (LuOut, 8505) 'Max. batch size for energy:',
+     $         'Determined by available memory'
+         EndIf
          Write (LuOut, 8500) 'Base file name for MO integrals',
      $      FNInt(:LNBlnk(FNInt))
          Write (LuOut, 8500) 'AO basis set name:',
@@ -279,6 +289,7 @@ C
       Call Util_Flush(LuOut)
 C
  8500 Format(1X, A35, 1X, '''', A, '''')
+ 8505 Format(1X, A35, 2X, A)
  8510 Format(1X, A35, 4(1X, 1PE10.3), (/36X, 4(1X, I10)) )
  8520 Format(1X, A35, 4(1X, I10), (/36X, 4(1X,I10)) )
 C
@@ -356,7 +367,7 @@ C
       Status = Status .AND.
      $   RIMP2_V_E2( FNInt, TopSpin, NCorBF, IHi, AHi, NFit, FitBas,
      $   Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx), CorEner,
-     $   MxEBatch, MxEBatch)
+     $   MxEBatch(1), MxEBatch(2))
 C
 C     Also get the SCF energy so we can report the total energy
 C

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.13 1994-11-18 20:09:15 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.14 1995-03-29 06:05:56 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -89,7 +89,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C PARAMETERS
 C
       Integer MinChunk             ! Minimum panel size that is reasonable
-      Parameter ( MinChunk = 64)   ! for global distribution of data
+      Parameter ( MinChunk = -64)  ! for global distribution of data
 C
       Integer LUInt
       Parameter (LuInt = 10)
@@ -107,6 +107,7 @@ C LOCAL VARIBLES
       Integer HH_PairE, IH_PairE
 c$$$      Double precision ChkSum, MxElem
       Character*255 String1
+      Integer NewIBlk, NewJBlk
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
@@ -147,7 +148,6 @@ C
          Return
       EndIf
 
-c$$$      Write (LuOut, *) 'In energy!'
 C
 C     Get my processor number
 C
@@ -170,6 +170,27 @@ C
             Call GA_Zero( Int_MB(IH_PairE + ISpin + JSpin - 2 ) )
          EndDo
       EndDo
+C
+C     ***************************
+C     * Determine loop blocking *
+C     ***************************
+C
+      Call PStat_On( PS_E_Blocking)
+      Call RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, NewIBlk, NewJBlk)
+      If ( IBlock .le. 0) then
+         IBlock = NewIBlk
+      Else
+         IBlock = Min(IBlock, NewIBlk)
+      EndIf
+      If ( JBlock .le. 0) then
+         JBlock = NewJBlk
+      Else
+         JBlock = Min(JBlock, NewJBlk)
+      EndIf
+      Call PStat_Off( PS_E_Blocking)
+      If ( GA_NodeID() .eq. 0)
+     $   Write (LUOut, 9100) IBlock, JBlock
+ 9100 Format(1X, 'Block sizes for energy evaluation: ', 2I5)
 C
 C     *****************************************************************
 C     * Loop over occupied orbitals of both spins for the first index *

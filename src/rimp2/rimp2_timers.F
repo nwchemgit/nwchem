@@ -1,5 +1,5 @@
       Subroutine RIMP2_PStat_Init
-C$Id: rimp2_timers.F,v 1.3 1995-02-02 23:21:19 d3g681 Exp $
+C$Id: rimp2_timers.F,v 1.4 1995-03-29 06:05:52 gg502 Exp $
       Implicit NONE
 C
 #include "pstat.fh"
@@ -45,6 +45,8 @@ C
      $   PStat_QStat, 0, Accum, PS_Denom)
       Status = Status .AND. PStat_Allocate('Pair Energies',
      $   PStat_QStat, 0, Accum, PS_PrEn)
+      Status = Status .AND. PStat_Allocate('Det. Energy Blocking',
+     $   PStat_QStat, 0, Accum, PS_E_Blocking)
 
 C
       If (.NOT. Status)
