@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.1 1999-03-15 21:22:50 d3j191 Exp $
+c $Id: nwmd.F,v 1.2 1999-04-05 22:54:17 d3j191 Exp $
 c
       implicit none
 c
@@ -20,6 +20,8 @@ c
       nwmd=nwargos(irtdb0)
       return
       endif
+c
+      call timer_init()
 c
       call md_start()
       call md_main()

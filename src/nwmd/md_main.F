@@ -235,6 +235,7 @@ c
 c     data gathering
 c
       do 2 iequi=kdacq+1,mdacq
+      call timer_start(1)
 c
       call md_newton()
 c
@@ -246,6 +247,7 @@ c
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
 c
+      call timer_stop(1)
     2 continue
 c
       return

@@ -59,5 +59,27 @@ c
 c
       call sp_finish()
 c
+      call md_timing
+c
+      return
+      end
+      subroutine md_timing
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      real*8 timer_cpu_average,timer_wall_average
+      external timer_cpu_average,timer_wall_average
+c
+      if(me.eq.0) then
+      write(lfnout,1000)
+ 1000 format(/,'Average times per call',
+     + //,t40,'        Wall',t55,'         CPU',/)
+      write(lfnout,1001) timer_wall_average(1),
+     + timer_cpu_average(1)
+ 1001 format(' MD step',t40,f12.3,t55,f12.3)
+      endif
+c
       return
       end
