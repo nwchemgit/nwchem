@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.125 2004-01-06 01:39:58 marat Exp $
+C$Id: geom.F,v 1.126 2004-04-29 03:13:31 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -380,6 +380,7 @@ c
       logical s
       logical geom_check_handle, geom_rtdb_in, geom_get_user_scale
       external geom_check_handle, geom_rtdb_in, geom_get_user_scale
+      logical getsym
 c     
       geom_rtdb_load = geom_check_handle(geom, 'geom_rtdb_load')
       if (.not. geom_rtdb_load) return
@@ -687,6 +688,16 @@ c
          call geom_2d(geom,scale)
       elseif(isystype(geom).eq.1) then
          call geom_1d(geom,scale)
+      endif
+c
+c     hack to fix numerical gradient issue when symmetry changes
+c
+      if(sym_num_ops(geom) .gt. 0) then
+        if (rtdb_get(rtdb,'geom:getsym', mt_log, 1, getsym)) then
+          if(getsym) then
+            call geom_getsym(rtdb,geom,'geometry')
+          endif
+        endif
       endif
 c     
 *     do node = 0, ga_nnodes()-1

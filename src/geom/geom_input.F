@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.169 2004-01-23 05:55:32 marat Exp $
+C     $Id: geom_input.F,v 1.170 2004-04-29 03:13:31 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -16,18 +16,13 @@ c
       character*255 name        ! for name of geometry
       character*12 units        ! holds units of coordinates
       integer ncenter           ! counts no. of centers as input
-      integer ncenter_before_auto
       integer geom              ! handle for geometry
-      integer nata              ! num. of unique atoms 
       logical status            ! scratch for return codes
       logical oadjust
       logical oprint
       logical ozmatrix
       logical oautoz
       logical oautosym
-      logical oready
-      logical odbug
-      logical osome
       logical ocenter
       logical found_cart
       logical ofinite, oatomfinite
@@ -45,18 +40,17 @@ c     .                           and for forcing symmetry
       double precision invnucexp(max_center)
       character*16 tags(max_center)
       character*2 symbol
-      character*16 element, groupname
+      character*16 element
       logical osymmetry
       logical old_format_input, is_atom
       logical found_ang2au_conv
       logical found_au2ang_conv
       double precision ang2au, au2ang
       integer atn, isys, fcent
-      integer k_coordsym,l_coordsym,nops
       logical usesymmol
       character*16 format, nucmodel
-      logical geom_zmtmak,geom_symmol
-      external geom_zmtmak,geom_symmol
+      logical geom_zmtmak
+      external geom_zmtmak
       external geom_data        ! What is this?
       external geom_impose_initial_values_on_q
 c     
@@ -452,71 +446,10 @@ c
             write(luout,*)
          endif
 c     
-         if(oautosym) then
-c     
-c     ----- detect symmetry -----
-c     
-            if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
-     $           call errquit('geom_input: geom_cart_get failed', 0,
-     &       GEOM_ERR)
-            if (.not. geom_vel_get(geom, velocities))
-     $        call errquit('geom_input: geom_vel_get failed', 0,
-     &       GEOM_ERR)
-            ncenter_before_auto = ncenter
-            if(usesymmol) then
-               if (.not. ma_push_get(mt_dbl,3*ncenter,'coords',
-     $              l_coordsym,k_coordsym))
-     $              call errquit('geominput: ma',0, MA_ERR)
-               usesymmol=geom_symmol(geom,tags,dbl_mb(k_coordsym),
-     $              groupname,nops,threquiv)
-               call dcopy(3*ncenter,dbl_mb(k_coordsym),1,coords,1)
-               if(.not.ma_pop_stack(l_coordsym)) call 
-     $           errquit(' o',0,GEOM_ERR)
-            endif
-            if(.not.usesymmol) then
-               call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
-     $              threquiv,groupname,velocities)
-            endif
-            if (geom_group_set(geom,groupname)) then
-               if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
-     $              call errquit('geom_input: geom_cart_set failed', 0,
-     &       GEOM_ERR)
-               if (.not. geom_vel_set(geom, velocities))
-     $              call errquit('geom_input: geom_vel_set failed', 0,
-     &       GEOM_ERR)
-               if (ncenter_before_auto .ne. ncenter) call errquit
-     $              ('geom_input: autosym bug : number of atoms wrong',
-     $              ncenter, GEOM_ERR)
-            else
-               write(LuOut,*) ' autosym detected unknown group ', 
-     &                        groupname
-               call errquit('geom_input: autosym: invalid group',0,
-     &       INPUT_ERR)
-            endif
-         endif
-c     
-c     Apply system and symmetry info to the list of
-c     unique centers build mapping tables set up coord lists
-c     
-         nata=ncenter
-         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv,nops,
-     &        usesymmol)
-c     
-c     Check that if we used autosym that we ended up with the 
-c     same no. of atoms ... if we don't then autosym and nwchemsym
-c     don't agree on the orientation of point group elements
-c     
-         if (oautosym) then
-            if (.not. geom_ncent(geom,ncenter)) call errquit
-     $           ('geom_input: geom_cent?',0, GEOM_ERR)
-            if (ncenter_before_auto .ne. ncenter) call errquit
-     $           ('geom_input: autosym bug : too many atoms',ncenter,
-     &       GEOM_ERR)
-         endif
-c     
-         if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
-     $        .true.,.true.,.true.,.true.,.true.)
-c
+         call geom_getsym0(rtdb,geom,oautosym,usesymmol,
+     ,     ncenter,isys,
+     ,     name,tags,
+     ,     threquiv,scale,coords,charge,velocities)
       endif                     ! End of else clause for if(oadjust)
 c     
 c     Center origin at the center of charge if requested
