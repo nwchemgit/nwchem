@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.60 2000-05-12 17:25:29 d3j191 Exp $
+c $Id: md_start.F,v 1.61 2000-05-12 18:20:07 d3j191 Exp $
 c
       implicit none
 c
@@ -201,6 +201,8 @@ c
      + call cf_trjhdr(lfntrj)
       endif
 c
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('ma problems at end of md_start',me)
       return
       end
       subroutine md_rdinp()
