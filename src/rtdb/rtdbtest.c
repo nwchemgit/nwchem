@@ -1,9 +1,8 @@
-/*$Id: rtdbtest.c,v 1.4 1995-02-02 23:22:13 d3g681 Exp $*/
+/*$Id: rtdbtest.c,v 1.5 2004-01-02 21:58:02 edo Exp $*/
 #include <stdio.h>
 #include "rtdb.h"
 #include "misc.h"
 #include "macdecls.h"
-#include "sndrcv.h"
 #include <stdlib.h>
 #include <string.h>
 

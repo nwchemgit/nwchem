@@ -1,9 +1,8 @@
-/*$Id: rtdb.c,v 1.14 2001-05-10 00:22:35 edo Exp $*/
+/*$Id: rtdb.c,v 1.15 2004-01-02 21:58:02 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
-#include "sndrcv.h"
 #include "global.h"
 
 typedef long integer;		/* Equivalent C type to FORTRAN integer */

@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.15 2001-12-05 20:13:44 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.16 2004-01-02 21:58:02 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -34,8 +34,6 @@
 #include "rtdb.h"
 #include "macdecls.h"
 #include "misc.h"
-
-#include "sndrcv.h"
 
 #if !defined(LINUX)
 extern char *strdup(const char *);
