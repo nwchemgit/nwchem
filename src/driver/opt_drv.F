@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.88 2000-01-05 00:25:48 windus Exp $
+* $Id: opt_drv.F,v 1.89 2000-06-15 21:00:20 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -386,6 +386,15 @@ c
             call output(dbl_mb(k_hess),1,nzvar,1,nzvar,nzvar,nzvar,1)
          endif
       endif
+c
+c     Artificially break degeneracies so that accidentally degenerate
+c     modes are split and therefore step restriction along modes
+c     is well defined
+c
+      do i = 1, nvar
+         dbl_mb(k_hess+i-1 + (i-1)*nvar) = 
+     $        dbl_mb(k_hess+i-1 + (i-1)*nvar) + dble(i-1)*1e-7
+      end do
 c
       call geom_hnd_put_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
 c
@@ -1324,7 +1333,7 @@ c
       double precision trustds  ! Restriction of step in opt. variable
       logical geom_print_zmatrix
 c
-c     Get the Hessian and gradient with appropriate projects
+c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
 c     redundant internal modes are shifted to high eigenvalues.
 c
