@@ -116,8 +116,23 @@ back into the box according to the periodic boundary conditions.
 The directive for this operation is
 
 \begin{verbatim}
-center [<integer imol>]
+center <integer imol> [<integer jmol default imol>]
 \end{verbatim}
+
+Coordinates of each frame read from a trajectory file can be 
+rotated using
+
+\begin{verbatim}
+rotate ( off | x | y | z ) <real angle units degrees>
+\end{verbatim}
+
+If \verb+center+ was defined, rotation takes place after
+the system has been centered. The \verb+rotate+ directives
+only apply to frames read from the trajectory files, and not
+to the reference coordinates. Upto 100 \verb+rotate+ directives
+can be specified, which will be carried out in the order in which
+they appear in the input deck. \verb+rotate off+ cancels all
+previously defined \verb+rotate+ directives.
 
 To set hydrogen bond criteria:
 
@@ -129,11 +144,12 @@ hbond [distance [[<real rhbmin default 0.0>] <real rhbmin>]] \
 
 \section{Selection}
 
-Analyses can be applied to a selection of solute atoms. The selection
-is determined by
+Analyses can be applied to a selection of solute atoms and solvent molecules. 
+The selection is determined by
 
 \begin{verbatim}
-select [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ]
+select ( [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ] |
+	solvent <real range> | save <string filename> | read <string filename> )
 \end{verbatim}
 
 where {\rm isgm} is the first segment number, {\rm jsgm} is the last 
@@ -165,6 +181,9 @@ select solvent <real range>
 
 After solvent selection, the solute atom selection is reset to being all
 selected.
+
+The current selection can be saved to, or read from a file using the 
+\verb+save+ and \verb+read+ keywords, respectively.
 
 \par
 
@@ -316,15 +335,19 @@ To copy the selected frames from the specified trejctory file(s),
 onto a new file, use
 
 \begin{verbatim}
-copy  [solute] <string filename>
+copy  [solute] [rotate <real tangle>] <string filename>
 \end{verbatim}
 
 To superimpose the selected atoms for each specified frame to the 
 reference coordinates before copying onto a new file, use
 
 \begin{verbatim}
-super [solute] <string filename>
+super [solute] [rotate <real tangle>] <string filename>
 \end{verbatim}
+
+The \verb+rotate+ directive specifies that the structure will make
+a full ratation every tangle ps. This directive only has effect when
+writing povray files.
 
 The format of the new file is determined from the extension, which
 can be one of
