@@ -199,6 +199,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
+      logical frequency
+      external frequency
+c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
       real*8 eq,el,ep,ek,et,ewp
@@ -225,7 +228,7 @@ c
       tsumt=tsumt+stime
       t2sumt=t2sumt+stime*stime
 c
-      if(mod(mdstep,nfoutp).eq.0) then
+      if(frequency(mdstep,nfoutp)) then
       if(.not.lhdr) then
       call swatch(pdate,ptime)
       write(lfnout,1000) pdate,ptime
@@ -241,7 +244,7 @@ c
  1001 format(1x,f10.5,0pf8.2,1pe9.2,0pf10.3,3f7.4,5(1pe11.4),i5,i7)
       endif
 c
-      if(mod(mdstep,nfstat).eq.0) then
+      if(frequency(mdstep,nfstat)) then
       call swatch(pdate,ptime)
       write(lfnout,2000) pdate,ptime,nsum,nsumt
  2000 format(/,' MOLECULAR DYNAMICS STATISTICAL INFORMATION',t110,2a10,
@@ -270,7 +273,7 @@ c
       lhdr=.false.
       endif
 c
-      if(mod(mdstep,nfprop).eq.0) then
+      if(frequency(mdstep,nfprop)) then
       write(lfnprp,3000) (p(ixp(i)),i=1,nprop)
  3000 format(4e12.5)
       endif

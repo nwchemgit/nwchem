@@ -289,7 +289,7 @@ c
 c
 c     reassign velocities
 c
-c     if(mod(mdstep,nfgaus).eq.0)
+c     if(frequency(mdstep,nfgaus))
 c    + call cf_gauss(nwmloc,nsaloc,vw,vs,tgaus)
 c
       lpair=mdstep.eq.1.or.frequency(mdstep,nfpair)
