@@ -6,7 +6,7 @@
      ,     acc_xc_gauss)
       implicit none
 c
-c$Id: grid_xcfit.F,v 1.4 2003-01-03 23:29:33 edo Exp $
+c$Id: grid_xcfit.F,v 1.5 2003-01-05 20:01:48 edo Exp $
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -49,11 +49,13 @@ c
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0b',0)
       if(natoms.gt.1) then
+        
       Call oldnBF_to_mBF(xc_bas_han,rq0,
      &                mbf_xc,natoms,
      &                iniz,ifin,ibf,
      &                Expo,nbf_xc_mxprim,
-     .        docsetx,acc_xc_gauss)
+     .        docsetx,1d15)
+!     .        docsetx,1d33)
          if (mbf_xc.eq.0) return
       else
          iniz(1)=1
@@ -155,7 +157,7 @@ c
      &                      iniz, ifin, ibf, zprim, nzprim, 
      .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.4 2003-01-03 23:29:33 edo Exp $
+C$Id: grid_xcfit.F,v 1.5 2003-01-05 20:01:48 edo Exp $
 c
       implicit none
 c      
@@ -185,6 +187,7 @@ c
      $     sqrt(-16.0d0*alpha*logeps)
 c
       acc_loc=-acc_gauss
+      
       if (.not.bas_numcont(basis_hand, ncontrset))
      &   call errquit('Exiting in nbf_to_mbf.',1)
 c
@@ -205,17 +208,10 @@ c
      &      l, nprimo, ncontr, isphere))
      &      call errquit('Exiting in nbf_to_mbf.',3)
 c         
-c        angular momentum
-c         
-c         
-c        cartesian/spherical harmonic
-c         
          if (isphere .eq. 0)then !  cartesian set
             nang = (l+1)*(l+2)/2
          elseif (isphere .eq. 1)then !  spherical harmonic
             nang = 2*l+1
-         else 
-            call errquit('nbf_to_mbf: illegal isphere value', 6)
          endif 
 c         
 c        get exponents and contraction coefficients for this contraction set
@@ -247,6 +243,10 @@ c
           docset(icset) = .true.
             if (iniz(ictr).eq.0) iniz(ictr)=n1+1
             n1 = n1 + nshbf
+#ifdef DEBUG
+         else
+            write(0,*) ' got no '
+#endif
          endif
 c
          ifin(ictr)= n1
