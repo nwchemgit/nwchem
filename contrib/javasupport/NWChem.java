@@ -1,4 +1,4 @@
-// $Id: NWChem.java,v 1.3 1998-05-29 21:29:08 d3e129 Exp $
+// $Id: NWChem.java,v 1.4 1998-07-28 19:17:50 d3e129 Exp $
 
 import java.net.Socket;
 import java.io.*;
@@ -112,9 +112,15 @@ public NWChem() {
 	label16.setBounds(7,620,150,30);
 	
 	label15 = new Label("Danielle Farrar, 1998");
-	label15.setFont(new Font("SansSerif",Font.BOLD,10));
+	label15.setFont(new Font("SansSerif",Font.BOLD,12));
 	add(label15);
-	label15.setBounds(550,650,120,30);
+	label15.setBounds(550,650,120,12);
+
+	String picture = "pc22.gif";
+	ImageViewer newimage = new ImageViewer(picture);
+	add(newimage);
+	newimage.setBounds(580,586,56,64);
+
 	
 
 /*****************Each text field is a part of the message****************/
@@ -127,10 +133,10 @@ try {
 	String nwpath = user + "/nwchemsupport";
 	File nwfile = new File(nwpath);
 
-	RandomAccessFile emailfile = new RandomAccessFile(nwfile, "rw");
+	RandomAccessFile emailfile = new RandomAccessFile(nwfile, "r");
 	String sentfrom = emailfile.readLine();
 	edit1.setText(sentfrom);
-	} catch (IOException e) {}
+	} catch (IOException e) {System.out.println("Remember to set your email address to the 'nwchemsupport' file in your home directory!");}
 	
 	edit2=new TextField(37);
 ////////Subject?
@@ -199,99 +205,109 @@ try {
 	add(choice2);// second choice box, describes the problem
 	choice2.setBounds(200,308,132,26);
 	choice2.addItem("Problem?");
-	choice2.addItem("Info-request");
-	choice2.addItem("Help-request");
-	choice2.addItem("Fatal-bug");
-	choice2.addItem("Non-fatal-bug");
-	choice2.addItem("Input");
-	choice2.addItem("Output");
-	choice2.addItem("File");
-	choice2.addItem("Execution");
-	choice2.addItem("Performance");
-	choice2.addItem("Web_page_problem");
-	choice2.addItem("NWChem-configuration");
-	choice2.addItem("Suggestion");
-	choice2.addItem("Unknown");
+	choice2.addItem("distribution");
+	choice2.addItem("execution");
+	choice2.addItem("fatal-bug");
+	choice2.addItem("file");
+	choice2.addItem("help-request");
+	choice2.addItem("info-request");
+	choice2.addItem("input");
+	choice2.addItem("install");
+	choice2.addItem("non-fatal-bug");
+	choice2.addItem("nwchem-configuration");
+	choice2.addItem("output");
+	choice2.addItem("performance");
+	choice2.addItem("suggestion");
+	choice2.addItem("web_page_problem");
+	choice2.addItem("unknown");
+	choice2.addItem("developer-note          ");
 
 	choice3= new Choice();
 	add(choice3);
 	choice3.setBounds(12,344,132,26);
 	choice3.addItem("Module/Theory?");
-	choice3.addItem("All");
-	choice3.addItem("SCF");
-	choice3.addItem("RISCF");
-	choice3.addItem("DFT");
-	choice3.addItem("RIMP2");
-	choice3.addItem("MP2");
-	choice3.addItem("MCSCF");
-	choice3.addItem("MRPT");
-	choice3.addItem("CCSD");
-	choice3.addItem("CCSD(T)");
-	choice3.addItem("Atomic_SCF");
-	choice3.addItem("Columbus");
-	choice3.addItem("Selected_CI");
-	choice3.addItem("CPHF");
-	choice3.addItem("QMMM");
-	choice3.addItem("MD");
-	choice3.addItem("Free_Energy");
-	choice3.addItem("Argos_Input");
-	choice3.addItem("DPLOT");
-	choice3.addItem("Properties");
-	choice3.addItem("Integrals");
-	choice3.addItem("ECPs");
-	choice3.addItem("symmetry");
-	choice3.addItem("Geometry_optimization  ");
-	choice3.addItem("Vib_module");
-	choice3.addItem("Driver");
-	choice3.addItem("Stepper");
-	choice3.addItem("TASKS");
-	choice3.addItem("Geometry_object");
-	choice3.addItem("Basis_object");
-	choice3.addItem("RTDB");
-	choice3.addItem("FFT");
-	choice3.addItem("Peigs");
-	choice3.addItem("Chemio");
-	choice3.addItem("TCGMSG");
-	choice3.addItem("TCGMSG_MPI");
-	choice3.addItem("Global_Array");
-	choice3.addItem("Memory_Allocator");
+	choice3.addItem("all");
+	choice3.addItem("atomic_scf");
+	choice3.addItem("basis_object");
+	choice3.addItem("blas_lapack");
+	choice3.addItem("ccsd");
+	choice3.addItem("chemio");
+	choice3.addItem("columbus");
+	choice3.addItem("cphf");
+	choice3.addItem("dft");
+	choice3.addItem("dplot");
+	choice3.addItem("driver_geometry_opt");
+	choice3.addItem("ecp");
+	choice3.addItem("esp_charge_fit");
+	choice3.addItem("fft");
 	choice3.addItem("gapss");
+	choice3.addItem("geometry_object");
+	choice3.addItem("global_array");
+	choice3.addItem("input_module");
+	choice3.addItem("integrals");
+	choice3.addItem("lapi");
 	choice3.addItem("makefiles");
+	choice3.addItem("mcscf");
+	choice3.addItem("md_nwargos");
+	choice3.addItem("memory_allocator");
+	choice3.addItem("moints");
+	choice3.addItem("mp2");
+	choice3.addItem("mrpt");
+	choice3.addItem("nbo");
+	choice3.addItem("peigs");
+	choice3.addItem("prepar");
+	choice3.addItem("properties");
+	choice3.addItem("pstat");
+	choice3.addItem("qmmm");
+	choice3.addItem("rimp2");
+	choice3.addItem("riscf");
+	choice3.addItem("rtdb");
+	choice3.addItem("scf");
+	choice3.addItem("selected_ci");
+	choice3.addItem("stepper_geometry_opt");
+	choice3.addItem("symmetry");
+	choice3.addItem("tasks");
+	choice3.addItem("tcgmsg_or_tcgmsg_mpi");
+	choice3.addItem("util_routine");
+	choice3.addItem("vib");
+	choice3.addItem("independent");
 
 	choice4= new Choice(); 
 ////////fourth choice box, describes operation
 	add(choice4);
 	choice4.setBounds(380,308,132,26);
 	choice4.addItem("Operation?");
-	choice4.addItem("independent                 ");
+	choice4.addItem("dynamics");
 	choice4.addItem("energy");
+	choice4.addItem("frequencies");
 	choice4.addItem("gradient");
+	choice4.addItem("independent                ");
 	choice4.addItem("optimize");
 	choice4.addItem("saddle");
-	choice4.addItem("frequencies");
-	choice4.addItem("dynamics");
+        choice4.addItem("shell");
 	choice4.addItem("thermodynamics");
+	choice4.addItem("unknown");
 
 	choice5= new Choice();
 ////////fifth choice box, describes platform
 	add(choice5);
 	choice5.setBounds(200,344,132,26);
 	choice5.addItem("Platform?");
+	choice5.addItem("c90_cray");
+	choice5.addItem("dec");
+	choice5.addItem("hp");
+	choice5.addItem("ibm");
+	choice5.addItem("ibmsp");
+	choice5.addItem("j90_cray");
+	choice5.addItem("linux");
+	choice5.addItem("paragon");
+	choice5.addItem("sgi32");
+	choice5.addItem("sgi64");
+	choice5.addItem("sun");
+	choice5.addItem("t3d_cray");
+	choice5.addItem("t3e_cray");
+	choice5.addItem("other");
 	choice5.addItem("independent                 ");
-	choice5.addItem("IBMSP");
-	choice5.addItem("Paragon");
-	choice5.addItem("T3D_cray");
-	choice5.addItem("T3E_cray");
-	choice5.addItem("J9O_cray");
-	choice5.addItem("C9O_cray");
-	choice5.addItem("SGI32");
-	choice5.addItem("SGI64");
-	choice5.addItem("Linux");
-	choice5.addItem("Sun");
-	choice5.addItem("IBM");
-	choice5.addItem("HP");
-	choice5.addItem("DEC");
-	choice5.addItem("Other");
 
 	button1 = new Button("Submit"); 
 ////////the submit button, sends e-mail by clickedButton1() method
@@ -461,6 +477,8 @@ try {
     	FileDialog openDialog;
     	Frame frame;
 	String sent;
+	Image image;
+	int width, height;
 
     	public synchronized void setVisible() {
 		setLocation(50, 50);
@@ -472,6 +490,7 @@ public void Exit() {
 	System.exit(0);
 	setVisible(false);
 }
+
 
 
 public void clickedButton3() {
@@ -718,7 +737,7 @@ try {
     	choice1.select("user_priority");
     	choice2.select("Problem?");
     	choice3.select("Module/Theory?");
-    	choice3.select("Module/Theory?");
+//    	choice3.select("Module/Theory?");
     	choice4.select("Operation?");
     	choice5.select("Platform?");
 

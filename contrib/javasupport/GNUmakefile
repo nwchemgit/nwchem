@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1998-05-29 21:27:09 d3e129 Exp $
+# $Id: GNUmakefile,v 1.3 1998-07-28 19:17:50 d3e129 Exp $
 
 
 include ../../src/config/makefile.h
@@ -13,12 +13,14 @@ all:
 	$(MAKE) javacheck.class
 	$(MAKE) classes
 
+GIF_FILES = pc22.gif
 CLASSDIR = $(TOPDIR)/lib/classes
 
 classes:
 	-test -d $(CLASSDIR) || $(MKDIR) -p $(CLASSDIR) 
 	$(MAKE) NWChem.class
-	-mv *.class $(CLASSDIR)
+	-mv *.class  $(CLASSDIR)
+	-cp $(GIF_FILES) $(CLASSDIR)
 
 NWChem.class: 	NWChem.java Email.java submitted.java notsent.java waiting.java
 	javac NWChem.java
