@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.10 2003-02-21 22:37:26 bylaska Exp $
+* $Id: paw_mult.F,v 1.11 2003-02-22 03:10:44 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2003/02/21 22:37:26  bylaska
+* find_comp_coeff subroutine has been added....EJB
+*
 * Revision 1.9  2003/02/21 19:44:22  bylaska
 * Routines for computing the mult_energy_coeff have been added to paw_mult
 * ...EJB
@@ -92,13 +95,14 @@
      > call errquit("paw_mult_init: out of heap memory",2)
 
 
-      !*** intitalize self_energy_coeff ****
-      call find_self_energy_coeff(lmax,nkatm,self_energy_coeff)
+
+
 
 
       !**** initialize sigma_smooth and ncut***
       sigma_smooth = control_rcut()
       ncut         = control_ncut()
+
 
 
       !**** initialize gk_smooth, gk, and g_lm ****
@@ -205,6 +209,11 @@
           end do
         end do
       end do
+
+
+      !*** intitalize self_energy_coeff and mult_energy_coeff ****
+      call find_self_energy_coeff(lmax,nkatm,self_energy_coeff)
+      call paw_set_mult_energy_coeff() !*needs to be recalled when geometry changes*
 
 
       return
@@ -376,8 +385,10 @@
 
       !**** local variables ***
       logical ok
-      integer ia,ii,jj,kk,l,m,nion,npack0,mult_l,mabs
-      integer  isgn
+      integer ia,ii,ja,jj,kk,l,m,nion,npack0,mult_l,mabs
+      integer il,li,mi,mult_li,ill,jll
+      integer jl,lj,mj,mult_lj
+      integer  isgn,lmax,lmax2,indx
       integer exi(2),tmp1(2),gls(2),gl(2),t_mult(2)
       real*8  omega
       complex*16 csum1,csum2
@@ -469,7 +480,7 @@
            dcpl_mb(v_mult(1)+jj) = 0.5d0*(dcpl_mb(t_mult(1)+jj) 
      >                           + isgn*dconjg(dcpl_mb(t_mult(1)+kk)))
 
-           write(*,*) "v_mult:",ii,l,m,dcpl_mb(v_mult(1)+jj)
+           write(*,*) "v_mult 1:",ii,l,m,dcpl_mb(v_mult(1)+jj)
            jj = jj + 1
          end do
          end do
@@ -478,6 +489,118 @@
       write(*,*)
       write(*,*)
 
+      write(*,*)
+      write(*,*)
+      lmax  = paw_basis_max_mult_l()
+      lmax2 = (lmax+1)**2
+      do ii=1,nion
+         ia = ion_katm(ii)
+         mult_li  = paw_basis_mult_l(ia)
+         il       = int_mb(i_v_mult(1) + ii - 1) 
+         ill      = 0
+         do li=0,mult_li
+         do mi=-li,li
+
+           do jj=1,nion
+             ja = ion_katm(jj)
+             mult_lj  = paw_basis_mult_l(ja)
+             jl       = int_mb(i_paw_qlm(1)+jj-1)
+             jll       = 0
+             do lj=0,mult_lj
+             do mj=-lj,lj
+
+               indx = (ii-1) 
+     >              + ill*nion
+     >              + (jj-1)*nion*lmax2
+     >              + jll*nion*lmax2*nion
+
+               dcpl_mb(v_mult(1)+il) 
+     >         = dcpl_mb(v_mult(1)+il) 
+     >         + dcpl_mb(paw_qlm(1)+jl)
+     >           *dcpl_mb(mult_energy_coeff(1)+indx)
+
+       write(*,*) "v_mult 1.5:",ii,ill+1,jj,jll+1,
+     >            dcpl_mb(paw_qlm(1)+jl),
+     >            dcpl_mb(mult_energy_coeff(1)+indx)
+
+               jl  = jl+1
+               jll = jll+1
+             end do !*mj*
+             end do !*lj*
+           end do !*jj*
+
+           il = il + 1
+           ill = ill + 1
+         end do !*mi*
+         end do !*li*
+      end do !*ii*
+      write(*,*)
+      write(*,*)
+
+      !*** DEBUG ***
+      write(*,*)
+      write(*,*)
+      do ii=1,nion
+         ia = ion_katm(ii)
+         mult_li  = paw_basis_mult_l(ia)
+         il       = int_mb(i_v_mult(1) + ii - 1) 
+         do li=0,mult_li
+         do mi=-li,li
+           write(*,*) "v_mult 2:",ii,li,mi,dcpl_mb(v_mult(1)+il)
+           il = il + 1
+         end do !*mi*
+         end do !*li*
+      end do !*ii*
+      write(*,*)
+      write(*,*)
+      !*** DEBUG ***
+
+
+      call find_comp_coeff()
+
+      write(*,*)
+      write(*,*)
+      do ii=1,nion
+         ia = ion_katm(ii)
+         mult_li  = paw_basis_mult_l(ia)
+         il       = int_mb(i_v_mult(1)+ii-1) 
+         do li=0,mult_li
+           indx = li + (ia-1)*(lmax+1)
+           do mi=-li,li
+             dcpl_mb(v_mult(1)+il) 
+     >         = dcpl_mb(v_mult(1)+il) 
+     >         - dconjg(dcpl_mb(paw_qlm(1)+il))
+     >           *dbl_mb(self_energy_coeff(1)+indx)
+     >         + dcpl_mb(comp_coeff(1)+il)
+
+       write(*,*) "v_mult 2.5:",ii,li,mi,dcpl_mb(paw_qlm(1)+il),
+     >     dbl_mb(self_energy_coeff(1)+indx),
+     >     dcpl_mb(comp_coeff(1)+il)
+
+             il = il + 1
+           end do !*mi*
+         end do !*li*
+      end do !*ii*
+      write(*,*)
+      write(*,*)
+
+      !*** DEBUG ***
+      write(*,*)
+      write(*,*)
+      do ii=1,nion
+         ia = ion_katm(ii)
+         mult_li  = paw_basis_mult_l(ia)
+         il       = int_mb(i_v_mult(1) + ii - 1) 
+         do li=0,mult_li
+         do mi=-li,li
+           write(*,*) "v_mult 3:",ii,li,mi,dcpl_mb(v_mult(1)+il)
+           il = il + 1
+         end do !*mi*
+         end do !*li*
+      end do !*ii*
+      write(*,*)
+      write(*,*)
+      !*** DEBUG ***
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(t_mult(2))
@@ -544,7 +667,7 @@
       subroutine find_self_energy_coeff(lmax,nkatm,coeff)
       implicit none
       integer lmax,nkatm
-      real*8 coeff(lmax,nkatm)
+      real*8 coeff(lmax+1,nkatm)
 
 #include "paw_basis.fh"
 
@@ -553,7 +676,7 @@
       real*8 sigma_tmp,twopi
 
       !*** external functions ***
-      real*8   paw_double_factorial
+      integer  paw_double_factorial
       external paw_double_factorial
 
       twopi = 8.0d0*datan(1.0d0)
@@ -565,9 +688,8 @@
         do l=0,mult_l
 
           coeff(l+1,ia) =  4.0d0*dsqrt(twopi)
-     >              /((2*l+1)
-     >                *paw_double_factorial(2*l+1)
-     >                *sigma_tmp**(2*l+1) )
+     >     /(dble((2*l+1)*paw_double_factorial(2*l+1))
+     >      *sigma_tmp**(2*l+1) )
         end do
       end do
 
@@ -596,19 +718,21 @@
 
 
       !*** local variables **
-      integer i,j,ii,ia,jj
+      integer i,j,ii,ia,jj,il,jl
       integer l,m,li,mi,lj,mj,mult_l
       integer indx,indx_2,mtrx_ptr,mtrx_ptr2
-      integer nion,nbasis
+      integer nion,nbasis,basis_nbasis
 
 
       call dcopy(2*comp_coeff(3),0.0d0,0,
      >           dcpl_mb(comp_coeff(1)),1)
 
+      nion = ion_nion()
       do ii=1,nion
         ia = ion_katm(ii)
-        mult_l = paw_basis_mult_l(ia)
-        nbasis = paw_proj_nbasis(ia)
+        mult_l       = paw_basis_mult_l(ia)
+        basis_nbasis = paw_basis_nbasis(ia)
+        nbasis       = paw_proj_nbasis(ia)
        
         jj        = int_mb(i_v_mult(1)+ii-1)
         mtrx_ptr  = int_mb(i_paw_comp_pot_matrix(1)+ia-1)
@@ -616,27 +740,39 @@
         do l=0,mult_l
         do m=-l,l
 
-          do j=1,nbasis
-            lj=paw_proj_l(j,ia)
-            mj=paw_proj_m(j,ia)
+          jl = 0
+          do j=1,basis_nbasis
+            lj=paw_basis_orb_l(j,ia)
+            do mj=-lj,lj
 
-            do i=1,nbasis
-              li=paw_proj_l(i,ia)
-              mi=paw_proj_m(i,ia)
+            il = 0
+            do i=1,basis_nbasis
+              li=paw_basis_orb_l(i,ia)
+              do mi=-li,li
 
-              indx = mtrx_ptr + (i-1) 
-     >                        + (j-1)*nbasis 
-     >                        + l*nbasis**2
-              indx_2 = mtrx_ptr2 + (i-1) 
-     >                        + (j-1)*nbasis 
+              !*** check for non-zero gaunt coefficient ***
+              if ( (l.le.(li+lj))   .and. 
+     >             (l.ge.abs(li-lj)).and.
+     >             (m.eq.(mi-mj)) ) then
+                indx = mtrx_ptr + (i-1) 
+     >                          + (j-1)*basis_nbasis
+     >                          +     l*basis_nbasis**2
+                indx_2 = mtrx_ptr2 + (il-1) 
+     >                             + (jl-1)*nbasis 
 
-              dcpl_mb(comp_coeff(1)+jj)
-     >          = dcpl_mb(comp_coeff(1)+jj)
-     >          + gen_gaunt_coeff(l,m,li,mi,lj,mj)
-     >           *dcpl_mb(paw_comp_pot_matrix(1)+indx)
-     >           *dcpl_mb(paw_ovlp_w(1)+indx_2)
+                dcpl_mb(comp_coeff(1)+jj)
+     >            = dcpl_mb(comp_coeff(1)+jj)
+     >            + gen_gaunt_coeff(l,m,li,mi,lj,mj)
+     >             *dcpl_mb(paw_comp_pot_matrix(1)+indx)
+     >             *dcpl_mb(paw_ovlp_w(1)+indx_2)
+              end if !*non-zero gaunt*
 
+              il = il + 1
+              end do !*mi*
             end do !*i*
+
+            jl = jl + 1
+            end do !*mj*
           end do !*j*
 
           jj = jj + 1

@@ -1,7 +1,11 @@
 *
-* $Id: paw_mult_interaction.F,v 1.7 2003-02-21 19:44:22 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.8 2003-02-22 03:10:44 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2003/02/21 19:44:22  bylaska
+* Routines for computing the mult_energy_coeff have been added to paw_mult
+* ...EJB
+*
 
 
 !*************************************************
@@ -270,6 +274,35 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       return              
       END 
 
+!**************************************************
+!
+!       Name: paw_set_mult_energy_coeff
+!
+!       Purpose: 
+!
+!       Created:        2/16/2003
+!**************************************************
+      subroutine paw_set_mult_energy_coeff()
+      implicit none
+
+
+#include "mafdecls.fh"
+#include "paw_mult_data.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !*** local variables ***
+      integer nion,lmax2
+
+      lmax2 = (paw_basis_max_mult_l()+1)**2
+      nion  = ion_nion()
+      call find_mult_energy_coeff(sigma_smooth,
+     >                            nshl3d,dbl_mb(rcell(1)),
+     >                            nion,lmax2,
+     >                            dcpl_mb(mult_energy_coeff(1)))
+      return
+      end
+
 
 
 !**************************************************
@@ -302,7 +335,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       integer lshell
       integer ii,ia,jj,ja
       integer l,l1,l2,m,m1,m2
-      integer mult_l,mult_l_prime 
+      integer mult_l,mult_l_prime,p1
 
       real*8 sigma_a, sigma_a_prime
       real*8 ra(3), ra_prime(3)
@@ -319,15 +352,18 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       complex*16 f
 
       !**** external functions ****
-      real*8     paw_get_mult_coeff,paw_double_factorial
+      integer    paw_double_factorial
+      real*8     paw_get_mult_coeff
       complex*16 find_Y_lm
-      external   paw_get_mult_coeff,paw_double_factorial
+      external   paw_double_factorial
+      external   paw_get_mult_coeff
       external   find_Y_lm
 
 
+      write(*,*) "HERA:",sigma_smooth,nshl3d
       twopi = 8.0d0*datan(1.0d0)
 
-      call dcopy(2*(nion*mult_l)**2,0.0d0,0,mult_energy_coeff,1)
+      call dcopy(2*(nion*mult_l_max)**2,0.0d0,0,mult_energy_coeff,1)
 
       do ii=1,nion
        ia      = ion_katm(ii)
@@ -338,10 +374,12 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
        sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
        sigma1 = dsqrt((sigma_a**2+sigma_a**2)/2)
 
+       write(*,*) "hera 1:",ii,mult_l,sigma4,sigma2,sigma1
+
         il = 1
         do l1=0,mult_l
           const = 4.0d0*dsqrt(twopi)
-     >           / ((2*l1+1)*paw_double_factorial(2*l1+1))
+     >           / dble((2*l1+1)*paw_double_factorial(2*l1+1))
         
           const4_l = const/(sigma4**(2*l1+1))
           const2_l = const/(sigma2**(2*l1+1))
@@ -355,6 +393,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 
               if ((l1.eq.l2).and.(m1.eq.(-m2)) ) then
                 mult_energy_coeff(ii,il,ii,ilp) = f
+
+              write(*,*) "hera 2:",ii,il,ilp,f
               end if
 
               ilp = ilp+1
@@ -366,6 +406,11 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         end do !*l1*
 
       end do !*ii*
+      write(*,*)
+      write(*,*)
+
+
+      write(*,*) "HERB"
 
       do ii=1,nion
         ia   = ion_katm(ii)
@@ -389,10 +434,10 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
      >              +(ra(3)-ra_prime(3))**2)
 
           if (R.lt.(4*sigma_smooth)) then
-            sigma4 = dsqrt((sigma_smooth**2+sigma_a_prime**2)/2)
-            sigma3 = dsqrt((sigma_a**2+sigma_smooth**2)/2)
-            sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
-            sigma1 = dsqrt((sigma_a**2+sigma_a_prime**2)/2)
+            sigma4 = dsqrt((sigma_smooth**2+sigma_a_prime**2)/2.0d0)
+            sigma3 = dsqrt((sigma_a**2+sigma_smooth**2)/2.0d0)
+            sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2.0d0)
+            sigma1 = dsqrt((sigma_a**2+sigma_a_prime**2)/2.0d0)
 
             r_over_s4 = R/sigma4
             r_over_s3 = R/sigma3
@@ -422,29 +467,34 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
                 phase_factor3 = (-1)**(m1+l1)/sigma3**(l1+l2+1)
                 phase_factor2 = (-1)**(m1+l1)/sigma2**(l1+l2+1)
                 phase_factor1 = (-1)**(m1+l1)/sigma1**(l1+l2+1)
-                phase_factor  = 1
+                phase_factor  = 1.0d0
                 do l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
 
                 gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
 
+                p1 = (l1+l2+l)/2
                 f = f + paw_get_mult_coeff(l1,l2,l)*phase_factor
      >                  *gaunt_coeff*find_Y_lm(l,m,cos_theta,phi)
      >                  *(
      >  -r_over_s4**l
-     >   *paw_hypergeom1F1((l1+l2+l)/2,l,-(r_over_s4)**2/2)*phase_factor4
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s4)**2)*phase_factor4
      > - r_over_s3**l
-     >   *paw_hypergeom1F1((l1+l2+l)/2,l,-(r_over_s3)**2/2)*phase_factor3
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s3)**2)*phase_factor3
      > + r_over_s2**l
-     >   *paw_hypergeom1F1((l1+l2+l)/2,l,-(r_over_s2)**2/2)*phase_factor2
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s2)**2)*phase_factor2
      > + r_over_s1**l
-     >   *paw_hypergeom1F1((l1+l2+l)/2,l,-(r_over_s1)**2/2)*phase_factor1
+     >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s1)**2)*phase_factor1
      >                   ) 
                 phase_factor = -phase_factor
 
+                write(*,*) "herb 1:",l,m,gaunt_coeff,
+     >           find_Y_lm(l,m,cos_theta,phi)
                 end do !*l*
                 
                 mult_energy_coeff(ii,il,jj,ilp) 
      >           = mult_energy_coeff(ii,il,jj,ilp) + f 
+
+                write(*,*) "herb 2:",ii,il,jj,ilp,f,R
 
                 ilp = ilp + 1
               end do !*m2*
@@ -459,6 +509,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         end do !*lshell*
         end do !*jj*
       end do !*ii*
+
+      write(*,*) "HERC"
 
       do ii=1,nion
       do jj=ii+1,nion
