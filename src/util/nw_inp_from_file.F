@@ -2,14 +2,19 @@
       implicit none
 #include "rtdb.fh"
 #include "global.fh"
+#include "inp.fh"
+#include "util.fh"
+
       integer rtdb
       character*(*) string
 c
       logical nw_inp_from_file
       external nw_inp_from_file
-      character*8 filename
-      data filename/'temp.nw'/
-      
+      character*(255) filename
+
+      call util_file_name('temp.nw', .true., .false., filename)
+
+      write (6,*) 'filename=',filename
 c
       if (ga_nodeid() .eq. 0) then
          open(1,file=filename,form='formatted',status='unknown',err=100)
@@ -26,7 +31,7 @@ c
       end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.7 2000-11-08 22:07:09 d3g681 Exp $
+* $Id: nw_inp_from_file.F,v 1.8 2003-08-01 18:34:40 yuri Exp $
 *
       implicit none
 #include "rtdb.fh"
