@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.10 2000-04-05 01:41:23 edo Exp $
+c$Id: grid_sphere.F,v 1.11 2000-04-06 01:25:44 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -18,7 +18,7 @@ c
       grid_insidesp=.true.
       nxyz=grid_nxyz(rad,l_rect)
       call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-      if(fnxyz.lt.64.and.sub4) then
+      if(fnxyz.lt.shft.and.sub4) then
          if(nx.eq.2) then
             ndx=0d0
          else
@@ -284,11 +284,17 @@ c
 c
       integer n
 c
-      n=max(nint((rad+rad)/l_cube),1)
-      grid_lcube=dble(rad+rad)/dble(n)
+      if(l_cube.lt.0d0) then
+         n=-int(l_cube)
+         grid_lcube=-dble(rad+rad)/l_cube
+      else
+         n=max(nint((rad+rad)/l_cube),2)
+         grid_lcube=dble(rad+rad)/dble(n)
+      endif
       return
       end
       integer function grid_nxyz(rad,l_rect)
+      implicit none
       double precision rad,l_rect
       grid_nxyz=nint(rad/l_rect)*2d0
       return
