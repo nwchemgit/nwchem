@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.8 2000-08-09 21:55:04 windus Exp $
+C $Id: twodd_cont.F,v 1.9 2000-08-11 16:47:56 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -222,14 +222,15 @@ c
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max2e/12
       max1e = max1e/12
-      max2e = max(max2e,1296*100)          ! 100 D quartets
+c     max2e = max(max2e,1296*100)          ! 100 D quartets
       lbuf = max(max1e, max2e)
-      lscratch = max(mscratch_1e, mscratch_2e)
+      lscratch = 2*max(mscratch_1e, mscratch_2e)
 C     one-electron contribution
 C     buffers for one electron integral derivatives
  
 c probably need the 12 to be 78  CHECK
-      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
+c     if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
+      if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,
      $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
      $    ,78*lbuf)
 *      call ma_summarize_allocated_blocks()
