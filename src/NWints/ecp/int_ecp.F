@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.16 1999-03-10 00:47:24 d3e129 Exp $
+* $Id: int_ecp.F,v 1.17 1999-03-16 22:57:34 d3e129 Exp $
       implicit none
 *::cr::7
 *------------------------------------------------*
@@ -824,6 +824,10 @@ c
       logical dryrun   ! [input] compute vs calculate memory requirements.
 *
 *      write(6,*)' lscr IN ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' int_ecp_hf1: coords a ',xyza
+*        write(6,*)' int_ecp_hf1: coords b ',xyzb
+*      endif
 c
       call ecp_integral(
      &      xyza,
@@ -872,7 +876,11 @@ c
       double precision scr(lscr)         ! [scratch] array
       logical dryrun   ! [input] compute vs calculate memory requirements.
 *
-*      write(6,*)' lscr IN ecp_hf1:',lscr
+*      write(6,*)' lscr IN d_ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' intd_ecp_hf1: coords a ',xyza
+*        write(6,*)' intd_ecp_hf1: coords b ',xyzb
+*      endif
 c
       call ecp_gradient(
      &      xyza,
