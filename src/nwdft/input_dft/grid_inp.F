@@ -4,6 +4,8 @@ C     $Id:
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "geom.fh"
+#include "cdft.fh"
       integer rtdb
       character*(*) module
 c     
@@ -28,16 +30,19 @@ c     nquad_task
 c     rm
 c     
       integer num_dirs, ind, mlen
+      integer atn
+      character*2 symbol
       parameter (num_dirs = 13)
       character*10 dirs(num_dirs), gridtype
-      character*255 test
+      character*16 test,element
       logical ldelley, lbecke, store_wght
-      integer iangquad, nquad_task, nagrid, nradpts
+      integer iangquad, nquad_task, nagrid, nradpts,accqrad
       double precision rm
       data dirs / 'delley', 'becke', 'gausleg', 'lebedev', 'xcoarse', 
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
      &            'store_wght', 'nquad_task', 'rm'/
 c     
+      ngridin=0
       mlen = inp_strlen(module)
 c     
  10   if (.not. inp_a(test)) goto 1999
@@ -95,6 +100,7 @@ c
 c     lebedev; use Lebedev angular quadrature
 c     
   400 gridtype='lebedev'
+      leb=.true.
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 400) 
@@ -211,7 +217,35 @@ c
 c     
       return
 c     
-10000 write(6,10001)
+10000 continue
+c
+c     see if we have tag + rad + ang + accqrad
+c
+c            if (.not. inp_a(tag)) goto 1688
+      if (.not. geom_tag_to_element(test, symbol, element, atn))
+     .     goto 1688
+!     $     call errquit
+!     &    ('grid_inp: tag does not refer to an atom', 0)
+      ngridin=ngridin+1
+      znucin(ngridin)=atn
+      if (.not. inp_i(nradpts)) then
+         write(6,*)' grid_inp: nradpts value not found. '
+      else
+         nradin(ngridin)=nradpts
+      endif
+c
+      if (.not. inp_i(iangquad)) then
+         write(6,*)' grid_inp: iangquad value not found. '
+      else
+         nangin(ngridin)=iangquad
+      endif
+      if (.not. inp_i(accqrad)) then
+         write(6,*)' grid_inp: iangquad value not found. '
+      else
+         accqrin(ngridin)=accqrad
+      endif
+      goto 10
+ 1688       write(6,10001)
 10001 format(/,' grid [[delley], [becke], [gausleg], 
      &       [lebedev ival ival], ',
      &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',

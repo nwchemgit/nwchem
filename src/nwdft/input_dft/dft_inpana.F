@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.42 1999-06-17 18:24:34 edo Exp $
+c     $Id: dft_inpana.F,v 1.43 1999-07-09 22:42:07 edo Exp $
 c
 c*********************************************************************
 c     
@@ -417,7 +417,7 @@ c
      &         (LuOut,'Grid Information',20,.true.)
             write(LuOut,9135)gridtype
             write(LuOut,9136)
-            if (iangquad.eq.0)then
+            if (.not.leb)then
                write(LuOut,9142)
             else
                write(LuOut,9143)
@@ -438,12 +438,12 @@ c
    40          continue
                bsr = bsrad_atom_type(n)*AUTOANG
                radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
-               if (iangquad.eq.0)then
+               if (leb)then
+                  write(LuOut,9138)tag,bsr,nrad(n),radang,
+     &                nang(n)
+               else
                   write(LuOut,9137)tag,bsr,nrad(n),radang,
      &                nang(n),2*nang(n)
-               else
-                  write(LuOut,9138)tag,bsr,nradpts,radang,
-     &                nang_leb_pts
                endif
             enddo
             if (no_prune)then
@@ -561,7 +561,7 @@ c
  9135 format(10x,'Grid used for XC integration:  ',a)
  9136 format(10x,'Radial quadrature: Euler-MacLaurin. ')
  9137 format(10x,a16,2x,f6.2,6x,i3,6x,f6.1,3x,i2,1x,'*',1x,i2)
- 9138 format(10x,a16,2x,f6.2,6x,i3,8x,f6.1,3x,2x,i4)
+ 9138 format(10x,a16,2x,f6.2,6x,i3,8x,f6.1,3x,2x,i5)
  9139 format(10x,'Spatial weights used: Delley. ')
  9140 format(10x,'Spatial weights used: Becke. ')
  9141 format(10x,'Parallel task size associated with evaluation of ',/,

@@ -1,6 +1,6 @@
       Subroutine grid_memory(rtdb)
 c
-c$Id: grid_memory.F,v 1.1 1999-04-23 16:30:32 d3h449 Exp $
+c$Id: grid_memory.F,v 1.2 1999-07-09 22:41:57 edo Exp $
 c
       implicit none
 c      
@@ -12,7 +12,6 @@ c
 #include "geom.fh"
 c
       integer rtdb
-      logical leb
       logical oprint
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       integer lqxyz, iqxyz, lrq0, irq0, lexpo, iexpo
@@ -20,8 +19,6 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
 c
 c     allocate space for atomic coordinates and charges
 c
@@ -47,7 +44,7 @@ c
      &   call errquit('grid_memory: cannot allocate expo',0)
 c
       call mbf_ao_max(rtdb, dbl_mb(iqxyz), dbl_mb(irq0), 
-     &                dbl_mb(iexpo), dbl_mb(icoord), leb)
+     &                dbl_mb(iexpo), dbl_mb(icoord))
 c
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_memory: cannot pop stack',0)

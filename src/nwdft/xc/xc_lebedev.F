@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.14 1999-03-03 03:24:37 edo Exp $
+C$Id: xc_lebedev.F,v 1.15 1999-07-09 22:42:10 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -658,6 +658,8 @@ c
                     z0=0.d0
                   endif
                   if (oprint)write(LuOut,207)
+                     if (oprint)write(LuOut,209)wleb(jk),
+     &                  x0,y0,z0
                   do l = 1,nvjj
                      iv = ivj(l,j)
                      gjkt1 = goh(1,1,iv)*x0 + goh(1,2,iv)*y0 + 
@@ -672,9 +674,9 @@ c
                      za_leb(3,l_ang,iaz) = gjkt3
                      wa_leb(l_ang,iaz) = wleb(jk)*fourpi
                      wtest = wtest + wa_leb(l_ang,ia)
+c                     if (oprint)write(LuOut,209)wa_leb(l_ang,iaz),
+c     &                  (za_leb(i,l_ang,iaz),i = 1,3)
 C			write(0,*) ' wtest ', wtest/fourpi
-                     if (oprint)write(LuOut,209)wa_leb(l_ang,iaz),
-     &                  (za_leb(i,l_ang,iaz),i = 1,3)
                   enddo
    20       continue
             if (oprint)write(LuOut,410)l_ang, wtest/fourpi
@@ -684,7 +686,35 @@ C			write(0,*) ' wtest ', wtest/fourpi
       enddo
       return
   208 format(t10,3f10.5)
-  207 format('     reducible set of points ;')
+  207 format('     irreducible set of points ;')
   209 format(t10,f10.5,2x,3f10.5)
   410 format('   total no. of   reducible points:',i4,'; test:',f12.8)
+      end
+      integer function xc_leb_acc2nrd(acc)
+      implicit none
+      integer acc
+      integer nridv(10)
+      data nridv/38, 50, 110, 194,  302, 434, 590, 770, 
+     &     974, 1202/
+c
+      xc_leb_acc2nrd=nridv(acc)
+      return
+      end
+      integer function xc_leb_nrd2acc(nrad)
+      implicit none
+      integer nrad
+      integer nridv(10)
+      data nridv/38, 50, 110, 194,  302, 434, 590, 770, 
+     &     974, 1202/
+c
+      integer i
+c
+      do i=1,10
+         if(nrad.eq.nridv(i)) then
+            xc_leb_nrd2acc=i
+            return
+         endif
+      enddo
+      call errquit('xclebnrd2: invalid nrad',nrad)
+      return
       end

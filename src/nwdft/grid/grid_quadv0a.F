@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.1 1999-06-25 21:48:25 d3h449 Exp $
+c$Id: grid_quadv0a.F,v 1.2 1999-07-09 22:41:57 edo Exp $
 c
       implicit none
 c
@@ -194,22 +194,9 @@ c
 c
          call grid_getrchi(iqsh,grad,
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),natoms)
-c
-c         write(0,*) ' getr ',dbl_mb(irchi_atom),dbl_mb(irchi_atom+3)
-         
-c         call util_rmsatbf(nqpts, natoms,iniz,ifin,
-c     ,        dbl_mb(ichi_ao),dbl_mb(irchi_atom))
-c         write(0,*) ' util ',dbl_mb(irchi_atom),dbl_mb(irchi_atom+3)
-     
-c         if (grad)then
-c            call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
-c     ,           dbl_mb(idelchi_ao),dbl_mb(irdelchi_atom))
-c         endif
 c     
          call dfill(nqpts*natoms, 0.0d0, dbl_mb(ibp), 1)
-c     
          call dfill(nqpts, 0.0d0, dbl_mb(irscr), 1)
-c     
          call dfill(nbf_ao_mxnbf_ce2, 0.0d0, Fmat, 1)
          call dfill(nbf_ao_mxnbf_ce2, 0.0d0, Pmat, 1)
          call dfill(nbf_ao_mxnbf_ce*nqpts, 0.0d0, Bmat, 1)

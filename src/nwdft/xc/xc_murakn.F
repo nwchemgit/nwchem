@@ -1,6 +1,6 @@
-      Subroutine xc_murakn(znumber,r,w,nr,rm)
+      Subroutine xc_murakn(znumber,r,w,nr,rm,range)
 
-C$Id: xc_murakn.F,v 1.2 1999-03-03 03:22:43 edo Exp $
+C$Id: xc_murakn.F,v 1.3 1999-07-09 22:42:10 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -10,6 +10,7 @@ C$Id: xc_murakn.F,v 1.2 1999-03-03 03:22:43 edo Exp $
 c
       integer nr,i
       double precision fmn,qi,ri,wi,alpha
+      double precision range ! max extent of basis f
 c
       double precision wsum
 c
@@ -20,7 +21,7 @@ c ME Mura and PJ Knowles, J Chem Phys 104, 9848 (1996)
 c
 c***************************************************************************
       nr = nr+1
-      alpha=5.d0
+      alpha=-range/log(1d0-(nr/(1d0+nr))**3)
       fmn = rm/dble(nr)
 
       do 10 i = 1,nr-1

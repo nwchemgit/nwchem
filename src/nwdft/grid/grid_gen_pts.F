@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.6 1999-06-15 20:16:25 edo Exp $
+c$Id: grid_gen_pts.F,v 1.7 1999-07-09 22:41:56 edo Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c
 #include "sym.fh"
 c
       integer rtdb
-      logical leb, grid_on_file
+      logical  grid_on_file
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       integer mxnrad, nqlen, lqs, iqs
       integer laqbuf, iaqbuf
@@ -42,8 +42,6 @@ c
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
      &     call errquit('grid_gen_pts: geom_cart_get failed',74)
 
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
 c
 c     A list of pruned (or unpruned) r, theta and phi is generated here.
 c

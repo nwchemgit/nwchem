@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.2 1999-06-14 22:39:19 d3h449 Exp $
+c$Id: grid_acc_def.F,v 1.3 1999-07-09 22:41:56 edo Exp $
 c
       implicit none
 c      
@@ -14,9 +14,9 @@ c
 #include "geom.fh"
 c
       integer rtdb
-      integer num_gridtypes, grid_acc_index
+      integer num_gridtypes, grid_acc_index,jj,igridin
       parameter (num_gridtypes = 7)
-      logical leb, oprint, oprint_grid
+      logical leb, oprint, oprint_grid,lgridin
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
       double precision grid_acc(num_gridtypes)
@@ -51,6 +51,8 @@ c
       dimension grid_params(5,2,105)
       dimension grid_params_a(5,2,54)
       dimension grid_params_b(5,2,51)
+      integer xc_leb_acc2nrd
+      external xc_leb_acc2nrd
       equivalence(grid_params(1,1,1), grid_params_a(1,1,1))
       equivalence(grid_params(1,1,55), grid_params_b(1,1,1))
 * equivalence must come before data statements
@@ -170,9 +172,6 @@ c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
-      R_MAX = dble(irqmax)
 c
 c     Determine desired integration accuracy.
 c
@@ -274,7 +273,6 @@ c
                nrad(itype) = 0
                nang(itype) = 0
             else
-c
                if (grid_acc_index.gt.5)then
                   nrad(itype) = nradpts
                   nang(itype) = nagrid
@@ -300,9 +298,35 @@ c
 c
             if (i_atomic_number.ne.0)then ! not ghost atom; add grid
 c
-               if (grid_acc_index.gt.5)then
+c
+c     check if by atom grid parameters have been redifined by input
+c
+               lgridin=.false.
+               do jj=1,ngridin
+                  if(znucin(jj).eq.znuc_atom_type(itype)) then
+                     lgridin=.true.
+                     igridin=jj
+                  endif
+               enddo
+c     
+c
+               if(lgridin) then
+                 nrad(itype) = nradin(igridin)
+                  rad_cutoff(1,itype)=accqrin(igridin)
+                  nang(itype) = nangin(igridin)
+               if(leb) then
+                  iangquad=max(iangquad,nangin(igridin))
+                  nang(itype) = xc_leb_acc2nrd(nangin(igridin))
+               endif
+               elseif (grid_acc_index.gt.5)then
                   nrad(itype) = nradpts
-                  nang(itype) = nagrid
+                  if(leb) then
+                     write(0,*) ' ll ',iangquad
+                     nang(itype) = xc_leb_acc2nrd(iangquad)
+                     write(0,*) ' ll ',nang(itype),iangquad
+                  else
+                     nang(itype) = nagrid
+                  endif
                else
                   nrad(itype) = grid_params(grid_acc_index,1,
      &                                    i_atomic_number)
@@ -325,7 +349,7 @@ c
          write(luout,*)'grid_acc_def: Too many radial shells.'
          call errquit(' grid_acc_def: raise MXrad',1)
       end if
-      if (mxnang.gt.MXagrid)then
+      if (.not.leb.and.mxnang.gt.MXagrid)then
          write(LuOut,*)'grid_acc_def: Too many angular grids.'
          call errquit(' grid_acc_def: raise MXagrid',3)
       end if

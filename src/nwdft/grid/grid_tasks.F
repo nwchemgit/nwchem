@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.9 1999-06-15 20:49:12 d3e129 Exp $
+c$Id: grid_tasks.F,v 1.10 1999-07-09 22:41:58 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer nq,n1,n2,nproc
       integer nxtask
       external nxtask
-      logical leb,lssw
+      logical lssw
       logical grid_file_open
       external grid_file_open
       logical grid_file_close
@@ -72,8 +72,6 @@ c
 c
       owritefile= grid_test_mem (rtdb, geom, nq_tot)
 c
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
 c
 c     get partitioning function
 c
@@ -114,7 +112,7 @@ c        Generate all angular quadrature points for this radial shell
 c
          call dfill(4*nq, 0.0d0, aqbuf, 1)
 c
-         call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, leb,
+         call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, 
      ,        rad)
          npts_iqsh = nq
 c

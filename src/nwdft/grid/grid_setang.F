@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.1 1999-04-23 16:30:34 d3h449 Exp $
+c$Id: grid_setang.F,v 1.2 1999-07-09 22:41:58 edo Exp $
 c
       implicit none
 c      
@@ -15,13 +15,12 @@ c
       integer l_ang, iang, n, mxnang
       double precision phi_inc, wphi, phi
       double precision pi
-      parameter (pi = 3.1415926535898d0)
+c
+      pi=acos(-1d0)
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
       if (.not. rtdb_get(rtdb, 'dft:mxnang', mt_int, 1, mxnang))
      &   call errquit('grid_setang: rtdb_put failed', 119)
 c

@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.4 1999-06-15 20:16:26 edo Exp $
+c$Id: grid_list.F,v 1.5 1999-07-09 22:41:57 edo Exp $
 c
       implicit none
 c      
@@ -21,14 +21,15 @@ c
       Parameter (ktheta = 5.d0)
       double precision eps
       parameter (eps = 1.d-20)
-      logical leb, oprint, oprint_grid, no_prune
+      logical  oprint, oprint_grid, no_prune
       double precision asg1(4,3)
       integer iti, ictr, irsh,
      &        iang, iang_mx, iqsh, nr, nserie, izat, ir,
      &        me, nq_ctr_tot, nq_tot
       double precision R_MAX, r, r1, r2, r3, 
      &                 r4, RR, q1
-
+      integer xc_leb_nrd2acc
+      external xc_leb_nrd2acc
       Data asg1/0.25  , 0.5, 1.0, 4.5,
      &          0.1667, 0.5, 0.9, 3.5,
      &          0.1   , 0.4, 0.8, 2.5/
@@ -41,8 +42,6 @@ c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
-      leb = .false.
-      if (iangquad.ne.0) leb = .true.
       R_MAX = dble(irqmax)
 c
 c     check for no pruning; no_prune
@@ -116,7 +115,7 @@ c              iang =  nagrid (or nang) for user specified gauss-legendre quadra
 c              iang = grid_params (or nang) for all other gauss-legendre quadratures
 c
                if (leb)then
-                  iang_mx = iangquad
+                  iang_mx = xc_leb_nrd2acc(nang(iti))
                else
                   iang_mx = nang(iti)
                endif
@@ -124,9 +123,9 @@ c
                if (no_prune)goto 405
 c            
                if (leb) then ! lebedev angular quadrature
-                  if (iangquad.eq.1) then
-                     iang = iangquad
-                  elseif (iangquad.eq.2) then 
+                  if (iang_mx.eq.1) then
+                     iang = iang_mx
+                  elseif (iang_mx.eq.2) then 
                      if (r.lt.r1) then
                         iang = 1
                      elseif (r.ge.r1.and.r.lt.r4) then
@@ -140,11 +139,11 @@ c
                      elseif (r.ge.r1.and.r.lt.r2) then
                         iang = 2
                      elseif (r.ge.r2.and.r.lt.r3) then
-                        iang = max(iangquad-1,1)
+                        iang = max(iang_mx-1,1)
                      elseif (r.ge.r3.and.r.lt.r4) then
-                        iang = iangquad
+                        iang = iang_mx
                      else
-                        iang = max(iangquad-1,1)
+                        iang = max(iang_mx-1,1)
                      endif
                   endif
                else ! gauss-legendre angular quadrature
@@ -155,9 +154,10 @@ c
 c
 c              check iang value
 c
-               if (iang .gt. iang_mx) then
-                  call errquit('Grid gen error in grid_list.',911)
-               endif 
+cedo               if (iang .gt. iang_mx) then
+cedo                  write(0,*) ' iang iang_mx ',iang,iang_mx
+cedo                  call errquit('Grid gen error in grid_list.',911)
+cedo               endif 
   405          continue
 c
 c              temp continue to fill common iqsh to keep code working

@@ -1,7 +1,7 @@
-      Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, leb,
+      Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, 
      *     rad)
 c
-c$Id: grid_qpts.F,v 1.3 1999-06-14 22:39:23 d3h449 Exp $
+c$Id: grid_qpts.F,v 1.4 1999-07-09 22:41:57 edo Exp $
 c
       implicit none
 c      
@@ -20,7 +20,7 @@ c
 c
 c---> Cartesian Coordinates of Quadrature Points & Weights
 c
-      logical leb, oprint_grid
+      logical  oprint_grid
       double precision aqbuf(4,nq), qwght_nq,rad
 c
 c     Compute the quadrature points & weights for a given 

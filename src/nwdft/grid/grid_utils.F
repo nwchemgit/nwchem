@@ -117,9 +117,9 @@ c
       endif
       return
       end
-      Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord, leb)
+      Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.3 1999-06-28 20:52:31 d3g681 Exp $
+C$Id: grid_utils.F,v 1.4 1999-07-09 22:41:58 edo Exp $
 c
       implicit none
 c      
@@ -146,7 +146,6 @@ c     set of radial shells.
 c
       integer irsh, iang, iqsh,  l, ia_ictr
       double precision r
-      logical leb
 c
 c     Distance Squared between Sampling Points and Centers
 c
@@ -386,7 +385,7 @@ c
       return
       end
       subroutine rad_trunc(rtdb, zprim, shell_chg, 
-     &     tol_reset, mul_reset)
+     &     tol_reset, mul_reset,range_max)
 c
 C$Id:
 c
@@ -408,7 +407,7 @@ c
       double precision zprim(nbf_ao_mxprim), shell_chg(nshells_ao)
       integer ncontrset, icset, ictr, itype, nprimo, ncontr, 
      &        isphere, iprimo, l
-      double precision zmin
+      double precision zmin,min_exp
 c
 c     determine node id
 c
@@ -423,6 +422,21 @@ c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in rad_trunc',1)
       range_max = 0.0d0
+c
+c     get minimum exponent of all basis functions
+c
+      min_exp=1d20
+      do icset = 1,ncontrset
+         if (.not.bas_continfo(AO_bas_han, icset,
+     &        itype, nprimo, ncontr, isphere))
+     &        call errquit('Exiting in rad_trunc.',3)
+         if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
+     &        call errquit('Exiting in rad_trunc.',7)
+         do  iprimo = 1,nprimo
+            min_exp = min(zprim(iprimo),min_exp)
+         enddo
+      enddo
+      
       if (me.eq.0)write(6,*)' job_grid_acc = ',job_grid_acc
       do 6 icset = 1,ncontrset
         if (.not.bas_cn2ce(AO_bas_han, icset, ictr))
@@ -594,7 +608,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.3 1999-06-28 20:52:31 d3g681 Exp $
+C$Id: grid_utils.F,v 1.4 1999-07-09 22:41:58 edo Exp $
 c
       implicit none
 c

@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.29 1999-06-17 18:24:52 edo Exp $
+C$Id: cdft.fh,v 1.30 1999-07-09 22:42:06 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -103,12 +103,14 @@ c
      &     rpts, rwghts, aratio, costheta, sintheta, cosphi, sinphi,
      &     awghts, qrot, wa_leb, za_leb
       logical 
-     &     iatype_pt_chg
+     &     iatype_pt_chg,leb
       integer 
      &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
      &     iatype, iqrot, ntypes,
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
-     &     rad_cutoff,task_list,n_tot_tasks,red_iqsh
+     &     rad_cutoff,task_list,n_tot_tasks,red_iqsh,
+     &     nradin, nangin, 
+     &     accqrin,znucin,ngridin
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -134,7 +136,7 @@ c
 c
 c     Logicals
 c
-     & iatype_pt_chg(dft_max_cent),
+     & iatype_pt_chg(dft_max_cent), leb,
 c
 c     Integers
 c
@@ -143,4 +145,7 @@ c
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
      & ntypes, max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
      & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
-     & red_iqsh(MXqshells,MAX_CHUNK)
+     & red_iqsh(MXqshells,MAX_CHUNK),
+     & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
+     & accqrin(dft_ntags_bsmx),znucin(dft_ntags_bsmx),ngridin
+
