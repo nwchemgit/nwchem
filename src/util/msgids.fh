@@ -121,6 +121,7 @@ c
       integer msg_mcscf_chkhess
       integer msg_gapss_vcoul
       integer msg_gapss_ltp
+      integer msg_direct_mp2_emp2
       
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
@@ -330,3 +331,4 @@ c
       parameter (msg_mcscf_chkhess     = msg_ftn_base - 187 )
       parameter (msg_gapss_vcoul     = msg_ftn_base - 188 )  ! gapss: gap_vcoul
       parameter (msg_gapss_ltp     = msg_ftn_base - 189 )    ! gapss: gap_vcoul
+      parameter (msg_direct_mp2_emp2 = msg_ftn_base - 189 ) ! direct_mp2

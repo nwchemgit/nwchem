@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.58 1996-08-06 05:40:04 d3g681 Exp $
+# $Id: GNUmakefile,v 1.59 1996-08-19 15:28:57 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -112,6 +112,7 @@ $(LIBRARY_PATH)(util_ch_brd.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/inp.fh $(INCDIR)/g
 $(LIBRARY_PATH)(util_pname.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(two_ind_trn.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(testsolve.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(errquit.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(seq_output.o):	$(INCDIR)/tcgmsg.fh ./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(print_center.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(mk_fit_xf.o):	./stdio.fh ./numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
