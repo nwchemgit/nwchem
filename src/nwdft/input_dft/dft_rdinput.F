@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.80 2000-07-08 06:30:44 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.81 2000-07-10 23:01:59 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -745,6 +745,8 @@ cedo     &   radgrid='eumac'
           if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 
      .         call errquit('dftrdinp: put radgrid failed',7)
        endif
+      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
+     &   trunc_neigh))trunc_neigh=.true.
 c
 c     partitioning function
 c     erf1 on by default
