@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.8 2000-07-18 15:00:57 windus Exp $
+C $Id: onedd_cont.F,v 1.9 2000-08-08 20:46:06 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -185,6 +185,10 @@ c  first print out the rhs values
       do i = 1, ncent*3
         call ga_print(g_rhs(i))
       enddo
+c
+c write out Fx terms to disk
+c
+      call sx_write(g_rhs,ncent*3,nbf,fx_dra_handle)
 c
 c  Get rid of the temporary buffers for the integrals
 c

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.6 2000-05-30 14:47:29 windus Exp $
+C $Id: hess_init.F,v 1.7 2000-08-08 20:46:06 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -27,6 +27,7 @@ c     integer rtdb, mult, g_vecs(2)
                               ! changed in the future
       logical status
       character*256 sx_name
+      character*256 fx_name
       double precision zero, one, onem
       double precision xfac(numfunc)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
@@ -87,8 +88,10 @@ c
 c
 c  Initialization for each of the different types of wavefunctions.
 c
-      jfac = 1.0d0   ! Only changed for DFT
-      kfac = 1.0d0
+c    Need to fix jfac and kfac for UHF
+c
+      jfac(1) = 1.0d0   ! Only changed for DFT
+      kfac(1) = 1.0d0
       if (theory .eq. 'HF') then
         if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
      *    call errquit('hess_init: failed to get nmo', 555)
@@ -121,10 +124,10 @@ c     Get information about fitting and scale factors
 c
         if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
      $        ocdfit = .false.
-        if (ocdfit) jfac = 0.0d0 
+        if (ocdfit) jfac(1) = 0.0d0 
         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
      $        call errquit('gradients: xfac not in rtdb ', 0)
-        kfac = xfac(1)
+        kfac(1) = xfac(1)
 c
 c  I don't like the way I am getting the number of mo's, but I can't find
 c  another way to get this from the DFT.
@@ -254,12 +257,18 @@ c  Initialize the Disk Resident Array (DRA) interface which will be needed
 c  to hold the overlap derivatives.
 c
       call util_file_name('sxmatrices',.true.,.false.,sx_name)
+      call util_file_name('fxmatrices',.true.,.false.,fx_name)
       nbsize = ma_sizeof(mt_dbl,ncent*3*nbf*nbf,mt_byte)
-      if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
+c     if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
+c    &    ('hess_init: Failed to initialize DRA interface',555)
+      if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
      &    ('hess_init: Failed to initialize DRA interface',555)
       if (dra_create(mt_dbl,nbf*ncent*3,nbf,'Sx matrices',sx_name,
      &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create sx DRA',555)
+      if (dra_create(mt_dbl,nbf*ncent*3,nbf,'Fx matrices',fx_name,
+     &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
+     &   ('hess_init: Failed to create fx DRA',555)
 
       return
       end

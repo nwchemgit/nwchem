@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.6 2000-08-07 20:08:45 windus Exp $
+C $Id: twodd_cont.F,v 1.7 2000-08-08 20:46:07 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -47,6 +47,8 @@ c
      $     k_bfglo, k_bfghi, k_labels, k_list, k_q4, k_bftoat
       integer l_shbflo, l_shbfhi
       integer k_shbflo, k_shbfhi
+      integer ndims(4), chunk(4)
+      integer g_fock
 c
 c dummy variable needed for grad2 call, but not used here
 c
@@ -73,6 +75,34 @@ c
      $     call errquit('twodd_cont: could not get max_at_bf',0)
       if (.not. bas_nbf_cn_max(basis,max_sh_bf))
      $     call errquit('twodd_cont: could not get max_sh_bf',0)
+c
+C     define threshold for Schwarz screening(same as in SCF)
+c
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', mt_dbl, 1, tol2e)) then
+         if (rtdb_get(rtdb,'scf:thresh',mt_dbl,1,tol2e)) then
+            tol2e = min(1d-7,tol2e * 1d-2)
+         else
+            tol2e = 1.0d-7
+         end if
+      end if                                                                    
+c
+c initialize for integrals
+c
+      call schwarz_tidy()    ! need to get rid of temp buffers
+      call intdd_terminate()
+      call int_init(rtdb, 1, basis)
+      call schwarz_init(geom, basis)
+      call int_terminate()
+      call intdd_init(rtdb, 1, basis)
+c
+c For now I am not dealing with the active atom stuff, just setting every
+c atom to active.
+c
+c     if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
+c    $     call errquit('twodd_cont: could not allocate l_act',ncent) 
+      do i = 1, ncent
+        log_mb(k_act+i-1) = .true.
+      end do
 c
 c  Set up some variables that would be set using mp2, etc... for the
 c  the call to twodd_coul_ex.
@@ -111,7 +141,41 @@ c
       ld_jl8  = 1
       ld_il8  = 1
       ld_jk8  = 1
- 
+c
+c  This is pretty inefficient for now, but ...
+c  First create a (3N,ndens,i,j) ga for the fock_derivatives in the
+c  fock build.  Second call the fock build.  Finally, add the two
+c  ga's together together and get rid of the extra ga.
+c
+      ndims(1) = n3xyz
+      ndims(2) = ndens
+      ndims(3) = nbf
+      ndims(4) = nbf
+      chunk(1) = -1
+      chunk(2) = -1
+      chunk(3) = -1
+      chunk(4) = -1
+      if (.not.nga_create(MT_DBL,4,ndims,'Fockders',chunk,g_fock))
+     *  call errquit('twodd_cont: Could not create g_fock',555)
+      call ga_zero(g_fock)
+      write(6,*) 'before going into shell_fock_build:'
+      write(6,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
+     *    n3xyz, ndens, tol2e
+      do i = 1, ndens
+        write(6,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
+      enddo
+      call shell_fock_build (geom, basis, n3xyz, ndens, jfac, kfac,
+     *   tol2e, g_dens, g_fock, log_mb(k_act))
+      write(6,*) 'after going into shell_fock_build:'
+      write(6,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
+     *    n3xyz, ndens, tol2e
+      do i = 1, ndens
+        write(6,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
+      enddo
+      call ga_print(g_fock)
+      if (.not.ga_destroy(g_fock))
+     *  call errquit('twodd_cont: Could not destroy g_fock',555)
+c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
 c Set up memory needs
@@ -154,13 +218,6 @@ c
       if (.not. ma_push_get(mt_dbl, blen**4, 'pdm2d',
      $     l_pdm2d, k_pdm2d)) call errquit
      $     ('twodd_cont:failed allocating pdm2d',blen**4)
-c initialize for integral gradients
-      call schwarz_tidy()    ! need to get rid of temp buffers
-      call intdd_terminate()
-      call int_init(rtdb, 1, basis)
-      call schwarz_init(geom, basis)
-      call int_terminate()
-      call intdd_init(rtdb, 1, basis)
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max2e/12
@@ -182,16 +239,6 @@ c probably need the 12 to be 78  CHECK
       if (.not. ma_push_get(mt_int,4*lbuf,'labels',l_labels,k_labels))
      $     call errquit('twodd_cont: could not allocate labels',
      $     4*lbuf)
-c
-C     define threshold for Schwarz screening(same as in SCF)
-c
-      if (.not. rtdb_get(rtdb, 'scf:tol2e', mt_dbl, 1, tol2e)) then
-         if (rtdb_get(rtdb,'scf:thresh',mt_dbl,1,tol2e)) then
-            tol2e = min(1d-7,tol2e * 1d-2)
-         else
-            tol2e = 1.0d-7
-         end if
-      end if                                                                    
 c
 c     Block the shells for Texas
 c
@@ -240,21 +287,11 @@ c
      $        .true., int_mb(k_rbfmap))
       end do
 c
- 
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
      $     call errquit('twodd_cont:could not allocate list',4*maxq)
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('twodd_cont:could not allocate q4',maxq)                      
       nproc = ga_nnodes()
-c
-c For now I am not dealing with the active atom stuff, just setting every
-c atom to active.
-c
-c     if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
-c    $     call errquit('twodd_cont: could not allocate l_act',ncent) 
-      do i = 1, ncent
-        log_mb(k_act+i-1) = .true.
-      end do
 c
 c Print out the hessian before adding anything else
 c
@@ -265,7 +302,7 @@ c
 c
 c  Actually do the deed
 c
-      if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call twodd_coul_ex(
+      if (jfac(1).ne.0.0d0 .or. kfac(1).ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),
      $     dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),

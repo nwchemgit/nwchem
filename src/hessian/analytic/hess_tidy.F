@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.4 2000-06-01 23:02:10 windus Exp $
+C $Id: hess_tidy.F,v 1.5 2000-08-08 20:46:06 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -53,6 +53,8 @@ c
 c
 c  Get rid of temporary DRAs and terminate DRA interface
 c
+      if (dra_delete(fx_dra_handle).ne.0) call errquit
+     *   ('hess_tidy: unable to delete the fx DRA',555)
       if (dra_delete(sx_dra_handle).ne.0) call errquit
      *   ('hess_tidy: unable to delete the sx DRA',555)
       if (dra_terminate().ne.0) call errquit

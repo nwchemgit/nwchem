@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.5 2000-08-07 17:30:28 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.6 2000-08-08 20:46:07 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -81,7 +81,7 @@ c
       integer bftoat(nbf)       ! [input] Map from old basis func to atom
       integer shbflo(nsh)       ! [input] First new bf in new shell
       integer shbfhi(nsh)       ! [input] Last new bf in new shell
-      double precision jfac, kfac ! [input] DFT scaling for Coulomb/Exchange
+      double precision jfac(*), kfac(*) ! [input] DFT scaling for Coulomb/Exchange
 C-------------------------local variables-----------------------------
       integer  next, nint, ijklblock
       double precision scale, q4max

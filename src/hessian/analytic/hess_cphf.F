@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.8 2000-07-18 14:58:14 windus Exp $
+C $Id: hess_cphf.F,v 1.9 2000-08-08 20:46:06 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -265,7 +265,8 @@ c
      $                         g_rhs(ind),   1, num,  1, num )
 c
 c Set up some parameters for the fock_2e call.  Note that I am not
-c sure if jfact and kfact should stay the same for DFT!
+c sure if jfact and kfact should stay the same for DFT!  This needs to
+c be dependent on the jfac and kfac in hess_info.fh.
 c
         nfock = 1
         jfact =  8.0d+00
