@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.19 1994-08-25 08:21:55 d3e129 Exp $
+c $Id: raktest.F,v 1.20 1994-09-09 18:18:26 d3e129 Exp $
 #include "global.fh"
       integer rtdb
 c
@@ -165,7 +165,7 @@ c
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
      $      call errquit('dointsum: basis load failed', 0)
 
-      if (ga_nodeid().ne.0) then
+      if (ga_nodeid().eq.0) then
         if (.not. geom_print(geom))
      $      call errquit('dointsum: geom_print failed', 0)
         if (.not. bas_print(basis))
