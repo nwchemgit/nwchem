@@ -1,8 +1,7 @@
-cedo#define  BAD_GACCESS 1
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
 *
-* $Id: ga_mat_to_vec.F,v 1.3 2003-07-29 00:12:47 edo Exp $
+* $Id: ga_mat_to_vec.F,v 1.4 2003-07-29 15:18:42 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"

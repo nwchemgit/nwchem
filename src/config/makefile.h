@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.416 2003-07-11 22:52:21 edo Exp $
+# $Id: makefile.h,v 1.417 2003-07-29 15:18:41 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1410,6 +1410,7 @@ endif
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
+      DEFINES  +=   -DBAD_GACCESS
 
       ifeq ($(FC),pgf90)
         FOPTIONS   =    -Munixlogical -tp k8-64 -Mrecursive -Mdalign
