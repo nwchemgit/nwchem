@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.22 1996-01-09 17:52:53 og845 Exp $
+C$Id: dft_scf.F,v 1.23 1996-01-29 19:45:12 hltaylor Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -18,7 +18,7 @@ C$Id: dft_scf.F,v 1.22 1996-01-09 17:52:53 og845 Exp $
      &     g_cdinv,g_xcinv,g_2ceri
       
 c**** patches for SC95,  ECCE' parsing
-***** #define SC95
+C**** #define ECCE
 
 #include "bas.fh"
 #include "geom.fh"
@@ -93,7 +93,7 @@ c**** patches for SC95,  ECCE' parsing
       character*3 scftype
       double precision dft_dencvg,dabssum
       external dft_dencvg,dabssum
-#if defined(SC95)
+#if defined(ECCE)
       double precision homo_lumo_gap
       logical movecs_to_logfile
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
@@ -967,11 +967,16 @@ c****
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
-#if defined(SC95)
-            homo_lumo_gap = min( dbl_mb( k_eval(1)+noc(1)),
-     &                           dbl_mb( k_eval(2)+noc(2) ) )
-     &           - max( dbl_mb( k_eval(1)+noc(1)-1),
-     &           dbl_mb( k_eval(2)+noc(2)-1 ) )
+#if defined(ECCE)
+            if ( ipol.eq.1 ) then  ! RHF
+              homo_lumo_gap = dbl_mb( k_eval(1)+noc(1))
+     &                      - dbl_mb( k_eval(1)+noc(1)-1)
+            else 
+              homo_lumo_gap = min( dbl_mb( k_eval(1)+noc(1)),
+     &             dbl_mb( k_eval(2)+noc(2) ) )
+     &             - max( dbl_mb( k_eval(1)+noc(1)-1),
+     &             dbl_mb( k_eval(2)+noc(2)-1 ) )
+            endif 
             write (LuOut,*) 
             write (LuOut,'(a,e14.4)')
      &           'HOMO/LUMO Gap (Hartrees): ', homo_lumo_gap
@@ -999,7 +1004,7 @@ c****
 
         endif 
 c-----------------------------------------------------------------------
-#if defined(SC95)
+#if defined(ECCE)
 c****   number of HOMOs and LUMOs to output to logfile, if any
         if ( converged ) then
 
