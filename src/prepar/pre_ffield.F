@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.9 1998-04-30 01:30:44 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.10 1998-06-03 14:55:32 d3j191 Exp $
 c
       implicit none
 c
@@ -111,7 +111,7 @@ c
  1002 format(a5,5x,i5,4e12.5)
       if(atyp2.eq.'      ') atyp2=atyp1
       do 4 i=1,natt
-      if(catt(1,i)(1:5).eq.atyp1) then
+      if(catt(1,i)(1:5).eq.atyp1(1:5)) then
       catt(2,i)=atyp2
       ratt(i)=rmass
       latt(1,i)=latnum

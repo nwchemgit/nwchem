@@ -34,3 +34,4 @@ May 05 1998	 Minor changes and bug fixes
 May 15 1998	 Bug fix in declaration
 Jun 03 1998      Change pre_namamb to pre_rename
 	         No partial charge estimation if atom types unresolved
+		 Bug fix in atom type string comparison in pre_ffield
