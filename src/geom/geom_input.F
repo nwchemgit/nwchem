@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.39 1996-10-23 22:05:54 mdupuis Exp $
+C     $Id: geom_input.F,v 1.40 1996-11-14 22:54:03 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -56,7 +56,7 @@ c
      $    call errquit('geom_input: not geometry input', 0)
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq] \
-c              [zmt] [angstrom_to_au <real>] [au_to_angstrom <real>] \
+c              [angstrom_to_au <real>] [au_to_angstrom <real>] \
 c              [(no)autoz]
 c     
 c     subdirectives
@@ -96,10 +96,6 @@ c
           found_au2ang_conv = .true.
           if (.not.inp_f(au2ang)) call errquit
      &        ('error parsing real value of angstrom_to_au',911)
-        else if (inp_compare(.false.,'zmt', field)) then
-          ozmatrix = .true.
-          oautoz   = .true.  
-          units    = 'angstrom    '
         else if (inp_compare(.false.,'autoz',field)) then
           oautoz = .true.  
         else if (inp_compare(.false.,'noautoz',field)) then
@@ -164,90 +160,83 @@ c
         call errquit('geom_input: unknown units', 0)
       end if
 c
-      if(ozmatrix) then
-c
-c     ----- z-matrix input -----
-c
-        call geom_zmt_input(geom,
-     &      coords,tags,charge,mass,ncenter)
-        go to 30
-      else
-c
-c     ----- cartesian input -----
+c     ----- coordinate input -----
 c     
 c     system ...
 c     symmetry ...
 c     tag charge x y z  !! old format rak 9/96 removed
 c     tag x y z [charge q] [mass m]
 c     
-        ncenter = 0
- 20     if (inp_read()) then
-          status = inp_a(field)
-          if (inp_compare(.false., 'end', field)) then
-            goto 30
-          else if (inp_compare(.false.,'symmetry',field)) then
-            osymmetry = .true.
-            call geom_sym_input(geom, oprint_sym)
-            goto 20
-          else if (inp_compare(.false.,'system', field)) then
-            osymmetry = .true.
-            call geom_sys_input(geom)
-            goto 20
-          else if (inp_compare(.false.,'zcoord', field)) then
-            call geom_autoz_input(rtdb)
-            goto 20
-          else
-            if ((ncenter+1) .eq. max_center) call errquit
-     $          ('geom_input: too many centers?', ncenter)
-            tags(ncenter+1) = field
-            charge(ncenter+1) = 0.0d0
+      ncenter = 0
+ 20   if (inp_read()) then
+        status = inp_a(field)
+        if (inp_compare(.false., 'end', field)) then
+          goto 30
+        else if (inp_compare(.false.,'symmetry',field)) then
+          osymmetry = .true.
+          call geom_sym_input(geom, oprint_sym)
+          goto 20
+        else if (inp_compare(.false.,'system', field)) then
+          osymmetry = .true.
+          call geom_sys_input(geom)
+          goto 20
+        else if (inp_compare(.false.,'zcoord', field)) then
+          call geom_autoz_input(rtdb)
+          goto 20
+        else if (inp_compare(.false.,'zmt', field)) then
+          ozmatrix=.true.   
+          call geom_zmt_input(geom,coords,tags,charge,mass,ncenter)
+          goto 20
+        else
+          if ((ncenter+1) .eq. max_center) call errquit
+     $        ('geom_input: too many centers?', ncenter)
+          tags(ncenter+1) = field
+          charge(ncenter+1) = 0.0d0
 c     
-            is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
-     $          element, atn)
-            if ((.not. is_atom) .and. symbol.ne.'bq') 
-     $          call errquit
-     &          ('geom_input:center is neither atom nor bq',0)
+          is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
+     $        element, atn)
+          if ((.not. is_atom) .and. symbol.ne.'bq') 
+     $        call errquit
+     &        ('geom_input:center is neither atom nor bq',0)
 c
 c.. set default mass
 c
-            if (.not.
-     &          geom_atn_to_default_mass(atn,mass((ncenter+1))))
-     &          call errquit(' geom_input: default mass failed',
-     &          911)
+          if (.not.
+     &        geom_atn_to_default_mass(atn,mass((ncenter+1))))
+     &        call errquit(' geom_input: default mass failed',
+     &        911)
 c     
 c     New style input ... <tag> <x> <y> <z> [charge <q>] [mass <m>]
 c     
-            call inp_set_field(1)
-            status = .true.
-            status = status .and. inp_f(coords(1,ncenter+1))
-            status = status .and. inp_f(coords(2,ncenter+1))
-            status = status .and. inp_f(coords(3,ncenter+1))
-            charge(ncenter+1) = atn
+          call inp_set_field(1)
+          status = .true.
+          status = status .and. inp_f(coords(1,ncenter+1))
+          status = status .and. inp_f(coords(2,ncenter+1))
+          status = status .and. inp_f(coords(3,ncenter+1))
+          charge(ncenter+1) = atn
 c     
- 111        if (inp_a(field)) then
-              if (inp_compare(.false., 'mass', field)) then
-                status = status .and. inp_f(mass(ncenter+1))
-                goto 111
-              else if (inp_compare(.false., 'charge', field)) then
-                status = status .and. inp_f(charge(ncenter+1))
-                goto 111
-              else
-                status = .false.
-              endif
+ 111      if (inp_a(field)) then
+            if (inp_compare(.false., 'mass', field)) then
+              status = status .and. inp_f(mass(ncenter+1))
+              goto 111
+            else if (inp_compare(.false., 'charge', field)) then
+              status = status .and. inp_f(charge(ncenter+1))
+              goto 111
+            else
+              status = .false.
             endif
-            if (.not. status) call errquit
-     $          ('geom_input: <tag> <x> <y> <z> '//
-     $          ' [charge <q>] [mass <m>]', ncenter)
-            ncenter = ncenter + 1
+          endif
+          if (.not. status) call errquit
+     $        ('geom_input: <tag> <x> <y> <z> '//
+     $        ' [charge <q>] [mass <m>]', ncenter)
+          ncenter = ncenter + 1
 c     
-          end if
-          goto 20
-        else
-          call errquit('geom_input: premature end of file', 0)
         end if
+        goto 20
+      else
+        call errquit('geom_input: premature end of file', 0)
+      end if
 c
-      endif
-c     
 c     Apply requested conversion of units after we have
 c     all of the information
 c     
@@ -292,12 +281,10 @@ c
 c     ----- call auto-z-matrix generation -----
 c
          call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter)
-c
-c     ----- get internal coordinates -----
-c
-         call geom_zmt_icoord
-c
       else
+c
+c     ----- no auto-z -----
+c
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0)
          call geom_no_autoz(geom,coords,charge,tags,ncenter)
@@ -539,6 +526,7 @@ c                mxcoor=max(mxcart,mxzmat)
       logical       status
       logical       ready
       logical       dbug
+      logical       out 
       common/hnd_iofile/ir,iw
       dimension ijbond(2,*)
       dimension ijkang(3,*)
@@ -546,7 +534,9 @@ c                mxcoor=max(mxcart,mxzmat)
       dimension ijklop(4,*)
       dimension ijklnb(4,*)
 c
-      dbug=.false. 
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
 c
       nbond=0
       nangl=0
@@ -821,7 +811,8 @@ c
       endif
 c
   100 continue
-      if(dbug) then
+      if(out) then
+         write(iw,*) 'zcoord input :'
          if(nbond.gt.0) then
             do mbond=1,nbond
                write(iw,*) 'ijbond',
@@ -864,6 +855,7 @@ c
      1                           coords,tags,charge,mass,ncenter)
       implicit none
 #include "stdio.fh"
+#include "rtdb.fh"
       integer      mxizmt
       integer      mxatom
       parameter    (mxizmt=6000)
@@ -882,6 +874,7 @@ c
       character*16 atmlab 
       character*2  symbol
       logical      is_atom
+      logical      status
       integer      geom
       logical      geom_tag_to_element
       logical      geom_atn_to_default_mass
@@ -1432,8 +1425,9 @@ c
       dimension errmsg(3)
       data errmsg /'program ','stop in ','-auto_z-'/
 c
-      some=.false.
       dbug=.false.
+      some=.false.
+      some=some.or.dbug
 c
       ir=LuIN 
       iw=LuOut 
@@ -1475,6 +1469,10 @@ c
          write(iw,9994)
       endif
 c
+c     ----- print -zmat- data -----
+c
+      call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+c
       return
  9999 format(' in -geom_zmt_autoz- ')
  9998 format(1x,i5,i5,3f10.6)
@@ -1484,9 +1482,150 @@ c
  9994 format(' $end ')
  9993 format(' storing -izmat- via - geom_zmt_put_izmat - ')
       end
-      subroutine geom_zmt_icoord
-      implicit none
+      subroutine geom_prt_autoz(zmat,nzvar,izmat,nzmat,c)
+      implicit double precision (a-h,o-z)
+#include "rtdb.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "mafdecls.fh"
 #include "stdio.fh"
+      logical status
+c
+c     ----- get the -zmat- values ----- 
+C
+      parameter   (mxatom=500)
+      parameter   (mxcart=3*mxatom)
+      parameter   (na=10)
+      LOGICAL     DBUG
+      LOGICAL     OUT
+      CHARACTER*8 ERRMSG
+      COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_OUTPUT/NPRINT
+      DIMENSION B(MXCART,1)
+      DIMENSION ZMAT(*),IZMAT(*)
+      DIMENSION A(3,NA)
+      DIMENSION C(3,*)
+      DIMENSION ERRMSG(3)
+      DATA ERRMSG /'PROGRAM ','STOP IN ','-prt:z -'/
+      DATA PI2    /6.28318530717958D+00/
+      DATA DEGREE /360.0D+00/
+      DATA BOHR   /0.52917715D+00/
+      DATA ZERO   /0.0D+00/
+      DATA FOUR   /4.0D+00/
+C
+      DBUG  =.FALSE. 
+      OUT   =.FALSE. 
+      OUT   =OUT.OR.DBUG
+C
+      PIO2  =PI2/FOUR
+      RTOD  =PI2/DEGREE
+C
+      IF(OUT) THEN
+         WRITE(IW,9997) 
+         WRITE(IW,9996) (IZMAT(I),I=1,NZMAT)
+      ENDIF
+C
+C     ----- ZERO OUT THE B MATRIX -----
+C
+      NCART=MXCART
+      DO J = 1,1     
+         DO I = 1,NCART 
+            B(I,J) = ZERO
+         ENDDO
+      ENDDO
+C
+      IADD=1
+      I   =0
+      II  =0
+      DO IZVAR=1,NZVAR
+      I    =I +1            
+      II   =II+1
+      I    =   1            
+      ITYPE=IZMAT(IADD)
+      IF(DBUG) THEN
+         WRITE(IW,9999) IZVAR,IADD,ITYPE,NZMAT,NZVAR
+      ENDIF
+      IF(ITYPE.EQ.1) THEN
+C
+C     ----- BOND STRETCH -----
+C
+         CALL HND_BSTR(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1             C,B,NCART,BOHR)
+         ZMAT(II) = EQVAL
+         IADD = IADD + 3
+      ELSEIF(ITYPE.EQ.2) THEN
+C
+C     ----- ANGLE BEND -----
+C
+         CALL HND_BEND(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1             IZMAT(IADD+3),
+     2             C,B,NCART,RTOD,BOHR)
+         ZMAT(II) = EQVAL
+         IADD = IADD + 4
+      ELSEIF(ITYPE.EQ.3) THEN
+C
+C     ----- TORSION -----
+C
+         CALL HND_TORS(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1             IZMAT(IADD+3),IZMAT(IADD+4),
+     2             C,B,NCART,RTOD,BOHR)
+         ZMAT(II) = EQVAL
+         IADD = IADD + 5
+      ELSEIF(ITYPE.EQ.4) THEN
+C
+C     ----- OUT OF PLANE ANGLE BEND -----
+C
+         CALL HND_OPLA(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1             IZMAT(IADD+3),IZMAT(IADD+4),
+     2             C,B,NCART,RTOD,PIO2,BOHR)
+         ZMAT(II) = EQVAL
+         IADD = IADD + 5
+      ELSEIF(ITYPE.EQ.5) THEN
+C
+C     ----- LINEAR ANGLE BEND -----
+C
+         CALL HND_LIBE(EQVAL,I,IZMAT(IADD+1),IZMAT(IADD+2),
+     1             IZMAT(IADD+3),IZMAT(IADD+4),
+     2             C,B,NCART,RTOD,A,NA,BOHR)
+         ZMAT(II  ) = EQVAL
+         ZMAT(II+1) = EQVAL
+         I=I+1
+         IADD=IADD+5
+      ELSEIF(ITYPE.EQ.6) THEN
+C
+C     ----- DIHEDRAL ANGLE BETWEEN TWO PLANES SHARING ONE ATOM -----
+C
+         CALL HND_DIHPLA(EQVAL,I,IZMAT(IADD+1),C,B,NCART,RTOD)
+         ZMAT(II)=EQVAL
+         IADD=IADD+6
+C
+      ELSE
+         WRITE(IW,9995) IZVAR,IADD,ITYPE
+         CALL HND_HNDERR(3,ERRMSG)
+      ENDIF    
+C
+      ENDDO
+C
+C     ----- PRINT -----
+C
+      CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
+C
+      RETURN
+ 9999 FORMAT(' IN -prt-autoz- IZVAR,IADD,ITYPE,NZMAT,NZVAR = ',5I5)
+ 9997 FORMAT(' IN -prt-autoz- IZMAT = ')
+ 9996 FORMAT(12I5)
+ 9995 FORMAT(' ERROR IN -prt-autoz- , IZVAR,IADD,ITYPE = ',3I5)
+      END
+      subroutine geom_zmt_icoord(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      logical      status
+      integer      rtdb
+      integer      mitob
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
@@ -1548,14 +1687,25 @@ c
       do i=1,mxizmt
          izmat(i)=0
       enddo
-      if(.not.geom_zmt_get_izmat(izmat,nizmat))
+c
+      status = rtdb_parallel(.false.)
+      if(ga_nodeid().eq.0) then
+         if(.not.geom_zmt_get_izmat(izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_get_izmat failed',0)
+         call ga_brdcst(18+msgint,nizmat,mitob(1     ),0)
+         call ga_brdcst(19+msgint,izmat ,mitob(mxizmt),0)
+      else
+         call ga_brdcst(18+msgint,nizmat,mitob(1     ),0)
+         call ga_brdcst(19+msgint,izmat ,mitob(mxizmt),0)
+      endif
       if(dbug) then
          write(iw,9998)
          write(iw,9997)
          write(iw,9996) (izmat(i),i=1,nizmat)
          write(iw,9995)
       endif
+      call ga_sync()
+      status = rtdb_parallel(.true.)
 c
 c     ----- call -icoord- -----
 c
@@ -1566,7 +1716,7 @@ c
  9998 format(' reading -izmat- via -geom_zmt_get_izmat- ')
  9997 format(' $zmat izmat = ')
  9996 format(12(i5,','))
- 9995 format(' $END ')
+ 9995 format(' $end ')
       end
       SUBROUTINE HND_ICOORD(RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -1591,6 +1741,9 @@ C     --- -NZVAR-  =  NUMBER OF INTERNAL COORDINATES FROM -IZMAT-  ---
 C     --- -NVAR-   =  (3N-6) OR (3N-5) OR -NZMOD-  .LE. -NZVAR-    ---
 C
       PARAMETER (MXATOM=500)
+      PARAMETER (MXCART=3*MXATOM)
+      PARAMETER (MXZMAT=1500)
+      PARAMETER (MXCOOR=1500)
       LOGICAL ZDONE
       LOGICAL DBUG
       LOGICAL SOME
@@ -1602,6 +1755,7 @@ C
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       COMMON/HND_ZMTOUT/IPRZMT
+      DIMENSION Z(MXCOOR)
       DIMENSION R(MXATOM)
       DATA ONE   /1.0D+00/
       DATA UNIT  /0.52917715D+00/
@@ -2039,6 +2193,9 @@ C
       OUT=.FALSE.
       OUT=OUT.OR.NPRINT.EQ.1
       OUT=OUT.OR.IPRZMT.GE.1
+      IF(OUT) THEN
+         WRITE(IW,*) 'IN HND_RDZMAT'
+      ENDIF
 C
 C     ----- INCLUDE SYMMETRICALLY EQUIVALENT -ZMAT- IF NEEDED -----
 C
@@ -2191,6 +2348,7 @@ C
       PARAMETER (  LBUF=9  )
       LOGICAL SOME
       LOGICAL OUT
+      LOGICAL DBUG
       LOGICAL SYM
       CHARACTER*8 ERRMSG
       COMMON/HND_OUTPUT/NPRINT
@@ -2208,11 +2366,16 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
 C
-      OUT =.FALSE.
+      DBUG=.FALSE.
+      OUT =.FALSE. 
+      OUT =OUT.OR.DBUG
       OUT =OUT.OR.NPRINT.EQ.1 
       OUT =OUT.OR.IPRZMT.GE.1 
       SOME=       NPRINT.NE.-5
       SOME=SOME.OR.OUT
+      IF(OUT) THEN
+         WRITE(IW,*) 'IN HND_ZMTLIN'
+      ENDIF
 C
 C     ----- MEMORY POINTERS -----
 C
@@ -2228,7 +2391,7 @@ C
          II=I+NZVAR*(I-1)
          DBL_MB(II+I10-1)=ONE
       ENDDO
-      IF(OUT) THEN
+      IF(DBUG) THEN
          CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
       ENDIF
 C
@@ -2269,7 +2432,7 @@ C
             ENDIF
          ENDDO   
       ENDIF
-      IF(OUT) THEN
+      IF(DBUG) THEN
          WRITE(IW,9993)
          CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
       ENDIF
@@ -2324,7 +2487,7 @@ C
                ENDDO
             ENDIF
          ENDDO
-         IF(OUT) THEN
+         IF(DBUG) THEN
             WRITE(IW,9993)
             CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
          ENDIF
@@ -2383,7 +2546,9 @@ C
          ENDIF
          IF(OUT) THEN
             WRITE(IW,9993)
-            CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+            IF(DBUG) THEN
+               CALL HND_PRSQ(DBL_MB(I10),NZVAR,NZVAR,NZVAR)
+            ENDIF
          ENDIF
 C
 C     ----- PRINT -LIN- MATRIX -----
@@ -2436,8 +2601,13 @@ C
       IF(.NOT.STATUS) THEN
          CALL ERRQUIT('ZMATRIX:ZSYM :GA_CREATE?',911)
       ENDIF
-      IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NZVAR))
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF( GA_NODEID().EQ.0) THEN
+         IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
+      ENDIF
+      CALL GA_SYNC
+      STATUS=RTDB_PARALLEL(.TRUE.)
 C
 C     ----- RELEASE MEMORY POINTERS -----
 C
@@ -2597,10 +2767,17 @@ C
       END
       SUBROUTINE HND_BMAT(NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "rtdb.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      logical status
 C
 C     ----- CONSTRUCT THE B MATRIX -----
 C
       PARAMETER (    NA=10 )
+      LOGICAL     DBUG
       LOGICAL     OUT
       LOGICAL     GEOM_ZMT_GET_IZMAT
       LOGICAL     GEOM_ZMT_PUT_ZMAT 
@@ -2621,7 +2798,9 @@ C
       DATA ZERO   /0.0D+00/
       DATA FOUR   /4.0D+00/
 C
+      DBUG  =.FALSE. 
       OUT   =.FALSE. 
+      OUT   =OUT.OR.DBUG
       OUT   =OUT.OR.NPRINT.EQ.1
       OUT   =OUT.OR.IPRZMT.GE.1
 C
@@ -2633,8 +2812,20 @@ C          -A-     AT -90-
 C          -IZMAT- AT -96-
 C
       NDUM=3*NA
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(IZMAT,NZMAT))
+C
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF( GA_NODEID().EQ.0) THEN
+         IF(.NOT.GEOM_ZMT_GET_IZMAT(IZMAT,NZMAT))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
+         CALL GA_BRDCST(20+MSGINT,NZMAT,MITOB(1     ),0)
+         CALL GA_BRDCST(21+MSGINT,IZMAT,MITOB(NZMAT ),0)
+      ELSE 
+         CALL GA_BRDCST(20+MSGINT,NZMAT,MITOB(1     ),0)
+         CALL GA_BRDCST(21+MSGINT,IZMAT,MITOB(NZMAT ),0)
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
+C
       IF(OUT) THEN
          WRITE(IW,9997) 
          WRITE(IW,9996) (IZMAT(I),I=1,NZMAT)
@@ -2720,7 +2911,9 @@ C
       IF(OUT) THEN
          CALL HND_PRTZMT(NZVAR,IZMAT,ZMAT,DUM,0)
          WRITE(IW,9998)
-         CALL HND_PRSQ(B,NZVAR,NCART,NCART)
+         IF(DBUG) THEN
+            CALL HND_PRSQ(B,NZVAR,NCART,NCART)
+         ENDIF
       ENDIF
 C
 C     ----- SAVE -B- AND -Z- ON -IDAF- -----
@@ -2736,10 +2929,15 @@ C
 C
 C     ----- STORE FOR -NWCHEM- -----
 C
-      IF(.NOT.GEOM_ZMT_PUT_ZMAT(ZMAT,NZVAR))
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF( GA_NODEID().EQ.0) THEN
+         IF(.NOT.GEOM_ZMT_PUT_ZMAT(ZMAT,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
+         IF(.NOT.GEOM_ZMT_PUT_BMAT(B   ,NCART,NZVAR,NCART))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_BMAT FAILED',0)
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
 C
       RETURN
  9999 FORMAT(' IN -BMAT- IZVAR,IADD,ITYPE,NZMAT,NZVAR,NCART = ',
@@ -3390,6 +3588,7 @@ C
 C
 C     ----- PRINT THE CURRENT Z MATRIX -----
 C
+      LOGICAL STATUS
       LOGICAL GEOM_ZMT_GET_IZMAT
       LOGICAL GEOM_ZMT_GET_ZMAT
       LOGICAL DBUG
@@ -3419,14 +3618,27 @@ C     LAST = I30 - 1
 C
 C     ----- GET IZMAT AND ZMAT FROM DIRECT ACCESS -----
 C
-      IF(.NOT.GEOM_ZMT_GET_IZMAT(DBL_MB(I20),NZMAT))
+      STATUS=RTDB_PARALLEL(.FALSE.)
+      IF( GA_NODEID().EQ.0) THEN 
+         IF(.NOT.GEOM_ZMT_GET_IZMAT(DBL_MB(I20),NZMAT))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_IZMAT FAILED',0)
-      IF(.NOT.GEOM_ZMT_GET_ZMAT(DBL_MB(I10),NZVAR))
+         IF(.NOT.GEOM_ZMT_GET_ZMAT(DBL_MB(I10),NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_GET_ZMAT FAILED',0)
+         CALL GA_BRDCST(22+MSGDBL,DBL_MB(I20),MDTOB(NZMAT),0)
+         CALL GA_BRDCST(23+MSGDBL,DBL_MB(I10),MDTOB(NZVAR),0)
+      ELSE
+         CALL GA_BRDCST(22+MSGDBL,DBL_MB(I20),MDTOB(NZMAT),0)
+         CALL GA_BRDCST(23+MSGDBL,DBL_MB(I10),MDTOB(NZVAR),0)
+      ENDIF
+      CALL GA_SYNC()
+      STATUS=RTDB_PARALLEL(.TRUE.)
 C
 C     ----- PRINT THE Z MATRIX -----
 C
-      CALL HND_PRTZMT(NZVAR,DBL_MB(I20),DBL_MB(I10),DBL_MB(I30),0)
+      IF( GA_NODEID().EQ.0.OR.DBUG) THEN 
+         CALL HND_PRTZMT(NZVAR,DBL_MB(I20),DBL_MB(I10),DBL_MB(I30),0)
+      ENDIF
+      CALL GA_SYNC()
 C
 C     ----- RELEASE MEMORY POINTERS -----
 C
@@ -4217,11 +4429,11 @@ c
       PARAMETER (MXCOOR=1500)    
       PARAMETER (MXIZMT=6000)
       PARAMETER (MXBOND= 64)
-      PARAMETER (MXBNDS= 6*MXATOM)
-      PARAMETER (MXANGS= 6*MXATOM)
-      PARAMETER (MXTORS= 6*MXATOM)
-      PARAMETER (MXOOPA= 6*MXATOM)
-      PARAMETER (MXLINB= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXANGS= 8*MXATOM)
+      PARAMETER (MXTORS= 8*MXATOM)
+      PARAMETER (MXOOPA= 8*MXATOM)
+      PARAMETER (MXLINB= 8*MXATOM)
       PARAMETER (MXLNBA=10       )
       PARAMETER (MXSEG=64)
       PARAMETER (CVFAC=1.1D+00)
@@ -4976,7 +5188,7 @@ C
      4                      IJKLNB,NUMLNB,XYZLNB,DOLINB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
       LOGICAL     DBUG
       LOGICAL     ZDONE
       LOGICAL     DOLINB
@@ -5086,7 +5298,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IONE=1)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5162,8 +5374,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITWO=2)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
-      PARAMETER (MXANGS= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXANGS= 8*MXATOM)
       LOGICAL     DBUG
       LOGICAL     DOLINB
       LOGICAL     LINBND
@@ -5348,8 +5560,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITHREE=3)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
-      PARAMETER (MXTORS= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXTORS= 8*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5531,8 +5743,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IFOUR=4)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
-      PARAMETER (MXOOPA= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXOOPA= 8*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5711,8 +5923,8 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (IFOUR=4)
       PARAMETER (MXATOM=500)        
-      PARAMETER (MXBNDS= 6*MXATOM)
-      PARAMETER (MXOOPA= 6*MXATOM)
+      PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXOOPA= 8*MXATOM)
       LOGICAL     DBUG
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5896,7 +6108,7 @@ C
       DATA UNDERS /'_'/
       DATA DASH   /'-'/
       DATA WRDBAS /' $BASIS '/
-      DATA WRDEND /'end     '/
+      DATA WRDEND /'zend    '/
       DATA WRDXYZ /' $XYZ   '/
       DATA WRDGEO /' $GEO   '/
       DATA WRDZMT /' $ZMT   '/
@@ -5960,6 +6172,8 @@ C
 C
       DBUG=.FALSE.
       OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+C
       LST =.FALSE.
 C
 C     ----- PROGRAM TO READ THE -Z- MATRIX IN FREE-FORMAT INPUT -----
@@ -6125,7 +6339,7 @@ C
          IF(NUMWRD.GT.1) THEN
             GO TO 110
          ELSE
-            IF(NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(1:3)) THEN
+            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)) THEN
                NAT = IAT -1
                GO TO 140
             ELSE
@@ -6166,7 +6380,7 @@ C
             ENDIF
             GO TO 120
          ELSE
-            IF(NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(1:3)) THEN
+            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)) THEN
                NVAR = IVAR -1
                GO TO 140
             ELSE
@@ -6200,7 +6414,7 @@ C
                FRZVAR(  IVAR)=.TRUE.
             GO TO 130
          ELSEIF(NUMWRD.EQ.1) THEN
-            IF(PRSWRD(1)(2:NUMCHR(1)-1).NE.CHREND(1:3)) THEN
+            IF(PRSWRD(1)(2:NUMCHR(1)-1).NE.CHREND(1:4)) THEN
                WRITE(IW,8880)
                CALL HND_HNDERR(3,ERRMSG)
             ENDIF
@@ -6391,7 +6605,7 @@ C
          GO TO 210
   220    CONTINUE
          NCHR=NCHR-1
-             IF(NCHR.EQ.1) THEN
+         IF(NCHR.EQ.1) THEN
             DO ISYMBL=1,105
                IF((ATLBL1(ISYMBL)(1:1).EQ.ATNAME(IAT)(1:1).AND.
      1             ATLBL1(ISYMBL)(2:2).EQ.' '                  ).OR.
@@ -6430,6 +6644,9 @@ C
          IF(ATNUM(IAT).EQ.ZERO) THEN
             WRITE(IW,8879) IAT
             CALL HND_HNDERR(3,ERRMSG)
+         ENDIF
+         IF(ATNUM(IAT).GT.DBLE(103)) THEN
+            ATNUM(IAT)=ZERO
          ENDIF
       ENDDO
 C
@@ -6546,6 +6763,43 @@ C
       else
          c(1:lc)=a(2:la-1)
       endif
+      return
+      end
+      subroutine hnd_dparsi(a,la,n)
+      implicit double precision (a-h,o-z)
+      character*(*) a
+      character*1   char(12)
+      data char     /'0','1','2','3','4','5','6','7','8','9',
+     1               '+','-'/
+c
+      i1=1
+      i2=la
+c
+c     ----- sign -----
+c
+      isign=1
+      if(a(i1:i1).eq.char(12)) then
+         isign=-1
+         i1=i1+1
+      elseif(a(i1:i1).eq.char(11)) then
+         isign= 1
+         i1=i1+1
+      else
+         isign= 1
+      endif
+      na=i2-i1+1
+c
+      n=0
+      do ia=i1,i2
+         ib=i2-ia
+         do i=1,10
+            if(a(ia:ia).eq.char(i)) then
+               n=n+(i-1)*10**(ib)
+            endif
+         enddo
+      enddo
+      n=n*isign
+c
       return
       end
       subroutine hnd_dparsr(a,la,x)
@@ -6819,7 +7073,7 @@ C     ----- BOND LENGTH -----
 C
       IF(FLGZMT(2,IAT) .EQ. 2) THEN
 c        READ (PRSZMT(2,IAT),*) ZMT(2,IAT)
-         call hnd_dparsr(prszmt(2,iat),zmtchr(2,iat),zmt(2,iat)   )
+         call hnd_dparsi(prszmt(2,iat),zmtchr(2,iat),zmt(2,iat)   )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -6899,7 +7153,7 @@ C     ----- BOND ANGLE -----
 C
       IF(FLGZMT(4,IAT) .EQ. 2) THEN
 c        READ (PRSZMT(4,IAT),*) ZMT(3,IAT)
-         call hnd_dparsr(prszmt(4,iat),zmtchr(4,iat),zmt(3,iat)  )
+         call hnd_dparsi(prszmt(4,iat),zmtchr(4,iat),zmt(3,iat)  )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -6984,7 +7238,7 @@ C     ----- TORSION -----
 C
       IF(FLGZMT(6,IAT) .EQ. 2) THEN
 c        READ (PRSZMT(6,IAT),*) ZMT(4,IAT)
-         call hnd_dparsr(prszmt(6,iat),zmtchr(6,iat),zmt(4,iat)  )
+         call hnd_dparsi(prszmt(6,iat),zmtchr(6,iat),zmt(4,iat)  )
       ELSE
          READY=.FALSE.
          DO JAT=1,IAT-1
@@ -7063,7 +7317,7 @@ C
       IF(NUMZMT(IAT).EQ.8) THEN
          IF(FLGZMT(8,IAT).EQ.2) THEN
 c           READ(PRSZMT(8,IAT),*) ZMT(5,IAT)
-         call hnd_dparsr(prszmt(8,iat),zmtchr(8,iat),zmt(5,iat)  )
+         call hnd_dparsi(prszmt(8,iat),zmtchr(8,iat),zmt(5,iat)  )
          ELSE
             WRITE(IW,9993) IAT
             WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZVAL(I,IAT),I=1,3)
