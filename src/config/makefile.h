@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.239 1997-08-08 07:21:15 rg240 Exp $
+# $Id: makefile.h,v 1.240 1997-09-04 19:07:35 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -596,7 +596,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
 endif
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT
-  CORE_LIBS = -lutil -lpeigs -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lchemio -lglobal -llapack -lblas
 endif
 
 
