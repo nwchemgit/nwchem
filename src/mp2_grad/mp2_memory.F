@@ -18,6 +18,7 @@
       integer lengd,idum,lenscr,lenscrd,idum2,leng
       integer nshpairlocal,nshpair,batch_size,shmax
       integer nbfpairlocal,nbfpair
+c     
       nnbf=nbf*(nbf+1)/2
       nva_local=(nva-1)/ga_nnodes()+1
       k_file_size=nnbf*batch_size*nva_local
@@ -55,4 +56,8 @@
      $        +shmax*shmax*batch_size*nbf+shmax*shmax*nbf
      $        +batch_size*nbf+lenscr+lenscrd+leng+lengd)
       endif
+c     
+      call intd_terminate
+      call int_terminate
+c     
       end
