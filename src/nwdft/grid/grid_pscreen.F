@@ -2,7 +2,7 @@
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     mbf_ao,grad,ipol)
 c
-c$Id: grid_pscreen.F,v 1.4 2001-06-16 00:00:47 edo Exp $
+c$Id: grid_pscreen.F,v 1.5 2001-10-25 01:28:40 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -69,60 +69,60 @@ c
       logical grad
       double precision toll ![input]
 c
-      integer i,q,nqxmbf,nzero,nq_orig,j,qj
+      integer maxqpts
+      parameter(maxqpts=10000)
+      integer q,nzero,mq0,mq1,j,qj,iscr(maxqpts),
+     ,     nq_orig
+#if defined(DEBUG)
+      integer nqxmbf
+      nqxmbf=nq*mbf_ao
+#endif
 c        
 c       compress grid
 c
       if(nq.eq.0 )return
       nq_orig=nq
-      nqxmbf=nq*mbf_ao
 c
 c     BFs
 c
       nzero=0
-      qj=0
+      do q=1,nq
+         if(abs(qwght(q)).ge.toll) then
+            nzero=nzero+1
+            iscr(nzero)=q
+         endif
+      enddo
+      if(nzero.eq.nq) return
+      nq=nzero
+      mq0=0
+      mq1=0
       do j=1,mbf_ao
          do q=1,nq
-            qj=qj+1
-            if(abs(qwght(q)).lt.toll) then
-               nzero=nzero+1
-            else
-               if(nzero.ne.0) chi(qj-nzero)=chi(qj)
-            endif
+            chi(mq1+q)=chi(mq0+iscr(q))
          enddo
+         mq0=mq0+nq_orig
+         mq1=mq1+nq
       enddo
       if(grad) then
-         nzero=0
-         qj=0
+         mq0=0
+         mq1=0
          do j=1,mbf_ao*3
             do q=1,nq
-               qj=qj+1
-               if(abs(qwght(q)).lt.toll) then
-                  nzero=nzero+1
-               else
-                  if(nzero.ne.0) delchi(qj-nzero)=delchi(qj)
-               endif
+               delchi(mq1+q)=delchi(mq0+iscr(q))
             enddo
+            mq0=mq0+nq_orig
+            mq1=mq1+nq
          enddo
       endif
 c
 c     grid pts
 c
-      i=1
-      nzero=0
       do q=1,nq
-         if(abs(qwght(q)).lt.toll) then
-            nzero=nzero+1
-         else
-            if(nzero.ne.0) then
-               qwght(q-nzero)=qwght(q)
-               qxyz(1,q-nzero)=qxyz(1,q)
-               qxyz(2,q-nzero)=qxyz(2,q)
-               qxyz(3,q-nzero)=qxyz(3,q)
-            endif
-         endif
+         qwght(q)=qwght(iscr(q))
+         qxyz(1,q)=qxyz(1,iscr(q))
+         qxyz(2,q)=qxyz(2,iscr(q))
+         qxyz(3,q)=qxyz(3,iscr(q))
       enddo
-      nq=nq-nzero
 #if defined(DEBUG)
       if(nqxmbf/mbf_ao.ne.nq) then
       write(0,*) ' NONO: bf ',nqxmbf/mbf_ao,' ww ',nq

@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.4 2001-06-13 01:31:25 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.5 2001-10-25 01:28:43 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -314,7 +314,7 @@ c
       integer nq, maxd, nprimo, ncontr
       integer nd
       double precision crad(0:maxd,nq), r2(nq),
-     *     zprim(nprimo), ccoef(nprimo,ncontr)
+     *     zprim(nprimo), ccoef(nprimo,ncontr),t0
 c
       integer n, iprimo
       double precision zeta, t(0:3), tmp
@@ -329,24 +329,36 @@ c
       if (maxd .gt. 3) then
         call errquit('Unexpected in eval_radial', maxd)
       endif
+      if(maxd.eq.0) then
+         if(nprimo.eq.1) then
+            zeta = -zprim(1)
+            t0 = ccoef(1,1)
+            do n = 1,nq
+               crad(0,n) =  exp(zeta*r2(n))*t0
+            enddo
+         else
+            call dfill(nq,0d0,crad,maxd+1) 
+            do iprimo = 1, nprimo
+               zeta = -zprim(iprimo)
+               t0 = ccoef(iprimo,1)
+               do n = 1,nq
+                  crad(0,n) = crad(0,n) + exp(zeta*r2(n))*t0
+               enddo
+            enddo
+         endif
+         return
+      endif
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
       do n = 1, maxd
          t(n) = zeta*t(n-1)*2d0
       enddo
-      if(maxd.eq.0) then
-         tmp=t(0)
-         do n = 1,nq
-            crad(0,n) = exp(r2(n)*zeta)*tmp
+      do n = 1,nq
+         tmp = exp(zeta*r2(n))
+         do nd = 0,maxd
+            crad(nd,n) = t(nd)*tmp
          enddo
-      else
-         do n = 1,nq
-            tmp = exp(zeta*r2(n))
-            do nd = 0,maxd
-               crad(nd,n) = t(nd)*tmp
-            enddo
-         enddo
-      endif
+      enddo
 c
       do iprimo = 2, nprimo
          zeta = -zprim(iprimo)
@@ -355,10 +367,10 @@ c
             t(n) = 2d0*zeta*t(n-1)
          enddo
          do n = 1,nq
-           tmp = exp(zeta*r2(n))
-           do nd = 0,maxd
-             crad(nd,n) = crad(nd,n) + t(nd)*tmp
-           enddo
+            tmp = exp(zeta*r2(n))
+            do nd = 0,maxd
+               crad(nd,n) = crad(nd,n) + t(nd)*tmp
+            enddo
          enddo
       enddo
 c
