@@ -1,14 +1,14 @@
       subroutine ana_wrtxyz(lfnxxx,filxxx,sgmnam,isel,xs,
-     + iwsel,xw,logs,logw)
+     + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: ana_wrtxyz.F,v 1.1 2000-07-31 17:57:50 d3j191 Exp $
+c $Id: ana_wrtxyz.F,v 1.2 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
       character*16 sgmnam(msa)
-      integer isel(msa),iwsel(mwm)
+      integer isel(msa),iwsel(mwm),ndxw(nwm)
       integer lfnxxx
       real*8 xs(msa,3),xw(mwm,mwa,3)
       character*255 filxxx

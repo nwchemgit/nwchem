@@ -1,6 +1,6 @@
-      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel)
+      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.25 2000-07-31 17:57:50 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.26 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
 #include "mafdecls.fh"
 c
       real*8 x(msa,3),w(mwm,mwa,3)
-      integer isel(msa),iwsel(mwm)
+      integer isel(msa),iwsel(mwm),ndxw(nwm)
       character*24 tag(msa,2)
       integer iunit
       character*3 fmt
@@ -27,6 +27,7 @@ c
       real*8 xh(3)
 c
       real*8 xbmax,xbmin,ybmax,ybmin,zbmax,zbmin
+      integer*4 numato
 c
       real*8 ana_atrad
       integer pre_atnum
@@ -141,12 +142,22 @@ c
       if(fmt.eq.'amb') then
       if(lxw.and..not.lsonly) then
       write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa),
-     + (((1.0d1*(w(i,j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwm)
+     + (((1.0d1*(w(ndxw(i),j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwsel)
       else
       write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa)
       endif
 c      write(iunit,3000) (1.0d1*box(j),j=1,3)
  3000 format(10f8.3)
+      endif
+c
+      if(fmt.eq.'crd') then
+      if(lxw.and..not.lsonly) then
+      write(iunit,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa),
+     + (((1.0d1*(w(ndxw(i),j,k)),k=1,3),j=1,nwa),i=1,nwsel)
+      else
+      write(iunit,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa)
+      endif
+c      write(iunit,3000) (1.0d1*box(j),j=1,3)
       endif
 c
       if(fmt.eq.'bam') then
@@ -162,13 +173,9 @@ c
 c
       if(fmt.eq.'dcd') then
       if(.not.ldcd) then
-      if(lxw.and..not.lsonly) then
-      write(iunit) nsa+nwa*nwm
-      print*,'Number to dcd s+w is ',nsa+nwa*nwm
-      else
-      write(iunit) nsa
-      print*,'Number to dcd s is ',nsa
-      endif
+      numato=nsa
+      if(lxw.and..not.lsonly) numato=nsa+nwa*nwm
+      write(iunit) numato
       ldcd=.true.
       endif
       do 72 k=1,3

@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.14 2000-07-19 18:26:37 d3j191 Exp $
+c $Id: ana_finish.F,v 1.15 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,8 @@ c
 c     deallocate memory
 c
       if(ltask) then
+      if(.not.ma_pop_stack(l_ndxw))
+     + call errquit('Failed to deallocate ndxw',0)
       if(.not.ma_pop_stack(l_wsel))
      + call errquit('Failed to deallocate wsel',0)
       if(.not.ma_pop_stack(l_wdat))

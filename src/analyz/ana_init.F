@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.11 2000-07-19 18:26:37 d3j191 Exp $
+c $Id: ana_init.F,v 1.12 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
@@ -91,10 +91,12 @@ c
      + call errquit('Failed to allocate memory for xp',me)
       if(.not.ma_push_get(mt_int,nsa,'idat',l_idat,i_idat))
      + call errquit('Failed to allocate memory for idat',me)
-      if(.not.ma_push_get(mt_dbl,3*nwm*nwa,'wdat',l_wdat,i_wdat))
+      if(.not.ma_push_get(mt_dbl,3*mwm*mwa,'wdat',l_wdat,i_wdat))
      + call errquit('Failed to allocate memory for wdat',me)
-      if(.not.ma_push_get(mt_int,nwm,'wdat',l_wsel,i_wsel))
+      if(.not.ma_push_get(mt_int,mwm,'wdat',l_wsel,i_wsel))
      + call errquit('Failed to allocate memory for wsel',me)
+      if(.not.ma_push_get(mt_int,mwm,'ndxw',l_ndxw,i_ndxw))
+     + call errquit('Failed to allocate memory for ndxw',me)
       endif
 c
 c     set the number of analyzed frames to zero

@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.6 2000-07-19 18:26:38 d3j191 Exp $
+c $Id: ana_select.F,v 1.7 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
@@ -90,7 +90,7 @@ c
 c
       return
       end
-      subroutine ana_wall(iwsel,ival)
+      subroutine ana_wall(iwsel,ival,ndxw)
 c
       implicit none
 c
@@ -100,18 +100,19 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      integer iwsel(nwm)
+      integer iwsel(mwm),ndxw(mwm)
       integer i,ival
 c
       nwsel=0
       if(ival.ne.0) nwsel=nwm
       do 1 i=1,nwm
       iwsel(i)=ival
+      ndxw(i)=i
     1 continue
 c
       return
       end
-      subroutine ana_wselect(isel,xs,iwsel,xw,range)
+      subroutine ana_wselect(isel,xs,iwsel,xw,range,ndxw)
 c
       implicit none
 c
@@ -119,7 +120,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer isel(msa),iwsel(mwm)
+      integer isel(msa),iwsel(mwm),ndxw(mwm)
       real*8 xs(msa,3),xw(mwm,mwa,3)
 c
       integer i,j,k
@@ -143,11 +144,19 @@ c
     2 continue
       endif
     1 continue
+      nwsel=0
+      do 4 i=1,nwm
+      if(iwsel(i).gt.0) then
+      nwsel=nwsel+1
+      ndxw(nwsel)=i
+      endif
+    4 continue
+
       endif
 c
       return
       end
-      subroutine ana_wcount(iwsel)
+      subroutine ana_wcount(iwsel,ndxw)
 c
       implicit none
 c
@@ -155,11 +164,14 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer iwsel(mwm),i
+      integer iwsel(mwm),ndxw(mwm),i
 c
       nwsel=0
       do 1 i=1,nwm
-      if(iwsel(i).gt.0) nwsel=nwsel+1
+      if(iwsel(i).gt.0) then
+      nwsel=nwsel+1
+      ndxw(nwsel)=i
+      endif
     1 continue
 c
       return

@@ -1,14 +1,14 @@
       subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs,
-     + iwsel,xw,logs,logw)
+     + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: ana_wrtpdb.F,v 1.3 2000-07-28 21:35:01 d3j191 Exp $
+c $Id: ana_wrtpdb.F,v 1.4 2000-07-31 22:51:51 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
       character*16 sgmnam(msa)
-      integer isel(msa),iwsel(mwm)
+      integer isel(msa),iwsel(mwm),ndxw(nwm)
       integer lfnpdb
       real*8 xs(msa,3),xw(mwm,mwa,3)
       character*255 filpdb
@@ -55,13 +55,14 @@ c
       ia=nsa
       string=wnam(1)(1:3)
       if(string.eq.'spc') string='HOH'
+      if(string.eq.'SPC') string='HOH'
       do 3 i=1,nwm
       if(iwsel(i).ne.0) then
       do 4 j=1,nwa
       ia=ia+1
       write(lfnpdb,1003) ia,wnam(j)(6:9),string,isoff+i,
      + (1.0d1*xw(i,j,k),k=1,3)
- 1003 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3)
+ 1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3)
     4 continue
       endif
     3 continue
