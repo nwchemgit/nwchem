@@ -16,7 +16,7 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
     dptr[i]=lplus[i] * work[i];
   }
   
-  dlasq1_( &n, work, work+n, work + n + n, &info );
+  dlasq1_( &n, work, &work[n], &work[n+n], &info );
   
   if ( info != 0 )
     printf(" error in dlasq1 info = %d \n", info );
