@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.17 2000-08-28 17:00:23 d3j191 Exp $
+c $Id: pme_grid.F,v 1.18 2000-09-06 19:57:28 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -387,22 +387,22 @@ c
       integer iflag,icolor
       integer il,ih,jl,jh,icolr
 c
-      real*8 ftimes(200)
+c      real*8 ftimes(200)
 c
 c     wait until flag color on this node is icolor
 c
-      do 2 il=1,np
-      ftimes(il)=0.0d0
-    2 continue
+c      do 2 il=1,np
+c      ftimes(il)=0.0d0
+c    2 continue
 c
-      call timer_start(30)
+c      call timer_start(30)
       call ga_distribution(ga_flg,me,il,ih,jl,jh)
     1 continue
       call ga_get(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       if(icolr.ne.icolor) goto 1
-      call timer_stop(30)
-      ftimes(me+1)=timer_wall(30)
-      call ga_dgop(mrg_d45,ftimes,np,'+')
+c      call timer_stop(30)
+c      ftimes(me+1)=timer_wall(30)
+c      call ga_dgop(mrg_d45,ftimes,np,'+')
 c
 c      if(me.eq.0) then
 c      write(*,1000) iflag,(ftimes(il),il=1,np)
