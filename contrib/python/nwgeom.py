@@ -42,7 +42,7 @@ def geom_set_coords(name,coords):
     factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
   else:
     raise NWChemError,'unknown units'
-  coords
+  coords = list(coords)
   i = 0
   while (i < len(coords)):
     coords[i] = coords[i] * factor
