@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.28 1999-12-01 19:56:32 mdupuis Exp $
+c $Id: rhf_hessian.F,v 1.29 2000-02-29 19:31:00 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -512,6 +512,7 @@ c
       logical dbug
 c
       ohondo =.true.
+      dbug = .false.
 c
       if(ohondo) then
 
@@ -7425,7 +7426,7 @@ c
 c
       dbug=.false.
       if(dbug) then
-         write(iw,*) 'in -hnd_dder2_inita-'
+         write(6,*) 'in -hnd_dder2_inita-'
       endif
 c
       nc= nat*3
@@ -7456,7 +7457,7 @@ c
      2                       x(i30),x(i40),
      3                       scftyp)
       if(dbug) then
-         write(iw,*) 'in -hnd_dder2_inita-'
+         write(6,*) 'in -hnd_dder2_inita-'
          call hnd_prtr(x(i10),l1)
       endif
 c
@@ -7932,8 +7933,8 @@ C
      &                f11.1,'s     wall:',f11.1,'s')
             call util_flush(6)
 
-      CALL HND_SECOND(TIM,WTIM)
-      DHND=TIM-TIM0-DG80
+c     CALL HND_SECOND(TIM,WTIM)
+c     DHND=TIM-TIM0-DG80
       DG80=ZERO
 C
       RETURN
