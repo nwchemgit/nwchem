@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.1 1999-01-29 18:10:41 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.2 1999-07-13 14:31:31 d3j191 Exp $
 c
       implicit none
 c
@@ -11,6 +11,8 @@ c
       character*255 fname
       integer i,na,lq
       character*3 cnum
+c
+      integer ib,jb,nsb
 c
       if(me.eq.0) then
 c
@@ -43,21 +45,22 @@ c
       sgmnam(i)=card(5:9)//card(1:4)//' '//card(11:16)
       endif
     3 continue
-c      read(lfnsco,1000,err=9999,end=9999) card
-c      if(card(1:10).eq.'num_bonds:') then
-c      open(unit=44,file='bond.list',form='formatted',
-c     + status='unknown')
-c      rewind(44)
-c      read(card(12:19),'(i8)') nsb
-c      write(44,4401) card(1:20)
-c 4401 format(a)
-c      do 4 i=1,nsb
-c      read(iunit,1001) ib,jb
-c 1001 format(2i8)
-c      write(44,1001) ib,jb
-c    4 continue
-c      close(unit=44)
-c      endif
+      read(lfnsco,1000,err=9999,end=9999) card
+      if(card(1:10).eq.'num_bonds:') then
+      open(unit=44,file='bond.list',form='formatted',
+     + status='unknown')
+      rewind(44)
+      read(card(12:19),'(i8)') nsb
+      write(44,4401) card(1:20)
+ 4401 format(a)
+      read(lfnsco,1000,err=9999,end=9999) card
+      do 4 i=1,nsb
+      read(lfnsco,1001) ib,jb
+ 1001 format(2i8)
+      write(44,1001) ib,jb
+    4 continue
+      close(unit=44)
+      endif
       endif
 c
       return
