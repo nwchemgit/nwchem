@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.1 1994-06-08 22:39:40 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.2 1994-06-09 09:08:42 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -157,14 +157,14 @@ c
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
      &       scr,Ta,H1a,nint,
-c............overlap, k-e,  pot-e,   canab,   dryrun
-     &       .true.,  doT, .false., .false., .false.,
+c............overlap, k-e,  pot-e,  canab,   dryrun
+     &       .false., doT, .true., .false., .false.,
      &       scr,lscr)
 c
 c if needed add in Ta derivative integrals
       if (doT) then
-        call daxpy(nint*3,1.0d00,Ta(1,1,1),1,H1a(1,1,iatom))
-        call daxpy(nint*3,1.0d00,Ta(1,1,2),1,H1a(1,1,jatom))
+        call daxpy(nint*3,1.0d00,Ta(1,1,1),1,H1a(1,1,iatom),1)
+        call daxpy(nint*3,1.0d00,Ta(1,1,2),1,H1a(1,1,jatom),1)
       endif
       end
       

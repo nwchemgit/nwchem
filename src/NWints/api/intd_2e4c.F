@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.1 1994-06-08 22:39:42 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.2 1994-06-09 09:08:44 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -94,7 +94,7 @@ c::local
       integer knp, kgen, kexp, kcf, ktype, katom
       integer lnp, lgen, lexp, lcf, ltype, latom
 c
-      nint = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,jsh)
+      nint = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint*3*4.gt.leri) then
         write(6,*) 'nint*3*4 = ',nint*3*4
         write(6,*) 'leri     = ',leri
@@ -183,7 +183,7 @@ c
           continue
         else
           call daxpy(nint*3,1.0d00,eri(1,1,iduse),1,
-     &           eri(1,1,abs(idatom(iduse))))
+     &           eri(1,1,abs(idatom(iduse))),1)
         endif
 00100 continue
 c
