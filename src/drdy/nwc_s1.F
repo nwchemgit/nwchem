@@ -39,8 +39,8 @@ C Transform to cartesian coordinates
       if (.not.geom_cart_set(geom,natom,atomic_labels,
      &      x,atomic_charge))
      &      call errquit('nwc_s1: geom_cart_set failed',911)
-      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
-     &      call errquit('nwc_s1: geom_rtdb_store failed',911)
+*      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
+*     &      call errquit('nwc_s1: geom_rtdb_store failed',911)
       ncenter_B4_autosym = natom
       ncenter = natom
       threquiv = 0.01d00

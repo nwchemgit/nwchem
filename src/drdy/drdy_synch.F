@@ -35,11 +35,11 @@
           write(luout,*)' could not reset input vectors to atomic '
           call errquit('drdy_synch: fatal error ',911)          
         endif
-        if (.not.
-     &        rtdb_cput(my_rtdb,'mp2:input vectors',1,'atomic')) then
-          write(luout,*)' could not reset input vectors to atomic '
-          call errquit('drdy_synch: fatal error ',911)          
-        endif
+*        if (.not.
+*     &        rtdb_cput(my_rtdb,'mp2:input vectors',1,'atomic')) then
+*          write(luout,*)' could not reset input vectors to atomic '
+*          call errquit('drdy_synch: fatal error ',911)          
+*        endif
         if (.not.
      &        rtdb_cput(my_rtdb,'mcscf:input vectors',1,'atomic')) then
           write(luout,*)' could not reset input vectors to atomic '
