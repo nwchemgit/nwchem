@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.12 2004-09-07 06:11:18 windus Exp $
+C     $Id: ccsd_itm.F,v 2.13 2004-12-16 02:40:47 edo Exp $
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
@@ -21,6 +21,7 @@ c
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "ccsd_debug.fh"
+#include "ccsdps.fh"
 c
       integer g_aitm,g_tmt1,g_tmt2,g_tmt,g_tmp,g_tmp2,
      &        g_jlo,g_jhi,g_ilo,g_ihi,
@@ -34,7 +35,11 @@ c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
 c
-      call qenter('itm',0)
+      if (occsdps) then
+         call pstat_on(ps_itm)
+      else
+         call qenter('itm',0)
+      endif
 c
       lnoo=nocc*nocc
       lnov=nocc*nvir
@@ -742,6 +747,10 @@ c
       enddo
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
 c
-      call qexit('itm',0)
+      if (occsdps) then
+         call pstat_off(ps_itm)
+      else
+         call qexit('itm',0)
+      endif
       return
       end

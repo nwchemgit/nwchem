@@ -4,7 +4,7 @@
      &                        giu,gabe,bbkp,bb,g_nt2,g_z2,g_hz2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_graddrv.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_graddrv.F,v 2.8 2004-12-16 02:40:47 edo Exp $
       implicit none
 #include "errquit.fh"
 c
@@ -38,6 +38,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 #include "ccsd_len.fh"
+#include "ccsdps.fh"
 c
 * DATA MUST FOLLOW ALL DELCARATIONS 
       data zip/0.0d00/
@@ -45,7 +46,11 @@ c
       IAM = GA_NodeID()
 C
       call ga_sync()
-      call qenter('graddrv',0)
+      if (occsdps) then
+         call pstat_on(ps_graddrv)
+      else
+         call qenter('graddrv',0)
+      endif
 c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
@@ -172,7 +177,11 @@ c
      &    call errquit('ga_dest g_nz2 fail',0, GA_ERR)
 c
       call ga_sync()
-      call qexit('graddrv',0)
+      if (occsdps) then
+         call pstat_off(ps_graddrv)
+      else
+         call qexit('graddrv',0)
+      endif
       return
       end
 

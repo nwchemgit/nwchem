@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.43 2004-04-27 20:50:04 bert Exp $
+C     $Id: ccsd_driver.F,v 2.44 2004-12-16 02:40:46 edo Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -15,6 +15,7 @@ C     $Id: ccsd_driver.F,v 2.43 2004-04-27 20:50:04 bert Exp $
 #include "ccsd_len.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "ccsdps.fh"
 c
 c
 c
@@ -275,6 +276,7 @@ c
 c
 c  J & K build routines
 c
+      if (occsdps) call pstat_on(ps_aomo)
        if (algo.eq.'sixfold') then
          call moints_build_6x(basis,  OUseSym, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
@@ -286,6 +288,7 @@ c
      $                        g_coul, ocoul, g_exch, oexch,
      $                        blen, OBlk )
        endif
+      if (occsdps) call pstat_off(ps_aomo)
 c
 c
 c Evaluate and store pair energies

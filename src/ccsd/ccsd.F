@@ -1,7 +1,7 @@
       Logical Function ccsd(rtdb)
        implicit none
 #include "errquit.fh"
-C     $Id: ccsd.F,v 2.11 2004-07-01 20:08:02 bert Exp $
+C     $Id: ccsd.F,v 2.12 2004-12-16 02:40:46 edo Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -64,8 +64,14 @@ c ------NEW AO CCSD CODE
 c
       call qstat_init()
 c
+c     init pstat
+c	
+      call ccsd_pstat_init(rtdb)
+c
       Call ccsd_driver( rtdb, geom, basis, movecs_in, oconverged)
 C
+      call ccsd_pstat_print
+c
       If ( .NOT. Geom_Destroy(Geom) )
      $   Call ErrQuit('CCSD: Failed to destroy geometry', Geom,
      &       GEOM_ERR)

@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.12 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_pampt3.F,v 2.13 2004-12-16 02:40:47 edo Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -21,6 +21,7 @@ C     $Id: ccsd_pampt3.F,v 2.12 2003-10-17 22:54:25 carlfahl Exp $
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "ccsd_debug.fh"
+#include "ccsdps.fh"
 C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
      &        l_eri2,k_eri2,l_scre,k_scre,l_t1ao,k_t1ao,
@@ -167,6 +168,7 @@ c
       subroutine ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
      &                     nbf,ilo,ihi,klo,khi,jlo,llo)
       implicit none
+#include "ccsdps.fh"
       integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,jlo,llo
       double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
      &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
@@ -176,7 +178,11 @@ c
 c
       integer i,j,k,l,ii
 c
-      call qenter('idx1',0)
+      if (occsdps) then
+         call pstat_on(ps_idx1)
+      else
+         call qenter('idx1',0)
+      endif
       do j=1,nfj
         do i=ilo,ihi
           do l=1,nfl
@@ -192,7 +198,11 @@ c
           enddo
         enddo
       enddo
-      call qexit('idx1',0)
+      if (occsdps) then
+         call pstat_off(ps_idx1)
+      else
+         call qexit('idx1',0)
+      endif
       return
       end
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
@@ -200,6 +210,7 @@ c
      &                     ilo,ihi,klo,khi,offik,offki,
      &                     g_x,g_c)
       implicit none
+#include "ccsdps.fh"
       integer lscr,nfi,nfk,ncor,nocc,nact,nbf,ilo,ihi,klo,khi,
      &        offik,offki,g_x,g_c
       double precision snsi(nbf,nfi,nfk,nocc),
@@ -210,7 +221,11 @@ c lscr=max(maxbfsh*nocc*nbf,maxbfsh*maxbfsh*nbf)
 c
       integer nfik,ii,jj,ik,ad1,ad2
 c
-      call qenter('idx2',0)
+      if (occsdps) then
+         call pstat_on(ps_idx2)
+      else
+         call qenter('idx2',0)
+      endif
 c
       nfik=nfi*nfk
       do ii=1,nocc
@@ -251,7 +266,11 @@ c
         endif
       enddo
 c
-      call qexit('idx2',0)
+      if (occsdps) then
+         call pstat_off(ps_idx2)
+      else
+         call qexit('idx2',0)
+      endif
 c
       return
       end     
@@ -265,11 +284,16 @@ c
      &                 scra(nbf*nbf),scrb(nbf*nbf)
 c
 #include "bas.fh"
+#include "ccsdps.fh"
 c
       integer ii,jj,ish,jsh,i,j,ilo,ihi,jlo,jhi,iam,ga_nodeid,
      &        g_jlo,g_jhi,g_ilo,g_ihi,ad1,ad2
 c
-      call qenter('idx34',0)
+      if (occsdps) then
+         call pstat_on(ps_idx34)
+      else
+         call qenter('idx34',0)
+      endif
       iam=ga_nodeid()
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do ii=1,nocc
@@ -308,13 +332,18 @@ c end //
         enddo
       enddo
 c
-      call qexit('idx34',0)
+      if (occsdps) then
+         call pstat_off(ps_idx34)
+      else
+         call qexit('idx34',0)
+      endif
 c
       return
       end     
       subroutine t2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,eri2,
      &                 t2,ht2,lnoo,nocc)
       implicit none
+#include "ccsdps.fh"
       integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,lnoo,nocc
       double precision eri1(llo:lhi,klo:khi,jlo:jhi,ilo:ihi),
      &                 eri2(jlo:jhi,klo:khi,llo:lhi,ilo:ihi),
@@ -325,7 +354,11 @@ c
       integer ipp,imm
       double precision gp,gm
 c
-      call qenter('t2eri',0)
+      if (occsdps) then
+         call pstat_on(ps_t2eri)
+      else
+         call qenter('t2eri',0)
+      endif
 c
 c - we could block the ints together and do an mxm if
 c - this performs poorly
@@ -354,7 +387,11 @@ c
         enddo
       enddo
 c
-      call qexit('t2eri',0)
+      if (occsdps) then
+         call pstat_off(ps_t2eri)
+      else
+         call qexit('t2eri',0)
+      endif
 c
       return
       end

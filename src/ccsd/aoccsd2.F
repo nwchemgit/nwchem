@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.30 2003-10-27 02:25:10 edo Exp $
+C     $Id: aoccsd2.F,v 2.31 2004-12-16 02:40:46 edo Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -24,6 +24,7 @@ c
 #include "util.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "ccsdps.fh"
 c
 c ccsd
       Integer i
@@ -108,7 +109,11 @@ c$$$      double precision rtc
 c$$$      external rtc
 c
       call ga_sync()
-      call qenter('aoccsd',0)
+      if (occsdps) then
+         call pstat_on(ps_aoccsd)
+      else
+         call qenter('aoccsd',0)
+      endif
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
@@ -342,7 +347,11 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0, GA_ERR)
 c
-      call qexit('aoccsd',0)
+      if (occsdps) then
+         call pstat_off(ps_aoccsd)
+      else
+         call qexit('aoccsd',0)
+      endif
 c
       If ( GA_NodeID() .eq. 0 .AND.
      $   ( Util_Print('byproduct energies', Print_Default)
@@ -483,7 +492,11 @@ c ----------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0)write(6,*)'memory',mem_avail
-      call qenter('triples',0)
+      if (occsdps) then
+         call pstat_on(ps_tripls)
+      else
+         call qenter('triples',0)
+      endif
       if (iam.eq.0)write(6,293)
  293  format(//,'*********triples calculation*********',/)
       lbfo=lnovv+lnoov+lnoov
@@ -798,7 +811,11 @@ c       print *,' ga allocated end of aoccsd '
 c       call ga_summarize(.false.)
 c      endif
       call ga_sync()
-      call qexit('triples',0)
+      if (occsdps) then
+         call pstat_off(ps_tripls)
+      else
+         call qexit('triples',0)
+      endif
 c
  999  if (.not. ga_destroy(g_objv))
      &     call errquit('g_objv ga_destroy failed',0, GA_ERR)

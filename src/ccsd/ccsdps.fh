@@ -1,0 +1,13 @@
+c  $Id: ccsdps.fh,v 2.1 2004-12-16 02:40:47 edo Exp $
+c
+c     pstat handles for the CCSD code
+c
+      integer ps_ccsd,ps_aomo,ps_aoccsd,ps_tripls,ps_graddrv,
+     ,	ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri
+
+      logical occsdps            ! True if gathering stats
+      common /cccsds/ occsdps,
+     $     ps_ccsd, ps_aomo,ps_aoccsd,ps_tripls,ps_graddrv,
+     $	ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri
+
+c
