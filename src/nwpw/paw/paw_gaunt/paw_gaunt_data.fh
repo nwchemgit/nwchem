@@ -1,0 +1,10 @@
+c
+c $Id: paw_gaunt_data.fh,v 1.1 2003-02-06 06:04:37 marat Exp $
+c
+c $Log: not supported by cvs2svn $
+
+!     **** paw_gaunt common blocks ****
+      integer    paw_gaunt_lmax
+      integer    paw_gaunt_coeff(4)    
+      common / paw_gaunt / paw_gaunt_lmax, paw_gaunt_coeff
+
