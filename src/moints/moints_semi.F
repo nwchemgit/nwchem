@@ -1,6 +1,6 @@
 
 c
-c  $Id: moints_semi.F,v 1.45 1997-08-13 19:18:39 rg240 Exp $
+c  $Id: moints_semi.F,v 1.46 1997-08-13 19:22:42 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -251,12 +251,6 @@ c
        if (eaf_write(kunit, iotmpptr, int_mb(k_rloc),
      $               ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
      $   call errquit('moints_semi: failed to write header info',0)
-C       call waopen( kunit, fnamek, 10, 0, ierr )
-c       call waput( kunit, vtmp, 1,
-c     $             ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-c       call waput( kunit, int_mb(k_rloc),
-c     $             ma_sizeof(MT_INT, 12, MT_DBL),
-c     $             ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        if (.not. ma_pop_stack(l_rloc))
      $     call errquit('moints: failed to pop', l_rloc)
 c
@@ -887,7 +881,6 @@ c
             if (eaf_write(munit, faddr, dbl_mb(k_local), 
      $                    ma_sizeof(MT_DBL,rlen,MT_BYTE)).ne.0)
      $        call errquit('moints_wrbuf: failed on write',0)
-C            call waput( munit, dbl_mb(k_local), faddr, rlen, ierr )
             call ga_release(g_buf, rlo, rhi, po, po )
 c$$$            WRITE(6,901) O,P,FADDR,FADDR+MA_SIZEOF(MT_DBL,RLEN,MT_BYTE)
 c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',F10.0,'  EOR:',F10.0)
@@ -1078,8 +1071,6 @@ c
 c$$$      WRITE(6,771) RECNUM, FADDR
 c$$$ 771  FORMAT(' READ RECORD#:',I8,' @ ',F10.0)
 
-c      call waget( munit, t, faddr, nnbf, ierr )
-      
       return
       end
 
@@ -1105,8 +1096,6 @@ c$$$      INTEGER I
       if (eaf_read(munit, 0.d0, vtmp, 
      $             ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
      $  call errquit('moints_vrange: cannot read header info',0)
-C      call waget( munit, vtmp, 1,
-C     $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
       ioff = vtmp(1)
       nnbf = vtmp(2)
       plo = vtmp(3)
@@ -1146,10 +1135,6 @@ c$$$      INTEGER I
       if (eaf_read(munit, ioptr, v, 
      $             ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
      $  call errquit('moints_getscattv: cannot read scatter v',0)
-
-C      call waget( munit, v,
-C     $            ma_sizeof(MT_INT, 12, MT_DBL),
-C     $            ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
 
 c$$$      PRINT*,'READ BACK SCATTER ARRAY'
 c$$$      WRITE(6,771) (V(I),I=1,NNBF)
