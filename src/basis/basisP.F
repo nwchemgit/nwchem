@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.9 1994-07-28 07:58:36 d3g681 Exp $
+c $Id: basisP.F,v 1.10 1994-07-29 22:36:13 d3e129 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -398,7 +398,7 @@ c
       return
       end
 c......................................................................
-      logical function bas_ucontinfo(basisin,icont,
+      logical function bas_ucontinfo(basisin,icont,itype,
      &       nprimo,ngeno,sphcart)
       implicit none
 #include "basP.fh"
@@ -408,7 +408,7 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin, icont, nprimo, ngeno, sphcart
+      integer basisin, icont, nprimo, ngeno, sphcart, itype
 c::local
       integer basis,myucont,icontmax
 c
@@ -435,6 +435,7 @@ c
       myucont = icont
 c... no spherical yet 3/94 only cart. 
       sphcart = 0
+      itype   = infbs_cont(CONT_TYPE,myucont,basis)
       nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
       ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
       bas_ucontinfo=.true.

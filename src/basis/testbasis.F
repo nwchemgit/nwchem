@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.9 1994-06-01 19:03:38 d3g681 Exp $
+c $Id: testbasis.F,v 1.10 1994-07-29 22:36:14 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -22,7 +22,7 @@ c::friends functions
 c
       integer rtdb, geom, basis, ngen,nprim, iang
       integer ncenters, sphcart, i,j
-      integer nbf,ibf,iat,icont
+      integer nbf,ibf,iat,icont, type
       character*256 namename, nametrans
       character*16 drivtags(20)
       double precision coords(3,20), charge(20)
@@ -105,7 +105,8 @@ c
         write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
 00100 continue
 c
-      status = bas_ucontinfo(basis,1,nprim,ngen,sphcart)
+      status = bas_ucontinfo(basis,1,type,nprim,ngen,sphcart)
+      write(6,*)' t:query: type    cont 1 ',type
       write(6,*)' t:query: nprim   cont 1 ',nprim
       write(6,*)' t:query: ngen    cont 1 ',ngen
       write(6,*)' t:query: sphcart cont 1 ',sphcart
@@ -123,8 +124,9 @@ c
       status = bas_setu_exponent(basis,1,exp,nprim)
       status = bas_setu_coeff(basis,1,coeff,nprim*ngen)
 c
-      status = bas_ucontinfo(basis,1,nprim,ngen,sphcart)
+      status = bas_ucontinfo(basis,1,type,nprim,ngen,sphcart)
       write(6,*)' modified '
+      write(6,*)' t:query: type    cont 1 ',type
       write(6,*)' t:query: nprim   cont 1 ',nprim
       write(6,*)' t:query: ngen    cont 1 ',ngen
       write(6,*)' t:query: sphcart cont 1 ',sphcart
