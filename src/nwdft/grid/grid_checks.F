@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.12 2000-03-10 02:03:15 edo Exp $
+c$Id: grid_checks.F,v 1.13 2000-03-29 18:06:56 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -88,7 +88,7 @@ c
       range_a=dble(rad_cutoff(1,itype))
       range_b=dble(rad_cutoff(1,jtype))
       reqacc=acc_in
-      me=ga_nodeid(0)
+      me=ga_nodeid()
       if(me.eq.0) write(0,*) ' required accuracy ',reqacc
       if(me.eq.0) write(0,*) ' alpha ',alphaa,alphab
       if(me.eq.0) write(0,*) ' lla llb rij ',lla,llb,rij

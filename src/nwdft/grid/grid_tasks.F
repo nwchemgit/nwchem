@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.25 2000-03-29 17:54:00 edo Exp $
+c$Id: grid_tasks.F,v 1.26 2000-03-29 18:06:57 edo Exp $
 c
       implicit none
 c
@@ -155,7 +155,7 @@ c     for load balancing
                fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
                call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
                
-               call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia))
+               call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia),nxyz)
                rad_write=rmax
                nq_cube=0
                do 100 iii = 1, nqsh_at
