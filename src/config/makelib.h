@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.10 1994-08-27 20:01:16 d3g681 Exp $
+# $Id: makelib.h,v 1.11 1994-08-31 23:35:10 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -77,19 +77,17 @@
 #
 ####################################################################
 
+LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
+
 OBJECTS := $(OBJ) $(OBJ_OPTIMIZE)
 
- LIBOBJ := $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJECTS))
+ LIBOBJ := $(patsubst %,$(LIBRARY_PATH)(%),$(OBJECTS))
 
-$(LIBDIR)/$(LIBRARY):   $(LIBOBJ) $(OBJECTS)
+$(LIBRARY_PATH):   $(LIBOBJ) $(OBJECTS)
 ifneq ($(strip $(OBJECTS)),)
 	$(AR) $(ARFLAGS) $@ $(OBJECTS)
 	$(RANLIB) $@
 endif
-
-crap:
-	echo $(LIBOBJ) 
-	echo $(OBJECTS) 
 
 (%.o):  %.o
 	
@@ -131,7 +129,7 @@ MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)	 -C $$dir $@ || exit 1 ; done
 
 ifdef SUBDIRS
 
-$(LIBDIR)/$(LIBRARY):	subdirs
+$(LIBRARY_PATH):	subdirs
 
 .PHONY:	subdirs
 subdirs:        
