@@ -10,16 +10,10 @@ C****************************************************************
 C      
       subroutine dradfg (ido,ip,l1,idl1,cc,c1,c2,ch,ch2,wa)
 *      
-* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
+* $Id: dradfg.F,v 1.6 1997-12-11 08:30:43 d3e129 Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
-*      
-*      
-* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
-*      
-*      
-* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
+* $Id: dradfg.F,v 1.6 1997-12-11 08:30:43 d3e129 Exp $
 *      
       double precision cc(ido,ip,l1), c1(ido,l1,ip), c2(idl1,ip),
      1  ch(ido,l1,ip), ch2(idl1,ip), wa(1), ai1, ai2, ar1, ar1h, ar2,
