@@ -1,6 +1,6 @@
 # This makefile has to be processed by GNU make
 #
-     TOPDIR = tools 
+     TOPDIR = ${NWCHEM_TOP}/src/tools 
 MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
     SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas server tcgmsg armci/src pario
 
@@ -74,4 +74,12 @@ depend:
 	@echo No dependency analysis here
 sngl_to_dbl dbl_to_sngl:
 	@echo No blas conversion done here
-
+#
+# This is a convenience target that will make the TAGS file for current 
+# checked out source tree.  This is only useful if you know something 
+# about emacs.  Note: find, grep and etags must be in your path.
+#
+tags_file:
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+tags_clean:
+	find . -name TAGS -print -exec rm -f "{}" ";"
