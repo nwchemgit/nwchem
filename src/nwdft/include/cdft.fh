@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.62 2003-07-28 21:29:17 edo Exp $
+C$Id: cdft.fh,v 1.63 2004-04-03 00:16:04 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -105,7 +105,6 @@ c-->  old quad.fh; Quadrature Points & Weights
 c
 c     MX_l_ang = Lebedev max no. of pts
 c     IAC_MAX = Lebedev max accuracy
-c     MAX_CHUNK = max value for nquad_task
 c
       double precision 
      &     bsrad_atom_type, znuc_atom_type, 
@@ -117,13 +116,13 @@ c
      &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
      &     iatype,ityp2ctr, iqrot, ntypes,
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
-     &     rad_cutoff,task_list,n_tot_tasks,red_iqsh,
+     &     rad_cutoff,n_tot_tasks,
      &     nradin, nangin, 
      &     ngridin,wradgrid
 c
-      integer MX_l_ang, IAC_MAX, MAX_CHUNK
+      integer MX_l_ang, IAC_MAX
 c
-      parameter(MX_l_ang = 5810, IAC_MAX = 29, MAX_CHUNK = 20)
+      parameter(MX_l_ang = 5810, IAC_MAX = 29)
 c
 c     The following parameters must match those in geomP.fh and 
 c     bas_staticP.fh e.g., dft_max_cent = max_cent, and 
@@ -160,8 +159,7 @@ c
      & nrad(dft_ntags_bsmx), nang(dft_ntags_bsmx), 
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
      & ntypes, max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
-     & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
-     & red_iqsh(MXqshells,MAX_CHUNK),
+     & rad_cutoff(2,dft_max_cent),n_tot_tasks,
      & nradin(dft_ntags_bsmx), nangin(dft_ntags_bsmx), 
      & grtagin(dft_ntags_bsmx),ngridin,
      . l_nxyz,k_nxyz,ityp2ctr(dft_ntags_bsmx),wradgrid,
