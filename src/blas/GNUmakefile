@@ -9,6 +9,9 @@ include ../config/makefile.h
 
      VPATH = double:single
 
+ifeq ($(TARGET),SGITFP)
+       PRECISION = double
+endif
 ifeq ($(TARGET),SUN)
        PRECISION = double
 endif
