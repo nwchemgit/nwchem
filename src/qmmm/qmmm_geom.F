@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.44 2004-12-17 21:17:45 marat Exp $
+c $Id: qmmm_geom.F,v 1.45 2004-12-21 02:12:49 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -334,6 +334,7 @@ c     ------------------------
       integer irtdb
 c     local variables
       integer i
+      integer k
       integer nqm
       integer nbq
       integer ntot
@@ -370,7 +371,9 @@ c     load bq information (coord and charges)
 c     into qmmm common arrays from md module
 c     --------------------------------------
       if(.not.nobq) then
-c         call qmmm_bq_data_load()
+         if(qmmm_bq_dynamical()) then
+           call qmmm_bq_data_load()
+         end if
       end if
 
       nqm   = qmmm_get_nqm()
@@ -379,11 +382,11 @@ c         call qmmm_bq_data_load()
 
 c     nothing to do if no bq's
 c     -----------------------
-c      if(nbq.eq.0) then
-c      if(qmmm_print_debug())
-c     > write(*,*) "qmmm: no bq charges were found"
-c        return
-c      end if
+      if(nbq.eq.0) then
+      if(qmmm_print_debug())
+     > write(*,*) "qmmm: no bq charges were found"
+        return
+      end if
 
       i_ind = qmmm_get_i_ai()
       i_num = qmmm_get_i_num()
@@ -394,13 +397,11 @@ c      end if
 
       i_cbq = qmmm_get_i_cbq()
       i_qbq = qmmm_get_i_qbq()
-     
+
 c
 c     fix hydrogen link atoms
 c     -----------------------
       call qmmm_adjust_link_coord()
-
-
 c    --------------------------------------
 c    create combined qm bq geometry
 c    --------------------------------------
@@ -521,8 +522,9 @@ c
       pname = "qmmm_restore_qm_geom"
 
 
-      if(.not.rtdb_delete(irtdb,'geometry'))
-     + call errquit(pname//' to  delete geom name in rtdb',0, RTDB_ERR)
+      ignore = rtdb_delete(irtdb,'geometry')
+C      if(.not.rtdb_delete(irtdb,'geometry'))
+C     + call errquit(pname//' to  delete geom name in rtdb',0, RTDB_ERR)
 
 c    
 c     return charge to normal
@@ -1044,7 +1046,7 @@ c     local variables
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))
         
-      call qmmm_bq_data_load()
+c      call qmmm_bq_data_load()
 
       end
 
