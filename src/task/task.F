@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.66 2004-12-08 23:59:05 bert Exp $
+* $Id: task.F,v 1.67 2005-01-13 23:19:00 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -71,6 +71,9 @@ c
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
+c
+      logical task_qmmm_dynamics
+      external task_qmmm_dynamics
 #ifdef USE_SUBGROUPS
       logical util_sgstart
       external util_sgstart
@@ -207,7 +210,11 @@ c
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
-         status=task_dynamics(rtdb)
+         if(task_qmmm) then
+           status = task_qmmm_dynamics(rtdb)
+         else
+           status = task_dynamics(rtdb)
+         endif
       else if(inp_compare(.false.,'thermodynamics',operation)) then
          status=task_thermo(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
