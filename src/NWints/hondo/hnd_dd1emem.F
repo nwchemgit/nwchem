@@ -1,4 +1,4 @@
-c $Id: hnd_dd1emem.F,v 1.5 1999-12-29 23:30:24 windus Exp $
+c $Id: hnd_dd1emem.F,v 1.6 2003-03-05 23:52:21 bert Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- derivative memory routine
@@ -55,7 +55,7 @@ c
 c scrmem should eventually either go away or be used for other
 c arrays that are now statically allocated
 c
-      scrmem = nbfmax*nbfmax*3*3*4
+      scrmem = nbfmax*nbfmax*3*3*(nat*3+3)
       mem_1e = max(mem_1e,scrmem) 
 c
       return
