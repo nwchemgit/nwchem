@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     ,  nfock, g_dens, g_xc,l3d)
+     &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.20 2002-02-19 02:10:37 edo Exp $
+c     $Id: fock_xc.F,v 1.21 2002-03-22 02:14:05 sohirata Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -20,16 +20,27 @@ c!!! BGJ
 #include "stdio.fh"
 c!!! BGJ
 c
-      integer geom              ! [in]
-      integer nbf_ao,ao_bas_han ! [in]
-      integer nfock             ! [input] number of XC matrices
-      integer ndens             ! [in] number of DM
-      integer g_dens(*)        ! [input] array of handles to densities
-      integer g_xc              ! [input] array of handles to XC matrices
-      integer calc_type         ! [input] type of XC matrix calculation
-      logical l3d
-c                               !  *** from rtdb
-c                               !  ******* !!! document here !!!
+      integer geom              ! [input] Geometry handle
+      integer nbf_ao,ao_bas_han ! [input] No. of AOs and AO handle
+      integer nfock             ! [input] No. of XC matrices
+c                               !         = No. of density matx (RDFT)
+c                               !         = 4 * No. of density matx (UDFT)
+      integer ndens             ! [local] = ipol
+      integer g_dens(*)         ! [input] Array of handles to densities
+      integer g_xc              ! [input] Array of handles to XC matrices
+      integer calc_type         ! [input] Type of XC matrix calculation
+c                               !         = 1 XC contrib to Fock
+c                               !         = 2 XC contrib to CPKS LHS
+c                               !         = 3 XC contrib to CPKS RHS
+      logical l3d               ! [input] Whether 3-D NGA density
+c                               !         and fock matrices are used.
+c                               !         Must be true when and only when 
+c                               !         calctype = 2
+      logical triplet           ! [rtdb]  True if TDDFT triplet excitation
+c                               !         energy calculations from RDFT.
+c                               !         If not set, then .false. is 
+c                               !         assumed.  For Hessian, this must
+c                               !         be false (or not set).
 c
 c     Local declarations
 c
@@ -50,6 +61,11 @@ c
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
+c
+c Note that ndens=ipol and is not necessarily
+c equal to No. of density matrices.  "nfock" or "nmat"
+c will be related to No. of density matrices. 
+c
       ndens=1
       if(xc_getipol().eq.2) ndens=2
       rtdb = bgj_get_rtdb_handle()
@@ -65,11 +81,16 @@ c
 c     Get fock_xc variables
 c
       if (.not. rtdb_get(rtdb, 'fock_xc:calc_type', mt_int, 1,
-     &     calc_type).or.calc_type .eq. 0) then
+     &   calc_type).or.calc_type .eq. 0) then
          if (oprint.and.ga_nodeid().eq.0)
-     &        write(luout,*)' fockxc: calc_type not set: setting to 1'
-         calc_type = 1          !!!
+     &      write(luout,*)' fockxc: calc_type not set: setting to 1'
+         calc_type = 1
       endif
+c
+c     Whether this is a triplet excitation energy calculation
+c
+      if (.not. rtdb_get(rtdb, 'fock_xc:triplet', mt_log, 1,
+     &   triplet)) triplet=.false.
 c
 c     for uhf calculations, nmat is 4*nvec. The nmat passed to _quadv0_gen
 c     should be the number of vectors 
@@ -84,22 +105,32 @@ c
          write(luout,*) ' nfock ',nfock,' ndens ',ndens
          write(luout,*) ' nfock_xc ',nfock_xc
          write(luout,*) ' l3d ',l3d
+         write(luout,*) ' triplet ',triplet
          call util_flush(luout)
        endif
 c
 c     assumed l3d true AND calc_type=2
 c
       if(l3d.and.calc_type.ne.2.or.
-     .      (.not.l3d).and.calc_type.eq.2) call errquit('
-     '      fxc: calc_type-l3d logic wrong ',0)
+     &   (.not.l3d).and.calc_type.eq.2) call errquit
+     &   ('fxc: calc_type-l3d logic wrong ',0)
 c
 c     Set up local copies of density matrix handles. The number of 
 c     density matrices needed is ndens*nvec+2. The last two are scf
-c     (unperturbed) density matrices. nmat is actually 
+c     (unperturbed) density matrices.
 c
-c     g_dens_xc is the DM used in the XC routines
+c     g_dens_xc is the density matrix used in the XC routines
 c
       if(l3d) then
+c     -------------
+c     calc_type = 2
+c     -------------
+c     the number of density matrices 
+c     needed is nfock_xc+1 (typically 1 for perturbed density and 1
+c     for unperturbed SCF density) for RDFT and 2*nfock_xc+2 (typically
+c     2 for perturbed densities and 2 for unperturbed SCF densities) for
+c     UDFT.
+c
          if(ndens.eq.1) then
             dims(1) = nfock_xc+1
          else
@@ -122,8 +153,8 @@ c
          bhi(1) = nfock_xc
          call ga_zero(g_dens_xc)
          call nga_add_patch(1d0,g_dens,alo,ahi,
-     .           0d0,g_dens_xc,blo,bhi,
-     .        g_dens_xc,blo,bhi)      
+     &      0d0,g_dens_xc,blo,bhi,
+     &      g_dens_xc,blo,bhi)      
 c
 c     beta bit
 c
@@ -133,10 +164,13 @@ c
             blo(1) = nfock_xc+1+1
             bhi(1) = nfock_xc*2+1
             call nga_add_patch(1d0,g_dens,alo,ahi,
-     .           0d0,g_dens_xc,blo,bhi,
-     .           g_dens_xc,blo,bhi)      
+     &         0d0,g_dens_xc,blo,bhi,
+     &         g_dens_xc,blo,bhi)      
          endif
       else
+c     ------------------
+c     calc_type = 1 or 3
+c     ------------------
          g_dens_xc(1)=g_dens(1)
 c
 c     pick 3rd
@@ -163,7 +197,7 @@ c
          endif
       else
          g_dens_scf(1) = g_dens_xc(1)
-         if(ndens.eq.2) g_dens_scf(2) = g_dens_xc(2)
+         if (ndens.eq.2) g_dens_scf(2) = g_dens_xc(2)
       endif
 c
 c     Prepare to call xc_quadv0
@@ -212,52 +246,52 @@ c
          endif
       endif
       call xc_init_index(geom,ndens,nbf_ao,ao_bas_han,
-     ,     g_dens_scf, l_cntoce, k_cntoce,
-     &                   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
-     &                   l_rdens_atom, k_rdens_atom)
+     &   g_dens_scf, l_cntoce, k_cntoce,
+     &   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
+     &   l_rdens_atom, k_rdens_atom)
 c     
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
       if(grid_written) then
-      call grid_quadv0_gen(rtdb, 
-     ,         g_dens_xc,g_xc,nexc_dum,
-     &     rho_n_dum, Exc_dum,
-     &     nfock_xc, calc_type ,tdum,.true.)
+         call grid_quadv0_gen(rtdb, 
+     &      g_dens_xc,g_xc,nexc_dum,
+     &      rho_n_dum, Exc_dum,
+     &      nfock_xc, calc_type, tdum, .true., triplet)
       else
-         call errquit( 'fxc: old grid broken ',0)
-!      call xc_quadv0_gen(rtdb, nExc_dum, g_xc, int_mb(g_dens_local),
+         call errquit('fxc: old grid broken ',0)
       endif
 c
 c     Clean up
 c
       if(l3d) then
          if (.not. ga_destroy(g_dens_xc))
-     &        call errquit('fock_xc: could not destroy g_dens_xc',0)
+     &      call errquit('fock_xc: could not destroy g_dens_xc',0)
       endif
       if(ndens.eq.2)  then
 c
 c     need to go from 2nfock ga to 4nfock (and sign flip)
 c
 c     move beta from block 2 to block 4
-            alo(1) = nfock_xc+1
-            ahi(1) = nfock_xc*2
-            blo(1) = nfock_xc*3+1
-            bhi(1) = nfock_xc*4
-            call nga_copy_patch('N',g_xc,alo,ahi,
-     .           g_xc,blo,bhi)
+         alo(1) = nfock_xc+1
+         ahi(1) = nfock_xc*2
+         blo(1) = nfock_xc*3+1
+         bhi(1) = nfock_xc*4
+         call nga_copy_patch('N',g_xc,alo,ahi,
+     &      g_xc,blo,bhi)
 c     move alpha from block 1 to block 2
-            alo(1) = 1
-            ahi(1) = nfock_xc
-            blo(1) = nfock_xc+1
-            bhi(1) = nfock_xc*2
-            call nga_copy_patch('N',g_xc,alo,ahi,
-     .           g_xc,blo,bhi)
+         alo(1) = 1
+         ahi(1) = nfock_xc
+         blo(1) = nfock_xc+1
+         bhi(1) = nfock_xc*2
+         call nga_copy_patch('N',g_xc,alo,ahi,
+     &      g_xc,blo,bhi)
 c     zero block 1 that was occupied by alpha
-            call nga_zero_patch(g_xc, alo, ahi)
+         call nga_zero_patch(g_xc, alo, ahi)
 c     flip sign to make it consistent with HF K (Exchange)
-            call ga_scale(g_xc,-1d0)
-         endif
+         call ga_scale(g_xc,-1d0)
+      endif
+c
       call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr, l_rdens_atom)
 c
       if (calc_type .eq. 2) then
@@ -265,11 +299,10 @@ c
      &      call errquit('fock_xc: could not destroy DM',1)
          if (ndens. eq. 2) then
             if (.not. ga_destroy(g_dens_scf(2)))
-     &           call errquit('fock_xc: could not destroy DM',2)
+     &         call errquit('fock_xc: could not destroy DM',2)
          endif
       endif
 c
-
       call grid_cleanup(rtdb, .true.)
 c
       if (oprint) then
@@ -280,9 +313,7 @@ c
             alo(1)=i
             ahi(1)=i
             tdum=nga_ddot_patch(g_xc, 'N', alo, ahi, 
-     .           g_xc, 'N', alo, ahi) 
-
-
+     &         g_xc, 'N', alo, ahi) 
             if(ga_nodeid().eq.0) then
                write(luout,*) ' matrix no. ',i,tdum
                call util_flush(luout)
@@ -309,7 +340,6 @@ c
       integer nbf
       integer geom,basis
 c
-      
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer alo(3), ahi(3), blo(2), bhi(2)
