@@ -1,12 +1,12 @@
 *
-* $Id: paw_force.F,v 1.2 2003-03-11 00:52:50 marat Exp $
+* $Id: paw_force.F,v 1.3 2003-03-14 00:35:52 marat Exp $
 *
 
 !**************************************************
 !
-!	Name: paw_ovlp_init
+!	Name: paw_force_init
 !
-!	Purpose: initializes the paw overlap coefficients
+!	Purpose: 
 !
 !	Created:	8/07/2002
 !**************************************************
@@ -26,18 +26,15 @@
   
 *     **** local variables ****
       logical value
-      integer ii,ia,nlm,nlmii,n,m,mabs
-      integer nbasis,i2,i1,isgn,nion
+      integer nion
       integer paw_force_w_size
       integer paw_force_c_size
-      integer ik
-      integer in,li,lj,mi,mj,i,j
 
 
       nion = ion_nion()
 
       paw_force_c_size = paw_ovlp_coeff_size()
-
+      write(*,*) "paw_force_c_size=",paw_force_c_size
       value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
      >                               'paw_force_cx_u',paw_force_cx_u)
       value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
@@ -54,6 +51,7 @@
 
 
       paw_force_w_size = paw_ovlp_weight_size()
+
       value = value.and.my_alloc(mt_dcpl,paw_force_w_size,
      >                           "paw_force_wx",paw_force_wx)
       value = value.and.my_alloc(mt_dcpl,paw_force_w_size,
@@ -73,6 +71,14 @@
       value = value.and.my_alloc(mt_dcpl,paw_force_w_size,
      >                           "paw_force_wz_d",paw_force_wz_d)
 
+      value = value.and.my_alloc(mt_dbl,nion,
+     >                           "paw_force_fx_atom",paw_force_fx_atom)
+      value = value.and.my_alloc(mt_dbl,nion,
+     >                           "paw_force_fy_atom",paw_force_fy_atom)
+      value = value.and.my_alloc(mt_dbl,nion,
+     >                           "paw_force_fz_atom",paw_force_fz_atom)
+
+
       if (.not.value) call errquit('paw_force_init: alloc heap',1)
 
       return
@@ -80,7 +86,7 @@
 
 **************************************************
 !
-!	Name: paw_ovlp_coeff_set
+!	Name: paw_force_solve
 !
 !	Purpose: sets the paw overlap coefficients
 !
@@ -102,9 +108,8 @@
       integer ii,ia,nbasis,nlm,nlmii,npack1
       integer nion,prj,i1,i2,n
       integer indx_psi,indx_prj,indx_coeff
-      integer exi(2),tmp(2)
+      integer exi(2),tmp(2),tmp0(2)
       integer tmpx(2),tmpy(2),tmpz(2)
-      integer ni,i,li,mi
       integer Gx(2),Gy(2),Gz(2)
       integer nfft3d
       integer indx2(4),sgn(4),coeff(4)
@@ -113,28 +118,32 @@
       complex*16 wx_tmp,wy_tmp,wz_tmp
       integer i_nbasis,in,nlm1,indx_coeff1
 
+      integer ni,i,li,mi,ik
  
       !**** external functions ****
-      integer  control_ncut,G_indx
-      real*8   control_rcut,double_factorial,lattice_omega
-      real*8   lattice_unita
-      external control_ncut,G_indx
-      external control_rcut,double_factorial,lattice_omega
-      external lattice_unita
+      integer  G_indx
+      external G_indx
 
 
+c     *** number of electrons ***      
       ne_u  = paw_ne_up()
       ne_d  = paw_ne_down()
       neall = paw_ne_total()
+
+c     *** pointers to paw_ovlp arrays ***     
       call paw_ovlp_indx2_ptr(indx2)
       call paw_ovlp_sgn_ptr(sgn)
       call paw_ovlp_c_ptr(coeff)
 
-      !*** allocate temporary space ***
+c     *** size of unpacked FFT grid ***      
       call D3dB_nfft3d(1,nfft3d)
+c     *** size of packed grid ***      
       call Pack_npack(1,npack1)
 
+c     *** allocate temporary space ***
       value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp0',
+     >                     tmp0(2),tmp0(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       value = value.and.MA_push_get(mt_dcpl,npack1,'tmpx',
      >                   tmpx(2),tmpx(1))
@@ -148,7 +157,7 @@
       value = value.and. MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
 
-c    *** set reciprocal lattice arrays ***
+c    *** get reciprocal lattice arrays ***
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
       call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
       call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
@@ -156,8 +165,9 @@ c    *** set reciprocal lattice arrays ***
       call Pack_t_pack(1,dbl_mb(Gy(1)))
       call Pack_t_pack(1,dbl_mb(Gz(1)))
 
+      write(*,*) "paw force coefficients0:"
 
-c     !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) ***
+c     *** compute force overlap coefficients ***
       nlmii = 0
       nion  = ion_nion()
       do ii=1,nion
@@ -172,22 +182,19 @@ c     !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) 
            call Pack_cc_Mul(1,
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(prj+indx_prj),
-     >                      dcpl_mb(tmp(1)))
+     >                      dcpl_mb(tmp0(1)))
 
-           call Pack_tc_Mul(1,
-     >                      dbl_mb(Gx(1)),
-     >                      dcpl_mb(tmp(1)),
-     >                      dcpl_mb(tmpx(1)))
+           do ik=1,npack1
+              dcpl_mb(tmpx(1)+ik-1)=dcpl_mb(tmp0(1)+ik-1)*
+     >           dcmplx(0.0,-1.0)*dbl_mb(Gx(1)+ik-1)
 
-           call Pack_tc_Mul(1,
-     >                      dbl_mb(Gy(1)),
-     >                      dcpl_mb(tmp(1)),
-     >                      dcpl_mb(tmpy(1)))
+              dcpl_mb(tmpy(1)+ik-1)=dcpl_mb(tmp0(1)+ik-1)*
+     >           dcmplx(0.0,-1.0)*dbl_mb(Gy(1)+ik-1)
 
-           call Pack_tc_Mul(1,
-     >                      dbl_mb(Gz(1)),
-     >                      dcpl_mb(tmp(1)),
-     >                      dcpl_mb(tmpz(1)))
+              dcpl_mb(tmpz(1)+ik-1)=dcpl_mb(tmp0(1)+ik-1)*
+     >           dcmplx(0.0,-1.0)*dbl_mb(Gz(1)+ik-1)
+           
+           end do
 
             do n=1,neall
              indx_psi   = (n-1)*npack1    + 1
@@ -209,20 +216,21 @@ c     !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) 
       end do 
 
       call D3dB_Vector_SumAll(2*paw_force_cx_s(3),
-     >                        dcpl_mb(paw_force_cy_s(1)))
-      call D3dB_Vector_SumAll(2*paw_force_cy_s(3),
      >                        dcpl_mb(paw_force_cx_s(1)))
+      call D3dB_Vector_SumAll(2*paw_force_cy_s(3),
+     >                        dcpl_mb(paw_force_cy_s(1)))
       call D3dB_Vector_SumAll(2*paw_force_cz_s(3),
      >                        dcpl_mb(paw_force_cz_s(1)))
 
 
-      !*** unsrcramble to get true overlap coefficients ***
+      !*** unsrcramble to get true force overlap coefficients ***
       do i1=1,paw_force_cx_s(3)
          i2 = int_mb(indx2(1)+i1-1)
          dcpl_mb(paw_force_cx_u(1)+i1-1) 
      >     = 0.5d0*( dcpl_mb(paw_force_cx_s(1)+i1-1)
      >             + int_mb(sgn(1)+i1-1)
      >              *dconjg(dcpl_mb(paw_force_cx_s(1)+i2)))
+             write(*,*) dcpl_mb(paw_force_cx_u(1)+i1-1)
           dcpl_mb(paw_force_cy_u(1)+i1-1) 
      >     = 0.5d0*( dcpl_mb(paw_force_cy_s(1)+i1-1)
      >             + int_mb(sgn(1)+i1-1)
@@ -233,7 +241,29 @@ c     !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) 
      >              *dconjg(dcpl_mb(paw_force_cz_s(1)+i2)))
       end do     
 
+      write(*,*)
+      write(*,*) "paw force coefficients1:"
+      nlmii = 0
+      do ni=1,nion
+        ia = ion_katm(ni)
+        nbasis = paw_basis_nbasis(ia)
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi = -li,li
+           nlmii = nlmii + 1
+           do n=1,neall
+             indx_coeff = (nlmii-1)*neall + (n-1)
+             write(*,*) i,mi,ni,n
+             write(*,*) dcpl_mb(paw_force_cx_u(1)+indx_coeff),
+     >                  dcpl_mb(paw_force_cy_u(1)+indx_coeff),        
+     >                  dcpl_mb(paw_force_cz_u(1)+indx_coeff)        
+           end do
+           end do
+        end do
+      end do 
 
+
+      write(*,*) "paw force 3"
 
 
       value = value.and.MA_pop_stack(Gz(2))
@@ -242,17 +272,21 @@ c     !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) 
       value = value.and.MA_pop_stack(tmpz(2))
       value = value.and.MA_pop_stack(tmpy(2))
       value = value.and.MA_pop_stack(tmpx(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(tmp0(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
+
+      write(*,*) "paw force 4"
       
 c     *** calculate weights ***      
-
       if (paw_ispin().eq.1) then
         occup = 2.0d0
       else
         occup = 1.0d0
       end if
 
+      write(*,*) "paw force wx_tmp"
       ii = 0
       i_nbasis = 0
       do in=1,ion_nion()
@@ -264,12 +298,13 @@ c     *** calculate weights ***
            wx_tmp = dcmplx(0.0d0,0.0d0)
            wy_tmp = dcmplx(0.0d0,0.0d0)
            wz_tmp = dcmplx(0.0d0,0.0d0)
+           write(*,*) "nlm=",nlm,nlm1
            do n=1,ne_u
 
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
              indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
-
-             wx_tmp = wx_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
+             
+              wx_tmp = wx_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
      >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)+
      >        + conjg(dcpl_mb(coeff(1)+indx_coeff))*
      >        dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
@@ -290,7 +325,7 @@ c     *** calculate weights ***
            dcpl_mb(paw_force_wz_u(1)+ii) = wz_tmp*occup
 
 
-           !*** this loop is not computed when ispin=1 ***
+c           !*** this loop is not computed when ispin=1 ***
            wx_tmp = dcmplx(0.0d0,0.0d0)
            wy_tmp = dcmplx(0.0d0,0.0d0)
            wz_tmp = dcmplx(0.0d0,0.0d0)
@@ -330,28 +365,169 @@ c     *** calculate weights ***
         end do
         i_nbasis = i_nbasis + nbasis
       end do
+      write(*,*) "paw force 5"
 
       return
       end
 
-c!**************************************************
-c!
-c!	Name: paw_ovlp_end
-c!
-c!	Purpose: removes space used by the paw overlap coefficients
-c!
-c!	Created:	8/07/2002
-c!**************************************************
-c      subroutine paw_ovlp_end()
-c      implicit none      
-c
-c#include "mafdecls.fh"
-c#include "paw_ma.fh" 
-c#include "paw_ovlp_data.fh"
-c
-c      !*** local variables ***
-c      logical value
-c      
+**************************************************
+!
+!	Name: paw_ovlp_weigths_set
+!
+!	Purpose: sets the overlap weight coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_force_weights_write(nu)
+      
+      implicit none
+      integer nu
+
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_force_data.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh"
+
+      integer ii
+      integer in,ia
+      integer nbasis
+      integer i,j,mi,mj,li,lj
+      integer i_w0,i_w
+      integer nilm,njlm
+      integer i_paw_ovlp_w(4)
+      
+      call paw_ovlp_i_w_ptr(i_paw_ovlp_w)
+
+      ii = 0
+      nilm = 0
+      njlm = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
+        nbasis = paw_basis_nbasis(ia)
+        nilm = 0
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi=-li,li
+            njlm = 0
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j,ia)
+                do mj=-lj,lj
+                  i_w   = i_w0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+
+                  write(nu,*) i,mi,j,mj,in
+                  write(nu,*)dcpl_mb(paw_force_wx_u(1)+ii)
+                  write(nu,*)dcpl_mb(paw_force_wy_u(1)+ii)
+                  write(nu,*)dcpl_mb(paw_force_wz_u(1)+ii)
+                
+                  ii =ii +1
+                end do
+                njlm=njlm + 2*lj+1
+             end do
+           end do   
+           nilm = nilm + 2*li+1
+         end do
+      end do
+    
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_force_atom
+!
+!	Purpose: 
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_force_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_force_data.fh"
+#include "paw_geom.fh"
+
+
+      integer i
+      integer gop_u(4),gop_d(4)
+      complex*16 tmp_f_u,tmp_f_d
+
+      integer in
+      integer i_w
+      integer i_paw_ovlp_w(4)
+      
+      call paw_ovlp_i_w_ptr(i_paw_ovlp_w)
+
+      call paw_nonloc_gop_u_ptr(gop_u)
+      call paw_nonloc_gop_d_ptr(gop_d)
+
+      do in=1,ion_nion()
+        i_w = int_mb(i_paw_ovlp_w(1) + in - 1)-1
+ 
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_u(1)+i_w),
+     >                  dcpl_mb(paw_force_wx_u(1)+i_w),
+     >                  tmp_f_u)
+ 
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_d(1)+i_w),
+     >                  dcpl_mb(paw_force_wx_d(1)+i_w),
+     >                  tmp_f_d)
+  
+        dbl_mb(paw_force_fx_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
+
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_u(1)+i_w),
+     >                  dcpl_mb(paw_force_wy_u(1)+i_w),
+     >                  tmp_f_u)
+ 
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_d(1)+i_w),
+     >                  dcpl_mb(paw_force_wy_d(1)+i_w),
+     >                  tmp_f_d)
+  
+        dbl_mb(paw_force_fy_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
+
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_u(1)+i_w),
+     >                  dcpl_mb(paw_force_wz_u(1)+i_w),
+     >                  tmp_f_u)
+ 
+        call Pack_cc_izdot(1,
+     >                  dcpl_mb(gop_d(1)+i_w),
+     >                  dcpl_mb(paw_force_wz_d(1)+i_w),
+     >                  tmp_f_d)
+  
+        dbl_mb(paw_force_fz_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
+
+
+      end do
+
+      return
+      end
+
+!**************************************************
+!
+!	Name: paw_ovlp_end
+!
+!	Purpose: removes space used by the paw overlap coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_force_end()
+      implicit none      
+
+#include "mafdecls.fh"
+#include "paw_ma.fh" 
+#include "paw_ovlp_data.fh"
+
+      !*** local variables ***
+      logical value
+
+      value = .true.
+      
 c      value =           MA_free_heap(coeff(2))
 c      value = value.and.MA_free_heap(toeff(2))
 c      value = value.and.MA_free_heap(indx2(2))
@@ -361,118 +537,11 @@ c      value = value.and.MA_free_heap(paw_ovlp_w_u(2))
 c      value = value.and.MA_free_heap(paw_ovlp_w_d(2))
 c      value = value.and.my_dealloc(i_paw_ovlp_w)
 c
-c      if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
-c      return
-c      end
-c
-c
+      if (.not.value) call errquit('paw_force_end: dealloc heap',0)
+      return
+      end
+
+
  
-c**************************************************
-c!
-c!	Name: paw_ovlp_weigths_set
-c!
-c!	Purpose: sets the overlap weight coefficients
-c!
-c!	Created:	8/07/2002
-c!**************************************************
-c      subroutine paw_ovlp_weights_set()
-c      
-c      implicit none
-c
-c#include "mafdecls.fh"
-c#include "paw_geom.fh"
-c#include "paw_ovlp_data.fh"
-c#include "paw_proj.fh"
-c#include "paw_basis.fh"
-c
-c      integer i_nbasis,ii,ii1
-c      integer in,nlm,nlm1,ia,n
-c      integer nbasis
-c      integer indx_coeff,indx_coeff1
-c      integer i,j,mi,mj,li,lj
-c      integer i_w0,i_w
-c      integer nilm,njlm,niplm,njplm
-c      real*8  occup
-c      double complex w_tmp
-c      
-c      
-c      !*** check for restricted calculation ****
-c      occup = 1.0d0
-c      if (ispin.eq.1) then
-c        occup = 2.0d0
-c      end if
-c
-c      ii = 0
-c      i_nbasis = 0
-c      do in=1,ion_nion()
-c        ia = ion_katm(in)
-c        nbasis = paw_proj_nbasis(ia)
-c        do nlm =1,nbasis
-c        do nlm1=1,nbasis
-c
-c           w_tmp = dcmplx(0.0d0,0.0d0)
-c           do n=1,ne_u
-c             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
-c             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
-c             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-c     >        dcpl_mb(coeff(1)+indx_coeff1)
-c           end do
-c           dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp*occup
-c
-c
-c           !*** this loop is not computed when ispin=1 ***
-c           w_tmp = dcmplx(0.0d0,0.0d0)
-c           do n=ne_u+1,ne_d+ne_u
-c             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
-c             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
-c             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-c     >        dcpl_mb(coeff(1)+indx_coeff1)
-c           end do
-c           dcpl_mb(paw_ovlp_w_d(1)+ii) = w_tmp
-c
-c           dcpl_mb(paw_ovlp_w(1)+ii) = dcpl_mb(paw_ovlp_w_u(1)+ii)+
-c     >                                 dcpl_mb(paw_ovlp_w_d(1)+ii)      
-c           
-c           ii =ii +1
-c        end do
-c        end do
-c        i_nbasis = i_nbasis + nbasis
-c      end do
-c      
-c
-c!      write(*,*) " paw weights"
-c!      ii = 0
-c!      nilm = 0
-c!      njlm = 0
-c!      do in=1,ion_nion()
-c!        ia = ion_katm(in)
-c!        i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
-c!        nbasis = paw_basis_nbasis(ia)
-c!        nilm = 0
-c!        do i=1,nbasis
-c!          li = paw_basis_orb_l(i,ia)
-c!          do mi=-li,li
-c!            njlm = 0
-c!            do j=1,nbasis
-c!              lj = paw_basis_orb_l(j,ia)
-c!                do mj=-lj,lj
-c!                  i_w   = i_w0-1+(njlm+lj+mj+1)+
-c!     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
-c!                  write(*,*) i,mi,j,mj,in
-c!                  write(*,*)"w=",dcpl_mb(paw_ovlp_w(1)+ii)
-c!                  write(*,*)"w_up=",dcpl_mb(paw_ovlp_w_u(1)+ii)
-c!                  write(*,*)"w_down=",dcpl_mb(paw_ovlp_w_d(1)+ii)
-c!                
-c!                  ii =ii +1
-c!                end do
-c!                njlm=njlm + 2*lj+1
-c!             end do
-c!           end do   
-c!           nilm = nilm + 2*li+1
-c!         end do
-c!      end do
-c    
-c      return
-c      end
-c
+
 

@@ -1,5 +1,5 @@
 ! 
-! $Id: paw_force_data.fh,v 1.2 2003-03-11 00:52:50 marat Exp $
+! $Id: paw_force_data.fh,v 1.3 2003-03-14 00:35:52 marat Exp $
 ! 
 
 !     **** paw_force_data.fh common blocks ****
@@ -26,6 +26,23 @@
       integer    paw_force_wz_u(4)     
       integer    paw_force_wz_d(4)     
 
+      integer    paw_force_fx_pw(4)       
+      integer    paw_force_fy_pw(4)       
+      integer    paw_force_fz_pw(4)       
+
+      integer    paw_force_fx_atom(4)       
+      integer    paw_force_fy_atom(4)       
+      integer    paw_force_fz_atom(4)       
+
+      integer    paw_force_fx_constr(4)       
+      integer    paw_force_fy_constr(4)       
+      integer    paw_force_fz_constr(4)       
+
+      integer    paw_force_fx_mult(4)       
+      integer    paw_force_fy_mult(4)       
+      integer    paw_force_fz_mult(4)       
+
+
       common / paw_force / 
      >                    paw_force_cx_s,
      >                    paw_force_cx_u, 
@@ -42,5 +59,19 @@
      >                    paw_force_wy_d, 
      >                    paw_force_wz,
      >                    paw_force_wz_u,
-     >                    paw_force_wz_d
+     >                    paw_force_wz_d,
+     >                    paw_force_fx_pw,       
+     >                    paw_force_fy_pw,       
+     >                    paw_force_fz_pw,       
+     >                    paw_force_fx_atom,       
+     >                    paw_force_fy_atom,       
+     >                    paw_force_fz_atom,       
+     >                    paw_force_fx_constr,       
+     >                    paw_force_fy_constr,       
+     >                    paw_force_fz_constr,       
+     >                    paw_force_fx_mult,       
+     >                    paw_force_fy_mult,       
+     >                    paw_force_fz_mult       
+     >                    
+
 
