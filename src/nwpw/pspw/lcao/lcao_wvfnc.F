@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.6 2001-12-05 01:51:19 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.7 2001-12-06 18:16:39 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -36,7 +36,7 @@
       integer vlmatrix,vnlmatrix,vhxcmatrix(2),vhxc_new(2)
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
-      real*8  rho_error,rho_error_old
+      real*8  rho_error,rho_error_old,total_dn
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
@@ -97,40 +97,43 @@
 *     ***** allocate matrices using GA ****
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'smatrix',
-     >                  1,1,smatrix)
+     >                  nbasis,0,smatrix)
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'kematrix',
-     >                  1,1,kematrix)
+     >                  nbasis,0,kematrix)
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vlmatrix',
-     >                  1,1,vlmatrix)
+     >                  nbasis,0,vlmatrix)
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vnlmatrix',
-     >                  1,1,vnlmatrix)
+     >                  nbasis,0,vnlmatrix)
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix1',
-     >                  1,1,vhxcmatrix(1))
+     >                  nbasis,0,vhxcmatrix(1))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxc_new',
-     >                  1,1,vhxc_new(1))
+     >                  nbasis,0,vhxc_new(1))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix1',
-     >                  1,1,hmatrix(1))
+     >                  nbasis,0,hmatrix(1))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'psimatrix1',
-     >                  1,1,psimatrix(1))
+     >                  nbasis,0,psimatrix(1))
+
+      if (ispin.gt.1) then
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxcmatrix2',
-     >                  1,1,vhxcmatrix(2))
+     >                  nbasis,0,vhxcmatrix(2))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'vhxc_new2',
-     >                  1,1,vhxc_new(2))
+     >                  nbasis,0,vhxc_new(2))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'hmatrix2',
-     >                  1,1,hmatrix(2))
+     >                  nbasis,0,hmatrix(2))
       value = value.and.
      >        ga_create(mt_dbl,nbasis,nbasis,'psimatrix2',
-     >                  1,1,psimatrix(2))
+     >                  nbasis,0,psimatrix(2))
+      end if
       if (.not. value) then
         go to 100 
       end if
@@ -298,20 +301,30 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >              (-1.0d0),vhxcmatrix(2),
      >               hmatrix(2))
 
+        
          rho_error_old = rho_error
          rho_error = ga_ddot(hmatrix(1),hmatrix(1))
          if (ispin.gt.1)
      >    rho_error = rho_error + ga_ddot(hmatrix(2),hmatrix(2))
          rho_error = rho_error/dble(nbasis*nbasis)
 
-         if (it.eq.0) talpha=1.00d0
-         if (it.eq.1) talpha = ALPHA
+         if (it.eq.0) talpha=ALPHA
          if (rho_error.gt.rho_error_old) talpha=0.5d0*talpha
 
 
          if ((oprint).and.(taskid.eq.MASTER))
      >     write(*,*) "vhxc error:",it,rho_error,talpha
          if (rho_error.lt.1.0d-8) go to 50
+         if ((oprint)) then
+            do ms=1,ispin
+              call D3dB_r_dsum(1,dbl_mb(dn(1)),total_dn)
+              total_dn = total_dn*lattice_omega()
+              total_dn = total_dn/dble(ngrid(1)*ngrid(2)*ngrid(3))
+              if (taskid.eq.MASTER) 
+     >         write(*,*) "dn:",ms,total_dn
+            end do
+
+         end if
 
          call ga_add(talpha,vhxc_new(1),
      >               (1.0d0-talpha),vhxcmatrix(1),
@@ -356,10 +369,12 @@ c 50   call lcao_diis_end()
       value2 = ga_destroy(vhxc_new(1))
       value2 = ga_destroy(hmatrix(1))
       value2 = ga_destroy(psimatrix(1))
+      if (ispin.gt.1) then
       value2 = ga_destroy(vhxcmatrix(2))
       value2 = ga_destroy(vhxc_new(2))
       value2 = ga_destroy(hmatrix(2))
       value2 = ga_destroy(psimatrix(2))
+      end if
       call aorbs_end()
 
 c     value = .false.

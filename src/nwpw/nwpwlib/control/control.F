@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.7 2001-11-29 22:59:02 bylaska Exp $
+* $Id: control.F,v 1.8 2001-12-06 18:16:38 bylaska Exp $
 *
 
 *     ***********************************
@@ -26,7 +26,7 @@
 
 *     **** control_rtdb common block ****
       integer trtdb
-      common / control_rtdb / trtdb
+      common / control_rtdb1 / trtdb
 
 
       character*30 cell_name,id
@@ -1008,7 +1008,7 @@
 
 *     **** control_rtdb common block ****
       integer rtdb
-      common / control_rtdb / rtdb
+      common / control_rtdb1 / rtdb
 
 *     ***** local variables ****
       logical value
@@ -1050,7 +1050,7 @@
 
 *     **** control_rtdb common block ****
       integer rtdb
-      common / control_rtdb / rtdb
+      common / control_rtdb1 / rtdb
 
       if (.not.rtdb_get(rtdb,'cgsd:allow_translation',
      >                  mt_log,1,value))
@@ -1074,7 +1074,7 @@
 
 *     **** control_rtdb common block ****
       integer rtdb
-      common / control_rtdb / rtdb
+      common / control_rtdb1 / rtdb
 
 *     **** local variables ****
       logical value
@@ -1111,7 +1111,7 @@
 
 *     **** control_rtdb common block ****
       integer rtdb
-      common / control_rtdb / rtdb
+      common / control_rtdb1 / rtdb
 
 *     **** local variables ****
       logical value
@@ -1161,7 +1161,7 @@
 
 *     **** control_rtdb common block ****
       integer rtdb
-      common / control_rtdb / rtdb
+      common / control_rtdb1 / rtdb
 
       double precision charge
 
@@ -1170,6 +1170,23 @@
          charge = 0.0d0 
       end if
       control_TotalCharge = charge
+      return
+      end
+
+
+*     *****************************
+*     *                	 		  *
+*     *    	   control_rtdb		  *
+*     *                 	 	  *
+*     *****************************
+      integer function control_rtdb()
+      implicit none
+
+*     **** control_rtdb common block ****
+      integer trtdb
+      common / control_rtdb1 / trtdb
+
+      control_rtdb = trtdb
       return
       end
 

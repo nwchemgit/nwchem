@@ -1,5 +1,5 @@
 *
-* $Id: lcao_diis.F,v 1.1 2001-12-05 01:51:18 bylaska Exp $
+* $Id: lcao_diis.F,v 1.2 2001-12-06 18:16:39 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -130,18 +130,18 @@
      > call errquit('lcao_diis: out of memory',0)
 
       value = ga_create(mt_dbl,nbasis,nbasis,
-     >                  'err_indx1',1,1,err_indx1(1))
+     >                  'err_indx1',nbasis,0,err_indx1(1))
       if (ispin.gt.1)
      > value = value.and.
      >         ga_create(mt_dbl,nbasis,nbasis,
-     >                   'errt',1,1,err_indx1(2))
+     >                   'errt',nbasis,0,err_indx1(2))
 
       value = value.and.ga_create(mt_dbl,nbasis,nbasis,
-     >                  'err_indx1',1,1,err_indx2(1))
+     >                  'err_indx1',nbasis,0,err_indx2(1))
       if (ispin.gt.1)
      > value = value.and.
      >         ga_create(mt_dbl,nbasis,nbasis,
-     >                   'errt',1,1,err_indx2(2))
+     >                   'errt',nbasis,0,err_indx2(2))
 
       if (.not.value)
      > call errquit('lcao_diis: out of ga memory',0)

@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.4 2001-12-05 01:51:20 bylaska Exp $
+* $Id: psi_new.F,v 1.5 2001-12-06 18:16:39 bylaska Exp $
 *
 
 *     ***********************************
@@ -12,6 +12,7 @@
       implicit none 
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 
 
 *    *** local variables ***
@@ -19,9 +20,11 @@
       real*8  icharge,tcharge,t
       integer mult,x
       integer ispin,ne(2)
-      integer version
+      integer version,rtdb
       integer ngrid(3)
       real*8  unita(3,3)
+      logical lcao_print,lcao_skip
+      integer lcao_iterations
       character*30 filename
 
 
@@ -40,6 +43,8 @@
       external ion_totalcharge
       logical  lcao_wvfnc
       external lcao_wvfnc
+      integer  control_rtdb
+      external control_rtdb
 
       filename = control_input_psi()
       version = 3
@@ -73,13 +78,26 @@
          ne(2) = (t-x)/2
       end if
 
-      success =  lcao_wvfnc(.false.,10,
-     >                      filename,
-     >                      version,
-     >                      ngrid,
-     >                      unita,
-     >                      ispin,
-     >                      ne)
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,
+     >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
+     >   lcao_iterations = 10
+      if (.not.rtdb_get(rtdb,
+     >         'nwpw:lcao_print',mt_log,1,lcao_print))
+     >   lcao_print = .false.
+      if (.not.rtdb_get(rtdb,
+     >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
+     >   lcao_skip = .false.
+    
+      success = .false.
+      if (.not.lcao_skip)
+     >  success =  lcao_wvfnc(lcao_print,lcao_iterations,
+     >                        filename,
+     >                        version,
+     >                        ngrid,
+     >                        unita,
+     >                        ispin,
+     >                        ne)
 
       if (.not.success)
      >   call wvfnc_new(filename,
