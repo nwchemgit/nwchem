@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.4 2005-04-03 07:08:29 marat Exp $
+c $Id: bq_input.F,v 1.5 2005-04-04 22:58:58 marat Exp $
       subroutine bq_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -22,10 +22,12 @@ c
       double precision x,y,z,q
       integer i
       integer handle
+      double precision  scale 
 c
       pname = "bq_input"
 c
       write(*,*) "in "//pname
+c
 c
       max_nbq = min( 4*1000, ma_inquire_avail(MT_INT))
       max_nbq = max_nbq/4
@@ -42,20 +44,26 @@ c
      &      'failed scratch space '//pname,
      &      max_nbq, MA_ERR)
 
-c
-c     set namespace if any
-c     --------------------
-      if(inp_n_field().eq.1) then
-        namespace=bq_default
-      else if(inp_n_field().eq.2) then
-        call inp_set_field(1)
-        if (.not. inp_a(field)) then
-          call errquit('cons_input: inp_read failed',0,0)
-       else
-          namespace=field
-       end if
-      end if 
-      
+      if(inp_n_field().gt.2) 
+     >  call errquit(pname//'too many fields',0,0)
+
+      namespace = bq_default
+      scale = 1.88972598858d0
+
+      do i=1,inp_n_field()-1
+        call inp_set_field(i)
+        if (.not. inp_a(field))   
+     &    call errquit(pname//': inp_read failed',0,0)
+        if (inp_compare(.false.,field,'au')) then
+          scale = 1.0d0       
+        else if (inp_compare(.false.,field,'angstroms')) then
+          scale = 1.88972598858d0
+        else
+         namespace=field 
+        end if 
+      end do
+
+     
       ncenter = 0
  20   if (inp_read()) then
        if(inp_a(field)) then
@@ -83,6 +91,8 @@ c     --------------------
        end if
       end if
  30   continue
+
+      call dscal(3*ncenter, scale, dbl_mb(i_cbq), 1)
 
       if(.not.bq_create(namespace,handle))   
      &       call errquit('bq_create failed',0,0)
