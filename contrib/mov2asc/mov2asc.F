@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: mov2asc.F,v 1.4 2002-09-10 18:24:04 d3k958 Exp $
+C     $Id: mov2asc.F,v 1.5 2002-11-20 22:20:51 d3k958 Exp $
 C
 #include "mafdecls.fh"
 c
@@ -135,8 +135,11 @@ C
          enddo
       enddo
 C
-      read(binlu) energy, enrep
+      read(binlu,err=901,end=901) energy, enrep
       write(Asclu,'(2E25.15)') energy, enrep
+      goto 902
+ 901  write(Asclu,'(2E25.15)') 0.0,0.0
+ 902  continue
 c
       close(binlu)
       Close(AscLu)
