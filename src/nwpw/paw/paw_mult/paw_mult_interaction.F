@@ -236,12 +236,14 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 !
 !*************************************************   
       FUNCTION paw_get_mult_coeff(l1,l2,l) 
+      implicit none
 
         INTEGER  l1,l2,l
         double precision  paw_get_mult_coeff
 #include "paw_gamma_function.fh"
 
-        double precision  c
+        double precision  c,pi
+        pi=acos(-1.d0)
 
         c = sqrt((2.0d0*pi)**5)/sqrt(2.0d0**(2+l1+l2+l))*
      >      exp(paw_ln_gamma((l1+l2+l+1)/2.0d0)- paw_ln_gamma(l1+1.5d0)-
