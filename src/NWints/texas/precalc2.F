@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.28 2002-04-08 18:51:51 windus Exp $
+* $Id: precalc2.F,v 1.29 2002-07-13 21:16:54 edo Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -1061,6 +1061,7 @@ c
 c numerical stability :
       logical stable_2
       logical stable_kind_1,stable_kind_2
+      double precision avexp
       common /stability_2/ stable_2,stable_kind_1,stable_kind_2   ! use here and in num_s..
       logical stable 
       common /tracy_stability/ stable(5000) ! this is limit limblks
@@ -1116,9 +1117,9 @@ ctest
             abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
             stable(i)=.true.
 ctest
-c           a_exp=aaa(ijpar,lci)
+c           avexp=aaa(ijpar,lci)
 c           b_exp=bbb(ijpar,lcj)
-c           write(6,*)' a,b=',0.5*a_exp,0.5*b_exp
+c           write(6,*)' a,b=',0.5*avexp,0.5*b_exp
 c           write(6,*)' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
 c           write(6,*)' abcd=',abcd(i)
 ctest
@@ -1142,9 +1143,14 @@ c
             abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
 c
             if(.not.stable_kind_1) then
-               a_exp=aaa(ijpar,lci)
-               b_exp=bbb(ijpar,lcj)
-               boa=2.d0*b_exp/max(2.d0,a_exp) ! exp. are already *2 .
+               avexp=aaa(ijpar,lci)
+cedo`               b_exp=bbb(ijpar,lcj)
+cedo               boa=2.d0*b_exp/max(2.d0,a_exp) ! exp. are already *2 .
+               if(avexp.gt.2.0d0) then
+                 boa=2.0d0*bbb(ijpar,lcj)/avexp ! exp. are already *2 .
+               else
+                 boa=bbb(ijpar,lcj)
+               endif
 ctest
 c              write(6,*)' a,b=',0.5*a_exp,0.5*b_exp
 c              write(6,*)' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)

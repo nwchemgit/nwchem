@@ -1,5 +1,5 @@
       Subroutine hf2oi(E,Sab,Nints,NPP,La,Lb,Li,canAB)
-c $Id: hf2oi.f,v 1.6 2000-05-02 19:47:54 mg201 Exp $
+c $Id: hf2oi.f,v 1.7 2002-07-13 21:16:54 edo Exp $
 
       Implicit none
 
@@ -20,6 +20,7 @@ c--> Local variables
 
       integer nn,ma,mb,mb_limit,mp,La2,Lb2
       integer Ia,Ja,Ka, Ib,Jb,Kb
+      double precision sabval
 c
 c Compute the 2-ctr overlap integrals.
 c
@@ -33,7 +34,6 @@ c******************************************************************************
 
 c Initialize the block of integrals
 
-      call dfill(Nints,0.0d00,Sab,1)
 
 c Define the number of shell components on each center.
 
@@ -70,13 +70,15 @@ c Define the angular momentum indices for shell "B".
           Jb = Nxyz(2)
           Kb = Nxyz(3)
 
-          nn = nn + 1
 
+          sabval=0d0
           do mp = 1,NPP
-            Sab(nn) = Sab(nn) + E(1,mp,0,Ia,Ib)*
+            sabval = sabval + E(1,mp,0,Ia,Ib)*
      &                          E(2,mp,0,Ja,Jb)*
      &                          E(3,mp,0,Ka,Kb)
           end do
+          nn = nn + 1
+          Sab(nn) = sabval
 
         end do
 
