@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.5 1998-12-10 23:48:22 d3e129 Exp $
+c $Id: intdd_init.F,v 1.6 1999-04-28 22:47:23 windus Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -90,9 +90,11 @@ c
       user_cando_sp   = .false.
       user_cando_nw   = .false.
       user_cando_txs  = .false.
+      user_cando_hnd  = .false.
       def_cando_sp    = .false.
       def_cando_nw    = .false.
       def_cando_txs   = .false.
+      def_cando_hnd   = .false.
 c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
@@ -123,6 +125,16 @@ c
           call util_flush(6)
         endif
       endif
+c
+      if (rtdb_get(rtdb,'int:cando_hnd',MT_LOG,1,status)) then
+        user_cando_hnd = .true.
+        def_cando_hnd  = status
+        if (ga_nodeid().eq.0 .and. oprint) then
+          write(luout,*)
+     &        ' intdd_init: cando_hnd set to always be ',def_cando_hnd
+          call util_flush(6)
+        endif
+      endif
 *
       if (.not.user_cando_txs) then
         if (.not.texas_check_basis_ok(nbas,bases)) then
@@ -140,12 +152,14 @@ c
 * sanity checking: e.g., you only want to turn off a particular integral
 * code never always turn it on.
 *
-      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
+     &    def_cando_hnd) then
         if (ga_nodeid().eq.0) then
           write(luout,*)' you are trying to turn an integral code on?? '
           write(luout,*)' sp  ', def_cando_sp
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs
+          write(luout,*)' hnd ', def_cando_hnd
           call util_flush(6)
         endif
         call errquit
@@ -178,9 +192,9 @@ c
         ang2use = max(ang2use,angm)
 00300 continue
 *
-* test for higher than h functions  0123456
-      if (ang2use.ge.6) call errquit
-     &    ('only basis sets with s through h functions are allowed',
+* test for higher than g functions  0123456
+      if (ang2use.ge.5) call errquit
+     &    ('only basis sets with s through g functions are allowed',
      &    911)
 *
 c.. for second derivatives add 2
@@ -214,6 +228,7 @@ c
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der2_int')
       endif
+      call hnd_initdd(bases,nbas)
 c
 c    confirm basis set maximum buffer size for second derivatives
 c

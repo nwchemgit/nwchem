@@ -10,7 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.13 1998-12-10 23:48:17 d3e129 Exp $
+c $Id: int_term.F,v 1.14 1999-04-28 22:47:22 windus Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -62,6 +62,8 @@ c:tex-
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
+      logical hnd_terminate 
+      external hnd_terminate 
 c
       if (init_intd.eq.0) then
         write(luout,*)' warning: intd_init has not been called '
@@ -75,6 +77,10 @@ c.. parameters for int derivative (hf2d)
 c
       if (.not.spcart_terminate()) then
         call errquit('intd_terminate: spcart_terminate failed',0)
+      endif
+c
+      if (.not.hnd_terminate()) then
+        call errquit('intd_terminate: hnd_terminate failed', 555)
       endif
 c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
@@ -108,6 +114,8 @@ c:tex-
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
+      logical hnd_terminate 
+      external hnd_terminate 
 c
       if (init_intdd.eq.0) then
         write(luout,*)' warning: intdd_init has not been called '
@@ -117,6 +125,10 @@ c
 c
       if (.not.spcart_terminate()) then
         call errquit('intdd_terminate: spcart_terminate failed',0)
+      endif
+c
+      if (.not.hnd_terminate()) then
+        call errquit('intd_terminate: hnd_terminate failed', 555)
       endif
 c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
