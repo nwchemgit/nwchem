@@ -1,7 +1,7 @@
       subroutine et_fock(rtdb,geom,basis,
      1  g_pa,g_pb,nbf,tol2e,omega2)
 c
-c Try using shell_fock_build to calculate omega2
+c This routine uses fock_2e to calculate the 2e contribution to Vab
 c
       implicit none
 #include "mafdecls.fh"

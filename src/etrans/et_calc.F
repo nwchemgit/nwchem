@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.19 2003-02-20 17:35:50 d3k958 Exp $
+* $Id: et_calc.F,v 1.20 2003-03-07 17:31:10 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -66,9 +66,9 @@ c load geometry and symmetry info
 c -------------------------------
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf_init: geom_create?', 0)
+     $     call errquit('et_calc: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf_init: no geometry ', 0)
+     $     call errquit('et_calc: no geometry ', 0)
 c
 c ----------------------------------------
 c load the basis set and get info about it
@@ -589,9 +589,6 @@ c --------------------------------------------
 c calculate the 2e contribution to Vba, omega2
 c --------------------------------------------
 c
-       call int_mem_2e4c(mem2,max2e)
-       mem2 = max(mem2,max2e)
-c
       if (.not. rtdb_get(rtdb, 'et:tol2e', MT_DBL, 1, tol2e)) then
        tol2e    =  min(1.0d-7,dabs(Sba)*1.0d-7)
        tol2e    =  max(1.0d-12,tol2e)
@@ -621,11 +618,16 @@ c
       endif
 c
       if (method_2e.EQ.1) then
+c for some unknown reason I have to terminate and re-init the API for
+c et_fock to work with ECP's
+      call int_terminate()
       call et_fock(rtdb,geom,basis,
      &  g_phandle(1),g_phandle(2),nbf,tol2e,omega2)
       endif
 c
       if (method_2e.EQ.2) then
+       call int_mem_2e4c(mem2,max2e)
+       mem2 = max(mem2,max2e)
        call et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &           g_phandle(1),g_phandle(2),omega2)
       endif
