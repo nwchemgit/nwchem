@@ -1,0 +1,6 @@
+* $Id: rel_nwc.fh,v 1.1 1999-10-26 19:16:50 mg201 Exp $
+      logical init_rel        ! relativistic integral initialization
+      character*32 small_cmpt_name,large_cmpt_name
+c
+      common /c_rel_nwc/ init_rel,small_cmpt_name,large_cmpt_name
+
