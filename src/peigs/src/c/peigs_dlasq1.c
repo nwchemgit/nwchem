@@ -1,3 +1,7 @@
+/*
+ $Id: peigs_dlasq1.c,v 1.7 1999-07-28 00:39:31 d3e129 Exp $
+*/
+
 #include <stdio.h>
 #include <math.h>
 #include "globalp.c.h"

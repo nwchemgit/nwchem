@@ -28,6 +28,9 @@ c     This version computes the pieces specific to DFT (XC on grid
 c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
+*
+* $Id: dft_gradients.F,v 1.8 1999-07-28 00:42:31 d3e129 Exp $
+*
       implicit none
 c      
       integer rtdb

@@ -1,3 +1,6 @@
+*
+* $Id: xc_erftab.fh,v 1.2 1999-07-28 00:40:39 d3e129 Exp $
+*
       integer nsampl, order
       parameter (nsampl=8000, order=2)
       double precision f, xlo, xhi, table,scale

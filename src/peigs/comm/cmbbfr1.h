@@ -1,3 +1,6 @@
+*
+* $Id: cmbbfr1.h,v 1.8 1999-07-28 00:39:02 d3e129 Exp $
+*
 c
 c     Communications buffer.  bufsiz is in bytes.  As with 'data',
 c     (see mxcomb.cpp) 'bufdat' really ought to be integer*4.

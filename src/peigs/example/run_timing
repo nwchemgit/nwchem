@@ -1,4 +1,7 @@
 #
+# $Id: run_timing,v 1.2 1999-07-28 00:39:15 d3e129 Exp $
+#
+#
 # Script to do timing runs of $argv[1].
 #
 if( $#argv != 1 ) then

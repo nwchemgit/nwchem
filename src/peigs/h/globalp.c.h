@@ -1,4 +1,6 @@
 /*
+ $Id: globalp.c.h,v 1.3 1999-07-28 00:39:18 d3e129 Exp $
+
  file globalp.c.h 
  */
 

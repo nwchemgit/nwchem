@@ -1,4 +1,7 @@
       logical function xc_chkgrad(xfac,cfac)
+*
+* $Id: xc_chkgrad.F,v 1.7 1999-07-28 00:40:41 d3e129 Exp $
+*
       implicit none
       double precision xfac(*) ! Exchange functional coeffs [input]
       double precision cfac(*) ! Correlat functional coeffs [input]

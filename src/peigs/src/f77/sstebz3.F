@@ -1,3 +1,6 @@
+*
+* $Id: sstebz3.F,v 1.8 1999-07-28 00:39:51 d3e129 Exp $
+*
 #include "blas_lapackf.h"
       SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E, M, NSPLIT, W, IBLOCK, ISPLIT, 

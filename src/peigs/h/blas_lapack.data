@@ -1,3 +1,6 @@
+*
+* $Id: blas_lapack.data,v 1.5 1999-07-28 00:39:17 d3e129 Exp $
+*
 #ifdef DECOSF
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB
       real SLAMCHE, SLAMCHP, SLAMCHS, SLAMCHU, SLAMCHB

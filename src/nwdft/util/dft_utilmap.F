@@ -1,5 +1,8 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
+*
+* $Id: dft_utilmap.F,v 1.5 1999-07-28 00:40:40 d3e129 Exp $
+*
       implicit none
       integer basis, natoms, nshells
       integer cntoce(nshells), cntobfr(2,nshells), cetobfr(2,natoms)

@@ -1,3 +1,6 @@
+*
+* $Id: geomhnd.fh,v 1.2 1999-07-28 00:41:33 d3e129 Exp $
+*
 c
 c     parallel -- if true geom_hnd_check/put/get_data broadcast
 c     data to all nodes.  if false runs sequentially

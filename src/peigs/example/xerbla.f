@@ -1,3 +1,6 @@
+*
+* $Id: xerbla.f,v 1.2 1999-07-28 00:39:16 d3e129 Exp $
+*
       SUBROUTINE XERBLA( SRNAME, INFO )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
@@ -11,7 +14,7 @@
 *     ..
 *
 c
-* $Id: xerbla.f,v 1.1 1999-03-06 04:45:01 d3g270 Exp $
+* $Id: xerbla.f,v 1.2 1999-07-28 00:39:16 d3e129 Exp $
 c
 *  Purpose
 *  =======

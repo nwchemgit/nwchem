@@ -1,4 +1,6 @@
-/* c defines */
+/*
+ $Id: blas_lapack.h,v 1.14 1999-07-28 00:39:17 d3e129 Exp $
+  c defines */
 #define NO_EVEC 0
 
 /*

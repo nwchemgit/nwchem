@@ -1,5 +1,7 @@
       subroutine esp_getden(dns,ifr,ito,jfr,jto)
 c
+c $Id: esp_getden.F,v 1.3 1999-07-28 00:43:10 d3e129 Exp $
+c
       implicit none
 c
 #include "esp_params.fh"

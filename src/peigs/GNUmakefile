@@ -1,3 +1,7 @@
+#
+# $Id: GNUmakefile,v 1.24 1999-07-28 00:39:01 d3e129 Exp $
+#
+
 LIBRARY = libpeigs.a
 
 include ../config/makefile.h

@@ -1,3 +1,6 @@
+*
+* $Id: rak22.F,v 1.4 1999-07-28 00:42:14 d3e129 Exp $
+*
       logical function task_accy(rtdb)
       implicit none
 #include "mafdecls.fh"

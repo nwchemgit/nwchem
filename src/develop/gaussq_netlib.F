@@ -1,4 +1,6 @@
-
+*
+* $Id: gaussq_netlib.F,v 1.3 1999-07-28 00:42:13 d3e129 Exp $
+*
 * ======================================================================
 * NIST Guide to Available Math Software.
 * Fullsource for module GAUSSQ from package GO.

@@ -1,3 +1,6 @@
+*
+* $Id: geom_hnd.F,v 1.29 1999-07-28 00:41:32 d3e129 Exp $
+*
       subroutine geom_bandbi(geom)
       implicit none
 #include "mafdecls.fh"

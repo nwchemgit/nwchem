@@ -1,3 +1,6 @@
+*
+* $Id: dgetavec3.f,v 1.2 1999-07-28 00:39:45 d3e129 Exp $
+*
       SUBROUTINE DGETAVEC3( LAMBDA, DELTA, N, B1, BN, L, D, LD,
      $     LLD, LPLUS,
      $     DPLUS, UMINUS, DMINUS, T, P, GAMMA, Z, K,

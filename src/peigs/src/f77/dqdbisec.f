@@ -1,3 +1,6 @@
+*
+* $Id: dqdbisec.f,v 1.2 1999-07-28 00:39:49 d3e129 Exp $
+*
       SUBROUTINE DQDBISEC( RANGE, N, B1, BN, VL, VU, IL, IU,
      $               L, D, LD, LLD,
      $     ABSTOL, SHIFT, M, W, WLEFT, WRIGHT,

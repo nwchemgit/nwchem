@@ -1,3 +1,5 @@
+/* $Id: peigs_types.h,v 1.6 1999-07-28 00:39:18 d3e129 Exp $ */
+
 /* b_ortho.c */
 void b_ortho (Integer *n, DoublePrecision **colB, Integer *mapB, Integer *m, DoublePrecision **colZ, Integer *mapZ, DoublePrecision **ibuffptr, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
 

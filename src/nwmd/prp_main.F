@@ -1,5 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
+c $Id: prp_main.F,v 1.16 1999-07-28 00:40:16 d3e129 Exp $
+c
       implicit none
 c
 #include "prp_common.fh"

@@ -1,3 +1,6 @@
+*
+* $Id: rak30.F,v 1.4 1999-07-28 00:42:15 d3e129 Exp $
+*
       logical function raktask_intdd_3c(rtdb)
       implicit none
 #include "stdio.fh"

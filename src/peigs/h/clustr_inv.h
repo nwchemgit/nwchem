@@ -1,3 +1,7 @@
+/*
+ $Id: clustr_inv.h,v 1.2 1999-07-28 00:39:17 d3e129 Exp $
+*/
+
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 

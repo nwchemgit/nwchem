@@ -23,6 +23,9 @@ c...   k : # columns A, rows B   : nac (nlink)
 c...   (refers to matrix after possible transpose)
 c...   ld : leading dimensions
 c
+*
+* $Id: cct_UHF.F,v 1.9 1999-07-28 00:42:13 d3e129 Exp $
+*
       implicit none
 c
 c

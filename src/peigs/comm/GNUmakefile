@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.14 1999-07-28 00:39:02 d3e129 Exp $
+#
 include ../../config/makefile.h
 include ../DEFS
 

@@ -1,3 +1,4 @@
+/* $Id: timing.h,v 1.2 1999-07-28 00:39:18 d3e129 Exp $ */
 #include <time.h>
 
 typedef struct TIMING_ {

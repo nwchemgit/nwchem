@@ -1,4 +1,7 @@
       subroutine driver_input(rtdb)
+*
+* $Id: driver_input.F,v 1.10 1999-07-28 00:41:51 d3e129 Exp $
+*
       implicit none
 #include "inp.fh"
 #include "nwc_const.fh"

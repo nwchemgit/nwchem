@@ -1,3 +1,6 @@
+*
+* $Id: blas_lapackf.h,v 1.7 1999-07-28 00:39:17 d3e129 Exp $
+*
 #ifdef KSR8
 
 #define dscal  sscal

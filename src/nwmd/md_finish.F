@@ -1,5 +1,7 @@
       subroutine md_finish()
 c
+c $Id: md_finish.F,v 1.7 1999-07-28 00:40:15 d3e129 Exp $
+c
       implicit none
 c
 #include "md_common.fh"

@@ -1,3 +1,6 @@
+*
+* $Id: dstebz3.F,v 1.5 1999-07-28 00:39:49 d3e129 Exp $
+*
       SUBROUTINE DSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,
      $  ABSTOL, D, E,
      $                   M, NSPLIT, W, IBLOCK, ISPLIT, 

@@ -1,4 +1,7 @@
 #
+# $Id: run_test,v 1.2 1999-07-28 00:39:12 d3e129 Exp $
+#
+#
 # Script to do test runs of $argv[1].
 #
 if( $#argv != 1 ) then

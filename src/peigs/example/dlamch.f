@@ -1,3 +1,6 @@
+*
+* $Id: dlamch.f,v 1.2 1999-07-28 00:39:11 d3e129 Exp $
+*
       DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --

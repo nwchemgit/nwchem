@@ -1,5 +1,7 @@
       subroutine md_main()
 c
+c $Id: md_main.F,v 1.30 1999-07-28 00:40:16 d3e129 Exp $
+c
       implicit none
 c
 #include "md_common.fh"

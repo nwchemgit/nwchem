@@ -1,5 +1,7 @@
       subroutine md_start
 c
+c $Id: md_start.F,v 1.25 1999-07-28 00:40:16 d3e129 Exp $
+c
       implicit none
 c
 #include "md_common.fh"

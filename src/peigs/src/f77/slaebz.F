@@ -1,3 +1,6 @@
+*
+* $Id: slaebz.F,v 1.2 1999-07-28 00:39:50 d3e129 Exp $
+*
       SUBROUTINE SLAEBZ( IJOB, NITMAX, N, MMAX, MINP, NBMIN, ABSTOL,
      $                   RELTOL, PIVMIN, D, E, E2, NVAL, AB, C, MOUT,
      $                   NAB, WORK, IWORK, INFO )

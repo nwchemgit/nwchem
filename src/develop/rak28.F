@@ -1,3 +1,6 @@
+*
+* $Id: rak28.F,v 1.2 1999-07-28 00:42:15 d3e129 Exp $
+*
       logical function raktask_geomcalc(rtdb)
 *test geom calc stuff
       implicit none

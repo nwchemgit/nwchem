@@ -3,6 +3,8 @@
      + lcf,lsp,ltwn,lpol,lpme,
      + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2,tstp)
 c
+c $Id: prp_init.F,v 1.12 1999-07-28 00:40:16 d3e129 Exp $
+c
       implicit none
 c
 #include "prp_common.fh"

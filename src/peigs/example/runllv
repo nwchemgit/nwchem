@@ -7,6 +7,9 @@
 #  min_processors     = number of processors
 #  scrdisk            = scratch directory
 #
+# $Id: runllv,v 1.2 1999-07-28 00:39:15 d3e129 Exp $
+#
+#
 #@ data           =geneig
 #@ test		  =peigs2.1
 #@ usrnam         =d3g270

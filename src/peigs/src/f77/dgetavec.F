@@ -1,3 +1,6 @@
+*
+* $Id: dgetavec.F,v 1.16 1999-07-28 00:39:45 d3e129 Exp $
+*
 #include "blas_lapackf.h"
 c      
       SUBROUTINE DDSTQDS( LAMBDA, DELTA, N, B1, BN, L, D,

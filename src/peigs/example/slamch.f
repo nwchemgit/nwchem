@@ -1,3 +1,6 @@
+*
+* $Id: slamch.f,v 1.2 1999-07-28 00:39:15 d3e129 Exp $
+*
       REAL             FUNCTION SLAMCH( CMACH )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --

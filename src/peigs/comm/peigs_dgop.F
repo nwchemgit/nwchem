@@ -1,3 +1,6 @@
+*
+* $Id: peigs_dgop.F,v 1.5 1999-07-28 00:39:03 d3e129 Exp $
+*
 #define SIZE_OF_DOUBLE sizeof(double)
 c     
       integer function peigs_dgop(ptype, xbuf, plen, op, scratch)

@@ -1,3 +1,6 @@
+*
+* $Id: rak24.F,v 1.3 1999-07-28 00:42:14 d3e129 Exp $
+*
       logical function raktask_ecppe(rtdb)
 *
 * compute pe matrix with given basis set
