@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.60 2004-07-31 21:52:58 bylaska Exp $
+* $Id: task.F,v 1.61 2004-09-21 19:14:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -48,8 +48,10 @@ c
       logical task_et
       logical qmmm_init
       logical qmmm_end
+      logical cons_active
 c
       external qmmm_init
+      external cons_active
       external qmmm_end
       external jantest, uccsdtest, mcstep_main
       external rjhtest, raktest, atwtest, task_check_sum, cphf
@@ -84,10 +86,6 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
-      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
-        ocons=.false.
-      end if
-      if(ocons) call cons_init(rtdb)
 c
 c for qmmm, nwmd will call appropriate task routines
 c
@@ -116,6 +114,9 @@ c        endif
 c        call ga_sync()
 c        goto 99999
       endif
+c
+      ocons = cons_active(rtdb)
+      if(ocons) call cons_init(rtdb)
 c
 c Look for speciallized routine tasks here 
 c

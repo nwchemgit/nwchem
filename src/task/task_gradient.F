@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.42 2004-07-31 21:53:11 bylaska Exp $
+* $Id: task_gradient.F,v 1.43 2004-09-21 19:14:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -25,6 +25,8 @@ c
       external task_gradient_doit, oniom_gradient, geom_rtdb_ncent
       logical qmmm_gradient
       external qmmm_gradient
+      logical cons_active
+      external cons_active
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -82,9 +84,10 @@ c
          endif
       endif
 c
-      if(.not.rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
-        ocons = .false.
-      end if
+       ocons = cons_active(rtdb)
+c      if(.not.rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
+c        ocons = .false.
+c      end if
       if(ocons)  call cons_add_egrad(rtdb,energy,gradient)
 c
       if (status) then
@@ -139,7 +142,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.42 2004-07-31 21:53:11 bylaska Exp $
+* $Id: task_gradient.F,v 1.43 2004-09-21 19:14:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"

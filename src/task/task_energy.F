@@ -21,6 +21,8 @@ c
       logical qmmm_energy
       logical task_qmmm
       external qmmm_energy
+      logical cons_active
+      external cons_active
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -58,9 +60,10 @@ c
             endif
          endif
       endif
-      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
-        ocons=.false.
-      end if
+       ocons = cons_active(rtdb)
+c      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
+c        ocons=.false.
+c      end if
       if(ocons) call cons_add_energy(rtdb,energy)
 
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
@@ -94,7 +97,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.41 2004-07-31 21:53:11 bylaska Exp $
+* $Id: task_energy.F,v 1.42 2004-09-21 19:14:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
