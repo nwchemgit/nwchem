@@ -168,6 +168,10 @@ foreach TEST ($args_2_use)
   set TOPOLOGYFILE = (`echo $STUB.top | sed 's/_.*\././'`)
   set PDBFILE      = (`echo $STUB.pdb | sed 's/_.*\././'`)
 #
+# ESP file
+#
+  set ESPFILE      = $STUB.q
+#
   set md_test_run = 0
   if( -f $TESTDIR/$TOPOLOGYFILE) then
     set md_test_run = 1
@@ -179,13 +183,18 @@ foreach TEST ($args_2_use)
     set md_test_run = 1
   endif
 #
+  set esp_test_run = 0
+  if( -f $TESTDIR/$ESPFILE) then
+    set esp_test_run = 1
+  endif
+#
   
   if (! -f $TESTDIR/$INPUTFILE) then
     echo cannot access $TESTDIR/$INPUTFILE
     set overall_status = 1
     continue
   endif
-  if(! $md_test_run) then
+  if(! $md_test_run && ! $esp_test_run) then
   if (! -f $TESTDIR/$OUTPUTFILE) then
     echo Could not find verified output file $TESTDIR/$OUTPUTFILE
     set overall_status  = 1
@@ -198,7 +207,9 @@ foreach TEST ($args_2_use)
   if($md_test_run) then
   if(-f $TESTDIR/$OUTPUTFILE) cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
   else
-  cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+    if(! $esp_test_run) then
+      cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+   endif
   endif
 
 #
@@ -213,6 +224,11 @@ foreach TEST ($args_2_use)
     if(-f $TESTDIR/$MRINPUTFILE) cp $TESTDIR/$MRINPUTFILE $SCRATCHDIR
   endif
 #
+# copy the ESP file
+#
+  if($esp_test_run) then
+    cp $TESTDIR/$ESPFILE $TESTOUTPUTS/$STUB.ok.tst
+  endif
 
 # Run the calculation in the scratch directory
 
@@ -247,13 +263,25 @@ foreach TEST ($args_2_use)
     endif
   else
 #
-    if ($NPROC) then
-       echo "$USER `hostname` $NPROC $NWCHEM $SCRATCHDIR" > nwchem.p
-       $PARALLEL nwchem $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
-       @ runstatus = $status
+    if($esp_test_run) then
+      if ($NPROC) then
+         echo "$USER `hostname` $NPROC $NWCHEM $SCRATCHDIR" > nwchem.p
+         $PARALLEL nwchem $INPUTFILE >& $STUB.nwout
+         @ runstatus = $status
+      else
+         $NWCHEM $INPUTFILE >& $STUB.nwout
+         @ runstatus = $status
+      endif
+      cp $ESPFILE $TESTOUTPUTS/$ESPFILE
     else
-      $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
-       @ runstatus = $status
+      if ($NPROC) then
+         echo "$USER `hostname` $NPROC $NWCHEM $SCRATCHDIR" > nwchem.p
+         $PARALLEL nwchem $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+         @ runstatus = $status
+      else
+        $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+         @ runstatus = $status
+      endif
     endif
 #
   endif
@@ -270,7 +298,7 @@ foreach TEST ($args_2_use)
   cd $TESTOUTPUTS
 
 #
-  if($md_test_run) then
+  if($md_test_run || $esp_test_run) then
     echo -n "     verifying nwout ...... "
 # verify $STUB.nwout here for QMD & QM/MM
     echo "skipped"
@@ -308,31 +336,43 @@ set diff1status=0
 #
 # diff MD test files
 #
-    if(!($md_test_run)) then   # Now verify the output
+    if(!($md_test_run) && !($esp_test_run)) then   # Now verify the output
       echo "OK"
     else
-      echo -n "     verifying test ....... "
-#
-      if(-f $STUB.tst) then
-       diff -w $STUB.ok.tst $STUB.tst >& /dev/null
-       if($status) then
-         echo "failed"
-         set overall_status = 1
-         continue 
-       else
-         echo "completed"
-       endif
+      if($esp_test_run) then
+        echo -n "     verifying charges ....... "
+         set ttt = (`diff -w $STUB.ok.tst $ESPFILE | wc -l`)
+         if($ttt == 0) then
+          echo "completed "
+         else
+          echo "failed"
+          set overall_status = 1
+          continue 
+         endif
       else
-       echo "skipped"
-       echo -n "     verifying topology ... "
-       set ttt = (`diff -w $STUB.ok.tst $TOPOLOGYFILE | wc -l`)
-       if($ttt == 4) then
-        echo "completed "
-       else
-        echo "failed"
-        set overall_status = 1
-        continue 
-       endif
+        echo -n "     verifying test ....... "
+#
+        if(-f $STUB.tst) then
+         diff -w $STUB.ok.tst $STUB.tst >& /dev/null
+         if($status) then
+           echo "failed"
+           set overall_status = 1
+           continue 
+         else
+           echo "completed"
+         endif
+        else
+         echo "skipped"
+         echo -n "     verifying topology ... "
+         set ttt = (`diff -w $STUB.ok.tst $TOPOLOGYFILE | wc -l`)
+         if($ttt == 4) then
+          echo "completed "
+         else
+          echo "failed"
+          set overall_status = 1
+          continue 
+         endif
+        endif
       endif
     endif
   endif
