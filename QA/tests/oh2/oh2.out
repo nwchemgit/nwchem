@@ -336,7 +336,7 @@ task scf gradient
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -76.010538615982
+         Total SCF energy =    -67.010538615982
       One-electron energy =   -123.058841737816
       Two-electron energy =     37.851104681636
  Nuclear repulsion energy =      9.197198440198
