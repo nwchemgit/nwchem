@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.18 2002-09-19 21:57:01 bylaska Exp $
+* $Id: cpmdv5.F,v 1.19 2002-09-20 21:41:07 bylaska Exp $
 *
 
 ***********************************************************************
@@ -44,7 +44,7 @@
 
 *     **** electronic variables ****
       integer ispin,icharge
-      integer ne(2),n1(2),n2(2),nemax
+      integer ne(2),n1(2),n2(2),nemax,neall
       real*8  en(2)
       real*8 dipole(3)
 
@@ -561,7 +561,8 @@
          if (taskid.eq.MASTER) then 
 
            if (SA) then
-             write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),Te_new,Tr_new
+             write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),
+     >                     Te_new,Tr_new
            else
              write(6,1310) icount*it_in,E(1),E(2),E(3),E(4)
            end if
@@ -831,7 +832,8 @@
          end if
          write(6,1226) E(3),ion_ke(),ion_com_ke()
          eke = eke/dble(it_out)
-         eke = 2.0d0*eke/kb/n2(ispin)/pack_nwave_all(1)
+         eke = 2.0d0*eke/kb/(ne(1)+ne(ispin))/pack_nwave_all(1)
+         !eke = 2.0d0*eke/kb/(ne(1)+ne(ispin))
 
 *       **** write out Temperatures ****
          write(6,1491) eke
