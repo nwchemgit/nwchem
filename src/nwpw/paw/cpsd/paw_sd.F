@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.2 2002-08-01 01:04:48 bylaska Exp $
+* $Id: paw_sd.F,v 1.3 2002-08-01 01:18:27 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -204,7 +204,14 @@
 
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
-       call paw_proj_init()  !*** initialize projectors ***
+      write(*,*) "generating PAW basis"
+      call init_paw_basis(2,(/"h","o"/))
+      call init_paw_kin_matrix()
+      call init_paw_ion_matrix()
+      call init_paw_vloc_matrix()
+      call init_paw_core_matrix()
+      call paw_proj_init()
+      call dealloc_paw_basis_data()
 
 !      call psp_init()
 !      call psp_readall()
