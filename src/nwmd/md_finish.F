@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.21 2001-06-26 21:10:38 d3j191 Exp $
+c $Id: md_finish.F,v 1.22 2001-07-03 21:40:40 d3j191 Exp $
 c
       implicit none
 c
@@ -110,7 +110,7 @@ c
       close(unit=lfnsyn,status='keep')
       endif
       if(lfnpmf.lt.0) then
-      close(unit=lfnpmf,status='keep')
+      close(unit=-lfnpmf,status='keep')
       endif
       endif
 c
