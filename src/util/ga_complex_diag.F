@@ -1,22 +1,28 @@
 c
-        subroutine ga_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
-	implicit none
-#include "mafdecls.h"
-#include "global.h"
-#include "tcgmsg.h"
-	integer g_ar,g_ac	! matrix to diagonalize (real
-	and imag)
-	integer g_vr,g_vc	! global matrix to return evecs
-	double precision eval(*) ! local array to return evals
-	double precision ee,dotres,toll
-	parameter(toll=1.d-9)
+      subroutine ga_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+      integer g_ar,g_ac         ! matrix to diagonalize (real and imag)
+      integer g_vr,g_vc         ! global matrix to return evecs
+      double precision eval(*)  ! local array to return evals
+      double precision ee,dotres,toll
+      parameter(toll=1.d-9)
+      intrinsic abs
+c     
 c       
-c       
-c       solve thecomplex symmetric eigenvalue problem 
-c       for a hermitiancomplex matrix mapping it to
-c       a real one in the following way
-c       ( AR  -AC)  (VR VR)  = (VR VR) (E  )
-c       ( AC   AR)  (VC VC)  = (VC VC) (  E)
+c     solve thecomplex symmetric eigenvalue problem 
+c     for a hermitiancomplex matrix mapping it to
+c     a real one in the following way
+c     
+c     
+c     
+c     ( AR  -AC)  (VR VR)  = (VR VR) (E  )
+c     ( AC   AR)  (VC VC)  = (VC VC) (  E)
+c
+c since AR + i AC is hermitian this is a symmetric representation
+c
 c       returning
 c       all eigenvectors and values in ascending order
 c       
@@ -31,7 +37,7 @@ c
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c       
 	integer iproc, pan, istart, istart1, iend, j,k,k1,n, nn, 
- 1	npan, proc, myproc
+     $     npan, proc, myproc
 	integer mypanel, myelem, mycol, elemz, ipan, ik, info
 	logical status
 	logical loop1,loop2
@@ -50,6 +56,7 @@ c
 	integer hip, adrip
 	integer hj,adrj
 	integer he,adre
+	integer heval,adreval
 	integer node1,node2
 	integer igua,imazz
 c       
@@ -80,11 +87,11 @@ c
 c       
 c       
 	if (dimA1 .ne. dimA2) then
-	   call ga_error('ga_diag_compl:can only diag square matrix ',
- 1	   )
+	   call ga_error('ga_diag_compl:can only diag square matrix ',2
+     $          )
 	else if (dimV1 .ne. dimV2) then
-	   call ga_error('ga_diag_compl:can only diag square matrix ',
- 3	   )
+	   call ga_error('ga_diag_compl:can only diag square matrix ',3
+     $          )
 	else if(dimA1.ne.dimV1 )then
          call ga_error('ga_diag_compl: A & V dimension mismatch ', 4)
 	endif
@@ -123,29 +130,27 @@ c        determine distribution of a and z
 c     
           mypanel = 0            ! number of panels at given processor
           mycol   = 0            ! number ofcolumns at given processor
-          myelem  = 0            ! number of elements at given
- processor
+          myelem  = 0            ! number of elements at given processor
 c     
 c        allocate first half of the panels - forwards
 c
-          do ipan = 1, npan/2 
-             iproc = mod(ipan -1, proc)
-             istart = (ipan - 1)*pan + 1
-             iend   = istart + pan - 1
-             do k = istart, iend
-                int_mb(-1+adrma+k) = iproc
-                int_mb(-1+adrmz+k) = iproc
-             enddo
-             if(iproc .eq. myproc)then
-                myelem = myelem + elem(istart,iend,n)
-                mypanel = mypanel+1	
-             endif
-          enddo	   
-c
+      do ipan = 1, npan/2 
+         iproc = mod(ipan -1, proc)
+         istart = (ipan - 1)*pan + 1
+         iend   = istart + pan - 1
+         do k = istart, iend
+            int_mb(-1+adrma+k) = iproc
+            int_mb(-1+adrmz+k) = iproc
+         enddo
+         if(iproc .eq. myproc)then
+            myelem = myelem + elem(istart,iend,n)
+            mypanel = mypanel+1	
+         endif
+      enddo	   
+c     
 c        allocate second half of the panels - backwards
-c
-          ik = 1                 !ik is used to forward number
- processors
+c     
+          ik = 1                 !ik is used to forward number processors
           do ipan =   npan-1, npan/2 +1 , -1
              ik = ik+1
              iproc = mod(ik -1, proc)
@@ -179,12 +184,16 @@ c
 c
 c***     allocate a and z arrays
 c     
+          status = ma_push_get(mt_dbl,n,'heval',heval,adreval)
+          if(.not. status)
+     $         call ga_error('ga_diag_compl allocator heval',1)
+c     
           status = ma_push_get(mt_dbl,myelem,'a',ha,adra)
           status = ma_push_get(mt_dbl,elemz,'z',hz,adrz)
 c
 c***     load the fock (A) matrix
 c        [ AR    ]
-c        [ AC  -AR] 
+c        [ AC  AR] 
 c
           istart = 0
           do k = 1, n
@@ -192,13 +201,13 @@ c
                 myelem = n-k+1
                if(k.le.nn) then
                 call ga_get(
-      *           g_ar,k,nn,k,k,dbl_mb(adra+istart),1)
+     $                 g_ar,k,nn,k,k,dbl_mb(adra+istart),1)
                 call ga_get(
-      *           g_ac,1,nn,k,k,dbl_mb(adra+istart+(nn-k+1)),1)
+     $               g_ac,1,nn,k,k,dbl_mb(adra+istart+(nn-k+1)),1)
                else
                  k1=k-nn
                 call ga_get(
-      *           g_ar,k1,nn,k1,k1,dbl_mb(adra+istart),1)
+     $                g_ar,k1,nn,k1,k1,dbl_mb(adra+istart),1)
                endif
                istart = istart + myelem
              endif
@@ -207,183 +216,89 @@ c
 c***     allocate some memory forcompl eigensolver 
 c
           status = ma_push_get(mt_int,n,'iscratch',his,adris)
-         call fmemreq(1,n,int_mb(adrma),int_mb(adrma),int_mb(adrmz),
-      &        isize, rsize, ptr_size,int_mb(adris))
+          call fmemreq(1,n,int_mb(adrma),int_mb(adrma),int_mb(adrmz),
+     $         isize, rsize, ptr_size,int_mb(adris))
           status = ma_pop_stack(his)
           if(.not. ma_push_get(mt_int,isize,'iscratch',his,adris))
-      &       call ga_error('ga_diag_compl allocator',1)
+     $         call ga_error('ga_diag_compl allocator',1)
           if(.not. ma_push_get(mt_dbl,rsize,'scratch',hsc,adrsc))
-      &       call ga_error('ga_diag_compl allocator',2)
+     $         call ga_error('ga_diag_compl allocator',2)
           if(.not. ma_push_get(mt_dbl,ptr_size,'iptr',hip,adrip))
-      &       call ga_error('ga_diag_compl allocator',3)
+     $         call ga_error('ga_diag_compl allocator',3)
 c     
        endif
 c
 c
       call ga_sync()            ! To reduce message buffering problems
 c
-c*** calling PEIGS parallel eigensolver
+c***  calling PEIGS parallel eigensolver
+c     
+      if (oactive) then
 c
-       if (oactive) then
+c set info to use complex diag
+c
+         info = -1
          call pdspev(  n, dbl_mb(adra), int_mb(adrma),
-      &        dbl_mb(adrz), int_mb(adrmz),  
-      &        eval,  
-      &        int_mb(adris), isize,  
-      &        dbl_mb(adrip), ptr_size,  
-      &        dbl_mb(adrsc), rsize, info)  
-          if (info .ne. 0)
-      $       call ga_error('ga_diag_compl: info non-zero ', info)
-       endif
+     $        dbl_mb(adrz), int_mb(adrmz),  
+     $        dbl_mb(adreval),  
+     $        int_mb(adris), isize,  
+     $        dbl_mb(adrip), ptr_size,  
+     $        dbl_mb(adrsc), rsize, info)
+         if (info .ne. 0)
+     $        call ga_error('ga_diag_compl: info non-zero ', info)
+         call pdcomplex(n, dbl_mb(adrz), int_mb(adrmz),
+     $        dbl_mb(adreval),
+     $        dbl_mb(adrsc), dbl_mb(adris), info)
+         if (info .ne. 0)
+     $        call ga_error(
+     $        'ga_diag_comp: pdcomplex info non-zero ', info)
+      endif
 c     
-      call ga_sync()            ! To reduce message buffering problems
- 
-       if (oactive) then
+c to reduce out of order message problems between ga and non-ga process
 c
-c        discard redundant eigenvals and eigenvecs
-c
-          status = ma_push_get(mt_int,n,'junk',hj,adrj)
-          status = ma_push_get(mt_dbl,n,'junke',he,adre)
-          do k=1,n
-           int_mb(adrj+k-1)=0
-c         write(0,*) ' k eval ',k,eval(k)
-          enddo
-          istart=0
-          do k = 1,n
-           loop1=.false.
-             if(int_mb(-1+adrmz+k).eq.myproc) loop1=.true.
-             if (int_mb(adrj+k-1).eq.0) then
-             ee=eval(k)
-              igua=0
-              do k1=k+1,n
-               if(abs(eval(k1)-ee).lt.toll) then
-                igua=igua+1
-                imazz=k1
-               endif
-              enddo
-               if(igua.eq.1) then
-               int_mb(adrj+imazz-1)=1
-               goto 123
-             endif
-             istart1=istart
-             if(int_mb(-1+adrmz+k).eq.myproc) istart1=istart1+n
-              do k1 = k+1,n
-               loop2=.false.
-               if(int_mb(-1+adrmz+k1).eq.myproc) loop2=.true.
-                 if(k.ne.k1.and.abs(eval(k1)-ee).lt.toll) then
-c
-c            dot product
-c            real + imaginary part
-c
-                   node1=int_mb(adrmz+k-1)
-                   node2=int_mb(adrmz+k1-1)
-c
-c             send everything to node1
-c
-                   sndvec=65536+137
-                   if(node1.ne.node2) then
-                     if(myproc.eq.node2) 
-      *  call snd(sndvec,dbl_mb(adrz+istart1),mdtob(n),node1,1)
-                     if(myproc.eq.node1) 
-      *call rcv(sndvec,dbl_mb(adre),mdtob(n),lenmes,-1,node2,1)
-                   else
-                     if(myproc.eq.node1) then
-                     do j=0,n-1
-                      dbl_mb(adre+j)=dbl_mb(adrz+istart1+j)
-                     enddo
-                     endif
-                   endif
-                   if(myproc.eq.node1) then
-                   dotres=0.d0
-                   do j=0,nn-1
-                    dotres=dotres+
-      *             dbl_mb(adrz+istart+j+nn)*dbl_mb(adre+j)+
-      *             dbl_mb(adrz+istart+j)*dbl_mb(adre+j+nn)
-                   enddo
-                   endif
-                   brdres=65536+23+k+k1
-                   if (myproc.eq.node1) then
-                   do j=0,proc-1
-                     if(j.ne.myproc)
-      *call snd(brdres,dotres,mdtob(1),j,1)
-                     enddo
-                   else
-       call rcv(brdres,dotres,mdtob(1),lenmes,-1,node1,1)
-                   endif
-                  if (abs(dotres).gt.toll) then
-                   int_mb(adrj+k1-1)=1
-                   goto 123
-                  endif
-                 endif
-               if(loop2) istart1=istart1+n
-              enddo
-   123    continue
-             endif
-           if(loop1) istart=istart+n
-          enddo
-c
-c        discard unuseful eigenvec
-c
-          do k=1,n
-             dbl_mb(adre+k-1)=eval(k)
-          enddo
-          k1=0
-          istart = 0
-          do k=1,n
-          loop1=.false.
-          if( int_mb(-1+adrmz+k) .eq. myproc) loop1=.true.
-          if(int_mb(adrj+k-1).eq.0) then
-          k1=k1+1
-          if(k1.gt.nn) then
-          if (myproc.eq.0) then
-          print *,' K1 ',k1
-          write(0,*) ' k evals IJUNK'
-          do j=1,n
-             write(0,*) j,dbl_mb(adre-1+j),int_mb(adrj+j-1)
-         enddo
-         endif
-         call ga_sync
-         call ga_error('ga_diag_compl: failed to reduce eigenvec', 1)
-          endif
-             eval(k1)=dbl_mb(adre+k-1)
-c
+c     
+      call ga_sync
+c     
 c***  store the eigenvector matrix in global array g_vr and g_vc
-c
-         if(loop1) then
-         call ga_put(g_vr,1,nn,k1,k1,dbl_mb(adrz+istart),1)
-         call ga_put(g_vc,1,nn,k1,k1,dbl_mb(adrz+istart+nn),1)
-         endif
-         endif
-         if(loop1) istart = istart + n
-         enddo
-c
-c        set n = n/2
-c
-          n = nn
-c
-c***     deallocate work arrays 
 c     
-          status = ma_pop_stack(he) 
-          status = ma_pop_stack(hj) 
-          status = ma_pop_stack(hip) 
-          status = ma_pop_stack(hsc) 
-          status = ma_pop_stack(his) 
-          status = ma_pop_stack(hz) 
-          status = ma_pop_stack(ha) 
-          status = ma_pop_stack(hmz) 
-          status = ma_pop_stack(hma) 
-       endif
+      if (oactive) then
+         istart = 0
+         do k = 1, n
+            if( int_mb(-1+adrmz+k) .eq. myproc) then
+               call ga_put(g_vr,1,nn,k,k,dbl_mb(adrz+istart),1)
+               call ga_put(g_vc,1,nn,k,k,dbl_mb(adrz+istart+nn),1)
+               istart = istart + n
+            endif
+      enddo
+c     
+c     set n = n/2
 c
+      n = nn
+c     
+c***  deallocate work arrays 
+c     
+      status = ma_pop_stack(he) 
+      status = ma_pop_stack(hj) 
+      status = ma_pop_stack(hip) 
+      status = ma_pop_stack(hsc) 
+      status = ma_pop_stack(his) 
+      status = ma_pop_stack(hz) 
+      status = ma_pop_stack(ha) 
+      status = ma_pop_stack(heval)
+      status = ma_pop_stack(hmz) 
+      status = ma_pop_stack(hma) 
+      endif
+
+c     
 c     Make sure that even processes that did not participate in the
 c     diagonalization have the eigen values
-c
-       ga_diag_type = 11
-       call brdcst(ga_diag_type, eval, mdtob(n), 0)
+c     
 c     
 #ifdef DATA_SERVER
-       FIX ME NOW
+      FIX ME NOW
 #endif
-c
-       call ga_sync()
 c     
-       end
-
+      call ga_sync()
+c     
+      end
+      
