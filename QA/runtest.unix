@@ -1,0 +1,182 @@
+#!/bin/csh 
+
+# UNIX workstation parallel and sequential execution of test jobs
+
+# Usage:
+#       runtest.unix [-procs nproc] testdir1 [testdir2 ...]
+#
+# Return 0 if all jobs complete successfully and outputs compare OK
+#          with the correct output
+# Return 1 otherwise.
+#
+
+# Gets executable from environment variable NWCHEM_EXECUTABLE or
+# uses the daily NWChem release build
+
+# A test is specified by the path to the directory containing
+# the test inputs and outputs.  The input file is assumed to
+# begin with the same name as the directory.  
+#
+# E.g., if the test is specified as ./small/o3grad then
+# - the input file will be ./small/o3grad/o3grad.nw
+# - the verified output will be ./small/o3grad/o3grad.out
+
+# A subdirectory of the current directory named scratchdir is deleted
+# and remade for each calculation, and deleted at job end.
+
+# A subdirectory of the current directory name testoutputs is made
+# if necessary and all outputs are routed there.  Existing outputs
+# are overwritten.  The name of the output file is formed by replacing
+# the trailing .nw with .out.  In this directory is also put the
+# output of nwparse for the verified and the test outputs.
+
+set CURDIR = $cwd
+
+# Figure out where the executable is.
+
+if ($?NWCHEM_EXECUTABLE) then
+  set NWCHEM = $NWCHEM_EXECUTABLE
+else
+  set NWCHEM = /msrc/proj/nwchem/bin/nwchem
+endif
+
+if (! -x $NWCHEM) then
+  echo cannot execute $NWCHEM
+  exit 1
+endif
+
+# Figure out where the nwparse.pl script is.
+
+if (! $?NWPARSE) then
+  if (-f nwparse.pl) then
+    set NWPARSE = $CURDIR/nwparse.pl
+  else if ($?NWCHEM_TOP) then
+    set NWPARSE = $NWCHEM_TOP/QA
+  else
+    echo Cannot find nwparse.pl.  Set NWPARSE or NWCHEM_TOP appropriately.
+    exit 1
+  endif
+endif
+
+# Run the tests one at a time
+
+set SCRATCHDIR  = $CURDIR/scratchdir
+set TESTOUTPUTS = $CURDIR/testoutputs
+
+if (! -d $TESTOUTPUTS) then
+  mkdir $TESTOUTPUTS
+  if ($status) then
+    echo cannot make directory $TESTOUTPUTS
+    exit 1
+  endif
+endif
+
+set overall_status = 0
+
+foreach TEST ($argv[*]) 
+
+  cd $CURDIR
+
+  set TESTDIR = $TEST
+  set STUB    = `basename $TEST`
+
+  echo " "
+  echo " Running $TEST "
+  echo " "
+
+# Clean the scratch directory and copy the input and verified output
+# files to the scratch and test output directories
+
+  echo "     cleaning scratch"
+
+  /bin/rm -rf $SCRATCHDIR
+  mkdir $SCRATCHDIR
+  if ($status) then
+    echo failed to make $SCRATCHDIR
+    exit 1
+  endif
+
+  echo "     copying input and verified output files"
+
+  set OUTPUTFILE = $STUB.out
+  set INPUTFILE  = $STUB.nw
+  
+  if (! -f $TESTDIR/$INPUTFILE) then
+    echo cannot access $TESTDIR/$INPUTFILE
+    set overall_status = 1
+    continue
+  endif
+  if (! -f $TESTDIR/$OUTPUTFILE) then
+    echo Could not find verified output file $TESTDIR/$OUTPUTFILE
+    set overall_status  = 1
+    continue
+  endif
+
+  cp $TESTDIR/$INPUTFILE $SCRATCHDIR
+  if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
+  cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+
+# Run the calculation in the scratch directory
+
+  cd $SCRATCHDIR
+
+  if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out
+
+  echo "     running nwchem"
+
+  set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
+  set time=(1 "$x")
+
+  echo -n "     "
+
+  $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+
+  if ($status) then
+    echo "     NWChem execution failed"
+    set overall_status = 1
+    continue
+  endif
+
+  set time=(60 "$x")
+
+# Now verify the output
+
+  echo -n "     verifying output ... "
+
+  cd $TESTOUTPUTS
+
+  perl $NWPARSE $STUB.out >& /dev/null
+  if ($status) then
+    echo nwparse.pl failed on test output $STUB.out
+    set overall_status = 1
+    continue
+  endif
+  perl $NWPARSE $STUB.ok.out >& /dev/null
+  if ($status) then
+    echo nwparse.pl failed on verified output $STUB.ok.out
+    set overall_status = 1
+    continue
+  endif
+
+  diff -w $STUB.ok.out.nwparse $STUB.out.nwparse >& /dev/null
+
+  if ($status) then
+    echo "failed"
+    set overall_status = 1
+    continue 
+  else
+    echo "OK"
+  endif
+end
+
+cd $CURDIR
+/bin/rm -rf $SCRATCHDIR
+  
+echo " "
+if ($overall_status) then
+  echo Failed
+else
+  echo OK
+endif
+
+exit $overall_status
