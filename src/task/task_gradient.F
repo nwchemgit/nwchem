@@ -42,7 +42,7 @@ c
       integer k_grad, l_grad, type, nelem
       logical status, numerical
       double precision energy, cpu, wall
-      character*80 theory, key
+      character*80 theory, key, prefix
 c
       task_gradient = .false.
 c
@@ -65,6 +65,8 @@ c
 c
 c     Actually do the deed
 c
+      prefix = theory           ! Most common
+c
       if (numerical) then
          status = task_num_grad(rtdb)
       else if (theory .eq. 'scf') then
@@ -74,20 +76,23 @@ c
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
-      else if (theory .eq. 'semi_dir_mp2') then
+      else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
+         prefix = 'mp2'
+         if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
+     $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'rimp2') then
-         status = .false.       ! No numerical derivatives yet
-      else if (theory .eq. 'oimp2') then
-         status = .false.       ! No numerical derivatives yet
+         status = .false.       ! No derivatives yet
       else if (theory .eq. 'direct_mp2') then
-         status = .false.       ! No numerical derivatives yet
-      else if (theory .eq. 'ccsd') then
-         status = .false.       ! No numerical derivatives yet
+         status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'mcscf') then
-         status = task_num_grad(rtdb)
+         status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'selci') then
-         status = task_num_grad(rtdb)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'oimp2') then
+         status = .false.       ! No derivatives yet
+      else if (theory .eq. 'ccsd') then
+         status = .false.       ! No derivatives yet
       else
          call errquit('task_gradient: unknown theory',0)
       endif
@@ -97,10 +102,10 @@ c
 c
       if (status) then
          key = ' '
-         write(key,'(a,'':energy'')') theory(1:inp_strlen(theory))
+         write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
      $        call errquit('task_gradient: no energy in rtdb?',0)
-         write(key,'(a,'':gradient'')') theory(1:inp_strlen(theory))
+         write(key,'(a,'':gradient'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_ma_get(rtdb, key, type, nelem, l_grad))
      $        call errquit('task_gradient: no gradient in rtdb?',0)
          if (.not. ma_get_index(l_grad, k_grad))

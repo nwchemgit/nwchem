@@ -68,7 +68,10 @@ c
          status = mcscf(rtdb)
       else if (theory .eq. 'selci') then
          status = selci(rtdb)
-      else if (theory .eq. 'semi_dir_mp2') then
+      else if (theory .eq. 'mp2' .or. theory.eq.'semi_dir_mp2') then
+         prefix = 'mp2'
+         if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
+     $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'md') then
          status = nwargos(rtdb)
