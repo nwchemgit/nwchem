@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.438 2003-12-31 22:30:25 nwchem Exp $
+# $Id: makefile.h,v 1.439 2004-01-01 00:28:15 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1163,7 +1163,7 @@ endif
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
-             DEFINES = -DMACX  #-DPARALLEL_DIAG
+             DEFINES =-DMACX -DPARALLEL_DIAG
 
   ifeq ($(FC),xlf)
     XLFMAC=y
@@ -1171,7 +1171,7 @@ endif
     FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 
     FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
     FDEBUG= -O2 -g
-    DEFINES  +=   -DXLFLINUX
+    DEFINES  +=-DXLFLINUX
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
     FDEBUG= -O1 -g
@@ -1179,9 +1179,14 @@ endif
     FOPTIMIZE  = -O3 -funroll-loops -fsched-interblock 
     FOPTIMIZE += -falign-loops=16 -falign-jumps=16 -falign-functions=16 
     FOPTIMIZE += -falign-jumps-max-skip=15 -falign-loops-max-skip=15 
-    FOPTIMIZE += -ffast-math -mdynamic-no-pic -mpowerpc-gpopt -force_cpusubtype_ALL 
+    FOPTIMIZE += -ffast-math -mdynamic-no-pic -mpowerpc-gpopt 
     FOPTIMIZE += -maltivec   
+    ifeq ($(_CPU),ppc970)
+#G5
+      FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
+    endif
     ifeq ($(_CPU),ppc7450)
+#G4
       FOPTIMIZE += -mtune=7450 -mcpu=7450
     endif
     endif
