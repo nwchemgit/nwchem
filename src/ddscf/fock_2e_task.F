@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.8 1995-11-27 02:14:08 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.9 1995-11-28 22:52:11 og845 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -45,8 +45,6 @@ c
       logical otest, otestij
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
       integer iat, jat, kat, lat, lattop, kattop, jattop
-      integer geom
-      logical otestij, otest
       logical oij, okl, oikjl
       integer junk
       logical int2e_set_bf_range
