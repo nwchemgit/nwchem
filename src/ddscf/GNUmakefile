@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.56 1996-01-04 21:29:01 d3g681 Exp $
+# $Id: GNUmakefile,v 1.57 1996-01-10 15:58:31 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -35,14 +35,13 @@
         riscf_list.o            riscf_tidy.o \
         riscf_trans.o 		do_riscf.o \
 	riscf_dovecs.o \
-        uhf.o                   fock_2e_rep.o fock_2e_task.o \
+        uhf.o                   fock_2e_rep.o \
         print_integ.o \
         rohf_lagr.o 
 
 
-# rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP
-
  OBJ_OPTIMIZE =	\
+                fock_2e_task.o \
                 fock_2e_slab.o \
                 fock_2e_lab.o fock_labscal.o \
 		fock_2e_c.o \

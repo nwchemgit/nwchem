@@ -5,7 +5,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.8 1995-12-03 00:45:07 rg240 Exp $
+c     $Id: fock_2e_b.F,v 1.9 1996-01-10 15:58:26 d3g681 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -33,6 +33,10 @@ c
       double precision fli(nfock,*), fjk(nfock,*)
       double precision flj(nfock,*), flk(nfock,*)
 c     
+c
+      double precision ncomputed
+      common/crap/ncomputed
+c
       logical oij, okl, oikjl, status
       integer ish, jsh, ksh, lsh, mem2, max2e
       integer ishlo, ishhi, jshlo, jshhi, kshlo, kshhi, lshlo, lshhi
@@ -158,6 +162,7 @@ c
      $                            int_mb(k_i), int_mb(k_j),
      $                            int_mb(k_k), int_mb(k_l),
      $                            dbl_mb(k_g), dbl_mb(k_scr),  neri)
+       ncomputed = ncomputed + neri
                           call fock_eri_label_scale(neri, q4,
      $                                    int_mb(k_i), int_mb(k_j),
      $                                    int_mb(k_k), int_mb(k_l),

@@ -1,6 +1,12 @@
-      subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.12 1995-11-13 06:41:15 d3g681 Exp $
+      block data block_int1e
       implicit none
+#include "cint1cache.fh"
+      data ocache /.false./
+      end
+      subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
+C$Id: int_1e_ga.F,v 1.13 1996-01-10 15:58:30 d3g681 Exp $
+      implicit none
+#include "cint1cache.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -55,6 +61,13 @@ c
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
       end if
+c
+c     In-core caching
+c
+      if (ocache .and. (ibas.eq.bas1) .and. (jbas.eq.bas1)) then
+         call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+	 return
+      endif
 c     
 c     Get info about the basis sets
 c     
@@ -145,4 +158,45 @@ c
 c     
       if (oscfps) call pstat_off(ps_int_1e)
 c     
+      end
+      subroutine int_1e_cache_ga(basis, oskel)
+      implicit none
+#include "cint1cache.fh"
+#include "bas.fh"
+      integer basis
+      logical oskel
+c
+      integer geom
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+      if (ocache) call int_1e_uncache_ga()
+c
+      if (.not. bas_geom(basis, geom)) call errquit
+     $   ('int_1e_cache_ga: basis corrupt?', 0)
+c
+      g_cache(1) = ga_create_atom_blocked(geom, basis,'int1e: t')
+      g_cache(2) = ga_create_atom_blocked(geom, basis,'int1e: v')
+      g_cache(3) = ga_create_atom_blocked(geom, basis,'int1e: s')
+      call ga_zero(g_cache(1))
+      call ga_zero(g_cache(2))
+      call ga_zero(g_cache(3))
+      call int_1e_ga(basis, basis, g_cache(1), 'kinetic', oskel)
+      call int_1e_ga(basis, basis, g_cache(2), 'potential', oskel)
+      call int_1e_ga(basis, basis, g_cache(3), 'overlap', .false.)
+      bas1 = basis
+      ocache = .true.
+c
+      end
+      subroutine int_1e_uncache_ga()
+      implicit none
+#include "cint1cache.fh"
+      logical ga_destroy
+c
+      if (.not. ocache) return
+      if (.not. ga_destroy(g_cache(1))) call errquit('i1ega: gad?',0)
+      if (.not. ga_destroy(g_cache(2))) call errquit('i1ega: gad?',0)
+      if (.not. ga_destroy(g_cache(3))) call errquit('i1ega: gad?',0)
+      bas1 = -1
+      ocache = .false.
       end

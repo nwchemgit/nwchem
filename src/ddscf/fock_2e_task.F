@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.12 1996-01-06 20:26:33 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.13 1996-01-10 15:58:29 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -90,7 +90,6 @@ c
      $     tmp)
 c
       q4 = 1.0d0
-      smax = schwarz_max()
       oij   = iatlo.eq.jatlo
       okl   = katlo.eq.latlo
       oikjl = (iatlo.eq.katlo) .and. (jatlo.eq.latlo)
@@ -107,8 +106,9 @@ c
      $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk,
-     $     tmp, tol2e, den_tol, smax, oij, okl, oikjl)
+     $     tmp, tol2e, den_tol, oij, okl, oikjl)
 #else
+      smax = schwarz_max()
       do iat = iatlo, iathi
          jattop = jathi
          if (oij) jattop = iat
@@ -165,7 +165,7 @@ c
      $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk,
-     $     tmp, tol2e, den_tol, smax, oij, okl, oikjl)
+     $     tmp, tol2e, den_tol, oij, okl, oikjl)
       implicit none
 #include "schwarz.fh"
 #include "bas.fh"
@@ -190,207 +190,320 @@ c
      $     fjk(nfock,*), flj(nfock,*), flk(nfock,*)
       double precision tmp(*)
       double precision tol2e, den_tol
-      double precision smax, sij
-      logical oij, okl, oikjl, otest
+      double precision smax, sijkl
+      logical oij, okl, oikjl
       integer iat, jat, kat, lat, nsh
 c
+c     These for sorting shells within each atom block
+c
       integer max_sh_t, max_sh
-      parameter (max_sh_t = 6, max_sh = 255)  ! i functions, 
-      integer i_max, i_sh_r(2,-1:max_sh_t), i_sh(max_sh)
-      integer j_max, j_sh_r(2,-1:max_sh_t), j_sh(max_sh)
-      integer k_max, k_sh_r(2,-1:max_sh_t), k_sh(max_sh)
-      integer l_max, l_sh_r(2,-1:max_sh_t), l_sh(max_sh)
+      parameter (max_sh_t = 255, max_sh = 255) ! allow for each shell diff
+      integer i_nt, i_sh_r(2,max_sh_t), i_sh(max_sh)
+      integer j_nt, j_sh_r(2,max_sh_t), j_sh(max_sh)
+      integer k_nt, k_sh_r(2,max_sh_t), k_sh(max_sh)
+      integer l_nt, l_sh_r(2,max_sh_t), l_sh(max_sh)
+      double precision skl(max_sh*max_sh) ! Should be just max shell block
+      double precision sij(max_sh*max_sh) ! Should be just max shell block
 c
       integer max_q, max_at
-      parameter (max_q = 100001, max_at=10) ! For debug only
+      parameter (max_q = 100001, max_at=20) ! For debug only
       integer ijkl(max_q,4)
       double precision q4(max_q), q4_at(max_at,max_at,max_at,max_at)
+      double precision denmax(max_at,max_at,max_at,max_at)
 c
       integer lscr, leri
-      parameter (lscr=1000000,leri=1000000)
+      parameter (lscr=16000000,leri=1000000)  ! 129600 = 100*(dd|dd)
       integer labels(leri,4)
-      double precision scr(lscr), eri(leri), block_eff
+      double precision scr(lscr), eri(leri)
 c
       integer i, j, k, l
+      integer ia,ja,ka,la
       integer it, jt, kt, lt
       integer ish, jsh, ksh, lsh
-      integer jtop, ktop, ltop
-      integer nq, neri
+      integer ibflo, jbflo, kbflo, lbflo, ibfhi, jbfhi, kbfhi, lbfhi
+      integer nq
+c
+      integer ijlist(2,255*255), nij, ij
+      integer kllist(2,255*255), nkl, kl
 c
       integer cn_to_ce(1000)
 c
-      logical more, intb_2e4c, intb_init4c
-      external intb_2e4c, intb_init4c
-c
-      logical fock_shell_logic, odoit
+      logical fock_shell_logic, odoit, status
       external fock_shell_logic
-      double precision qq4, q2
-c
-      logical int2e_file_write
-      external int2e_file_write
+      double precision q2, qq4, test
 c
 c     Form q4 factors over atoms and mapping from shells to atoms
 c     ... very crude now for debug purposes
 c
+      if ((iathi-iatlo+1).gt.max_at) call errquit('too many ats',0)
+      if ((jathi-jatlo+1).gt.max_at) call errquit('too many ats',0)
+      if ((kathi-katlo+1).gt.max_at) call errquit('too many ats',0)
+      if ((lathi-latlo+1).gt.max_at) call errquit('too many ats',0)
       do iat = iatlo, iathi
          do jat = jatlo, jathi
             do kat = katlo, kathi
                do lat = latlo, lathi
+                  ia = iat-iatlo+1
+                  ja = jat-jatlo+1
+                  ka = kat-katlo+1
+                  la = lat-latlo+1
                   odoit = sym_atom_quartet(geom, iat, jat, kat, lat,
-     $                 q4_at(iat-iatlo+1,jat-jatlo+1,
-     $                 kat-katlo+1,lat-latlo+1))
-**                  write(6,*) iat,jat,kat,lat,
-**     $                 q4_at(iat-iatlo+1,jat-jatlo+1,
-**     $                 kat-katlo+1,lat-latlo+1)
+     $                 q4_at(ia,ja,ka,la))
+                  if (.not. owritefile) then
+                     status = bas_ce2bfr(basis,iat,ibflo,ibfhi)
+                     status = bas_ce2bfr(basis,jat,jbflo,jbfhi)
+                     status = bas_ce2bfr(basis,kat,kbflo,kbfhi)
+                     status = bas_ce2bfr(basis,lat,lbflo,lbfhi)
+                     call fock_density_screen(nfock,
+     $                    ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
+     $                    ibflo, jbflo, kbflo, lbflo,
+     $                    ibfhi, jbfhi, kbfhi, lbfhi,
+     $                    dij, dik, dli, djk, dlj, dlk,
+     $                    denmax(ia,ja,ka,la))
+                  endif
                enddo
             enddo
          enddo
       enddo
+      smax = schwarz_max()
 c
       if (.not. bas_numcont(basis, nsh)) call errquit('bas?',0)
       do i = 1, nsh
          if (.not. bas_cn2ce(basis, i, cn_to_ce(i)))
      $        call errquit('bas?',0)
       enddo
-**      write(6,*) ' Center map ', (cn_to_ce(i),i=1,nsh)
-c
 c
 c     Form list of shells in each atom block, sorted by shell type. 
 c
-      call fock_2e_sh_list(basis, iatlo, iathi, i_max, i_sh_r, i_sh)
-      call fock_2e_sh_list(basis, jatlo, jathi, j_max, j_sh_r, j_sh)
-      call fock_2e_sh_list(basis, katlo, kathi, k_max, k_sh_r, k_sh)
-      call fock_2e_sh_list(basis, latlo, lathi, l_max, l_sh_r, l_sh)
+      call fock_2e_sh_list(basis,iatlo,iathi,i_nt,i_sh_r,i_sh)
+      call fock_2e_sh_list(basis,jatlo,jathi,j_nt,j_sh_r,j_sh)
+      call fock_2e_sh_list(basis,katlo,kathi,k_nt,k_sh_r,k_sh)
+      call fock_2e_sh_list(basis,latlo,lathi,l_nt,l_sh_r,l_sh)
 c
-c     loop thru blocks of shell types and then over shells themselves
+c     Loop thru shell types and then over shells of each type
 c
-      do it = -1, max_sh_t
-         if (i_sh_r(1,it).gt.i_sh_r(2,it)) goto 10
-         do jt = -1, max_sh_t
-            if (j_sh_r(1,jt).gt.j_sh_r(2,jt)) goto 20
-            do kt = -1, max_sh_t
-               if (k_sh_r(1,kt).gt.k_sh_r(2,kt)) goto 30
-               do lt = -1, max_sh_t
-                  if (l_sh_r(1,lt).gt.l_sh_r(2,lt)) goto 40
+      nq = 0
+      do it = 1, i_nt
+         do jt = 1, j_nt
+c     
+c     Gather ij screening information and also determine if there
+c     are ANY ij shells to do.  Unfortunately, the blocking means
+c     that we cannot test on symmetry of the ij pairs since some
+c     quartets will not be canonical (i.e., kl can be > ij)
 c
-                  nq = 0
-                  do i = i_sh_r(1,it),i_sh_r(2,it)
-                     ish = i_sh(i)
-                     iat = cn_to_ce(ish)-iatlo+1
-                     do j = j_sh_r(1,jt),j_sh_r(2,jt)
-                        jsh = j_sh(j)
-                        jat = cn_to_ce(jsh)-jatlo+1
-                        otest = (.not. oij) .or. (ish.ge.jsh)
-                        sij = schwarz_shell(ish,jsh)
-                        otest = otest .and. (sij*smax .gt. tol2e)
-*                        if (otest .and. oskel) then
-*                           otest = sym_atom_pair(geom,
-*     $                          cn_to_ce(ish),cn_to_ce(jsh),q2)
-*                        endif
-                        if (otest) then
-                           do k = k_sh_r(1,kt),k_sh_r(2,kt)
-                              ksh = k_sh(k)
-                              kat = cn_to_ce(ksh)-katlo+1
-                              do l = l_sh_r(1,lt),l_sh_r(2,lt)
-                                 lsh = l_sh(l)
-                                 lat = cn_to_ce(lsh)-latlo+1
-                                 odoit = sij*schwarz_shell(ksh,lsh)
-     $                                .gt. tol2e
-                                 if (odoit) then
-                                    odoit = fock_shell_logic(
-     $                                   oij, okl, oikjl,
-     $                                   ish, jsh, ksh, lsh, qq4)
-                                 endif
-                                 if (odoit .and. oskel) then
-c     Temp. discard factors of 2/4/8
-                                    qq4 = qq4*q4_at(iat,jat,kat,lat)
-                                    odoit = qq4.gt.0.0d0
-                                 endif
-                                 if (odoit) then
-                                    nq = nq + 1
-                                    ijkl(nq,1) = ish
-                                    ijkl(nq,2) = jsh
-                                    ijkl(nq,3) = ksh
-                                    ijkl(nq,4) = lsh
-                                    q4(nq)     = qq4
-                                 endif
-                              enddo
-                           enddo
+            nij = 0
+            do i = i_sh_r(1,it),i_sh_r(2,it)
+               ish = i_sh(i)
+               do j = j_sh_r(1,jt),j_sh_r(2,jt)
+                  jsh = j_sh(j)
+                  test = schwarz_shell(ish,jsh)
+                  if ((.not. (oij .and. ish.lt.jsh)) .and.
+     $                 (test*smax .gt. tol2e)) then
+                     nij           = nij + 1
+                     ijlist(1,nij) = ish
+                     ijlist(2,nij) = jsh
+                     sij(nij)      = test
+                  endif
+               enddo
+            enddo
+            if (nij .eq. 0) goto 1010
+c
+            do kt = 1, k_nt
+               do lt = 1, l_nt
+c     
+c     gather kl screening information 
+c
+                  nkl = 0
+                  do k = k_sh_r(1,kt),k_sh_r(2,kt)
+                     ksh = k_sh(k)
+                     do l = l_sh_r(1,lt),l_sh_r(2,lt)
+                        lsh = l_sh(l)
+                        test = schwarz_shell(ksh,lsh)
+                        if ((.not. (okl .and. ksh.lt.lsh)) .and.
+     $                       (test*smax .gt. tol2e)) then
+                           nkl           = nkl + 1
+                           kllist(1,nkl) = ksh
+                           kllist(2,nkl) = lsh
+                           skl(nkl)      = test
                         endif
                      enddo
                   enddo
+                  if (nkl .eq. 0) goto 1000
+c     
+c     Loop over pairs of pairs (have i>=j and k>=l already)
+c     
+                  do ij = 1, nij
+                     ish = ijlist(1,ij)
+                     jsh = ijlist(2,ij)
+                     iat = cn_to_ce(ish)-iatlo+1
+                     jat = cn_to_ce(jsh)-jatlo+1
+                     q2 = 1.0d0
+                     if (oij .and. ish.eq.jsh) q2 = q2*0.5d0
+                     do kl = 1, nkl
+                        qq4 = q2
+                        ksh = kllist(1,kl)
+                        lsh = kllist(2,kl)
+                        kat = cn_to_ce(ksh)-katlo+1
+                        lat = cn_to_ce(lsh)-latlo+1
+c     ikjl diagonal
+                        if (oikjl) then
+                           if (ish.lt.ksh) then
+                              goto 300 ! Next kl
+                           else if (ish.eq.ksh) then
+                              if (jsh.lt.lsh) then
+                                 goto 300 ! Next kl
+                              else if (jsh.eq.lsh) then
+                                 qq4 = qq4 * 0.5d0
+                              endif
+                           endif
+                        endif
+c     symmetry test
+                        if (oskel) then
+                           qq4 = qq4*q4_at(iat,jat,kat,lat)
+                           if (qq4 .eq. 0.0d0) goto 300 ! Next kl
+                        endif
+c     sparsity test
+                        sijkl = sij(ij)*skl(kl)
+                        if (sijkl .lt. tol2e) goto 300 ! Next kl
+c     density screening
+                        if (.not. owritefile) then
+                           sijkl=sijkl*denmax(iat,jat,kat,lat)
+                           if (sijkl .lt. den_tol) goto 300 ! Next kl
+                        endif
+c     kl diagonal
+                        if (okl .and. ksh.eq.lsh) qq4 = qq4*0.5d0
+c     do it!
+                        if (nq .eq. max_q) then
+                           call fock_txs(basis, 
+     $                          nfock, vg_dens, vg_fock, jfac, kfac, 
+     $                          ilo, jlo, klo, llo, ihi, jhi,khi,lhi,
+     $                          dij, dik, dli, djk, dlj, dlk,
+     $                          fij, fik, fli, fjk, flj, flk,
+     $                          tol2e, nq, max_q, ijkl, q4,
+     $                          lscr, scr, leri, labels, eri)
+                           nq = 0
+                        endif
+                        nq = nq + 1
+                        ijkl(nq,1) = ish
+                        ijkl(nq,2) = jsh
+                        ijkl(nq,3) = ksh
+                        ijkl(nq,4) = lsh
+                        q4(nq)     = qq4
+ 300                 enddo      ! Next KL pair
+                  enddo
 c
-                  if (nq .gt. 0) then
-                     write(6,11)  it, jt, kt, lt, nq 
- 11                  format( ' it, jt, kt, lt, nq ',4i4,2x,i4)
+ 1000             continue      ! Jump here if no KL pairs
 c
-                     if (.not. intb_init4c(
-     $                    basis, ijkl(1,1), ijkl(1,2),
-     $                    basis, ijkl(1,3), ijkl(1,4),
-     $                    nq, lscr, scr, leri, block_eff))
-     $                    call errquit('intb_init?',nq)
+               enddo
+            enddo
+ 1010             continue      ! Jump here if no IJ pairs
+         enddo
+      enddo
+c                              
+      call fock_txs(basis, 
+     $     nfock, vg_dens, vg_fock, jfac, kfac, 
+     $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
+     $     dij, dik, dli, djk, dlj, dlk,
+     $     fij, fik, fli, fjk, flj, flk,
+     $     tol2e, nq, max_q, ijkl, q4,
+     $     lscr, scr, leri, labels, eri)
 c
- 50                  more = intb_2e4c(
-     $                    basis, ijkl(1,1), ijkl(1,2),
-     $                    basis, ijkl(1,3), ijkl(1,4),
-     $                    nq, q4, .true., tol2e, .false.,
-     $                    labels(1,1), labels(1,2),
-     $                    labels(1,3), labels(1,4),
-     $                    eri, leri, neri, lscr, scr)
+      end
+      subroutine fock_txs(
+     $     basis, 
+     $     nfock, vg_dens, vg_fock, jfac, kfac, 
+     $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
+     $     dij, dik, dli, djk, dlj, dlk,
+     $     fij, fik, fli, fjk, flj, flk,
+     $     tol2e,
+     $     nq, max_q, ijkl, q4, lscr, scr, leri, labels, eri)
+      implicit none
+#include "schwarz.fh"
+#include "bas.fh"
+#include "cfock.fh"
+#include "cscfps.fh"
+#include "sym.fh"
 c
-*                     call print_integ_list(neri, 
-*     $                    labels(1,1), labels(1,2),
-*     $                    labels(1,3), labels(1,4),
-*     $                    eri)
+      double precision ncomputed
+      common/crap/ncomputed
 c
-c     Only need scale with nwchem blocking
+      integer basis
+      integer nfock
+      integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
 c
-*                     call fock_eri_label_scale(neri, 1.0d0,
-*     $                    labels(1,1), labels(1,2),
-*     $                    labels(1,3), labels(1,4), eri)
+      integer vg_dens(nfock), vg_fock(nfock)
+      double precision jfac(nfock), kfac(nfock)
+      double precision dij(nfock,*), dik(nfock,*), dli(nfock,*),
+     $     djk(nfock,*), dlj(nfock,*), dlk(nfock,*)
+      double precision fij(nfock,*), fik(nfock,*), fli(nfock,*),
+     $     fjk(nfock,*), flj(nfock,*), flk(nfock,*)
+      double precision tol2e, den_tol
 c
+      integer nq, max_q, lscr, leri
+      integer ijkl(max_q,4), labels(leri,4)
+      double precision scr(lscr), eri(leri), q4(nq)
+c
+      integer neri
+      double precision block_eff
+      logical more
+c
+      logical int2e_file_write, intb_2e4c, intb_init4c
+      external int2e_file_write, intb_2e4c, intb_init4c
+c
+      if (nq .le. 0) return
+      write(6,*) ' fock_txs : ', nq
+c
+      if (.not. intb_init4c(
+     $     basis, ijkl(1,1), ijkl(1,2),
+     $     basis, ijkl(1,3), ijkl(1,4),
+     $     nq, lscr, scr, leri, block_eff))
+     $     call errquit('intb_init?',nq)
+c     
+ 50   more = intb_2e4c(
+     $     basis, ijkl(1,1), ijkl(1,2),
+     $     basis, ijkl(1,3), ijkl(1,4),
+     $     nq, q4, .true., tol2e, .false.,
+     $     labels(1,1), labels(1,2),
+     $     labels(1,3), labels(1,4),
+     $     eri, leri, neri, lscr, scr)
+c
+      if (neri .eq. 0) return
+      ncomputed = ncomputed + neri
 c
 c     Cache integrals if desired
 c
-                     if (owritefile) then
-                        if (.not. int2e_file_write(neri,
-     $                    labels(1,1), labels(1,2),
-     $                    labels(1,3), labels(1,4),
-     $                    eri)) call errquit('Arrgggghh',0)
-                     end if
+      if (owritefile) then
+         if (.not. int2e_file_write(neri,
+     $        labels(1,1), labels(1,2),
+     $        labels(1,3), labels(1,4),
+     $        eri)) call errquit('Arrgggghh',0)
+      end if
+c     
+      call fock_2e_label(nfock, tol2e, neri,
+     $     labels(1,1), labels(1,2),
+     $     labels(1,3), labels(1,4),
+     $     eri, 
+     $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
+     $     dij, dik, dli, djk, dlj, dlk,
+     $     fij, fik, fli, fjk, flj, flk )
+c     
+      if (more) goto 50
 c
-                     call fock_2e_label(nfock, tol2e, neri,
-     $                    labels(1,1), labels(1,2),
-     $                    labels(1,3), labels(1,4),
-     $                    eri, 
-     $                    ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
-     $                    dij, dik, dli, djk, dlj, dlk,
-     $                    fij, fik, fli, fjk, flj, flk )
-c
-                     if (more) goto 50
-c
-                  endif
- 40            enddo
- 30         enddo
- 20      enddo
- 10   enddo
-c                              
       end
       subroutine fock_2e_sh_list(basis, iatlo, iathi,
-     $     i_max, i_sh_r, i_sh)
+     $     i_nt, i_sh_r, i_sh)
       implicit none
 #include "bas.fh"
       integer basis
       integer iatlo, iathi
-      integer i_max
-      integer i_sh_r(2,-1:*)
+      integer i_nt
+      integer i_sh_r(2,*)
       integer i_sh(*)
 c
-      integer max_sh_t, max_sh
-      parameter (max_sh_t = 6, max_sh = 255)  ! i functions
-      integer ilo, ihi, junk, i
+      integer max_sh
+      parameter (max_sh = 255)
       integer type(max_sh), nprim(max_sh), ngen(max_sh), spch
-      integer nt(-1:max_sh_t)
+      integer ilo, ihi, junk
 c
       integer i, ii, jj, tmp
       logical otype, ongen
@@ -398,19 +511,17 @@ c
       if (.not. bas_ce2cnr(basis, iatlo, ilo, junk)) call errquit
      $     ('fock_2e_sh_list: basis screwed ',0)
       if (.not. bas_ce2cnr(basis, iathi, junk, ihi)) call errquit
-
+     $     ('fock_2e_sh_list: basis screwed ',0)
 c
 c     Sort by type.  If the types are equal subsort by ngen.
 c     If type and ngen are equal subsort by nprim.
 c
-      call ifill(max_sh_t+2,0,nt,1)
       do i = ilo, ihi
          ii = i - ilo + 1
          if (.not. bas_continfo(basis, i, type(ii), nprim(ii),
      $        ngen(ii), spch))
      $        call errquit('fock_2e_sh_list: basis screwed ',0)
          i_sh(ii) = i
-         nt(type(ii)) = nt(type(ii)) + 1
          do jj = 1, ii-1
 c
             otype = type(ii).eq.type(jj)
@@ -434,24 +545,25 @@ c
          enddo
       enddo
 c
-c     Now form the ranges for each type ... for now just ignore
-c     the subsorting by ngen/nprim but we may come back to this later.
-c     If a certain angular momentum is not present then the index range 
-c     will form a null do loop.
+c     Now form the ranges for each distinct shell block
 c
-      i_sh_r(1,-1) = 1
-      do i = -1, max_sh_t
-         if (i.ne.-1) i_sh_r(1,i) = i_sh_r(2,i-1) + 1
-         i_sh_r(2,i) = i_sh_r(1,i) + nt(i) - 1
+      i_nt = 0
+      ii = -9999
+      do i = 1, ihi-ilo+1
+         if (type(i) .ne. ii) then
+            if (i_nt.ne.0) i_sh_r(2,i_nt) = i-1
+            i_nt = i_nt + 1
+            i_sh_r(1,i_nt) = i
+            ii = type(i)
+         endif
       enddo
+      if (i_nt.ne.0) i_sh_r(2,i_nt) = ihi-ilo+1
 c
 *      write(6,*) ' Final sorted info for shell range ', ilo, ihi
-*      do i = -1, max_sh_t
-*         if (i_sh_r(2,i) .ge. i_sh_r(1,i)) then
-*            write(6,*) i, ' sorted shell range ',
-*     $           i_sh_r(1,i),i_sh_r(2,i)
-*            write(6,*) (i_sh(ii),ii=i_sh_r(1,i),i_sh_r(2,i))
-*         endif
+*      do i = 1, i_nt
+*         write(6,*) i, ' sorted shell range ',
+*     $        i_sh_r(1,i),i_sh_r(2,i)
+*         write(6,*) (i_sh(ii),ii=i_sh_r(1,i),i_sh_r(2,i))
 *      enddo
 c
       end
@@ -462,37 +574,40 @@ c
       integer ish, jsh, ksh, lsh
       double precision qq4
 c
-      logical odoit
+c     Not used, but it makes explicit the tests and scaling
 c
-      odoit = .true.
       qq4 = 1.0d0
       if (oij) then
          if (ish.lt.jsh) then
-            odoit = .false.
+            fock_shell_logic = .false.
+            return
          else if (ish.eq.jsh) then
             qq4 = qq4 * 0.5d0
          endif
       endif
       if (okl) then
          if (ksh.lt.lsh) then
-            odoit = .false.
+            fock_shell_logic = .false.
+            return
          else if (ksh.eq.lsh) then
             qq4 = qq4 * 0.5d0
          endif
       endif
       if (oikjl) then
          if (ish.lt.ksh) then
-            odoit = .false.
+            fock_shell_logic = .false.
+            return
          else if (ish.eq.ksh) then
             if (jsh.lt.lsh) then
-               odoit = .false.
+               fock_shell_logic = .false.
+               return
             else if (jsh.eq.lsh) then
                qq4 = qq4 * 0.5d0
             endif
          endif
       endif
 c
-      fock_shell_logic = odoit
+      fock_shell_logic = .true.
 c
       end
 #endif

@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.18 1995-12-11 17:24:21 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.19 1996-01-10 15:58:25 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.18 1995-12-11 17:24:21 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.19 1996-01-10 15:58:25 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -50,6 +50,10 @@ c
       integer blocks(2,*)
       integer nblock
 c     
+c
+      double precision ncomputed
+      common/crap/ncomputed
+c
       integer natoms, nproc, ijkl, next
       integer ib, jb, kb, lb, lbhi
       integer iatlo, jatlo, katlo, latlo
@@ -70,6 +74,7 @@ c
 c
 c     How many atoms are there?
 c     
+      ncomputed = 0
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('fock_2e: geom_ncent failed', 0)
       if (natoms .gt. 1000) call errquit
@@ -176,6 +181,8 @@ c
      $        kfac, fik, tmp )
          if (oscfps) call pstat_off(ps_gaops)
       endif
+c
+      write(6,*) ' ncomputed ', ncomputed
 c     
       next = nxtask(-nproc, 1)
       call ga_sync()

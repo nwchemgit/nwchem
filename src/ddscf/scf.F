@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.34 1995-11-13 06:41:19 d3g681 Exp $
+C$Id: scf.F,v 1.35 1996-01-10 15:58:32 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -153,10 +153,11 @@ c
         endif
       endif
 c
-c     Initialize integral library, schwarz screening
+c     Initialize integral library, schwarz screening, cached 1-e integs
 c
       call int_init(rtdb,1, basis)
       call schwarz_init(geom, basis)
+      call int_1e_cache_ga(basis, oskel)
 c
 c     Form intial guess vectors
 c
@@ -202,6 +203,7 @@ c
 c
 c     terminate integrals 
 c
+      call int_1e_uncache_ga()
       call schwarz_tidy()
       call int_terminate
 c

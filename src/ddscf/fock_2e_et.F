@@ -44,7 +44,8 @@ c
       if (.not. oskel) npair_sym = npair
       ntask = npair*npair_sym / (2*ga_nnodes())
 c
-      if (ga_nnodes() .gt. 1) task_size = max(ntask/20,1)
+      task_size = ntask
+      if (ga_nnodes() .gt. 1) task_size = max(task_size/20,1)
       if (ga_nodeid().eq.0 .and.
      $     util_print('task_size',print_high)) then
          write(6,*) ' ntask, task_size ', ntask, task_size
@@ -93,7 +94,7 @@ c     a block is not larger than 128 so that we do not use
 c     too much memory and so that a given block does not 
 c     exceed 256.
 c
-      task_bf = min(task_bf,128)
+      task_bf = min(task_bf,128,nbf)
       if (task_bf.eq.-1 .or. task_bf.gt.nbf) then
          call fock_2e_est_task(geom, oskel, tol2e, task_size)
          task_bf = max(1,nint(nbf*sqrt(sqrt(dble(task_size)))/nat))

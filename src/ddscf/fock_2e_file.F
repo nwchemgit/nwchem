@@ -7,7 +7,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_file.F,v 1.1 1995-12-13 01:24:41 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.2 1996-01-10 15:58:28 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -33,7 +33,7 @@ c
       integer vg_fock(nfock)
 c
       integer maxints
-      parameter (maxints = 2048)
+      parameter (maxints = 16384)
       integer i(maxints), j(maxints), k(maxints), l(maxints)
       double precision g(maxints)
       double precision den_tol, denmax, dtol2e
