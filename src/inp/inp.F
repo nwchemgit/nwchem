@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.32 1998-06-15 04:31:01 d3g681 Exp $
+C$Id: inp.F,v 1.33 1999-07-03 23:51:41 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -525,7 +525,7 @@ c...  sign
       if (ia(i1:i1).eq.xchar(12))isign=-1
       if (ia(i1:i1).eq.xchar(12).or.ia(i1:i1).eq.xchar(11)) i1=i1+1
 c...  exponent
-      do ie=i1,i2
+      do ie=i1+1,i2
          if (ia(ie:ie).eq.xchar(14) .or. ia(ie:ie).eq.xchar(15) .OR.
      $      ia(ie:ie).eq.xchar(16) .or. ia(ie:ie).eq.xchar(17)) goto 20
       enddo
