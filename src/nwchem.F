@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.147 2004-10-07 21:50:27 edo Exp $
+c     $Id: nwchem.F,v 1.148 2004-10-11 19:40:12 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003, 2004                      *
@@ -241,6 +241,7 @@ c
 c
       call geom_hnd_parallel(.true.)
 c
+      call perfm_start()
       if (orestart .or. ocontinue) call nw_print_restart_info(rtdb)
 c
 c if continue then go right to task stored on rtdb do not further parse
@@ -310,6 +311,7 @@ c
          if (util_print('citation', print_low))
      &       call util_cite()
       endif
+      call perfm_end()
       total_wall = total_wall + util_wallsec()
       total_cpu  = total_cpu  + util_cpusec()
       if (ga_nodeid() .eq. 0) then
