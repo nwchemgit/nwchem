@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.58 1994-09-06 21:16:56 d3e129 Exp $
+# $Id: makefile.h,v 1.59 1994-09-08 05:59:16 vg038 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -51,7 +51,7 @@ endif
 #
 
     NWSUBDIRS = include ddscf NWints develop global db rtdb basis inp util \
-                moints atomscf geom input ma tcgmsg gradients rimp2 \
+                moints atomscf geom input ma tcgmsg gradients rimp2 riscf \
                 stepper pstat $(SUBDIRS_EXTRA)
 
 #
@@ -166,7 +166,8 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       LIBS = -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+       LIBS = -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+              -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas
 
@@ -190,7 +191,8 @@ ifeq ($(TARGET),KSR)
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
        LIBS = -L/home/d3g681/TCGMSG_DISTRIB \
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints\
+              -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
 
@@ -231,7 +233,8 @@ ifeq ($(TARGET),PARAGON)
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBS = -L/home/delilah11/gifann/lib \
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs_paragon -ltcgmsg -llapack -lkmath -nx
 
@@ -260,7 +263,8 @@ ifeq ($(TARGET),DELTA)
 
    DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__
       LIBS = -L/home/delilah11/gifann/lib \
-             -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+             -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+	     -lstepper -lmoints \
              -lguess -lglobal -lutil \
              -lglobal -lpeigs -ltcgmsg -llapack -lkmath -node
 
@@ -290,7 +294,8 @@ ifeq ($(TARGET),SGITFP)
 
     DEFINES = -DSGITFP -DSGI -DLongInteger $(LIB_DEFINES) 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+	      -lstepper -lmoints \
               -lguess -lglobal -lutil -lglobal\
 	      -ltcgmsg -llapack -lblas
 
@@ -320,7 +325,8 @@ ifeq ($(TARGET),IBM)
     DEFINES = -DIBM -DEXTNAM
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
+	      -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas
 
@@ -377,3 +383,7 @@ endif
 .c.o:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
 endif
+
+
+
+
