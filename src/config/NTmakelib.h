@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.7 2000-08-13 19:39:36 bjohnson Exp $
+#	$Id: NTmakelib.h,v 1.8 2000-11-25 15:34:51 bjohnson Exp $
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)
@@ -21,13 +21,26 @@ LIBRARY_PATH_IF_EXISTS = path_error
 # in general that subdirs will be checked properly.
 #
 !IFNDEF FORCE_LIB_UPDATE
-library: $(OBJDIR) $(LIB_DISTRIB) $(LIBRARY_PATH)
+library: $(OBJDIR) $(LIB_DISTRIB) obj_opt obj_noopt $(LIBRARY_PATH)
 !ELSE
-library: $(OBJDIR) $(LIB_DISTRIB) force_lib_update
+library: $(OBJDIR) $(LIB_DISTRIB) obj_opt obj_noopt force_lib_update
 !ENDIF
 !IFDEF SUBDIRS
 	@nmake -nologo foreach_subdir
 !ENDIF
+
+#
+# Targets to handle separate compilation of objects specified with and
+# without optimization
+#
+obj_opt: $(OBJ_OPTIMIZE)
+
+obj_noopt:
+!IFDEF OBJ
+	@nmake -nologo NWDEBUG=1 obj_noopt_target
+!ENDIF
+
+obj_noopt_target: $(OBJ)
 
 #
 # The use of the $? macro below assumes that any object that needs to
