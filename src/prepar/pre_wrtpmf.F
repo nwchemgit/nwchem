@@ -16,7 +16,7 @@ c
       character*16 csa(msa)
       character*80 target
 c
-      integer i,j,k,l,m,n,io,ibase,jbase,idatom
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
@@ -24,13 +24,19 @@ c
 c
       m=0
       k=0
+      nump=0
       do 5 i=1,numpmf
+      nump=nump+1
       n=-1
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) n=0
       if(ipmf(i,1).eq.1) n=1
       if(ipmf(i,1).eq.2) n=2
       if(ipmf(i,1).eq.3) n=3
       if(ipmf(i,1).eq.4) n=3
+      if(ipmf(i,1).eq.7) then
+      m=max(m,1)
+      nump=nump+2
+      endif
       if(n.ge.0) then
       do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
@@ -53,7 +59,7 @@ c
       write(lfntop,101)
   101 format('pmf')
    11 continue
-      write(lfntop,1000) npmfr*(numpmf+k),m
+      write(lfntop,1000) npmfr*(nump+k),m
  1000 format(2i5)
       do 12 l=1,npmfr
       io=(l-1)*nsarep
