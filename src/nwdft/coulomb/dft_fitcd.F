@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.34 2001-06-13 01:31:21 edo Exp $
+* $Id: dft_fitcd.F,v 1.35 2002-02-15 21:10:07 edo Exp $
 *
       implicit none
 c
@@ -116,7 +116,8 @@ c     Parallelize the loop over the products of AO shells.
 c      
       ischw1 = 0
 cedo      call ga_sync
-      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+cedo      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      icount = 1
       icount = max(1,icount)
 c      
       Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
@@ -510,9 +511,10 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
-           if(lmiss.ne.0)call errquit
-     &     (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
         endif
+        call ga_brdcst(2000, lmiss,mitob(1),0)
+        if(lmiss.ne.0)call errquit
+     &       (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
 cedo        call ga_sync
         if(oprint_ioinfo)then
           call ga_print(g_cdinv)
@@ -525,7 +527,7 @@ cedo        call ga_sync
       call tcllct(t_sub(1,4),ts2,ts1)
       call dft_second(ts1)
 #endif
-      call ga_sync
+cedo      call ga_sync
 c      call dft_tstamp(' in dft_cdfit before f1f2')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 #if 0
@@ -829,7 +831,7 @@ c
 c
 c      call dft_tstamp(' in dft_mull_fit 1       ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-      call ga_sync
+cedo      call ga_sync
       do iat = me+1, natoms, nproc
          if (.not.bas_ce2cnr(basis, iat, ish1, ish2))
      &      call errquit(' exiting in mull_pop_fit',4)

@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.33 2001-11-22 02:00:06 edo Exp $
+c     $Id: dft_fitvc.F,v 1.34 2002-02-15 21:10:07 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -115,10 +115,10 @@ c
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CD',g_2ceri,nbf_cd,'READ',lmiss)
-           if(lmiss.ne.0)call errquit
-     &     (' dft_fitvc; dft_invio - abnormal read of CD ',0)
         endif
-        call ga_sync
+        call ga_brdcst(1999, lmiss,mitob(1),0)
+        if(lmiss.ne.0)call errquit
+     &     (' dft_fitvc; dft_invio - abnormal read of CD ',0)
         if(oprint_ioinfo)then
           call ga_print(g_2ceri)
         endif

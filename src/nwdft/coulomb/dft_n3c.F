@@ -1,5 +1,5 @@
       double precision function dft_n3cdbl()
-C$Id: dft_n3c.F,v 1.11 2000-04-22 01:05:44 edo Exp $
+C$Id: dft_n3c.F,v 1.12 2002-02-15 21:10:07 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -135,7 +135,7 @@ c
       return
       end
       integer function dft_n3cint()
-C$Id: dft_n3c.F,v 1.11 2000-04-22 01:05:44 edo Exp $
+C$Id: dft_n3c.F,v 1.12 2002-02-15 21:10:07 edo Exp $
       implicit none
 #include "bas.fh"
 #include "rtdb.fh"
@@ -154,7 +154,7 @@ c
 c
       if(nproc.gt.1) then
 c
-c       Allow for some load-unbalance (factor of 1.2).
+c       Allow for some load-imbalance (factor of 1.2).
 c
         dft_n3cint = nshells_ao*(nshells_ao+1)/nproc
         dft_n3cint=max(dft_n3cint,nshells_ao)
