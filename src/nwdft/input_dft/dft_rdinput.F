@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.22 1996-12-30 21:54:57 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.23 1997-01-21 20:38:39 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -64,7 +64,7 @@ c     default and put in the rtdb as well as loading in common.
 c     
       if (.not. rtdb_get(rtdb, 'dft:nodamping', mt_log, 1,
      &   nodamping))then
-         nodamping = .true.
+         nodamping = .false.
          if (.not. rtdb_put(rtdb, 'dft:nodamping',
      &      mt_log, 1, nodamping))
      &      call errquit('dft_input: rtdb_put failed', 1)
@@ -216,7 +216,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1,
      &   ndamp))then
-         damp = .false.
+         damp = .true.
          if (.not. rtdb_put(rtdb, 'dft:damp',
      &      mt_log, 1, damp))
      &      call errquit('dft_input: rtdb_put failed', 2)
@@ -368,7 +368,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:ncydp', mt_int, 1,
      &   ncydp))then
-         ncydp = 0
+         ncydp = 2
          if (.not. rtdb_put(rtdb, 'dft:ncydp',
      &      mt_int, 1, ncydp))
      &      call errquit('dft_input: rtdb_put failed', 108)
