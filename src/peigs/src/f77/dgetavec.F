@@ -569,7 +569,7 @@ C
       EXTERNAL           idamax
 c      
       DOUBLE PRECISION DNRM2
-      EXTERNAL DNRM2, DSCAL
+      EXTERNAL DNRM2, dscal
 c      
 *     ..
 *     .. Intrinsic Functions ..
@@ -757,7 +757,7 @@ c
       i = bn-b1+1
       ztz = DNRM2( i, z(b1), 1)
       ztz = 1.0e0/ztz
-      call DSCAL(i, ztz, z(b1), 1)
+      call dscal(i, ztz, z(b1), 1)
 c     
 c + DLAMCHU
 c      	
