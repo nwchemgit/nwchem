@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert,ihop,ips)
 c
-c $Id: pre_wrtpdb.F,v 1.44 2003-10-31 21:32:47 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.45 2003-11-11 20:30:50 d3j191 Exp $
 c
       implicit none
 c
@@ -113,6 +113,8 @@ c      if(filmrg(1:1).ne.' ') then
 c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
       if(ioff.lt.0) call md_abort('Error in pre_merge',ioff)
       if(inum.ge.0) ioff=ioff+1-isgm(1)
+      else
+      if(irenum.ne.0) ioff=-isgm(1)+1
       endif
 c
       nums=0

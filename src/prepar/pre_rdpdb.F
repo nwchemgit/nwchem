@@ -3,7 +3,7 @@
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box,
      + lpdbbx)
 c
-c $Id: pre_rdpdb.F,v 1.24 2002-08-15 15:19:31 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.25 2003-11-11 20:30:50 d3j191 Exp $
 c
       implicit none
 c
@@ -51,7 +51,7 @@ c     open pdb file
 c     -------------
 c
       open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
-     + form='formatted',status='old',err=9999)
+     + form='formatted',status='old',err=9991)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,2000) filpdb(1:length)
@@ -92,7 +92,7 @@ c
 c
   100 continue
 c
-      read(lfnpdb,1000,end=9,err=9999) card
+      read(lfnpdb,1000,end=9,err=9992) card
  1000 format(a)
 c
 c     BOX
@@ -140,10 +140,10 @@ c
       if(mdl.ne.model) goto 100
 c
       if(lrgpdb.eq.0) then
-      read(card,1002,end=9999,err=9999) hdr,nama,alocal,namr,achain,num,
+      read(card,1002,end=9993,err=9993) hdr,nama,alocal,namr,achain,num,
      + x,y,z
       else
-      read(card,2002,end=9999,err=9999) hdr,nama,alocal,namr,num,
+      read(card,2002,end=9994,err=9994) hdr,nama,alocal,namr,num,
      + x,y,z
       achain=' '
       endif
@@ -178,7 +178,7 @@ c
       endif
 c
       if(lnames) then
-      read(lfntmp,1003,end=9999,err=9999) name1,name2
+      read(lfntmp,1003,end=9995,err=9995) name1,name2
  1003 format(2a6)
       endif
 c
@@ -242,6 +242,14 @@ c
       pre_rdpdb=.true.
       return
 c
+ 9991 call md_abort('Error in pre_rdpdb ',1)
+ 9992 call md_abort('Error in pre_rdpdb ',2)
+ 9993 call md_abort('Error in pre_rdpdb ',3)
+ 9994 call md_abort('Error in pre_rdpdb ',4)
+ 9995 call md_abort('Error in pre_rdpdb ',5)
+ 9996 call md_abort('Error in pre_rdpdb ',6)
+ 9997 call md_abort('Error in pre_rdpdb ',7)
+ 9998 call md_abort('Error in pre_rdpdb ',8)
  9999 continue
       pre_rdpdb=.false.
       return
