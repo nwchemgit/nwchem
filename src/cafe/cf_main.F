@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.83 2000-09-20 22:59:53 d3j191 Exp $
+c $Id: cf_main.F,v 1.84 2000-09-21 00:06:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2108,8 +2108,8 @@ c
 c
       integer i,j,ndof(3),ifix,ifr,ito,l,len,number
       real*8 fact(3)
-      character*80 string,target
-      character*16 tag
+      character*80 string,target,residu
+      character*16 tag,res
 c
       if(me.eq.0) then
       write(*,1000) numfix
@@ -2130,8 +2130,16 @@ c
 c
       read(string(6:28),'(i3,2i10)') ifix,ifr,ito
       target=string(29:80)
-      len=index(target,' ')-1
+      len=index(target,':')
+      residu=' '
+      if(len.gt.0) then
+      residu=target(1:len-1)
+      target=target(len+1:80)
+      endif
       len=4
+      do 21 i=1,4
+      if(target(i:i).eq.'_') target(i:i)=' '
+   21 continue
 c
 c     solvent
 c
@@ -2168,9 +2176,10 @@ c
       do 5 i=1,nums
       tag=snam(i)
       do 51 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    51 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       isdt(i)=iand(isdt(i),not(lfixed))
       number=number+1
       endif
@@ -2180,9 +2189,10 @@ c
       do 6 i=1,nums
       tag=snam(i)
       do 61 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    61 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       isdt(i)=ior(isdt(i),lfixed)
       number=number+1
       endif
@@ -2193,11 +2203,13 @@ c
       if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
       tag=snam(i)
       do 71 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    71 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       number=number+1
-      isdt(i)=ior(isdt(i),lfixed)
+      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(lfixed))
+      if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
       endif
       endif
     7 continue
@@ -2214,9 +2226,10 @@ c
       do 8 i=1,nums
       tag=snam(i)
       do 81 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    81 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=iand(isdt(i),not(lfixed))
       number=number+1
@@ -2227,9 +2240,10 @@ c
       do 9 i=1,nums
       tag=snam(i)
       do 91 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
    91 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=ior(isdt(i),lfixed)
       number=number+1
@@ -2241,11 +2255,14 @@ c
       if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
       tag=snam(i)
       do 101 j=1,16
-      if(target(j:j).eq.'?') tag(j:j)='?'
+      if(target(j:j).eq.'?') tag(j+5:j+5)='?'
   101 continue
-      if(target(1:1).eq.' '.or.target(1:len).eq.tag(1:len)) then
-      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
-     + isdt(i)=ior(isdt(i),lfixed)
+      if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
+     + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
+      if(cf_atonum(isatt(i),int_mb(i_num)).ne.1) then
+      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(lfixed))
+      if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
+      endif
       number=number+1
       endif
       endif
