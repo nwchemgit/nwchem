@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.9 2002-10-08 21:19:55 bylaska Exp $
+* $Id: vib_wrtfreq.F,v 1.10 2002-10-08 21:41:18 bylaska Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -122,7 +122,8 @@ c     &      temp = 298.15d0
      >        ntemp, h_actlist)) then
             ntemp = 1
 
-            if (.not.MA_alloc_get(mt_dbl,(ntemp),'temp',h_actlist,l_actlist))
+            if (.not.MA_alloc_get(mt_dbl,(ntemp),'temp',
+     >                            h_actlist,l_actlist))
      >      call errquit(
      >       'vib_WRTFREQ: ma_get_index failed for actlist',911)
 
@@ -319,7 +320,7 @@ C
       call dcopy(3*natoms,0.0d0,0,dbl_mb(r1(1)),1)
       do ii=1,natoms
          if (.not.geom_cent_get(geom,ii,t,dbl_mb(r1(1)+(ii-1)*3),q))
-     >    call errquit('vib_geom_parameters_set: error reading ions',0)
+     >   call errquit('vib_geom_parameters_set: error reading ions',0)
       end do
 
       call geom_momint0(geom,dbl_mb(r1(1)),natoms,meig,mtensor,.true.)
