@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.15 2003-02-19 19:08:44 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.16 2003-02-20 01:00:59 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -31,6 +31,7 @@
 #include "paw_energy_vloc_atom.fh"
 #include "paw_energy_ion_atom.fh"
 #include "paw_energy_core_atom.fh"
+#include "paw_energy_hartree_atom.fh"
 
 
 *     **** local variables ****
@@ -46,6 +47,7 @@
       double precision paw_evloc_atom
       double precision paw_eion_atom
       double precision paw_ecore_atom
+      double precision paw_ehartree_atom
 
 
 *     **** MA local variables ****
@@ -467,6 +469,7 @@ c     if (np.gt.1) call D3dB_SumAll(enlocal)
 c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 c     get paw atom energies
+      paw_ehartree_atom = paw_energy_hartree_atom()
       paw_ekin_atom = paw_energy_kin_atom()
       paw_evloc_atom = paw_energy_vloc_atom()
       paw_eion_atom = paw_energy_ion_atom()
@@ -475,6 +478,7 @@ c     get paw atom energies
       write(*,*) "paw atom vloc energy",paw_evloc_atom 
       write(*,*) "paw atom ion energy",paw_eion_atom 
       write(*,*) "paw atom core energy",paw_ecore_atom 
+      write(*,*) "paw atom hartree energy",paw_ehartree_atom 
 
       call Pack_c_unpack(0,dn_cmp_smooth)
       call D3dB_cr_fft3b(1,dn_cmp_smooth)
