@@ -1,10 +1,13 @@
-
- OBJ_OPTIMIZE = detci_aux.o \
+# intf and aux break on IBM SP xlhpf with optimization ... why? 
+ OBJ_OPTIMIZE = \
 	      	detci_dens.o \
 	      	detci_diag.o \
-	      	detci_intf.o \
 	      	detci_sigma.o \
 		detci_spin.o
+
+
+	  OBJ = detci_aux.o \
+	      	detci_intf.o 
 
       LIBRARY = libmcscf.a
 
