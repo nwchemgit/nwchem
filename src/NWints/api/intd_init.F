@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.26 2000-01-04 00:52:22 mg201 Exp $
+c $Id: intd_init.F,v 1.27 2000-02-04 01:07:23 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -52,6 +52,10 @@ c
      &    atomic_nesc = .false.
       if (.not. rtdb_get(rtdb,'nesc_1e_approx',mt_log,1,nesc_1e_approx))
      &    nesc_1e_approx = .false.
+      if (.not. rtdb_get(rtdb,'ss_one_cent',mt_log,1,ss_one_cent))
+     &    ss_one_cent = .false.
+      if (.not. rtdb_get(rtdb,'do_ssss',mt_log,1,do_ssss)) 
+     &    do_ssss = .false.
 c
 c     Setup array with basis sets from bases
 c
@@ -286,8 +290,12 @@ c
         if(.not.bas_high_angular(bases(ibas),angm))
      &         call errquit('intd_init: angm error',angm)
         ang2use = max(ang2use,angm)
+        if (dyall_mod_dir) then
+          if(.not.bas_rel_high_ang(bases(ibas),angm))
+     &        call errquit('int_init: angm error',angm)
+          ang2use = max(ang2use,angm+1)
+        end if
 00300 continue
-      if (dyall_mod_dir) ang2use = ang2use+1
 *
 * test for higher than h functions  0123456
       if (ang2use.ge.6) call errquit
@@ -303,11 +311,22 @@ c
         call errquit('intd_init: spcart_init failed',911)
       endif
 c
-c Initialize relativistic basis set stuff
+c Initialize DmD relativistic basis set stuff
 c
       if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
+        if (.not. nesc_1e_approx) then
+          user_cando_sp   = .true.
+          def_cando_sp   = .false.
+          user_cando_txs = .true.
+          def_cando_txs  = .false.
+          if (ga_nodeid().eq.0 .and. oprint) then
+            write(luout,*) ' intd_init: cando_sp and cando_txs',
+     &          ' turned off for NESC2E'
+            call util_flush(luout)
+          end if 
+        end if
       end if
 c
 c.. read in approximate memory from rtdb
