@@ -79,8 +79,8 @@ c
 c     
 c-->  Clean-up parallel environment.
 c     
-      call ga_terminate()
-      call pend
+c     call ga_terminate()
+c     call pend
 
       nwdft = .true.
       return
