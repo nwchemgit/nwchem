@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.20 1997-04-23 01:12:43 d3g681 Exp $
+* $Id: mp2_grad.F,v 1.21 1997-05-14 20:08:19 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -42,6 +42,7 @@ c
       if (.not. scf(rtdb)) then
          semi_dir_mp2 = .false.
          call ecce_print_module_exit('mp2', 'failed')
+         Call Util_Print_pop
          return
       endif
 c
