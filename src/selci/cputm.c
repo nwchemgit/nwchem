@@ -1,5 +1,5 @@
 /*
- $Id: cputm.c,v 1.9 2004-05-08 01:28:14 edo Exp $
+ $Id: cputm.c,v 1.10 2004-05-10 18:40:30 edo Exp $
  */
 
 #include <sys/types.h>
@@ -26,7 +26,7 @@ struct timeval tp;
 #ifdef __INTERIX
 char tzp[10];
 #else
-void timezone tzp;
+struct timezone tzp;
 #endif
 int i;
 
