@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.37 1999-10-28 15:04:29 d3j191 Exp $
+c $Id: md_start.F,v 1.38 1999-11-01 15:58:44 d3j191 Exp $
 c
       implicit none
 c
@@ -1104,8 +1104,6 @@ c
       factgf=one
       if(iguide.gt.0) factgf=tstep/tguide
       factgg=one-factgf
-      write(*,'(a,4f16.10)') 'Guided MD factors ',
-     + factgg,factgf,tguide,fguide
 c
 c     open recording file
 c
