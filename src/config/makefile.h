@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.376 2001-12-15 04:13:46 d3j191 Exp $
+# $Id: makefile.h,v 1.377 2002-01-25 18:22:20 bert Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -893,7 +893,8 @@ endif
               -brename:.zscal_,.zscal \
               -brename:.zswap_,.zswap \
               -brename:.ztrmm_,.ztrmm \
-              -brename:.ztrmv_,.ztrmv 
+              -brename:.ztrmv_,.ztrmv \
+              -brename:.izamax_,.izamax
 #              -brename:.zherk_,.zherk \
 #              -brename:.zhemm_,.zhemm \
 #              -brename:.ztrsm_,.ztrsm \
@@ -1069,7 +1070,7 @@ ifeq ($(TARGET),LAPI64)
 LARGE_FILES = YES
 
 #  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi64_map
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bloadmap:nwchem.lapi64_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
    LINK.f   = mpcc_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k 
