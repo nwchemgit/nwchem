@@ -1,5 +1,5 @@
       logical function int_normalize(basisin,rtdb)
-c $Id: int_norm.F,v 1.8 2000-02-04 00:55:16 mg201 Exp $
+c $Id: int_norm.F,v 1.9 2000-02-04 17:33:56 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "bas.fh"
@@ -32,7 +32,11 @@ c but not the general contractions.
 c     
       if (.not. rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir))
      &    dyall_mod_dir = .false.
-      if (dyall_mod_dir) then
+      if (.not. rtdb_get(rtdb,'nesc_1e_approx',mt_log,1,nesc_1e_approx))
+     &    nesc_1e_approx = .false.
+      if (dyall_mod_dir .and.
+     &    ((basisin. eq. ao_bsh) .or. (basisin .eq. sc_bsh) .or.
+     &     (basisin .eq. lc_bsh .and. nesc_1e_approx))) then
         norm_typ = 3
       else
         norm_typ = 1
