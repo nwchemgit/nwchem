@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.17 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_gradient.F,v 1.18 2004-04-27 22:03:02 bert Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -104,8 +104,8 @@ C $Id: ecp_gradient.F,v 1.17 2003-10-17 22:53:51 carlfahl Exp $
       character*4 dbyd(3)
       character*12 printhead
       parameter (zero = 0.0d00, one = 1.0d00)
-      data tol/1.0d-14/
-!      data tol/1.0d-16/
+!      data tol/1.0d-14/
+      data tol/1.0d-16/
       data dbyd/'d/dx','d/dy','d/dz'/
       data printhead/'      U_ab  '/
 *
