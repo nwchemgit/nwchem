@@ -456,5 +456,9 @@ c
       if (oprint)
      $     call opprint(symops,rotoop,maxops,nops,itype)
 c
+c rjh hack to fix C1
+c
+      if (numgrp .eq. 1) nops = 0
+c
       end
 

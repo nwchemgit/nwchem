@@ -84,18 +84,25 @@ c
 c
 c     Allocate memory for the center map on the heap since it persists
 c
+      if (nops .gt. 0) then
       if (.not. MA_Alloc_Get(MT_Int,nops*nareal,'atom sym map',
      &     lmscr,imscr)) call errquit
      $     ('sym_nwc: ma_alloc_get of sym map failed', nops*nareal)
+      else
+       lmscr = -1
+       imscr = 99999999
+      endif
 c
 c--> derive mapping table for atom pairs permuted by sym operations
 c--> NOTE: at this point coords will contain cartesian coordinates
 c          and dbl_mb(icoord) has the fractional coordinates
 c          (unless system is molecular in which case is also cartesian)
 c
+      if (nops .gt. 0) then
       if (.not. MA_Push_Get(MT_Dbl,nops*3,'xnew scratch',
      &     lxnew,ixnew)) call errquit
      $     ('sym_nwc: ma for xnew scratch', nops*3)
+      endif
       if (.not. MA_Push_Get(MT_INT,nareal,'ilbl',
      &     llbl,ilbl)) call errquit
      $     ('sym_nwc: ma for ilbl', nareal)
@@ -105,7 +112,9 @@ c
      $     oprint,INT_MB(ilbl))
 c
       LResult = MA_Pop_Stack(llbl)
+      if (nops .gt. 0) then
       LResult = MA_Pop_Stack(lxnew)
+      endif
 c
 c     Insert new information into the geometry data structures
 c     Geom will hold the cartesian coords ... fractional ones
