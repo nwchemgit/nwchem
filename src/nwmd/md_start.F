@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.126 2002-06-04 21:22:50 d3j191 Exp $
+c $Id: md_start.F,v 1.127 2002-06-17 18:03:57 d3j191 Exp $
 c
       implicit none
 c
@@ -120,6 +120,8 @@ c
      + call errquit('Failed to allocate memory for esw',0)
       if(.not.ma_push_get(mt_dbl,2*mpe*msf*msf,'ess',l_ess,i_ess))
      + call errquit('Failed to allocate memory for ess',0)
+      if(.not.ma_push_get(mt_dbl,6*msf*msf,'fss',l_fss,i_fss))
+     + call errquit('Failed to allocate memory for fss',0)
       if(.not.ma_push_get(mt_dbl,msf,'esk',l_esk,i_esk))
      + call errquit('Failed to allocate memory for esk',0)
       if(npener.eq.0) then

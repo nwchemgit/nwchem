@@ -1,16 +1,16 @@
-c $Id: cf_forces.fh,v 1.17 2001-07-31 17:58:18 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.18 2002-06-17 18:04:01 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,esa)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,fss,esa)
 #elif defined(CAFE_FORCES)
       subroutine forces(lself,lpbcs,
      + xw,xwm,fw,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
-     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,esa)
+     + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess,fss,esa)
 #else
 c     error
 #endif
@@ -83,6 +83,7 @@ c
       logical lself,lpbc,lupden,lpbcs
       real*8 rtos(mwm),zs(msf,3,32)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),esa(nsa)
+      real*8 fss(msf,msf,3,2)
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs
       integer lptr
@@ -255,7 +256,7 @@ c
       if(npairs.gt.0) then
 #if defined(CAFE_POLARIZATION)
       call cf_fpss(xs,xsm,fs,zs,ps,psp,isga,isat,isdt,ismf,isml,isss,
-     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,esa,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,fss,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -267,7 +268,7 @@ c
      + dbl_mb(i_smr5),dbl_mb(i_smr6))   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,esa,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,fss,esa,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),

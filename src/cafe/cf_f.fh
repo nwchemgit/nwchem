@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
       implicit none
 c
@@ -758,7 +758,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1858,7 +1858,7 @@ c
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpss(xs,xsm,fs,zs,ps,psp,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,lpbcs,ess,esa,
+     + isfrom,nums,lpbc,lpbcs,ess,fss,esa,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1866,7 +1866,7 @@ c
 #elif defined(CAFE_FORCES)
       subroutine cf_fss(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,lpbcs,ess,esa,
+     + isfrom,nums,lpbc,lpbcs,ess,fss,esa,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1875,7 +1875,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1883,6 +1883,7 @@ c
 c
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
       real*8 zs(msf,3,3,2),ess(msf,msf,mpe,2)
+      real*8 fss(msf,msf,3,2)
       real*8 esa(nsa)
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
       integer isml(msa),isss(msa),isq2(msa),isq3(msa)
@@ -2444,6 +2445,14 @@ c
       fs(lssptr,1,ipss)=fs(lssptr,1,ipss)-f(nax+jnum)*rwx(nax+jnum,1)
       fs(lssptr,2,ipss)=fs(lssptr,2,ipss)-f(nax+jnum)*rwx(nax+jnum,2)
       fs(lssptr,3,ipss)=fs(lssptr,3,ipss)-f(nax+jnum)*rwx(nax+jnum,3)
+      isf=ismf(isfr+isa)
+      jsf=ismf(lssptr)
+      fss(isf,jsf,1,ipss)=fss(isf,jsf,1,ipss)+
+     + f(nax+jnum)*rwx(nax+jnum,1)
+      fss(isf,jsf,2,ipss)=fss(isf,jsf,2,ipss)+
+     + f(nax+jnum)*rwx(nax+jnum,2)
+      fss(isf,jsf,3,ipss)=fss(isf,jsf,3,ipss)+
+     + f(nax+jnum)*rwx(nax+jnum,3)
 #if defined(CAFE_POLARIZATION)
       fs(isfr+isa,1,ipss)=fs(isfr+isa,1,ipss)+fi(nax+jnum,1)
       fs(isfr+isa,2,ipss)=fs(isfr+isa,2,ipss)+fi(nax+jnum,2)
@@ -2965,7 +2974,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3244,7 +3253,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3510,7 +3519,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3843,7 +3852,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4160,7 +4169,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4506,7 +4515,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
+c $Id: cf_f.fh,v 1.47 2002-06-17 18:04:01 d3j191 Exp $
 c
       implicit none
 c

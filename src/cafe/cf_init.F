@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti,incl)
-c $Id: cf_init.F,v 1.77 2002-05-02 19:39:34 d3j191 Exp $
+c $Id: cf_init.F,v 1.78 2002-06-17 18:04:01 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1358,7 +1358,7 @@ c
 c
       return
       end
-      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess,esa)
+      subroutine cf_init(lp,llng,bx,vl,vli,zwi,zs,eww,esw,ess,fss,esa)
 c     + vw,vwt,vs,vst,zwi,zs,eww,esw,ess)
 c
 c     in r*8 : bx(3) : box dimensions
@@ -1372,6 +1372,7 @@ c
 c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
       real*8 bx(3),vl(3,3),vli(3,3),zwi(3,3,2),zs(msf,3,3,2)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
+      real*8 fss(msf,msf,3,2)
       real*8 esa(nsa,2)
       logical lp,llng
 c
@@ -1426,6 +1427,13 @@ c
       endif
       ep2(l)=zero
       ep3(l)=zero
+      do 21 i=1,msf
+      do 22 j=1,msf
+      fss(i,j,1,l)=zero
+      fss(i,j,2,l)=zero
+      fss(i,j,3,l)=zero
+   22 continue
+   21 continue
     8 continue
       ep2(3)=zero
       ep3(3)=zero

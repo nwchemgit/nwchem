@@ -2,10 +2,10 @@
      + nf1,nf2,nf3,ipropi,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi,
+     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme)
 c
-c $Id: prp_init.F,v 1.55 2002-06-04 23:13:48 d3j191 Exp $
+c $Id: prp_init.F,v 1.56 2002-06-17 18:03:58 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
       integer ipropi
-      logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbc
+      logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbci
       real*8 tstp,ddi,edi
       character*255 fil
 c
@@ -71,6 +71,7 @@ c
       lappr=.false.
       lpmf=npmf.gt.0
       lnoe=ndistr.gt.0
+      lpbc=lpbci
 c
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))
       lpert3=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.3.or.isetp2.eq.3))
@@ -364,6 +365,26 @@ c
       pronam(it)='Energy solute    -    restraint             kJ/mol'
       write(pronam(it)(15:17),'(i3)') i
       write(pronam(it)(19:21),'(i3)') j
+      it=it+1
+      pronam(it)='Force  solute    -    x                  kJ/mol nm'
+      write(pronam(it)(15:17),'(i3)') i
+      write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Force  solute    -    y                  kJ/mol nm'
+      write(pronam(it)(15:17),'(i3)') i
+      write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Force  solute    -    z                  kJ/mol nm'
+      write(pronam(it)(15:17),'(i3)') i
+      write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Force  solute    -                       kJ/mol nm'
+      write(pronam(it)(15:17),'(i3)') i
+      write(pronam(it)(19:21),'(i3)') j
+      lp(it)=.true.
     6 continue
     5 continue
       endif
@@ -383,6 +404,15 @@ c
       write(pronam(it)(34:38),'(i5)') i
       lp(it)=.true.
     8 continue
+      do 88 i=1,nsm-1
+      do 89 j=i+1,nsm
+      it=it+1
+      pronam(it)='Distance solute    -                            nm'
+      write(pronam(it)(17:19),'(i3)') i
+      write(pronam(it)(21:23),'(i3)') j
+      lp(it)=.true.
+   89 continue
+   88 continue
       endif
 c
       endif
