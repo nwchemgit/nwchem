@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.24 1997-11-14 00:19:23 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.25 1998-03-13 01:41:51 d3g681 Exp $
 c
       implicit none
 c
@@ -437,7 +437,7 @@ c
       if (util_print('initial vector analysis', print_debug)) then
          nprint = min(nclosed+nopen+30,nmo)
          if (scftype.eq.'RHF' .or. scftype.eq.'ROHF') then
-            call movecs_print_anal(basis, max(1,nclosed-20),
+            call movecs_print_anal(basis, 1,
      &           nprint, 0.15d0, g_movecs, 
      &           'ROHF Initial Molecular Orbital Analysis', 
      &           .true., dbl_mb(k_eval), oadapt, int_mb(k_irs),
