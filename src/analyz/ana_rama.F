@@ -1,6 +1,6 @@
       subroutine ana_rama(x,iram)
 c
-c $Id: ana_rama.F,v 1.2 2000-09-14 22:37:52 d3j191 Exp $
+c $Id: ana_rama.F,v 1.3 2000-09-20 00:54:34 edo Exp $
 c
       implicit none
 c
@@ -35,10 +35,10 @@ c
       psi=0.0d0
       if(lphi) phi=ana_torsion(dbl_mb(i_xdat),msa,
      + dbl_mb(i_wdat),mwm,mwa,
-     + iram(i,1),0,iram(i,2),0,iram(i,3),0,iram(i,4),0,)
+     + iram(i,1),0,iram(i,2),0,iram(i,3),0,iram(i,4),0)
       if(lpsi) psi=ana_torsion(dbl_mb(i_xdat),msa,
      + dbl_mb(i_wdat),mwm,mwa,
-     + iram(i,2),0,iram(i,3),0,iram(i,4),0,iram(i,5),0,)
+     + iram(i,2),0,iram(i,3),0,iram(i,4),0,iram(i,5),0)
       ihb1=0
       ihb2=0
 c
