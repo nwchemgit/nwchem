@@ -1,8 +1,8 @@
       subroutine mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task)
+      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      implicit none
       integer nbf,basis,rtdb
       integer noa,nva
       double precision tol2e
