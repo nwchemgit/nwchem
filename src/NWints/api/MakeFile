@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.2 1999-11-14 02:59:22 d3g681 Exp $	
+#	$Id: MakeFile,v 1.3 1999-12-08 01:22:00 bert Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -80,6 +80,7 @@ OBJ =          $(OBJDIR)\cando_sp.obj \
                $(OBJDIR)\intpd_2e3ct.obj \
                $(OBJDIR)\intpd_mpolel.obj \
                $(OBJDIR)\int_1epvpe.obj \
+               $(OBJDIR)\int_1epxvpe.obj \
                $(OBJDIR)\int_1er.obj \
                $(OBJDIR)\intso_1e.obj
 
