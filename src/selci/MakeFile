@@ -1,0 +1,121 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:53:08 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+BLAS =         $(OBJDIR)\mxma.obj
+
+UOBJ =         $(OBJDIR)\iprtri.obj \
+               $(OBJDIR)\prtri.obj \
+               $(OBJDIR)\input.obj \
+               $(OBJDIR)\icopy.obj \
+               $(OBJDIR)\output.obj \
+               $(OBJDIR)\yacobi.obj \
+               $(OBJDIR)\tred1.obj \
+               $(OBJDIR)\tqlrat.obj \
+               $(OBJDIR)\loadw.obj \
+               $(OBJDIR)\rdhint.obj \
+               $(OBJDIR)\rdhcon.obj \
+               $(OBJDIR)\rdhwmt.obj \
+               $(OBJDIR)\rdconf.obj \
+               $(OBJDIR)\upkcon.obj \
+               $(OBJDIR)\prtcon.obj \
+               $(OBJDIR)\wrtcon.obj \
+               $(OBJDIR)\iodiff.obj \
+               $(OBJDIR)\bserch.obj \
+               $(OBJDIR)\popcnt32.obj \
+               $(OBJDIR)\readh.obj \
+               $(OBJDIR)\renorm.obj \
+               $(OBJDIR)\sread.obj \
+               $(OBJDIR)\swrite.obj \
+               $(OBJDIR)\pkcon.obj \
+               $(OBJDIR)\wthcon.obj \
+               $(OBJDIR)\wtconf.obj \
+               $(OBJDIR)\vadd.obj \
+               $(OBJDIR)\idmin.obj \
+               $(OBJDIR)\isum.obj \
+               $(OBJDIR)\rd1.obj \
+               $(OBJDIR)\fcidim.obj \
+               $(OBJDIR)\axb.obj \
+               $(OBJDIR)\axbt.obj \
+               $(OBJDIR)\gettim.obj \
+               $(OBJDIR)\cputm.obj \
+               $(OBJDIR)\minit.obj \
+               $(OBJDIR)\mxmb.obj \
+               $(OBJDIR)\check.obj
+
+DVOBJ =        $(OBJDIR)\davids.obj \
+               $(OBJDIR)\sigma.obj
+
+CIOBJ =        $(OBJDIR)\conf.obj \
+               $(OBJDIR)\ci.obj \
+               $(OBJDIR)\initci.obj \
+               $(OBJDIR)\rdhead.obj \
+               $(OBJDIR)\load.obj \
+               $(OBJDIR)\loada.obj \
+               $(OBJDIR)\mkinta.obj \
+               $(OBJDIR)\pconls.obj \
+               $(OBJDIR)\makeh.obj \
+               $(OBJDIR)\mkindb.obj \
+               $(OBJDIR)\eij.obj \
+               $(OBJDIR)\eijeji.obj \
+               $(OBJDIR)\makehd.obj \
+               $(OBJDIR)\makef.obj \
+               $(OBJDIR)\loadg.obj \
+               $(OBJDIR)\getij.obj \
+               $(OBJDIR)\makehs.obj \
+               $(OBJDIR)\eirerj.obj \
+               $(OBJDIR)\loadab.obj \
+               $(OBJDIR)\couple.obj \
+               $(OBJDIR)\gtijkl.obj \
+               $(OBJDIR)\eijkj.obj \
+               $(OBJDIR)\makhdb.obj \
+               $(OBJDIR)\eijil.obj \
+               $(OBJDIR)\mknsneed.obj \
+               $(OBJDIR)\eijkl.obj \
+               $(OBJDIR)\putinb.obj \
+               $(OBJDIR)\inicij.obj \
+               $(OBJDIR)\ointer.obj \
+               $(OBJDIR)\oeq.obj
+
+SELOBJ =       $(OBJDIR)\select.obj \
+               $(OBJDIR)\selci.obj \
+               $(OBJDIR)\ptidy.obj \
+               $(OBJDIR)\anal.obj \
+               $(OBJDIR)\mkindx.obj \
+               $(OBJDIR)\slect.obj \
+               $(OBJDIR)\tester.obj \
+               $(OBJDIR)\mkdele.obj \
+               $(OBJDIR)\mkvc.obj \
+               $(OBJDIR)\e0mp2.obj \
+               $(OBJDIR)\mpdele.obj \
+               $(OBJDIR)\stool.obj \
+               $(OBJDIR)\restk.obj \
+               $(OBJDIR)\restin.obj \
+               $(OBJDIR)\orbanal.obj
+
+OBJ_OPTIMIZE = $(UOBJ) \
+               $(DVOBJ) \
+               $(CIOBJ) \
+               $(SELOBJ) \
+               $(BLAS)
+
+LIBRARY = selci.lib
+
+LIB_TARGETS = conf htoa
+
+LIBS = $(LIBRARY_PATH) $(LIBDIR)/libtcgmsg.a
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+conf:	conf.o $(LIBRARY_PATH)
+	$(FC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+htoa:	htoa.o
+	$(FC) -o $@ $^
+
+!ENDIF

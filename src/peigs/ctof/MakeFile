@@ -1,0 +1,49 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:49:34 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+COBJ =         $(OBJDIR)\bortho_f.obj \
+               $(OBJDIR)\mxm25_f.obj \
+               $(OBJDIR)\mxm5x_f.obj \
+               $(OBJDIR)\mxm88_f.obj \
+               $(OBJDIR)\onenorm_f.obj \
+               $(OBJDIR)\ortho_f.obj \
+               $(OBJDIR)\pdspev_f.obj \
+               $(OBJDIR)\pdspevx_f.obj \
+               $(OBJDIR)\pdspgv_f.obj \
+               $(OBJDIR)\pdspgvx_f.obj \
+               $(OBJDIR)\resid_f.obj \
+               $(OBJDIR)\residual_f.obj \
+               $(OBJDIR)\sonenorm_f.obj \
+               $(OBJDIR)\tresid_f.obj \
+               $(OBJDIR)\choleski_f.obj \
+               $(OBJDIR)\inverse_f.obj
+
+OBJ =          $(COBJ)
+
+LIBRARY = peigs.lib
+
+!INCLUDE ..\DEFS.WIN32
+
+!INCLUDE ..\..\config\NTmakefile.h
+!INCLUDE ..\..\config\NTmakelib.h
+
+!IF 0
+
+include ../DEFS
+
+all:		$(COBJ)
+
+.EXPORT_ALL_VARIABLES:
+
+.PHONY :	clean
+
+clean:		
+		-rm -f *.o
+
+.c.o:	 ;	$(peigs_CC) -c $<
+ 
+
+!ENDIF

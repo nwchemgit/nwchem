@@ -1,0 +1,170 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:54:21 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+SUBDIRS = md5
+
+BLAS =         $(OBJDIR)\dfill.obj \
+               $(OBJDIR)\ifill.obj \
+               $(OBJDIR)\rsg.obj \
+               $(OBJDIR)\mabyte_fill.obj
+
+OBJ_OPTIMIZE = $(OBJDIR)\ga_matpow.obj \
+               $(OBJDIR)\util_pack.obj \
+               $(OBJDIR)\dabssum.obj \
+               $(OBJDIR)\dabsmax.obj \
+               $(BLAS) \
+               $(OBJDIR)\ga_it_lsolve.obj \
+               $(OBJDIR)\ga_it_orth.obj \
+               $(OBJDIR)\ga_orthog.obj \
+               $(OBJDIR)\idamin.obj \
+               $(OBJDIR)\util_jacobi.obj
+
+OBJ =          $(OBJDIR)\output.obj \
+               $(OBJDIR)\errquit.obj \
+               $(OBJDIR)\ffflush.obj \
+               $(OBJDIR)\print_center.obj \
+               $(OBJDIR)\util_flush.obj \
+               $(OBJDIR)\util_host.obj \
+               $(OBJDIR)\util_date.obj \
+               $(OBJDIR)\input_echo.obj \
+               $(OBJDIR)\util_transpose.obj \
+               $(OBJDIR)\ga_iter_diag.obj \
+               $(OBJDIR)\ga_maxelt.obj \
+               $(OBJDIR)\ga_pcg_min.obj \
+               $(OBJDIR)\line_search.obj \
+               $(OBJDIR)\ga_orth_vec.obj \
+               $(OBJDIR)\ga_ran_fill.obj \
+               $(OBJDIR)\ga_mix.obj \
+               $(OBJDIR)\ga_list.obj \
+               $(OBJDIR)\ga_it_proj.obj \
+               $(OBJDIR)\ga_screen.obj \
+               $(OBJDIR)\ga_get_diag.obj \
+               $(OBJDIR)\fortchar.obj \
+               $(OBJDIR)\seq_output.obj \
+               $(OBJDIR)\ga_mat2col.obj \
+               $(OBJDIR)\util_ch_brd.obj \
+               $(OBJDIR)\two_ind_trn.obj \
+               $(OBJDIR)\util_pname.obj \
+               $(OBJDIR)\sread.obj \
+               $(OBJDIR)\swrite.obj \
+               $(OBJDIR)\banner.obj \
+               $(OBJDIR)\util_print.obj \
+               $(OBJDIR)\util_version.obj \
+               $(OBJDIR)\mk_fit_xf.obj \
+               $(OBJDIR)\int_2c_ga.obj \
+               $(OBJDIR)\ga_local_mdot.obj \
+               $(OBJDIR)\util_cpusec.obj \
+               $(OBJDIR)\util_wallsec.obj \
+               $(OBJDIR)\gather.obj \
+               $(OBJDIR)\scatter.obj \
+               $(OBJDIR)\ga_trace_dg.obj \
+               $(OBJDIR)\icopy.obj \
+               $(OBJDIR)\lcopy.obj \
+               $(OBJDIR)\util_legal.obj \
+               $(OBJDIR)\util_file_name.obj \
+               $(OBJDIR)\util_speak.obj \
+               $(OBJDIR)\util_rtdb_speak.obj \
+               $(OBJDIR)\util_file_copy.obj \
+               $(OBJDIR)\util_file_unlink.obj \
+               $(OBJDIR)\util_system.obj \
+               $(OBJDIR)\util_sleep.obj \
+               $(OBJDIR)\util_rtdb_state.obj \
+               $(OBJDIR)\ecce_print.obj \
+               $(OBJDIR)\util_random.obj \
+               $(OBJDIR)\util_job.obj \
+               $(OBJDIR)\util_getenv.obj \
+               $(OBJDIR)\util_getarg.obj \
+               $(OBJDIR)\util_nwchemrc.obj \
+               $(OBJDIR)\util_md.obj \
+               $(OBJDIR)\dgewr.obj \
+               $(OBJDIR)\atoi.obj \
+               $(OBJDIR)\indint.obj \
+               $(OBJDIR)\util_wall_remain.obj \
+               $(OBJDIR)\ga_normf.obj \
+               $(OBJDIR)\corr_mk_ref.obj \
+               $(OBJDIR)\nw_inp_from_file.obj \
+               $(OBJDIR)\bgj.obj \
+               $(OBJDIR)\movecs_ecce.obj \
+               $(OBJDIR)\get_density.obj \
+               $(OBJDIR)\moeig_read.obj \
+               $(EXTRA_OBJ)
+
+HEADERS =      util.fh \
+               itri.fh \
+               msgids.fh \
+               numerical_constants.fh \
+               stdio.fh \
+               printlevels.fh \
+               bitops.fh \
+               bitops_decls.fh \
+               bitops_funcs.fh \
+               bgj.fh \
+               bgj_common.fh \
+               nwc_const.fh
+
+LIBRARY = util.lib
+LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
+              -DPERM_DEF_DIR=$(PERM_DEF_DIR)
+LIB_INCLUDES = -I..\ddscf
+
+LIB_TARGETS = testsolve testecce
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+ifdef JOBTIME_PATH
+   LIB_DEFINES += -DJOBTIMEPATH=\"$(JOBTIME_PATH)\"
+else
+   LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
+endif
+
+# !!! Need any EXTRA_OBJ's here?
+# ..example..
+ifeq ($(TARGET),LINUX)
+  EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o
+#
+# If you want to turn traps on for LINUX uncomment this line. That is it.
+#  EXTRA_OBJ += linux_gnu_trap.o
+#
+endif
+
+ifdef SPEECH
+   LIB_DEFINES += -DSPEECH
+   LIB_TARGETS += speechserver speechclient
+   OBJ += udp.o
+endif
+
+util_version.F:	util_v_stub.F
+	cp $^ $@
+
+version:	largeversion
+	@ls -l util_version.F
+largeversion:	../config/nwchem_config.h
+	catsrc nwchem.F config $(NWSUBDIRS) | \
+		awk -f ids.awk > util_version.F
+smallversion:	../config/nwchem_config.h
+	@echo " "
+	@echo " perl must be in your path"
+	@echo " "
+	catsrc nwchem.F config $(NWSUBDIRS) | \
+		awk -f ids.awk > util_version.F
+	smallversion.pl
+
+speechserver:	speechserver.c udp.c
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+speechclient:	speechclient.c udp.c
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+testsolve:      testsolve.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+testecce:      testecce.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+!ENDIF

@@ -1,0 +1,282 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:49:38 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+COBJ =         $(OBJDIR)\clustrfix.obj \
+               $(OBJDIR)\pdcomplex.obj \
+               $(OBJDIR)\mgscs.obj \
+               $(OBJDIR)\pscale.obj \
+               $(OBJDIR)\clustrxx5.obj \
+               $(OBJDIR)\clustrxx4.obj \
+               $(OBJDIR)\pstein4.obj \
+               $(OBJDIR)\pstein5.obj \
+               $(OBJDIR)\peigs_dlasq2a.obj \
+               $(OBJDIR)\b_ortho.obj \
+               $(OBJDIR)\chol_bcst.obj \
+               $(OBJDIR)\choleski9.obj \
+               $(OBJDIR)\ci_entry.obj \
+               $(OBJDIR)\conjug22.obj \
+               $(OBJDIR)\de_sym.obj \
+               $(OBJDIR)\exit.obj \
+               $(OBJDIR)\exit2.obj \
+               $(OBJDIR)\forLL.obj \
+               $(OBJDIR)\forLU.obj \
+               $(OBJDIR)\gmax.obj \
+               $(OBJDIR)\inverse.obj \
+               $(OBJDIR)\lu_mxm2.obj \
+               $(OBJDIR)\mapdif.obj \
+               $(OBJDIR)\mapdif1.obj \
+               $(OBJDIR)\matmax.obj \
+               $(OBJDIR)\mdif2b.obj \
+               $(OBJDIR)\mdiff1.obj \
+               $(OBJDIR)\mdiff2.obj \
+               $(OBJDIR)\memreq.obj \
+               $(OBJDIR)\memreq_f.obj \
+               $(OBJDIR)\mgs5.obj \
+               $(OBJDIR)\mxm25.obj \
+               $(OBJDIR)\mxm5x.obj \
+               $(OBJDIR)\mxm88.obj \
+               $(OBJDIR)\mxm_ll1.obj \
+               $(OBJDIR)\onenorm.obj \
+               $(OBJDIR)\ortho.obj \
+               $(OBJDIR)\pdspev_c.obj \
+               $(OBJDIR)\pdspevx.obj \
+               $(OBJDIR)\pdspgv_c.obj \
+               $(OBJDIR)\pdspgvx.obj \
+               $(OBJDIR)\pdsptri.obj \
+               $(OBJDIR)\peigs_cmod.obj \
+               $(OBJDIR)\pipe_fut.obj \
+               $(OBJDIR)\pmmLSL.obj \
+               $(OBJDIR)\pmmLUL.obj \
+               $(OBJDIR)\pmmlsl2.obj \
+               $(OBJDIR)\pxerbla.obj \
+               $(OBJDIR)\qsort.obj \
+               $(OBJDIR)\resid.obj \
+               $(OBJDIR)\residual.obj \
+               $(OBJDIR)\sfnorm.obj \
+               $(OBJDIR)\shellsort.obj \
+               $(OBJDIR)\soluf.obj \
+               $(OBJDIR)\sonenorm.obj \
+               $(OBJDIR)\soort.obj \
+               $(OBJDIR)\sort.obj \
+               $(OBJDIR)\sorteig.obj \
+               $(OBJDIR)\tred22.obj \
+               $(OBJDIR)\treesort3.obj \
+               $(OBJDIR)\tresid.obj \
+               $(OBJDIR)\util.obj \
+               $(OBJDIR)\xerbla.obj \
+               $(OBJDIR)\mapchk.obj \
+               $(OBJDIR)\pdiff.obj \
+               $(OBJDIR)\pgexit.obj \
+               $(OBJDIR)\reducemap.obj \
+               $(OBJDIR)\pstebz10.obj \
+               $(OBJDIR)\inv_it4.obj \
+               $(OBJDIR)\inv_it5.obj \
+               $(OBJDIR)\inv_it3.obj \
+               $(OBJDIR)\peigs_tldlfact.obj \
+               $(OBJDIR)\clustrf5.obj
+
+OBJ =          $(COBJ)
+
+LIBRARY = peigs.lib
+
+!INCLUDE ..\..\DEFS.WIN32
+
+!INCLUDE ..\..\..\config\NTmakefile.h
+!INCLUDE ..\..\..\config\NTmakelib.h
+
+!IF 0
+
+#
+# $Id: MakeFile,v 1.1 1999-11-13 01:49:38 bjohnson Exp $
+#
+
+include ../../DEFS
+
+all:		$(COBJ)
+		$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a $?
+
+.EXPORT_ALL_VARIABLES:
+
+.PHONY :	clean
+
+clean:		
+		-rm -f *.o maxx.f
+		-rm -f *.c.*
+
+realclean:	
+		clean
+
+maxx.o :	maxx.cpp
+		-rm -f maxx.f
+		$(peigs_CPP) < maxx.cpp > maxx.f
+		$(peigs_FC) $(OPT) -c $(F77NFLAGS) maxx.f
+
+soort.o:	soort.c
+		$(peigs_CC) $(OPTC) -c soort.c
+
+lower_mxm.o:	lower_mxm.c
+		$(peigs_CC) -c lower_mxm.c
+
+shellsort.o:	shellsort.c
+		$(peigs_CC) $(OPTC) -c shellsort.c
+
+treesort.o:	treesort.c
+		$(peigs_CC) -c treesort.c
+
+gmax.o:		gmax.c
+		$(peigs_CC) $(OPTC) -c gmax.c
+
+forLL.o:	forLL.c
+		$(peigs_CC) $(OPTC) -c forLL.c
+
+forLU.o:	forLU.c
+		$(peigs_CC) $(OPTC) -c forLU.c
+
+ci_entry.o:	ci_entry.c
+		$(peigs_CC) $(OPTC) -c ci_entry.c
+
+util.o:		util.c
+		$(peigs_CC) $(OPTC) -c util.c
+
+pdspgv_c.o:	pdspgv_c.c
+		$(peigs_CC) $(OPTC) -c pdspgv_c.c
+
+pdspev_c.o:	pdspev_c.c
+		$(peigs_CC) $(OPTC) -c pdspev_c.c
+
+pdspevx.o:	pdspevx.c
+		$(peigs_CC) $(OPTC) -c pdspevx.c
+
+pdspgvx.o:	pdspgvx.c
+		$(peigs_CC) $(OPTC) -c pdspgvx.c
+
+exit.o:		exit.c
+		$(peigs_CC) $(OPTC) -c exit.c
+
+exit2.o:	exit2.c
+		$(peigs_CC) $(OPTC) -c exit2.c
+
+pxerbla.o:	pxerbla.c
+		$(peigs_CC) $(OPTC) -c pxerbla.c
+
+chol_bcst.o:	chol_bcst.c
+		$(peigs_CC) $(OPTC) -c chol_bcst.c
+
+upperxfull.o:	upperxfull.c
+		$(peigs_CC) $(OPTC) -c upperxfull.c
+
+pipe_fut.o:	pipe_fut.c
+		$(peigs_CC) $(OPTC) -c pipe_fut.c
+
+choleski9.o:	choleski9.c
+		$(peigs_CC) $(OPTC) -c choleski9.c
+
+tred22.o:	tred22.c
+		$(peigs_CC) $(OPTC) -c tred22.c
+
+pstebz9.o:	pstebz9.c
+		$(peigs_CC) $(OPTC) -c pstebz9.c
+
+
+pstein4.o:	pstein4.c
+		$(peigs_CC) $(OPTC) -c pstein4.c
+
+pstein5.o:	pstein5.c
+		$(peigs_CC) $(OPTC) -c pstein5.c
+
+inverse.o:	inverse.c
+		$(peigs_CC) $(OPTC)  -c inverse.c
+
+conjug.o:	conjug.c
+		$(peigs_CC) $(OPTC) -c conjug.c 
+
+pmmLUL.o:	pmmLUL.c
+		$(peigs_CC) $(OPTC) -c pmmLUL.c
+
+pmmLSL.o:	pmmLSL.c
+		$(peigs_CC) $(OPTC) -c pmmLSL.c 
+
+soluf.o:	soluf.c
+		$(peigs_CC) $(OPTC) -c soluf.c  
+
+mxm.o:		mxm.c
+		$(peigs_CC) $(OPTC) -c mxm.c    
+
+mxm2.o:		mxm2.c
+		$(peigs_CC) $(OPTC) -c mxm2.c    
+
+mxm5x.o:	mxm5x.c
+		$(peigs_CC) $(OPTC) -c mxm5x.c    
+
+mxm3.o:		mxm3.c
+		$(peigs_CC) $(OPTC) -c mxm3.c
+
+mxm4.o:		mxm4.c
+		$(peigs_CC) $(OPTC) -c mxm4.c   
+
+mxm5.o:		mxm5.c
+		$(peigs_CC) $(OPTC) -c mxm5.c   
+
+mxm8.o:		mxm8.c
+		$(peigs_CC) $(OPTC) -c mxm8.c   
+
+reducelst.o:	reducelst.c
+		$(peigs_CC) $(OPTC) -c reducelst.c
+
+sort.o:		sort.c
+		$(peigs_CC) $(OPTC) -c sort.c
+
+clustrf.o:	clustrf.c
+		$(peigs_CC)  -c clustrf.c
+
+inv_it2.o:	inv_it2.c
+		$(peigs_CC) $(OPTC) -c inv_it2.c
+
+inv_it5.o:	inv_it5.c
+		$(peigs_CC) $(OPTC) -c inv_it5.c
+
+mgs2.o:		mgs2.c
+		$(peigs_CC) $(OPTC) -c mgs2.c
+
+mgs1b.o:	mgs1b.c
+		$(peigs_CC) $(OPTC) -c mgs1b.c
+
+qsort.o:	qsort.c
+		$(peigs_CC) $(OPTC) -c qsort.c
+
+qsort1.o:	qsort1.c
+		$(peigs_CC) $(OPTC) -c qsort1.c
+
+memreq.o:	memreq.c
+		$(peigs_CC) $(OPTC) -c memreq.c
+
+memreq_f.o:	memreq_f.c
+		$(peigs_CC) $(OPTC) -c memreq_f.c
+
+dsteinsch.o:	dsteinsch.c
+		$(peigs_CC) $(OPTC) -c  dsteinsch.c
+
+mapdif.o:	mapdif.c
+		$(peigs_CC) $(OPTC) -c mapdif.c    
+
+mapdif1.o:	mapdif1.c
+		$(peigs_CC) $(OPTC) -c mapdif1.c    
+
+peigs_cmod.o:	peigs_cmod.f
+		$(peigs_FC) -c peigs_cmod.f
+
+clustrxx5.o:	clustrxx5.c
+		$(peigs_CC) -c clustrxx5.c
+
+clustrxx4.o:	clustrxx4.c
+		$(peigs_CC) -c clustrxx4.c
+
+
+.c.o:;	$(peigs_CC) $(OPTC) -c $<
+.f.o:;	$(peigs_FC) $(OPT) -c $<
+.F.o:;  $(peigs_FC) $(OPT) -c $<
+
+!ENDIF

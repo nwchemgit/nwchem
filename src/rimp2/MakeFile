@@ -1,0 +1,54 @@
+#
+#	$Id: MakeFile,v 1.1 1999-11-13 01:52:52 bjohnson Exp $	
+#
+
+!MESSAGE *** Unresolved issues in this nmake file ***
+
+OBJ_OPTIMIZE = $(OBJDIR)\rimp2_denom.obj \
+               $(OBJDIR)\sum_pairs.obj \
+               $(OBJDIR)\xf3ci_s12a.obj \
+               $(OBJDIR)\xf3ci_s12b.obj \
+               $(OBJDIR)\eval_3ci.obj
+
+OBJ =          $(OBJDIR)\rimp2_v_e2.obj \
+               $(OBJDIR)\mk_1d_shdist.obj \
+               $(OBJDIR)\ga_by_shells.obj \
+               $(OBJDIR)\xf3ci_step12.obj \
+               $(OBJDIR)\xf3ci_step3.obj \
+               $(OBJDIR)\xform_3cints.obj \
+               $(OBJDIR)\occ_ranges.obj \
+               $(OBJDIR)\rimp2_xf.obj \
+               $(OBJDIR)\close_3ci.obj \
+               $(OBJDIR)\open_3ci.obj \
+               $(OBJDIR)\put_3cints.obj \
+               $(OBJDIR)\get_3cints.obj \
+               $(OBJDIR)\rimp2.obj \
+               $(OBJDIR)\dgecop.obj \
+               $(OBJDIR)\lnblnk.obj \
+               $(OBJDIR)\max_v_diag.obj \
+               $(OBJDIR)\rimp2_parm.obj \
+               $(OBJDIR)\rimp2_timers.obj \
+               $(OBJDIR)\pr_corr_map.obj \
+               $(OBJDIR)\prog_report.obj \
+               $(OBJDIR)\xf3ci_mem12.obj \
+               $(OBJDIR)\iamax.obj \
+               $(OBJDIR)\rimp2_e_mem.obj
+
+LIBRARY = rimp2.lib
+
+!INCLUDE ..\config\NTmakefile.h
+!INCLUDE ..\config\NTmakelib.h
+
+!IF 0
+
+# $Id: MakeFile,v 1.1 1999-11-13 01:52:52 bjohnson Exp $
+# Note: To switch on disk arrays, uncomment the DEFINE +=... after the
+# includes.  Do NOT move the DEFINE ahead of the includes or it won't
+# have the desired effect.
+
+# The default is to use standard Fortran direct access files.
+# Uncomment this definition to switch to use disk arrays instead.
+# You must also build and link against the DA library (see ../global/da).
+#DEFINES += -DRIMP2_USE_DA
+
+!ENDIF
