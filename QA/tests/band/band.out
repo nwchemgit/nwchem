@@ -1,9 +1,9 @@
- argument  1 = ../band.nw
+ argument  1 = band.nw
                                          
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 4.5
+              Northwest Computational Chemistry Package (NWChem) 4.7
               ------------------------------------------------------
  
  
@@ -16,7 +16,7 @@
  
  
                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                            1999, 2000, 2001, 2002, 2003
+                         1999, 2000, 2001, 2002, 2003, 2004
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -73,13 +73,13 @@
            ---------------
 
     hostname      = wd37120.pnl.gov
-    program       = nwchem
-    date          = Thu Apr 22 08:08:37 2004
+    program       = /home/bylaska/bin/nwchem
+    date          = Thu Jan  6 08:04:19 2005
 
-    compiled      = Thu Apr 22 07:55:21 PDT 2004
+    compiled      = Fri Dec 31 13:18:20 PST 2004
     source        = /home/bylaska/nwchem
     nwchem branch = Development
-    input         = ../band.nw
+    input         = band.nw
     prefix        = band.
     data base     = ./band.db
     status        = startup
@@ -91,10 +91,10 @@
            Memory information
            ------------------
 
-    heap      =    8847354 doubles =     67.5 Mbytes
-    stack     =    2949107 doubles =     22.5 Mbytes
-    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
-    total     =   11796461 doubles =     90.0 Mbytes
+    heap      =    8847361 doubles =     67.5 Mbytes
+    stack     =    2949121 doubles =     22.5 Mbytes
+    global    =   11796491 doubles =     90.0 Mbytes (within heap+stack)
+    total     =   11796482 doubles =     90.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -112,9 +112,8 @@
                                 -------------------
  
  
-                                                                                                                      GaN 8 atom cubic cell
-                                                                                                                      ---------------------
- 
+                               GaN 8 atom cubic cell
+                               ---------------------
  
   !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  ==============================================================================
@@ -154,8 +153,6 @@
 
 
 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
           ****************************************************
           *                                                  *
           *               NWPW PSPW Calculation              *
@@ -171,10 +168,8 @@
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:08:37 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:04:19 2005  <<<
           ================ input data ========================
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  
  Generated formatted_filename: ./Ga.vpp
  
@@ -198,7 +193,7 @@
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: Ga  core charge: 3.0  lmax=  2
@@ -218,7 +213,7 @@
              cutoff =   0.700   0.700   0.700
  
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      Ga:  4     N :  4
@@ -255,59 +250,57 @@
 
 
           ============ Grassmann lmbfgs iteration ============
-     >>>  ITERATION STARTED AT Thu Apr 22 08:09:02 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:04:35 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
      -  15 steepest descent iterations performed
-      10   -0.4663124520E+02   -0.11225E-01    0.28935E+00
+      10   -0.4669036680E+02   -0.63679E-02    0.23169E+00
      -  10 steepest descent iterations performed
-      20   -0.4668851906E+02   -0.44440E-02    0.12485E-01
-      30   -0.4670517780E+02   -0.60645E-03    0.42878E-02
-      40   -0.4670708074E+02   -0.32023E-04    0.34286E-03
-      50   -0.4670729333E+02   -0.80623E-05    0.69015E-04
-      60   -0.4670731938E+02   -0.49774E-06    0.38184E-05
-      70   -0.4670732146E+02   -0.11755E-06    0.53518E-06
-      80   -0.4670732156E+02   -0.99567E-07    0.49890E-08
+      20   -0.4670525627E+02   -0.58203E-03    0.14688E-02
+      30   -0.4670724916E+02   -0.32389E-04    0.48262E-03
+      40   -0.4670735779E+02   -0.15192E-05    0.15447E-04
+      50   -0.4670736139E+02   -0.40780E-07    0.38788E-06
+      60   -0.4670736141E+02   -0.23378E-07    0.32339E-09
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:09:24 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:04:44 2005  <<<
 
 
 ==  Summary Of Results  ==
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4670732156E+02 (   -0.58384E+01/ion)
- total orbital energy:   0.2046658893E+01 (    0.12792E+00/electron)
- hartree   energy    :   0.9902982268E+01 (    0.61894E+00/electron)
- exc-corr  energy    :  -0.1329221542E+02 (   -0.83076E+00/electron)
+ total     energy    :  -0.4670736141E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2046639880E+01 (    0.12791E+00/electron)
+ hartree   energy    :   0.9903005197E+01 (    0.61894E+00/electron)
+ exc-corr  energy    :  -0.1329222194E+02 (   -0.83076E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2846758447E+02 (    0.17792E+01/electron)
- K.S. V_l  energy    :  -0.2934388532E+02 (   -0.18340E+01/electron)
- K.S. V_nl energy    :   0.5050260558E+00 (    0.31564E-01/electron)
- K.S. V_Hart energy  :   0.1980596454E+02 (    0.12379E+01/electron)
- K.S. V_xc energy    :  -0.1738803085E+02 (   -0.10868E+01/electron)
- Virial Coefficient  :  -0.9281056356E+00
+ K.S. kinetic energy :   0.2846763731E+02 (    0.17792E+01/electron)
+ K.S. V_l  energy    :  -0.2934399727E+02 (   -0.18340E+01/electron)
+ K.S. V_nl energy    :   0.5050288963E+00 (    0.31564E-01/electron)
+ K.S. V_Hart energy  :   0.1980601039E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738803946E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9281064369E+00
 
  orbital energies:
-     0.2993366E+00 (   8.145eV)
-     0.2990288E+00 (   8.137eV)
-     0.2971383E+00 (   8.086eV)
-     0.2628008E+00 (   7.151eV)
-     0.2535419E+00 (   6.899eV)
-     0.2527836E+00 (   6.879eV)
-     0.1947526E+00 (   5.300eV)
-     0.1809234E+00 (   4.923eV)
-     0.1079706E+00 (   2.938eV)
-     0.6384613E-01 (   1.737eV)
-     0.1281947E-01 (   0.349eV)
-    -0.8699337E-02 (  -0.237eV)
-    -0.2553903E+00 (  -6.950eV)
-    -0.2824942E+00 (  -7.687eV)
-    -0.2865680E+00 (  -7.798eV)
-    -0.3684611E+00 ( -10.026eV)
+     0.2993380E+00 (   8.145eV)
+     0.2990280E+00 (   8.137eV)
+     0.2971360E+00 (   8.086eV)
+     0.2627999E+00 (   7.151eV)
+     0.2535423E+00 (   6.899eV)
+     0.2527823E+00 (   6.879eV)
+     0.1947530E+00 (   5.300eV)
+     0.1809228E+00 (   4.923eV)
+     0.1079717E+00 (   2.938eV)
+     0.6383819E-01 (   1.737eV)
+     0.1282152E-01 (   0.349eV)
+    -0.8698365E-02 (  -0.237eV)
+    -0.2553921E+00 (  -6.950eV)
+    -0.2824949E+00 (  -7.687eV)
+    -0.2865667E+00 (  -7.798eV)
+    -0.3684616E+00 ( -10.026eV)
 
- Total PSPW energy   :  -0.4670732156E+02
+ Total PSPW energy   :  -0.4670736141E+02
 
 
 === Spin Contamination ===
@@ -328,43 +321,42 @@ crystal     (    0.0000,    0.0000,    0.1008 )
 
 == Crystal Dipole ==
 
-mu   =  (    0.0000,   12.1117,  -17.6601 ) au
-|mu| =    21.4143 au,      54.4266 Debye
+mu   =  (    0.0000,   12.1118,  -17.6598 ) au
+|mu| =    21.4141 au,      54.4261 Debye
 
 
 == Molecular Dipole wrt Center of Mass ==
 
-mu   =  (   47.3600,   39.4584,   32.5914 ) au
-|mu| =    69.7290 au,     177.2233 Debye
+mu   =  (   47.3600,   39.4585,   32.5917 ) au
+|mu| =    69.7292 au,     177.2238 Debye
 
  output psi filename:./band.movecs
- 
- -----------------
- cputime in seconds
- prologue    :    24.6347890000325     
- main loop   :    22.1112189999549     
- epilogue    :    1.35579999769107D-002
- total       :    46.7595659999643     
- cputime/step:   0.119520102702459         (         185  evalulations, 
-          71  line searches)
- 
- -------------------------------
- Time spent doing:
-   FFTs                       :    9.56893300230149        5.17239621746027D-002
-   dot products               :    1.49740099324845        8.09405942296458D-003
-   geodesic                   :    1.93565899925306        1.04630216175841D-002
-   exchange correlation       :   0.803921999293380        4.34552432050475D-003
-   local pseudopotentials     :    1.86700001358986D-003   1.00918919653506D-005
-   non-local pseudopotentials :    1.88114000007045        1.01683243247051D-002
-   hartree potentials         :    8.28699999256060D-002   4.47945945543816D-004
-   structure factors          :    3.29542299499735        1.78130972702560D-002
-   masking and packing        :    3.94853200623766        2.13434162499333D-002
- 
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:09:24 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
 
- Task  times  cpu:       21.6s     wall:       46.8s
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.160404E+02
+  main loop   :   0.915033E+01
+  epilogue    :   0.151180E-01
+  total       :   0.252058E+02
+  cputime/step:   0.658297E-01       (     139 evalulations,      51 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.416722E+01  0.299800E-01
+  dot products               :   0.540773E+00  0.389045E-02
+  geodesic                   :   0.921751E+00  0.663130E-02
+  exchange correlation       :   0.357607E+00  0.257271E-02
+  local pseudopotentials     :   0.184700E-02  0.132878E-04
+  non-local pseudopotentials :   0.838534E+00  0.603262E-02
+  hartree potentials         :   0.150500E-01  0.108273E-03
+  structure factors          :   0.307374E+01  0.221132E-01
+  masking and packing        :   0.298099E+01  0.214460E-01
+ 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:04:44 2005  <<<
+
+ Task  times  cpu:       23.9s     wall:       25.2s
  
  
                                 NWChem Input Module
@@ -387,18 +379,10 @@ mu   =  (   47.3600,   39.4584,   32.5914 ) au
           *  and Edoardo Apra.                                     *
           *                                                        *
           **********************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:09:24 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:04:44 2005  <<<
           ================ input data ========================
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
  Generated formatted_filename: ./Ga.cpp
- 
- 
  Generated formatted_filename: ./N.cpp
- 
  
  + converting wavefunctions from pspw format to band format
  filename converted    : band.movecs                   
@@ -420,7 +404,10 @@ converting ... psi:  14 nb: 1
 converting ... psi:  15 nb: 1
 converting ... psi:  16 nb: 1
 
+ input psi filename:./band.movecs
+
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
@@ -491,31 +478,31 @@ converting ... psi:  16 nb: 1
 
 
           ======== bundled Grassmann lmbfgs iteration ========
-     >>>  ITERATION STARTED AT Thu Apr 22 08:09:29 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:04:48 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
      -   5 steepest descent iterations performed
-      10   -0.4670732161E+02   -0.36101E-07    0.12694E-09
+      10   -0.4670736143E+02   -0.81416E-08    0.34256E-10
   *** tolerance ok.    iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:09:31 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:04:49 2005  <<<
 
 
           =============  summary of results  =================
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4670732161E+02 (   -0.58384E+01/ion)
- total orbital energy:   0.2046674834E+01 (    0.12792E+00/electron)
- hartree   energy    :   0.9902999512E+01 (    0.61894E+00/electron)
- exc-corr  energy    :  -0.1329221929E+02 (   -0.83076E+00/electron)
+ total     energy    :  -0.4670736143E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2046632581E+01 (    0.12791E+00/electron)
+ hartree   energy    :   0.9902997404E+01 (    0.61894E+00/electron)
+ exc-corr  energy    :  -0.1329222035E+02 (   -0.83076E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2846764863E+02 (    0.17792E+01/electron)
- K.S. V_l  energy    :  -0.2934394907E+02 (   -0.18340E+01/electron)
- K.S. V_nl energy    :   0.5050122222E+00 (    0.31563E-01/electron)
- K.S. V_Hart energy  :   0.1980599902E+02 (    0.12379E+01/electron)
- K.S. V_xc energy    :  -0.1738803597E+02 (   -0.10868E+01/electron)
- Virial Coefficient  :  -0.9281052376E+00
+ K.S. kinetic energy :   0.2846764691E+02 (    0.17792E+01/electron)
+ K.S. V_l  energy    :  -0.2934399029E+02 (   -0.18340E+01/electron)
+ K.S. V_nl energy    :   0.5050185224E+00 (    0.31564E-01/electron)
+ K.S. V_Hart energy  :   0.1980599481E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738803737E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9281067175E+00
 
  Brillouin zone point:  1
     weight=  1.000000
@@ -524,50 +511,50 @@ converting ... psi:  16 nb: 1
 
  orbital energies:
      0.2993376E+00 (   8.145eV)
-     0.2990293E+00 (   8.137eV)
-     0.2971389E+00 (   8.086eV)
-     0.2628011E+00 (   7.151eV)
-     0.2535423E+00 (   6.899eV)
-     0.2527840E+00 (   6.879eV)
-     0.1947533E+00 (   5.300eV)
-     0.1809237E+00 (   4.923eV)
-     0.1079713E+00 (   2.938eV)
-     0.6384619E-01 (   1.737eV)
-     0.1281950E-01 (   0.349eV)
-    -0.8698880E-02 (  -0.237eV)
-    -0.2553895E+00 (  -6.950eV)
-    -0.2824935E+00 (  -7.687eV)
-    -0.2865673E+00 (  -7.798eV)
-    -0.3684605E+00 ( -10.026eV)
+     0.2990277E+00 (   8.137eV)
+     0.2971357E+00 (   8.086eV)
+     0.2627996E+00 (   7.151eV)
+     0.2535419E+00 (   6.899eV)
+     0.2527822E+00 (   6.879eV)
+     0.1947528E+00 (   5.300eV)
+     0.1809225E+00 (   4.923eV)
+     0.1079715E+00 (   2.938eV)
+     0.6383820E-01 (   1.737eV)
+     0.1282148E-01 (   0.349eV)
+    -0.8698519E-02 (  -0.237eV)
+    -0.2553924E+00 (  -6.950eV)
+    -0.2824952E+00 (  -7.687eV)
+    -0.2865670E+00 (  -7.798eV)
+    -0.3684618E+00 ( -10.026eV)
 
- Total BAND energy   :  -0.4670732161E+02
+ Total BAND energy   :  -0.4670736143E+02
+
+ output psi filename:./band.movecs
  
  -----------------
  cputime in seconds
- prologue    :    4.87453199992888     
- main loop   :    1.83000100008212     
- epilogue    :    1.40439999522641D-002
- total       :    6.71857699996326     
- cputime/step:   0.203333444453569         (           9  evalulations, 
+ prologue    :    3.31898900005035     
+ main loop   :   0.869538999977522     
+ epilogue    :    1.37480000266805D-002
+ total       :    4.20227600005455     
+ cputime/step:    9.66154444419469D-002    (           9  evalulations, 
            1  line searches)
  
  -------------------------------
  Time spent doing:
-   FFTs                       :   0.701795998495072        7.79773331661191D-002
-   dot products               :   0.208891000947915        2.32101112164350D-002
-   geodesic                   :    3.24580000014976D-002   3.60644444461084D-003
-   exchange correlation       :    2.12690000189468D-002   2.36322222432742D-003
-   local pseudopotentials     :    3.79000091925263D-004   4.21111213250293D-005
-   non-local pseudopotentials :   0.244033999973908        2.71148888859898D-002
-   hartree potentials         :    8.66000074893236D-004   9.62222305436929D-005
-   structure factors          :    2.36799975391477D-003   2.63111083768308D-004
-   masking and packing        :    4.04820003313944D-002   4.49800003682160D-003
+   FFTs                       :   0.285064999479800        3.16738888310889D-002
+   dot products               :   0.107606998528354        1.19563331698171D-002
+   geodesic                   :    3.30229998799041D-002   3.66922220887823D-003
+   exchange correlation       :    2.07019998924807D-002   2.30022221027563D-003
+   local pseudopotentials     :    9.37800004612654D-003   1.04200000512517D-003
+   non-local pseudopotentials :   0.133314999751747        1.48127777501941D-002
+   hartree potentials         :    9.28999972529709D-004   1.03222219169968D-004
+   structure factors          :    3.76800005324185D-003   4.18666672582428D-004
+   masking and packing        :    4.70209992490709D-002   5.22455547211899D-003
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:09:31 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:04:49 2005  <<<
 
- Task  times  cpu:        3.1s     wall:        6.7s
+ Task  times  cpu:        3.8s     wall:        4.2s
  
  
                                 NWChem Input Module
@@ -590,33 +577,30 @@ converting ... psi:  16 nb: 1
           *  and Edoardo Apra.                                     *
           *                                                        *
           **********************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:09:31 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:04:49 2005  <<<
           ================ input data ========================
  
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  pseudopotential is not correctly formatted-bad brillioun zone:Ga.cpp           
     
- 
  Generated formatted_filename: ./Ga.cpp
  
  pseudopotential is not correctly formatted-bad brillioun zone:N.cpp            
     
- 
  Generated formatted_filename: ./N.cpp
- 
+
+ input psi filename:./band.movecs
 Warning - Orthogonalization performed, spin,zone: 1   1
         - error(before)=  0.728568E-02 (  0.159927E+02)
         - error(after)=   0.000000E+00 (  0.160000E+02)
 Warning - Orthogonalization performed, spin,zone: 1   2
         - error(before)=  0.125891E-01 (  0.159874E+02)
-        - error(after)=   0.000000E+00 (  0.160000E+02)
+        - error(after)=   0.710543E-14 (  0.160000E+02)
 Warning - Orthogonalization performed, spin,zone: 1   3
-        - error(before)=  0.163627E-01 (  0.159836E+02)
-        - error(after)=   0.355271E-14 (  0.160000E+02)
+        - error(before)=  0.163626E-01 (  0.159836E+02)
+        - error(after)=   0.710543E-14 (  0.160000E+02)
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
@@ -691,34 +675,34 @@ Warning - Orthogonalization performed, spin,zone: 1   3
 
 
           ======== bundled Grassmann lmbfgs iteration ========
-     >>>  ITERATION STARTED AT Thu Apr 22 08:09:39 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:04:54 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.4751281553E+02   -0.98435E-02    0.60391E-01
+      10   -0.4751285580E+02   -0.98437E-02    0.60398E-01
      -  10 steepest descent iterations performed
-      20   -0.4752517978E+02   -0.30029E-04    0.12000E-03
-      30   -0.4752523381E+02   -0.18712E-06    0.31231E-06
-      40   -0.4752523388E+02   -0.73655E-07    0.10435E-09
+      20   -0.4752521939E+02   -0.30031E-04    0.12007E-03
+      30   -0.4752527344E+02   -0.18718E-06    0.31257E-06
+      40   -0.4752527351E+02   -0.73676E-07    0.10454E-09
   *** tolerance ok.    iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:10:19 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:05:15 2005  <<<
 
 
           =============  summary of results  =================
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4752523388E+02 (   -0.59407E+01/ion)
- total orbital energy:   0.3222622857E+00 (    0.20141E-01/electron)
- hartree   energy    :   0.8910396025E+01 (    0.55690E+00/electron)
- exc-corr  energy    :  -0.1302181319E+02 (   -0.81386E+00/electron)
+ total     energy    :  -0.4752527351E+02 (   -0.59407E+01/ion)
+ total orbital energy:   0.3222227634E+00 (    0.20139E-01/electron)
+ hartree   energy    :   0.8910396142E+01 (    0.55690E+00/electron)
+ exc-corr  energy    :  -0.1302181322E+02 (   -0.81386E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2620928106E+02 (    0.16381E+01/electron)
- K.S. V_l  energy    :  -0.2787372506E+02 (   -0.17421E+01/electron)
- K.S. V_nl energy    :   0.1197440891E+01 (    0.74840E-01/electron)
- K.S. V_Hart energy  :   0.1782079205E+02 (    0.11138E+01/electron)
- K.S. V_xc energy    :  -0.1703152666E+02 (   -0.10645E+01/electron)
- Virial Coefficient  :  -0.9877042684E+00
+ K.S. kinetic energy :   0.2620928123E+02 (    0.16381E+01/electron)
+ K.S. V_l  energy    :  -0.2787376491E+02 (   -0.17421E+01/electron)
+ K.S. V_nl energy    :   0.1197440867E+01 (    0.74840E-01/electron)
+ K.S. V_Hart energy  :   0.1782079228E+02 (    0.11138E+01/electron)
+ K.S. V_xc energy    :  -0.1703152670E+02 (   -0.10645E+01/electron)
+ Virial Coefficient  :  -0.9877057764E+00
 
  Brillouin zone point:  1
     weight=  0.333333
@@ -726,22 +710,22 @@ Warning - Orthogonalization performed, spin,zone: 1   3
           =<   0.236   0.000   0.163>
 
  orbital energies:
-     0.2386215E+00 (   6.493eV)
-     0.2359357E+00 (   6.420eV)
-     0.1985573E+00 (   5.403eV)
-     0.1883724E+00 (   5.126eV)
-     0.1543059E+00 (   4.199eV)
-     0.1479496E+00 (   4.026eV)
-     0.1425470E+00 (   3.879eV)
-     0.1320913E+00 (   3.594eV)
-     0.7971090E-01 (   2.169eV)
-     0.2877849E-01 (   0.783eV)
-     0.2336075E-01 (   0.636eV)
-     0.9028731E-02 (   0.246eV)
-    -0.2983543E+00 (  -8.119eV)
-    -0.3096045E+00 (  -8.425eV)
-    -0.3236048E+00 (  -8.806eV)
-    -0.3723679E+00 ( -10.133eV)
+     0.2386202E+00 (   6.493eV)
+     0.2359344E+00 (   6.420eV)
+     0.1985560E+00 (   5.403eV)
+     0.1883712E+00 (   5.126eV)
+     0.1543047E+00 (   4.199eV)
+     0.1479483E+00 (   4.026eV)
+     0.1425457E+00 (   3.879eV)
+     0.1320900E+00 (   3.594eV)
+     0.7970966E-01 (   2.169eV)
+     0.2877725E-01 (   0.783eV)
+     0.2335952E-01 (   0.636eV)
+     0.9027495E-02 (   0.246eV)
+    -0.2983556E+00 (  -8.119eV)
+    -0.3096058E+00 (  -8.425eV)
+    -0.3236061E+00 (  -8.806eV)
+    -0.3723691E+00 ( -10.133eV)
 
  Brillouin zone point:  2
     weight=  0.333333
@@ -749,22 +733,22 @@ Warning - Orthogonalization performed, spin,zone: 1   3
           =<   0.472   0.000   0.163>
 
  orbital energies:
-     0.2160195E+00 (   5.878eV)
-     0.1964958E+00 (   5.347eV)
-     0.1733833E+00 (   4.718eV)
-     0.1500429E+00 (   4.083eV)
-     0.1386730E+00 (   3.774eV)
-     0.1242918E+00 (   3.382eV)
-     0.1223935E+00 (   3.331eV)
-     0.8035858E-01 (   2.187eV)
-     0.4493306E-01 (   1.223eV)
-     0.2676604E-01 (   0.728eV)
-     0.2024477E-01 (   0.551eV)
-     0.1859466E-01 (   0.506eV)
-    -0.2972932E+00 (  -8.090eV)
-    -0.3008516E+00 (  -8.187eV)
-    -0.3129163E+00 (  -8.515eV)
-    -0.3317773E+00 (  -9.028eV)
+     0.2160183E+00 (   5.878eV)
+     0.1964945E+00 (   5.347eV)
+     0.1733821E+00 (   4.718eV)
+     0.1500417E+00 (   4.083eV)
+     0.1386718E+00 (   3.773eV)
+     0.1242906E+00 (   3.382eV)
+     0.1223923E+00 (   3.330eV)
+     0.8035734E-01 (   2.187eV)
+     0.4493183E-01 (   1.223eV)
+     0.2676481E-01 (   0.728eV)
+     0.2024353E-01 (   0.551eV)
+     0.1859342E-01 (   0.506eV)
+    -0.2972945E+00 (  -8.090eV)
+    -0.3008529E+00 (  -8.187eV)
+    -0.3129175E+00 (  -8.515eV)
+    -0.3317785E+00 (  -9.028eV)
 
  Brillouin zone point:  3
     weight=  0.333333
@@ -772,51 +756,51 @@ Warning - Orthogonalization performed, spin,zone: 1   3
           =<   0.590   0.204   0.163>
 
  orbital energies:
-     0.2103516E+00 (   5.724eV)
-     0.2003396E+00 (   5.452eV)
-     0.1974952E+00 (   5.374eV)
-     0.1840679E+00 (   5.009eV)
-     0.1600444E+00 (   4.355eV)
-     0.1526281E+00 (   4.153eV)
-     0.1169451E+00 (   3.182eV)
-     0.1168512E+00 (   3.180eV)
-     0.2996369E-01 (   0.815eV)
-     0.2243935E-01 (   0.611eV)
-    -0.2979126E-02 (  -0.081eV)
-    -0.7208813E-02 (  -0.196eV)
-    -0.2989182E+00 (  -8.134eV)
-    -0.3005905E+00 (  -8.180eV)
-    -0.3162629E+00 (  -8.606eV)
-    -0.3264596E+00 (  -8.883eV)
+     0.2103503E+00 (   5.724eV)
+     0.2003383E+00 (   5.452eV)
+     0.1974940E+00 (   5.374eV)
+     0.1840667E+00 (   5.009eV)
+     0.1600432E+00 (   4.355eV)
+     0.1526268E+00 (   4.153eV)
+     0.1169439E+00 (   3.182eV)
+     0.1168500E+00 (   3.180eV)
+     0.2996245E-01 (   0.815eV)
+     0.2243811E-01 (   0.611eV)
+    -0.2980363E-02 (  -0.081eV)
+    -0.7210049E-02 (  -0.196eV)
+    -0.2989195E+00 (  -8.134eV)
+    -0.3005917E+00 (  -8.180eV)
+    -0.3162642E+00 (  -8.606eV)
+    -0.3264608E+00 (  -8.884eV)
 
- Total BAND energy   :  -0.4752523388E+02
+ Total BAND energy   :  -0.4752527351E+02
+
+ output psi filename:./band.movecs
  
  -----------------
  cputime in seconds
- prologue    :    7.70299099991098     
- main loop   :    40.5070140000898     
- epilogue    :    2.83719999715686D-002
- total       :    48.2383769999724     
- cputime/step:   0.506337675001123         (          80  evalulations, 
+ prologue    :    5.70265300001483     
+ main loop   :    20.3800729999784     
+ epilogue    :    2.95919999480247D-002
+ total       :    26.1123179999413     
+ cputime/step:   0.254750912499730         (          80  evalulations, 
           31  line searches)
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    15.1451449956512       0.189314312445640     
-   dot products               :    5.52090103097726        6.90112628872157D-002
-   geodesic                   :    8.37703199929092       0.104712899991136     
-   exchange correlation       :   0.396281000808813        4.95351251011016D-003
-   local pseudopotentials     :    3.85999912396073D-004   4.82499890495092D-006
-   non-local pseudopotentials :    7.36629399983212        9.20786749979015D-002
-   hartree potentials         :    1.36249996721745D-002   1.70312495902181D-004
-   structure factors          :    4.77910037152469D-002   5.97387546440586D-004
-   masking and packing        :    2.16099700599443        2.70124625749304D-002
+   FFTs                       :    7.56181199976709        9.45226499970886D-002
+   dot products               :    3.15953799127601        3.94942248909501D-002
+   geodesic                   :    4.17705399927218        5.22131749909022D-002
+   exchange correlation       :   0.169288999750279        2.11611249687849D-003
+   local pseudopotentials     :    3.88000044040382D-004   4.85000055050477D-006
+   non-local pseudopotentials :    3.56064499996137        4.45080624995171D-002
+   hartree potentials         :    1.30810008849949D-002   1.63512511062436D-004
+   structure factors          :    4.87359967082739D-002   6.09199958853424D-004
+   masking and packing        :    1.19817299523857        1.49771624404821D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:10:19 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:05:15 2005  <<<
 
- Task  times  cpu:       22.4s     wall:       48.2s
+ Task  times  cpu:       24.7s     wall:       26.1s
  
  
                                 NWChem Input Module
@@ -839,27 +823,24 @@ Warning - Orthogonalization performed, spin,zone: 1   3
           *  and Edoardo Apra.                                     *
           *                                                        *
           **********************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:10:19 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:05:15 2005  <<<
           ================ input data ========================
  
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  pseudopotential is not correctly formatted-bad brillioun zone:Ga.cpp           
     
- 
  Generated formatted_filename: ./Ga.cpp
  
  pseudopotential is not correctly formatted-bad brillioun zone:N.cpp            
     
- 
  Generated formatted_filename: ./N.cpp
- 
+
+ input psi filename:./band.movecs
 Warning - Orthogonalization performed, spin,zone: 1   1
         - error(before)=  0.812913E-02 (  0.159919E+02)
-        - error(after)=   0.177636E-14 (  0.160000E+02)
+        - error(after)=   0.000000E+00 (  0.160000E+02)
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
@@ -930,34 +911,34 @@ Warning - Orthogonalization performed, spin,zone: 1   1
 
 
           ======== bundled Grassmann lmbfgs iteration ========
-     >>>  ITERATION STARTED AT Thu Apr 22 08:10:24 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:05:19 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.4740232672E+02   -0.13672E-01    0.74217E-02
+      10   -0.4740236635E+02   -0.13672E-01    0.74217E-02
      -  10 steepest descent iterations performed
-      20   -0.4742714725E+02   -0.10418E-03    0.13498E-03
-      30   -0.4742727949E+02   -0.10946E-06    0.68949E-06
-      40   -0.4742727953E+02   -0.40957E-07    0.51272E-10
+      20   -0.4742718688E+02   -0.10418E-03    0.13498E-03
+      30   -0.4742731913E+02   -0.10938E-06    0.68949E-06
+      40   -0.4742731917E+02   -0.40883E-07    0.51211E-10
   *** tolerance ok.    iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:10:39 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:05:26 2005  <<<
 
 
           =============  summary of results  =================
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4742727953E+02 (   -0.59284E+01/ion)
- total orbital energy:   0.7586841935E+00 (    0.47418E-01/electron)
- hartree   energy    :   0.9281870232E+01 (    0.58012E+00/electron)
- exc-corr  energy    :  -0.1312573058E+02 (   -0.82036E+00/electron)
+ total     energy    :  -0.4742731917E+02 (   -0.59284E+01/ion)
+ total orbital energy:   0.7586445955E+00 (    0.47415E-01/electron)
+ hartree   energy    :   0.9281870269E+01 (    0.58012E+00/electron)
+ exc-corr  energy    :  -0.1312573059E+02 (   -0.82036E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2676818461E+02 (    0.16730E+01/electron)
- K.S. V_l  energy    :  -0.2841538101E+02 (   -0.17760E+01/electron)
- K.S. V_nl energy    :   0.1010590835E+01 (    0.63162E-01/electron)
- K.S. V_Hart energy  :   0.1856374046E+02 (    0.11602E+01/electron)
- K.S. V_xc energy    :  -0.1716845070E+02 (   -0.10730E+01/electron)
- Virial Coefficient  :  -0.9716572414E+00
+ K.S. kinetic energy :   0.2676818466E+02 (    0.16730E+01/electron)
+ K.S. V_l  energy    :  -0.2841542073E+02 (   -0.17760E+01/electron)
+ K.S. V_nl energy    :   0.1010590853E+01 (    0.63162E-01/electron)
+ K.S. V_Hart energy  :   0.1856374054E+02 (    0.11602E+01/electron)
+ K.S. V_xc energy    :  -0.1716845072E+02 (   -0.10730E+01/electron)
+ Virial Coefficient  :  -0.9716587208E+00
 
  Brillouin zone point:  1
     weight=  1.000000
@@ -965,51 +946,51 @@ Warning - Orthogonalization performed, spin,zone: 1   1
           =<   0.531   0.306   0.325>
 
  orbital energies:
-     0.1997731E+00 (   5.436eV)
-     0.1997728E+00 (   5.436eV)
-     0.1965687E+00 (   5.349eV)
-     0.1965683E+00 (   5.349eV)
-     0.1962118E+00 (   5.339eV)
-     0.1962114E+00 (   5.339eV)
-     0.1943252E+00 (   5.288eV)
-     0.1943250E+00 (   5.288eV)
-    -0.3455199E-02 (  -0.094eV)
-    -0.3455696E-02 (  -0.094eV)
-    -0.3849960E-02 (  -0.105eV)
-    -0.3850720E-02 (  -0.105eV)
-    -0.2942153E+00 (  -8.006eV)
-    -0.2942154E+00 (  -8.006eV)
-    -0.2956859E+00 (  -8.046eV)
-    -0.2956860E+00 (  -8.046eV)
+     0.1997718E+00 (   5.436eV)
+     0.1997715E+00 (   5.436eV)
+     0.1965675E+00 (   5.349eV)
+     0.1965670E+00 (   5.349eV)
+     0.1962106E+00 (   5.339eV)
+     0.1962102E+00 (   5.339eV)
+     0.1943240E+00 (   5.288eV)
+     0.1943238E+00 (   5.288eV)
+    -0.3456436E-02 (  -0.094eV)
+    -0.3456933E-02 (  -0.094eV)
+    -0.3851197E-02 (  -0.105eV)
+    -0.3851958E-02 (  -0.105eV)
+    -0.2942165E+00 (  -8.006eV)
+    -0.2942166E+00 (  -8.006eV)
+    -0.2956871E+00 (  -8.046eV)
+    -0.2956872E+00 (  -8.046eV)
 
- Total BAND energy   :  -0.4742727953E+02
+ Total BAND energy   :  -0.4742731917E+02
+
+ output psi filename:./band.movecs
  
  -----------------
  cputime in seconds
- prologue    :    5.21291999996174     
- main loop   :    14.7890859999461     
- epilogue    :    2.33920000027865D-002
- total       :    20.0253979999106     
- cputime/step:   0.184863574999326         (          80  evalulations, 
+ prologue    :    3.93326000007801     
+ main loop   :    7.56412100000307     
+ epilogue    :    1.45609999308363D-002
+ total       :    11.5119420000119     
+ cputime/step:    9.45515125000384D-002    (          80  evalulations, 
           31  line searches)
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    5.37047599779908        6.71309499724884D-002
-   dot products               :    2.02188001340255        2.52735001675319D-002
-   geodesic                   :    3.05215999961365        3.81519999951706D-002
-   exchange correlation       :   0.233203999116085        2.91504998895107D-003
-   local pseudopotentials     :    3.75000061467290D-004   4.68750076834112D-006
-   non-local pseudopotentials :    2.15594399999827        2.69492999999784D-002
-   hartree potentials         :    1.18640000000596D-002   1.48300000000745D-004
-   structure factors          :    2.38129985518754D-002   2.97662481898442D-004
-   masking and packing        :   0.608486999175511        7.60608748969389D-003
+   FFTs                       :    2.57331899879500        3.21664874849375D-002
+   dot products               :   0.978549008956179        1.22318626119522D-002
+   geodesic                   :    1.43752499890979        1.79690624863724D-002
+   exchange correlation       :   0.169161999947391        2.11452499934239D-003
+   local pseudopotentials     :    3.84000013582408D-004   4.80000016978011D-006
+   non-local pseudopotentials :    1.09898600110319        1.37373250137898D-002
+   hartree potentials         :    1.21040005469695D-002   1.51300006837118D-004
+   structure factors          :    2.20470004715025D-002   2.75587505893782D-004
+   masking and packing        :   0.344858999829739        4.31073749787174D-003
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:10:39 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:05:26 2005  <<<
 
- Task  times  cpu:        9.1s     wall:       20.0s
+ Task  times  cpu:       10.3s     wall:       11.5s
  
  
                                 NWChem Input Module
@@ -1032,27 +1013,24 @@ Warning - Orthogonalization performed, spin,zone: 1   1
           *  and Edoardo Apra.                                     *
           *                                                        *
           **********************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:10:39 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:05:26 2005  <<<
           ================ input data ========================
  
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  pseudopotential is not correctly formatted-bad brillioun zone:Ga.cpp           
     
- 
  Generated formatted_filename: ./Ga.cpp
  
  pseudopotential is not correctly formatted-bad brillioun zone:N.cpp            
     
- 
  Generated formatted_filename: ./N.cpp
- 
+
+ input psi filename:./band.movecs
 Warning - Orthogonalization performed, spin,zone: 1   1
         - error(before)=  0.161135E-01 (  0.159839E+02)
-        - error(after)=   0.355271E-14 (  0.160000E+02)
+        - error(after)=   0.177636E-14 (  0.160000E+02)
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
@@ -1123,40 +1101,38 @@ Warning - Orthogonalization performed, spin,zone: 1   1
 
 
           ======== bundled Grassmann lmbfgs iteration ========
-     >>>  ITERATION STARTED AT Thu Apr 22 08:10:44 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:05:29 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.4664387584E+02   -0.26439E-01    0.56455E-01
+      10   -0.4664391547E+02   -0.26439E-01    0.56455E-01
      -  10 steepest descent iterations performed
-      20   -0.4669932819E+02   -0.77871E-03    0.61672E-03
-      30   -0.4670661905E+02   -0.36771E-03    0.31205E-03
-      40   -0.4670736373E+02   -0.15033E-04    0.32892E-05
-      50   -0.4670752310E+02   -0.21863E-04    0.36019E-07
-     -  10 steepest descent iterations performed
-      60   -0.4670732150E+02   -0.60666E-07    0.15945E-06
-      70   -0.4670732182E+02   -0.11964E-07    0.49280E-08
-      80   -0.4670732187E+02   -0.75775E-09    0.10698E-08
-      90   -0.4670732187E+02   -0.69201E-09    0.45109E-11
+      20   -0.4669936782E+02   -0.77871E-03    0.61672E-03
+      30   -0.4670665603E+02   -0.36684E-03    0.31210E-03
+      40   -0.4670735088E+02   -0.47321E-05    0.33231E-05
+      50   -0.4670736049E+02   -0.21986E-06    0.20666E-06
+      60   -0.4670736135E+02   -0.30387E-07    0.20222E-07
+      70   -0.4670736149E+02   -0.34308E-08    0.32999E-08
+      80   -0.4670736150E+02   -0.92308E-09    0.39451E-10
   *** tolerance ok.    iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:11:08 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:05:47 2005  <<<
 
 
           =============  summary of results  =================
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4670732187E+02 (   -0.58384E+01/ion)
- total orbital energy:   0.2046663266E+01 (    0.12792E+00/electron)
- hartree   energy    :   0.9902988021E+01 (    0.61894E+00/electron)
- exc-corr  energy    :  -0.1329221874E+02 (   -0.83076E+00/electron)
+ total     energy    :  -0.4670736150E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2046625886E+01 (    0.12791E+00/electron)
+ hartree   energy    :   0.9902990527E+01 (    0.61894E+00/electron)
+ exc-corr  energy    :  -0.1329221955E+02 (   -0.83076E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2846762935E+02 (    0.17792E+01/electron)
- K.S. V_l  energy    :  -0.2934392369E+02 (   -0.18340E+01/electron)
- K.S. V_nl energy    :   0.5050168022E+00 (    0.31564E-01/electron)
- K.S. V_Hart energy  :   0.1980597604E+02 (    0.12379E+01/electron)
- K.S. V_xc energy    :  -0.1738803524E+02 (   -0.10868E+01/electron)
- Virial Coefficient  :  -0.9281055953E+00
+ K.S. kinetic energy :   0.2846762922E+02 (    0.17792E+01/electron)
+ K.S. V_l  energy    :  -0.2934396853E+02 (   -0.18340E+01/electron)
+ K.S. V_nl energy    :   0.5050204441E+00 (    0.31564E-01/electron)
+ K.S. V_Hart energy  :   0.1980598105E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738803630E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9281069080E+00
 
  Brillouin zone point:  1
     weight=  1.000000
@@ -1164,51 +1140,51 @@ Warning - Orthogonalization performed, spin,zone: 1   1
           =<   0.000   0.000   0.000>
 
  orbital energies:
-     0.2993383E+00 (   8.145eV)
-     0.2990286E+00 (   8.137eV)
-     0.2971372E+00 (   8.086eV)
-     0.2628005E+00 (   7.151eV)
-     0.2535426E+00 (   6.899eV)
-     0.2527829E+00 (   6.879eV)
-     0.1947539E+00 (   5.300eV)
-     0.1809234E+00 (   4.923eV)
-     0.1079724E+00 (   2.938eV)
-     0.6384015E-01 (   1.737eV)
-     0.1282206E-01 (   0.349eV)
-    -0.8697450E-02 (  -0.237eV)
-    -0.2553914E+00 (  -6.950eV)
-    -0.2824943E+00 (  -7.687eV)
-    -0.2865664E+00 (  -7.798eV)
-    -0.3684609E+00 ( -10.026eV)
+     0.2993371E+00 (   8.145eV)
+     0.2990274E+00 (   8.137eV)
+     0.2971361E+00 (   8.086eV)
+     0.2627993E+00 (   7.151eV)
+     0.2535414E+00 (   6.899eV)
+     0.2527818E+00 (   6.879eV)
+     0.1947527E+00 (   5.300eV)
+     0.1809222E+00 (   4.923eV)
+     0.1079712E+00 (   2.938eV)
+     0.6383897E-01 (   1.737eV)
+     0.1282093E-01 (   0.349eV)
+    -0.8698666E-02 (  -0.237eV)
+    -0.2553925E+00 (  -6.950eV)
+    -0.2824955E+00 (  -7.687eV)
+    -0.2865675E+00 (  -7.798eV)
+    -0.3684620E+00 ( -10.026eV)
 
- Total BAND energy   :  -0.4670732187E+02
+ Total BAND energy   :  -0.4670736150E+02
+
+ output psi filename:./band.movecs
  
  -----------------
  cputime in seconds
- prologue    :    4.92600700003095     
- main loop   :    24.0631199999480     
- epilogue    :    1.42360000172630D-002
- total       :    29.0033629999962     
- cputime/step:   0.118537536945556         (         203  evalulations, 
-          81  line searches)
+ prologue    :    3.02586900000460     
+ main loop   :    17.1521449999418     
+ epilogue    :    1.44020000007004D-002
+ total       :    20.1924159999471     
+ cputime/step:    9.97217732554756D-002    (         172  evalulations, 
+          73  line searches)
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    7.92008899652865        3.90152167316682D-002
-   dot products               :    2.71857599704526        1.33919999854446D-002
-   geodesic                   :    4.86718599940650        2.39762857113621D-002
-   exchange correlation       :   0.701428000931628        3.45531034941689D-003
-   local pseudopotentials     :    3.73000046238303D-004   1.83743865142021D-006
-   non-local pseudopotentials :    3.88671899982728        1.91463990139275D-002
-   hartree potentials         :    3.56030004331842D-002   1.75384238587114D-004
-   structure factors          :    4.51020009350032D-002   2.22177344507405D-004
-   masking and packing        :    1.16213599801995        5.72480787201945D-003
+   FFTs                       :    5.76672700361814        3.35274825791753D-002
+   dot products               :    2.35839898034465        1.37116219787479D-002
+   geodesic                   :    3.74332700029481        2.17635290714815D-002
+   exchange correlation       :   0.392423000303097        2.28152907152963D-003
+   local pseudopotentials     :    3.89000051654875D-004   2.26162820729579D-006
+   non-local pseudopotentials :    2.49855300050694        1.45264709331799D-002
+   hartree potentials         :    2.86710002692416D-002   1.66691862030475D-004
+   structure factors          :    4.82079996727407D-002   2.80279067864772D-004
+   masking and packing        :   0.884022992337123        5.13966856009955D-003
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:11:08 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:05:47 2005  <<<
 
- Task  times  cpu:       19.6s     wall:       29.0s
+ Task  times  cpu:       19.0s     wall:       20.2s
  
  
                                 NWChem Input Module
@@ -1231,30 +1207,27 @@ Warning - Orthogonalization performed, spin,zone: 1   1
           *  and Edoardo Apra.                                     *
           *                                                        *
           **********************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 08:11:08 2004  <<<
+     >>>  JOB STARTED       AT Thu Jan  6 08:05:47 2005  <<<
           ================ input data ========================
  
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
  pseudopotential is not correctly formatted-bad brillioun zone:Ga.cpp           
     
- 
  Generated formatted_filename: ./Ga.cpp
  
  pseudopotential is not correctly formatted-bad brillioun zone:N.cpp            
     
- 
  Generated formatted_filename: ./N.cpp
- 
+
+ input psi filename:./band.movecs
 Warning - Orthogonalization performed, spin,zone: 1   1
-        - error(before)=  0.746081E-02 (  0.159925E+02)
-        - error(after)=   0.000000E+00 (  0.160000E+02)
+        - error(before)=  0.746084E-02 (  0.159925E+02)
+        - error(after)=   0.532907E-14 (  0.160000E+02)
 Warning - Orthogonalization performed, spin,zone: 1   2
         - error(before)=  0.146393E-01 (  0.159854E+02)
-        - error(after)=   0.000000E+00 (  0.160000E+02)
+        - error(after)=   0.177636E-14 (  0.160000E+02)
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       boundary conditions  = periodic    (version3)
@@ -1327,34 +1300,34 @@ Warning - Orthogonalization performed, spin,zone: 1   2
 
 
           ======== bundled Grassmann lmbfgs iteration ========
-     >>>  ITERATION STARTED AT Thu Apr 22 08:11:11 2004  <<<
+     >>>  ITERATION STARTED AT Thu Jan  6 08:05:51 2005  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.4737357486E+02   -0.51078E-02    0.52700E-01
+      10   -0.4737361451E+02   -0.51078E-02    0.52700E-01
      -  10 steepest descent iterations performed
-      20   -0.4737918823E+02   -0.10805E-04    0.47370E-04
-      30   -0.4737920324E+02   -0.54035E-07    0.49667E-06
-      40   -0.4737920328E+02   -0.64992E-09    0.55469E-09
+      20   -0.4737922786E+02   -0.10805E-04    0.47369E-04
+      30   -0.4737924287E+02   -0.54033E-07    0.49667E-06
+      40   -0.4737924291E+02   -0.64983E-09    0.55461E-09
   *** tolerance ok.    iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 08:11:27 2004  <<<
+     >>>  ITERATION ENDED   AT Thu Jan  6 08:06:07 2005  <<<
 
 
           =============  summary of results  =================
  
  number of electrons: spin up=   16.00000  down=   16.00000 (real space)
 
- total     energy    :  -0.4737920328E+02 (   -0.59224E+01/ion)
- total orbital energy:   0.5289329464E+00 (    0.33058E-01/electron)
- hartree   energy    :   0.8975571071E+01 (    0.56097E+00/electron)
- exc-corr  energy    :  -0.1303597427E+02 (   -0.81475E+00/electron)
+ total     energy    :  -0.4737924291E+02 (   -0.59224E+01/ion)
+ total orbital energy:   0.5288933509E+00 (    0.33056E-01/electron)
+ hartree   energy    :   0.8975571107E+01 (    0.56097E+00/electron)
+ exc-corr  energy    :  -0.1303597428E+02 (   -0.81475E+00/electron)
  ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
 
- K.S. kinetic energy :   0.2638702185E+02 (    0.16492E+01/electron)
- K.S. V_l  energy    :  -0.2800391684E+02 (   -0.17502E+01/electron)
- K.S. V_nl energy    :   0.1244908522E+01 (    0.77807E-01/electron)
- K.S. V_Hart energy  :   0.1795114214E+02 (    0.11219E+01/electron)
- K.S. V_xc energy    :  -0.1705022273E+02 (   -0.10656E+01/electron)
- Virial Coefficient  :  -0.9799548070E+00
+ K.S. kinetic energy :   0.2638702192E+02 (    0.16492E+01/electron)
+ K.S. V_l  energy    :  -0.2800395658E+02 (   -0.17502E+01/electron)
+ K.S. V_nl energy    :   0.1244908541E+01 (    0.77807E-01/electron)
+ K.S. V_Hart energy  :   0.1795114221E+02 (    0.11219E+01/electron)
+ K.S. V_xc energy    :  -0.1705022274E+02 (   -0.10656E+01/electron)
+ Virial Coefficient  :  -0.9799563076E+00
 
  Brillouin zone point:  1
     weight=  0.500000
@@ -1362,22 +1335,22 @@ Warning - Orthogonalization performed, spin,zone: 1   2
           =<  -0.265   0.000   0.000>
 
  orbital energies:
-     0.2500823E+00 (   6.805eV)
-     0.2468955E+00 (   6.718eV)
-     0.1955845E+00 (   5.322eV)
-     0.1583625E+00 (   4.309eV)
-     0.1537255E+00 (   4.183eV)
-     0.1395043E+00 (   3.796eV)
-     0.1239772E+00 (   3.374eV)
-     0.1223723E+00 (   3.330eV)
-     0.6848402E-01 (   1.864eV)
-     0.5284577E-01 (   1.438eV)
-     0.2723330E-01 (   0.741eV)
-     0.4394530E-02 (   0.120eV)
-    -0.2937374E+00 (  -7.993eV)
-    -0.3045647E+00 (  -8.288eV)
-    -0.3072691E+00 (  -8.361eV)
-    -0.3734240E+00 ( -10.161eV)
+     0.2500811E+00 (   6.805eV)
+     0.2468942E+00 (   6.718eV)
+     0.1955833E+00 (   5.322eV)
+     0.1583612E+00 (   4.309eV)
+     0.1537243E+00 (   4.183eV)
+     0.1395031E+00 (   3.796eV)
+     0.1239759E+00 (   3.374eV)
+     0.1223710E+00 (   3.330eV)
+     0.6848278E-01 (   1.864eV)
+     0.5284453E-01 (   1.438eV)
+     0.2723206E-01 (   0.741eV)
+     0.4393294E-02 (   0.120eV)
+    -0.2937386E+00 (  -7.993eV)
+    -0.3045659E+00 (  -8.288eV)
+    -0.3072704E+00 (  -8.361eV)
+    -0.3734252E+00 ( -10.161eV)
 
  Brillouin zone point:  2
     weight=  0.500000
@@ -1385,51 +1358,51 @@ Warning - Orthogonalization performed, spin,zone: 1   2
           =<   0.265   0.000   0.000>
 
  orbital energies:
-     0.2500823E+00 (   6.805eV)
-     0.2468955E+00 (   6.718eV)
-     0.1955845E+00 (   5.322eV)
-     0.1583625E+00 (   4.309eV)
-     0.1537255E+00 (   4.183eV)
-     0.1395043E+00 (   3.796eV)
-     0.1239772E+00 (   3.374eV)
-     0.1223723E+00 (   3.330eV)
-     0.6848402E-01 (   1.864eV)
-     0.5284577E-01 (   1.438eV)
-     0.2723330E-01 (   0.741eV)
-     0.4394530E-02 (   0.120eV)
-    -0.2937374E+00 (  -7.993eV)
-    -0.3045647E+00 (  -8.288eV)
-    -0.3072691E+00 (  -8.361eV)
-    -0.3734240E+00 ( -10.161eV)
+     0.2500811E+00 (   6.805eV)
+     0.2468942E+00 (   6.718eV)
+     0.1955833E+00 (   5.322eV)
+     0.1583612E+00 (   4.309eV)
+     0.1537243E+00 (   4.183eV)
+     0.1395031E+00 (   3.796eV)
+     0.1239759E+00 (   3.374eV)
+     0.1223710E+00 (   3.330eV)
+     0.6848278E-01 (   1.864eV)
+     0.5284453E-01 (   1.438eV)
+     0.2723206E-01 (   0.741eV)
+     0.4393294E-02 (   0.120eV)
+    -0.2937386E+00 (  -7.993eV)
+    -0.3045659E+00 (  -8.288eV)
+    -0.3072704E+00 (  -8.361eV)
+    -0.3734252E+00 ( -10.161eV)
 
- Total BAND energy   :  -0.4737920328E+02
+ Total BAND energy   :  -0.4737924291E+02
+
+ output psi filename:./band.movecs
  
  -----------------
  cputime in seconds
- prologue    :    2.73407699994277     
- main loop   :    15.9013569999952     
- epilogue    :    2.16240000445396D-002
- total       :    18.6570579999825     
- cputime/step:   0.176681744444391         (          90  evalulations, 
+ prologue    :    4.73008200002369     
+ main loop   :    15.9698899999494     
+ epilogue    :    2.17340000672266D-002
+ total       :    20.7217060000403     
+ cputime/step:   0.177443222221660         (          90  evalulations, 
           36  line searches)
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    5.78222900524270        6.42469889471411D-002
-   dot products               :    2.22474398661870        2.47193776290967D-002
-   geodesic                   :    3.33400100143626        3.70444555715140D-002
-   exchange correlation       :   0.215862999553792        2.39847777281991D-003
-   local pseudopotentials     :    3.95000097341835D-004   4.38888997046484D-006
-   non-local pseudopotentials :    2.65024800004903        2.94472000005448D-002
-   hartree potentials         :    1.57979986397550D-002   1.75533318219499D-004
-   structure factors          :    4.51279998524115D-002   5.01422220582349D-004
-   masking and packing        :   0.854106001323089        9.49006668136765D-003
+   FFTs                       :    5.78738799865823        6.43043110962026D-002
+   dot products               :    2.40731701685581        2.67479668539535D-002
+   geodesic                   :    3.23950199899264        3.59944666554737D-002
+   exchange correlation       :   0.196684999042191        2.18538887824656D-003
+   local pseudopotentials     :    4.30999905802310D-004   4.78888784224788D-006
+   non-local pseudopotentials :    2.69413199974224        2.99347999971360D-002
+   hartree potentials         :    1.48429999826476D-002   1.64922222029418D-004
+   structure factors          :    4.61870006984100D-002   5.13188896649000D-004
+   masking and packing        :   0.929670998477377        1.03296777608597D-002
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 08:11:27 2004  <<<
- 
-  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+     >>>  JOB COMPLETED     AT Thu Jan  6 08:06:07 2005  <<<
 
- Task  times  cpu:       17.2s     wall:       18.7s
+ Task  times  cpu:       19.1s     wall:       20.7s
  
  
                                 NWChem Input Module
@@ -1448,9 +1421,9 @@ Warning - Orthogonalization performed, spin,zone: 1   2
        create   destroy   get      put      acc     scatter   gather  read&inc
 calls:    8        8      106        5        0        0        0        0     
 number of processes/call 1.00e+00 1.00e+00 0.00e+00 0.00e+00 0.00e+00
-bytes total:             1.06e+05 4.10e+04 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             2.56e+05 1.08e+05 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 65536 bytes
+Max memory consumed for GA by this process: 173056 bytes
  
 
 
@@ -1463,7 +1436,7 @@ Max memory consumed for GA by this process: 65536 bytes
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003), Pacific Northwest National Laboratory,
+            Version 4.7" (2005), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -1473,25 +1446,25 @@ Max memory consumed for GA by this process: 65536 bytes
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis, E. J. Bylaska,
-            W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler, L. Pollack,
-            R. J. Harrison, J. Nieplocha, V. Tipparaju, M. Krishnan, A. A. Auer,
-            E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-            R. Kendall, J. A. Nichols, K. Tsemekhman, M. Valiev,
-            K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-            D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
+            T. P. Straatsma, E. Apra, T. L. Windus, E. J. Bylaska, W. de Jong,
+            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, R. J. Harrison,
+            M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+            M. Krishnan, A. A. Auer, E. Brown, G. Cisneros, G. I. Fann,
+            H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+            K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
             E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
             R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
             T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
             G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
             "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003),
+            Version 4.7" (2005),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:       93.1s     wall:      169.6s
+ Total times  cpu:      101.0s     wall:      108.1s
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1500,8 +1473,8 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       110	         9
+	maximum number of blocks	       111	         9
 	current total bytes		         0	         0
-	maximum total bytes		   9159292	   1654620
-	maximum total K-bytes		      9160	      1655
+	maximum total bytes		   9284364	   1654220
+	maximum total K-bytes		      9285	      1655
 	maximum total M-bytes		        10	         2
