@@ -94,10 +94,10 @@ c
 #ifdef OLD_AODISK
       character*8 buidstr
       integer recnum
-#endif
-      integer ssbblen
       logical moints_iorec_next
       external moints_iorec_next
+#endif
+      integer ssbblen
 c$$$      DOUBLE PRECISION DABSSUM
 c$$$      EXTERNAL DABSSUM
 
