@@ -55,10 +55,11 @@ c *** local variables
       data iESSL /0/
       save iESSL
 #endif
+      integer n123
 #ifdef EMSLFFT
       integer  nwords, nrealscr,ma_nrealscr, ma_nintscr
       logical  bstatus
-      integer  dblh,inth, idbl,iint, n123
+      integer  dblh,inth, idbl,iint 
       integer  initSCRATCH, mamem 
       data initSCRATCH,ma_nrealscr,ma_nintscr /0,0,0/
       save initSCRATCH, ma_nrealscr,ma_nintscr, dblh,inth,idbl,iint
