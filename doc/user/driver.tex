@@ -80,9 +80,11 @@ number of energy points during any linear search.
   MODUPD  <integer modupt  default 1>
 \end{verbatim}
 
-The value specified for the integer \verb+<modupd>+ defines the Hessian 
-update algorithm, Fletcher-Powell update (\verb+<modupd> = 0+) or
-Broyden-Fletcher-Goldfarb-Shanno update (\verb+<modupd> =  1+)
+\sloppy
+
+The value specified for the integer \verb+<modupd>+ defines the
+Hessian update algorithm, Fle\-tcher-Powell update (\verb+<modupd> = 0+)
+or Broy\-den-Fle\-tcher-Gold\-farb-Shanno update (\verb+<modupd> = 1+)
 
 \section{{\tt MODSAD} --- Optimization mode}
 
@@ -90,10 +92,9 @@ Broyden-Fletcher-Goldfarb-Shanno update (\verb+<modupd> =  1+)
   MODSAD  <integer modsad  default 0>
 \end{verbatim}
 
-The value specified for the integer \verb+modsad+ defines the type   
-of optimization to be performed, an energy minimization
-(\verb+<modsad> = 0+)
-or a transition state optimization (\verb+<modsad> = 1+).
+The value specified for the integer \verb+modsad+ defines the type of
+optimization to be performed, an energy minimization (\verb+<modsad> =
+0+) or a transition state optimization (\verb+<modsad> = 1+).
 
 \section{{\tt MODDIR} --- Normal mode selection}
 
@@ -104,3 +105,7 @@ or a transition state optimization (\verb+<modsad> = 1+).
 The value specified for the integer \verb+moddir+ defines    
 which normal mode of displacement to follow initially in the
 transition state search.
+
+\fussy
+
+
