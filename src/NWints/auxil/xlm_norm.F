@@ -1,5 +1,5 @@
       subroutine xlm_norm(qn,e,D,Ld)
-* $Id: xlm_norm.F,v 1.1 1995-12-20 22:50:25 d3e129 Exp $
+* $Id: xlm_norm.F,v 1.2 1996-02-05 23:22:07 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 c
@@ -22,6 +22,7 @@ c::local
       integer L2s
       integer l, m
       double precision pi4
+      double precision pi, fact
 #if defined (QN_NEW_WAY)
       double precision pi, pi2x, resultlmm, resultlpm
 #endif
@@ -66,9 +67,22 @@ c... form qn values via recursion
             qn(m,l) = e(m) * sqrt(qn(m,l))
          end do
       end do
-*...  fix L=0 dependence (found emperically)
+*...  fix m=0 dependence (found emperically)
+*...  multiply all m=0 coeffs by 1/sqrt(2)
+*...  this gives all 2l+1 values the same diagonal value
       do l = 0, Ld
         qn(0,l) = qn(0,l)/sqrt(2.0d00)
+      enddo
+*... fix L>2 dependence (found emperically)
+*...  multiply all coeffs by sqrt(8pi/(2l+1))
+*...  this gives a diagional spherical overlap matrix
+      pi = 2.0d0*dacos(0.0d00)
+      do l = 2, Ld
+        fact = 8.0d00*pi/(2.0d00*dble(l)+1.00d00)
+        fact = sqrt(fact)    ! 
+        do m = -l,l
+          qn(m,l)=qn(m,l)*fact
+        enddo
       enddo
 #if defined (QN_NEW_WAY)
       call print_qn(Ld,qn,' old way ')

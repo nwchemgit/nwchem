@@ -1,12 +1,15 @@
       logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.2 1996-01-22 21:48:55 d3e129 Exp $
+c $Id: int_norm.F,v 1.3 1996-02-05 23:22:02 d3e129 Exp $
       implicit none
+#include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
+      logical norm_ok
       logical bas_check_handle
       external bas_check_handle
 c
@@ -18,7 +21,22 @@ c     coefficients so that the user can print out something recognizable
 c
       int_normalize = bas_check_handle(basisin, 'int_normalize')
       if (.not. int_normalize) return
+c
       basis = basisin + BASIS_HANDLE_OFFSET
+
+c
+c check and set basis normalization
+c
+      norm_ok = bas_norm_id(basis).eq.BasNorm_STD
+      if (norm_ok) return ! basis has been normalized properly
+      norm_ok = bas_norm_id(basis).eq.BasNorm_UN
+      if (.not.norm_ok) then
+        if (.not. bas_norm_print(basisin)) call errquit
+     &      ('int_normalize: bas_norm_print failed',911)
+        write(luout,*)' basis has already been normalized somehow'
+        call errquit('int_norm: basis normalization error ',911)
+      endif
+      bas_norm_id(basis) = BasNorm_STD
 c
       nucont = infbs_head(HEAD_NCONT,basis)
       do iucont = 1, nucont

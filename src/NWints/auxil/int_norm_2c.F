@@ -1,5 +1,5 @@
       logical function int_norm_2c(basisin)
-c $Id: int_norm_2c.F,v 1.2 1996-01-22 21:48:56 d3e129 Exp $
+c $Id: int_norm_2c.F,v 1.3 1996-02-05 23:22:03 d3e129 Exp $
 c::assumptions
 *..   MA_init has been called
 c
@@ -9,9 +9,11 @@ c
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
+#include "stdio.fh"
       integer basisin             ! [input] basis handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       integer maxg2c, mem2c, lscr, h_scr, i_scr, maxang
+      logical norm_ok
 c
 #include "bas_exndcf_sfn.fh"
 c
@@ -21,6 +23,20 @@ c     coefficients so that the user can print out something recognizable
 c
       int_norm_2c = bas_check_handle(basisin, 'int_norm_2c')
       if (.not. int_norm_2c) return
+
+c
+c check and set basis normalization
+c
+      norm_ok = bas_norm_id(basis).eq.BasNorm_2c
+      if (norm_ok) return ! basis has been normalized properly
+      norm_ok = bas_norm_id(basis).eq.BasNorm_UN
+      if (.not.norm_ok) then
+        if (.not. bas_norm_print(basisin)) call errquit
+     &      ('int_norm_2c: bas_norm_print failed',911)
+        write(luout,*)' basis has already been normalized somehow'
+        call errquit('int_norm_2c: basis normalization error ',911)
+      endif
+      bas_norm_id(basis) = BasNorm_2c
 c
 c...  get memory requirements for one electron integrals
 c
