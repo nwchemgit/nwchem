@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.6 1997-11-04 10:10:35 d3e129 Exp $
+* $Id: create_contour.F,v 1.7 1997-11-13 02:01:16 d3e129 Exp $
 *
       Implicit None
 *
@@ -48,9 +48,6 @@
 *---- Other variables
       Integer i,j,iOff,iProc,nProc,nGrPP,lthPP,iOffG
       Logical LResult,DeBug,GRAD
-*
-      Logical  Bas_nContr_CN_Max
-      External Bas_nContr_CN_Max
 *
 ************************************************************************
 *
