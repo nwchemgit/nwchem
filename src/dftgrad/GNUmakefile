@@ -12,7 +12,7 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
          dftg_bal_sum.o dftg_hf_x.o dftg_quadv0a.o dftg_beckew.o dftg_wderiv.o
    OBJ_OPTIMIZE = dftg_quadv0b.o 
 endif
-   USES_BLAS = dftg_force.F dftg_quadv0a.F dftg_cdfit.F dftg_quadv0b.F
+   USES_BLAS = dftg_force.F dftg_quadv0a.F dftg_cdfit.F dftg_quadv0b.F dftg_wderiv.F dftg_wderiv.F
 LIB_INCLUDES = -I../nwdft/include
 
    LIBRARY = libdftgrad.a
