@@ -98,11 +98,14 @@ C      write (6,'(/A,/)') 'p=1 start values'
       nl = nq-ns
       nb = n-na
       na = na-nq
+C      write (6,*) 'na,nb,ns,nl',na,nb,ns,nl
 *
-*   Evaluate Q^1_{mm} functions
+*   Evaluate Q^1_{mm} functions. Note that the function for m_max is
+*   not required for the recursion.
 *
 C      write (6,*) 'm_min,m_max',m_min,m_max
       do m = m_min,max(m_max-1,m_min)
+        write (6,*) 'm =',m
         if (ns .gt. 0) call ecp_t2_ghq (1,m,m,ns,12,temp(js,1),
      &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
         if (nl .gt. 0) call ecp_t2_ghq (1,m,m,nl,6,temp(jl,1),
@@ -123,7 +126,7 @@ C      write (6,'(2I5,1pe20.10)') ((i,m,Q(i,m,1),i=1,n),m=m_min,m_max)
 *   Evaluate Q^1_{mm-1} or Q^1_{m-1m} functions
 *
       k = j-h
-      do m = m_max-1,max(m_max-1,m_min)-1,-1
+      do m = m_max-1,max(m_max-2,m_min),-1
         if (ns .gt. 0) call ecp_t2_ghq (2,m+j,m+h,ns,12,temp(js,1),
      &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
         if (nl .gt. 0) call ecp_t2_ghq (2,m+j,m+h,nl,6,temp(jl,1),

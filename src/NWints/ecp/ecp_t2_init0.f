@@ -123,7 +123,7 @@ C      write (6,'(2I5,1pe20.10)') ((i,m,Q(i,m,1),i=1,n),m=m_min,m_max)
 *   Evaluate Q^1_{mm-1} or Q^1_{m-1m} functions
 *
       k = j-h
-      do m = m_max-1,max(m_max-1,m_min)-1,-1
+      do m = m_max-1,max(m_max-2,m_min),-1
         if (ns .gt. 0) call ecp_t2_ghq (1,m+j,m+h,ns,12,temp(js,1),
      &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
         if (nl .gt. 0) call ecp_t2_ghq (1,m+j,m+h,nl,6,temp(jl,1),
