@@ -964,34 +964,43 @@ c
       if (memsize.ne.0 .or. filesize.ne.0) return
       oinfo  = util_print('int2einfo', print_default) .and.
      $     ga_nodeid().eq.0
+      if (.not. bas_numbf(basis, nbf))
+     $     call errquit('int2e: bad bas',0)
 c
 c     How much memory?  Leave space for GAs, for the integral code,
 c     and for 50,000 of misc. junk. 
 c
       avail = MA_inquire_avail(mt_dbl)
+      write(6,*) ' avail 1 ', avail
       if (ga_uses_ma()) avail = avail - ga_memory_avail()
+      write(6,*) ' avail 2 ', avail
       call intb_mem_2e4c(max2e, mem2)
-      mem2 = max(mem2,max2e)
-      avail = avail - 5*max2e - mem2
+      write(6,*) ' avail 3 ', avail
+      avail = avail - 5*maxeri - mem2
+      write(6,*) ' avail 4 ', avail
       avail = avail - 100000
+      write(6,*) ' avail 5 ', avail
       call ga_igop(msg_int2e_file, avail, 1, 'min')
+      write(6,*) ' avail 6 ', avail
 c
 c     Assume that for the small systems for which can hold the
 c     integrals, that there is no sparsity except for symmetry.
 c     Also, assume that the integrals will be evenly distributed
 c     apart from a 10% fluctuation
 c
-      if (.not. bas_numbf(basis, nbf))
-     $     call errquit('int2e: bad bas',0)
       if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
      $     ('int2e_test_mem: bad geom handle?',0)
       if (.not. geom_ncent(geom, natom)) call errquit
      $     ('int2e_test_mem: bad geom handle?',0)
 c     
       nq = 0.125d0 * dble(nbf+1)**4 
+      write(6,*) ' nq 1 ', nq
       nq = nq * (dble(natom_unique) / dble(natom))
+      write(6,*) ' nq 1 ', nq
       nq = nq / ga_nnodes()
+      write(6,*) ' nq 1 ', nq
       nq = nq * 1.1d0 + 2*(rec_len_in_dbl+1) ! Fudge factors for safety
+      write(6,*) ' nq 1 ', nq
 c
       if (nq .lt. avail) then
          memsize = int(nq)      ! Set these so that scf_tidy cleans up
