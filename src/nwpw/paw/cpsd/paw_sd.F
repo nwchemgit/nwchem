@@ -1,7 +1,13 @@
 *
-* $Id: paw_sd.F,v 1.61 2003-09-25 02:10:04 bylaska Exp $
+* $Id: paw_sd.F,v 1.62 2003-09-25 17:15:39 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2003/09/25 02:10:04  bylaska
+* Automatic wavefunction exapander and  new wavefunction generation have
+* been added to the paw code.
+*
+* ...EJB
+*
 * Revision 1.60  2003/03/25 22:47:53  bylaska
 * movecs error checking added....EJB
 *
@@ -146,10 +152,8 @@
 
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
-      integer rtdb,ind
+      integer ind
 
-      integer  control_rtdb
-      external control_rtdb
       character*30 control_input_psi
       external     control_input_psi
       logical  wvfnc_expander
@@ -359,7 +363,7 @@
 *     *****  read psi2 wavefunctions ****
 
 *     *****  read initial wavefunctions into psi1  ****
-      rtdb = control_rtdb()
+      
       if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
