@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.29 1997-07-01 18:12:32 d3e129 Exp $
+c     $Id: dft_inpana.F,v 1.30 1997-07-15 19:58:06 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -19,10 +19,8 @@ c
       integer n, na, nb
       integer nshells_cd, nshells_xc, nshells
       double precision anucl_charg, ckfac, t1, r1
-      double precision EPSILON
       character*9 local_c, nonlocal_c, nineb_c
       character*3 on_off_1, on_off_2
-      Parameter ( EPSILON=1.d-13 )
       logical oprint_general, oprint_grid, oprint_xc, 
      &     oprint_convergence, oprint_tolerances
       character*10 start_10c, NA_10c, asap_10c
@@ -48,13 +46,16 @@ c
       oprint_tolerances = util_print('screening tolerance information',
      &                               print_default)
 c     
-c     Determine number of electrons in system.
+c     Figure out the number of electrons from the required total
+c     charge and the sum of nuclear charges
 c     
       if (.not. geom_nuc_charge(geom, anucl_charg))
-     &     call errquit('scf: geom_nuc_charge failed', 0)
-c     
-      ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
-      nel = int(anucl_charg+EPSILON) - ichg
+     &     call errquit('dft_inpana: geom_nuc_charge failed', 0)
+      nel = nint(anucl_charg - rcharge)
+      if (nel .le. 0) call errquit
+     $     ('dft_inpana: negative no. of electrons ?', nel)
+      if (abs(anucl_charg - rcharge - dble(nel)) .gt. 1d-8)
+     $     call errquit('dft_inpana: non-integral # of electrons ?', 0)
 c     
 c     Check to see if calculation type is allowed.
 c     
@@ -266,6 +267,7 @@ c
             na = noc(1)
             nb = noc(2)
             if (ipol.eq.1)nb = noc(1)
+            ichg = nint(rcharge)
             write(LuOut,8200)nel,na,nb,ichg,mult
             on_off_1 = 'off'
             if (oskel)on_off_1 = 'on'

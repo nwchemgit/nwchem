@@ -7,7 +7,7 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.6 1997-04-11 23:42:21 d3h449 Exp $
+C$Id: diis_bld12.F,v 1.7 1997-07-15 19:58:14 d3h449 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       integer me, nproc, i
       integer ltmpm, itmpm
       double precision toll, aaz
-      parameter (toll = 1.d-5)
+      parameter (toll = 1.d-6)
 c
       me = ga_nodeid()
       nproc = ga_nnodes()

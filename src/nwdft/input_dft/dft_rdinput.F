@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.45 1997-07-10 16:35:08 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.46 1997-07-15 19:58:08 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -24,7 +24,7 @@ c
 #include "stdio.fh"
 #include "util.fh"
 c
-      integer iproc,ichg,itype,
+      integer iproc,itype,
      &     icenter,jcenter
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      &     lznuc,iznuc,lratom,iratom,lrot,irot
@@ -63,7 +63,6 @@ c
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge))then
         rcharge = 0.0d0
       endif 
-      ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
 c     
 c     Get parameters from rtdb. If not available, set
 c     default and put in the rtdb as well as loading in common.

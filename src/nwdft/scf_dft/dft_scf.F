@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.82 1997-07-10 16:35:12 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.83 1997-07-15 19:58:12 d3h449 Exp $
 c     
       implicit none
 c
@@ -103,7 +103,7 @@ c
       external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
-      logical status, last_time, last_time_vecs, last_time_energy
+      logical last_time, last_time_vecs, last_time_energy
       logical check_shift
       character*7 name
       character*4 scftype
@@ -426,18 +426,18 @@ c
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
-      tol2e_sleazy = 1.d-5
+      tol2e_sleazy = 1.d-3
       call scf_get_fock_param(rtdb, tol2e_sleazy)
 c
 c     Force sleazy SCF into "direct" mode.
 c
       call fock_force_direct(rtdb)
 c
-      call scf_vectors_guess(rtdb, tol2e, geom, ao_bas_han, basis_trans, 
-     &                       movecs_in, movecs_out, movecs_guess,
-     &                       scftype, nclosed, nopen, nbf, nbf,
-     &                       noc(1), noc(2),  k_eval, k_occ, k_ir,
-     &                       g_movecs, g_dens, 'density', 
+      call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
+     &                       basis_trans, movecs_in, movecs_out, 
+     &                       movecs_guess, scftype, nclosed, nopen, 
+     &                       nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
+     &                       k_ir, g_movecs, g_dens, 'density', 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
 c
@@ -484,26 +484,6 @@ c         call gadest(g_s)
      &      ('dft_scf: could not destroy g_s', 0)
       endif
       iter = 1
-c     
-c     Figure input/output MO vectors
-c     
-c     See if we are already converged
-c     
-c      if (iguess .eq. 999)then ! If MO starting guess 
-c         if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
-c            if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
-c     &         call errquit('dft_scf: failed getting converged energy',
-c     &         0)
-c            if (ga_nodeid().eq.0 .and. oprint)then
-c               write(6,1011)energy
-c 1011          format(/'  The DFT is already converged '//,
-c     &              '         Total DFT energy =', f20.12/)
-c               call util_flush(6)
-c            endif
-c            converged = .true.
-c            goto 1101
-c         endif
-c      endif
 c     
 c     Top of infinite SCF iteration loop
 c
@@ -1293,8 +1273,6 @@ c
       call ga_brdcst(12321, stat1, ma_sizeof(mt_int,1,mt_byte), 0)
       if (stat1 .eq. 1)then
 c
-         if (.not. status)
-     &      call errquit ('dft_scf:error allocating ir array', 110)
          if (oadapt)then
             call scf_movecs_sym_adapt(ao_bas_han, g_movecs(1),
      &                                .false., nbf_ao, '- alpha',
@@ -1325,9 +1303,6 @@ c
             call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
          endif
       endif
-c
- 1101 continue                  ! Jump here if already converged
-c
       if (.not.ma_pop_stack(l_ir))
      &   call errquit('dft_scf: cannot pop stack',0)
 c     

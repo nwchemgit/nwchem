@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han,g_2ceri,geom)
 
-C$Id: dft_get2eri.F,v 1.5 1996-10-18 21:49:59 d3h449 Exp $
+C$Id: dft_get2eri.F,v 1.6 1997-07-15 19:57:58 d3h449 Exp $
       implicit none
       integer CD_bas_han, geom
       integer g_2ceri
@@ -39,7 +39,7 @@ c     Allocate scratch space.
       me  = ga_nodeid()
       nproc  = ga_nnodes()
 c     niter  = (nshells_cd*(nshells_cd+1))/2
-      icount = (nshells_cd + mod(nshells_cd,2))/2
+      icount = (nshells_cd + mod(nshells_cd,2))/(2*nproc)
       icount = max(icount,1)
 
       call int_mem_2e2c(maxg, mscratch_2e2c)
@@ -99,7 +99,9 @@ c           Re-order.
      &  call errquit('dft_get2eri: cannot pop stack',0)
 
       n1 = nxtask(-nproc,icount)
-
+c
+      call ga_sync
+c
       return
       end
 

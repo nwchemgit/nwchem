@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.17 1997-04-25 23:11:46 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.18 1997-07-15 19:58:10 d3h449 Exp $
 c     
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals, iw, idum, i
       double precision toll_s
-      parameter(toll_s = 1.e-5)
+      parameter(toll_s = 1.e-6)
       logical dft_scf
       external dft_scf
 c     
@@ -82,15 +82,13 @@ c
 
       if (XCFIT)then
 c     
-c     Determine the characteristics of the XC Gaussian basis set.
+c        Determine the characteristics of the XC Gaussian basis set.
 c     
          if (.not. bas_numbf(XC_bas_han, nbf_xc)) then
             call errquit('Exiting from scfdriver',4)
          endif 
          lmiss = 1
          if (IOLGC)then
-c            call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 'XCinv', 
-c     &                  g_xcinv, 'row')
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                          nbf_xc, 1, g_xcinv)) 
      &         call errquit('dft_main0d: error creating g_xcinv',0)
@@ -111,15 +109,11 @@ c
 c     
 c           Compute the matrix inverse of the 2-ctr OIs.
 c     
-c            if (.not.IOLGC)call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 
-c     &                                 'XCinv', g_xcinv, 'row')
             if (.not.IOLGC)then
                if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                             nbf_xc, 1, g_xcinv)) 
      &            call errquit('dft_main0d: error creating g_xcinv',0)
             endif
-c            call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 'g_oi', g_oi, 
-c     &                  'row')
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'g_oi', 
      &                          nbf_xc, 1, g_oi)) 
      &         call errquit('dft_main0d: error creating g_oi',0)
@@ -151,7 +145,6 @@ c     &                  'row')
                call dft_invdiag(geom, XC_bas_han, g_oi, g_xcinv, nbf_xc)
             endif
             call ga_sync
-c            call gadest(g_oi)
             if (.not. ga_destroy(g_oi)) call errquit
      &         ('dft_main0d: could not destroy g_oi', 0)
             if (me.eq.0.and.IOLGC) then
@@ -162,13 +155,15 @@ c            call gadest(g_oi)
             endif
          endif
          call ga_sync
-c         if (IOLGC)  call gadest(g_xcinv)
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
          endif
       endif
-
+c
+c     Done with XC setup stuff
+c
+      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -189,23 +184,19 @@ c
 
       if (CDFIT)then
 c     
-c     Determine the characteristics of the CD Gaussian basis set.
+c        Determine the characteristics of the CD Gaussian basis set.
 c     
          if (.not. bas_numbf(CD_bas_han, nbf_cd)) then
             call errquit('Exiting from scfdriver',5)
          endif 
 c     
-c     Compute the matrix inverse of the CD 2-ctr ERIs.
+c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
-c         call gacrea(geom, CD_bas_han, 
-c     &        nbf_cd, nbf_cd, 'CD 2cERI', g_2ceri, 'row')
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
      &                       nbf_cd, 1, g_2ceri)) 
      &      call errquit('dft_main0d: error creating g_2ceri',0)
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri, geom)
-c         call gacrea(geom, CD_bas_han, 
-c     &        nbf_cd, nbf_cd, 'CD 2cERInv', g_cdinv, 'row')
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 1, g_cdinv)) 
      &      call errquit('dft_main0d: error creating g_cdinv',0)
@@ -281,6 +272,10 @@ c            call gadest(g_2ceri)
          endif
          call ga_sync
       endif
+c
+c     Done with CD setup stuff
+c
+      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -291,7 +286,6 @@ c
 c     
 c     Compute the AO overlap matrix.
 c     
-c      call gacrea(geom, AO_bas_han, nbf_ao, nbf_ao, 'ovl ', g_s, 'atom')
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'ovl eig vals', lsvals, 
      &   isvals))
@@ -311,8 +305,6 @@ c     orthog BS
 c     
 c     Diag Overlap Matrix
 c     
-c      call gacrea(geom, AO_bas_han, 
-c     &     nbf_ao, nbf_ao, 'ovl eig vecs', g_svecs, 'atom')
       g_svecs = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                 'AO ovl eig vecs')
 #if defined(PARALLEL_DIAG)
@@ -334,32 +326,20 @@ c
 #endif
 c     
       call ga_sync
-c      call gacrea(geom, AO_bas_han, 
-c     &     nbf_ao, nbf_ao, 'alpha evecs', g_evecs(1), 'atom')
       g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                    'alpha evecs')
-c      call gacrea(geom, AO_bas_han, 
-c     &     nbf_ao, nbf_ao, 'alpha density', g_dens(1), 'atom')
       g_dens(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                   'alpha density')
       call ga_zero(g_dens(1))
       if (ipol.ne.1)then
-c         call gacrea(geom, AO_bas_han, 
-c     &        nbf_ao, nbf_ao, 'beta density', g_dens(2), 'atom')
          g_dens(2) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                      'beta density')
          call ga_zero(g_dens(2))
-c         call gacrea(geom, AO_bas_han, 
-c     &        nbf_ao, nbf_ao, 'beta evecs', g_evecs(2), 'atom')
          g_evecs(2) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                       'beta evecs')
-c         call gacrea(geom, AO_bas_han, 
-c     &        nbf_ao, nbf_ao, 'Vxcs', g_Vxc(2), 'atom')
          g_Vxc(2) = ga_create_atom_blocked(geom, AO_bas_han, 'Vxcs')
       endif 
       nVxc = ipol
-c      call gacrea(geom, AO_bas_han, 
-c     &     nbf_ao, nbf_ao, 'fock Matrix', g_fock, 'atom')
       g_fock = ga_create_atom_blocked(geom, AO_bas_han, 'fock matrix')
       g_vxc(1) = g_fock
 c     
@@ -371,7 +351,6 @@ c
      &                nbf_ao, iw)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
-c      if (CDFIT)call gadest(g_s)
       if (CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0)
@@ -387,7 +366,6 @@ c     Clean up memory usage.
 c     
       if (.not.ma_pop_stack(lsvals))
      &     call errquit('dft_main0d: cannot pop stack', 0)
-c      if (.not.CDFIT)call gadest(g_s)
       if (.not.CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_main0d: could not destroy g_s', 0)
@@ -402,41 +380,31 @@ c      if (.not.CDFIT)call gadest(g_s)
          endif
       endif
       if (CDFIT.and.(.not.IOLGC)) then
-c         call gadest(g_cdinv)
          if (.not. ga_destroy(g_cdinv)) call errquit
      &      ('dft_main0d: could not destroy g_cdinv', 0)
-c         call gadest(g_2ceri)
          if (.not. ga_destroy(g_2ceri)) call errquit
      &      ('dft_main0d: could not destroy g_2ceri', 0)
       endif
-c      if (XCFIT.and.(.not.IOLGC)) call gadest(g_xcinv)
       if (XCFIT.and.(.not.IOLGC))then
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      ('dft_main0d: could not destroy g_xcinv', 0)
       endif
-c      call gadest(g_fock)
       if (.not. ga_destroy(g_fock)) call errquit
      &   ('dft_main0d: could not destroy g_fock', 0)
       if (ipol.eq.2)then
-c         call gadest(g_vxc(2))
          if (.not. ga_destroy(g_vxc(2))) call errquit
      &      ('dft_main0d: could not destroy g_vxc(2)', 0)
       endif
       if (ipol.ne.1)then
-c         call gadest(g_evecs(2))
          if (.not. ga_destroy(g_evecs(2))) call errquit
      &      ('dft_main0d: could not destroy g_evecs(2)', 0)
-c         call gadest(g_dens(2))
          if (.not. ga_destroy(g_dens(2))) call errquit
      &      ('dft_main0d: could not destroy g_dens(2)', 0)
       endif
-c      call gadest(g_evecs(1))
       if (.not. ga_destroy(g_evecs(1))) call errquit
      &   ('dft_main0d: could not destroy g_evecs(1)', 0)
-c      call gadest(g_dens(1))
       if (.not. ga_destroy(g_dens(1))) call errquit
      &   ('dft_main0d: could not destroy g_dens(1)', 0)
-c      call gadest(g_svecs)
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0)
       call schwarz_tidy
@@ -451,10 +419,6 @@ c
          pgmname = ' SCFDRIVER'
          call t_stat(10,2)
       endif
-#endif
-c     
-#if defined(DFT_GASTAT)
-c      if (me.eq.0)call gadump
 #endif
 c     
       return
