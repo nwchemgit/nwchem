@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.5 1996-01-22 21:46:38 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.6 1996-06-19 23:16:37 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -46,6 +46,8 @@ c::local
 c
 #include "bas_ibs_sfn.fh"
 c
+*      call int_nospherical_check(brain,'intb_2e4c')
+*      call int_nospherical_check(ketin,'intb_2e4c')
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
@@ -53,7 +55,7 @@ c
 *.... using texas
       status = .true.
       status = (bra .eq. ket) .and. status
-      do i_q = num_q_start,(num_q_start+10)
+      do i_q = num_q_start,(min((num_q_start+10),num_q))
         status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
         status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
         if (.not.status) goto 00001
@@ -95,6 +97,7 @@ c
       endif
       num_q_last = num_q_start
       nint = 0
+* this will have to change for spherical code
       do 00100 i_q = num_q_start, num_q
         numinti=(sf_ibs_cn2bfr(2,icl(i_q),bra))-
      &        (sf_ibs_cn2bfr(1,icl(i_q),bra))+1
