@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C     $Id: dft_fitvc.F,v 1.6 1996-05-01 23:37:04 og845 Exp $
+C     $Id: dft_fitvc.F,v 1.7 1996-05-04 21:07:16 og845 Exp $
       implicit none
       
 c**** 
@@ -194,6 +194,14 @@ c
               call dfill(Nao2,0.D0,dbl_mb(isvec),1)
               nfunz=0
               if(incore) ipoint2=ipoint
+                  if(incore) then
+c                 
+c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
+c                 
+                    call dgemv('N',Nao2,nbf_cd,1.D0,
+     &                   i3c_ERI(ipoint),Nao2,
+     &                   CD_coef,1,1.D0,Dbl_MB(isvec),1)
+                  else
               do 220 ishp = 1,nshells_cd
                 
                 if (.not. bas_cn2bfr( CD_bas_han,ishp,
@@ -206,14 +214,6 @@ c
                   
                   ischw2 = ischw2 + 1
                   
-                  if(incore) then
-c                 
-c                   Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
-c                 
-                    call dgemv('N',Nao2,nshbf_cd,1.D0,
-     &                   i3c_ERI(ipoint2),Nao2,
-     &                   CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
-                  else
 c                   
 c                   Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c                   
@@ -227,12 +227,12 @@ c
      &                   CD_coef(1+nfunz),1,1.D0,Dbl_MB(isvec),1)
                   endif
 
-                endif
 
                 if(incore) ipoint2=ipoint2+Nint
                 nfunz=nfunz+nshbf_cd
                 
   220         continue
+                endif
 c           
 c             Scatter the computed values of Vcoul.
 c           
