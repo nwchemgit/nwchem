@@ -60,7 +60,12 @@ void FATR util_debug_(Integer *rtdb)
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
 #else
-#error dont_know_how_to_debug_on_this_machine
+  argv[6] = "gdb";
+  argv[7] = path;
+  argv[8] = pid;
+  argv[9] = 0;
+  if (!xterm[0])
+    strcpy(xterm, "/usr/X11R6/bin/xterm");
 #endif
 
   for (i=0; argv[i]; i++)
