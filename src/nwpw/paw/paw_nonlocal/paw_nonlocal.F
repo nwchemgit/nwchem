@@ -1,6 +1,8 @@
 *
-* $Id: paw_nonlocal.F,v 1.7 2003-03-04 22:16:24 marat Exp $
+* $Id: paw_nonlocal.F,v 1.8 2003-03-05 01:46:58 bylaska Exp $
 *
+
+* $Log: not supported by cvs2svn $
 
 !**************************************************
 !
@@ -60,9 +62,8 @@
       ne_d=ne(2)
 
       !*** space for the non-local operator ***
-      value = value.and.MA_alloc_get(mt_dcpl,
-     >            (total_nbasis*neall),
-     >            'paw_nl_coeff',paw_nl_coeff(2),paw_nl_coeff(1))
+      value = value.and.my_alloc(mt_dcpl,(total_nbasis*neall),
+     >                          "paw_nl_coeff",paw_nl_coeff)
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
      >                           "paw_Gop_u",paw_Gop_u)
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
@@ -168,6 +169,7 @@
       integer i_nbasis,indx,indx1,indx_m
       integer coeff_ptr
       integer hartree_ptr,mult_ptr,comp_ptr,xc_ptr
+      real*8  scal1
 
 
       !**** add up Gop ****
@@ -187,9 +189,11 @@ c       end do
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(hartree_ptr),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
-      call daxpy(2*paw_Gop_size,1.0d0,
-     >           dcpl_mb(mult_ptr),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+
+c     call daxpy(2*paw_Gop_size,1.0d0,
+c    >           dcpl_mb(mult_ptr),1,
+c    >           dcpl_mb(paw_Gop_u(1)),1)
+
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(comp_ptr),1,
      >           dcpl_mb(paw_Gop_u(1)),1)
@@ -215,7 +219,7 @@ c       end do
       !**** paw_nl_coeff(alpha,ii) = Sum(ii,beta) Gop(alpha,beta,ii)*coeff(beta,ii) ****
       nion = ion_nion()
       call paw_ovlp_coeff_ptr(coeff_ptr)
-      call dcopy(total_nbasis*neall,0.0d0,0,
+      call dcopy(2*paw_nl_coeff(3),0.0d0,0,
      >           dcpl_mb(paw_nl_coeff(1)),1)
        
       i_nbasis = 0
@@ -253,7 +257,12 @@ c       end do
            indx_m = indx_m + 1
          end do
          end do
+         i_nbasis = i_nbasis + nbasis
       end do
+
+      scal1 = -1.0d0
+      call dscal(2*paw_nl_coeff(3),scal1,
+     >           dcpl_mb(paw_nl_coeff(1)),1)
 
       return
       end
@@ -299,7 +308,7 @@ c       end do
       if (.not. ok) call errquit('paw_nonlocal:out of stack memory',0)
 
       nlmii = 0
-      do ii=1,ion_nion()
+      do ii=1,nion
         ia     = ion_katm(ii)
         nbasis = paw_proj_nbasis(ia)
         prj    = paw_proj_i_prj_atom(ia)
