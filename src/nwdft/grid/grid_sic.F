@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.1 2000-04-11 20:49:41 edo Exp $
+C$Id: grid_sic.F,v 1.2 2000-05-01 21:32:48 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -57,7 +57,7 @@ c
       call part_rho_rel(tol_rho, nqpts, Amat, Cmat, rho,
      &     vect1, ipol, occup_i,
      &     delrho, delrho_sig, 
-     &     sic_orb_spin)
+     &     sic_orb_spin,aux_ik)
       return
       end
       subroutine grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,

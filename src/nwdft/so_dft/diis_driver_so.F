@@ -2,7 +2,7 @@
      &     nbf, geom, AO_bas_han, g_fock, g_dens, 
      &     g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.1 2000-04-17 21:45:59 zzhang Exp $
+C$Id: diis_driver_so.F,v 1.2 2000-05-01 21:32:48 edo Exp $
 c
       implicit none
 c      
@@ -257,7 +257,7 @@ c
 c      write(*,*)"nhist=", nhist
 c      write(*,*)(Dbl_MB(ipulay+i-1),i=1,(nhist+1)*(nhist+2)/2)
       call diis_bsolve_so(Dbl_MB(ipulay), Dbl_MB(ifwght),
-     &     MXhist, nhist, icall)
+     &     MXhist, nhist)
 c      write(*,*)(Dbl_MB(ifwght+i-1), i=1,nhist+1)
 c
 #if defined(DFT_TIMER)

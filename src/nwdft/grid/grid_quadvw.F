@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.11 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_quadvw.F,v 1.12 2000-05-01 21:32:48 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -211,7 +211,7 @@ c
      .     ' grid_quadvw: no cube detected - nqtot ',nqtotc)
       write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
-      if(dosympts)call grid_sympts2(l_symops,l_gridscr,l_iscr)
+      if(dosympts)call grid_sympts2(l_symops,l_gridscr)
  16   format(A,I3,A,2I8)
       call grid_buckend()
 c
