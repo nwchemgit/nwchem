@@ -92,13 +92,12 @@ the DFT module are:
                [hl_tol <real hl_tol default 0.1>]]
 
 
-  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4> \
-                                         <integer radpts default 50>)] \
-        [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
-                                        <integer nradpts default 40>)] \
+  GRID [[coarse|medium|fine|xfine] \
+        [gausleg <integer radpts default 50> <integer nagrid default 10>] \ 
+        [lebedev <integer radpts default 50> <integer iangquad default 4>] \ 
         [store_wght] [nquad_task <integer nquad_task default 1>] \
-        [rm <real rm default 2.0>]]
-
+        [delley|becke] [rm <real rm default 2.0>]]
+        
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
@@ -588,13 +587,12 @@ procedures deemed undesirable with the obvious keywords,
 \subsection{Control of the Numerical Integration (Grid Control) of the
   Exchange-Correlation Potential in the DFT Module}
 \begin{verbatim}
-  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4> \
-                                         <integer radpts default 50>)] \
-        [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
-                                        <integer nradpts default 50>)] \
+  GRID [[coarse|medium|fine|xfine] \
+        [gausleg <integer radpts default 50> <integer nagrid default 10>] \ 
+        [lebedev <integer radpts default 50> <integer iangquad default 4>] \ 
         [store_wght] [nquad_task <integer nquad_task default 1>] \
-        [rm <real rm default 2.0>]]
-
+        [delley|becke] [rm <real rm default 2.0>]]
+        
 
 \end{verbatim}
 
@@ -606,11 +604,10 @@ scheme for the angular components (see C.W.~Murray, N.C.~Handy, and
 G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical 
 integration procedure various levels of accuracy have been defined and
 are available to the user.  The user can specify the level of accuracy
-with the keywords; coarse, medium, fine, xfine, and user,
+with the keywords; coarse, medium, fine, and xfine.
 
 \begin{verbatim}
-  GRID [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
-        <integer nradpts default 50>)] \
+  GRID [coarse|medium|fine|xfine]
 
 \end{verbatim}
 
@@ -629,7 +626,7 @@ The user has the option of specifying a customed quadrature of this
 type with the keywords,
 
 \begin{verbatim}
-  GRID user <integer nagrid default 10> <integer nradpts default 50>
+  GRID gausleg <integer nradpts default 50> <integer nagrid default 10> 
         
 \end{verbatim}
 
@@ -637,7 +634,7 @@ In this type of grid, the number of phi points is twice the number of
 theta points. So, for example, a specification of,
 
 \begin{verbatim}
-  GRID user 20 80
+  GRID user 80 20
         
 \end{verbatim}
 
@@ -653,7 +650,7 @@ of accuracy have also been defined and are available to the user.
 The input for this type of grid takes the form,
 
 \begin{verbatim}
-  GRID lebedev <integer iangquad default 4> <integer radpts default 50>
+  GRID lebedev <integer radpts default 50> <integer iangquad default 4> 
 
 \end{verbatim}
 
@@ -759,7 +756,7 @@ Becke or Delley spatial weights is also available as,
   TOLERANCES radius <real radius default 16.0>
 \end{verbatim}
 
-where radius is the cutoff value in bohr (or angstrom?).
+where radius is the cutoff value in bohr.
 
 
 \subsection{Hardware Resource Control in the DFT Module}
