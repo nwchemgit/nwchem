@@ -8,7 +8,7 @@
      ,     qwght, ldew, ffunc)
 #endif
 c
-c$Id: xc_perdew86.F,v 1.19 2000-07-27 16:22:28 bjohnson Exp $
+c$Id: xc_perdew86.F,v 1.20 2001-08-22 00:48:27 edo Exp $
 c
       implicit none
 c
@@ -82,9 +82,9 @@ c
             rhoval = rho(n,1)
             if (abs(rhoval).lt.tol_rho) goto 10
             arho=1.d0/rhoval
-            rho13 = rhoval**ONE3
+            rho13 = abs(rhoval)**ONE3
             rho43 = rhoval*rho13
-            rho76 = rhoval**SEV6
+            rho76 = abs(rhoval)**SEV6
             rs = rsfact/rho13
             rs2 = rs*rs
             rs3 = rs2*rs
@@ -95,7 +95,7 @@ c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = sqrt(gamma)
+            gam12 = sqrt(abs(gamma))
 c         
 c           C(n)
 c         
@@ -188,9 +188,9 @@ c
             rhoval = rho(n,1)
             if (abs(rhoval).lt.tol_rho) goto 20
             arho=1.d0/rhoval
-            rho13  = rhoval**ONE3
+            rho13  = abs(rhoval)**ONE3
             rho43  = rhoval*rho13
-            rho76  = rhoval**SEV6
+            rho76  = abs(rhoval)**SEV6
             rs = rsfact/rho13
             rs2 = rs*rs
             rs3 = rs2*rs
@@ -207,7 +207,7 @@ c
      &        2.d0*(delrho(n,1,1)*delrho(n,1,2) +
      &              delrho(n,2,1)*delrho(n,2,2) +
      &              delrho(n,3,1)*delrho(n,3,2))
-            gam12 = sqrt(gamma)
+            gam12 = sqrt(abs(gamma))
             zeta = (rho(n,2) - rho(n,3))*arho
             d1z(1) =  (1.d0 - zeta)*arho
             d1z(2) = -(1.d0 + zeta)*arho
@@ -403,7 +403,7 @@ c
          do n = 1, nq
             if (abs(rho(n,1)).gt.tol_rho)then
                rhoval = rho(n,1)
-               rs = rsfact/rhoval**ONE3
+               rs = rsfact/abs(rhoval)**ONE3
                d1rs = -ONE3*rs/rhoval
 #ifdef SECOND_DERIV
                d2rs = -FOUR3*d1rs/rhoval
@@ -452,7 +452,7 @@ c
             if (abs(rho(n,1)).gt.tol_rho)then
                rhoval = rho(n,1)
                zeta = (rho(n,2)-rho(n,3))/rhoval
-               rs = rsfact/rhoval**ONE3
+               rs = rsfact/abs(rhoval)**ONE3
                d1rs = -ONE3*rs/rhoval
                fz = fzeta(zeta)
                d1fz = d1fzeta(zeta)
