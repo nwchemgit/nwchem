@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.42 1999-08-30 22:34:05 edo Exp $
+C$Id: nwdft.F,v 1.43 2000-01-25 20:21:03 mg201 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -36,12 +36,21 @@ c
       integer iproc,itype
       integer bases(3), i3
       logical LResult, oprint, converged
+      logical dyall_mod_dir  ! do modified Dirac calculation
 c
       logical dft_main0d, movecs_converged
       external dft_main0d, movecs_converged
 c     
       nwdft = .false.
       iproc  = ga_nodeid()
+c
+c     If Dyall-mod-dir is set, exit with error
+c
+      if (rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir)) then
+        if (dyall_mod_dir) call errquit(
+     &      'Cannot do DFT calculation with Dyall-modified-Dirac method'
+     &      ,99)
+      end if
 c
 c     Make sure database is parallel, push context down to DFT.
 c
