@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.65 2001-11-14 04:10:59 d3j191 Exp $
+c $Id: cf_init.F,v 1.66 2001-11-14 06:44:43 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -253,7 +253,7 @@ c
       numpmf=itemp(1)
       npmfa=itemp(2)
       if(numpmf.gt.0) then
-      if(.not.ma_push_get(mt_int,5*numpmf,'ipmf',l_ipmf,i_ipmf))
+      if(.not.ma_push_get(mt_int,7*numpmf,'ipmf',l_ipmf,i_ipmf))
      + call errquit('Failed to allocate ipmf',0)
       if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
      + call errquit('Failed to allocate jpmf',0)
@@ -357,7 +357,7 @@ c
 #include "msgids.fh"
 c
       integer lfntop
-      integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
+      integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf)
 c
       integer i,j,k,m,lenint,lendbl,lenlog
@@ -368,9 +368,10 @@ c
 c
       if(me.eq.0) then
       do 1 i=1,numpmf
-      read(lfntop,1000) ipmf(i,1),(rpmf(j,1,i),rpmf(j,3,i),j=1,2),
+      read(lfntop,1000) ipmf(i,1),ipmf(i,6),ipmf(i,7),
+     + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5)
- 1000 format(i5,2f12.6,2e12.5,4i5)
+ 1000 format(3i5,2f12.6,2e12.5,4i5)
       do 2 j=1,2
       rpmf(j,2,i)=rpmf(j,1,i)
       rpmf(j,4,i)=rpmf(j,3,i)-rpmf(j,2,i)

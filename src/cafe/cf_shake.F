@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.13 2000-04-14 19:58:13 d3j191 Exp $
+c $Id: cf_shake.F,v 1.14 2001-11-14 06:44:43 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -79,7 +79,7 @@ c
       integer nums
       real*8 xs(msa,3),ys(msa,3)
       integer isgan(msa),isat(msa)
-      integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
+      integer ipmf(numpmf,7),jpmf(numpmf,4,npmfa)
       real*8 rpmf(2,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
       real*8 wgt(mat,6),ft(4,3),rv(2),w(4)
       integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
