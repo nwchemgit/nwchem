@@ -1,0 +1,23 @@
+echo
+
+start ch3hf
+# $Id: sad_ch3hf.nw,v 1.1 2003-04-07 21:20:51 edo Exp $
+
+title "Find the saddle point for CH3 + HF <-> CH4 + F"
+
+geometry autosym
+  c    0.000   0.000  -1.220
+  h    0.000   0.000   0.029
+  h    1.063   0.000  -1.407
+  h   -0.531  -0.921  -1.407
+  h   -0.531   0.921  -1.407
+  f    0.000   0.000   1.279
+end
+
+basis
+  c library 3-21g; h library 3-21g; f library 3-21g
+end
+
+scf; doublet; uhf; thresh 1e-6; print none; end
+
+task scf saddle
