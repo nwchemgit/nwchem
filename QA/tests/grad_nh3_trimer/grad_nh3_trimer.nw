@@ -1,7 +1,7 @@
 echo
 start nh3 trimer
 
-title; Gradient calculation for (NH3)3 MP2/aug-cc-pVTZ
+title "Gradient calculation for (NH3)3 MP2/aug-cc-pVTZ"
 
 # This gradient is very sensitive to everything being right
 # and it must match to 6dp

@@ -15,7 +15,7 @@ end
 scf; print low; thresh 1e-6; end
 driver; nptopt 100; end
 
-title; Pyrolysis of ethylformate -> Formic acid + ethylene
+title "Pyrolysis of ethylformate -> Formic acid + ethylene"
 geometry
    zcoord
      bond 3 9
@@ -39,7 +39,7 @@ driver; clear; end
 task scf saddle
 
 
-title; CH3 + HF -> CH4 + F
+title "CH3 + HF -> CH4 + F"
 geometry 
   zmatrix
     c
@@ -66,7 +66,7 @@ driver; clear; end
 task scf saddle
 
 
-title; H3CO <-> H2COH
+title "H3CO <-> H2COH"
 geometry
   c    -0.01768833     0.00000000    -0.68118028
   o    -0.01768833     0.00000000     0.79881972
@@ -78,7 +78,7 @@ scf; uhf; doublet; end
 driver; clear; end
 task scf saddle
 
-title; SiH2 + H2 <-> SiH4
+title "SiH2 + H2 <-> SiH4"
 geometry
   zmatrix
     si
@@ -101,7 +101,7 @@ driver; clear; end
 task scf saddle
 
 
-title; H2CCH2 + HF <-> H3CCFH2
+title "H2CCH2 + HF <-> H3CCFH2"
 geometry
   zmatrix
     c
@@ -131,7 +131,7 @@ driver; clear; end
 task scf saddle
 
 
-title; Claisen rearrangement
+title "Claisen rearrangement"
 geometry
   zmatrix
     c

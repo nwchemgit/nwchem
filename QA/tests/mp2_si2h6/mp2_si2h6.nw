@@ -3,7 +3,7 @@ echo
 #- This test data exposed the now fixed MP2 gradients bug ... 
 #- 
 start disilane
-title; disilane, Si2H6
+title "disilane, Si2H6"
 
 geometry autoz
   symmetry group d3d

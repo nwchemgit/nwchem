@@ -1,7 +1,6 @@
 echo
 start  c6h6
-title
- benzene in sto-3g         
+title "benzene in sto-3g"
 geometry autoz units au
    C       1.853049   1.853049    .000000
    C      -2.531312    .678263    .000000

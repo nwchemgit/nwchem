@@ -3,7 +3,7 @@
 # due to aaa() appearing to be NaN.  If SIGFPE is turned
 # off it generates correct results.
 
-title; zeolite with GaH2                                        
+title "zeolite with GaH2"
 
 start GaH2               
 

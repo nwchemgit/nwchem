@@ -11,7 +11,7 @@ end
 
 scf; print low; end
 
-title; H3CO <-> H2COH
+title "H3CO <-> H2COH"
 geometry
   c    -0.01768833     0.00000000    -0.68118028
   o    -0.01768833     0.00000000     0.79881972

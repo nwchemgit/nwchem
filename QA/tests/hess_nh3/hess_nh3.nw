@@ -11,7 +11,7 @@ start hess_nh3
 
 # On the IBM SP it took 5600s on 27 nodes.
 
-title; hessian calculation for (NH3)3 MP2/aug-cc-pVDZ
+title "hessian calculation for (NH3)3 MP2/aug-cc-pVDZ"
 
 geometry
  symmetry C3

@@ -1,6 +1,6 @@
 echo
 
-title; NWChem Molecular Dynamics Module nwARGOS
+title "NWChem Molecular Dynamics Module nwARGOS"
 memory noverify heap 1 mb stack 48 mb global 24 mb
 start crown_job
 

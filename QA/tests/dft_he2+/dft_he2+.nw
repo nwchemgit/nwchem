@@ -1,6 +1,6 @@
 echo
 
-title; he2+ hcth functional
+title "he2+ hcth functional"
 
 memory global 73 mb stack 20 mb heap 5 mb
 
@@ -31,7 +31,7 @@ end
 
 task dft gradient
 
-title; he2+ Becke 1997 functional
+title "he2+ Becke 1997 functional"
 dft
 XC becke97-1
 end

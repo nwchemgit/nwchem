@@ -1,7 +1,7 @@
 echo
 start nh3dimer
 
-title; hessian calculation for (NH3)2 MP2/aug-cc-pVTZ
+title "hessian calculation for (NH3)2 MP2/aug-cc-pVTZ"
 # These are the low freq modes from the user 48.1967   62.4202  109.2947 
 
 geometry

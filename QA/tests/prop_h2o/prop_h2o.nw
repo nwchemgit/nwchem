@@ -1,6 +1,5 @@
 echo
-title
-  h2o
+title h2o
 
 geometry units au nocenter 
 o       .00000000      .00000000      .11786656

@@ -31,19 +31,19 @@ end
 
 dft
 end
-title ; case t19 --- Default DFT (energy)
+title  "case t19 --- Default DFT (energy)"
 task dft energy
 
 dft
  xc becke88 perdew86
 end
-title ; case t20 --- DFT (energy) with Becke '88 and Perdew '86
+title "case t20 --- DFT (energy) with Becke '88 and Perdew '86"
 task dft energy
 
 dft
  xc becke88 perdew91
 end
-title ; case t21 --- Default DFT (energy) with Becke '88 and Perdew '91
+title "case t21 --- Default DFT (energy) with Becke '88 and Perdew '91"
 task dft energy
 
 basis "xc basis" 
@@ -55,13 +55,13 @@ end
 dft
   xc acm
 end
-title ; case t22 --- (acm) DFT (energy)
+title "case t22 --- (acm) DFT (energy)"
 task dft energy
 
 dft
   xc b3lyp
 end
-title ; case t23 --- (b3lyp) DFT (energy)
+title "case t23 --- (b3lyp) DFT (energy)"
 task dft energy
 
 

@@ -1,7 +1,6 @@
 echo
 start  h2o
-title 
- Water 
+title Water 
 geometry units au autosym
   O      0.00000000    0.00000000    0.00000000
   H      0.00000000    1.93042809   -1.10715266

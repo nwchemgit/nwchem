@@ -20,43 +20,43 @@ end
 
 dft; grid fine; convergence density 1d-6; end
 
-title; Ozone --- case t1: in-core DFT energy (LDA/LSD) 
+title "Ozone --- case t1: in-core DFT energy (LDA/LSD)"
 task dft energy
-title; Ozone --- case t2: in-core DFT analytic gradient (LDA/LSD) 
+title "Ozone --- case t2: in-core DFT analytic gradient (LDA/LSD)"
 task dft gradient
-title; Ozone --- case t3: in-core DFT numeric gradient (LDA/LSD) 
+title "Ozone --- case t3: in-core DFT numeric gradient (LDA/LSD)"
 task dft gradient numerical
 
-title; Ozone --- case t4: in-core DFT energy (NLDA/NLSD)
+title "Ozone --- case t4: in-core DFT energy (NLDA/NLSD)"
 dft; xc becke88 perdew86; end
 task dft energy
-title; Ozone --- case t5: in-core DFT analytic gradient (NLDA/NLSD)
+title "Ozone --- case t5: in-core DFT analytic gradient (NLDA/NLSD)"
 task dft gradient
-title; Ozone --- case t6: in-core DFT numeric gradient (NLDA/NLSD)
+title "Ozone --- case t6: in-core DFT numeric gradient (NLDA/NLSD)"
 task dft gradient numerical
 
-title; Ozone --- case t7: in-core DFT energy (NLDA/NLSD)
+title "Ozone --- case t7: in-core DFT energy (NLDA/NLSD)"
 dft; xc becke88 perdew91; end
 task dft energy
-title; Ozone --- case t8: in-core DFT analytic gradient (NLDA/NLSD)
+title "Ozone --- case t8: in-core DFT analytic gradient (NLDA/NLSD)"
 task dft gradient
-title; Ozone --- case t9: in-core DFT numeric gradient (NLDA/NLSD)
+title "Ozone --- case t9: in-core DFT numeric gradient (NLDA/NLSD)"
 task dft gradient numerical
 
-title; Ozone --- case t10: in-core DFT energy (combination potentials)
+title "Ozone --- case t10: in-core DFT energy (combination potentials)"
 dft; xc acm; end
 task dft energy
-title; Ozone --- case t11: in-core DFT analytic gradient (combination potentials)
+title "Ozone --- case t11: in-core DFT analytic gradient (combination potentials)"
 task dft gradient
-title; Ozone --- case t12: in-core DFT numeric gradient (combination potentials)
+title "Ozone --- case t12: in-core DFT numeric gradient (combination potentials)"
 task dft gradient numerical
 
-title; Ozone --- case t13: in-core DFT energy (combination potentials)
+title "Ozone --- case t13: in-core DFT energy (combination potentials)"
 dft; xc b3lyp; end
 task dft energy
-title; Ozone --- case t14: in-core DFT analytic gradient (combination potentials)
+title "Ozone --- case t14: in-core DFT analytic gradient (combination potentials)"
 task dft gradient
-title; Ozone --- case t15: in-core DFT numeric gradient (combination potentials)
+title "Ozone --- case t15: in-core DFT numeric gradient (combination potentials)"
 task dft gradient numerical
 
 

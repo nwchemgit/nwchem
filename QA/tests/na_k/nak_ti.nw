@@ -1,5 +1,5 @@
 echo
-title; MD Ne -> Na+:SPC/E water
+title "MD Ne -> Na+:SPC/E water"
 
 memory noverify heap 1 mb stack 32 mb global 8 mb
 

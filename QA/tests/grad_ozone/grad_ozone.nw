@@ -18,77 +18,77 @@ basis noprint
   O library 6-31g*
 end
 
-title; case s7: Ozone --- RHF SCF energy without symmetry
+title "case s7: Ozone --- RHF SCF energy without symmetry"
 scf; print low; sym off; adapt off; end
 task scf
 
-title; case s1: Ozone --- RHF SCF energy with symmetry
+title "case s1: Ozone --- RHF SCF energy with symmetry"
 scf; sym on; adapt on; end
 task scf
 
-title; case s5: Ozone --- RHF SCF analytic gradients with symmetry
+title "case s5: Ozone --- RHF SCF analytic gradients with symmetry"
 task scf gradient
 
-title; case s6: Ozone --- RHF SCF numerical gradients with symmetry
+title "case s6: Ozone --- RHF SCF numerical gradients with symmetry"
 scf; print none; end
 task scf gradient numerical
 
-title; case m1: Ozone --- Semi-direct MP2 energy with symmetry
+title "case m1: Ozone --- Semi-direct MP2 energy with symmetry"
 task mp2
 
-title; case m2: Ozone --- Direct MP2 energy with symmetry
+title "case m2: Ozone --- Direct MP2 energy with symmetry"
 task direct_mp2
 
-title; case m3: Ozone --- Semi-direct analytic MP2 gradient with symmetry
+title "case m3: Ozone --- Semi-direct analytic MP2 gradient with symmetry"
 task mp2 gradient
 
-title; case m4: Ozone --- Semi-direct numerical MP2 gradient with symmetry
+title "case m4: Ozone --- Semi-direct numerical MP2 gradient with symmetry"
 mp2; print none; end
 task mp2 gradient numerical
 
-title; case s11: Ozone --- ROHF triplet SCF energy without symmetry
+title "case s11: Ozone --- ROHF triplet SCF energy without symmetry"
 scf; print low; triplet; sym off; adapt off; end
 task scf
 
-title; case s8: Ozone --- ROHF triplet SCF energy with symmetry
+title "case s8: Ozone --- ROHF triplet SCF energy with symmetry"
 scf; sym on; adapt on; end
 task scf
 
-title; case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry
+title "case s9: Ozone --- ROHF triplet SCF analytic gradients with symmetry"
 task scf gradient
 
-title; case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry
+title "case s10: Ozone --- ROHF triplet SCF numerical gradients with symmetry"
 scf; print none; end
 task scf gradient numerical
 
-title; cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry
+title "cas mc1: Ozone --- MCSCF triplet 6e in 6 analytic gradients with symmetry"
 mcscf; active 6; actelec 6; state 3B2; vectors output ozone.mc.movecs; end
 task mcscf gradient
 
-title; cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry
+title "cas mc2: Ozone --- MCSCF triplet 6e in 6 numerical gradients with symmetry"
 mcscf; print none; end
 task mcscf gradient numerical
 
-title; case s16: Ozone --- UHF triplet SCF energy without symmetry
+title "case s16: Ozone --- UHF triplet SCF energy without symmetry"
 scf; print low; uhf; sym off; adapt off; end
 task scf
 
-title; case s12: Ozone --- UHF triplet SCF energy with symmetry
+title "case s12: Ozone --- UHF triplet SCF energy with symmetry"
 scf; sym on; adapt on; end
 task scf
 
-title; case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry
+title "case s14: Ozone --- UHF triplet SCF analytic gradients with symmetry"
 task scf gradient
 
-title; case s15: Ozone --- UHF triplet SCF numerical gradients with symmetry
+title "case s15: Ozone --- UHF triplet SCF numerical gradients with symmetry"
 scf; print none; end
 task scf gradient numerical
 
-title; case m5: Ozone --- Semi-direct analytic UMP2 gradient with symmetry
+title "case m5: Ozone --- Semi-direct analytic UMP2 gradient with symmetry"
 mp2; print default; end
 task mp2 gradient
 
-title; case m6: Ozone --- Semi-direct numerical UMP2 gradient with symmetry
+title "case m6: Ozone --- Semi-direct numerical UMP2 gradient with symmetry"
 mp2; print none; end
 task mp2 gradient numerical
 

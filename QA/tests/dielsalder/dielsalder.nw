@@ -1,8 +1,7 @@
 echo
 start
 
-title
-parent diels-alder - constrained geometry optimization + saddle search
+title "parent diels-alder - constrained geometry optimization + saddle search"
 
 # tests constrained optimization, saddle search,
 # use of constraints with symmetry

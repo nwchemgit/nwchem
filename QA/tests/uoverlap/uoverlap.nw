@@ -13,7 +13,7 @@ echo
 
 start u6
 
-title; U6+
+title U6+
 
 set int:cando_txs f
 

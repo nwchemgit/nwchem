@@ -1,5 +1,5 @@
 echo
-title; nwargos
+title nwargos
 
 memory noverify heap 1 mb stack 21 mb global 8 mb
 

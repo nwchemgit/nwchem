@@ -1,5 +1,5 @@
 echo
-title; NWChem molecular dynamics
+title "NWChem molecular dynamics"
 memory noverify heap 1 mb stack 32 mb global 8 mb
 start ethanol_md
 md

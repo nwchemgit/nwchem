@@ -1,7 +1,7 @@
 echo
 start tagbug
 memory global 3 mb heap 3 mb stack 30 mb
-title; tag matching check with ECPs
+title "tag matching check with ECPs"
 basis noprint
   Ca      library "lanl2dz ecp"
   F       library "6-31g"

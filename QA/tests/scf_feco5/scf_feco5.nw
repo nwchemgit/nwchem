@@ -27,22 +27,22 @@ basis nosegment noprint
   c  library 3-21g
 end
 
-title ; case s2: fe(co)5  --- Default SCF ... usually disk resident
+title "case s2: fe(co)5  --- Default SCF ... usually disk resident"
 task scf
 
-title; case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching
+title "case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching"
 scf; vectors atomic; semidirect memsize 0 filesize 300000; end
 task scf
 
-title; case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching
+title "case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching"
 scf; vectors atomic; semidirect memsize 0 filesize 200000; end
 task scf
 
-title; case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching
+title "case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching"
 scf; vectors atomic; semidirect memsize 0 filesize 100000; end
 task scf
 
-title; case s4: fe(co)5 --- Fully-direct SCF
+title "case s4: fe(co)5 --- Fully-direct SCF"
 scf; vectors atomic; direct; end
 task scf
 

@@ -41,7 +41,7 @@ echo
 # total of 8 tasks
 #
 
-title; test case for integral methods
+title "test case for integral methods"
 
 start intchk
 

@@ -6,7 +6,7 @@
 echo
 
 start Au+
-title; Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
+title "Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]"
 
 charge 1
 

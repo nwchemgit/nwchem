@@ -11,7 +11,7 @@ echo
 # 
 # --
 start ne2
-title; ne dimer test for 3c integral bug
+title "ne dimer test for 3c integral bug"
 
 geometry 
 Ne 0.0 0.0 0.0

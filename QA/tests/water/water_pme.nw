@@ -1,5 +1,5 @@
 echo
-title; NWChem molecular dynamics
+title "NWChem molecular dynamics"
 memory verify heap 1 mb stack 32 mb global 8 mb
 start water_pme
 md
