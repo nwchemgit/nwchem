@@ -13,11 +13,12 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.126 2002-02-20 18:36:19 d3k958 Exp $
+c     $Id: msgids.fh,v 1.127 2002-03-06 19:54:07 windus Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_et_2e
       integer msg_hess_exy
+      integer msg_hess_ddip
       integer msg_vec_type
       integer msg_prsum
       integer msg_mxelt, Msg_NormF
@@ -1049,6 +1050,7 @@ c
       parameter (msg_vec_type = msg_ftn_base - 796) ! movecs_read_header
 c
       parameter (msg_hess_exy = msg_ftn_base - 797) ! hessian summation
+      parameter (msg_hess_ddip = msg_ftn_base - 798) ! dipole derivative summation
 c
       parameter(msg_nbo_icd = msg_ftn_base - 800) ! NBO messages
       parameter(msg_et_2e = msg_ftn_base - 801) ! et 2e summation
