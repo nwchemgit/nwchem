@@ -1,12 +1,12 @@
 #
-# $Id: nwparse.pl,v 1.3 1997-06-23 17:35:10 d3e129 Exp $
+# $Id: nwparse.pl,v 1.4 1997-06-23 21:45:21 d3e129 Exp $
 #
 #
 #
 # perl script to parse nwchem output files
 #
 # The script is envoked with the command:
-#    perl nwparse.pl [-d] [-q] [-s suffix]  nwchem_output_file_1 [nwchem_output_file_2 ...]
+#    perl nwparse.pl [-h||-H||-help] [-d] [-q] [-s suffix]  nwchem_output_file_1 [nwchem_output_file_2 ...]
 # 
 # 
 # Written:  4/21/97
@@ -23,7 +23,7 @@ $debug = 0;
 $num_argv = @ARGV;
 
 if ($num_argv == 0) {
-    print "\n\nUsage: perl nwparse.pl [-d] [-s suffix] [-q] nwchem_output_file_1 [nwchem_output_file_2 ...]\n\n";
+    &Usage;
     die "fatal error: no file to parse\n";
 }
 $suffix = '.nwparse';
@@ -41,6 +41,8 @@ foreach $argument (@ARGV) {
 	if (!($suffix =~ /^\./)) {$suffix = '.' . $suffix;}
         $get_suffix = 0;
     }
+    elsif ($argument eq '-h' || $argument eq '-help' || $argument eq '-H'){
+        &Usage;	exit 0;}
     elsif ($argument eq '-d') {print "debug: debug turned on at command line\n";$debug = 1;}
     elsif ($argument eq '-s') {$get_suffix = 1;}
     elsif ($argument eq '-q') {$quiet = 1;}
@@ -48,9 +50,13 @@ foreach $argument (@ARGV) {
     else {push(@FILES_TO_PARSE,$argument);}
 }
 
-if ($debug) {print "\ndebug:number of arguments: $num_argv\n\n";print "debug: arguments @ARGV";}
-if ($debug) {print "\ndebug: suffix is $suffix\n";}
-if ($debug) {print "\ndebug: files to parse @FILES_TO_PARSE";}
+if ($debug) {$quiet =0;}
+
+if ($debug) {
+ print "\ndebug:number of arguments: $num_argv\n\n";print "debug: arguments @ARGV";
+ print "\ndebug: suffix is $suffix\n";
+ print "\ndebug: files to parse @FILES_TO_PARSE";
+}
 
 foreach $filename (@FILES_TO_PARSE) {
     @atoms = ();
@@ -122,7 +128,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	}
 	next if /^\s*$/;
 	if (/failed/i || /warning/i) {
-	    print $_;
+	    if (! $quiet){
+		print $_;
+	    }
 	    print FILE_OUTPUT $_;
 	}
 	if (/^ Frequency/ || /^ P.Frequency/){
@@ -245,10 +253,21 @@ foreach $filename (@FILES_TO_PARSE) {
 #
 #
 #
-    print "nwparse.pl: parsed $lines in file $filename sent output to $fileout \n";
+    if (! $quiet){
+	print "nwparse.pl: parsed $lines in file $filename sent output to $fileout \n";
+    }
 #
 # done close input and output files 
 #
     close(FILE_TO_PARSE);
     close(FILE_OUPUT);
+}
+sub Usage
+{
+    print "\n\nUsage: perl nwparse.pl [-h||-H||-help] [-d] [-q] [-s suffix]  nwchem_output_file_1 [nwchem_output_file_2 ...]\n\n";
+    print " -d := debug mode\n";
+    print " -q := quiet mode (nothing to stdout) **\n";
+    print " -s := override default suffix of .nwparse to user supplied 'suffix'\n";
+    print " -h := prints this help message (equivalent to -help or -H)\n";
+    print "\n **:Note: if -d is set -q is ignored\n";
 }
