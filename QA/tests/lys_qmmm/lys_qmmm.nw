@@ -34,9 +34,9 @@ end
 qmmm
  eatoms -85
  bq_exclude none
- link halogen
+ link_atoms halogen
  optimization qm
- link_ecp auto
+ link_ecps auto
 end
 
 
