@@ -13,7 +13,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.1 2000-03-30 03:07:31 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.2 2000-04-05 04:03:13 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -95,6 +95,8 @@ c
       double precision acc_AO_gauss 
       double precision Ex, Ec
       double precision rho_int ! [in/out]
+      double precision dabsmax,wmax
+      external dabsmax
       integer grid_nbfm
       external grid_nbfm
 c
@@ -274,6 +276,7 @@ c
      &            lrscr,irscr))call errquit
      &            ('dftg_quadv0a: cannot allocate rho scr',12)
 c
+               wmax= dabsmax(nqpts,qwght)
                call xc_rhogen(tol_rho, AO_bas_han, iga_dens, max_at_bf,
      &              natoms, ipol, nqpts, nbf_ao, mbf_ao,
      &              ldelley, grad, Fmat, Pmat, Bmat,
@@ -281,7 +284,7 @@ c
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              dbl_mb(ibp), dbl_mb(irscr),
      &              rchi_atom, rdelchi_atom,
-     &              rdens_atom, cetobfr)
+     &              rdens_atom, cetobfr,wmax)
 c
                if (do_hess .or. do_cpks_r) then
                   call oactive_to_curatoms(oactive, natoms,
