@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.14 2002-09-05 17:53:00 d3k958 Exp $
+* $Id: et_calc.F,v 1.15 2002-09-10 15:54:04 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -158,7 +158,7 @@ c
       if (anmo.lt.nbf) then
         if (me.eq.0) then
           write(6,*) a_file(1:lena),
-     &    'Linear dependent MO vectors have been removed' 
+     &    ' Linearly dependent MO vectors have been removed' 
         endif
       endif
 
@@ -180,7 +180,7 @@ c
       if (bnmo.lt.nbf) then
         if (me.eq.0) then
           write(6,*) b_file(1:lenb),
-     &    'Linear dependent MO vectors have been removed' 
+     &    ' Linearly dependent MO vectors have been removed' 
         endif
       endif
 c

@@ -64,16 +64,20 @@ c
       if (iset.eq.3) then
         read(unitno, err=1001) energy, enrep
         if (energy.eq.0.0d0.and.ga_nodeid().eq.0) then 
-          write(6,*) 'H(RR) or H(PP) not found in file',filename
-          write(6,*) 'V(RP) will be bogus. You can still calculate it'
-          write(6,*) 'at the termination of this calculation if you '
-          write(6,*) 'know H(RR) and H(PP) from a previous calculation.'
-          write(6,*) 'V(RP) =  H(RP) - S(RP)*0.5*( H(RR) + H(PP) ) '
-          write(6,*) '         ----------------------------------- '
-          write(6,*) '                   (1 - S(RP)*S(RP)          '
           write(6,*) 
-         endif
-        energy = energy - enrep
+          write(6,*) 'H(RR) or H(PP) not found in file ',filename
+          write(6,*) 'The vectors are not converged. If you know'
+          write(6,*) 'H(RR) and H(PP), you can still calculate V(RP)'
+          write(6,*) 'using this equation : '
+          write(6,*) 
+          write(6,*) '             H(RP) - S(RP)*0.5*( H(RR) + H(PP) ) '
+          write(6,*) 'V(RP) =      ----------------------------------- '
+          write(6,*) '                   1 - S(RP)*S(RP)           '
+          write(6,*) 
+          energy = 0.0d0
+        else
+          energy = energy - enrep
+        endif
       else
 c
          read(unitno, err=1001, end=1001) (occ(j),j=1,nbf)
