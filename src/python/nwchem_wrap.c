@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.13 2000-08-02 19:22:44 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.14 2000-08-02 21:35:45 d3g681 Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -29,9 +29,9 @@ static int rtdb_handle;            /* handle to the rtdb */
 
 extern int nw_inp_from_string(int, const char *);
 
-extern int task_energy_(const int *);
-extern int task_gradient_(const int *);
-extern int task_optimize_(const int *);
+extern Integer task_energy_(const Integer *);
+extern Integer task_gradient_(const Integer *);
+extern Integer task_optimize_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -173,7 +173,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
     int i, list, list_len;
     int ma_type = -1;
     char *name;
-    int* int_array;
+    Integer* int_array;
     double *dbl_array;
     char *char_array;
     char cbuf[8192], *ptr;
@@ -251,7 +251,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 	    PyArg_Parse(PyList_GetItem(obj, i), "s", &char_array); 
 	  else 
 	    PyArg_Parse(obj, "s", &char_array); 
-	  printf("PROCESSED '%s'\n", char_array);
+	  /*printf("PROCESSED '%s'\n", char_array);*/
 	  if ((ptr+strlen(char_array)) >= (cbuf+sizeof(cbuf))) {
 	     PyErr_SetString(PyExc_MemoryError,"rtdb_put too many strings");
 	     return NULL;
@@ -336,17 +336,21 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
       char *ptr, *next;
       nelem = 0;
       next = ptr = array;
-      while (*ptr) {
-	if (*ptr == '\n') {
+      while (1) {
+	int eos = (*ptr == 0);
+	if ((*ptr == '\n') || (*ptr == 0)) {
 	  *ptr = 0;
 	  if (nelem >= MAXPTRS) {
 	    PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
 	    (void) MA_free_heap(ma_handle);
 	    return NULL;
 	  }
-	  ptrs[nelem] = next;
-	  nelem++;
+	  if (strlen(next) > 0) {
+	    ptrs[nelem] = next;
+	    nelem++;
+	  }
 	  next = ptr+1;
+	  if (eos) break;
 	}
 	ptr++;
       }
@@ -360,12 +364,17 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
     case 's':
       returnObj = nwwrap_strings(nelem, ptrs); break;
     }
+
     (void) MA_free_heap(ma_handle);
+
+    if (!returnObj) {
+      PyErr_SetString(PyExc_TypeError, "rtdb_get: conversion to python object failed.");
+    }
   }
   else {
     PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get(name)");
-    return NULL;
   }
+
   return returnObj;
 }
 
