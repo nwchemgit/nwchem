@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.14 1996-01-11 07:44:50 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.15 1996-01-23 19:02:45 d3g681 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -175,6 +175,9 @@ c
 c
       if (.not. bas_geom(basis, geom)) call errquit
      $   ('int_1e_cache_ga: basis corrupt?', 0)
+c
+c	The use of ga_dadd to do the copy requires all uses of
+c	these integrals to be allocated via ga_create_atom_blocked
 c
 **      write(6,*) ' Enabling caching of 1-e integrals '
 c

@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel)
-C     $Id: rhf_dens_mo.F,v 1.2 1996-01-19 07:29:04 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.3 1996-01-23 19:02:43 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -111,10 +111,13 @@ c
       call ga_copy(g_mocf, g_tmp) ! Save the orthonormal basis
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: u',
      $     1, 1, g_u)) call errquit('rhf_d_m: u',0)
+*      write(6,*) ' g_mofock ', g_mofock
+*      write(6,*) ' g_u ', g_u
+*      call ga_summarize(0)
 c     
       if (oscfps) call pstat_on(ps_diag)
 #ifdef PARALLEL_DIAG
-      call ga_diag_seq(g_mofock, g_u, dbl_mb(k_ev))
+      call ga_diag_std(g_mofock, g_u, dbl_mb(k_ev))
 #else
       call ga_diag_std_seq(g_mofock, g_u, dbl_mb(k_ev))
 #endif
