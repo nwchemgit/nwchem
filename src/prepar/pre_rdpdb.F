@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.17 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.18 2000-04-07 17:14:43 d3j191 Exp $
 c
       implicit none
 c
@@ -92,8 +92,8 @@ c
 c
 c     BOX
 c
-      if(card(1:6).eq.'BOX   ') then
-      read(card(7:42),'(3f12.6)') box
+      if(card(1:6).eq.'CRYST1') then
+      read(card(7:42),'(3f9.3)') box
       box(1)=0.1d0*box(1)
       box(2)=0.1d0*box(2)
       box(3)=0.1d0*box(3)

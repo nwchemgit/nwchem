@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb)
 c
-c $Id: pre_wrtpdb.F,v 1.15 2000-04-04 00:12:30 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.16 2000-04-07 17:14:43 d3j191 Exp $
 c
       implicit none
 c
@@ -47,14 +47,14 @@ c
 c
       if(nxrep.le.1.and.nyrep.le.1.and.nzrep.le.1) then
 c
-      write(lfnpdb,1000) (1.0d1*box(i),i=1,3)
+      write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0
  1000 format(
      + 'HEADER',/,
      + 'TITLE     ',/,
      + 'TITLE    2',/,
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
-     + 'BOX   ',3f12.6)
+     + 'CRYST1',3f9.3,3f7.2)
       nums=0
       do 11 k=1,nsb
       i=idsb(1,k)
@@ -80,8 +80,9 @@ c
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
       else
-      write(lfnpdb,1000) 1.0d1*dble(nxrep)*box(1),
-     + 1.0d1*dble(nyrep)*box(2),1.0d1*dble(nzrep)*box(3)
+      write(lfnpdb,1000) 1.0d1*dble(nxrep)*drep(1),
+     + 1.0d1*dble(nyrep)*drep(2),1.0d1*dble(nzrep)*drep(3),
+     + 90.0,90.0,90.0
       do 4 izrep=1,nzrep
       dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
       do 5 iyrep=1,nyrep
