@@ -1,5 +1,5 @@
 <P><A TARGET="_top" HREF="../../nwchem.html">Return to NWchem home page.</A>
-<form method="post" action="/cgi-bin/htdig-3.08b2/htsearch">
+<form method="post" action="/cgi-bin/htsearch">
 <font size=-1>
 Match: <select name=method>
 <option value=and>All
@@ -10,7 +10,7 @@ Format: <select name=format>
 <option value=builtin-short>Short
 </select>
 </font>
-<input type=hidden name=config value=nwchem_htdig>
+<input type=hidden name=config value=nwchem_user>
 <input type=hidden name=restrict value="">
 <input type=hidden name=exclude value="">
 <br>
