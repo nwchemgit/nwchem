@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.20 1995-02-02 23:08:17 d3g681 Exp $
+# $Id: GNUmakefile,v 1.21 1995-02-07 01:09:39 d3e129 Exp $
 
 include config/makefile.h
 
@@ -57,7 +57,7 @@ realclean:
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
-	-$(RM) *.db movecs 
+	-$(RM) *.db movecs fort.41 fort.44
 
 sngl_to_dbl dbl_to_sngl:
 	for dir in $(SUBDIRS); do \
