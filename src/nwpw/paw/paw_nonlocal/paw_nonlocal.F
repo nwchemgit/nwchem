@@ -1,8 +1,13 @@
 *
-* $Id: paw_nonlocal.F,v 1.11 2003-03-14 01:20:10 marat Exp $
+* $Id: paw_nonlocal.F,v 1.12 2003-03-25 01:11:30 edo Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.11  2003/03/14 01:20:10  marat
+* added routines for fetching pointers
+* to nonlocal matrices
+* MV
+*
 * Revision 1.10  2003/03/05 23:16:32  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -149,7 +154,7 @@
 
       !*** local variables ***
       logical value
-      
+      value=.true.
       value = value.and.my_dealloc(i_paw_Gop)
       value = value.and.my_dealloc(paw_Gop_u)
       value = value.and.my_dealloc(paw_Gop_d)
