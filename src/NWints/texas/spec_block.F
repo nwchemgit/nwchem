@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.27 2001-06-25 17:31:05 pg481 Exp $
+* $Id: spec_block.F,v 1.28 2002-08-15 16:08:34 edo Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -575,10 +575,16 @@ c
      &      'A block with only 1 ij-pair, 1 kl-pair and 1 quartet'
         write(6,*)
      &      'requires more memory than the input-upper-limit     '
-        write(6,*)'input limit =',limxmem,' requested =',
-     *             memory_111+  mem_txsetup
+        write(6,*)'input limit =',limxmem,
+     *       ' requested =',
+     *             max_111+limxmem-limxmem_here
+!     *             memory_111+  mem_txsetup
         write(6,*)'     Change the value of LIMXMEM '
-        write(6,*)'program stoped in the Blksizer routine'
+        write(6,*)'     by adding this input line '
+        write(6,*) ' '
+        write(6,*)'     set int:txs:limxmem ',
+     1       max_111+limxmem-limxmem_here
+        write(6,*) ' '
         call errquit('texas:blksizer', 0)
       endif
 c-----------------------------------------------------------
