@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.17 2000-05-19 19:35:51 mg201 Exp $
+c $Id: hf2.F,v 1.18 2000-05-26 19:40:08 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -308,19 +308,22 @@ c Assign pointers to scratch space.
 
           i_eri = i_P
           i_t2 = i_eri + ninti
-          i_E3 = i_t2 + MPR*Lpq3
           if (gencon) then
-            i_t1 = i_E3
             if (doit_PQ) then
-              i_t3 = i_t1+MPQ*Lq3
-              i_t4 = i_t3+MPQ
+              i_E3 = i_t2 + MPQ*Lq3*max(MPP,NCP)
+              i_t1 = i_E3
+              i_t3 = i_E3 + MPQ*Lq3
+              i_t4 = i_t3 + MPQ
               i_top = max(i_t1+MPQ*Lq3*NPB*NCA,i_E3+MPP,i_t4+NPD)-1
             else
-              i_t3 = i_t1+MPP*Lp3
-              i_t4 = i_t3+MPP
+              i_E3 = i_t2 + MPP*Lp3*max(MPQ,NCQ)
+              i_t1 = i_E3
+              i_t3 = i_E3 + MPP*Lp3
+              i_t4 = i_t3 + MPP
               i_top = max(i_t1+MPP*Lp3*NPD*NCC,i_E3+MPQ,i_t4+NPB)-1
             end if
           else
+            i_E3 = i_t2 + MPR*Lpq3
             i_top  = i_E3 + max(MPP,MPQ)-1
           end if
           if( DryRun )then
@@ -339,9 +342,13 @@ c Assign pointers to scratch space.
               write(LuOut,*) 'IJK   :  ',i_IJK
               write(LuOut,*) 'R0    :  ',i_R0
               write(LuOut,*) 'eri   :  ',i_eri
-              write(LuOut,*) 't2   :  ',i_t2
+              write(LuOut,*) 't2    :  ',i_t2
               write(LuOut,*) 'E3    :  ',i_E3
-              if (gencon) write(LuOut,*) 't1  :  ',i_t1
+              if (gencon) then
+                write(LuOut,*) 't1  :  ',i_t1
+                write(LuOut,*) 't3  :  ',i_t3
+                write(LuOut,*) 't4  :  ',i_t4
+              end if
               call errquit('hf2: out of scratch space',5)
             end if
             if (doit_PQ) then
