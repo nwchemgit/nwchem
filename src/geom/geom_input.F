@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.34 1996-10-07 19:09:50 d3e129 Exp $
+C     $Id: geom_input.F,v 1.35 1996-10-10 22:13:21 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -98,6 +98,7 @@ c
      &        ('error parsing real value of angstrom_to_au',911)
         else if (inp_compare(.false.,'zmt', field)) then
           ozmatrix = .true.
+          oautoz   = .true.  
           units    = 'angstrom    '
         else if (inp_compare(.false.,'autoz',field)) then
           oautoz = .true.  
@@ -621,7 +622,19 @@ c
       end
       logical function geom_zmt_put_bmat(bmat,ncart,nzvar,mcart)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c
       integer nzvar
       integer ncart
@@ -650,18 +663,26 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, ncart
-            zmt_bmat(i,j) = bmat(i,j)
-         end do
-      end do
+      call ga_put(ga_zmt_bmat,1,ncart,1,nzvar,bmat,mcart)
 c
       geom_zmt_put_bmat=.true.
       return
       end
       logical function geom_zmt_get_bmat(bmat,ncart,nzvar,mcart)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
       integer nzvar
       integer ncart
@@ -686,11 +707,7 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, ncart
-            bmat(i,j) = zmt_bmat(i,j)
-         end do
-      end do
+      call ga_get(ga_zmt_bmat,1,ncart,1,nzvar,bmat,mcart)
 c
       if(dbug) then
          write(iw,*) ' _get_bmat '
@@ -702,7 +719,19 @@ c
       end
       logical function geom_zmt_put_zsym(zsym,nzvar,mzvar)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c
       integer nzvar
       integer mzvar
@@ -731,18 +760,26 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, nzvar
-            zmt_zsym(i,j) = zsym(i,j)
-         end do
-      end do
+      call ga_put(ga_zmt_zsym,1,nzvar,1,nzvar,zsym,mzvar)
 c
       geom_zmt_put_zsym=.true.
       return
       end
       logical function geom_zmt_get_zsym(zsym,nzvar,mzvar)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
       integer nzvar
       integer mzvar
@@ -766,11 +803,7 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, nzvar
-            zsym(i,j) = zmt_zsym(i,j)
-         end do
-      end do
+      call ga_get(ga_zmt_zsym,1,nzvar,1,nzvar,zsym,mzvar)
 c
       if(dbug) then
          write(iw,*) ' _get_zsym'
@@ -782,7 +815,19 @@ c
       end
       logical function geom_zmt_put_binv(binv,ncart,nzvar,mcart)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
       integer nzvar
       integer ncart
@@ -812,18 +857,26 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, ncart
-            zmt_binv(i,j) = binv(i,j)
-         end do
-      end do
+      call ga_put(ga_zmt_binv,1,ncart,1,nzvar,binv,mcart)
 c
       geom_zmt_put_binv=.true.
       return
       end
       logical function geom_zmt_get_binv(binv,ncart,nzvar,mcart)
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
 #include "geomP.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 c     
       integer nzvar
       integer ncart
@@ -848,11 +901,7 @@ c
          call errquit('geom_input: nzvar too big',0)
       endif
 c
-      do j = 1, nzvar
-         do i = 1, ncart
-            binv(i,j) = zmt_binv(i,j)
-         end do
-      end do
+      call ga_get(ga_zmt_binv,1,ncart,1,nzvar,binv,mcart)
 c
       if(dbug) then
          write(iw,*) ' _get_binv '
@@ -873,10 +922,11 @@ c
       integer      mxcoor
       parameter    (mxbfn=3072)
       parameter    (mxizmt=750)
-      parameter    (mxzmat=1500)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
-      parameter    (mxcoor=max(mxcart,mxzmat))
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
+c                   mxcoor=max(mxcart,mxzmat)
       integer      ir
       integer      iw
       integer      i
@@ -961,7 +1011,7 @@ c
       parameter    (mxzmat=1500)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
-      parameter    (mxcoor=max(mxcart,mxzmat))
+      parameter    (mxcoor=1500)
       integer      ir
       integer      iw
       integer      i
@@ -1060,10 +1110,10 @@ c
       integer      mxcart
       integer      mxcoor
       parameter    (mxizmt=750)
-      parameter    (mxzmat=1500)
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
-      parameter    (mxcoor=max(mxcart,mxzmat))
+      parameter    (mxzmat=1500)
+      parameter    (mxcoor=1500)
       integer      ir
       integer      iw
       integer      i
@@ -1136,6 +1186,18 @@ c
       end
       SUBROUTINE HND_ICOORD
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
 C
 C     ---                 CONSTRUCT -Z- MATRIX                     ---
 C     ---             CALCULATE ATOM-ATOM DISTANCES                ---
@@ -1146,6 +1208,7 @@ C
       PARAMETER (MXBFN=3072)
       PARAMETER (MXATOM=500)
       LOGICAL ZDONE
+      LOGICAL DBUG
       LOGICAL SOME
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW
@@ -1159,7 +1222,13 @@ C
       DATA ONE   /1.0D+00/
       DATA UNIT  /0.52917715D+00/
 C
-      SOME=NPRINT.NE.-5
+      DBUG=.FALSE.
+      SOME=.TRUE.         
+      SOME=SOME.OR.DBUG
+      IF(DBUG) THEN
+         WRITE(IW,*) 'IN HND_ICOORD'
+         WRITE(IW,*) 'IFZMAT',IFZMAT
+      ENDIF
 C
       IF(IFZMAT.NE.0) THEN
 C
@@ -1170,11 +1239,27 @@ C
          ENDIF
       ENDIF
 C
+      IF(DBUG) THEN
+         WRITE(IW,*) 'IFZMAT',IFZMAT
+         WRITE(IW,*) 'NZMAT ',NZMAT
+      ENDIF
       IF(IFZMAT.NE.0.AND.NZMAT.GT.0) THEN
 C
 C     -----    THERE IS A -Z- MATRIX    -----
 C     ----- CALCULATE -B- AND -B**(-1)- -----
 C
+         STATUS=
+     1   GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BMAT',1,1,
+     2   GA_ZMT_BMAT)
+         IF(.NOT.STATUS) THEN
+            CALL ERRQUIT('ZMATRIX:BMAT :GA_CREATE?',911)
+         ENDIF
+         STATUS=
+     1   GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BINV',1,1,
+     2   GA_ZMT_BINV)
+         IF(.NOT.STATUS) THEN
+            CALL ERRQUIT('ZMATRIX:BINV :GA_CREATE?',911)
+         ENDIF
          CALL HND_BANDBI(NAT,C)
          CALL HND_ZMTPRT
       ELSEIF(IFZMAT.NE.0.AND.NZMAT.EQ.0) THEN
@@ -1185,6 +1270,18 @@ C     -----    CALCULATE -B- AND -B**(-1)-   -----
 C
          CALL HND_ZMTMAK(ZDONE)
          IF(ZDONE) THEN
+            STATUS=
+     1      GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BMAT',1,1,
+     2      GA_ZMT_BMAT)
+            IF(.NOT.STATUS) THEN
+               CALL ERRQUIT('ZMATRIX:BMAT :GA_CREATE?',911)
+            ENDIF
+            STATUS=
+     1      GA_CREATE(MT_DBL,3*NAT,NZVAR,'ZMATRIX:BINV',1,1,
+     2      GA_ZMT_BINV)
+            IF(.NOT.STATUS) THEN
+               CALL ERRQUIT('ZMATRIX:BINV :GA_CREATE?',911)
+            ENDIF
             CALL HND_BANDBI(NAT,C)
             CALL HND_ZMTPRT
          ELSE
@@ -1483,7 +1580,7 @@ C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
-      PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
+      PARAMETER (MXCOOR=1500)
       LOGICAL OUT
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -1692,7 +1789,14 @@ C
 #include "context.fh"
 #include "geom.fh"
 #include "geomP.fh"
-      LOGICAL GEOM_ZMT_PUT_ZSYM
+c
+      logical status
+      integer ga_zmt_bmat
+      integer ga_zmt_binv
+      integer ga_zmt_zsym
+      common/hnd_ga_zmt/ga_zmt_bmat,ga_zmt_binv,ga_zmt_zsym
+      logical geom_zmt_put_zsym
+C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (  LBUF=9  )
@@ -1719,12 +1823,10 @@ C
       OUT =OUT.OR.NPRINT.EQ.1 
       OUT =OUT.OR.IPRZMT.GE.1 
       SOME=       NPRINT.NE.-5
+      SOME=SOME.OR.OUT
 C
 C     ----- MEMORY POINTERS -----
 C
-C     I10=1
-C     I20=I10+NZVAR*NZVAR
-C     LAST=I20-1
       IF(.NOT.MA_PUSH_GET(MT_DBL,NZVAR*NZVAR,'MEM I10 ',I_I10,I10))
      & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I10  FAILED',911)
       IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I20 ',I_I20,I20))
@@ -1939,6 +2041,12 @@ C
 C     ----- SAVE SYMMETRY MATRIX -----
 C           -S-       AT  -92-
 C
+      STATUS=
+     1 GA_CREATE(MT_DBL,NZVAR,NZVAR,'ZMATRIX:ZSYM',1,1,
+     2 GA_ZMT_ZSYM)
+      IF(.NOT.STATUS) THEN
+         CALL ERRQUIT('ZMATRIX:ZSYM :GA_CREATE?',911)
+      ENDIF
       IF(.NOT.GEOM_ZMT_PUT_ZSYM(DBL_MB(I10),NZVAR,NZVAR))
      1   CALL ERRQUIT('GEOM_INPUT: GEOM_ZMT_PUT_ZSYM FAILED',0)
 C
@@ -3707,7 +3815,7 @@ C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)    
-      PARAMETER (MXCOOR=MAX(MXCART,MXZMAT))
+      PARAMETER (MXCOOR=1500)    
       PARAMETER (MXIZMT=750)
       PARAMETER (MXBOND= 64)
       PARAMETER (MXBNDS=12*MXATOM)
@@ -3789,7 +3897,7 @@ C
      5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
      6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
 C
-      NAMELIST /COORDI/ IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
+C     NAMELIST /COORDI/ IJBOND,IJKANG,IJKLTO,IJKLOP,IJKLNB
 C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1                   (C(2,IAT)-C(2,JAT))**2+

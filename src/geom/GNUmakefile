@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.21 1996-10-01 21:03:04 d3e129 Exp $
+#$Id: GNUmakefile,v 1.22 1996-10-10 22:13:23 mdupuis Exp $
 
  LIBRARY = libutil.a
 
@@ -14,10 +14,10 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(geom_numcore.o):	./geomP.fh 
 $(LIBRARY_PATH)(geom_input.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./geomP.fh ./geom.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(geom_checksum.o):	$(INCDIR)/mafdecls.fh ./geomP.fh 
-$(LIBRARY_PATH)(geom_3d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
 $(LIBRARY_PATH)(geom_2d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
 $(LIBRARY_PATH)(geom_1d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
+$(LIBRARY_PATH)(geom_3d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
+$(LIBRARY_PATH)(geom_numcore.o):	./geomP.fh 
 $(LIBRARY_PATH)(geom.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh ./geomP.fh $(INCDIR)/context.fh 
