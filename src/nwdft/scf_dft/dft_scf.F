@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.220 2002-02-13 18:02:34 sohirata Exp $
+c     $Id: dft_scf.F,v 1.221 2002-02-15 00:34:49 edo Exp $
 c     
       implicit none
 c
@@ -1379,7 +1379,6 @@ c
       write(*,*)' iAOacc = ', iAOacc
       write(*,*)' iCDacc = ', iXCacc
       write(*,*)' iXCacc = ', iXCacc
-      write(*,*)' irqmax = ', irqmax
       write(*,*)' itol2e = ', itol2e
       write(*,*)' imull = ', imull
       write(*,*)' iangquad = ', iangquad
