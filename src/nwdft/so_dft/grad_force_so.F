@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.10 2001-03-09 21:47:23 edo Exp $
+c     $Id: grad_force_so.F,v 1.11 2001-05-07 00:06:22 zzhang Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -142,15 +142,17 @@ c
 c    
 c     Stuff for Douglas-Kroll
 c
-      logical dkdiv_energy, num_grad, file_write_ga  ! Two data blocks needed
+      logical dkdiv_energy, num_grad, file_write_ga  ! Three data blocks needed
       external dkdiv_energy, num_grad, file_write_ga ! for the possible addition
-                                                     ! of Douglas-Kroll contribution
+      integer l_dkdivfrc, k_dkdivfrc                 ! of Douglas-Kroll contribution
+      character*(nw_max_path_len) dkdiv_name
+      character*128 mytheory
 c
 *     Stuff for DFT
 
       integer ipol, numfunc, noc(2)
-      parameter (numfunc = 30)
-      logical oskel, omp2, odft, ocdfit, status, exso 
+      parameter (numfunc = 20)
+      logical oskel, omp2, odft, ocdfit, status,frac_occ, exso 
       double precision xfac(numfunc), jfac, kfac
 
       nproc = ga_nnodes()
@@ -175,13 +177,12 @@ c
 
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 
-      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('grad: failed getting theory',0)
 
 C     get SCF MO vectors for density
 
       odft = .false.
-      exso = .false. 
       if (theory .eq. 'mcscf') then
          if (.not.rtdb_cget(rtdb, 'mcscf:input vectors',1,movecs_in))
      $        call errquit('gradients: MCSCF MO vectors not defined',0)
@@ -520,11 +521,23 @@ c
 C
 C     two-electron contribution
 C
+C     eigenvalues
+      if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
+     $     call errquit('grad: could not allocate l_evals',nbf2)
+C     occupation numbers
+      if (.not. ma_push_get(mt_dbl, nbf2,'occ. numbers', l_occ, k_occ))
+     $     call errquit('grad: could not allocate l_occ',nbf2)
+c
       if(theory .eq. 'sodft' .and. xfac(1) .ne. 0)
      &     call grad_dens_so2(geom, basis, g_dens,  
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
+c
+      if (.not.ma_pop_stack(l_occ))
+     $     call errquit('grad:ma free occ',1)
+      if (.not.ma_pop_stack(l_evals))
+     $     call errquit('grad:ma free eval',1)
 c
 C     allocate arrays for two-electron integral stuff(or rename old ones)
 C     blocks of density matrix:
