@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.2 1994-06-16 06:10:45 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.3 1994-06-16 22:45:24 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(Type3ci, Geom, AOBas, FitBas, G_Int,
@@ -260,8 +260,8 @@ C
  9020    Format( 1x, 'XForm_3cInts: Error occurred in integral block ',
      $      I5, ':', I5, ' of requested ', I5, ':', I5, '.')
 c$$$C
-         Write (LuOut, *) 'Results of steps 12 ', JLo, JHi,
-     $      GA_DDot( G_Int, G_Int)
+c$$$         Write (LuOut, *) 'Results of steps 12 ', JLo, JHi,
+c$$$     $      GA_DDot( G_Int, G_Int)
 c$$$         Call GA_Print(G_Int)
 C
 C        Transform fitting basis & write out the result
@@ -292,8 +292,8 @@ C
                   Return
                EndIf
 c$$$C
-         Write (LuOut, *) 'Results of step 3 ', KLo, KHi,
-     $            GA_DDot(G_Out, G_Out)
+c$$$         Write (LuOut, *) 'Results of step 3 ', KLo, KHi,
+c$$$     $            GA_DDot(G_Out, G_Out)
 c$$$         Call GA_Print(G_Out)
 c$$$         Call GA_DAdd(-FP_One, G_Int, FP_One, G_Out, G_Out)
 c$$$         Call GA_Print(G_Out)
