@@ -1,0 +1,429 @@
+*      call anl_fit_init
+*      end
+      double precision function anl_fit(n, l, x)
+      implicit none
+#include "canlfit.fh"
+      integer n, l
+      double precision x
+c
+c     Return the value of Anl(x) computed from the table
+c     or asymptotic formula.  See anl_fit_init.  This is a slow
+c     paranoid version of this routine. 
+c
+      integer nlcnt, i, k
+      double precision d, value
+c
+      if (n.lt.0 .or. n.gt.maxn) call errquit
+     $     ('anl_fit: invalid n ',n)
+      if (l.lt.0 .or. l.gt.n) call errquit
+     $     ('anl_fit: invalid l ',l)
+      if (mod(n+l,2).ne.0) call errquit
+     $     ('anl_fit: n+l is not even ', n+l)
+      if (x.lt.0.0d0) call errquit
+     $     ('anl_fit: x is negative ', 0)
+c
+      if (x .lt. xhi) then
+         nlcnt = mapnl(l,n)
+         i = int(scale*x)
+         d = x - table(0,i,nlcnt)
+         value = table(order+1,i,nlcnt)
+         do k = order,1,-1
+            value = table(k,i,nlcnt) + d*value
+         enddo
+         anl_fit = value
+      else
+         anl_fit = prefac(l,n)/x**(2*l+1)
+      endif
+c
+      end
+      subroutine anl_fit_init
+      implicit none
+#include "canlfit.fh"
+c
+      integer n, l, i, nlcnt, k
+      double precision f(0:npt), h, x, value, anl, pi, dfac, anl_fit
+      external anl, anl_fit
+c
+c     Initialize interpolation tables used for 0..xhi
+c
+      h = xhi/dble(npt)
+      scale = 1.0d0/h
+c
+      do n = 0, maxn
+         do l = 0, maxn
+            mapnl(l,n) = 999999999 ! Make invalid access disastrous
+            prefac(l,n) = 1d+300
+         enddo
+      enddo
+c
+      nlcnt = 0
+      do n = 0,maxn
+         do l = n,0,-2
+            nlcnt = nlcnt + 1
+            if (nlcnt .gt. maxnl) call errquit
+     $           (' anlfit: too many functions?', nlcnt)
+            mapnl(l,n) = nlcnt
+            do i = 0,npt
+               f(i) = anl(n,l,dble(i)*h)
+            enddo
+            call interp_table_make(npt, order, 0.0d0, xhi, f, 
+     $           table(0,0,mapnl(l,n)))
+c
+c     Verify accuracy of interpolation at midpoints of regions
+c     ... make sure we have either 13 sig. fig. or an absolute
+c     accuracy of 13dp.
+c
+            do i = 0,npt-1
+               x = h*(0.5d0+dble(i)) 
+c$$$               d = x - table(0,i,nlcnt)
+c$$$               value = table(order+1,i,nlcnt)
+c$$$               do k = order,1,-1
+c$$$                  value = table(k,i,nlcnt) + d*value
+c$$$               enddo
+               value = anl_fit(n,l,x)
+               if (abs(value-anl(n,l,x)) .gt. 
+     $              max(1d-13,1d-13*value)) then
+                  write(6,1) n, l, x, value, anl(n,l,x),
+     $                 value-anl(n,l,x)
+ 1                format(' fit error ', 2i5, 3f20.14, 1p, d9.1)
+                  call errquit('anlfit: bad iterpolation',i)
+               endif
+            enddo
+         enddo
+      enddo
+      write(6,*) ' used ', nlcnt, ' tables out of ', maxnl
+c      
+c     Initialize prefactors for asymptotic form used beyond xhi
+c
+c     (n+l+1)!! * sqrt(Pi) / [2^((n+l)/2+2) * (2*l+1) * x^(2*l+1)]
+c
+      pi = 4.0d0*atan(1.0d0)
+      do n = 0, maxn
+         do l = n, 0, -2
+            dfac = 1.0d0
+            do k = (n+l+1),1,-2
+               dfac = dfac * dble(k)
+            enddo
+            prefac(l,n) = dfac * sqrt(pi) / 
+     $           ((2.0d0*dble(l)+1.0d0)*2.0d0**((n+l)/2+2))
+c
+c     Verify asymptotic form
+c
+            value = anl(n,l,xhi)
+            if (abs(value-anl_fit(n,l,xhi)).gt.1d-13) then
+               write(6,2) n, l, dfac, value, prefac(l,n), 
+     $              anl_fit(n,l,xhi), 
+     $              anl_fit(n,l,xhi)-value
+ 2             format(' prefac err ', 2i5, 4f20.14,1p,d12.4)
+               call errquit('anlfit: bad asymptote ', n*1000+l)
+            endif
+         enddo
+      enddo
+c
+      end
+      double precision function anl(n,l,x)
+      implicit none
+      integer n, l
+      double precision x
+c
+c     Compute the radial part of the potential due to a
+c     general gaussian function time as real, solid, spherical harmonic
+c
+c     A(x) = 0.5*x**(n-l) (n+l+1)F((n+l)/2,x**2) + (n-l)*x**l*I(n-l-1)/2
+c
+      integer k
+      double precision ik, xkm1, xsq, fnl
+      double precision fm_slow_but_accurate
+      external fm_slow_but_accurate
+
+      if (mod(n-l+1,2) .ne. 1) stop 543
+      if (n.lt.l) then 
+         stop 544
+      else if (n .eq. l) then
+         ik = 0.0d0
+      else
+         ik = 1.0d0
+         xsq = x*x
+         xkm1 = xsq
+         do k = 3, n-l-1, 2
+            ik = 0.5d0*dble(k-1) + xkm1
+            xkm1 = xkm1 * xsq
+         enddo
+         ik = ik * exp(-x*x) * 0.5d0
+*     write(6,*) ' n-l-1, x, ik ', n-l-1, x, ik
+      endif
+      
+      fnl = fm_slow_but_accurate((n+l)/2,x*x)
+      anl = (0.5d0*(x**(n-l))*dble(n+l+1)*fnl + 
+     $      0.5d0*dble(n-l)*ik) / dble(l+l+1)
+c
+**      call fmvector(1,1,x*x,fm)
+**      anl = 0.5d0*3.0d0*fm(2)
+
+      end
+      double precision function fm_slow_but_accurate(m,t)
+      implicit none
+      integer m
+      double precision t
+c
+c     Return Fm(t) computed by downward recursion so
+c     that it has full precision.
+c
+      double precision et, twot, fp
+      integer j
+c
+      if (t .gt. 50.0d0) then
+         et = 0.0d0
+      else
+         et = exp(-t)
+      endif
+      twot = 2.0d0 * t
+c
+      fp = 0.0d0
+      do j = 200, m, -1
+         fp = (twot*fp + et) / dble(j+j+1)
+      enddo
+c
+      fm_slow_but_accurate = fp
+c
+      end
+      subroutine interp_table_make(n, order, xlo, xhi, f, table)
+      implicit none
+      integer n, order
+      double precision xlo, xhi, table(0:order+1,0:n-1), f(0:n)
+c
+c     Given a tabulation of f at n+1 evenly spaced points in [xlo:xhi]
+c     return in table+base+scale the info necessary to compute a piecewise 
+c     interpolating polynomial approximation.
+c
+c     The approximation may be computed from the table at a point
+c     xlo <= x <= xhi by the following
+c
+c     scale = dble(n)/(xhi-xlo)
+c     k = int((x-base)*scale)
+c     d = x-table(0,k)
+c     f = table(order+1,k)
+c     do i = order,1,-1
+c     .   f = table(i,k) + d*f
+c     enddo
+c
+      integer i, j, jlo, jhi
+      integer ordermax
+      parameter (ordermax = 10)
+      double precision x(ordermax+1), c(ordermax+1), y(ordermax+1),
+     $     work(2*ordermax+2), h, xx
+c
+      h = (xhi - xlo) / dble(n)
+c
+*      do i = 0, n
+*         write(6,*) ' f ', i, f(i)
+*      enddo
+c
+      do i = 0,n-1
+         xx = xlo + dble(i)*h ! Reference point for interpolation
+c
+c     Figure out which points we're going to interpolate
+c
+         jlo = i - order/2
+         jhi = jlo + order
+         if (jlo .lt. 0) then
+            jlo = 0
+            jhi = jlo + order
+         else if (jhi .gt. n) then
+            jhi = n
+            jlo = jhi - order
+         endif
+         do j = jlo, jhi
+            x(j-jlo+1) = (xlo + dble(j)*h) - xx
+            y(j-jlo+1) = f(j)
+         enddo
+c
+         call dplint(order+1,x,y,c)
+         call dpolcf(0.0d0,order+1,x,c,table(1,i),work)
+         table(0,i) = xx
+c
+*         write(6,*) ' Table  ', i, jlo, jhi, xx
+*         write(6,1) (table(j,i),j=0,order+1)
+* 1       format(f10.4,2x,10(f12.6))
+c
+      enddo
+c
+      end
+c$$$      implicit double precision (a-h, o-z)
+c$$$      double precision x(4), c(4), y(4), d(4), work(8)
+c$$$      xx = 0.0d0
+c$$$      n = 4
+c$$$      x(1) = 0
+c$$$      x(2) = 1
+c$$$      x(3) = 2
+c$$$      x(4) = 3
+c$$$      
+c$$$      y(1) = 0
+c$$$      y(2) = 3    
+c$$$      y(3) = 1    
+c$$$      y(4) = 3    
+c$$$
+c$$$      call dplint(n,x,y,c)
+c$$$      call dpolcf(xx,n,x,c,d,work)
+c$$$
+c$$$      write(6,*) d
+c$$$      end
+c$$$
+      SUBROUTINE DPOLCF (XX, N, X, C, D, WORK)
+C***BEGIN PROLOGUE  DPOLCF
+C***PURPOSE  Compute the coefficients of the polynomial fit (including
+C            Hermite polynomial fits) produced by a previous call to
+C            POLINT.
+C***LIBRARY   SLATEC
+C***CATEGORY  E1B
+C***TYPE      DOUBLE PRECISION (POLCOF-S, DPOLCF-D)
+C***KEYWORDS  COEFFICIENTS, POLYNOMIAL
+C***AUTHOR  Huddleston, R. E., (SNLL)
+C***DESCRIPTION
+C
+C     Abstract
+C        Subroutine DPOLCF computes the coefficients of the polynomial
+C     fit (including Hermite polynomial fits ) produced by a previous
+C     call to DPLINT.  The coefficients of the polynomial, expanded
+C     about XX, are stored in the array D. The expansion is of the form
+C     P(Z) = D(1) + D(2)*(Z-XX) +D(3)*((Z-XX)**2) + ... +
+C                                                  D(N)*((Z-XX)**(N-1)).
+C     Between the call to DPLINT and the call to DPOLCF the variable N
+C     and the arrays X and C must not be altered.
+C
+C     *****  INPUT PARAMETERS
+C      *** All TYPE REAL variables are DOUBLE PRECISION ***
+C
+C     XX   - The point about which the Taylor expansion is to be made.
+C
+C     N    - ****
+C            *     N, X, and C must remain unchanged between the
+C     X    - *     call to DPLINT and the call to DPOLCF.
+C     C    - ****
+C
+C     *****  OUTPUT PARAMETER
+C      *** All TYPE REAL variables are DOUBLE PRECISION ***
+C
+C     D    - The array of coefficients for the Taylor expansion as
+C            explained in the abstract
+C
+C     *****  STORAGE PARAMETER
+C
+C     WORK - This is an array to provide internal working storage. It
+C            must be dimensioned by at least 2*N in the calling program.
+C
+C
+C     **** Note - There are two methods for evaluating the fit produced
+C     by DPLINT. You may call DPOLVL to perform the task, or you may
+C     call DPOLCF to obtain the coefficients of the Taylor expansion and
+C     then write your own evaluation scheme. Due to the inherent errors
+C     in the computations of the Taylor expansion from the Newton
+C     coefficients produced by DPLINT, much more accuracy may be
+C     expected by calling DPOLVL as opposed to writing your own scheme.
+C
+C***REFERENCES  (NONE)
+C***ROUTINES CALLED  (NONE)
+C***REVISION HISTORY  (YYMMDD)
+C   890213  DATE WRITTEN
+C   891006  Cosmetic changes to prologue.  (WRB)
+C   891024  Corrected KEYWORD section.  (WRB)
+C   891024  REVISION DATE from Version 3.2
+C   891214  Prologue converted to Version 4.0 format.  (BAB)
+C***END PROLOGUE  DPOLCF
+C
+      INTEGER I,IM1,K,KM1,KM1PI,KM2N,KM2NPI,N,NM1,NMKP1,NPKM1
+      DOUBLE PRECISION C(*),D(*),PONE,PTWO,X(*),XX,WORK(*)
+C***FIRST EXECUTABLE STATEMENT  DPOLCF
+      DO 10010 K=1,N
+      D(K)=C(K)
+10010 CONTINUE
+      IF (N.EQ.1) RETURN
+      WORK(1)=1.0D0
+      PONE=C(1)
+      NM1=N-1
+      DO 10020 K=2,N
+      KM1=K-1
+      NPKM1=N+K-1
+      WORK(NPKM1)=XX-X(KM1)
+      WORK(K)=WORK(NPKM1)*WORK(KM1)
+      PTWO=PONE+WORK(K)*C(K)
+      PONE=PTWO
+10020 CONTINUE
+      D(1)=PTWO
+      IF (N.EQ.2) RETURN
+      DO 10030 K=2,NM1
+      KM1=K-1
+      KM2N=K-2+N
+      NMKP1=N-K+1
+      DO 10030 I=2,NMKP1
+      KM2NPI=KM2N+I
+      IM1=I-1
+      KM1PI=KM1+I
+      WORK(I)=WORK(KM2NPI)*WORK(IM1)+WORK(I)
+      D(K)=D(K)+WORK(I)*D(KM1PI)
+10030 CONTINUE
+      RETURN
+      END
+      SUBROUTINE DPLINT (N, X, Y, C)
+C***BEGIN PROLOGUE  DPLINT
+C***PURPOSE  Produce the polynomial which interpolates a set of discrete
+C            data points.
+C***LIBRARY   SLATEC
+C***CATEGORY  E1B
+C***TYPE      DOUBLE PRECISION (POLINT-S, DPLINT-D)
+C***KEYWORDS  POLYNOMIAL INTERPOLATION
+C***AUTHOR  Huddleston, R. E., (SNLL)
+C***DESCRIPTION
+C
+C     Abstract
+C        Subroutine DPLINT is designed to produce the polynomial which
+C     interpolates the data  (X(I),Y(I)), I=1,...,N.  DPLINT sets up
+C     information in the array C which can be used by subroutine DPOLVL
+C     to evaluate the polynomial and its derivatives and by subroutine
+C     DPOLCF to produce the coefficients.
+C
+C     Formal Parameters
+C     *** All TYPE REAL variables are DOUBLE PRECISION ***
+C     N  - the number of data points  (N .GE. 1)
+C     X  - the array of abscissas (all of which must be distinct)
+C     Y  - the array of ordinates
+C     C  - an array of information used by subroutines
+C     *******  Dimensioning Information  *******
+C     Arrays X,Y, and C must be dimensioned at least N in the calling
+C     program.
+C
+C***REFERENCES  L. F. Shampine, S. M. Davenport and R. E. Huddleston,
+C                 Curve fitting by polynomials in one variable, Report
+C                 SLA-74-0270, Sandia Laboratories, June 1974.
+C***ROUTINES CALLED  XERMSG
+C***REVISION HISTORY  (YYMMDD)
+C   740601  DATE WRITTEN
+C   891006  Cosmetic changes to prologue.  (WRB)
+C   891006  REVISION DATE from Version 3.2
+C   891214  Prologue converted to Version 4.0 format.  (BAB)
+C   900315  CALLs to XERROR changed to CALLs to XERMSG.  (THJ)
+C   920501  Reformatted the REFERENCES section.  (WRB)
+C***END PROLOGUE  DPLINT
+      INTEGER I,K,KM1,N
+      DOUBLE PRECISION DIF,C(*),X(*),Y(*)
+C***FIRST EXECUTABLE STATEMENT  DPLINT
+      IF (N .LE. 0) GO TO 91
+      C(1)=Y(1)
+      IF(N .EQ. 1) RETURN
+      DO 10010 K=2,N
+      C(K)=Y(K)
+      KM1=K-1
+      DO 10010 I=1,KM1
+C     CHECK FOR DISTINCT X VALUES
+      DIF = X(I)-X(K)
+      IF (DIF .EQ. 0.0) GO TO 92
+      C(K) = (C(I)-C(K))/DIF
+10010 CONTINUE
+      RETURN
+   91 write(6,*) 'SLATEC', 'DPLINT', 'N IS ZERO OR NEGATIVE.', 2, 1
+      RETURN
+   92 write(6,*) 'SLATEC', 'DPLINT',
+     +   'THE ABSCISSAS ARE NOT DISTINCT.', 2, 1
+      RETURN
+      END
+

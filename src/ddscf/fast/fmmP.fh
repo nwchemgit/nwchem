@@ -1,0 +1,2 @@
+      integer well_separated
+      parameter (well_separated = 2)

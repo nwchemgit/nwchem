@@ -1,0 +1,48 @@
+c
+c     see xlminit in xlm.f for info on contents
+c
+      integer maxl, maxl2, maxl4
+      double precision b, rqn, qn, w, u, e, s, c, ee,
+     $     bcp0, phase, v, fastdiv, ui, ur, twobc, rtwobc
+      parameter (maxl = 16)
+      parameter (maxl2 = maxl*2, maxl4=maxl*4)
+      common/ncomxlm/ 
+     $     b(-maxl2:maxl2, 0:maxl2), 
+     $     c(-maxl2:maxl2,0:maxl2),
+     $     twobc(-maxl:maxl,0:maxl),
+     $     rtwobc(-maxl:maxl,0:maxl),
+     $     rqn(-maxl:maxl, 0:maxl),
+     $     qn(-maxl:maxl, 0:maxl),
+     $     w(-maxl:maxl, 0:maxl), v(-maxl:maxl, 0:maxl), 
+     $     ui(-maxl2:maxl2,0:maxl2),
+     $     ur(-maxl2:maxl2,0:maxl2),
+     $     u(-maxl2:maxl2,0:maxl2),
+     $     ee(-maxl:maxl,0:maxl),
+     $     e(-maxl2:maxl2), s(-maxl2:maxl2),
+     $     bcp0(0:maxl,0:maxl),
+     $     phase(-maxl4:maxl4), fastdiv(maxl2+1)
+c
+c     This is to support the caching of rotation matrix info
+c
+      integer maxnumphi, maxnumtheta ! Max. no. angles to store rot. info.
+      integer maxhash           ! Size of hash table
+      double precision phis, thetas ! List of angles that are cached
+      integer iphis, ithetas ! Index from hash into cache
+      double precision cosmphi  ! Cos(m*phi) for each phi
+      double precision sinmphi  ! Sin(m*phi) for each phi
+      double precision cdp, cdm   ! Y-rotation matrices for 
+      integer numphi, numtheta  ! Actual no. of angles in cache
+c
+      parameter (maxnumphi=41, maxnumtheta=83, maxhash=3142)
+      integer dpdim, dmdim
+      parameter (dpdim = ((maxl+1)*(maxl+2)*(2*maxl+3))/6)
+      parameter (dmdim = ((maxl  )*(maxl+1)*(2*maxl+1))/6)
+
+      common/ncomxlm2/
+     $     phis(0:maxhash), thetas(0:maxhash), 
+     $     cosmphi(1:maxl,maxnumphi), 
+     $     sinmphi(1:maxl,maxnumphi), 
+     $     cdp(dpdim,maxnumtheta), cdm(dmdim,maxnumtheta),
+     $     iphis(0:maxhash), ithetas(0:maxhash),
+     $     numphi, numtheta
+c
