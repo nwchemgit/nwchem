@@ -44,7 +44,7 @@ c
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b, rtdb, tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.13 1998-07-15 20:34:00 d3g681 Exp $
+* $Id: mp2_lai_fock_uhf.F,v 1.14 1998-12-03 01:45:38 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -101,7 +101,7 @@ c
       if (no_a+nv_a.ne.nmo .or. no_b+nv_b.ne.nmo)
      $     call errquit('mp2_grad: weird nmo?',0)
 c     
-      if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: tmp',
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp',
      $     1, 1, g_tmp)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
 c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
