@@ -7,11 +7,14 @@ c
 c***********************************************************************
 c
       subroutine dft_header(message)
-C$Id: dft_header.F,v 1.1 1995-04-27 03:16:43 og845 Exp $
-      implicit real*8 (a-h,o-z)
+C$Id: dft_header.F,v 1.2 1995-12-20 03:44:31 og845 Exp $
+      implicit none
+
       character*(*) message
       character*80 border
 #include "stdio.fh"
+c
+      integer lmsg,i
 c
 c-->  Determine length of message.
 c

@@ -1,20 +1,20 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
-     &     nshbfa,nshbfb,ig_a,vec,vec2)
+     &     nshbfa,nshbfb,g_a,vec,vec2)
 
-C$Id: sca_lab_mat.F,v 1.7 1995-10-17 08:55:25 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
-      logical status
-c**** 
-c**** nwchem basis handle
-c**** 
+C$Id: sca_lab_mat.F,v 1.8 1995-12-20 03:44:32 og845 Exp $
+      implicit none
+      
       integer basis_hand
+      integer isha,ishb
+      integer nshbfa,nshbfb
+      integer g_a
+      double precision vec(nshbfb,*),vec2(nshbfa,*)
 c**** 
 
 #include "bas.fh"
- 
-      Dimension vec(nshbfb,*),vec2(nshbfa,*)
+c 
+      logical status
+      integer ifirsta, ilasta, ifirstb, ilastb,jj,ii
 c     
 c     Given a handle to a Gaussian basis set and two shell indices, return the 
 c     composite index for the pair of basis functions.
@@ -28,7 +28,7 @@ c******************************************************************************
         call errquit('Exiting in sca_lab_mat',2)
       endif 
 
-       call ga_acc(ig_a,
+       call ga_acc(g_a,
      *     ifirstb,ilastb,
      *     ifirsta,ilasta,
      *     vec,nshbfb,1.d0)
@@ -38,7 +38,7 @@ c******************************************************************************
                vec2(ii,jj)=vec(jj,ii)
             enddo
          enddo
-         call ga_acc(ig_a,
+         call ga_acc(g_a,
      *        ifirsta,ilasta,
      *        ifirstb,ilastb,
      *        vec2,nshbfa,1.d0)

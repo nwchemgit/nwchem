@@ -1,12 +1,14 @@
       Subroutine dft_gather(n,a,b,index,idiff)
 
-C$Id: dft_gather.F,v 1.1 1995-04-27 03:16:42 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: dft_gather.F,v 1.2 1995-12-20 03:44:30 og845 Exp $
+      implicit none
+      
+      integer n
+      double precision a(n),b(*)
+      integer index(n),idiff
+      integer i
 
-      Dimension a(n),b(*),index(n)
-
-c*******************************************************************************
+c****************************************************************************
 
       do 10 i = 1,n
        a(i) = b(index(i)-idiff)
