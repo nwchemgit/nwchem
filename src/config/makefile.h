@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.170 1996-09-24 21:51:28 d3e129 Exp $
+# $Id: makefile.h,v 1.171 1996-09-25 22:22:10 mdupuis Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -79,7 +79,7 @@ endif
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
+	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
 	plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
 
 # These are the libraries for the high-level modules.  They should be
@@ -87,7 +87,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # be too hard to come up with.  These should be platform-independent.
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints  \
-                    -lstepper -ldftgrad -lplnwv -lnwdft -lgradients \
+                    -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lddscf -lguess \
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwargos \
                     -ldplot -lnwaprep -loimp2 -lproperty -lgapss
@@ -563,7 +563,7 @@ ifeq ($(TARGET),IBM)
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
