@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-11-14 23:51:25 gg502 Exp $
+# $Id: GNUmakefile,v 1.5 1994-11-21 23:25:00 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	a_dist.o			   becke.o	\
@@ -20,6 +20,10 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 ifeq ($(TARGET),SGITFP)
+quadvxc1.o:	quadvxc1.F
+	f77   $(FOPTIONS)  $(INCLUDES) $(DEFINES)  -c quadvxc1.F -o quadvxc1.o
 fitvxc.o:	fitvxc.F
 	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c fitvxc.F -o fitvxc.o
+gaget2oi.o:	gaget2oi.F
+	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c gaget2oi.F -o gaget2oi.o
 endif

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1994-11-14 23:51:23 gg502 Exp $
+# $Id: GNUmakefile,v 1.10 1994-11-21 23:25:12 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -27,8 +27,10 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 ifeq ($(TARGET),SGITFP)
-bas_ncoef_cn_max.o:	bas_ncoef_cn_max.F
-	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c bas_ncoef_cn_max.F -o bas_ncoef_cn_max.o
+bas_ncontr_cn_max.o:	bas_ncontr_cn_max.F
+	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c bas_ncontr_cn_max.F -o bas_ncontr_cn_max.o
 nbf_to_mbf.o:	nbf_to_mbf.F
 	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c nbf_to_mbf.F -o nbf_to_mbf.o
+#sca_lab_mat.o:	sca_lab_mat.F
+#	f77   $(FOPTIONS) $(INCLUDES) $(DEFINES)  -c sca_lab_mat.F -o sca_lab_mat.o
 endif
