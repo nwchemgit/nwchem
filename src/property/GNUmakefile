@@ -1,9 +1,6 @@
 
-#  OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o hnd_get_s.o \
-#        hnd_get_dens_ab.o hnd_get_vecs_ab.o hnd_get_vecs.o
-#  OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o hnd_get_s.o 
 
-   OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o
+   OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o prp2.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
