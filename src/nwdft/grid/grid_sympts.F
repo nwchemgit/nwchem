@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_sympts.F,v 1.22 2004-02-06 20:42:12 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -172,8 +172,10 @@ c
       end
       subroutine grid_c5trash(nops,symops)
       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
       integer nops,nops_red
-      double precision symops(3,nops,4)
+      double precision symops(3,nops,*)
       double precision deter3
       external deter3
 c
@@ -181,12 +183,17 @@ c
       double precision dd,matt(3,3),trtr
       integer angle
       double precision pi
-      double precision aa(3,120,4)
-      integer iscr(120)
+      integer k_aa,l_aa,k_iscr,l_iscr
 c     
 c     remove any 5-fold operation
 c     since it does not belong to Oh
 c
+      if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symopsaa',
+     ,     l_aa,k_aa)) call errquit(
+     '     '     grid_c5trash: mpush get failed',1, MA_ERR)
+      if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symopsiscr',
+     ,     l_iscr,k_iscr)) call errquit(
+     '     '     grid_c5trash: mpush get failed',1, MA_ERR)
       pi=4d0*atan(1d0)
       nops_red=0
       do ii=1,nops
@@ -206,11 +213,14 @@ c
 c     do nothing
          else
             nops_red=nops_red+1
-            iscr(nops_red)=ii
+            int_mb(k_iscr+nops_red-1)=ii
          endif
       enddo
-      call dcopy(3*4*nops,symops,1,aa,1)
-      call grid_symcomp(nops_red,symops,nops,aa,iscr)
+      call dcopy(3*4*nops,symops,1,dbl_mb(k_aa),1)
+      call grid_symcomp(nops_red,symops,nops,dbl_mb(k_aa),
+     ,     int_mb(k_iscr))
+      if (.not.MA_chop_stack(l_aa)) call errquit(
+     '     '     grid_c5trash: free stack failed',1, MA_ERR)
       nops=nops_red
       return
       end

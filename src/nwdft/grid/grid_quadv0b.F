@@ -18,7 +18,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.40 2004-01-24 02:44:26 edo Exp $
+c$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -298,5 +298,204 @@ c
       endif
       if (.not.ma_pop_stack(lchi_ao))
      &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
+      return
+      end
+      integer function grid_nbfm(basis_hand,   mcenters, 
+     &     ctr_quad,  rad_quad, xyz, qxyz,nq,
+     &                  ibf, docset, iniz, ifin, zprim,
+     .     minexp,ldiff,acc_gauss,iatype_pt_chg)
+c
+C$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
+c
+      implicit none
+#include "errquit.fh"
+c      
+      integer basis_hand
+      integer mcenters ! [input]
+      double precision acc_gauss ! [input]
+      double precision xyz(3,*) ! [input]
+      double precision rad_quad ! [input]
+      integer nq ! [in] # grid pts
+      double precision qxyz(3,nq) ! [input] coord grid pts
+      integer ctr_quad ! grid center  [input]
+      integer ibf(*) ! [output]
+      logical docset(*) ! [output]
+      integer ldiff(*) ! [in]
+      double precision minexp(*) ! [in]
+      logical iatype_pt_chg(*) ! [in]
+c
+#include "bas.fh"
+c
+c     Distance Squared between Sampling Points and Centers
+c
+      double precision r_q0 ! min dist
+      integer  iniz(mcenters),ifin(mcenters)
+      double precision zprim(*)
+      integer n1, icset, ictr,  nprim, ncontr, 
+     &        isphere,  l, iprimo,npt,nshbf
+      double precision zmin,acc_loc,x,y,z
+      integer n,ic1,ic2,m,ibfhi,ibflo
+      double precision alpha,logeps
+      double precision gaussian_range,r2,r_arg
+      logical veryfar
+      gaussian_range(n,logeps,alpha) = 
+     $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
+     $     sqrt(-16.0d0*alpha*logeps)
+c
+      call ifill(mcenters,0,iniz,1)
+      call ifill(mcenters,0,ifin,1)
+      if(acc_gauss.gt.25d0.or.acc_gauss.lt.3d0) call errquit(
+     ' ' grid_nbfm: silly accgauss ',nint(acc_gauss), UNKNOWN_ERR)
+      acc_loc=-acc_gauss
+c
+      n1 = 0
+      npt=0
+      do 400 ictr=1,mcenters
+        if(iatype_pt_chg(ictr)) goto 400
+        if (.not.bas_ce2cnr(basis_hand,ictr,ic1,ic2))
+     &       call errquit('Exiting in xc_signf.',11, BASIS_ERR)
+
+        r2=0d0
+        if (ictr.ne.ctr_quad) then
+          x = xyz(1,ctr_quad) - xyz(1,ictr)
+          y = xyz(2,ctr_quad) - xyz(2,ictr)
+          z = xyz(3,ctr_quad) - xyz(3,ictr)
+          r2 = sqrt(x*x + y*y + z*z)
+        endif
+        r_arg=0d0
+        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
+c
+c     check on most diffuse fn
+c
+        veryfar=r_arg.gt.gaussian_range(ldiff(ictr),acc_loc,
+     .       minexp(ictr)) 
+        if(veryfar) then
+           if(.not.bas_ce2bfr(basis_hand, ictr, ibflo, ibfhi))
+     &          call errquit('Exiting in grid_nbfm',4, BASIS_ERR)
+           nshbf=ibfhi-ibflo+1
+           npt=npt+nshbf
+        else
+    
+        r_q0=1d10
+        do n=1,nq
+          x = qxyz(1,n) - xyz(1,ictr)
+          y = qxyz(2,n) - xyz(2,ictr)
+          z = qxyz(3,n) - xyz(3,ictr)
+          r_q0 = min(r_q0,sqrt(x*x + y*y + z*z))
+        enddo
+        do icset = ic1,ic2
+           docset(icset) = .false.
+c         
+c       get info about current contraction set
+c       
+          if (.not. bas_continfo(basis_hand, icset,  l ,nprim,
+     &         ncontr, isphere))
+     &         call errquit('Exiting in grid_nbfm.',5, BASIS_ERR)
+c         
+c       
+c       get exponents and contraction coefficients for this contraction set
+c       
+        if (.not.bas_get_exponent(basis_hand, icset, zprim))
+     &       call errquit('Exiting in grid_nbfm.',7, BASIS_ERR)
+c       
+c       Determine the minimum Gaussian exponent.
+c       
+
+        zmin = 1.D+06
+        do iprimo = 1,nprim
+          zmin = min(zprim(iprimo),zmin)
+        enddo
+c       
+c       Only include those basis functions that are "non-zero" for at least 
+c       one  point in the sampling set.
+c       
+        nshbf=ncontr*(((l+1)*(l+2))/2)
+        if(isphere.eq.1) then
+           nshbf=ncontr*(2*l+1)
+        endif
+c
+c     pre-screening for worst case (max radius)
+c
+              if (r_q0.lt.gaussian_range(l,acc_loc,zmin)) then
+                 do m=1,nshbf
+                    ibf(n1+m ) = npt+m
+                 enddo
+                 docset(icset) = .true.
+                 if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+                 n1=n1+nshbf
+              endif
+
+        npt=npt+nshbf
+      enddo
+c           
+        ifin(ictr)= n1
+      endif
+c
+  400 continue
+c
+      grid_nbfm = n1
+c
+      return
+      end
+c
+c     Precompute relevant basis info for XC
+c
+c     BGJ - 9/00
+c
+      Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
+     &     bas_cset_info, mcenters)
+c
+C$Id: grid_quadv0b.F,v 1.41 2004-02-06 20:42:12 edo Exp $
+c
+      implicit none
+#include "errquit.fh"
+c      
+      integer basis_hand        ! [input]
+      integer mcenters          ! [input]
+      integer bas_cent_info(3,mcenters) ! [output]
+      integer bas_cset_info(6,*) ! [output]
+c
+#include "bas.fh"
+c
+      integer ictr, icset, ifirst, ilast, nprim, ncontr, l, isphere
+      integer ic1, ic2
+c
+      do ictr = 1,mcenters
+         bas_cent_info(1,ictr) = 0 ! max angular momentum
+         if (.not.bas_ce2cnr(basis_hand,ictr,ic1,ic2))
+     &        call errquit('Exiting in xc_make_basis_info',1, BASIS_ERR)
+         bas_cent_info(2,ictr) = ic1
+         bas_cent_info(3,ictr) = ic2
+c
+         do icset = ic1,ic2
+c         
+c     Get info about current contraction set - first and last basis function,
+c     angular momentum, number of primitives, number of contractions and
+c     whether spherical harmomic
+c       
+            if (.not. bas_cn2bfr(basis_hand, icset, ifirst, ilast))
+     &           call errquit('Exiting in xc_make_basis_info',1,
+     &       BASIS_ERR)
+            if (.not. bas_continfo(basis_hand, icset, l, nprim,
+     &           ncontr, isphere))
+     &           call errquit('Exiting in xc_make_basis_info',2,
+     &       BASIS_ERR)
+c
+            if (l.lt.0) then
+               call errquit('L code < 0 in xc_make_basis_info',1,
+     &       BASIS_ERR)
+            endif
+c
+            bas_cent_info(1,ictr) = max(bas_cent_info(1,ictr),l)
+c
+            bas_cset_info(1,icset) = ifirst
+            bas_cset_info(2,icset) = ilast
+            bas_cset_info(3,icset) = l
+            bas_cset_info(4,icset) = nprim
+            bas_cset_info(5,icset) = ncontr
+            bas_cset_info(6,icset) = isphere
+         enddo
+      enddo
+c
       return
       end
