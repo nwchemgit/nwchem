@@ -35,13 +35,13 @@ geometry units au center autosym print
     beta  90.0d0
     gamma 90.0d0
   end
-Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si    -0.50100d0  -0.50000d0  -0.50000d0
 Si     0.00000d0   0.00000d0  -0.50000d0
 Si     0.00000d0  -0.50000d0   0.00000d0
-Si    -0.50000d0   0.00000d0   0.00000d0
-C     -0.25000d0  -0.25000d0  -0.25000d0
+Si    -0.49900d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25010d0
 C      0.25000d0   0.25000d0  -0.25000d0
-C      0.25000d0  -0.25000d0   0.25000d0
+C      0.25000d0  -0.25030d0   0.25020d0
 C     -0.25000d0   0.25000d0   0.25000d0
 end
 #geometry units au 
@@ -182,7 +182,7 @@ PSPW
       fake_mass: 400000.0d0
       time_step: 251.8d0
       loop: 200 50
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      tolerances: 1.0d-11 1.0d-9 1.0d-4
       ewald_ncut: 8
    END 
 END
