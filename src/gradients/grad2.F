@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.25 1997-06-25 02:31:46 d3g681 Exp $
+c     $Id: grad2.F,v 1.26 1997-06-26 00:36:38 d3e129 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -18,6 +18,7 @@ c     $Id: grad2.F,v 1.25 1997-06-25 02:31:46 d3g681 Exp $
 #include "util.fh"
 #include "bas.fh"
 C-----------------------parameters---------------------------------
+      integer blen              ! [input] max dimension of density block
       double precision          ! [scratch] 6 blocks per possible density
      $     d_ij(blen,blen),  d_kl(blen,blen),  d_ik(blen,blen),
      $     d_jl(blen,blen),  d_il(blen,blen),  d_jk(blen,blen),
@@ -32,7 +33,6 @@ c
       double precision frc(3, nat) ! [input/output] 2-e piece of gradient
       integer g_dens(*)         ! [input] array of global density handles
       integer g_force           ! [input] handle to total gradients (global)
-      integer blen              ! [input] max dimension of density block
       integer basis, geom       ! [input] familiar handles
       integer nproc             ! [input] No. of processors
       integer lscr              ! [input] Size of scratch for integrals
@@ -520,6 +520,7 @@ c
      $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum)
       implicit none
       logical omp2,ouhf,orohf,omcscf   ! [input] Wavefunction info
+      integer blen
       double precision          ! [input] AO density blocks
      $     d_ij(blen,blen),d_kl(blen,blen),d_ik(blen,blen),
      $     d_jl(blen,blen),d_il(blen,blen),d_jk(blen,blen),
@@ -534,7 +535,6 @@ c
      $     d_il4(blen,blen), d_jk4(blen,blen)
       double precision pdm2d(blen,blen,blen,blen) ! [output] 2pdm
       double precision psum     ! [output] Norm of this block of twopdm
-      integer blen
       integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
 c
       double precision den2
