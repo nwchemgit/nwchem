@@ -30,10 +30,14 @@ c
       pname = "qmmm_data_init: "
 
       call mm_get_tot_nqm(nqm)
+      if(ga_nodeid().eq.0) 
+     >  write(*,*) "number of quantum atoms",nqm
 
       if(qmmm_h_link()) then
         call mm_count_links(nlink,h_lb,i_lb)
         nqm = nqm + nlink
+        if(ga_nodeid().eq.0) 
+     >  write(*,*) "number of link atoms",nlink
       else
         nlink = 0
         call mm_count_qlinks(nps,h_ips,i_ips)
@@ -49,7 +53,10 @@ c     first go pure quantum atoms and then links
 c     ----------------------------------------------------
       call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
       if(nlink.gt.0) then
-        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
+        do i=1,nlink
+          int_mb(i_ai+nqm-nlink+i-1)=int_mb(i_lb+nlink+i-1)
+        end do
+c        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
       end if
 
       if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
