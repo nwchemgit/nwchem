@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.16 2002-03-02 23:26:24 bylaska Exp $
+* $Id: ion.F,v 1.17 2002-08-07 19:00:35 bylaska Exp $
 *
 
 *     ***************************
@@ -787,6 +787,34 @@ c     call ion_shift()
 
       call pspw_copy_atom(1,byte_mb(atom(1)+2*(i-1)),aname)
       ion_atom = aname
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	    ion_atom_plus_suffix	*
+*     *					*
+*     ***********************************
+      subroutine ion_atom_plus_suffix(ia,suffix,fname)
+      implicit none
+      integer ia
+      character*(*) suffix
+      character*(*) fname
+
+*     **** local variables ****
+      character*4 element
+      integer l
+
+*     **** external functions ****
+      character*2 ion_atom
+      external    ion_atom
+
+*     **** defined formatted prj name ****
+      element = '    '
+      element = ion_atom(ia)
+      l = index(element,' ') - 1
+      fname = element(1:l)//suffix
+
       return
       end
 
