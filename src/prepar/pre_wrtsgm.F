@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat,ipardef)
 c
-c $Id: pre_wrtsgm.F,v 1.17 2003-08-01 23:35:56 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.18 2003-08-12 19:45:44 d3j191 Exp $
 c
       implicit none
 c
@@ -54,8 +54,10 @@ c
       do 2 i=1,nbnd
       write(lfnsgm,2006) i,(lbnd(j,i),j=1,2),0,0
  2006 format(5i5)
+      do 202 j=1,nparms
       write(lfnsgm,2007) 0.0d0,0.0d0
  2007 format(f12.6,e12.5)
+  202 continue
     2 continue
 c
       do 3 i=1,nang
