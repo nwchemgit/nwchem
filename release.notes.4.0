@@ -17,7 +17,9 @@ information.
 
 Additional major additions to the capabilities include: 
 
-  o
+  o The Douglas-Kroll(-Hess) approach is implemented. It can be used at all levels 
+    of theory. Gradients have been implementing allowing for Douglas-Kroll including 
+    geometry optimizations and frequencies
 
 Again, for each of these capabilities, the user is referred to the User Manual for
 more information. 
@@ -87,7 +89,7 @@ MD:
 
 Integral changes: 
 
-  o 
+  o Douglas-Kroll(-Hess) integral routines have been added.
 
 Tests, manuals and misc script changes: 
 
