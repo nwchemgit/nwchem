@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.8 2003-10-17 22:58:34 carlfahl Exp $
+c $Id: ga_it2.F,v 1.9 2004-12-03 22:42:37 bert Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -221,6 +221,13 @@ c
       call ga_zero(g_Ax)
       call ga_zero(g_r)
 c
+      if (oprint .and. ga_nodeid().eq.0) then
+         write(6,2)
+         call util_flush(6)
+ 2       format(/
+     $        '   iter   nsub   residual    time',/,
+     $        '   ----  ------  --------  ---------')
+      end if
       nsub = 0
       converged = .false.
       do iter = 1, maxiter
@@ -238,12 +245,9 @@ c
          call ga_add(1.0d0, g_b, -1.0d0, g_Ax, g_r) ! The residual
          call ga_maxelt(g_r, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
-            write(6,2) iter, nsub+nvec, rmax, util_wallsec()
+            write(6,3) iter, nsub+nvec, rmax, util_wallsec()
             call util_flush(6)
- 2          format(/
-     $           '   iter   nsub   residual    time',/,
-     $           '   ----  ------  --------  ---------',/,
-     $           ' ', i5, i7, 3x,1p,d9.2,0p,f10.1/)
+ 3          format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1)
          end if
          if (rmax .lt. tol) then
             converged = .true.
@@ -274,8 +278,11 @@ c
          call ga_zero(g_a)
          call ga_zero(g_bb)
          call ga_zero(g_c)
+         call ga_sync()
          call ga_dgemm('t','n',nsub,nsub,n,1.0d0,g_y,g_Ay,0.0d0,g_a)
+         call ga_sync()
          call ga_dgemm('t','n',nsub,nvec,n,1.0d0,g_y,g_r,0.0d0,g_bb)
+         call ga_sync()
          if (odebug) call ga_print(g_a)
          if (odebug) call ga_print(g_c)
 c
@@ -292,6 +299,7 @@ c
 c
 c     Form and add the correction, in parts, onto the solution
 c
+         call ga_sync()
          call ga_dgemm('n','n',n,nvec,nsub,-1.0d0,g_Ay,g_c,1.0d0,g_r)
          if (odebug) then
             write(6,*) ' The update in the complement '
@@ -434,6 +442,12 @@ c
       call ga_zero(g_y)
       call ga_zero(g_Ay)
 c
+      if (oprint .and. ga_nodeid().eq.0) then
+         write(6,2)
+ 2       format(/
+     $        '   iter   nsub   residual    time',/,
+     $        '   ----  ------  --------  ---------')
+      end if
       nsub = 0
       converged = .false.
       do iter = 1, maxiter
@@ -441,11 +455,8 @@ c
          call product(acc, g_x, g_Ax)
          call ga_maxelt(g_Ax, rmax)
          if (oprint .and. ga_nodeid().eq.0) then
-            write(6,2) iter, nsub+1, rmax, util_wallsec()
- 2          format(/
-     $           '   iter   nsub   residual    time',/,
-     $           '   ----  ------  --------  ---------',/,
-     $           ' ', i5, i7, 3x,1p,d9.2,0p,f10.1/)
+            write(6,3) iter, nsub+1, rmax, util_wallsec()
+ 3          format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1)
          end if
          if (rmax .lt. tol) then
             converged = .true.
@@ -576,6 +587,7 @@ c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "util.fh"
       integer g_a, g_b, g_x
       double precision tol
 c
@@ -598,6 +610,10 @@ c
 c     where the reciprocal of values less than tol are neglected.
 c     
       integer m,n,nn,type,nvec,nsing,l_val, k_val,g_u,g_vt,i,g_tmp
+      logical oprint
+c
+      oprint = util_print('debug svdsolve', print_high) .and.
+     $     ga_nodeid().eq.0
 c
       call ga_inquire(g_a, type, m, n)
       call ga_inquire(g_b, type, nn, nvec)
@@ -618,7 +634,7 @@ c
 c
       do i = 0, nsing-1
          if (dbl_mb(k_val+i) .lt. tol) then
-            if (ga_nodeid() .eq. 0) then
+            if (ga_nodeid() .eq. 0 .and. oprint) then
               write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
             endif
             dbl_mb(k_val+i) = 0.0d0
