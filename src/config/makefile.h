@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.114 1995-06-28 16:52:08 rg240 Exp $
+# $Id: makefile.h,v 1.115 1995-06-29 04:55:45 pg511 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -437,16 +437,16 @@ ifeq ($(TARGET),IBM)
 	      -brename:.dgetrs_,.dgetrs \
 	      -brename:.dscal_,.dscal \
 	      -brename:.idamax_,.idamax 
-# include these for DFT?  
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dpotri_,.dpotri \
-	      -brename:.times_,.times \
 
 
  EXPLICITF = TRUE
 #
 endif
+# include these for DFT?  
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dpotri_,.dpotri \
+#	      -brename:.times_,.times \
 #	      -brename:.dpotri_,.dpotri \
 #	      -brename:.dpotrf_,.dpotrf \
 #	      -brename:.dspsvx_,.dspsvx \
