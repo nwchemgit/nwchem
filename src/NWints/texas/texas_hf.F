@@ -3,6 +3,9 @@
      *                       ra,rb,rc,rd,use_r,
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
+*
+* $Id: texas_hf.F,v 1.29 1997-07-10 23:25:10 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -1006,7 +1009,7 @@ c
                leri_size=leri/integ1
 c
                if(leri_size.eq.0) then
-c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+c
                   write(6,*)' buffer size too small; leri=',leri,
      *            ' needed=',integ1,' =',n_times,'*',integ1/n_times
                   write(6,*)' shell sizes=',
