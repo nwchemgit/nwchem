@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.63 2004-10-29 21:01:28 edo Exp $
+* $Id: task.F,v 1.64 2004-11-03 00:45:52 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -34,7 +34,7 @@ c
 c
       logical ocons
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
-     $     jantest, mcstep_main, uccsdtest
+     $     jantest, uccsdtest
       logical property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
@@ -53,7 +53,7 @@ c
       external qmmm_init
       external cons_active
       external qmmm_end
-      external jantest, uccsdtest, mcstep_main
+      external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, cphf
       external property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
@@ -111,8 +111,6 @@ c
             status = jantest(rtdb)
          else if (inp_compare(.false.,'test', theory)) then
             call util_test(rtdb)
-         else if (inp_compare(.false.,'mcstep', theory)) then
-            status = mcstep_main(rtdb)
          else if (inp_compare(.false.,'uccsdtest', theory)) then
             status = uccsdtest(rtdb)
          else if (inp_compare(.false.,'jvltest', theory)) then

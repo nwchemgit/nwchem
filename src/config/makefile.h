@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.488 2004-10-20 18:12:56 edo Exp $
+# $Id: makefile.h,v 1.489 2004-11-03 00:45:55 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1620,6 +1620,10 @@ endif # end of ia32 bit
         DEFINES  += -DCHKUNDFLW -DPSCALE
         FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
+        ifdef  USE_GPROF
+          FOPTIONS += -pg
+          LDOPTIONS += -pg
+        endif
       endif
       ifeq ($(_FC),g77)
         FOPTIONS  +=  -fno-globals -Wno-globals 
