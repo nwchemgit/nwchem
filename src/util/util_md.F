@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.10 1999-05-20 00:20:23 d3e129 Exp $
+c $Id: util_md.F,v 1.11 1999-06-25 02:51:08 d3j191 Exp $
 c
       implicit none
 c
@@ -191,8 +191,7 @@ c     matrix using the Jacobi diagonalization
 c
       implicit none
 c
-      integer nmax,nrmax
-      parameter(nmax=100)
+      integer nrmax
       parameter(nrmax=100)
 c
       real*8 zero,half,one,two
@@ -218,6 +217,7 @@ c
 c
       nrot=0
       do 3 l=1,nrmax
+      nrot=nrot+1
       sum=zero
       do 4 i=1,n-1
       do 5 j=i+1,n
