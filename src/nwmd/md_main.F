@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.180 2003-12-03 04:59:59 d3j191 Exp $
+c $Id: md_main.F,v 1.181 2003-12-04 20:05:38 d3j191 Exp $
 c
       implicit none
 c
@@ -1712,6 +1712,15 @@ c
       call timer_stop(48)
       endif
 c
+c     center of mass options
+c
+      if(icmopt.gt.0) then
+      call timer_start(48)
+      call md_cmopt(dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_fcm),
+     + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      call timer_stop(48)
+      endif
+c
 c     time step
 c
       call timer_start(49)
@@ -2116,6 +2125,21 @@ c
 c
       call sp_copyg(dbl_mb(i_gw),dbl_mb(i_gs))
       call ga_sync()
+c
+      return
+      end
+      subroutine md_cmopt(vs,fs,fcm,ismol,isatt)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      real*8 vs(msa,3),fs(msa,3,2),fcm(msm,5)
+      integer ismol(msa),isatt(msa)
+c
+      call cf_scmfor(ismol,isatt,vs,fs,nsaloc,fcm)
 c
       return
       end
@@ -2654,7 +2678,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.180 2003-12-03 04:59:59 d3j191 Exp $
+c $Id: md_main.F,v 1.181 2003-12-04 20:05:38 d3j191 Exp $
 c
       implicit none
 c

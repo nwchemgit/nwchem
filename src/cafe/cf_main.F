@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.166 2003-12-03 05:00:28 d3j191 Exp $
+c $Id: cf_main.F,v 1.167 2003-12-04 20:05:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -281,6 +281,77 @@ c
     9 continue
 c
       endif
+c
+      return
+      end
+      subroutine cf_scmfor(ismol,isatt,vs,fs,nums,fcm)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer ismol(msa),isatt(msa),nums
+      real*8 vs(msa,3),fs(msa,3),fcm(msm,5)
+c
+      call cf_scmf(ismol,isatt,fs,nums,fcm,dbl_mb(i_mas))
+c
+      return
+      end
+      subroutine cf_scmf(ismol,isatt,vs,fs,nums,fcm,wgt)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer ismol(msa),isatt(msa),nums
+      real*8 vs(msa,3),fs(msa,3),fcm(msm,3)
+      real*8 wgt(mat,mset)
+c
+      integer i
+c
+      do 1 i=1,msm
+      fcm(i,1)=zero
+      fcm(i,2)=zero
+      fcm(i,3)=zero
+    1 continue
+c
+c     remove the center of mass velocity in the z-direction
+c
+      do 2 i=1,nums
+      fcm(ismol(i),1)=fcm(ismol(i),1)+wgt(isatt(i),iset)*vs(i,3)
+      fcm(ismol(i),2)=fcm(ismol(i),2)+wgt(isatt(i),iset)
+      fcm(ismol(i),3)=fcm(ismol(i),3)+one
+    2 continue
+      if(np.gt.1) call ga_dgop(mcf_82,fcm,3*msm,'+')
+      do 3 i=1,nums
+      if(fcm(ismol(i),3).gt.one) then
+      vs(i,3)=vs(i,3)-fcm(ismol(i),1)/fcm(ismol(i),2)
+      endif
+    3 continue
+c
+      do 4 i=1,msm
+      fcm(i,1)=zero
+      fcm(i,2)=zero
+      fcm(i,3)=zero
+    4 continue
+c
+c     remove the center of mass acceleration in the z-direction
+c
+      do 5 i=1,nums
+      fcm(ismol(i),1)=fcm(ismol(i),1)+fs(i,3)
+      fcm(ismol(i),2)=fcm(ismol(i),2)+wgt(isatt(i),iset)
+      fcm(ismol(i),3)=fcm(ismol(i),3)+one
+    5 continue
+      if(np.gt.1) call ga_dgop(mcf_83,fcm,3*msm,'+')
+      do 6 i=1,nums
+      if(fcm(ismol(i),3).gt.one) then
+      fs(i,3)=fs(i,3)-wgt(isatt(i),iset)*fcm(ismol(i),1)/fcm(ismol(i),2)
+      endif
+    6 continue
 c
       return
       end

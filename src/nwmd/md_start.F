@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.156 2003-12-03 04:59:59 d3j191 Exp $
+c $Id: md_start.F,v 1.157 2003-12-04 20:05:38 d3j191 Exp $
 c
       implicit none
 c
@@ -156,6 +156,10 @@ c
      + call md_abort('Failed to allocate memory for gw',0)
       if(.not.ma_push_get(mt_dbl,3*msa,'gs',l_gs,i_gs))
      + call md_abort('Failed to allocate memory for gs',0)
+      endif
+      if(icmopt.gt.0) then
+      if(.not.ma_push_get(mt_dbl,5*msm,'fcm',l_fcm,i_fcm))
+     + call md_abort('Failed to allocate memory for fcm',0)
       endif
 c
 c     retrieve current coordinates for this node
@@ -925,6 +929,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:thop',mt_dbl,1,thop))
      + call md_abort('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
+     + call md_abort('md_rtdbin: rtdb_get failed',98)
+      if(.not.rtdb_get(irtdb,'md:icmopt',mt_int,1,icmopt))
      + call md_abort('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:nopack',mt_int,1,nopack))
      + call md_abort('md_rtdbin: rtdb_get failed',99)

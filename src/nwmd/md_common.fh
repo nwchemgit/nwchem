@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.80 2003-12-03 04:59:59 d3j191 Exp $
+c $Id: md_common.fh,v 1.81 2003-12-04 20:05:37 d3j191 Exp $
 c
 c     parameters
 c
@@ -147,7 +147,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -178,7 +178,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,
@@ -209,11 +209,11 @@ c
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
      + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
      + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa,
-     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm
+     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm,i_fcm,l_fcm
       common/md_ptr/i_esk,l_esk,i_ess,l_ess,i_esw,l_esw,i_rtos,l_rtos,
      + i_iw,l_iw,i_is,l_is,i_xw,l_xw,i_xs,l_xs,i_fw,l_fw,i_fs,l_fs,
      + i_iwz,l_iwz,i_isz,l_isz,i_xwm,l_xwm,i_xsm,l_xsm,i_zs,l_zs,
      + i_vw,l_vw,i_vs,l_vs,i_vwt,l_vwt,i_vst,l_vst,i_yw,l_yw,i_ys,l_ys,
      + i_pw,l_pw,i_ps,l_ps,i_pwp,l_pwp,i_psp,l_psp,i_gw,l_gw,i_gs,l_gs,
      + i_xwcr,l_xwcr,i_xscr,l_xscr,i_dsr,l_dsr,l_gsm,i_gsm,l_esa,i_esa,
-     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm
+     + i_fss,l_fss,i_xsmp,l_xsmp,i_lseq,l_lseq,i_tsm,l_tsm,i_fcm,l_fcm

@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.36 2003-11-18 23:25:59 d3j191 Exp $
+c $Id: md_finish.F,v 1.37 2003-12-04 20:05:38 d3j191 Exp $
 c
       implicit none
 c
@@ -23,6 +23,10 @@ c      call ma_summarize_allocated_blocks()
      + call md_abort('Failed to deallocate memory for ps',0)
       if(.not.ma_pop_stack(l_pw))
      + call md_abort('Failed to deallocate memory for pw',0)
+      endif
+      if(icmopt.gt.0) then
+      if(.not.ma_pop_stack(l_fcm))
+     + call md_abort('Failed to deallocate memory for fcm',0)
       endif
       if(iguide.gt.0) then
       if(.not.ma_pop_stack(l_gs))
