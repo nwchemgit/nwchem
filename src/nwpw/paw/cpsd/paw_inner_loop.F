@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.4 2003-02-11 20:47:03 marat Exp $
+* $Id: paw_inner_loop.F,v 1.5 2003-02-11 20:48:33 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -303,6 +303,20 @@ c     >             move,dbl_mb(fion(1)))
 *       *****************************************        
 c        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
 c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+
+*        ***** debug ***
+         do ms=1,ispin
+           call paw_overlap_matrix_gen(ne(ms),
+     >                                 psi1(1,n1(ms)),
+     >                                 psi1(1,n1(ms)),
+     >                                 dbl_mb(tmp_L(1)))
+           write(*,*) "Overlap matrix, spin:",ms
+           do i=1,ne(ms) 
+             write(*,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+     >                   j=1,ne(ms))
+           end do
+
+         end do
 
       end do
 
