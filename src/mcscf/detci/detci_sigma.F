@@ -177,6 +177,10 @@ c
       integer isym, ksym, jsym, iksym
       integer trii(detci_maxorb)
       double precision xx,yy
+      double precision tmp(10000)
+c
+      if (10000 .lt. nstrb) 
+     $     call errquit('sigmabb: hard dimension failed',nstrb)
 c
 c
 c
@@ -244,16 +248,16 @@ c$$$          endif
 c$$$        enddo
 
         do j=1,nstra
-          if ((j.ge.cilo).and.(j.le.cihi)) then
-            call ga_access( g_civec, rlo, rhi, j, j, k_ci, ldc )
-            do i=1,nstrb
-c$$$              xx = 0.d0
-c$$$              call ga_get(g_civec,i,i,j,j,yy,1)
-              xx = f(j)*dbl_mb(k_ci+i-1)
-              call ga_acc(g_sigma,i,i,istr,istr,xx,1,1.d0)
-            enddo
-            call ga_release( g_civec, rlo, rhi, j, j )
-          endif
+           if (f(j).ne.0.0d0 .and. (j.ge.cilo).and.(j.le.cihi)) then
+              call ga_access( g_civec, rlo, rhi, j, j, k_ci, ldc )
+              do i=1,nstrb
+c$$$  xx = 0.d0
+c$$$  call ga_get(g_civec,i,i,j,j,yy,1)
+                 tmp(i) = f(j)*dbl_mb(k_ci+i-1)
+              enddo
+              call ga_acc(g_sigma,1,nstrb,istr,istr,tmp,1,1.d0)
+              call ga_release( g_civec, rlo, rhi, j, j )
+           endif
         enddo
 c
 c
