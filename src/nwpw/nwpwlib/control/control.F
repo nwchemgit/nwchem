@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.41 2003-07-29 20:54:24 bylaska Exp $
+* $Id: control.F,v 1.42 2003-08-03 18:19:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -1918,3 +1918,28 @@ c      end
       return
       end
 
+
+*     *****************************
+*     *                	 	  *
+*     *    control_COM_shift      *
+*     *                 	  *
+*     *****************************
+      logical function control_COM_shift()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical com_shift
+
+      if (.not.rtdb_get(rtdb,'nwpw:com_shift',mt_log,1,com_shift)) then
+         com_shift = .true.
+      end if
+
+      control_COM_shift = com_shift
+      return
+      end
