@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.2 2001-10-05 09:22:31 edo Exp $
+c     $Id: dft_diagn.F,v 1.3 2001-10-05 20:39:43 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -30,6 +30,8 @@ c
       external ga_create_atom_blocked
       integer i,ncanorg,g_vecstt
       double precision fjj
+      external function dft_lindep
+      integer dft_lindep
 c     
 c     Level shifting is implemented here (similarity 
 c     transformation before standard eigensolver).  Note,
@@ -39,14 +41,7 @@ c     diagonally dominant, e.g., in an approximate MO basis.
 c     
       me=ga_nodeid()
       nproc=ga_nnodes()
-
-c
-c     get linear dep
-c
-      nmo =0 
-      do i=1,nbf_ao
-         if(svals(i).ge.toll_s) nmo=nmo+1
-      enddo
+      nmo=dft_lindep(nbf_ao,toll_s,svals,oprint_conv_details,6)
       if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'movecstransf', 
      &     nbf, 0, g_movecst)) 
      . call errquit(' ddftdiagn: ga_create failed ',1)

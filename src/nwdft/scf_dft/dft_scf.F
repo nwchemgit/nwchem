@@ -1,8 +1,8 @@
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, isvals, g_xcinv, g_s)
+     &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.187 2001-10-05 09:23:00 edo Exp $
+c     $Id: dft_scf.F,v 1.188 2001-10-05 20:39:43 edo Exp $
 c     
       implicit none
 c
@@ -12,9 +12,10 @@ c
       integer iVxc_opt
       integer iter
       integer g_dens(2), g_movecs(2), g_vxc(4), 
-     &        g_fock, g_svecs, isvals, 
+     &        g_fock, g_svecs, 
      &        g_xcinv
       double precision rho_n, toll_s
+      double precision svals(*) ! [in] S evals
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -34,6 +35,8 @@ c
 #endif
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
+      external function dft_lindep
+      integer dft_lindep
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -246,17 +249,22 @@ c
      &   call errquit('dft_scf: rtdb_get of noc failed', 0)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &   call errquit('dft_scf: failed to alloc',999)
+c
+c     get/set orbital overlap tolerance
+c
+      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
+     .     call errquit('dftscf: lost toll_s ',0)
+      nmo(1)=dft_lindep(nbf_ao,toll_s,
+     .     svals,.true.,luout)
       if (ipol.eq.1)then
 c     
 c        noc(1) = No. of electrons alpha
 c     
          nTotEl = 2*noc(1)
-         nmo(1) = nbf_ao
       else
 c     
          nTotEl = noc(1) + noc(2)
-         nmo(1) = nbf_ao
-         nmo(2) = nbf_ao
+         nmo(2) = nmo(1)
       endif
 c
 c    Jorge Garza/Begin
@@ -274,14 +282,6 @@ c
 c     
 c     determine pattern of orbitals' occupancy
 c     
-c
-c     get/set orbital overlap tolerance
-c
-      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
-         toll_s = 1.d-6
-         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
-     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
-      endif
 c      
 c
       if (ipol .eq. 1)then
@@ -716,7 +716,7 @@ c
             call diis_driver(toll_s, derr,  ipol, 
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_focks, g_dens, 
-     &           g_tmp, g_svecs, isvals, diising, 
+     &           g_tmp, g_svecs, svals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
      .           g_s12m,g_s12p)
             if (oprint_time)
@@ -736,7 +736,7 @@ c
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,g_xij,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
-     ,        dbl_mb(k_eval(ispin)),dbl_mb(isvals),noc(ispin),
+     ,        dbl_mb(k_eval(ispin)),svals,noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
      ,        oprint_conv_details)
@@ -829,7 +829,7 @@ c
             nstdis=1
             call diis_driver(toll_s, derr,  ipol, icall, nfock, 
      &                       nbf_ao, geom, ao_bas_han, g_focks, 
-     &                       g_dens, g_tmp, g_svecs, isvals, 
+     &                       g_dens, g_tmp, g_svecs, svals, 
      &                       diising, nodiis,int_mb(k_gdiis),
      ,           lkeeps,g_s12m,g_s12p)
             icall(1) = 0
@@ -1176,7 +1176,7 @@ c
             nstdis=1
             call diis_driver(toll_s, derr,  ipol, icall, nfock,
      &                       nbf_ao, geom, ao_bas_han, g_focks,
-     &                       g_dens, g_tmp, g_svecs, isvals,
+     &                       g_dens, g_tmp, g_svecs, svals,
      &                       diising, nodiis,int_mb(k_gdiis),
      ,           lkeeps,g_s12m,g_s12p)
             icall(1) = 0
@@ -1283,7 +1283,7 @@ c
          icall(1) = -1
          call diis_driver(toll_s, derr(1),  ipol, icall, nfock, 
      &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
-     &                    g_tmp, g_svecs, isvals, diising, nodiis,
+     &                    g_tmp, g_svecs, svals, diising, nodiis,
      .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111)

@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.1 2001-10-05 09:16:00 edo Exp $
+c     $Id: dft_canorg.F,v 1.2 2001-10-05 20:39:43 edo Exp $
 c     
       implicit none
 c
@@ -52,4 +52,39 @@ c
 c
       return
       end
-
+      integer function dft_lindep(nbf,toll_s,svals,oprint,luout)
+      implicit none
+      integer nbf ! [in]
+      double precision toll_s ! [in]
+      double precision svals(*) ! [in]
+      logical oprint
+      integer luout
+c
+      double precision smax,smin
+      integer i,nmo
+c
+c     get linear dep
+c
+      smax=-1d30
+      smin=1d30
+      nmo = nbf
+      do i=1,nbf
+         if(svals(i).lt.toll_s) then
+            nmo=nmo-1
+            smax=max(smax,svals(i))
+            smin=min(smin,svals(i))
+         endif
+      enddo
+      if(oprint.and.nbf.ne.nmo) then
+         write(luout,*)
+         write(luout,'(A,i5,A)') ' WARNING : Found ',nbf-nmo,
+     /        ' linear dependencies '
+         write(luout,11) ' S eigenvalue threshold:',toll_s
+ 11      format(A,1pe18.7)
+         write(luout,11) ' Smallest S eigenvalue :',smin
+         write(luout,11) ' Largest  S eigenvalue :',smax
+         write(luout,*)
+      endif
+      dft_lindep=nmo
+      return
+      end

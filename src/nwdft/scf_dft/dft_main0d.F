@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.50 2001-06-13 01:31:25 edo Exp $
+c     $Id: dft_main0d.F,v 1.51 2001-10-05 20:39:43 edo Exp $
 c     
       implicit none
 c
@@ -82,7 +82,7 @@ c
 c     Set orbital overlap tolerance
 c     
       if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
-         toll_s = 1.d-6
+         toll_s = 1.d-5
          if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
      &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
       endif
@@ -330,11 +330,6 @@ c
 #else 
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
 #endif
-      do i = me, nbf_ao-1, nproc
-         if (Dbl_MB(isvals+i).lt.toll_s)  
-     &      write(LuOut,*) ' singular eigenvalue in S matrix ',
-     &      i, toll_s, Dbl_MB(isvals+i)
-      enddo
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -403,7 +398,7 @@ c
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_evecs, g_vxc, g_fock,
-     &        g_svecs, isvals, g_xcinv, g_s)
+     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s)
       else if (theory .eq. 'sodft') then
          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 

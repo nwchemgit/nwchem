@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_focks, g_dens, 
-     &                       g_tmp, g_svecs, isvals, diis, nodiis,
+     &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p)
 c
-C$Id: diis_driver.F,v 1.22 2000-11-14 20:26:09 edo Exp $
+C$Id: diis_driver.F,v 1.23 2001-10-05 20:39:43 edo Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c
       integer g_tmp
       integer g_svecs
       integer g_diis(mxhist)
-      integer isvals
+      double precision svals(*)
       Integer nhist(2), icall(2)
       integer geom, AO_bas_han
       double precision derr(2) ! Diis error norm [output]
@@ -136,7 +136,7 @@ c
 c
 c     get s-1/2
 c
-         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_s12m, 
+         call diis_bld12(toll_s, svals, g_svecs, g_s12m, 
      .        g_tmp,2)
       endif
 c
@@ -154,7 +154,7 @@ c     get s+1/2
 c
       if(.not.keeps) then
          g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'gs12p')
-         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs,  g_s12p, 
+         call diis_bld12(toll_s, svals, g_svecs,  g_s12p, 
      .     g_tmp2, 3)
       endif
 c
