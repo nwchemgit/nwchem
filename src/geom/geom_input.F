@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.90 1999-05-11 23:43:49 d3g681 Exp $
+C     $Id: geom_input.F,v 1.91 1999-05-13 16:22:58 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -224,7 +224,7 @@ c
      $           inp_compare(.false.,'zmatrix', field)) then
             ozmatrix=.true.   
             call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
-     $           nzinput,scale)
+     $           nzinput,scale,oprint)
             oautoz=.true.
             goto 20
          else
@@ -978,7 +978,7 @@ c
       end
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,charge,mass,ncenter,
-     2                           nzinput,units)
+     2                           nzinput,units,oprint)
       implicit none
 #include "stdio.fh"
       integer      mxizmt
@@ -1023,6 +1023,7 @@ c
       logical      geom_usr_put_nzfrz           
       logical      dbug 
       logical      some 
+      logical      oprint
       double precision zmat
       double precision c
       double precision zan
@@ -1118,7 +1119,8 @@ c
 c
 c     ----- print -zmat- data -----
 c
-      call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+      if (oprint)
+     $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
 c
 c     ----- set number of inputed -z- coordinates -----
 c
