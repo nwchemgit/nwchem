@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.55 2003-04-04 20:57:07 edo Exp $
+$Id: INSTALL,v 1.56 2003-04-24 22:28:51 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -692,7 +692,20 @@ MPI_COMM=VIA
 Note*: Giganet clusters can be configured with MPICH or MPI.
        Please see the above notes "Building with MPI" for further details.
 
+RUNNING ON ALPHA SC SERVERS
+---------------------------
+Because of 32-bit limitations of the
+Elan3 device and of the way the ARMCI library uses the Quadrics
+Qsnet library, NWChem runs on Elan3 HW cannot use more than 512 mB of 
+Global Arrays memory.
 
+For example, the following memory input line will not work:
+
+memory stack 200 mb heap 200 mb global 700 mb
+
+the memory input line should be modified to, instead:
+
+memory stack 200 mb heap 200 mb global 350 mb
 
 BUILDING FOR WINDOWS:
 ---------------------

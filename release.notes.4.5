@@ -57,6 +57,7 @@ Geometry:
   o BUG FIX: z-matrix input modified to  digest
     symbols bq"atomic symbol" and x"atomic symbol" needed for DFT BSSE
   o BUG FIX: wrong power of complex number in autosym
+  o BUG FIX: geometry was sometimes distorted when autosym was failing
   o BUG FIX: when bqbq option is set the geometry was shifted
     a large amount.
 
@@ -208,7 +209,8 @@ The current tested platforms and O/S versions are:
     compilation.
   o Intel x86 with Windows 2000 has been tested with Compaq Visual Fortran
     6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
-  o Intel IA64 under Linux (with Intel compilers) and under HPUX.
+  o Intel IA64 under Linux (with Intel compilers version 7 and later)
+    and under HPUX.
   o Fujitsu VPP computers.
 
 A general FAQ is available at 
