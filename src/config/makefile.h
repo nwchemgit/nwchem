@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.366 2001-06-28 00:14:07 edo Exp $
+# $Id: makefile.h,v 1.367 2001-08-07 01:59:25 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -342,16 +342,22 @@ ifeq ($(TARGET),SOLARIS64)
    COPTIONS = -xarch=v9 -dalign
   COPTIMIZE = -O
      RANLIB = echo
-  MAKEFLAGS = -j 28 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 
 # These options are set for WS6.1
 
-   FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a -xtypemap=real:64,double:64,integer:64
+   FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a
+    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DPARALLEL_DIAG
+ifdef USE_INTEGER4
+   FOPTIONS +=  -xtypemap=real:64,double:64,integer:32
+else
+   FOPTIONS +=  -xtypemap=real:64,double:64,integer:64
+   DEFINES  +=  -DEXT_INT
+endif
   FOPTIMIZE = -g -O5
      FDEBUG = -g -O1
 
-    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64 -DEXT_INT -DPARALLEL_DIAG
 
   LDOPTIONS = -xs -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
