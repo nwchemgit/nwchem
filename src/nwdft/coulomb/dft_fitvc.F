@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.37 2003-10-25 00:12:02 marat Exp $
+c     $Id: dft_fitvc.F,v 1.38 2003-10-25 16:25:08 edo Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -119,7 +119,7 @@ c
         endif
         call ga_brdcst(1999, lmiss,mitob(1),0)
         if(lmiss.ne.0)call errquit
-     &     (' dft_fitvc; dft_invio - abnormal read of CD ',0)
+     &     (' dft_fitvc; dft_invio - abnormal read of CD ',0,0)
         if(oprint_ioinfo)then
           call ga_print(g_2ceri)
         endif
@@ -179,11 +179,11 @@ c
 c        check to make sure file is there
 c
          if (eaf_length(fd, length) .ne. 0) call errquit
-     $      ('dft_fitcd: unable to determine 3c2e file length',0)
+     $      ('dft_fitcd: unable to determine 3c2e file length',0,0)
          current_nbuf = current_nbuf + 1
          offset = (current_nbuf-1)*n3c_b
          if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
-     &      ('dft_fitcd: 3c-2e integral buffer read failed',0)
+     &      ('dft_fitcd: 3c-2e integral buffer read failed',0,0)
          n_batch = nint(i3c_eri(n3c_dbl))
 
       endif
@@ -281,7 +281,7 @@ c
               offset = (current_nbuf-1)*n3c_b
               if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)
      &           call errquit
-     &           ('dft_fitcd: 3c-2e integral buffer read failed',0)
+     &           ('dft_fitcd: 3c-2e integral buffer read failed',0,0)
               n_batch_read = nint(i3c_eri(n3c_dbl))
 c              write(6,*)' n_batch_read = ',n_batch_read
               n_batch = n_batch + n_batch_read
@@ -516,7 +516,7 @@ c      call ga_sync
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       if (IOLGC)then
          if (.not. ga_destroy(g_2ceri)) call errquit
-     &   ('dft_fitvc: could not destroy g_2ceri', 0)
+     &   ('dft_fitvc: could not destroy g_2ceri', 0,0)
       endif         
 c
       if(.not.ma_pop_stack(lscr))

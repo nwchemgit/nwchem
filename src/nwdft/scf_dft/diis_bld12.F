@@ -36,7 +36,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.20 2003-10-25 00:10:57 marat Exp $
+C$Id: diis_bld12.F,v 1.21 2003-10-25 16:26:25 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -99,7 +99,7 @@ c
      .           dbl_mb(k_s),numi)
          endif
          if(.not.MA_Pop_Stack(l_s)) call 
-     .        errquit('diisbld12:postack failed',0)
+     .        errquit('diisbld12:postack failed',0,MA_ERR)
       endif
 #ifdef OLD
       if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
