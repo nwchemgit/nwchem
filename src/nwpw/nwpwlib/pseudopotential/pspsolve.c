@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.12 2004-05-24 13:43:19 bylaska Exp $
+ $Id: pspsolve.c,v 1.13 2005-03-07 20:50:48 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -143,7 +143,7 @@ Integer	*n2;
       for (p=0; p<Nvalence; ++p)
       {
          Log_to_Linear(r_psi_Psp(p),rl,psil[p]);
-         Log_to_Linear(V_Psp(p),    rl,pspl[p]);
+         Log_to_Linear_zero(V_Psp(p),    rl,pspl[p]);
  
          /* normalize scattering state */
          if (fill_Psp(p) == 0.0)

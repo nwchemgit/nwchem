@@ -1,5 +1,5 @@
 /*
- $Id: spline.c,v 1.4 2004-09-22 00:39:00 bylaska Exp $
+ $Id: spline.c,v 1.5 2005-03-07 20:50:48 bylaska Exp $
    spline.c -
     Taken from Numerical recipies, with slight modifications as
 suggested by hamman's code.
@@ -15,6 +15,8 @@ suggested by hamman's code.
 
 static	int	nrl=1501;
 static	double	drl=0.02;
+static  int     zeroflag=0;
+
 static  int     *nl;
 
 void	init_Linear(char *filename)
@@ -32,6 +34,18 @@ void	init_Linear(char *filename)
    }
    fclose(fp);
    nl   = (int *) malloc(nrl*sizeof(int));
+
+
+   fp = fopen(filename,"r+");
+   w = get_word(fp);
+   while ((w != ((char *) EOF)) && (strcmp("<fixzero>",w) != 0))
+      w = get_word(fp);
+   if (w!=((char *) EOF))
+   {
+      fscanf(fp,"%d",&zeroflag);
+   }
+   fclose(fp);
+
 
 }
 
@@ -208,6 +222,60 @@ double	ulin[];
    dealloc_Grid(tmp);
 
 } /* Log_to_Linear */
+
+
+/********************************
+ *                              *
+ *      Log_to_Linear_zero      *
+ *                              *
+ ********************************/
+
+void    Log_to_Linear_zero(ulog,rl,ulin)
+double  ulog[];
+double  rl[];
+double  ulin[];
+{
+   int i,Ngrid;
+   /*
+     int        nl[5000];
+   */
+   double r0,al;
+   double *r;
+   double *tmp;
+
+   r = r_LogGrid();
+   r0 = r[0];
+   al = log_amesh_LogGrid();
+
+   rl[0] = r[0];
+   for (i=1; i<nrl; ++i)
+   {
+     rl[i] = drl*((double) i);
+     nl[i] = rint(log(rl[i]/r0)/al -0.5);
+   }
+
+   Ngrid = N_LogGrid();
+   tmp = alloc_Grid();
+
+   Spline(r,ulog,Ngrid-4,0.0,0.0,tmp);
+   ulin[0] = ulog[0];
+   for (i=1; i<nrl; ++i)
+      ulin[i] = Splint(r,ulog,tmp,Ngrid-4,nl[i],rl[i]);
+
+   dealloc_Grid(tmp);
+
+   if (zeroflag)
+   {
+     ulin[0] = ulin[1]
+             + (r0-rl[1])*(ulin[2]-ulin[1])/(rl[2]-rl[1]);
+   }
+
+
+} /* Log_to_Linear_zero */
+
+
+
+
 
 double	nm2(int n, double *y, double h)
 {
