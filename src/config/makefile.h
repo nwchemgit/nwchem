@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.441 2004-01-14 21:08:50 edo Exp $
+# $Id: makefile.h,v 1.442 2004-01-15 19:03:58 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1348,6 +1348,9 @@ ifeq ($(LINUXCPU),x86)
       FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
     endif
     DEFINES   += -DIFCLINUX
+    ifeq ($(_IFCV8),Y)
+      FOPTIMIZE += -ansi_alias-
+    endif
   endif
 
   ifeq ($(CC),icc)
@@ -1406,9 +1409,9 @@ ifeq ($(LINUXCPU),x86)
       ifeq ($(_CPU),i786)
         EXTRA_LIBS +=  -lsvml
       endif
-      EXTRA_LIBS +=  #-static
+      EXTRA_LIBS += #-static
     else
-  LDOPTIONS = -g -Xlinker -export-dynamic 
+#  LDOPTIONS = -g -Xlinker -export-dynamic 
 #  LDOPTIONS = --Xlinker -O -Xlinker -static
       EXTRA_LIBS += -lm
     endif
@@ -1490,6 +1493,10 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 #        FVECTORIZE =  -O2 -hlo -pad -mP2OPT_hlo_level=2 
         FVECTORIZE =  -noalign -O3 -pad  -mP2OPT_hlo_level=2  -tpp1
         FOPTIMIZE =  -O3  -pad   -mP2OPT_hlo_level=2  -tpp2  #-mP2OPT_align_array_to_cache_line=TRUE 
+        ifeq ($(_IFCV8),Y)
+         FOPTIMIZE += -ansi_alias-
+         FOPTIONS += -ansi_alias-
+        endif
         LDOPTIONS =   -Qoption,link,--relax # -Qoption,link,-Bstatic  
         LINK.f = efc   -Qoption,link,-v  $(LDFLAGS)  
         EXTRA_LIBS +=     -Vaxlib 

@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.87 2003-12-18 21:56:46 pollack Exp $
+# $Id: GNUmakefile,v 1.88 2004-01-15 19:03:59 edo Exp $
 
-	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o 	xc_eval_basis.o 
+	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o 	xc_eval_basis.o  
 
 	OBJ_OPTIMIZE = \
 	a_dist.o \
@@ -51,17 +51,4 @@ xc_eval_basis.F xc_fd.F  ../include/xc_rhogen.fh ../include/xc_tabcd.fh xc_optc.
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-      FOPTIONS+= $(FOPTIMIZE)
-      FDEBUG=
-  ifeq ($(_FC),ifc) 
-    ifeq ($(_IFCV8),Y)
-      FOPTIONS+= -ansi_alias-
-    endif	
-  endif
-  ifeq ($(_FC),efc) 
-    ifeq ($(_IFCV8),Y)
-      FOPTIONS+= -ansi_alias-
-    endif	
-  endif
-
 
