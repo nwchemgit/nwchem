@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.96 1996-11-06 18:06:57 rg240 Exp $
+c     $Id: nwchem.F,v 1.97 1997-03-05 23:15:13 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -311,7 +311,7 @@ c
       character*10 cstart
       Character*40 GStatus
 c
-      if (ga_nodeid() .ne. 0) return
+      if (ga_nodeid() .ne.0) goto 10101
 c
       call util_print_centered(6,
      $     '                                                          ',
@@ -445,6 +445,13 @@ c
      $     '    total     = ', i10,' doubles'/
      $     '    verify    = ', a3/
      $     '    hardfail  = ', a3//)
+c
+      call util_print_centered(6, 'Directory information', 20, .true.)
+      write(6,*)
+c
+c     Below here back to parallel execution
+c
+10101 call util_file_print_dirs()
 c
       call util_flush(6)
 c
