@@ -412,7 +412,6 @@ c
 #include "inpP.fh"
       double precision ten, buf, dtmp
       integer i1, i2, ie2, isign, ie, iexp, ie1, itmp, i, j
-      integer i, j
       logical orep
       character*1 xchar(15)
       data xchar /'0','1','2','3','4','5','6','7','8','9'
