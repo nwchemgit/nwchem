@@ -80,8 +80,12 @@ Basis sets which are available with either the DmD or DK contractions are
 indicated in the list below.
 
 \sloppy
-Here is a list of known basis sets and effective core potentials along
-with the elements included for each.
+Here is a list of known all-electron non-relativistic, DK and DmD basis sets, 
+effective core potentials with their respective basis sets, and fitting basis sets 
+along with the elements included for each.
+
+Standard all-electron basis sets:
+
 \begin{enumerate}
 
 \item Basis Set \verb#"STO-2G"# (number of atoms 20)  \newline 
@@ -348,14 +352,6 @@ with the elements included for each.
   H B C N O
 
 
-\item Basis Set \verb#"cc-pVDZ-fit2-1"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
-\item Basis Set \verb#"cc-pVTZ-fit2-1"# (number of atoms 10)  \newline 
-  H He Li Be B C N O F Ne
-
-
 \item Basis Set \verb#"GAMESS VTZ"# (number of atoms 8)  \newline 
   H Be B C N O F Ne
 
@@ -450,6 +446,96 @@ with the elements included for each.
   Sc Ti V Cr Mn Fe Co Ni Cu
 
 
+\item Basis Set \verb#"NASA Ames ANO"# (number of atoms 12)  \newline 
+  H B C N O F Ne Al P Ti Fe Ni
+
+
+\item Basis Set \verb#"Sadlej pVTZ"# (number of atoms 18)  \newline 
+  H Li Be C N O F Na Mg Si P S Cl K Ca Br Rb Sr
+
+
+\item Basis Set \verb#"WTBS"# (number of atoms 84)  \newline 
+  He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
+ Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe Cs Ba La Ce Pr Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
+ Pt Au Hg Tl Pb Bi Po At Rn
+
+
+\end{enumerate}
+
+Resolution of Identity (RI) fitting basis sets:
+
+\begin{enumerate}
+
+\item Basis Set \verb#"cc-pVDZ-fit2-1"# (number of atoms 10)  \newline 
+  H He Li Be B C N O F Ne
+
+
+\item Basis Set \verb#"cc-pVTZ-fit2-1"# (number of atoms 10)  \newline 
+  H He Li Be B C N O F Ne
+
+\end{enumerate}
+
+Density functional specific basis sets:
+
+\begin{enumerate}
+
+\item Basis Set \verb#"DZVP (DFT Orbital)"# (number of atoms 54)  \newline 
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+
+\item Basis Set \verb#"DZVP2 (DFT Orbital)"# (number of atoms 25)  \newline 
+  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+
+\item Basis Set \verb#"TZVP (DFT Orbital)"# (number of atoms 11)  \newline 
+  H C N O F Al Si P S Cl Ar
+
+\end{enumerate}
+
+Density functional Coulomb and Exchange fitting basis sets:
+
+\begin{enumerate}
+
+\item Basis Set \verb#"DGauss A1 DFT Coulomb Fitting"# (number of atoms 54)  \newline 
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+
+\item Basis Set \verb#"DGauss A1 DFT Exchange Fitting"# (number of atoms 54)  \newline 
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+
+\item Basis Set \verb#"DGauss A2 DFT Coulomb Fitting"# (number of atoms 25)  \newline 
+  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+
+
+\item Basis Set \verb#"DGauss A2 DFT Exchange Fitting"# (number of atoms 25)  \newline 
+  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+
+\item Basis Set \verb#"DeMon Coulomb Fitting"# (number of atoms 54)  \newline 
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+
+\item Basis Set \verb#"Ahlrichs Coulomb Fitting"# (number of atoms 50)  \newline 
+  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+
+\end{enumerate}
+
+Effective core potentials and their respective basis sets:
+
+\begin{enumerate}
+
 \item Basis Set \verb#"Hay-Wadt MB (n+1) ECP"# (number of atoms 24)  \newline 
   K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba
 
@@ -541,70 +627,11 @@ with the elements included for each.
  Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
  Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
 
+\end{enumerate}
 
-\item Basis Set \verb#"DZVP (DFT Orbital)"# (number of atoms 54)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te I Xe
+Douglas-Kroll (DK) all-electron basis sets:
 
-
-\item Basis Set \verb#"DGauss A1 DFT Coulomb Fitting"# (number of atoms 54)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te I Xe
-
-
-\item Basis Set \verb#"DGauss A1 DFT Exchange Fitting"# (number of atoms 54)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te I Xe
-
-
-\item Basis Set \verb#"DZVP2 (DFT Orbital)"# (number of atoms 25)  \newline 
-  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
-
-
-
-\item Basis Set \verb#"DGauss A2 DFT Coulomb Fitting"# (number of atoms 25)  \newline 
-  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
-
-
-
-\item Basis Set \verb#"DGauss A2 DFT Exchange Fitting"# (number of atoms 25)  \newline 
-  H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
-
-
-
-\item Basis Set \verb#"TZVP (DFT Orbital)"# (number of atoms 11)  \newline 
-  H C N O F Al Si P S Cl Ar
-
-
-\item Basis Set \verb#"DeMon Coulomb Fitting"# (number of atoms 54)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
- Sb Te I Xe
-
-
-\item Basis Set \verb#"Ahlrichs Coulomb Fitting"# (number of atoms 50)  \newline 
-  H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
- Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
-
-
-
-\item Basis Set \verb#"NASA Ames ANO"# (number of atoms 12)  \newline 
-  H B C N O F Ne Al P Ti Fe Ni
-
-
-\item Basis Set \verb#"Sadlej pVTZ"# (number of atoms 18)  \newline 
-  H Li Be C N O F Na Mg Si P S Cl K Ca Br Rb Sr
-
-
-\item Basis Set \verb#"WTBS"# (number of atoms 84)  \newline 
-  He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
- Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
- Te I Xe Cs Ba La Ce Pr Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
- Pt Au Hg Tl Pb Bi Po At Rn
-
+\begin{enumerate}
 
 \item Basis Set \verb#"cc-pVDZ DK"# (number of atoms 20)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
@@ -621,6 +648,11 @@ with the elements included for each.
 \item Basis Set \verb#"cc-pV5Z DK"# (number of atoms 20)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
 
+\end{enumerate}
+
+Dyall's Modified Dirac (DmD) all-electron basis sets:
+
+\begin{enumerate}
 
 \item Basis Set \verb#"cc-pvdz fi sf fw"# (number of atoms 20)  \newline 
   H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
