@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.6 1994-08-22 23:36:47 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.7 1994-08-25 08:23:05 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -85,7 +85,7 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       call ga_sync()
-      if (me.eq.0.and.nproc.gt.1)
+      if ((me.eq.0).and.(nproc.gt.1).and.print_ints)
      &    write(6,*)' only integrals on node 0 will be printed. '
 c
 c loop over shells and compute S sums
@@ -111,7 +111,7 @@ c
           endif
 00200   continue
 00100 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('overlap',dbl_mb(i_stats),numtot)
@@ -141,7 +141,7 @@ c
           endif
 00201   continue
 00101 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('kinetic energy',dbl_mb(i_stats),numtot)
@@ -171,7 +171,7 @@ c
           endif
 00202   continue
 00102 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('pot. energy',dbl_mb(i_stats),numtot)
@@ -201,7 +201,7 @@ c
           endif
 00203   continue
 00103 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('h1',dbl_mb(i_stats),numtot)
@@ -242,7 +242,7 @@ c
 03000     continue
 02000   continue
 01000 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum('two electron',dbl_mb(i_stats),numtot)      
@@ -278,7 +278,7 @@ c
 03001     continue
 02001   continue
 01001 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum
@@ -314,7 +314,7 @@ c
           endif
 02002   continue
 01002 continue
-      call ga_dgop(564,numtot,1,'+')
+      call ga_igop(564,numtot,1,'+')
       call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
       if (me.eq.0)
      &    call prt_stat_sum
