@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.365 2001-06-18 19:15:20 edo Exp $
+# $Id: makefile.h,v 1.366 2001-06-28 00:14:07 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1171,21 +1171,22 @@ ifeq ($(_CPU),i586)
   FOPTIONS  += -tp p5  
 endif
 ifeq ($(_CPU),i686)
- FOPTIONS  += -tp p6
+ FOPTIONS  += -tp p6 -Mvect=prefetch
 endif
-  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144,prefetch
+  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll
   COPTIONS   = -Wall -m486 -malign-double
   COPTIMIZE  = -g -O2
   MAKEFLAGS += FC=pgf77
 else
  ifeq ($(FC),ifc)
-  FOPTIONS   =  -align  -132  -mp -w 
-FOPTIMIZE = -O3 -prefetch -rcd -unroll 
+  FOPTIONS   =  -align  -132  -mp1 -w -g -vec_report3
+FOPTIMIZE = -O3 -prefetch  -unroll 
+#FOPTIMIZE = -O3 -prefetch -rcd -unroll  # -rcd breaks in texas
 ifeq ($(_CPU),i586)
   FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
 endif
 ifeq ($(_CPU),i686)
-  FOPTIMIZE +=  -tpp6 -xiMK   # this are for PentiumIII
+  FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
 endif
   DEFINES   += -DIFCLINUX
  else
@@ -1220,16 +1221,16 @@ endif
 
 ifeq ($(FC),pgf77)
   LDOPTIONS = -g
-     LINK.f = pgf77 $(LDFLAGS)
+     LINK.f = pgf77 -g $(LDFLAGS)
  EXTRA_LIBS += -lm
 else
 ifeq ($(FC),ifc)
-  LDOPTIONS = -O
+  LDOPTIONS = -g
      LINK.f = ifc $(LDFLAGS)
-     EXTRA_LIBS = -lPEPCF90 -lF90 -limf -lm
+     EXTRA_LIBS = -ml -Vaxlib  
 else
-  LDOPTIONS = -g -Xlinker -export-dynamic
-#  LDOPTIONS = -g -Xlinker -static
+  LDOPTIONS = -g -Xlinker -export-dynamic 
+#  LDOPTIONS = --Xlinker -O -Xlinker -static
      LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 
@@ -1247,6 +1248,51 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
 # end of Linux, Cygnus
+endif
+
+ifeq ($(NWCHEM_TARGET),LINUXIA64)
+# Itanium cross compiled on i386 with Intel Compilers 
+# (FC=efc CC=ecc)
+# i4 not working 
+# sgi compilers not working
+#
+    CORE_SUBDIRS_EXTRA = blas lapack
+     RANLIB = echo
+  DEFINES   +=   -DLINUX -DLINUXIA64 #-DPARALLEL_DIAG
+  CDEBUG=
+  EXTRA_LIBS = 
+  COPTIMIZE = -O1
+
+ifeq ($(FC),efc)
+  FOPTIONS   =  -align  -132   -w  -vec_report3 -ftz
+  DEFINES  +=   -DIFCLINUX
+  FVECTORIZE = -O3 -hlo -pad
+  FOPTIMIZE =  -O3 -hlo -unroll
+endif
+ifeq ($(FC),sgif90)
+  FOPTIMIZE =  -O
+  FOPTIONS = -macro_expand  
+  DEFINES  +=   -DSGILINUX
+  FVECTORIZE = -O3
+  CPP = /usr/bin/cpp -P  -traditional
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+  EXPLICITF=TRUE
+endif
+  FOPTIONS += -i8 
+  DEFINES  += -DEXT_INT  
+
+  CORE_LIBS += -llapack $(BLASOPT) -lblas
+ifeq ($(BUILDING_PYTHON),python)
+#   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
+   EXTRA_LIBS +=  -ldl
+endif
+ifeq ($(FC),efc)
+  LINK.f = efc  -O -Qoption,link,-v  $(LDFLAGS)  
+   EXTRA_LIBS +=  -ml   -Vaxlib 
+endif
+ifeq ($(FC),sgif90)
+  LINK.f = sgif90 -Wl,-Bstatic  -Wl,--relax     $(LDFLAGS)  
+endif
 endif
 
 ifeq ($(NWCHEM_TARGET),LINUX64)
