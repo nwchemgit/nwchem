@@ -5,14 +5,14 @@ title  "vectors rotate test"
 echo
 
 geometry test1 noautosym noautoz nocenter
- o          -0.6 0.0 0.0
- o          0.6 0.0 0.0
+ o     -0.6 0.0 0.0
+ o      0.6 0.0 0.0
 symmetry c1
 end
 
 geometry test2 noautosym noautoz nocenter
- o            -0.54812727458556054 -0.24404198584548012  0.0
- o            0.54812727458556054  0.24404198584548012   0.0
+ o     -0.54812727458556054 -0.24404198584548012  0.0
+ o      0.54812727458556054  0.24404198584548012   0.0
 symmetry c1
 end
 
@@ -21,20 +21,13 @@ basis "ao basis"
 end
 
 set geometry test1
-
-
-set geometry test1
-
 dft
  vectors input atomic output test1.mo
- mulliken
 end
 task dft 
 
 set geometry test2
 dft
-vectors input rotate test1 test1.mo output test2.mo
-max_ovl
+ vectors input rotate test1 test1.mo output test2.mo
 end
-
 task dft
