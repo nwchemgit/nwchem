@@ -15,6 +15,7 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
   Graph prsPlot = new Graph();
   Graph volPlot = new Graph();
   Graph enePlot = new Graph();
+  boolean first=true;
 
   JLabel lstring = new JLabel("-----------------------------------------");
 
@@ -29,41 +30,6 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
     super.getContentPane().setBackground(Color.lightGray);
     super.getContentPane().setFont(defaultFont);
     super.addWindowListener(this);
-
-    addComponent(super.getContentPane(),tmpPlot,0,0,1,1,1,1,
-    		 GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
-    addComponent(super.getContentPane(),prsPlot,0,1,1,1,1,1,
-    		 GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
-    addComponent(super.getContentPane(),volPlot,1,0,1,1,1,1,
-    		 GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
-    addComponent(super.getContentPane(),enePlot,1,1,1,1,1,1,
-    		 GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
-
-    tmpPlot.init();
-    tmpPlot.resize(100,100);
-    tmpPlot.setNumSets(1);
-    tmpPlot.setTitle("Temperature");
-    tmpPlot.setXLabel("Time");
-
-    prsPlot.init();
-    prsPlot.resize(100,100);
-    prsPlot.setNumSets(1);
-    prsPlot.setTitle("Pressure");
-    prsPlot.setXLabel("Time");
-
-    volPlot.init();
-    volPlot.resize(100,100);
-    volPlot.setNumSets(1);
-    volPlot.setTitle("Volume");
-    volPlot.setXLabel("Time");
-
-    enePlot.init();
-    enePlot.resize(100,100);
-    enePlot.setNumSets(1);
-    enePlot.setTitle("Energy");
-    enePlot.setXLabel("Time");
-
-    validate();
 
     setLocation(25,225);	
     setSize(900,700);
@@ -101,25 +67,70 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
       validate();
       InputStreamReader isr = new InputStreamReader(client.getInputStream());
       BufferedReader is = new BufferedReader(isr);
-      boolean first=true;
-      double tim, tmp, prs, vol, ene;
       while(true){
 	String inLine = is.readLine();
 	if(inLine.length()>0){
-	  tim=Double.valueOf(inLine.substring(6,17)).doubleValue();
-	  ene=Double.valueOf(inLine.substring(18,29)).doubleValue();
-	  tmp=Double.valueOf(inLine.substring(30,41)).doubleValue();
-	  prs=Double.valueOf(inLine.substring(42,53)).doubleValue();
-	  vol=Double.valueOf(inLine.substring(54,65)).doubleValue();
-	  tmpPlot.addData(0,tim,tmp,!first,true);
-	  prsPlot.addData(0,tim,prs,!first,true);
-	  enePlot.addData(0,tim,ene,!first,true);
-	  volPlot.addData(0,tim,vol,!first,true); first=false;
+	  //	  System.out.println(inLine.substring(0,5));
+	  // System.out.println(inLine.substring(1,5));
+	  //	  plotData(inLine);
+	  if(inLine.startsWith("tETpV")) { plotData(inLine); };
 	};
       };
     } catch (Exception s) { s.printStackTrace(); };
   }
   
+  public void plotData(String card){
+    double tim, tmp, prs, vol, ene;
+
+    if(first){
+      super.getContentPane().removeAll();
+      addComponent(super.getContentPane(),tmpPlot,0,0,1,1,1,1,
+		   GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
+      addComponent(super.getContentPane(),prsPlot,0,1,1,1,1,1,
+		   GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
+      addComponent(super.getContentPane(),volPlot,1,0,1,1,1,1,
+		   GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
+      addComponent(super.getContentPane(),enePlot,1,1,1,1,1,1,
+		   GridBagConstraints.BOTH,GridBagConstraints.NORTHWEST);
+      
+      tmpPlot.init();
+      tmpPlot.resize(100,100);
+      tmpPlot.setNumSets(1);
+      tmpPlot.setTitle("Temperature");
+      tmpPlot.setXLabel("Time");
+      
+      prsPlot.init();
+      prsPlot.resize(100,100);
+      prsPlot.setNumSets(1);
+      prsPlot.setTitle("Pressure");
+      prsPlot.setXLabel("Time");
+      
+      volPlot.init();
+      volPlot.resize(100,100);
+      volPlot.setNumSets(1);
+      volPlot.setTitle("Volume");
+      volPlot.setXLabel("Time");
+      
+      enePlot.init();
+      enePlot.resize(100,100);
+      enePlot.setNumSets(1);
+      enePlot.setTitle("Energy");
+      enePlot.setXLabel("Time");
+      
+      validate();
+    };
+
+    tim=Double.valueOf(card.substring(6,17)).doubleValue();
+    ene=Double.valueOf(card.substring(18,29)).doubleValue();
+    tmp=Double.valueOf(card.substring(30,41)).doubleValue();
+    prs=Double.valueOf(card.substring(42,53)).doubleValue();
+    vol=Double.valueOf(card.substring(54,65)).doubleValue();
+    tmpPlot.addData(0,tim,tmp,!first,true);
+    prsPlot.addData(0,tim,prs,!first,true);
+    enePlot.addData(0,tim,ene,!first,true);
+    volPlot.addData(0,tim,vol,!first,true); first=false;
+  }
+
   static void addComponent(Container container, Component component,
 			   int gridx, int gridy, int gridwidth, 
 			   int gridheight, double weightx, 
