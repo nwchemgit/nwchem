@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.148 2002-10-18 11:13:03 d3j191 Exp $
+c $Id: md_main.F,v 1.149 2002-10-25 16:07:48 d3j191 Exp $
 c
       implicit none
 c
@@ -1308,7 +1308,7 @@ c     the coordinates and velocities will be used from the previous
 c     lambda run.
 c     if this is the first run there must be something wrong
 c
-      if(kequi.eq.0) then
+      if(kequi.eq.0.and.kdacq.eq.0) then
       if(irun.eq.1) call errquit('No records found on mri',me)
       else
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
@@ -2527,7 +2527,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.148 2002-10-18 11:13:03 d3j191 Exp $
+c $Id: md_main.F,v 1.149 2002-10-25 16:07:48 d3j191 Exp $
 c
       implicit none
 c
