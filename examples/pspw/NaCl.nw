@@ -1,0 +1,111 @@
+title; NaCl
+
+start NaCl
+
+memory global 12 mb stack 12 mb heap 10 mb
+
+geometry units au
+Na  2.5000000000 0.00000000  0.00000000
+Cl -1.5000000000 0.00000000 0.00000000
+end
+
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: Na.psp
+      element: Na
+      charge: 11.0
+      mass_number: 23.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      atomic_filling: 3 1
+        1 s 2.0
+        2 s 2.0
+        2 p 6.0
+        3 s 1.0
+   END
+END
+
+PSPW 
+   PSP_GENERATOR
+      pseudopotential_filename: Cl.psp
+      element: Cl
+      charge: 17.0
+      mass_number: 35.0
+      solver_type: pauli
+      pseudopotential_type: hamann
+      atomic_filling: 3 2
+        1 s 2.0
+        2 s 2.0
+        2 p 6.0
+        3 s 2.0
+        3 p 5.0
+   END
+END
+
+PSPW
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 32 32 32
+   END
+END
+
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Na.psp
+      formatted_filename: Na.vpp
+   END
+END
+TASK PSPW PSP_FORMATTER
+
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Cl.psp
+      formatted_filename: Cl.vpp
+   END
+END
+TASK PSPW PSP_FORMATTER
+
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      unrestricted
+      up_filling: 4
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+      down_filling: 4
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+      wavefunction_filename: nacl.00.elc
+      cell_name: small
+   END 
+END
+TASK PSPW WAVEFUNCTION_INITIALIZER
+
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: Na.vpp
+      formatted_filename: Cl.vpp
+      input_wavefunction_filename:  nacl.00.elc
+      output_wavefunction_filename: nacl.00.elc
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 100 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       12.0d0
+      wavefunction_cutoff: 12.0d0
+   END 
+END
+TASK PSPW STEEPEST_DESCENT
+
