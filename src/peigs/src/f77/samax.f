@@ -29,6 +29,7 @@
 *
 *======================================================================
       real function samax(n,dx,incx)
+      implicit none
 c
 c     returns the max of the absolute values.
 

@@ -29,6 +29,7 @@
 *
 *======================================================================
       SUBROUTINE XERBL2( )
+      implicit none
 *
 *  Purpose
 *  =======
@@ -36,6 +37,7 @@
 *  Stop execution.
 *
 *
+	integer mxmynd
       external mxpend
 c     
 

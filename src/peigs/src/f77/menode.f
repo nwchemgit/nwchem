@@ -32,6 +32,7 @@ c PeIGS utility routine
 c
 c
       integer function menode(Npprocs, nproclist)
+      implicit none
       integer Npprocs, nproclist(*)
 c
 c     Purpose:

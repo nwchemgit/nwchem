@@ -1,6 +1,6 @@
 include ../../DEFS
 
-ifeq ($(CODEOBJ),DBLE)
+ifeq ($(peigs_CODEOBJ),DBLE)
 FOBJ = damax.o \
        dlaebz2.o \
        dstebz3.o \
@@ -10,7 +10,7 @@ FOBJ = damax.o \
        neblw2.o
 endif
 
-ifeq ($(CODEOBJ),SINGLE)
+ifeq ($(peigs_CODEOBJ),SINGLE)
 FOBJ = samax.o \
        slaebz2.o \
        sstebz3.o \
@@ -35,34 +35,34 @@ realclean:
 		clean
 
 dstebz1.o:	dstebz1.f
-		$(FC) -c $(FCNFLAGS) dstebz1.f  
+		$(peigs_FC) -c $(peigs_FOPT) dstebz1.f  
 
 pairup.o:	pairup.f
-		$(FC) -c $(FCNFLAGS) pairup.f  
+		$(peigs_FC) -c $(peigs_FOPT) pairup.f  
 
 neblw1.o:	neblw1.f
-		$(FC) -c $(FCNFLAGS) neblw1.f  
+		$(peigs_FC) -c $(peigs_FOPT) neblw1.f  
 
 dlaebz1.o:	dlaebz1.f
-		$(FC) -c $(FCNFLAGS) dlaebz1.f  
+		$(peigs_FC) -c $(peigs_FOPT) dlaebz1.f  
 
 ilaenv1.o:	ilaenv1.f
-		$(FC) -c ilaenv1.f  
+		$(peigs_FC) -c ilaenv1.f  
 
 heapsort.o:	heapsort.f
-		$(FC) -c heapsort.f  
+		$(peigs_FC) -c heapsort.f  
 
 menode.o:	menode.f
-		$(FC) -c menode.f  
+		$(peigs_FC) -c menode.f  
 
 xerbl2.o:	xerbl2.f
-		$(FC) -c $(FCNFLAGS) xerbl2.f  
+		$(peigs_FC) -c $(peigs_FOPT) xerbl2.f  
 
 unif.o:		unif.f
-		$(FC) -c $(FCNFLAGS) unif.f  
+		$(peigs_FC) -c $(peigs_FOPT) unif.f  
 
 
-.c.o:;	$(CC) $(OPTC) -c $<
+.c.o:;	$(peigs_CC) $(OPTC) -c $<
+.f.o:;	$(peigs_FC) $(FOPT) -c $<
 
-.f.o:;	$(FC) $(FOPT) -c $<
 
