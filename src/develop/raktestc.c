@@ -1,10 +1,15 @@
 /*
- $Id: raktestc.c,v 1.5 1999-06-16 22:16:05 d3e129 Exp $
+ $Id: raktestc.c,v 1.6 2000-07-27 16:03:08 bjohnson Exp $
  */
 
+#include "typesf2c.h"
 #include <stdio.h>
 #if defined(SOLARIS)
 #define WORKS_FOR 1
+#endif
+
+#if defined(CRAY) || defined(WIN32)
+#define is_this_val_okay_ IS_THIS_VAL_OKAY
 #endif
 
 /* */
@@ -13,11 +18,7 @@
 #include <ieeefp.h>
 #endif
 
-#if defined(CRAY)
-int IS_THIS_VAL_OKAY(double *value)
-#else
-int is_this_val_okay_(double *value)
-#endif
+int FATR is_this_val_okay_(double *value)
 {
 #if defined(WORKS_FOR)
 /*
