@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.7 1995-10-17 16:39:08 rg240 Exp $
+c  $Id: moints_2x.F,v 1.8 1995-10-17 16:51:14 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -69,14 +69,10 @@ c
        integer l_shmap, k_shmap
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
        integer mem2, max2e
-<<<<<<< moints_2x.F
-       integer num_nodes, ploop, next, itmp
-=======
        integer n_ijni
-       integer num_nodes, ploop, next
+       integer num_nodes, ploop, next, itmp
        integer k_sym, l_sym
        integer nmixed
->>>>>>> 1.6
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
@@ -337,13 +333,9 @@ c
            endif
            call moints_Ktrf34( g_exch, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
-<<<<<<< moints_2x.F
-     $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp) )
-           itmp = nbf
-=======
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp),
      $          osym, int_mb(k_sym))
->>>>>>> 1.6
+           itmp = nbf
          else
            call moints2xv_Ktrf4( g_exch, occ_start, mo1_lo, mo1_hi,
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
