@@ -105,8 +105,9 @@ set sodft:occupancy 1 0 0 0   0 1 0 0  0 0 1 0   0 0 0 1
 dft  
   mult 2
   odft   
-  grid fine
+  grid xfine
   iterations 100  
+  convergence energy 1d-8
   mulliken
 end
 

@@ -110,10 +110,12 @@ set sodft:occupancy 1 0 0 0   0 1 0 0  0 0 1 0   0 0 0 1
 dft
   mult 2
   odft
-  grid fine
+  grid xfine
   iterations 100
+  convergence energy 1d-8
   mulliken
 end
+#set int:acc_std 1d-15
 
 task sodft
 ================================================================================
@@ -194,16 +196,16 @@ task sodft
 
     hostname      = twix
     program       = /home/edo/nwchem-4.5/bin/LINUX/nwchem
-    date          = Wed Mar 26 15:53:29 2003
+    date          = Wed Mar 26 17:17:23 2003
 
-    compiled      = Mon Mar 24 18:51:01 PST 2003
+    compiled      = Wed Mar 26 15:57:50 PST 2003
     source        = /home/edo/nwchem-4.5
     nwchem branch = Development
     input         = sif_sodft.nw
     prefix        = sif.
     data base     = ./sif.db
     status        = startup
-    nproc         =    2
+    nproc         =    1
     time left     =     -1s
 
 
@@ -211,9 +213,9 @@ task sodft
            Memory information
            ------------------
 
-    heap      =    6553594 doubles =     50.0 Mbytes
+    heap      =   19660794 doubles =    150.0 Mbytes
     stack     =    6553587 doubles =     50.0 Mbytes
-    global    =   13107200 doubles =    100.0 Mbytes (distinct from heap & stack)
+    global    =   26214404 doubles =    200.0 Mbytes (within heap+stack)
     total     =   26214381 doubles =    200.0 Mbytes
     verify    = yes
     hardfail  = no 
@@ -442,6 +444,8 @@ task sodft
  
  
   Caching 1-el integrals 
+  tol_rho modified to match energy
+  convergence criterion.
  
             General Information
             -------------------
@@ -457,7 +461,7 @@ task sodft
           Maximum number of iterations: 100
           AO basis - number of functions:    28
                      number of shells:    10
-          Convergence on energy requested: 1.00D-06
+          Convergence on energy requested: 1.00D-08
           Convergence on density requested: 1.00D-05
           Convergence on gradient requested: 5.00D-04
  
@@ -468,15 +472,15 @@ task sodft
  
              Grid Information
              ----------------
-          Grid used for XC integration:  ine       
+          Grid used for XC integration:  fine      
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          Si                  1.10      123           6.0       770
-          F                   0.50       70           7.0       590
+          Si                  1.10      125           6.0      1454
+          F                   0.50      100           7.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:   193
+          Number of quadrature shells:   225
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -496,12 +500,12 @@ task sodft
  
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-10
-          Spatial weight screening/radius(au): 1.57D+01
+          Spatial weight screening/radius(au): 1.61D+01
 
  
       Superposition of Atomic Density Guess
@@ -536,72 +540,77 @@ task sodft
  -----------   ------   -------------------------------------------------------
     1 Si   4     0.00   0.00  0.00  0.00  0.00  0.00
     2 F    7     0.00   0.00  0.00  0.00  0.00  0.00
-   Time prior to 1st pass:      0.3
+   Time prior to 1st pass:      0.4
 
  #quartets = 1.540D+03 #integrals = 2.581D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./sif.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =  46084
+ Max. records in memory =      4        Max. records in file   =  92143
  No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Grid_pts file          = ./sif.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    245769
+ Max. records in memory =    119        Max. recs in file   =    491396
 
+ WARNING: error on integrated density =  0.16D-07
+ greater than required accuracy of  0.10D-07
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        6.01             6007066
+           Heap Space remaining (MW):       17.76            17758378
           Stack Space remaining (MW):        6.55             6546392
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -27.5124412152 -3.68D+01  8.16D-02  2.90D+00     1.0
+ d= 0,ls=0.0,diis     1    -27.5124415694 -3.68D+01  8.16D-02  2.90D+00     2.5
                                                      8.16D-02  2.90D+00
- d= 0,ls=0.5,diis     2    -22.4638168702  5.05D+00  6.43D-02  1.52D+01     1.3
+ d= 0,ls=0.5,diis     2    -22.4638133126  5.05D+00  6.43D-02  1.52D+01     3.7
                                                      6.43D-02  1.52D+01
- d= 0,ls=0.5,diis     3    -27.8656363895 -5.40D+00  8.78D-03  1.72D-01     1.6
+ d= 0,ls=0.5,diis     3    -27.8656366924 -5.40D+00  8.78D-03  1.72D-01     4.9
                                                      8.78D-03  1.72D-01
- d= 0,ls=0.5,diis     4    -27.9096556166 -4.40D-02  3.42D-03  8.40D-02     2.0
+ d= 0,ls=0.5,diis     4    -27.9096558464 -4.40D-02  3.42D-03  8.40D-02     6.1
                                                      3.42D-03  8.40D-02
- d= 0,ls=0.5,diis     5    -27.9271505239 -1.75D-02  1.68D-03  1.79D-02     2.3
+ d= 0,ls=0.5,diis     5    -27.9271508411 -1.75D-02  1.68D-03  1.79D-02     7.3
                                                      1.68D-03  1.79D-02
- d= 0,ls=0.5,diis     6    -27.9316961206 -4.55D-03  9.36D-04  4.09D-03     2.6
+ d= 0,ls=0.5,diis     6    -27.9316964590 -4.55D-03  9.36D-04  4.09D-03     8.5
                                                      9.36D-04  4.09D-03
- d= 0,ls=0.5,diis     7    -27.9328492079 -1.15D-03  5.00D-04  9.94D-04     2.9
+ d= 0,ls=0.5,diis     7    -27.9328495551 -1.15D-03  5.00D-04  9.94D-04     9.7
                                                      5.00D-04  9.94D-04
- d= 0,ls=0.5,diis     8    -27.9331587204 -3.10D-04  2.74D-04  2.63D-04     3.2
+ d= 0,ls=0.5,diis     8    -27.9331590693 -3.10D-04  2.74D-04  2.63D-04    10.9
                                                      2.74D-04  2.63D-04
- d= 0,ls=0.5,diis     9    -27.9332554079 -9.67D-05  1.52D-04  7.14D-05     3.6
+ d= 0,ls=0.5,diis     9    -27.9332554654 -9.64D-05  1.52D-04  7.14D-05    12.3
                                                      1.52D-04  7.14D-05
- d= 0,ls=0.5,diis    10    -27.9332842966 -2.89D-05  8.90D-05  2.41D-05     3.9
+ d= 0,ls=0.5,diis    10    -27.9332843599 -2.89D-05  8.90D-05  2.41D-05    13.7
                                                      8.90D-05  2.41D-05
- d= 0,ls=0.5,diis    11    -27.9332947482 -1.05D-05  5.08D-05  6.62D-06     4.2
-                                                     5.08D-05  6.62D-06
- d= 0,ls=0.5,diis    12    -27.9332979909 -3.24D-06  3.01D-05  2.64D-06     4.6
-                                                     3.01D-05  2.64D-06
- d= 0,ls=0.5,diis    13    -27.9332992123 -1.22D-06  1.81D-05  9.70D-07     4.9
-                                                     1.81D-05  9.70D-07
- d= 0,ls=0.5,diis    14    -27.9332996640 -4.52D-07  1.09D-05  3.60D-07     5.3
-                                                     1.09D-05  3.60D-07
- d= 0,ls=0.5,diis    15    -27.9332998327 -1.69D-07  6.66D-06  1.35D-07     5.6
-                                                     6.66D-06  1.35D-07
+ d= 0,ls=0.5,diis    11    -27.9332948084 -1.04D-05  5.08D-05  6.63D-06    15.1
+                                                     5.08D-05  6.63D-06
+ d= 0,ls=0.5,diis    12    -27.9332980543 -3.25D-06  3.02D-05  2.63D-06    16.5
+                                                     3.02D-05  2.63D-06
+ d= 0,ls=0.5,diis    13    -27.9332992729 -1.22D-06  1.81D-05  9.76D-07    17.9
+                                                     1.81D-05  9.76D-07
+ d= 0,ls=0.5,diis    14    -27.9332997262 -4.53D-07  1.09D-05  3.58D-07    19.3
+                                                     1.09D-05  3.58D-07
+ d= 0,ls=0.5,diis    15    -27.9332998946 -1.68D-07  6.65D-06  1.33D-07    20.7
+                                                     6.65D-06  1.33D-07
+ d= 0,ls=0.5,diis    16    -27.9332999589 -6.42D-08  4.03D-06  4.68D-08    22.1
+                                                     4.03D-06  4.68D-08
+ d= 0,ls=0.5,diis    17    -27.9332999828 -2.39D-08  2.46D-06  1.73D-08    23.4
+                                                     2.46D-06  1.73D-08
+ d= 0,ls=0.5,diis    18    -27.9332999921 -9.30D-09  1.50D-06  6.20D-09    24.8
+                                                     1.50D-06  6.20D-09
 
 
-         Total DFT energy =    -27.933299897452
-      One electron energy =    -65.049183423480
-           Coulomb energy =     33.467025862144
-    Exchange-Corr. energy =     -5.611744193610
+         Total DFT energy =    -27.933299995689
+      One electron energy =    -65.049606495287
+           Coulomb energy =     33.467495643001
+    Exchange-Corr. energy =     -5.611791000897
  Nuclear repulsion energy =      9.260601857495
 
- Numeric. integr. density =     10.999999871270
+ Numeric. integr. density =     11.000000003731
 
-     Total iterative time =      5.6s
+     Total iterative time =     25.8s
 
 
  
@@ -611,15 +620,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
 
 
-         Total DFT energy =    -27.940815093299
-      One electron energy =    -65.051456226674
-           Coulomb energy =     33.469322351791
-    Exchange-Corr. energy =     -5.619283075910
+         Total DFT energy =    -27.940377533245
+      One electron energy =    -65.051879648813
+           Coulomb energy =     33.469792548533
+    Exchange-Corr. energy =     -5.618892290460
  Nuclear repulsion energy =      9.260601857495
 
- Numeric. integr. density =     10.999999871132
+ Numeric. integr. density =     11.000000003751
 
-     Total iterative time =     11.9s
+     Total iterative time =     53.3s
 
 
  
@@ -633,15 +642,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
 
 
-         Total DFT energy =    -27.940815093299
-      One electron energy =    -65.051456226674
-           Coulomb energy =     33.469322351791
-    Exchange-Corr. energy =     -5.619283075910
+         Total DFT energy =    -27.940377533245
+      One electron energy =    -65.051879648813
+           Coulomb energy =     33.469792548533
+    Exchange-Corr. energy =     -5.618892290460
  Nuclear repulsion energy =      9.260601857495
 
- Numeric. integr. density =     10.999999871132
+ Numeric. integr. density =     11.000000003751
 
-     Total iterative time =     18.5s
+     Total iterative time =     82.3s
 
 
  
@@ -655,15 +664,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
 
 
-         Total DFT energy =    -27.940142701995
-      One electron energy =    -65.046910620287
-           Coulomb energy =     33.464729607795
-    Exchange-Corr. energy =     -5.618563546997
+         Total DFT energy =    -27.939907076389
+      One electron energy =    -65.047333341761
+           Coulomb energy =     33.465198972818
+    Exchange-Corr. energy =     -5.618374564941
  Nuclear repulsion energy =      9.260601857495
 
- Numeric. integr. density =     10.999999871348
+ Numeric. integr. density =     11.000000003714
 
-     Total iterative time =     25.5s
+     Total iterative time =    112.6s
 
 
  
@@ -677,15 +686,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
 
 
-         Total DFT energy =    -27.940142701995
-      One electron energy =    -65.046910620287
-           Coulomb energy =     33.464729607795
-    Exchange-Corr. energy =     -5.618563546997
+         Total DFT energy =    -27.939907076389
+      One electron energy =    -65.047333341761
+           Coulomb energy =     33.465198972818
+    Exchange-Corr. energy =     -5.618374564941
  Nuclear repulsion energy =      9.260601857495
 
- Numeric. integr. density =     10.999999871348
+ Numeric. integr. density =     11.000000003714
 
-     Total iterative time =     32.7s
+     Total iterative time =    144.3s
 
 
  
@@ -693,155 +702,153 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        ------------------------------------
  
  Vector    1  Occ=1.000000D+00  E=-1.095052D+00
-              MO Center= -2.9D-08, -2.8D-08,  6.8D-01, r^2= 4.2D-01
+              MO Center= -2.5D-09,  2.3D-09,  5.0D-02, r^2= 6.2D-02
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    15  -0.842143-0.411013  2 F  s                  1  -0.148935-0.072689  1 Si s          
+    15  -0.227477-0.909061  2 F  s                  1  -0.040230-0.160770  1 Si s          
  
  Vector    2  Occ=1.000000D+00  E=-1.095052D+00
-              MO Center= -2.6D-15,  3.4D-16, -1.3D-08, r^2= 3.1D-08
+              MO Center=  2.3D-16, -5.6D-17, -1.3D-08, r^2= 3.1D-08
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    43   0.937090 0.000000  2 F  s                 29   0.165727 0.000000  1 Si s          
+    43  -0.937090 0.000000  2 F  s                 29  -0.165727 0.000000  1 Si s          
  
- Vector    3  Occ=1.000000D+00  E=-4.796325D-01
-              MO Center= -4.5D-09,  8.6D-15, -4.5D-08, r^2= 3.5D-07
+ Vector    3  Occ=1.000000D+00  E=-4.796326D-01
+              MO Center= -5.7D-09,  2.0D-15, -4.5D-08, r^2= 3.5D-07
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    47   0.749339 0.000000  2 F  pz                29  -0.648888 0.000000  1 Si s          
-    43   0.315095 0.000000  2 F  s                 33  -0.182134 0.000000  1 Si pz         
-    36   0.163890 0.000000  1 Si pz         
+    47   0.749343 0.000000  2 F  pz                29  -0.648882 0.000000  1 Si s          
+    43   0.315087 0.000000  2 F  s                 33  -0.182122 0.000000  1 Si pz         
+    36   0.163899 0.000000  1 Si pz         
  
- Vector    4  Occ=1.000000D+00  E=-4.796325D-01
-              MO Center= -1.6D-08, -7.7D-09,  1.1D-01, r^2= 2.5D-01
+ Vector    4  Occ=1.000000D+00  E=-4.796326D-01
+              MO Center=  3.6D-08, -1.5D-08,  6.4D-01, r^2= 1.2D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    19  -0.303800-0.684992  2 F  pz                 1   0.263075 0.593167  1 Si s          
-    15  -0.127747-0.288037  2 F  s                  5   0.073842 0.166494  1 Si pz         
-     8  -0.066445-0.149816  1 Si pz         
+    19   0.749264-0.010877  2 F  pz                 1  -0.648814 0.009419  1 Si s          
+    15   0.315054-0.004574  2 F  s                  5  -0.182103 0.002644  1 Si pz         
+     8   0.163882-0.002379  1 Si pz         
  
- Vector    5  Occ=1.000000D+00  E=-3.936750D-01
-              MO Center=  1.0D-07,  1.1D-09,  2.7D-05, r^2= 4.4D-05
+ Vector    5  Occ=1.000000D+00  E=-3.936749D-01
+              MO Center=  1.1D-05,  1.3D-09,  4.3D-01, r^2= 5.1D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    45  -0.041202-0.644955  2 F  px                46   0.644955-0.041202  2 F  py         
-    31  -0.011632-0.182076  1 Si px                32   0.182076-0.011632  1 Si py         
+    18   0.000002-0.644784  2 F  py                17   0.644766 0.000003  2 F  px         
+     4   0.000001-0.182027  1 Si py                 3   0.182022 0.000001  1 Si px         
  
- Vector    6  Occ=1.000000D+00  E=-3.936750D-01
-              MO Center= -8.9D-08,  2.5D-09,  4.3D-01, r^2= 5.2D-01
+ Vector    6  Occ=1.000000D+00  E=-3.936749D-01
+              MO Center= -1.1D-05,  9.3D-09,  2.0D-03, r^2= 3.3D-03
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    17  -0.646270 0.000001  2 F  px                18   0.000000 0.646269  2 F  py         
-     3  -0.182447 0.000000  1 Si px                 4   0.000000 0.182447  1 Si py         
+    46   0.387510-0.515347  2 F  py                45  -0.515333-0.387497  2 F  px         
+    32   0.109397-0.145486  1 Si py                31  -0.145482-0.109393  1 Si px         
  
- Vector    7  Occ=1.000000D+00  E=-3.936123D-01
-              MO Center= -1.6D-06,  1.2D-06,  3.9D-01, r^2= 4.8D-01
+ Vector    7  Occ=1.000000D+00  E=-3.936122D-01
+              MO Center= -1.7D-07, -5.7D-08,  2.7D-04, r^2= 4.4D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    18  -0.350150 0.509243  2 F  py                17   0.509243 0.350150  2 F  px         
-    46   0.180342 0.059055  2 F  py                45  -0.059055 0.180342  2 F  px         
-     4  -0.098157 0.142756  1 Si py                 3   0.142756 0.098157  1 Si px         
+    45   0.490169-0.421218  2 F  px                46  -0.421205-0.490156  2 F  py         
+    31   0.137408-0.118079  1 Si px                32  -0.118076-0.137405  1 Si py         
  
- Vector    8  Occ=1.000000D+00  E=-3.936123D-01
-              MO Center=  1.6D-06, -1.2D-06,  3.7D-02, r^2= 5.9D-02
+ Vector    8  Occ=1.000000D+00  E=-3.936122D-01
+              MO Center= -3.0D-08,  1.5D-07,  4.3D-01, r^2= 5.1D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    46   0.586342 0.195288  2 F  py                45  -0.195288 0.586341  2 F  px         
-    18   0.108305-0.155823  2 F  py                17  -0.155823-0.108305  2 F  px         
-    32   0.164369 0.054745  1 Si py                31  -0.054745 0.164369  1 Si px         
+    17   0.097434-0.638903  2 F  px                18   0.638885 0.097430  2 F  py         
+     3   0.027313-0.179103  1 Si px                 4   0.179098 0.027312  1 Si py         
  
- Vector    9  Occ=1.000000D+00  E=-3.141414D-01
-              MO Center= -2.8D-06, -7.4D-08, -2.3D-01, r^2= 8.1D-01
+ Vector    9  Occ=1.000000D+00  E=-3.141418D-01
+              MO Center=  2.7D-07,  3.9D-09, -9.3D-02, r^2= 3.4D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     1  -0.445978 0.605823  1 Si s                 19  -0.292636 0.397521  2 F  pz         
-     5   0.278979-0.378970  1 Si pz                 8  -0.099868 0.135662  1 Si pz         
+     1  -0.283580-0.696835  1 Si s                 19  -0.186077-0.457242  2 F  pz         
+     5   0.177357 0.435816  1 Si pz                 8  -0.063528-0.156107  1 Si pz         
  
- Vector   10  Occ=1.000000D+00  E=-3.141414D-01
-              MO Center=  2.6D-06, -1.6D-12, -4.7D-06, r^2= 2.1D-05
+ Vector   10  Occ=1.000000D+00  E=-3.141418D-01
+              MO Center= -2.7D-07,  9.1D-15,  2.1D-07, r^2= 3.1D-06
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    29   0.752275 0.000000  1 Si s                 47   0.493618 0.000000  2 F  pz         
-    33  -0.470582 0.000000  1 Si pz                36   0.168457 0.000000  1 Si pz         
+    29   0.752327 0.000000  1 Si s                 47   0.493655 0.000000  2 F  pz         
+    33  -0.470522 0.000000  1 Si pz                36   0.168539 0.000000  1 Si pz         
  
- Vector   11  Occ=2.500000D-01  E=-1.200564D-01
-              MO Center=  3.6D-05,  5.0D-07, -2.6D-04, r^2= 1.3D-03
+ Vector   11  Occ=2.500000D-01  E=-1.200568D-01
+              MO Center= -2.4D-04, -3.8D-07, -4.9D-03, r^2= 2.4D-02
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    31  -0.432910-0.508932  1 Si px                32   0.508932-0.432909  1 Si py         
-    45   0.170261 0.200160  2 F  px                46  -0.200160 0.170261  2 F  py         
+    31  -0.662986-0.003860  1 Si px                32   0.003860-0.662985  1 Si py         
+    45   0.260749 0.001518  2 F  px                46  -0.001518 0.260749  2 F  py         
  
- Vector   12  Occ=2.500000D-01  E=-1.200564D-01
-              MO Center= -3.6D-05,  7.0D-08, -3.1D-01, r^2= 1.4D+00
+ Vector   12  Occ=2.500000D-01  E=-1.200568D-01
+              MO Center=  2.4D-04, -2.5D-08, -3.0D-01, r^2= 1.4D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     3   0.668148-0.000008  1 Si px                 4  -0.000008-0.668148  1 Si py         
-    17  -0.262780 0.000003  2 F  px                18   0.000003 0.262780  2 F  py         
+     3  -0.662997 0.000017  1 Si px                 4   0.000017 0.662997  1 Si py         
+    17   0.260754-0.000007  2 F  px                18  -0.000007-0.260754  2 F  py         
  
- Vector   13  Occ=2.500000D-01  E=-1.193856D-01
-              MO Center=  3.2D-07,  1.2D-07, -3.1D-01, r^2= 1.4D+00
+ Vector   13  Occ=2.500000D-01  E=-1.193860D-01
+              MO Center= -8.6D-07, -1.4D-06, -2.7D-03, r^2= 1.3D-02
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     4  -0.157224-0.645733  1 Si py                 3  -0.645733 0.157224  1 Si px         
-    18   0.062053 0.254858  2 F  py                17   0.254858-0.062053  2 F  px         
+    32   0.425340 0.507097  1 Si py                31  -0.507097 0.425340  1 Si px         
+    46  -0.167873-0.200141  2 F  py                45   0.200141-0.167873  2 F  px         
  
- Vector   14  Occ=2.500000D-01  E=-1.193856D-01
-              MO Center=  4.0D-07,  6.3D-08, -1.6D-04, r^2= 7.6D-04
+ Vector   14  Occ=2.500000D-01  E=-1.193860D-01
+              MO Center=  8.8D-07,  1.4D-06, -3.0D-01, r^2= 1.4D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    32  -0.268793 0.607817  1 Si py                31  -0.607817-0.268793  1 Si px         
-    46   0.106087-0.239893  2 F  py                45   0.239893 0.106087  2 F  px         
+     4   0.653788 0.103067  1 Si py                 3   0.103067-0.653788  1 Si px         
+    18  -0.258037-0.040678  2 F  py                17  -0.040678 0.258037  2 F  px         
  
- Vector   15  Occ=0.000000D+00  E= 5.027490D-01
-              MO Center= -2.2D-07, -2.2D-13, -2.9D-06, r^2= 1.9D-05
+ Vector   15  Occ=0.000000D+00  E= 5.027487D-01
+              MO Center=  4.2D-08,  3.4D-11, -1.5D-04, r^2= 7.0D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    36   0.524579 0.000000  1 Si pz                33   0.445806 0.000000  1 Si pz         
-    42  -0.392582 0.000000  1 Si dzz               43  -0.390933 0.000000  2 F  s          
-    29   0.301763 0.000000  1 Si s                 47   0.207740 0.000000  2 F  pz         
+     8   0.007248 0.524492  1 Si pz                 5   0.006161 0.445832  1 Si pz         
+    14  -0.005425-0.392531  1 Si dzz               15  -0.005402-0.390890  2 F  s          
+     1   0.004169 0.301633  1 Si s                 19   0.002869 0.207627  2 F  pz         
  
- Vector   16  Occ=0.000000D+00  E= 5.027490D-01
-              MO Center=  1.8D-07, -1.9D-08, -9.1D-02, r^2= 4.2D-01
+ Vector   16  Occ=0.000000D+00  E= 5.027487D-01
+              MO Center= -4.2D-08, -4.5D-14, -2.9D-06, r^2= 1.9D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     8  -0.179343 0.492969  1 Si pz                 5  -0.152412 0.418943  1 Si pz         
-    14   0.134216-0.368927  1 Si dzz               15   0.133652-0.367377  2 F  s          
-     1  -0.103167 0.283580  1 Si s                 19  -0.071022 0.195222  2 F  pz         
+    36   0.524543 0.000000  1 Si pz                33   0.445875 0.000000  1 Si pz         
+    42  -0.392569 0.000000  1 Si dzz               43  -0.390928 0.000000  2 F  s          
+    29   0.301662 0.000000  1 Si s                 47   0.207647 0.000000  2 F  pz         
  
- Vector   17  Occ=0.000000D+00  E= 7.643190D-01
-              MO Center= -6.2D-06,  1.1D-09, -1.5D-04, r^2= 7.8D-04
+ Vector   17  Occ=0.000000D+00  E= 7.643186D-01
+              MO Center= -4.2D-07,  3.8D-09, -1.1D-05, r^2= 5.6D-05
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    35   0.634043 1.684123  1 Si py                34   1.684122-0.634045  1 Si px         
-    32  -0.587509-1.560521  1 Si py                31  -1.560520 0.587510  1 Si px         
+    34  -0.452739 1.741661  1 Si px                35  -1.741661-0.452739  1 Si py         
+    31   0.419511-1.613836  1 Si px                32   1.613836 0.419511  1 Si py         
  
- Vector   18  Occ=0.000000D+00  E= 7.643190D-01
-              MO Center=  6.2D-06, -5.7D-09, -3.1D-01, r^2= 2.1D+00
+ Vector   18  Occ=0.000000D+00  E= 7.643186D-01
+              MO Center=  4.3D-07, -1.6D-09, -3.1D-01, r^2= 2.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     7  -0.000001-1.799522  1 Si py                 6   1.799522 0.000001  1 Si px         
-     4   0.000001 1.667451  1 Si py                 3  -1.667450-0.000001  1 Si px         
+     6   1.799543 0.000000  1 Si px                 7   0.000000-1.799543  1 Si py         
+     3  -1.667470 0.000000  1 Si px                 4   0.000000 1.667470  1 Si py         
  
- Vector   19  Occ=0.000000D+00  E= 7.654573D-01
-              MO Center= -1.3D-07,  3.5D-07, -4.0D-04, r^2= 2.8D-03
+ Vector   19  Occ=0.000000D+00  E= 7.654569D-01
+              MO Center= -7.2D-09, -7.6D-08, -1.6D-05, r^2= 1.2D-04
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    34  -1.778670-0.264356  1 Si px                35  -0.264357 1.778669  1 Si py         
-    31   1.649844 0.245209  1 Si px                32   0.245211-1.649844  1 Si py         
+    35   1.090877 1.430923  1 Si py                34  -1.430923 1.090877  1 Si px         
+    32  -1.011867-1.327284  1 Si py                31   1.327284-1.011867  1 Si px         
  
- Vector   20  Occ=0.000000D+00  E= 7.654573D-01
-              MO Center= -1.1D-07, -3.8D-07, -3.1D-01, r^2= 2.1D+00
+ Vector   20  Occ=0.000000D+00  E= 7.654569D-01
+              MO Center=  5.5D-08, -4.9D-08, -3.1D-01, r^2= 2.1D+00
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-     6  -0.169621-1.790190  1 Si px                 7   1.790189-0.169622  1 Si py         
-     3   0.157335 1.660530  1 Si px                 4  -1.660529 0.157337  1 Si py         
+     7  -1.518182 0.965753  1 Si py                 6   0.965753 1.518181  1 Si px         
+     4   1.408223-0.895805  1 Si py                 3  -0.895805-1.408223  1 Si px         
  
- Vector   21  Occ=0.000000D+00  E= 8.154343D-01
-              MO Center= -1.7D-07, -6.5D-08, -3.1D-01, r^2= 9.6D-01
+ Vector   21  Occ=0.000000D+00  E= 8.154339D-01
+              MO Center= -2.7D-08,  1.7D-08, -3.1D-01, r^2= 9.6D-01
   Bfn.     Coefficient        Function     Bfn.     Coefficient        Function
   ---- -------------------  ------------     ---- -------------------  ------------
-    10   0.029205 1.223090  1 Si dxy               12  -0.611746 0.014607  1 Si dyy        
-     9   0.611746-0.014607  1 Si dxx        
+    10  -0.130240-1.213662  1 Si dxy                9  -0.606833 0.065120  1 Si dxx        
+    12   0.606833-0.065120  1 Si dyy        
  
 
      ---------------------------------------------
@@ -850,8 +857,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
-    1 Si   4     1.36   0.97 -0.02  0.46 -0.10  0.06
-    2 F    7     3.64   0.98  0.00  2.66  0.00  0.00
+    1 Si   4     2.28   0.97 -0.02  1.32 -0.05  0.06
+    2 F    7     3.71   0.98  0.00  2.74  0.00  0.00
 
      --------------------------------------------
       Spin Density - Mulliken Population Analysis
@@ -859,8 +866,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
-    1 Si   4    -3.22  -0.97  0.02 -2.20 -0.01 -0.07
-    2 F    7    -3.78  -0.98  0.00 -2.82  0.01  0.00
+    1 Si   4    -0.46  -0.97  0.02  0.39  0.15 -0.05
+    2 F    7    -3.57  -0.98  0.00 -2.59 -0.01  0.00
 
    alpha - beta orbital overlaps 
    ----------------------------- 
@@ -873,7 +880,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    alpha     11     12     13     14     15     16     17     18     19     20
     beta     17     19     18      1     15     15     17     18     19     17
- overlap   0.130  0.033  0.130  0.059  0.979  0.015  0.844  0.844  0.821  0.002
+ overlap   0.130  0.033  0.130  0.059  0.979  0.015  0.844  0.844  0.822  0.002
 
 
    alpha     21     22     23     24     25     26     27     28
@@ -883,7 +890,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      6.2492 (Exact =     0.7500)
+      <S2> =      5.7457 (Exact =     0.7500)
  
  
      Multipole analysis of the density
@@ -891,24 +898,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0      5.999491      0.998982     -5.999491     11.000000
+     0   0 0 0      5.008720     -0.982560     -5.008720     11.000000
  
-     1   1 0 0      0.000001      0.000002      0.000000      0.000000
-     1   0 1 0      0.000000      0.000001      0.000000      0.000000
-     1   0 0 1      3.330504     -1.154558     -3.665409      8.150470
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      4.475188      1.135578     -4.810860      8.150470
  
-     2   2 0 0     -4.426396      3.503890     -7.930286      0.000000
+     2   2 0 0     -7.901537     -3.446290     -4.455248      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
-     2   1 0 1     -0.000002     -0.000002     -0.000001      0.000000
-     2   0 2 0     -4.426396      3.503891     -7.930286      0.000000
-     2   0 1 1     -0.000001     -0.000001      0.000000      0.000000
-     2   0 0 2      9.905833      3.648909    -23.052535     29.309460
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -7.901539     -3.446291     -4.455248      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2      6.287899     -3.588927    -19.432633     29.309460
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:        7.2s     wall:       10.4s
+ Task  times  cpu:       31.6s     wall:       32.0s
  
  
                                 NWChem Input Module
@@ -925,11 +932,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1182     1182     1.30e+04 9346     7723        0        0        0     
-number of processes/call 1.32e+00 1.32e+00 1.06e+00 0.00e+00 0.00e+00
-bytes total:             2.99e+07 1.83e+07 1.84e+07 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.04e+07 7.34e+06 5.67e+06 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 987840 bytes
+calls: 1317     1317     2.85e+04 1.77e+04 2.21e+04    0        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             5.00e+07 3.42e+07 3.71e+07 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1912960 bytes
  
 
 
@@ -971,7 +978,7 @@ Max memory consumed for GA by this process: 987840 bytes
 
 
 
- Total times  cpu:        7.3s     wall:       11.2s
+ Total times  cpu:       31.7s     wall:       32.2s
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -980,8 +987,8 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        45	        48
+	maximum number of blocks	        76	        48
 	current total bytes		         0	         0
-	maximum total bytes		   4371884	  94331868
-	maximum total K-bytes		      4372	     94332
-	maximum total M-bytes		         5	        95
+	maximum total bytes		  15758972	 188634076
+	maximum total K-bytes		     15759	    188635
+	maximum total M-bytes		        16	       189
