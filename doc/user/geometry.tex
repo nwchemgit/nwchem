@@ -22,7 +22,7 @@ long and complicated when presented in its general form, as follows,
 
     [ZMATRIX || ZMT || ZMAT
          <string tagn> <list_of_zmatrix_variables>
-         ... ]
+         ... 
 
          [VARIABLES
               <string symbol> <double value>
@@ -68,6 +68,7 @@ As described above, the first line of the directive has the general form,
            [units <string units default angstrom>] \
            [bqbq] \
            [print [xyz] || noprint] \
+           [center || nocenter] \
            [autoz]
 \end{verbatim}
     
@@ -80,7 +81,7 @@ list describes the use and function of each option, including the defaults.
 name is \verb+geometry+, and
 most modules in the code look for a geometry with this name.  The user
 can direct a module to a geometry with a different name by assigning
-the string \verb+geomery+ to \verb+<name>+ using the \verb+SET+
+the string \verb+geometry+ to \verb+<name>+ using the \verb+SET+
 directive (see the example in Section \ref{sec:set}).
 
 % \subsubsection*{{\tt UNITS}}
@@ -113,7 +114,7 @@ when computing energies or energy derivatives.  These interactions
 will be included if the keyword \verb+bqbq+ is specified.
 
 % \subsubsection*{{\tt PRINT} and {\tt NOPRINT}}
-\item \verb+print+ and \verb+print+ -- complimentary keyword pair to
+\item \verb+print+ and \verb+noprint+ -- complimentary keyword pair to
 enable or disable printing of the geometry.  The default is to print   
 the output associated with the geometry.  In addition, the keyword 
 \verb+print+ may
@@ -122,8 +123,8 @@ that the coordinates should be printed in the XYZ format of XMol.
 
 \item \verb+center+ and \verb+nocenter+ -- complimentary keyword pair
   to enable or disable translation of the center of nuclear charge of
-  the users input molecular coordinates to the origin.  With the
-  origin at this position all three components of the nuclear dipole
+  the user-input molecular coordinates to the origin.  With the
+  origin at this position, all three components of the nuclear dipole
   are zero.  The default is to move the origin.
 
 % \subsubsection*{{\tt AUTOZ}}
@@ -170,10 +171,6 @@ The following directives all specify the same geometry for $H_2$
   end
 \end{verbatim}
       
-\Large
-**A few more examples might be useful here.
-\normalsize
-
 \subsection{Symmetry Group Input}
 
 The \verb+SYMMETRY+ directive is used within the compound \verb+GEOMETRY+
@@ -201,7 +198,7 @@ such entries as,
 \end{itemize}
 
 The \verb+SYMMETRY+ directive is optional.  The default is no symmetry 
-(i.e., $C_1$ point group), and detection of point
+(i.e., $C_1$ point group). Detection of point
 group symmetry is not yet automated, though this is planned.  The user
 must know the symmetry of the molecule being modeled, and be able
 to specify the coordinates of the symmetry-unique atoms in a suitable
@@ -228,7 +225,7 @@ The string \verb+<tag>+ is the name of the atom or center, and its case
 (upper or lower) is important.  The tag is limited to 16 characters
 and is interpreted as follows;
 \begin{itemize}
-\item If it begins with either the symbol or name of an element
+\item If the entry for \verb+<tag>+ begins with either the symbol or name of an element
   (regardless of case) then the center is treated as an atom of that type.
   The default charge is the atomic number. 
 % (adjusted for the presence of ECPs; see Section \ref{sec:ecp}).  
@@ -239,7 +236,7 @@ and is interpreted as follows;
   (For example, the tags \verb+oxygen+, \verb+O+, \verb+o34+, \verb+olonepair+,
   and \verb+Oxygen-ether+, will all be interpreted as oxygen
   atoms.)
-\item If the tag begins with the characters \verb+bq+ or \verb+x+
+\item If the entry for \verb+< tag>+ begins with the characters \verb+bq+ or \verb+x+
   (regardless of case) then it is treated as a dummy center with
   default zero charge.  (Note: a tag beginning with the characters \verb+xe+
   will be interpreted as a Xenon atom rather than a dummy center.)
@@ -269,10 +266,6 @@ and any net total charge of the system (Section \ref{sec:charge}) are
 used to determine the number of electrons.
 \end{itemize}
 
-\Large
-**A few examples would be helpful here.
-\normalsize
-
 The Cartesian coordinates of the atom in the molecule are specified as
 real numbers supplied for the variables \verb+x+, \verb+y+, and \verb+z+
 following the characters entered for the tag.
@@ -295,13 +288,15 @@ some other isotope of the element, its mass must be defined explicitly
 by specifying the keyword \verb+mass+, followed by the mass (in atomic
 mass units) of the isotope entered for the variable \verb+<mass>+.
 
-The geometry of the system can be entirely specified by Cartesian coordinates,
-by supplying a \verb+<tag>+ line of the type described above.  The user has
+The geometry of the system can be entirely specified in Cartesian coordinates
+by supplying a \verb+<tag>+ line of the type described above for each atom
+or center.  The user has
 the option, however, of supplying the geometry of some or all of the atoms 
 or centers using a Z-matrix description.  In such a case, the user supplies
 the input tag line described above for any centers 
-to be described by cartesian coordinates, and then specifies the optional
-Z-matrix directive to describe the remainder of the system.
+to be described by Cartesian coordinates, and then specifies the remainder
+of the system using the optional
+Z-matrix directive described below in Section \ref{sec:Z-matrix}.
 
 \subsection{Z-matrix input}
 \label{sec:Z-matrix}
@@ -317,7 +312,7 @@ directive is as follows;
 \begin{verbatim}
     [ZMATRIX || ZMT || ZMAT
          <string tagn> <list_of_zmatrix_variables> 
-         ... ]
+         ... 
 
          [VARIABLES
               <string symbol> <double value>
@@ -330,8 +325,8 @@ directive is as follows;
     (END || ZEND)]
 \end{verbatim}
 
-The input module recognized three possible spellings of the directive name,
-as noted.  It can be invoked with \verb+ZMATRIX+, \verb+ZMT+, or \verb+ZMAT+.
+The input module recognizes three possible spellings of this directive name.
+It can be invoked with \verb+ZMATRIX+, \verb+ZMT+, or \verb+ZMAT+.
 This compound directive allows the user to specify
 the molecular structure using
 either cartesian coordinates (see Section \ref{sec:zmcart}) or internal
@@ -378,12 +373,14 @@ The Z-matrix input is specified sequentially as follows,
    ...
 \end{verbatim}
 
-The structure of this input is examined in more detail below.  
+The structure of this input is described in more detail below.  
 In the following discussion, the tag or number
 of the center being currently defined is labelled as \verb+C+ (``C''
-for current).  The above discussion on the interpretation of tags
-(Section \ref{sec:cart}) also applies to centers defined in Z-matrix
-input.  Figures \ref{fig:zmat1}, \ref{fig:zmat2} and \ref{fig:zmat3}
+for current).  The values entered for these tags for centers 
+defined in the Z-matrix input are interpreted
+in the same way as the \verb+<tag>+ entries for Cartesian
+coordinates described above (see Section \ref{sec:cart}).
+Figures \ref{fig:zmat1}, \ref{fig:zmat2} and \ref{fig:zmat3}
 display the relationship between the input data and the definition of
 centers and angles.
 
@@ -420,7 +417,7 @@ and dihedral angle in Z-matrix input.}
    \item \verb+tag2 i R+
 
      The second center requires specification of its tag and the
-     bond-length ($R_{Ci}$) from the first atom which is identified by
+     bond-length ($R_{Ci}$) from the first atom, which is identified by
      \verb+i+.
 
    \item \verb+tag3 i R j alpha+
@@ -429,27 +426,27 @@ and dihedral angle in Z-matrix input.}
      ($R_{Ci}$) to one of the previous two centers (identified by the
      value of \verb+i+) and the angle $\widehat{Cij}$.
 
-   \item \verb+tag i R j alpha k beta [<integer l default 0>]+
+   \item \verb+tag i R j alpha k beta [<integer orient default 0>]+
 
      The fourth, and all subsequent centers, require the tag, a bond
      length ($R_{Ci}$) relative to center \verb+i+, the angle with
      centers \verb+i+ and \verb+j+ ($\widehat{Cij}$), and {\em either} 
     \begin{enumerate}
     \item the dihedral angle betwen the current center and centers
-      \verb+i+, \verb+j+ and \verb+k+ (Figure \ref{fig:zmat1}), or
+      \verb+i+, \verb+j+, and \verb+k+ (Figure \ref{fig:zmat1}), or
       \item  a second bond angle $\widehat{Cik}$ and an orientation to 
       the plane containing the other three centers (Figure
       \ref{fig:zmat2} and \ref{fig:zmat3}).
     \end{enumerate}
 
     By default $\beta$ is interpreted as a dihedral angle (see Figure
-    \ref{fig:zmat1}), but if the optional last parameter (\verb+orient+) is
+    \ref{fig:zmat1}), but if the optional final parameter (\verb+<orient>+) is
     specified with the value $\pm 1$ then $\beta$ is interpreted as
-    the angle $\widehat{Cik}$.  The sign of \verb+orient+ specifies the
+    the angle $\widehat{Cik}$.  The sign of \verb+<orient>+ specifies the
     direction of the bond angle relative to the plane described by the
-    three reference atoms.  If \verb+orient+ is $+1$ then the new center
+    three reference atoms.  If \verb+<orient>+ is $+1$ then the new center
     (\verb+C+) is above the plane (Figures \ref{fig:zmat2}), and if
-    \verb+orient+ is $-1$ then \verb+C+ is below the plane (Figure
+    \verb+<orient>+ is $-1$ then \verb+C+ is below the plane (Figure
     \ref{fig:zmat3}).
 \end{enumerate}
 
@@ -464,7 +461,7 @@ which has the general form;
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
-Optionally, an equals sign (\verb+=+) may be included between the
+Optionally, an equals sign (\verb+=+) can be included between the
 symbol and its value, for clarity in reading the input file.
 
 Following the \verb+VARIABLES+ directive, the \verb+CONSTANTS+
@@ -477,7 +474,8 @@ general form of this directive is as follows;
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
-Optionally, an equals sign (\verb+=+) may be included between the
+As with the \verb+VARIABLES+ directive, 
+an equals sign (\verb+=+) can be included between the
 symbol and its value.
 {\em Note that this functionality is not yet available and that all
   Z-matrix parameters (Cartesian coordinates, numerically specified
@@ -486,14 +484,14 @@ symbol and its value.
 of an atom refer to Section \ref{sec:activeatoms}).
 
 The end of the Z-matrix input using the compound \verb+ZMATRIX+
-directive signaled by either \verb+END+ or
+directive is signaled by a line containing either \verb+END+ or
 \verb+ZEND+, following all input for the directive itself and its
 associated optional directives.  
 
 A simple example is presented for water.  All Z-matrix parameters are
 specified numerically, and the symbolic tags are used to specify
-connectivity information.  This requires that all tags are unique, and
-so different tags are used for the hydrogen atoms which might 
+connectivity information.  This requires that all tags be unique, and
+so different tags are used for the two hydrogen atoms, which might 
 otherwise be identical.
 \begin{verbatim}
   geometry
@@ -507,10 +505,11 @@ otherwise be identical.
 
 The following example illustrates the Z-matrix input for the molecule
 $CH_3CF_3$.  This input uses the numbers of centers when specifying
-the connectivity information (\verb+i+, \verb+j+ and \verb+k+) and
+the connectivity information (\verb+i+, \verb+j+, and \verb+k+) and
 uses symbolic variables for the Z-matrix parameters {\tt R}, {\tt
-  alpha}, and {\tt beta} which are defined in \verb+VARIABLES+ and
-\verb+CONSTANTS+ sections.
+  alpha}, and {\tt beta}, which are defined in the input for the
+\verb+VARIABLES+ and
+\verb+CONSTANTS+ directives.
 
 \begin{verbatim}
 geometry 
@@ -550,8 +549,12 @@ end
 \subsubsection{Using Cartesian variables in Z-matrices}
 \label{sec:zmcart}
 
-In order to specify Cartesian coordinates within the Z-matrix it is
-necessary to understand the orientation of centers specified using
+The input for any centers specified with Cartesian coordinates must
+be specified using the format of the \verb+<tag>+ lines described
+in Section \ref{sec:cart} above.  However, in
+order to correctly specify these Cartesian coordinates 
+within the Z-matrix, the user must
+understand the orientation of centers specified using
 internal coordinates.  These are arranged as follows:
 \begin{itemize}
 \item The first center is placed at the origin.
@@ -618,18 +621,19 @@ Currently the only mechanism for freezing coordinates during a
 geometry optimization is to freeze the Cartesian coordinates of a list
 of centers.  This is useful for such purposes as optimizing a molecule
 absorbed on the surface of a cluster with fixed geometry.  Only the
-gradients associated with the active atoms are computed and this can
-result in a big computational saving.  Gradients associated with
-frozen atoms are forced to zero (note that this destroys certain
-translational and rotational invariance properties).
+gradients associated with the active atoms are computed.  This can
+result in a big computational saving, since gradients associated with
+frozen atoms are forced to zero.  (Note that this destroys certain
+translational and rotational invariance properties.)
 
-The \verb+SET+ directive (Section \ref{sec:set}) must be used as
-follows
+The \verb+SET+ directive (Section \ref{sec:set}) is used to freeze
+atoms, by specifying a directive of the form,
 \begin{verbatim}
   set geometry:actlist <integer list_of_center_number>
 \end{verbatim}
-This defines the centers in the list as being active --- all other
-centers will have zero force assigned to them and will remain frozen
+This defines only the centers named in the list as active.  All
+other 
+centers will have zero force assigned to them, and will remain frozen
 at their starting coordinates during a geometry optimization.
 
 For instance, the following directive specifies that atom numbers 1,
@@ -643,9 +647,14 @@ or equivalently
 \end{verbatim}
 
 
-To revert to the default behaviour of all atoms active we
-must explicitly delete this entry from the database (since
-the database is persistent Section \ref{sec:persist}) as follows
+If this option is not specified by entering a \verb+SET+ directive 
+of the above form, the default behavior in the code is to treat
+all atoms as active.  To revert to this default behavior after the
+option to define frozen atoms has been invoked, the \verb+UNSET+
+directive must be used
+(since
+the database is persistent Section \ref{sec:persist}).  The form of
+this directive is as follows
 \begin{verbatim}
   unset geometry:actlist
 \end{verbatim}
