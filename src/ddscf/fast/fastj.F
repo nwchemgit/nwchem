@@ -27,8 +27,9 @@ c
      $     nprim, ngen, n, nx, ny, nz, l_grid, k_grid,
      $     depth, lmax
       integer maxprim, maxgen, maxgrid, ntest
-      parameter (maxprim = 40, maxgen=1, maxgrid=16, ntest=20000)
+      parameter (maxprim = 40, maxgen=1, maxgrid=16, ntest=2000)
       double precision alpha(maxprim), start, used
+      double precision rtest(3,ntest), ptest(ntest)
       logical osph, status
       character*16 tag
       integer gridinfo(5,maxgrid)
@@ -36,7 +37,7 @@ c
       integer ngrid, nnx, nny, nnz, l_poles, k_poles, lenpoles
       double precision c(3), charge, x, y, z, xlo, xhi, ylo, yhi,
      $     zlo, zhi, range, side, resolution, pi, exponent, xx, yy, zz,
-     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2,
+     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2, test3,
      $     errmax, errrms, err, rneglect, resn
       double precision fastj_gaussian_range, fastj_eval_point, potential
       double precision drand, fastj_r_neglected
@@ -119,7 +120,7 @@ c     range of the functions that it must contain.  For now
 c     set the depth to be fixed.  Similarly, lmax will be
 c     set from the required precision.  For now set to 16.
 c
-      depth = 4
+      depth = 3
       lmax = 16    !   16
 c
 c     The FMM handles non-cubic volumes except for the caching
@@ -305,9 +306,19 @@ c
 *            x = xlo + hx_fmm + drand(0)*(xhi-xlo-2.0d0*hx_fmm)
 *            y = ylo + hy_fmm + drand(0)*(yhi-ylo-2.0d0*hy_fmm)
 *            z = zlo + hz_fmm + drand(0)*(zhi-zlo-2.0d0*hz_fmm)
+            rtest(1,i) = x
+            rtest(2,i) = y
+            rtest(3,i) = z
+         enddo
+         call potential_list(basis, g_dens, ntest, rtest, ptest)
+         do i = 1, ntest
+            x = rtest(1,i)
+            y = rtest(2,i)
+            z = rtest(3,i)
             test1 = fastj_eval_point(data, x, y, z)
-            test2 = potential(basis,g_dens, x, y, z)
-            err = abs(test1 - test2)
+            test2 = ptest(i)
+            test3 = potential(basis, g_dens, x, y, z)
+            err = abs(test3 - test2)
             errrms = errrms + err*err
             if (abs(err) .gt. errmax) then
                errmax = abs(err)
@@ -315,6 +326,8 @@ c
                yy = y
                zz = z
             end if
+            write(6,781) x, y, z, test3, test2, err
+ 781        format(1x,3f10.4,2x,2f14.8,1p,d9.2)
          enddo
          errrms = sqrt(errrms / ntest)
          write(6,82) errrms, errmax, xx, yy, zz
@@ -377,9 +390,9 @@ c
 c
       integer ish,iat,ishlo,ishhi,itype,inprim,ingen,numi,ibflo,ibfhi
       integer jsh,jat,jshlo,jshhi,jtype,jnprim,jngen,numj,jbflo,jbfhi
-      integer i, iprim 
-      integer j, jprim 
-      integer k, nx, ny, nz, nnx, nny, nnz, jk, jjkk
+      integer i, iprim, numi_cart
+      integer j, jprim, numj_cart
+      integer k, nx, ny, nz, nnx, nny, nnz, jk, jjkk, ijk
       integer ishtop, ijtype, igrid, k_grid, kk_grid
 c
       logical iosph, josph
@@ -422,8 +435,8 @@ c
             do jsh = jshlo, jshhi
                if (.not.bas_continfo(basis, jsh, jtype, jnprim,jngen, 
      $              josph)) call errquit('fastJ: bas_cont_info', jsh)
-               if (jtype .lt. 0 .or. jngen.ne.1 .or. josph) call errquit
-     $              ('fastJ: no spherical/general/SP functions yet',0)
+               if (jtype .lt. 0 .or. jngen.ne.1) call errquit
+     $              ('fastJ: no general/SP functions yet',0)
                if (jtype .gt. lmax) call errquit
      $              ('fastJ: hard dimension lmax exceeded ', lmax)
                if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
@@ -462,16 +475,32 @@ c
 *               write(6,*) ' Coefficients ',(coeffi(i),i=1,inprim)
 c
 c
-c     Copy the block of density into local workspace
+c     Copy the block of density into local workspace and transform
+c     to cartesians if necessary
 c
                   factor = 2.0d0 ! This assumes symmetric density!
                   if (ish .eq. jsh) factor = 1.0d0
                   factor = factor
-                  call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,dens,numi)
-                  dmax = 0.0d0
-                  do i = 1, numi*numj
-                     dmax = max(dmax,abs(dens(i)))
-                  enddo
+c
+                  if (iosph) then
+                     call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,
+     $                    ndens,numi)
+                     numi_cart = (itype+1)*(itype+2)/2
+                     numj_cart = (jtype+1)*(jtype+2)/2
+                     call dens_sph_to_cart(itype, jtype, d, lmax2, 
+     $                    ndens, numi, dens, work, numi_cart, numj_cart)
+                     dmax = 0.0d0
+                     do i = 1, numi_cart*numj_cart
+                        dmax = max(dmax,abs(dens(i)))
+                     enddo
+                  else
+                     call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,
+     $                    dens,numi)
+                     dmax = 0.0d0
+                     do i = 1, numi*numj
+                        dmax = max(dmax,abs(dens(i)))
+                     enddo
+                  endif
 c
 *                  write(6,*) ' IJ density ', dmax
 *                  call output(dens,1,numi,1,numj,numi,numj,1)
@@ -586,6 +615,21 @@ c
       if (util_print('fastjtime',print_debug))
      $     write(6,13) used
  13   format(' fastj: Fourier interpolation to fine grid ',f6.2)
+c
+      if (util_print('fastjdnorm',print_debug)) then
+         s = 0.0d0
+         do k = 1, nnz, 2
+            do j = 1, nny, 2
+               do i = 1, nnx, 2
+                  ijk = kk_grid + i-1 + nnx*(j-1 + nny*(k-1))
+                  s = s + dbl_mb(ijk)/(dble(i)*dble(j)*dble(k))
+               enddo
+            enddo
+         enddo
+         s = s*8.0d0*gridh(1,1)**3 / pi**3
+         write(6,33) s
+ 33      format(' fastj: Norm of density on grid = ',f20.12)
+      endif
 c
 c     Screen the density for -ve values and check norm ... only
 c     if we did the FFT!
