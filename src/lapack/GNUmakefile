@@ -25,7 +25,9 @@ ifeq ($(VPATH),double)
                dgelqf.o   dlange.o   dlascl.o   dorgqr.o   dsptrf.o \
                dgeqr2.o   dlansp.o   dlaset.o   dorm2r.o   dsptrs.o \
                dgeqrf.o   dlapy2.o   dlasr.o    dormbr.o   ilaenv.o \
-               dgesvd.o   dlarf.o    dlassq.o   dorml2.o
+               dgesvd.o   dlarf.o    dlassq.o   dorml2.o \
+               dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
+               dgetf2.o
 else
          OBJ = sgesvd.o   slarf.o    slassq.o   sorml2.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
@@ -35,7 +37,9 @@ else
                sgelq2.o   slamch.o   slas2.o    sorglq.o   sspsvx.o \
                sgelqf.o   slange.o   slascl.o   sorgqr.o   ssptrf.o \
                sgeqr2.o   slansp.o   slaset.o   sorm2r.o   ssptrs.o \
-               sgeqrf.o   slapy2.o   slasr.o    sormbr.o
+               sgeqrf.o   slapy2.o   slasr.o    sormbr.o \
+               sgesv.o    sgetrs.o   sgetrf.o   slaswp.o \
+               sgetf2.o
 endif
 
 
