@@ -1,4 +1,4 @@
-\label{sec:dft}
+1\label{sec:dft}
 
 The NWChem density functional theory (DFT) module uses the
 Gaussian basis set approach to compute
@@ -472,6 +472,84 @@ functional derived by Hamprecht-Cohen-Tozer-Handy
 (F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
     J. Chem. Phys. {\bf 109}, 6264 (1998))
 
+
+\begin{table}
+{\footnotesize 
+\centering
+\begin{tabular}{|l|cccc|r|}
+\hline
+%           &          &             &        &         &         \\
+Keyword    & Exchange & Correlation & GCA    &  Hybrid & Ref.\\
+%           &          &             &        &         &         \\
+\hline
+ slater     & $\star$    &            &         &         &[1]\\
+\hline							
+vwn\_1     &          &   $\star$     &         &        &[2]     \\
+vwn\_2     &          &   $\star$     &         &        &[2]    \\
+vwn\_3     &          &   $\star$     &         &        &[2]     \\
+vwn\_4     &          &   $\star$     &         &        &[2]     \\
+vwn\_5     &          &   $\star$     &         &        &[2]     \\
+vwn\_1\_rpa&          &   $\star$     &         &        &[2]     \\
+perdew81   &          &   $\star$     &         &        &[3]     \\
+pw91lda    &          &   $\star$     &         &        &[4]\\
+\hline							
+becke88    & $\star$    &             &  $\star$  &        &[5]\\
+xperdew91  & $\star$    &             &  $\star$  &        &[6]\\
+xpbe96     & $\star$    &             &  $\star$  &        &[7]\\
+gill96     & $\star$    &             &  $\star$  &        &[8]\\
+\hline							
+perdew86   &          &   $\star$     &  $\star$  &        &[9]\\
+lyp        &          &   $\star$     &  $\star$  &        &[10]\\
+perdew91   &          &   $\star$     &  $\star$  &        &[6]\\
+cpbe96     &          &   $\star$     &  $\star$  &        &[7]\\
+\hline							
+hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
+h120       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
+h147       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
+\hline							
+beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
+b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
+acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
+becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
+becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
+becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
+pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
+\hline
+\end{tabular}
+\\
+\begin{enumerate}\setlength{\itemsep}{-1\baselineskip}
+\setlength{\parsep}{-1\baselineskip}
+\item C.~Slater, {\sl Quantum Theory of Molecules and Solids, 
+Vol.~4} (McGraw-Hill, New York, 1974) \\
+\item  S.J.~Vosko, L.~Wilk and M.~Nusair,
+Can.~J.~Phys.~{\bf 58}, 1200 (1980). \\
+\item  J.~P.~Perdew and A.~Zunger,  Phys.~Rev.~B {\bf23}, 5048
+(1981). \\
+\item  J.P.~Perdew and Y.~Wang, Phys. Rev. B {\bf 45},
+13244 (1992). \\
+\item   A.D.~Becke,  J. Chem. Phys. {\bf 88}, 3098 (1988). \\ 
+\item  J.P. Perdew,  J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, 
+M.R.~Pederson, D.J.~Singh and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671
+(1992). \\
+\item  J.P.~Perdew, K.~Burke and M.~Ernzerhof, 
+Phys. Rev. Lett. {\bf 77}, 3865 (1996); {\bf 78 }, 1396 (1997).\\
+\item  P.W.Gill , Mol. Phys. {\bf 89}, 433 (1996). \\
+\item  J.~P.~Perdew, Phys.~Rev.~B   {\bf33}, 8822 (1986). \\
+\item C.~Lee, W.~Yang and R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785
+(1988). \\
+\item  F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+    J. Chem. Phys. {\bf 109}, 6264 (1998). \\
+\item   A.D.Boese, N.L.Doltsinis, N.C.Handy and
+M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
+\item  A.D.~Becke, J.~Chem.~Phys. {\bf 98}, 1372 (1992). \\
+\item  A.D.~Becke, J.~Chem.~Phys.~{\bf 98}, 5648 (1993). \\
+\item A.D.Becke, J. Chem. Phys. {\bf 107}, 8554 (1997). \\
+\item  H.L.Schmider and A.D.~Becke, J.~Chem.~Phys.~{\bf 108},
+9624 1998). \\
+\item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
+\end{enumerate}
+}
+\end{table}
 
 
 \section{ITERATIONS --- Number of SCF iterations}
