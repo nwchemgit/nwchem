@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.9 2004-07-21 16:27:54 bert Exp $
+* $Id: cphf_solve2.F,v 1.10 2004-12-03 22:38:22 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -15,6 +15,7 @@
 #include "util.fh"
 #include "cscf.fh"
 #include "crohf.fh"
+#include "cuhf.fh"
 #include "stdio.fh"
 c!!! BGJ
 #include "bgj.fh"
@@ -243,6 +244,14 @@ c !!! BGJ
      &       RTDB_ERR)
 c !!! BGJ
       if (scftype .eq. 'UHF') then
+c
+c        For property related CPHF. NMR has imaginary perturbation
+c        which makes matrices skew symmetric. Setting noskew to .false.
+c        enforces that.
+c
+         if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1, 
+     $        noskew_uhf)) noskew_uhf = .true.
+c
 c        if (nvec .ne. 1) call errquit('not yet',nvec)
          call ga_zero(g_work)   ! Essential to get default initial guess
 c         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
@@ -254,6 +263,7 @@ c     $        call errquit('cphf did not converge',precond_iter)
          call uhf_precond(g_work,0.0d0)
          call ga_lkain(g_work, g_grad, uhf_hessv2, uhf_precond,
      $        precond_tol, 10*nvec, 20, .false., oprint_solve)
+         noskew_uhf = .true.
       else 
 c$$$         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
 c$$$     $        max_precond_sub, precond_tol, 
