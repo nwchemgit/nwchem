@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit)
 c
-C$Id: xc_replicated.F,v 1.5 2003-06-07 22:36:42 edo Exp $
+C$Id: xc_replicated.F,v 1.6 2003-06-09 03:53:18 edo Exp $
 c
       implicit none
 c      
@@ -95,7 +95,9 @@ c
      .              nblock,plist, g_repdm(ii))) goto 1984
                call ga_copy(g_dens(ii),g_repdm(ii))
 #endif
+#ifdef DEBUG
                call ga_print_distribution(k_repxc(ii))
+#endif
                call ga_zero(k_repxc(ii))
             enddo
             if (.not.ma_pop_stack(l_map))
@@ -134,7 +136,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)
 c
-C$Id: xc_replicated.F,v 1.5 2003-06-07 22:36:42 edo Exp $
+C$Id: xc_replicated.F,v 1.6 2003-06-09 03:53:18 edo Exp $
 c
       implicit none
 c      
