@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.3 1998-10-26 16:12:10 d3e129 Exp $
+c $Id: kgdtest.F,v 1.4 1998-10-27 20:42:29 jhvan Exp $
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -217,4 +217,7 @@ c
       status = status.and.geom_destroy(geom)
       if (.not.status) call errquit('b/g destroy failed',911)
       return
+      end
+      subroutine rel_onel
+      call errquit('ROBERT DID THIS',0)
       end
