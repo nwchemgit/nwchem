@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.40 1995-10-30 20:59:26 d3e129 Exp $
+c $Id: raktest.F,v 1.41 1995-12-21 01:42:06 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,11 +13,11 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300) raktask
+      goto (00100,00200,00300,00400) raktask
 c
       write(6,*)' default raktest task '
-      write(6,*)' raktest check 3ctr nai'
-      call raktest_3ctr(rtdb)
+      write(6,*)' test of spcart stuff '
+      call raktest_spcart(rtdb)
       goto 00001
 c
 00100 write(6,*)' raktest task 1 stepper test'
@@ -29,148 +29,225 @@ c
 00300 write(6,*)' raktest task 3 check int_init'
       call raktest_init(rtdb)
       goto 00001
+00400 write(6,*)' raktest check 3ctr nai'
+      call raktest_3ctr(rtdb)
+      goto 00001
 c
 00001 continue
       end
-      subroutine raktest_3ctr(rtdb)
-      implicit none
+      subroutine raktest_spcart(rtdb)
+      implicit none 
 #include "mafdecls.fh"
-#include "rtdb.fh"
-#include "context.fh"
-#include "geom.fh"
 #include "bas.fh"
-#include "basP.fh"
-#include "basdeclsP.fh"
-#include "geomP.fh"
-#include "geobasmapP.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+      integer rtdb ! [input] rtdb handle
+c
+      integer geom, basis
+      integer nbf, nbfsq, nbf_sp, nbf_chk, nshell
+      integer max1e, max2e, mscr1, mscr2
+      integer h_cart_s, h_sph_s, h_scr, h_buf, h_2bfr
+      integer k_cart_s, k_sph_s, k_scr, k_buf, k_2bfr
+      logical status
 c
       logical int_normalize
       external int_normalize
 c
-c test hf3 nai type routines
-      integer rtdb
-      integer geom,basis, basis_id
-      integer nshell, memscr, membuf
-      integer h_scr, k_scr, h_buf, k_buf
-      integer ish, jsh, ucont
-      integer li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
-      integer lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
-      integer nint_out
-      logical status
-      character*255 mo_basis, geom_name
+      if (.not.geom_create(geom,'geometry')) call errquit
+     &      ('geom create failed',911)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &      ('geom_rtdb_load failed',911)
 c
-      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
-     &    mo_basis = 'ao basis'
-      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
-     &    geom_name = 'geometry'
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (.not.int_normalize(basis)) stop ' norm error '
 c
-      if(.not.geom_create(geom,geom_name))call errquit
-     &    ('raktest_3ctr: geom create error',911)
-      if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('raktest_3ctr: basis create error',911)
+      if (.not.bas_numbf(basis,nbf)) call errquit
+     &      ('numbf failed',911)
 c
-      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('raktest_3ctr: geom load ',911)
-      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('raktest_3ctr: basis load ',911)
+      nbfsq = nbf*nbf
+      if (.not.ma_push_get(mt_dbl,nbfsq,'square cart overlap',
+     &      h_cart_s, k_cart_s)) call errquit
+     &      (' cart overlap ma failed ',911)
+      if (.not.ma_push_get(mt_dbl,nbfsq,'square spher overlap',
+     &      h_sph_s, k_sph_s)) call errquit
+     &      (' sph overlap ma failed ',911)
 c
-      basis_id = basis + BASIS_HANDLE_OFFSET
-      nshell = ncont_tot_gb(basis_id)
-      if (.not.int_normalize(basis)) call errquit
-     &    ('raktest_3ctr: error normalizing ',911)
+      if (.not.bas_numcont(basis,nshell)) call errquit
+     &      ('numcont error',911)
 c
       call int_init(rtdb,1,basis)
-      memscr = 100 000
-      membuf = 1000
-      if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
-     &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
-      if (.not.ma_push_get(mt_dbl,membuf,' buf ',
-     &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+      call int_mem(max1e,max2e,mscr1,mscr2)
+      max1e = max1e*2
+      mscr1 = mscr1*2
+c
+      if (.not.ma_push_get(mt_dbl,mscr1,'scr for 1e',h_scr,k_scr))
+     &      call errquit('ma scr failed',911)
+c
+      if (.not.ma_push_get(mt_dbl,max1e,'buf for 1e',h_buf,k_buf))
+     &      call errquit('ma buf failed',911)
+c
+      if (.not.ma_push_get(mt_int,2*nshell,'buf for sp cn2bfr',
+     &      h_2bfr,k_2bfr))
+     &      call errquit('ma buf failed',911)
+c
+      call rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,int_mb(k_2bfr))
+c
+      if (nbf_chk.ne.nbf) then
+        write(6,*)' nbf not right ',nbf_chk, nbf
+      endif
+c
+      write(6,*)' nbf    ',nbf
+      write(6,*)' nbf_sp ',nbf_sp
+c
+      call rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
+     &      dbl_mb(k_scr),mscr1,
+     &      dbl_mb(k_buf),max1e,
+     &      dbl_mb(k_cart_s),dbl_mb(k_sph_s),
+     &      int_mb(k_2bfr))
+c
+      call int_terminate()
+      status = .true.
+      status = status.and.ma_pop_stack(h_2bfr)
+      status = status.and.ma_pop_stack(h_buf)
+      status = status.and.ma_pop_stack(h_scr)
+      status = status.and.ma_pop_stack(h_sph_s)
+      status = status.and.ma_pop_stack(h_cart_s)
+c
+      if (.not.status) call errquit('ma pop fail',911)
+c
+      end
+      subroutine rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,cn2bfr)
+      implicit none
+#include "bas.fh"
+      integer nshell, nbf_chk, nbf_sp, basis
+      integer cn2bfr(2,nshell)
+      integer type, nprim, ngen, spsp, ish
+c
+      nbf_chk = 0
+      nbf_sp  = 0
+      do ish = 1,nshell
+        if(.not.bas_continfo(basis,ish,type,nprim,ngen,spsp))
+     &        call errquit(' continfo failed ',911)
+        cn2bfr(1,ish) = nbf_sp + 1
+        cn2bfr(2,ish) = nbf_sp + 2*type+1
+        nbf_chk = nbf_chk + (type+1)*(type+2)/2
+        nbf_sp  = nbf_sp + 2*type+1
+        write(6,10000)ish,type,cn2bfr(1,ish),cn2bfr(2,ish)
+      enddo
+10000 format('<ish:type><',i3,':',i3,'>  range ',i3,' to ',i3)
+      end
+      subroutine rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
+     &      scr,mscr,buf,mbuf,s,s_sp,cn2bfr_sp)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "bas.fh"
+c
+      integer nbf, nbf_sp, nshell, mscr, mbuf, basis
+      integer cn2bfr_sp(2,nshell)
+      double precision scr(mscr), buf(mbuf)
+      double precision s(nbf,nbf), s_sp(nbf_sp,nbf_sp)
+c
+      integer ibf, ish, ilow, ihi, ilow_sp, ihi_sp, nbfi, nbfi_sp
+      integer jbf, jsh, jlow, jhi, jlow_sp, jhi_sp, nbfj, nbfj_sp
+      integer typei, typej, nprim, ngen, spsp
+      integer nint, nint_sp, count, hi_ang, st_ang
+      double precision value
+c
+      logical spcart_init, spcart_terminate
+      external spcart_init, spcart_terminate
+c
+      write(6,*)'inside rak_ovlap'
+      if (.not.bas_high_angular(basis,hi_ang)) stop ' fuck ang'
+      st_ang = hi_ang/2
+      if (.not.spcart_init(st_ang,.true.,.false.)) stop ' fuck sp'
+      if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' fuck sp'
+c
+      write(6,*)' mscr = ',mscr
+      write(6,*)' mbuf = ',mbuf
 c
       do ish = 1,nshell
+        if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
+        ilow_sp = cn2bfr_sp(1,ish)
+        ihi_sp  = cn2bfr_sp(2,ish)
+        nbfi    = ihi    - ilow + 1
+        nbfi_sp = ihi_sp - ilow_sp + 1
+        if(.not.bas_continfo(basis,ish,typei,nprim,ngen,spsp))
+     &        call errquit(' continfo failed ',911)
         do jsh = 1,ish
-          write(6,*)' ============= shells <',ish,'|',jsh,'>',
-     &        '==================== start =========='
-          write(6,*)' '
-          
-          ucont = ibs_cn2ucn(ish,basis_id)
-          Li      = infbs_cont(CONT_TYPE ,ucont,basis_id)
-          i_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
-          i_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
-          i_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
-          i_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
-          i_cent  = ibs_cn2ce(ish,basis_id)
-          i_geom  = ibs_geom(basis_id)
+          if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'fuck j'
+          jlow_sp = cn2bfr_sp(1,jsh)
+          jhi_sp  = cn2bfr_sp(2,jsh)
+          nbfj    = jhi    - jlow + 1
+          nbfj_sp = jhi_sp - jlow_sp + 1
+          if(.not.bas_continfo(basis,jsh,typej,nprim,ngen,spsp))
+     &          call errquit(' continfo failed ',911)
 c
-          ucont = ibs_cn2ucn(jsh,basis_id)
-          Lj      = infbs_cont(CONT_TYPE ,ucont,basis_id)
-          j_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
-          j_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
-          j_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
-          j_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
-          j_cent  = ibs_cn2ce(ish,basis_id)
-          j_geom  = ibs_geom(basis_id)
-          
-          call hf1tmp(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-     &        dbl_mb(k_scr),dbl_mb(k_scr),dbl_mb(k_buf),membuf,
-     &        .false., .false., .true., .false., .false.,
-     &        dbl_mb(k_scr), memscr)
-          write(6,*)' i = c center '
-          call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
-          write(6,*)' j = c center '
-          call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
-          write(6,*)' i = c center swap'
-          call hf3pot(
-     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
-          write(6,*)' j = c center swap'
-          call hf3pot(
-     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
-     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
-     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
-     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
-     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
-     &        dbl_mb(k_buf), membuf, nint_out, .false.,
-     &        dbl_mb(k_scr), memscr)
-          write(6,*)' ============= shells <',ish,'|',jsh,'>',
-     &        '====================  end  =========='
+          nint    = nbfi*nbfj
+          nint_sp = nbfi_sp*nbfj_sp
+c
           write(6,*)' '
+          write(6,*)'<ish,ilow,ihi,nbfi,typei>',ish,ilow,ihi,nbfi,typei
+          write(6,*)'<jsh,jlow,jhi,nbfj,typej>',jsh,jlow,jhi,nbfj,typej
+          write(6,*)' nint     = ',nint,' nint(sp) = ',nint_sp
+          write(6,*)'<ish,ilowsp,ihisp,nbfisp,typei>',
+     &          ish,ilow_sp,ihi_sp,nbfi_sp,typei
+          write(6,*)'<jsh,jlowsp,jhisp,nbfjsp,typej>',
+     &          jsh,jlow_sp,jhi_sp,nbfj_sp,typej
+          write(6,*) ' ma fucked 1'
+          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 1'
+          write(6,*)' '
+c
+          call int_1eov(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
+c
+          count = 0
+          do ibf = ilow,ihi
+            do jbf = jlow, jhi
+              count = count + 1
+              value = buf(count)
+              s(ibf,jbf) = value
+              s(jbf,ibf) = value
+            enddo
+          enddo
+          write(6,*) ' ma fucked 2'
+          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
+c.... buf is now -- buf(nbfj,nbfi)
+          write(6,*)' integral buffer cart,cart '
+          call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
+          call spcart_a_s(buf,scr,nbfj,typei,.false.)
+c.... scr is now -- scr(nbfj,nbfi_sp)
+          write(6,*)' integral buffer  cart,sph'
+          call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
+          write(6,*) ' ma fucked 3'
+          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
+          call spcart_s_a(scr,buf,nbfi_sp,typej,.false.)
+c.... buf is now -- buf(nbfj_sp,nbfi_sp)
+          write(6,*)' integral buffer  sph,sph'
+          call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
+          write(6,*) ' ma fucked 4'
+          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 4'
+          count = 0
+          do ibf = ilow_sp,ihi_sp
+            do jbf = jlow_sp, jhi_sp
+              count = count + 1
+              value = buf(count)
+              s_sp(ibf,jbf) = value
+              s_sp(jbf,ibf) = value
+            enddo
+          enddo
+          write(6,*) ' ma fucked 5'
+          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 5'
         enddo
       enddo
-c      
-      call int_terminate()
-      status = ma_pop_stack(h_buf)
-      status = status.and.ma_pop_stack(h_scr)
-      if (.not.status) call errquit('pop failed',911)
-      status = bas_destroy(basis)
-      status = status.and.geom_destroy(geom)
-      if (.not.status) call errquit('b/g destroy failed',911)
+      write(6,*)' loops done '
+      write(6,*)' cartesian overlap matrix '
+      call output(s,1,nbf,1,nbf,nbf,nbf,1)
+      write(6,*)' spherical overlap matrix '
+      call output(s_sp,1,nbf_sp,1,nbf_sp,nbf_sp,nbf_sp,1)
+      if (.not.spcart_terminate()) stop ' fuck sp term'
       end
 *rak:      subroutine raktest0(rtdb)
 *rak:      implicit none
@@ -3653,6 +3730,146 @@ c
 *rak:00200   continue
 *rak:00100 continue
 *rak:      end
+      subroutine raktest_3ctr(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+c
+      logical int_normalize
+      external int_normalize
+c
+c test hf3 nai type routines
+      integer rtdb
+      integer geom,basis, basis_id
+      integer nshell, memscr, membuf
+      integer h_scr, k_scr, h_buf, k_buf
+      integer ish, jsh, ucont
+      integer li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
+      integer lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
+      integer nint_out
+      logical status
+      character*255 mo_basis, geom_name
+c
+      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &    mo_basis = 'ao basis'
+      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
+     &    geom_name = 'geometry'
+c
+      if(.not.geom_create(geom,geom_name))call errquit
+     &    ('raktest_3ctr: geom create error',911)
+      if(.not.bas_create(basis,mo_basis))call errquit
+     &    ('raktest_3ctr: basis create error',911)
+c
+      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
+     &    ('raktest_3ctr: geom load ',911)
+      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
+     &    ('raktest_3ctr: basis load ',911)
+c
+      basis_id = basis + BASIS_HANDLE_OFFSET
+      nshell = ncont_tot_gb(basis_id)
+      if (.not.int_normalize(basis)) call errquit
+     &    ('raktest_3ctr: error normalizing ',911)
+c
+      call int_init(rtdb,1,basis)
+      memscr = 100 000
+      membuf = 1000
+      if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
+     &    h_scr, k_scr)) call errquit
+     &    (' ma error 1',911)
+      if (.not.ma_push_get(mt_dbl,membuf,' buf ',
+     &    h_buf, k_buf)) call errquit
+     &    (' ma error 2',911)
+c
+      do ish = 1,nshell
+        do jsh = 1,ish
+          write(6,*)' ============= shells <',ish,'|',jsh,'>',
+     &        '==================== start =========='
+          write(6,*)' '
+          
+          ucont = ibs_cn2ucn(ish,basis_id)
+          Li      = infbs_cont(CONT_TYPE ,ucont,basis_id)
+          i_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
+          i_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
+          i_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
+          i_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
+          i_cent  = ibs_cn2ce(ish,basis_id)
+          i_geom  = ibs_geom(basis_id)
+c
+          ucont = ibs_cn2ucn(jsh,basis_id)
+          Lj      = infbs_cont(CONT_TYPE ,ucont,basis_id)
+          j_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
+          j_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
+          j_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
+          j_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
+          j_cent  = ibs_cn2ce(ish,basis_id)
+          j_geom  = ibs_geom(basis_id)
+          
+          call hf1tmp(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        dbl_mb(k_scr),dbl_mb(k_scr),dbl_mb(k_buf),membuf,
+     &        .false., .false., .true., .false., .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' i = c center '
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' j = c center '
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' i = c center swap'
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' j = c center swap'
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' ============= shells <',ish,'|',jsh,'>',
+     &        '====================  end  =========='
+          write(6,*)' '
+        enddo
+      enddo
+c      
+      call int_terminate()
+      status = ma_pop_stack(h_buf)
+      status = status.and.ma_pop_stack(h_scr)
+      if (.not.status) call errquit('pop failed',911)
+      status = bas_destroy(basis)
+      status = status.and.geom_destroy(geom)
+      if (.not.status) call errquit('b/g destroy failed',911)
+      end
       subroutine raktest_stpr(rtdb)
       implicit none
 #include "rtdb.fh"
