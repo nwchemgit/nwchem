@@ -18,11 +18,11 @@ PSPW
 
       element: Si                       # label used for the carbon atom
       charge: 14.0                       # nuclear charge of carbon atom
-      mass_number: 12.0                 # mass (a.u.) of carbon atom
+      mass_number: 28.0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
-      exchange_type: pbe96              # dirac and pbe96 options
-      correlation_type: pbe96           # vosko and pbe96 options
+      #exchange_type: pbe96              # dirac and pbe96 options
+      #correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 3 2   # Ncore and Nvalence states
         1 s 2.0             # core state  1s^2
@@ -42,7 +42,7 @@ PSPW
          17.0  17.0   0.0 
          17.0   0.0  17.0
           0.0  17.0  17.0 
-      ngrid: 32 32 32
+      ngrid: 16 16 16
    END
 
    #******* Generate a Formmatted pseudopotential for silicon *****
@@ -101,11 +101,12 @@ PSPW
       fake_mass: 400000.0d0
       time_step: 51.8d0
       loop: 10 100
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      tolerances: 1.0d-15 1.0d-9 1.0d-4
       exchange_correlation: pbe96
    END 
 END
 task pspw conjugate_gradient
+task pspw steepest_descent
 
 
 #******* Generate a initial wavefunction based on planewaves ****
