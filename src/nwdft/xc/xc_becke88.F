@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_becke88.F,v 1.18 1999-02-19 02:35:01 bjohnson Exp $
+C$Id: xc_becke88.F,v 1.19 1999-03-13 01:05:15 bjohnson Exp $
 c
       implicit none
 c      
@@ -138,6 +138,7 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
             if (dabs(rho(n,1)).lt.tol_rho) goto 20
+            if (dabs(rho(n,2)).lt.tol_rho) goto 25
 c
 c           Spin alpha:
 c
@@ -195,7 +196,11 @@ c
             endif
 #endif
 c
+ 25         continue
+c
 c           Spin beta:
+c
+            if (dabs(rho(n,3)).lt.tol_rho) goto 20
 c
             rho13 = rho(n,3)**(1.d0/3.d0)
             rho43 = rho13**4 
