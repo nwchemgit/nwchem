@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.130 2000-03-20 22:52:46 mg201 Exp $
+C     $Id: geom_input.F,v 1.131 2000-04-10 09:23:56 hvd Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1027,7 +1027,6 @@ c
       double precision zan
       double precision units
       integer iw
-      parameter (iw = luout)
       common/hnd_mollab/atmlab(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -1038,6 +1037,7 @@ c
       double precision   mass(*)
       dimension tags(*)
 c
+      iw = luout
       dbug=.false.
       some=.true.
       some=some.or.dbug

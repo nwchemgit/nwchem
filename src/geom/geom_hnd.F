@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.29 1999-07-28 00:41:32 d3e129 Exp $
+* $Id: geom_hnd.F,v 1.30 2000-04-10 09:23:54 hvd Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -1058,7 +1058,6 @@ c
       logical geom_autoz_info_get
       external geom_autoz_info_get
       integer iw
-      parameter (iw=luout)
 
 *     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
 *     common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -1120,6 +1119,7 @@ c
      1     (c(2,iat)-c(2,jat))**2+
      2     (c(3,iat)-c(3,jat))**2) * toangs
 c     
+      iw=luout
       zdone = .false.
       if(oprint) write(iw,8888)
 c     
@@ -1866,7 +1866,6 @@ c
       logical     zdone, oprint
       logical     dolinb
       integer iw
-      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijbnds(2,*)
@@ -1875,6 +1874,7 @@ c
       dimension ijkang(3,*),ijklto(4,*),ijklop(4,*)
       dimension ijklnb(4,*),xyzlnb(3,*)
 c
+      iw=luout
       dbug=.false.
       out =.false.
       out =out.or.dbug
@@ -2032,7 +2032,6 @@ c
       parameter (mxbnds= 8*mxatom)
       logical     dbug
       integer iw
-      parameter (iw=luout)
       dimension izmat(*)   
       dimension ijbond(2,mxbnds)
       dimension iibond(  mxatom)
@@ -2041,6 +2040,7 @@ c
       dimension iibnds(  *)
       dimension nibnds(  *)
 c
+      iw=luout
       dbug=.false.
       if(dbug) then
          write(iw,9999)
@@ -2118,7 +2118,6 @@ c
       logical     linbnd
       logical     oprint
       integer iw
-      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijkang(3,*)     
@@ -2141,6 +2140,7 @@ c
      1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
      2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
 c     
+      iw=luout
       dbug=.false.
       if(dbug) then
          write(iw,9999)
@@ -2393,7 +2393,6 @@ c
       logical zdone, oprint, oopb, oi3d, oj3d
       logical geom_add_tor, bonds_span3d
       integer iw
-      parameter (iw=luout)
       dimension c(3,*)
       dimension izmat(*)   
       dimension ijklto(4,*)      
@@ -2416,6 +2415,7 @@ c
      1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
      2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
 c     
+      iw=luout
       dbug=.false.
       if(dbug) then
          write(iw,9999)
