@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.23 2002-04-26 20:37:41 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.24 2002-05-04 19:28:30 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -479,9 +479,9 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
 
 *     ***************************
-*     *							*
+*     *				*
 *     *	    cgsd_energy_stress	*
-*     *							*
+*     *				*
 *     ***************************
 
       subroutine cgsd_energy_stress(stress)
@@ -559,8 +559,8 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
        end do
        end do
 
-      call dscal(9,-1.0d0,stress,1)
-      call write_stress(stress,"-1*total gradient")
+c     *** call dscal(9,-1.0d0,stress,1)
+      call write_stress(stress,"total gradient")
 
       call write_stress(sigma,"Internal Stress Tensor")
       return

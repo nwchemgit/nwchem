@@ -1,6 +1,6 @@
       logical function update_unitcell(rtdb)
 *
-* $Id: update_unitcell.F,v 1.5 2002-04-26 20:37:41 bylaska Exp $
+* $Id: update_unitcell.F,v 1.6 2002-05-04 19:28:29 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -37,7 +37,7 @@
       write(*,*) " -------------------- "
 
 *     *** simple steepest descent update ****
-      alpha = 5.00d0
+      alpha = -5.00d0
       call dcopy(9,unita,1,unita2,1)
       call daxpy(9,alpha,stress,1,unita2,1)
 
