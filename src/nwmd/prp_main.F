@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.96 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: prp_main.F,v 1.97 2003-10-27 15:25:24 d3j191 Exp $
 c
       implicit none
 c
@@ -53,7 +53,7 @@ c
       real*8 prest(3,3),virt(3,3),ekct(3,3),ep2m,ep3m,epmec2,epmec3
       real*8 xsm(msm,3),dx(3),upmf(100)
 c
-      integer i,j,k,it
+      integer i,j,k,it,lenp
 c
       call timer_start(54)
 c
@@ -354,10 +354,52 @@ c
       p(10)=zero
       p(11)=zero
       endif
+      if(maxp+mpe*(1+msf*(1+msf)).gt.maxpro) then
       call ga_dgop(mrg_d45,p,maxp,'+')
       call ga_dgop(mrg_d40,eww,mpe,'+')
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
+      else
+      lenp=maxp
+      do 501 i=1,mpe
+      p(lenp+i)=eww(i,1)
+  501 continue
+      lenp=lenp+mpe
+      do 502 i=1,mpe
+      do 503 j=1,msf
+      lenp=lenp+1
+      p(lenp)=esw(j,i,1)
+  503 continue
+  502 continue
+      do 504 i=1,mpe
+      do 505 j=1,msf
+      do 506 k=1,msf
+      lenp=lenp+1
+      p(lenp)=ess(k,j,i,1)
+  506 continue
+  505 continue
+  504 continue
+      call ga_dgop(mrg_d45,p,lenp,'+')
+      lenp=maxp
+      do 511 i=1,mpe
+      eww(i,1)=p(lenp+i)
+  511 continue
+      lenp=lenp+mpe
+      do 512 i=1,mpe
+      do 513 j=1,msf
+      lenp=lenp+1
+      esw(j,i,1)=p(lenp)
+  513 continue
+  512 continue
+      do 514 i=1,mpe
+      do 515 j=1,msf
+      do 516 k=1,msf
+      lenp=lenp+1
+      ess(k,j,i,1)=p(lenp)
+  516 continue
+  515 continue
+  514 continue
+      endif
 cxxxxx      call ga_dgop(mrg_d43,epme,3,'+')
       if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
