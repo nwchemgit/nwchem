@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.14 2003-02-24 20:52:52 bylaska Exp $
+* $Id: paw_mult.F,v 1.15 2003-02-24 20:59:58 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2003/02/24 20:52:52  bylaska
+* fixed initialization of rcut and ncut.....EJB
+*
 * Revision 1.13  2003/02/23 21:37:07  bylaska
 * routines for calculating atomic multipole energies have been added....EJB
 *
@@ -649,6 +652,47 @@
 
       return
       end
+
+
+
+!**************************************************
+!
+!       Name: paw_mult_rcut
+!
+!       Purpose:
+!
+!       Created:        2/16/2003
+!**************************************************
+      function paw_mult_rcut()
+      implicit none
+      real*8 paw_mult_rcut !*RESULT*
+
+#include "paw_mult_data.fh"
+
+      paw_mult_rcut = sigma_smooth
+      return
+      end
+
+
+!**************************************************
+!
+!       Name: paw_mult_ncut
+!
+!       Purpose:
+!
+!       Created:        2/16/2003
+!**************************************************
+      function paw_mult_ncut()
+      implicit none
+      integer paw_mult_ncut !*RESULT*
+
+#include "paw_mult_data.fh"
+
+      paw_mult_ncut = ncut
+      return
+      end
+
+
 
 !**************************************************
 !
