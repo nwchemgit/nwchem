@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.124 1999-07-20 17:32:13 d3g681 Exp $
+C     $Id: geom_input.F,v 1.125 1999-08-17 00:56:45 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2902,6 +2902,7 @@ c
 c     RJH ... added parameter THREQUIV to provide user control
 c     .       for noisy geometries, and groupname to return value
 C
+#include "util.fh"
 #include "nwc_const.fh"
       LOGICAL     ODONE
       PARAMETER   (MXORDR=24)
@@ -2993,14 +2994,14 @@ C
 c
 ****      THREQUIV = TENM04
 C
-      MUCH=.FALSE.
-      DBUG=.FALSE. 
+      MUCH=util_print('autosym symmetry information',print_never)
+      DBUG=util_print('autosym symmetry information',print_never)
       DBUG=DBUG.OR.MUCH
-      OUT =.FALSE.
+      OUT =util_print('autosym symmetry information',print_never)
       OUT =OUT.OR.DBUG
-      SOME=.FALSE.
+      SOME=util_print('autosym symmetry information',print_high)
       SOME=SOME.OR.OUT
-      ONLY=.TRUE. 
+      ONLY=util_print('autosym symmetry information',print_default)
       ONLY=ONLY.OR.SOME
 C
 C     ----- INERTIA AXES AND DATA -----
@@ -3524,7 +3525,8 @@ c     correct for linear molecules with an infinite order axis.
 c     it will be made a four fold axis
 c
          if ((linear).and.(iordr.eq.mxordr)) then
-           write(IW,*) 'ORDER OF PRIMARY AXIS IS BEING SET TO 4'
+           if (ONLY)
+     &           write(IW,*) 'ORDER OF PRIMARY AXIS IS BEING SET TO 4'
            if((xmag(iordr).le.ethresh).and.(.not.gotx)) then
              axordr(1)=4
              gotx=.true.
@@ -4069,6 +4071,7 @@ C
      3                     CUBIC,GRPOH,GRPTH,GRPTD,GRPT,GRPO,
      4                     AXORDR,TR,RT,ODONE,groupname)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "util.fh"
       LOGICAL  ODONE
       LOGICAL  DBUG
       LOGICAL  OUT
@@ -4138,10 +4141,10 @@ C
       DATA WRDSYM /' $SYM   '/
       DATA WRDEND /' $END   '/
 C
-      DBUG=.FALSE.
-      OUT =.FALSE.
+      DBUG=util_print('autosym symmetry information',print_never)
+      OUT =util_print('autosym symmetry information',print_high)
       OUT =OUT.OR.DBUG
-      SOME=.TRUE. 
+      SOME=util_print('autosym symmetry information',print_default)
       SOME=SOME.OR.OUT
 C
       PUNCH=.FALSE.
