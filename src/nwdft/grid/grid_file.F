@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.49 2003-01-17 05:04:05 edo Exp $
+* $Id: grid_file.F,v 1.50 2003-01-31 21:12:46 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -70,11 +70,6 @@ c
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
       cur_rec_rad=0d0
-#ifdef NOAIO
-      oasyncio = .false.
-#else
-      oasyncio = .true.
-#endif
 c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
@@ -494,7 +489,6 @@ cedo         end if
 c
       grid_packed_buf_read = .true.
       if (cur_rec .le. max_cache_rec.and.(.not.oreopen)) then
-!      if (.false.) then
 c
 c     Record is cached in memory
 c
@@ -507,47 +501,14 @@ c     Record is on disk
 c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
 c
-         if ((.not. oasyncio) .or. (.not. oiopending)) then
-c
-c     Either synchronous IO, or the record has not been read already
-c
-            ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
-            if (ierr.ne.0) then
-               call eaf_errmsg(ierr,errmsg)
-               write(LuOut,*) ga_nodeid(),errmsg
-               grid_packed_buf_read = .false.
-!               call errquit('grid_buf_read:premature end of file',
-!     $              cur_rec)
-               return
-            endif
-         else
-c
-c     The record has been read asynchronously ... copy it over
-c
-            ierr = eaf_wait(fd, aioreq)
-            if (ierr .ne. 0) then
-               call eaf_errmsg(ierr,errmsg)
-               write(LuOut,*) ga_nodeid(),errmsg
-               call errquit('grid_buf_read:eaf_wait failed',cur_rec)
-            endif
-            oiopending = .false.
-            call util_memcpy(buf,buf2,rec_len_in_dbl*8)
+         ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
+         if (ierr.ne.0) then
+            call eaf_errmsg(ierr,errmsg)
+            write(LuOut,*) ga_nodeid(),errmsg
+            grid_packed_buf_read = .false.
+            return
          endif
-c         
-         if (oasyncio .and. ((cur_rec+1).le.n_rec_in_file)) then
-c
-c     Post a read for the next record
-c
-!            offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec)
-            offset = 8.0d0*rec_len_in_dbl*(cur_rec)
-            ierr = eaf_aread(fd, offset, buf2, 8*rec_len_in_dbl, aioreq)
-            oiopending = .true.
-            if (ierr.ne.0) then
-               call eaf_errmsg(ierr,errmsg)
-               write(LuOut,*) ga_nodeid(),errmsg
-               call errquit('grid_buf_read:asynch IO failed',cur_rec+1)
-            endif
-         endif
+c     
       end if
 c
       cur_rec = cur_rec + 1
