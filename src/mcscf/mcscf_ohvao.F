@@ -1,0 +1,350 @@
+c
+c
+c  TODO:   1) Reduce the required number of density matrices
+c          2) Direct accumulation into product vector
+c          3) Remove redundant ga_zero's
+c        
+c
+c
+       subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
+     $                               oskel, dm1, g_movecs, g_x, g_tmp,
+     $                               g_ax )
+#include "global.fh"
+#include "mafdecls.fh"
+c
+c
+       integer geom, basis                          ! [input] Handles
+       integer nbf                                  ! [input] Basis functions
+       integer nclosed                              ! [input] Closed shells
+       integer nact                                 ! [input] Active shells
+       logical oskel                                ! [input] Symmetry selection
+       double precision dm1(nact,nact)              ! [input] 1PDM
+       integer g_movecs                             ! [input] MO coefficients
+       integer g_tmp                                ! [input] Temporary  (nbf * nbf)
+       integer g_x                                  ! [input] Argument parameter matrix 
+       integer g_ax                                 ! [output] Hessian product (in matrix rep)
+c
+c
+c
+       integer g_f1, g_f2, g_f3, g_f4, g_f5, g_f6   ! Atom-blocked Fock matrices
+       integer g_d1, g_d2, g_d3, g_d4, g_d5, g_d6   ! Atom-blocked densities
+       integer nvir, vlen, voff, aoff, aend, nn
+       integer g_tmp1, g_tmp2
+c
+c
+       integer nsets
+       parameter(nsets=6)
+       integer iv_dens(nsets), iv_fock(nsets)
+       double precision jfac(nsets),kfac(nsets)
+       data jfac/6*1.d0/
+       data kfac/6*-0.5d0/
+       double precision tol2e
+       data tol2e/1.d-12/
+c
+c
+       integer ga_create_atom_blocked
+       external ga_create_atom_blocked
+c
+c
+c
+       nvir = nbf - nclosed - nact
+       vlen = (nclosed+nact)*nvir + nclosed*nact
+       voff = nclosed + nact + 1
+       aoff = nclosed + 1
+       aend = nclosed + nact
+c
+c
+       if (.not.ga_duplicate(g_tmp,g_tmp1,'temp1'))
+     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0)
+       if (.not.ga_duplicate(g_tmp,g_tmp2,'temp2'))
+     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0)
+       call ga_zero(g_tmp1)
+       call ga_zero(g_tmp2)
+       call ga_zero(g_tmp)
+       if (ga_nodeid().eq.0)
+     $      call ga_put(g_tmp,aoff,aend,aoff,aend,dm1,nact)
+       call ga_sync()
+       g_d1 = ga_create_atom_blocked( geom, basis, 'Density 1')
+       g_d2 = ga_create_atom_blocked( geom, basis, 'Density 2')
+       g_d3 = ga_create_atom_blocked( geom, basis, 'Density 3')
+       g_d4 = ga_create_atom_blocked( geom, basis, 'Density 4')
+       g_d5 = ga_create_atom_blocked( geom, basis, 'Density 5')
+       g_d6 = ga_create_atom_blocked( geom, basis, 'Density 6')
+       g_f1 = ga_create_atom_blocked( geom, basis, 'Fock 1')
+       g_f2 = ga_create_atom_blocked( geom, basis, 'Fock 2')
+       g_f3 = ga_create_atom_blocked( geom, basis, 'Fock 3')
+       g_f4 = ga_create_atom_blocked( geom, basis, 'Fock 4')
+       g_f5 = ga_create_atom_blocked( geom, basis, 'Fock 5')
+       g_f6 = ga_create_atom_blocked( geom, basis, 'Fock 6')
+
+c
+c Inactive-Virtual "density"
+c
+       call ga_matmul_patch( 'n', 't', 1.d0, 0.d0,
+     $                       g_x, voff, nbf, 1, nclosed,
+     $                       g_movecs, 1, nclosed, 1, nbf,
+     $                       g_tmp1, voff, nbf, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_movecs, 1, nbf, voff, nbf,
+     $                       g_tmp1, voff, nbf, 1, nbf,
+     $                       g_tmp2, 1, nbf, 1, nbf )
+       call ga_symmetrize(g_tmp2)
+       call ga_copy( g_tmp2, g_d1 )
+       call ga_copy( g_d1, g_d2 )
+       call ga_copy( g_d1, g_d3 )
+c
+c Inactive-Virtual, Active-Virtual "density"
+c
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_x, voff, nbf, aoff, aend,
+     $                       g_tmp, aoff, aend, aoff, aend,
+     $                       g_tmp1, voff, nbf, aoff, aend )
+       call ga_matmul_patch( 'n', 't', 1.d0, 0.d0,
+     $                       g_tmp1, voff, nbf, aoff, aend,
+     $                       g_movecs, aoff, aend, 1, nbf,
+     $                       g_tmp2, voff, nbf, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_movecs, 1, nbf, voff, nbf,
+     $                       g_tmp2, voff, nbf, 1, nbf,
+     $                       g_tmp1, 1, nbf, 1, nbf )
+       call ga_symmetrize(g_tmp1)
+       call ga_copy( g_tmp1, g_d4 )
+       call ga_dadd( 1.d0, g_d4, 2.d0, g_d1, g_d1 )
+c
+c Inactive-Virtual, Inactive-Active "density"
+c
+       call ga_zero(g_tmp2)
+       call diagfill_patch(g_tmp2, 2.d0, aoff, aend )
+       call ga_dadd(1.d0, g_tmp2, -1.d0, g_tmp, g_tmp2 )
+       call ga_zero(g_tmp1)
+       call ga_matmul_patch('n', 'n', 1.d0, 0.d0,
+     $                       g_tmp2, aoff, aend, aoff, aend,
+     $                       g_x, aoff, aend, 1, nclosed,
+     $                       g_tmp1, aoff, aend, 1, nclosed )
+       call ga_matmul_patch('n', 't', 1.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, 1, nclosed,
+     $                       g_movecs, 1, nclosed, 1, nbf,
+     $                       g_tmp2, aoff, aend, 1, nbf )
+       call ga_matmul_patch('n', 'n', 1.d0, 0.d0,
+     $                       g_movecs, 1, nbf, aoff, aend,
+     $                       g_tmp2, aoff, aend, 1, nbf,
+     $                       g_tmp1, 1, nbf, 1, nbf )
+       call ga_symmetrize(g_tmp1)
+       call ga_copy( g_tmp1, g_d5 )
+       call ga_dadd( 1.d0, g_d5, 1.d0, g_d1, g_d1 )
+c
+c Active-Virtual part
+c
+       call ga_zero(g_tmp1)
+       call ga_matmul_patch('n', 't', 1.d0, 0.d0,
+     $                      g_x, aoff, aend, 1, nclosed,
+     $                      g_movecs, 1, nclosed, 1, nbf,
+     $                      g_tmp1, aoff, aend, 1, nbf )
+       call ga_zero(g_tmp2)
+       call ga_matmul_patch('n', 'n', 1.d0, 0.d0,
+     $                      g_movecs, 1, nbf, aoff, aend,
+     $                      g_tmp1, aoff, aend, 1, nbf,
+     $                      g_tmp2, 1, nbf, 1, nbf )
+       call ga_symmetrize(g_tmp2)
+       call ga_copy( g_tmp2, g_d5 )
+       call ga_dadd( 1.d0, g_d5, 1.d0, g_d2, g_d2 )
+c
+c
+c CA, CA density
+c
+c
+       call ga_zero(g_tmp1)
+       call diagfill_patch(g_tmp1, 1.d0, aoff, aend )
+       call ga_dadd( 1.d0, g_tmp1, -1.d0, g_tmp, g_tmp1)
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, aoff, aend,
+     $                       g_x, aoff, aend, 1, nclosed,
+     $                       g_tmp2, aoff, aend, 1, nclosed )
+       call ga_matmul_patch( 'n', 't', 1.d0, 0.d0,
+     $                       g_tmp2, aoff, aend, 1, nclosed, 
+     $                       g_movecs, 1, nclosed, 1, nbf,
+     $                       g_tmp1, aoff, aend, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_movecs, 1, nbf, aoff, aend,
+     $                       g_tmp1, aoff, aend, 1, nbf,
+     $                       g_tmp2, 1, nbf, 1, nbf )
+       call ga_symmetrize(g_tmp2)
+       call ga_copy(g_tmp2, g_d6)
+c 
+c
+c
+c Fock build
+c
+       nn = 6
+       call ga_zero(g_f1)
+       call ga_zero(g_f2)
+       call ga_zero(g_f3)
+       call ga_zero(g_f4)
+       call ga_zero(g_f5)
+       call ga_zero(g_f6)
+       iv_dens(1) = g_d1
+       iv_dens(2) = g_d2
+       iv_dens(3) = g_d3
+       iv_dens(4) = g_d4
+       iv_dens(5) = g_d5
+       iv_dens(6) = g_d6
+       iv_fock(1) = g_f1
+       iv_fock(2) = g_f2
+       iv_fock(3) = g_f3
+       iv_fock(4) = g_f4
+       iv_fock(5) = g_f5
+       iv_fock(6) = g_f6
+       
+       call fock_2e( geom, basis, nn, jfac, kfac, tol2e, oskel,
+     $               iv_dens, iv_fock )
+c
+c  Symmetrize AO Fock matrices
+c
+       if (oskel) then
+         do i=1,nn
+           call sym_symmetrize(geom, basis, .false., iv_fock(i))
+         enddo
+       endif
+c
+c Inactive-Virtual contribution
+c 
+c
+       call ga_zero(g_tmp2)
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
+     $                       g_movecs, voff, nbf, 1, nbf,
+     $                       g_f1, 1, nbf, 1, nbf,
+     $                       g_tmp1, voff, nbf, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 8.d0, 0.d0,                      ! Where does this factor come from?
+     $                       g_tmp1, voff, nbf, 1, nbf,
+     $                       g_movecs, 1, nbf, 1, nclosed,
+     $                       g_tmp2, voff, nbf, 1, nclosed )
+       call ga_dadd_patch( 1.d0, g_tmp2, voff, nbf, 1, nclosed,
+     $                     1.d0, g_ax, voff, nbf, 1, nclosed,
+     $                           g_ax, voff, nbf, 1, nclosed )
+c
+c Active-Virtual contribution
+c
+c
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
+     $                       g_movecs, voff, nbf, 1, nbf,
+     $                       g_f2, 1, nbf, 1, nbf,
+     $                       g_tmp1, voff, nbf, 1, nbf )
+       call ga_zero(g_tmp2)
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_tmp1, voff, nbf, 1, nbf,
+     $                       g_movecs, 1, nbf, aoff, aend,
+     $                       g_tmp2, voff, nbf, aoff, aend )
+       call ga_matmul_patch( 'n', 'n', 8.d0, 0.d0,
+     $                       g_tmp2, voff, nbf, aoff, aend,
+     $                       g_tmp, aoff, aend, aoff, aend,
+     $                       g_tmp1, voff, nbf, aoff, aend )
+       call ga_dadd_patch( 1.d0, g_tmp1, voff, nbf, aoff, aend,
+     $                     1.d0, g_ax, voff, nbf, aoff, aend,
+     $                           g_ax, voff, nbf, aoff, aend )
+c
+c
+c
+c Inactive-Active contribution
+c
+       call ga_zero(g_tmp1)
+       call ga_zero(g_tmp2)
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
+     $                       g_movecs, aoff, aend, 1, nbf,
+     $                       g_f3, 1, nbf, 1, nbf,
+     $                       g_tmp1, aoff, aend, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, 1, nbf,
+     $                       g_movecs, 1, nbf, 1, nclosed,
+     $                       g_tmp2, aoff, aend, 1, nclosed )
+       call ga_zero(g_tmp1)
+       call diagfill_patch( g_tmp1, 2.d0, aoff, aend )
+       call ga_dadd( 1.d0, g_tmp1, -1.d0, g_tmp, g_tmp1 )
+       call ga_matmul_patch( 'n', 'n', 8.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, aoff, aend,
+     $                       g_tmp2, aoff, aend, 1, nclosed,
+     $                       g_tmp1, aoff, aend, 1, nclosed )
+       call ga_zero(g_tmp2)
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
+     $                       g_movecs, aoff, aend, 1, nbf,
+     $                       g_f4, 1, nbf, 1, nbf,
+     $                       g_tmp2, aoff, aend, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 8.d0, 1.d0,
+     $                       g_tmp2, aoff, aend, 1, nbf,
+     $                       g_movecs, 1, nbf, 1, nclosed,
+     $                       g_tmp1, aoff, aend, 1, nclosed )
+       call ga_dadd_patch( 1.d0, g_tmp1, aoff, aend, 1, nclosed,
+     $                     1.d0, g_ax, aoff, aend, 1, nclosed,
+     $                           g_ax, aoff, aend, 1, nclosed )
+c
+c
+c CA,CA contribution   (note this last section has zero contribution
+c                       in ROHF theory and has not been debugged against the ROHF
+c                       Hessian product)
+c
+c
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,                         
+     $                       g_movecs, aoff, aend, 1, nbf,                
+     $                       g_f6, 1, nbf, 1, nbf,                        
+     $                       g_tmp1, aoff, aend, 1, nbf )                 
+       call ga_matmul_patch( 'n', 'n', 8.d0, 0.d0,                        
+     $                       g_tmp1, aoff, aend, 1, nbf,
+     $                       g_movecs, 1, nbf, 1, nclosed,
+     $                       g_tmp2, aoff, aend, 1, nclosed )
+       call ga_dadd_patch( 1.d0, g_tmp2, aoff, aend, 1, nclosed,
+     $                     1.d0, g_ax, aoff, aend, 1, nclosed,
+     $                           g_ax, aoff, aend, 1, nclosed )
+
+
+       call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
+     $                       g_movecs, aoff, aend, 1, nbf,
+     $                       g_f5, 1, nbf, 1, nbf,
+     $                       g_tmp1, aoff, aend, 1, nbf )
+       call ga_matmul_patch( 'n', 'n', 8.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, 1, nbf,
+     $                       g_movecs, 1, nbf, 1, nclosed,
+     $                       g_tmp2, aoff, aend, 1, nclosed )
+       call diagfill_patch( g_tmp1, 1.d0, aoff, aend )
+       call ga_dadd( 1.d0, g_tmp1, -1.d0, g_tmp, g_tmp1 )
+       call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
+     $                       g_tmp1, aoff, aend, aoff, aend,
+     $                       g_tmp2, aoff, aend, 1, nclosed,
+     $                       g_tmp1, aoff, aend, 1, nclosed )
+       call ga_dadd_patch( 1.d0, g_tmp1, aoff, aend, 1, nclosed,
+     $                     1.d0, g_ax, aoff, aend, 1, nclosed,
+     $                           g_ax, aoff, aend, 1, nclosed )
+c
+c
+       if (.not.ga_destroy(g_tmp1))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_tmp2))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d1))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d2))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d3))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d4))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d5))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_d6))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f1))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f2))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f3))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f4))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f5))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+       if (.not.ga_destroy(g_f6))
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+c
+c
+c
+       return
+       end
+
