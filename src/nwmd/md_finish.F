@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.28 2002-06-26 20:06:11 d3j191 Exp $
+c $Id: md_finish.F,v 1.29 2002-06-26 20:32:54 d3j191 Exp $
 c
       implicit none
 c
@@ -110,7 +110,7 @@ c
       if(ntype.eq.0.and.nftri.gt.0) then
       close(unit=lfntri,status='keep')
       endif
-      if(ntype.eq.2.and.lprpmf.ne.0) then
+      if(ntype.eq.2.and.iprpmf.ne.0) then
       close(unit=lfnpmf,status='keep')
       endif
       if(nftime.gt.0) then
