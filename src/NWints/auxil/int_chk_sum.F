@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.10 1994-09-25 08:04:31 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.11 1994-10-20 23:31:47 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -11,7 +11,7 @@ c::passed
 c::local
       logical debug
       logical MAstatus
-      integer max1bf, maxg, mscr1, mscr2
+      integer max1bf, maxg, mscr1, mscr2, mscrh1, maxh1
 c
       integer i,j,k,l, numleft, numtot, lend
       integer memb      ! memory buffer for integrals (1es and eri)
@@ -46,6 +46,15 @@ c
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = max(max1bf,maxg)
       mems = max(mscr1,mscr2)
+      call int_mem_h1(maxh1, mscrh1)
+      memb = max(memb,maxh1)
+      mems = max(mems,mscrh1)
+      call int_mem_2e3c(maxg,mscr2)
+      memb = max(memb,maxg)
+      mems = max(mems,mscr2)
+      call int_mem_2e2c(maxg,mscr2)
+      memb = max(memb,maxg)
+      mems = max(mems,mscr2)
 c
 c...  pray that ma has been initialized still need verification flag for
 c...       consistency.
