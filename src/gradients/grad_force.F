@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom )
-c$Id: grad_force.F,v 1.10 1996-09-27 23:18:21 vg038 Exp $
+c$Id: grad_force.F,v 1.11 1996-10-12 20:08:42 d3g681 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -86,7 +86,7 @@ C------------------------------------------------------------------------------
      $     g_eigen_diag,  ! eigenvalue diagonal matrix or lagrangian
      $     g_force        ! forces on atoms (cartesian)
 
-      character*255 movecs_in, movecs_out
+      character*255 movecs_in
 
       integer nproc, nat, nbf, max_sh_bf, max_at_bf, nopen, nclosed, 
      $     ndens, nbf2, nocc, max1e, max2e, mscratch_1e, mscratch_2e,
@@ -138,16 +138,7 @@ C     get information about basis set
 
 C     get SCF MO vectors for density
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $     movecs_in = 'atomic'
-      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
-     $     movecs_out = ' '
-      if (movecs_out.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
-         else
-            movecs_out = movecs_in
-         endif
-      endif
+     $     call errquit('gradients: SCF MO vectors not defined',0)
 
 C     get information about type of calculation
 
@@ -155,15 +146,10 @@ C     scftype: RHF, ROHF or UHF
       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
      $     nopen = 0
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('scf: nopen > nelec ', nopen)
+     $     call errquit ('gradients: nopen > nelec ', nopen)
 
-      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) then
-         if (nopen .eq. 0) then
-            scftype = 'RHF'
-         else
-            scftype = 'ROHF'
-         endif
-      endif
+      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
+     $     call errquit('gradients: scftype not defined',0)
       call inp_ucase(scftype)
 
 C     is it MP2?
@@ -315,7 +301,7 @@ C       fill lookup table
 
       call grad_dens (geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $                dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
-     $                nopen, nclosed, scftype, movecs_out, omp2)
+     $                nopen, nclosed, scftype, movecs_in, omp2)
 
 C     free temporary arrays
       status = ga_destroy ( g_eigen_diag )
