@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.19 1996-03-08 20:36:48 mg141 Exp $
+C$Id: moints_mp2.F,v 1.20 1996-10-23 20:31:45 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -197,12 +197,16 @@ c$$$       endif
 
 
 
-       double precision function moints_epair_eval( ndim, vstart, nocc,
-     $                                          nvir, xk, orbe, denom )
+
+       double precision function moints_epair_eval( ndim, vstart,
+     $                                          nvir, xk, virorbe,
+     $                                          denom )
        implicit none
-       integer ndim, vstart, nocc, nvir
-       double precision xk(ndim,ndim), orbe(nocc+nvir), denom
+#include "global.fh"
+       integer ndim, vstart, nvir
+       double precision xk(ndim,ndim), virorbe(nvir), denom
        double precision xx, yy
+       double precision xxxx
        integer k,l,kk,ll
 
        xx = 0.d0
@@ -211,9 +215,19 @@ c$$$       endif
            k = vstart + kk
            l = vstart + ll
            yy = xk(l,k)*(4.d0*xk(l,k) - 2.d0*xk(k,l))
-           xx = xx + yy/(denom - orbe(nocc+kk) - orbe(nocc+ll))
+           xxxx = denom  - virorbe(kk) - virorbe(ll)
+           if (abs(xxxx).lt.1.d-10)
+     $       call errquit('moints_epair_eval: zero denominator',0)
+           xx = xx + yy/(denom - virorbe(kk) - virorbe(ll))
          enddo
        enddo
        moints_epair_eval = xx
        return
        end
+
+
+
+
+
+
+
