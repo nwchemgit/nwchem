@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.4 1999-03-09 20:18:36 mg201 Exp $
+C $Id: ecp_local2.F,v 1.5 2000-04-13 20:34:23 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -85,6 +85,9 @@ C $Id: ecp_local2.F,v 1.4 1999-03-09 20:18:36 mg201 Exp $
      &    tol,log_prefac,ab,fourpi
       double precision csco(lcsco)
 *
+      logical ecp_skipint
+      external ecp_skipint
+*
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
@@ -98,6 +101,15 @@ C $Id: ecp_local2.F,v 1.4 1999-03-09 20:18:36 mg201 Exp $
         write (LuOut,*) 'p_min,p_max',p_min,p_max
         write (LuOut,*) 'n_prim_c',(n_prim_c(i),i = p_min,p_max)
         write (LuOut,*) 'l_a,l_b',l_a,l_b
+      end if
+*
+*     Check magnitude of integrals
+*
+      if (.not.DryRun) then
+        if (ecp_skipint (
+     &      l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &      l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &      n_coef_c,zeta_c,coef_c)) return
       end if
 *
 *   Allocate memory for ecp-independent quantities

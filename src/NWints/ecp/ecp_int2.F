@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.10 1999-03-04 19:41:05 mg201 Exp $
+C $Id: ecp_int2.F,v 1.11 2000-04-13 20:34:23 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -97,6 +97,9 @@ C $Id: ecp_int2.F,v 1.10 1999-03-04 19:41:05 mg201 Exp $
      &    R_AC,X_AC,Y_AC,Z_AC,R_BC,X_BC,Y_BC,Z_BC,
      &    tol,fac,log_prefactor
       double precision csco(lcsco)
+*
+      logical ecp_skipint
+      external ecp_skipint
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -197,6 +200,35 @@ C $Id: ecp_int2.F,v 1.10 1999-03-04 19:41:05 mg201 Exp $
      &      ind_c(l_c,1,1),ind_c(l_c,1,2),ind_z(l_c,1,1),ind_z(l_c,1,2),
      &      n_x,n_co_tot,n_co_max,i_off,n_pass,i_cont_c,n_cont_c,skip)
         if (skip) go to 10
+*
+*     Check magnitude of integrals
+*
+        if (.not.DryRun) then
+          if (n_blk .eq. 1) then
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,1),zeta_c(ind_z(l_c,1,1)),
+     &          coef_c(ind_c(l_c,1,1)))) go to 10
+          else if (n_blk .eq. 3) then
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,2),zeta_c(ind_z(l_c,1,2)),
+     &          coef_c(ind_c(l_c,1,2)))) go to 10
+          else
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,1),zeta_c(ind_z(l_c,1,1)),
+     &          coef_c(ind_c(l_c,1,1))) .and.
+     &          ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,2),zeta_c(ind_z(l_c,1,2)),
+     &          coef_c(ind_c(l_c,1,2)))) go to 10
+          end if
+        end if
 *
 *   Set up array dimensions for integrals
 *

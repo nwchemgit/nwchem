@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
+C $Id: ecp_int1.F,v 1.9 2000-04-13 20:34:23 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -97,6 +97,9 @@ C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
      &    tol,fac,log_prefactor
       double precision csco(lcsco)
 *
+      logical ecp_skipint
+      external ecp_skipint
+*
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
@@ -111,6 +114,20 @@ C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
         write (LuOut,*) ((n_prim_c(i,k,1,1),i = p_min,p_max),
      &      k = -1,l_ecp)
       end if
+*
+*   Set up angular momentum ranges and check whether to do block
+*
+      if (sphcart .eq. 0) then
+        l_c_min = mod(l_b,2)
+        l_c_max = l_b-2*(max(l_b-l_ecp+1,0)/2)
+      else
+        l_c_min = l_b
+        l_c_max = l_b
+      end if
+      if (debug_addresses) write (LuOut,*) 'l_c_min,l_c_max',
+     &    l_c_min,l_c_max
+      l_max = l_a+l_b
+      l_min = l_b
 *
 *   Allocate memory for ecp-independent quantities
 *
@@ -169,17 +186,6 @@ C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
 *
 *     Loop over ECP angular momentum projectors
 *
-      if (sphcart .eq. 0) then
-        l_c_min = mod(l_b,2)
-        l_c_max = l_b-2*(max(l_b-l_ecp+1,0)/2)
-      else
-        l_c_min = l_b
-        l_c_max = l_b
-      end if
-      if (debug_addresses) write (LuOut,*) 'l_c_min,l_c_max',
-     &    l_c_min,l_c_max
-      l_max = l_a+l_b
-      l_min = l_b
       do l_c = l_c_max,l_c_min,-2
 *
 *     Define parameters for the different integral class cases
@@ -188,6 +194,35 @@ C $Id: ecp_int1.F,v 1.8 1999-03-04 19:37:06 mg201 Exp $
      &      ind_c(l_c,1,1),ind_c(l_c,1,2),ind_z(l_c,1,1),ind_z(l_c,1,2),
      &      n_x,n_co_tot,n_co_max,i_off,n_pass,i_cont_c,n_cont_c,skip)
         if (skip) go to 10
+*
+*     Check magnitude of integrals
+*
+        if (.not.DryRun) then
+          if (n_blk .eq. 1) then
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,1),zeta_c(ind_z(l_c,1,1)),
+     &          coef_c(ind_c(l_c,1,1)))) go to 10
+          else if (n_blk .eq. 3) then
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,2),zeta_c(ind_z(l_c,1,2)),
+     &          coef_c(ind_c(l_c,1,2)))) go to 10
+          else
+            if (ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,1),zeta_c(ind_z(l_c,1,1)),
+     &          coef_c(ind_c(l_c,1,1))) .and.
+     &          ecp_skipint (
+     &          l_a,n_prim_a,n_cont_a,coef_a,zeta_a,R_AC,
+     &          l_b,n_prim_b,n_cont_b,coef_b,zeta_b,R_BC,
+     &          n_coef_c(l_c,1,2),zeta_c(ind_z(l_c,1,2)),
+     &          coef_c(ind_c(l_c,1,2)))) go to 10
+          end if
+        end if
 *
 *   Set up array dimensions for integrals
 *
