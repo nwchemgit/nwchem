@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.20 1995-12-23 01:39:45 og845 Exp $
+C$Id: dft_scf.F,v 1.21 1995-12-27 23:30:04 og845 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -53,7 +53,7 @@ c**** patches for SC95,  ECCE' parsing
       integer lmax   ! CMM
       integer finest ! CMM
       character*255 filename
-      logical int2e_file_open,int2e_test_mem
+      logical int2e_file_open,int2e_test_mem,int2e_file_close
 
       integer natoms,nTotEl
       integer l_occ,k_occ
@@ -225,12 +225,11 @@ c
 c
 c     get info for int2e_
 c
-      call scf_get_fock_param(rtdb, tol2e)
+      call scf_get_fock_param(rtdb, tol2e*100.)
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
       itrscf  = iconst(8)
       iscfcon = iconst(9)
-C      ichg    = iconst(12) 
       igcon   = iconst(18)
       icvgtyp = iconst(36)
       nfock   = iconst(37)
@@ -500,7 +499,6 @@ c
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif  
-        if (oreadfile .or. owritefile) call int2e_file_rewind
 
         if( CDFIT ) then
 c         
@@ -1030,6 +1028,14 @@ c
         If ( .NOT. MA_Free_Heap(l_bfshift) ) Call ErrQuit(
      $       'dft_scf: Unable to free MA handle', l_afshift)
         endif
+c
+c
+c
+      if (filesize.gt.0 .or. memsize.gt.0) then
+         if (.not. int2e_file_close())
+     $        call errquit('scf_tidy: closing aoints?', 0)
+      endif
+c
 c-----------------------------------------------------------------------
 c
 c     computation of dipole moments
