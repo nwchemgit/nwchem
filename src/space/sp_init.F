@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.58 2000-02-16 19:38:31 d3j191 Exp $
+c $Id: sp_init.F,v 1.59 2000-02-18 06:01:03 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
-      integer i,j
+      integer i,j,l_f,i_f
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -226,8 +226,7 @@ c
 c
       character*1 cdum
       integer i,j,jdum,ibx,iby,ibz,itemp(9)
-      real*8 rtemp(4),b,q,c(3)
-      character*16 tag
+      real*8 rtemp(4)
 c
       mbbl=0
 c
@@ -1671,7 +1670,6 @@ c
       real*8 pres,temp,tempw,temps
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
       real*8 xs(msa,3),vs(msa,3),fs(msa,3)
-      character*10 hdate,htime
       character*80 prjct
 c
       integer lenscr
@@ -2034,7 +2032,6 @@ c
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ils,ihs,jls,jhs
       integer naw,nbw,nhw,ndw,now,ntw,nnw,nat,nqt,idum
       character*1 cdum
-      real*8 rdum
       character*16 cat
 c
       call ga_distribution(ga_ip,me,ilp,ihp,jlp,jhp)
@@ -2335,6 +2332,7 @@ c
       return
  9999 continue
       call errquit('Failed to open restart file',0)
+      sp_rrest=.false.
       return
       end
       subroutine sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,

@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.44 2000-02-16 17:19:37 d3j191 Exp $
+c $Id: sp_main.F,v 1.45 2000-02-18 06:01:03 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,6 @@ c
       logical lpack
 c
       integer i_qlst,l_qlst
-      integer i,j,k
 c
       if(iguide.gt.0) then
       call sp_gagetixvf(node,iwl,int_mb(i_packw),xw,xwcr,vw,gw,numwm,
@@ -203,7 +202,7 @@ c
       integer numsa,isl(msa,mis2),islp(msa,npack)
       integer numwm,iwl(mwm,miw2),iwlp(mwm,npackw)
 c
-      integer il,ih,jl,jh,i,j
+      integer il,ih,jl,jh
 c
       if(numsa.gt.0.and.npack.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
@@ -495,7 +494,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
       integer ipl(mbox,mip2)
-      integer il,ih,jl,jh,i,j
+      integer il,ih,jl,jh
 c
       call ga_distribution(ga_ip,node,il,ih,jl,jh)
       call ga_get(ga_ip,il,ih,jl,jh,ipl,mbox)
@@ -548,7 +547,7 @@ c
       real*8 vw(mwm,3,mwa),vs(msa,3)
       real*8 fw(mwm,3,mwa),fs(msa,3)
       integer ipl(mbox,mip2)
-      integer il,ih,jl,jh,i,j
+      integer il,ih,jl,jh
 c
       call ga_distribution(ga_ip,node,il,ih,jl,jh)
       call ga_get(ga_ip,il,ih,jl,jh,ipl,mbox)
@@ -1937,7 +1936,7 @@ c
       integer ipl(mbox,mip2),jpl(mbox,mip2)
       logical lself,local,lpp
 c
-      integer i,j,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
+      integer i,ibox,jbox,jnode,il,ih,jl,jh,ndx,nwnon,nsnon
       character*80 string
 c
       if(ibbl.le.0.or.ibbl.gt.nbbl)
