@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.38 1997-03-25 16:50:13 d3g681 Exp $
+# $Id: makelib.h,v 1.39 1997-06-26 00:36:36 d3e129 Exp $
 
 #
 # A makefile for a library should
@@ -261,6 +261,15 @@ endif
 	fi ;
 
 
+#
+# This is a convenience target that will make the TAGS file for current 
+# checked out source tree.  This is only useful if you know something 
+# about emacs.  Note: find, grep and etags must be in your path.
+#
+.PHONY: tags_file
+tags_file:
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+	
 .PHONY:	cleanF
 cleanF:
 ifdef SUBDIRS

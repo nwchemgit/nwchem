@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.30 1997-05-29 00:35:56 d3e129 Exp $
+c $Id: exact_mem.F,v 1.31 1997-06-26 00:36:26 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -119,7 +119,7 @@ c
       mem_1e_h1 = mem_1e_h1       +       2*isz_1e
       mem_3ov   = mem_3ov         +       isz_3ov
 c
-c for NWchem blocking interface
+c for NWChem blocking interface
 c
       iszb_2e4c = 4*isz_2e4c   ! for integrals
       memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to me safe

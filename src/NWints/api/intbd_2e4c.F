@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.2 1997-06-17 22:36:56 mdupuis Exp $
+c $Id: intbd_2e4c.F,v 1.3 1997-06-26 00:36:30 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -42,6 +42,10 @@ c::local
       double precision roff(3)
 c
       intbd_2e4c = .false.
+      if (num_q.eq.0) then
+        nint = 0
+        return
+      endif
       if (txs_b2e4c) then
         call texas_hf2_m(
      &      brain, icl(num_q_start), jcl(num_q_start),

@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.18 1997-05-29 00:35:57 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.19 1997-06-26 00:36:27 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -92,6 +92,7 @@ c
 c.. need extra memory for H1 call externalized by int_mem_h1 (Ta)
 c
       mem_1e_h1 = mem_1e + nbfmax*nbfmax*3*2
+      mem_3ov   = 2*mem_1e_h1  ! WAG
 c
 c... 2e3c and 2e2c use same scratch space so the maxg is the only thing that changes      
 c
@@ -99,6 +100,11 @@ c
       isz_2e2c = nbfmax**2
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
+c
+c for NWChem blocking interface
+c
+      iszb_2e4c = 4*isz_2e4c
+      memb_2e4c = mem_2e4c + mem_2e4c/5 ! + 20 % 
 c
       if (numd_red.gt.numd_tot/33) then
         write(luout,*)' integral derivatives have > 33% split blocks'

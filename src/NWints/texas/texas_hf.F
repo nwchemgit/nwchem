@@ -1450,11 +1450,13 @@ c check if the texas integral program has been initiated
 c for up to this requested task :
 c
       if(irequest.gt.iforinit) then
+         type_i =                 ' texas not initialized '
          if(iforinit.eq.1) type_i='ordinary 2-el.integrals    '
          if(iforinit.eq.2) type_i='giao integral derivatives  '
          if(iforinit.eq.3) type_i='first  geometry derivatives'
          if(iforinit.eq.4) type_i='second geometry derivatives'
 c
+         type_r =                 ' texas error on irequest'
          if(irequest.eq.1) type_r='ordinary 2-el.integrals    '
          if(irequest.eq.2) type_r='giao integral derivatives  '
          if(irequest.eq.3) type_r='first  geometry derivatives'
@@ -1462,8 +1464,8 @@ c
 c
          write(6,66) type_i,type_r
    66    format('                   Texas integral program '/
-     *       ' has been initialized only for :',a27/
-     *       ' and can not be executed for   :',a27)
+     &       ' has been initialized only for :',a27,/,
+     &       ' and can not be executed for   :',a27)
          call errquit('texas program stopped in requested_task',0)
       else
          iforwhat=irequest

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.59 1997-06-18 23:02:14 d3e129 Exp $
+# $Id: GNUmakefile,v 1.60 1997-06-26 00:36:23 d3e129 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -46,13 +46,6 @@ txs:
 	@touch cando_sp.F int_2e2c.F int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
 
-#
-# This is a convenience target that will make the TAGS file for current 
-# checked out source tree.  This is only useful if you know something 
-# about emacs.  Note: find, grep and etags must be in your path.
-#
-tags_file:
-	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
 doc:
 	rm -f integral_api.tex
 	$(BINDIR)/seetex integral_api.th integral_api.tex

@@ -1,4 +1,4 @@
-c $Id: intbd_init4c.F,v 1.1 1997-06-17 19:25:57 d3e129 Exp $
+c $Id: intbd_init4c.F,v 1.2 1997-06-26 00:36:32 d3e129 Exp $
 *
 c:tex-\subsection{intbd\_init4c}
 c:tex-This logical function sets up the blocking integral derivative 
@@ -72,6 +72,7 @@ c
 c
       more_ints_txs = .false. 
       intbd_init4c = .true.
+      if (num_q.eq.0) return
       block_eff = -1.0d00
 c
 *.... check shells for txs only after intbd_init is called and established        
