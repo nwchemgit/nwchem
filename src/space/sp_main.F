@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.63 2001-11-09 22:58:34 d3j191 Exp $
+c $Id: sp_main.F,v 1.64 2001-11-13 22:26:50 d3j191 Exp $
 c
       implicit none
 c
@@ -919,9 +919,9 @@ c      write(*,'(f12.6)') factor
       xcgz=factor*xcgz
 c      write(*,'(6f12.6)') xcgx,xcgy,xcgz,xcg
 cx
-c      xcgx=xcg(1)
-c      xcgy=xcg(2)
-c      xcgz=xcg(3)
+      xcgx=xcg(1)
+      xcgy=xcg(2)
+      xcgz=xcg(3)
 c
       if(npbtyp.ne.0) then
       if(abs(xcgx).gt.boxh(1)) then
@@ -1699,6 +1699,7 @@ c                        3. when box not owned by node:
 c                           a. assign box number
 c                           b. assign correct node number
 c
+      goto 666
       icsgm=isl(ndx(1),lssgm)
       ifsgm=1
       ilsgm=1
@@ -1808,6 +1809,7 @@ c
       ilsgm=isa
       endif
   126 continue
+  666 continue
 c
 c     order solute according to box, segment, charge group, atom number
 c
