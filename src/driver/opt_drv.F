@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.9 1996-12-04 23:39:55 mdupuis Exp $
+C$Id: opt_drv.F,v 1.10 1996-12-05 23:30:14 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2312,7 +2312,7 @@ C
       DATA DALNOR,DALMAX        /0.9D+00,0.5D+00/
 C
       DBUG=.FALSE.
-      OUT =.TRUE.
+      OUT =.FALSE.
       OUT =OUT.OR.DBUG
       IF(OUT) THEN
          WRITE(IW,9994)
