@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.64 2003-04-02 01:05:03 edo Exp $
+C$Id: nwdft.F,v 1.65 2003-06-11 02:32:08 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -75,6 +75,7 @@ c
 c     
       nwdft = .false.
       iproc  = ga_nodeid()
+      call dft_pstat_init(rtdb)
 c
 c     If Dyall-mod-dir is set, exit with error
 c
@@ -275,6 +276,7 @@ c--> Flush ouput buffer.
 c
       if(iproc.eq.0) call util_flush(LuOut)
 
+      call dft_pstat_print
       call util_print_pop
 c
 #ifdef DFT_TIMER
