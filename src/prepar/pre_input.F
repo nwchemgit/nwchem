@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.113 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_input.F,v 1.114 2003-11-11 20:38:13 d3j191 Exp $
 c
       implicit none
 c
@@ -452,6 +452,13 @@ c
       if(.not.inp_f(zrmin)) call md_abort('pre_input remove xy',0)
       if(.not.inp_f(zrmax)) call md_abort('pre_input remove xy',0)
       iogrid(nrgrid)=7+j
+      rogrid(1,nrgrid)=zrmin
+      rogrid(2,nrgrid)=zrmax
+      endif
+      if(inp_compare(.false.,'xyz',item)) then
+      if(.not.inp_f(zrmin)) call md_abort('pre_input remove xyz',0)
+      if(.not.inp_f(zrmax)) call md_abort('pre_input remove xyz',0)
+      iogrid(nrgrid)=9+j
       rogrid(1,nrgrid)=zrmin
       rogrid(2,nrgrid)=zrmax
       endif
