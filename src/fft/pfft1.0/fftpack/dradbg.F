@@ -4,7 +4,7 @@
      2  ar2h, arg, dc2, dcp, ds2, dsp, tpi
       data tpi   /  6.2831853071 7958647692 5286766559 00577d0/
 c
-      arg = tpi/dfloat(ip)
+      arg = tpi/dble(ip)
       dcp = dcos(arg)
       dsp = dsin(arg)
       idp2 = ido+2

@@ -81,7 +81,7 @@ c --- calculate constants ----
       n123 = nd1*nd2*nd3
 c scale for forward (isign==1) and reverse (isign==-1) fft 
       if (isign.EQ.-1) then
-         scale = 1.D0/REAL(n123)
+         scale = 1.D0/dble(n123)
       else
          scale = 1.D0
       endif

@@ -1,5 +1,5 @@
       double precision function dft_dencvg(g_dens,g_denso,nbf)
-C$Id: dft_dencvg.F,v 1.5 1996-10-18 21:50:04 d3h449 Exp $
+C$Id: dft_dencvg.F,v 1.6 1997-03-04 06:17:17 d3e129 Exp $
       implicit none
 c
       integer g_dens ! GA handle for Densit Matrix [input/output]
@@ -42,7 +42,7 @@ c
      &  call errquit('dft_dencvg: cannot pop stack',0)
       call ga_sync
       call ga_dgop(Msg_rms_dens,rms,1,'+')
-      dft_dencvg = rms/dfloat(nbf*nbf)
+      dft_dencvg = rms/dble(nbf*nbf)
 
       return
       end

@@ -184,15 +184,9 @@ c
            do k = ltotal, 0, -1
                do l = (ltotal-k), 0, -1
                   m = ltotal - k - l
-#if defined(CRAY)
-                  xk = real(k)
-                  xl = real(l)
-                  xm = real(m)
-#else
                   xk = dble(k)
                   xl = dble(l)
                   xm = dble(m)
-#endif
                   ind = ind + 1
                   moments(ind) = moments(ind) + q*(
      $                 (coord(1)-center(1))**xk *

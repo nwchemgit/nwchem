@@ -29,7 +29,7 @@ c
       ifac(1) = n
       ifac(2) = nf
 c
-      argh = tpi/dfloat(n)
+      argh = tpi/dble(n)
       is = 0
       nfm1 = nf-1
       l1 = 1
@@ -43,7 +43,7 @@ c
          do 109 j=1,ipm
             ld = ld+l1
             i = is
-            argld = dfloat(ld)*argh
+            argld = dble(ld)*argh
             fi = 0.d0
             do 108 ii=3,ido,2
                i = i+2

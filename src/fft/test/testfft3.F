@@ -101,7 +101,7 @@ c     *initialize scratch arrays y1 and y2
         if (me.EQ.owner) then
           do d2 = 1, id2
             do d1 = 1, id1
-              x1(k) = REAL(d1-1)
+              x1(k) = dble(d1-1)
               x1(k+1) = 0.D0
               k = k+2
             enddo

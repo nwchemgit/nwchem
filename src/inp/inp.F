@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.27 1996-09-20 18:11:38 d3g681 Exp $
+C$Id: inp.F,v 1.28 1997-03-04 06:17:06 d3e129 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -481,14 +481,14 @@ c.... the number itself
                if (ia(i:i).eq.xchar(j)) go to 70
             enddo
             goto 100
- 70         dtmp=dtmp*ten+ dfloat(j-1)
+ 70         dtmp=dtmp*ten+ dble(j-1)
          else
             if(orep)go to 100
             iexp=iexp+i-i2
             orep=.true.
          endif
       enddo
-      dtmp = dtmp * dfloat(isign) * ten**iexp
+      dtmp = dtmp * dble(isign) * ten**iexp
       inp_f = .true.
       buf = dtmp
       return

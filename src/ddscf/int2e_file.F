@@ -18,7 +18,7 @@
       integer cachesize, filesize
       double precision precision_arg
       logical orestart
-#ifdef CRAY_T3D
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
       external cint2efdata
 #endif
 c
@@ -116,7 +116,7 @@ c
      $        ('int2e_file_open: unable to determine file length',0)
 c
          n_rec_in_file = length / (8*rec_len_in_dbl)
-         if ((length - 8.0d0*real(n_rec_in_file*rec_len_in_dbl))
+         if ((length - 8.0d0*dble(n_rec_in_file*rec_len_in_dbl))
      $        .ne. 0)
      $        call errquit('int2e_file: bad file length ', 0)
 c
@@ -1014,7 +1014,7 @@ c
          call dcopy(n_per_rec, buf, 1, values, 1)
       else if (nint_per_dbl .eq. 2) then
          do i = 1, n_per_rec
-            values(i) = precision * real(ibuf(i))
+            values(i) = precision * dble(ibuf(i))
          end do
       else if (nint_per_dbl .eq. 1) then
          ind = 1
@@ -1023,8 +1023,8 @@ c
          do i = 1, n_per_rec/2
             v1 = iand(rshift(ibuf(i),32),mask) - two31
             v2 = iand(ibuf(i),mask) - two31
-            values(ind  ) = precision*real(v1)
-            values(ind+1) = precision*real(v2)
+            values(ind  ) = precision*dble(v1)
+            values(ind+1) = precision*dble(v2)
             ind = ind + 2
          end do
       else

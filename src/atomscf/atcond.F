@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps)
-C$Id: atcond.F,v 1.2 1995-02-02 18:36:27 d3g681 Exp $
+C$Id: atcond.F,v 1.3 1997-03-04 06:15:48 d3e129 Exp $
       implicit none
 c.......................................................................
 c     
@@ -154,7 +154,7 @@ c
 c     set k(l,l,0).
 c.......................................................................
          i = ksym*(ksym+1)*(ksym+2)/6 - ksym + 1
-         t = float(nccup(ksym))
+         t = dble(nccup(ksym))
          f = 4*ksym - 4
          ajmn(i) = -(f+1.0d0)/(f+2.0d0) + (t-1.0d0)/t
       end if

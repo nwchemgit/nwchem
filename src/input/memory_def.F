@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.7 1996-09-06 21:45:04 d3j191 Exp $
+C     $Id: memory_def.F,v 1.8 1997-03-04 06:17:09 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -54,6 +54,10 @@ c     Our lap tops have 24 MB of pyshical memory
       parameter (total_dflt = 2097152 ) ! 16 MB
 #elif defined(SUN) || defined(SOLARIS)
       Parameter ( Total_Dflt = 6291456 ) ! 48 MB
+#elif defined(CRAY_T3E)
+C     Code seems to be very large on T3D (~10-15 MB)
+C
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
 #elif defined(CRAY_T3D)
 C     Note this is a minimum memory configuration for a T3D
 C     Code seems to be very large on T3D (~10-15 MB)

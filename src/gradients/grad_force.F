@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.16 1997-02-13 01:20:44 d3g681 Exp $
+c     $Id: grad_force.F,v 1.17 1997-03-04 06:17:05 d3e129 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -410,7 +410,7 @@ C     local density matrix block
 #ifdef OLDTIMERS
 #ifdef SUN
       tim1(3) = dtime( tim1)
-      t0 = real(tcgtime())
+      t0 = dble(tcgtime())
 #endif
 #ifdef KSR
       tim1 = all_seconds()
@@ -433,7 +433,7 @@ C     goto 112
 #ifdef OLDTIMERS
 #ifdef SUN
       tim1(3) = dtime( tim1)
-      tim1(3) = real(tcgtime()) - t0
+      tim1(3) = dble(tcgtime()) - t0
 #endif
 #ifdef KSR
       tim1 = all_seconds() - tim1
@@ -510,7 +510,7 @@ C     define threshold for Schwarz screening(same as in SCF)
 #ifdef OLDTIMERS
 #ifdef SUN
       tim2(3) = dtime( tim2)
-      t0 = real(tcgtime())
+      t0 = dble(tcgtime())
 #endif
 #ifdef KSR
       tim2 = all_seconds()
@@ -547,7 +547,7 @@ C     goto 111
 #ifdef OLDTIMERS
 #ifdef SUN
       tim2(3) = dtime( tim2)
-      tim2(3) = real(tcgtime()) - t0
+      tim2(3) = dble(tcgtime()) - t0
 #endif
 #ifdef KSR
       tim2 = all_seconds() - tim2
