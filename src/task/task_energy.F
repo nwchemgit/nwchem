@@ -17,6 +17,9 @@ c
       double precision cpu, wall, energy, dipole(3)
       logical task_energy_doit, oniom_energy
       external task_energy_doit, oniom_energy
+      logical qmmm_energy
+      logical task_qmmm
+      external qmmm_energy
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -29,7 +32,15 @@ c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
-      if (theory .ne. 'oniom') then
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &    task_qmmm = .false.
+ 
+      if(task_qmmm) then
+         status=qmmm_energy(rtdb)
+          if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
+     $           call errquit('task_energy: no energy in rtdb?',0,
+     &       RTDB_ERR)
+      else if (theory .ne. 'oniom') then
          status = task_energy_doit(rtdb,theory,energy)
       else
          status = oniom_energy(rtdb)
@@ -82,7 +93,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.35 2004-02-01 22:02:07 sohirata Exp $
+* $Id: task_energy.F,v 1.36 2004-03-13 00:07:41 marat Exp $
 *
       implicit none
 #include "errquit.fh"
