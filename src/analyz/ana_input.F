@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.35 2000-09-14 21:38:22 d3j191 Exp $
+c $Id: ana_input.F,v 1.36 2000-09-22 16:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -494,10 +494,10 @@ c
 c     set hydrogen bond criteria
 c     --------------------------
 c
-      if(inp_compare(.false.,'hbond')) then
+      if(inp_compare(.false.,'hbond',item)) then
       if(.not.inp_a(item)) call errquit('Error in hbond',0)
  6644 continue
-      if(inp_compare(.false.,'distance')) then
+      if(inp_compare(.false.,'distance',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
       if(.not.inp_f(rmax)) then
       rmax=rmin
@@ -507,7 +507,7 @@ c
  1066 format('hbdist ',2f12.6)
       if(inp_a(item)) goto 6644
       goto 2
-      elseif(inp_compare(.false.,'donorangle')) then
+      elseif(inp_compare(.false.,'donorangle',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
       if(.not.inp_f(rmax)) then
       rmax=3.1416d0
@@ -516,7 +516,7 @@ c
  1067 format('hbdang ',2f12.6)
       if(inp_a(item)) goto 6644
       goto 2
-      elseif(inp_compare(.false.,'acceptorangle')) then
+      elseif(inp_compare(.false.,'acceptorangle',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
       if(.not.inp_f(rmax)) then
       rmax=3.1416d0
@@ -528,6 +528,17 @@ c
       else
       call errquit('Error in hbond',0)
       endif
+      endif
+c
+c     average structure
+c     -----------------
+c
+      if(inp_compare(.false.,'average',item)) then
+      if(.not.inp_a(item)) call errquit('No average file',0)
+      write(lfncmd,1070) item
+ 1070 format('xaver ',a)
+      numcmd=numcmd+1
+      goto 2
       endif
 c
 c     essential dynamics analysis
