@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.11 2000-04-11 10:08:38 hvd Exp $
+c$Id: grid_invariant.F,v 1.12 2000-12-14 01:26:13 edo Exp $
 c
       implicit none
 c      
@@ -118,7 +118,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.11 2000-04-11 10:08:38 hvd Exp $
+c$Id: grid_invariant.F,v 1.12 2000-12-14 01:26:13 edo Exp $
 c
       implicit none
 c
@@ -126,7 +126,7 @@ c
 #include "cdft.fh"
 c      
       double precision eps
-      parameter (eps = 1.d-20)
+      parameter (eps = 1.d-9)
       double precision coord(3,ncenters), charge(ncenters)
 c
 c     allocate space for M and T (rotational invariance; 
@@ -143,12 +143,7 @@ c
 c
 c     atomic case 
 c
-      if(ncenters.eq.1) then
-         qrot(1,1)=1d0
-         qrot(2,2)=1d0
-         qrot(3,3)=1d0
-         return
-      endif
+      if(ncenters.eq.1) goto 111
 c
 c     calculate the T vector
 c
@@ -164,9 +159,12 @@ c
 c     normalize T
 c
       if (abs(ztot).gt.EPS) then
+         lramt=0d0
          do icart = 1, 3
             tvec(icart) = tvec(icart)/ztot
+            lramt=lramt+abs(tvec(icart))
          enddo
+         if(lramt.lt.eps) goto 111
       else
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  ',
@@ -217,5 +215,9 @@ c
          write(LuOut,*) 'grid_invariant:  failure in dsyev.'
          call errquit('Exiting in grid_invariant.',5)
       endif
+      return
+ 111  qrot(1,1)=1d0
+      qrot(2,2)=1d0
+      qrot(3,3)=1d0
       return
       end
