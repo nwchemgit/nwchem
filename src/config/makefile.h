@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.104 1995-03-17 19:59:12 rg240 Exp $
+# $Id: makefile.h,v 1.105 1995-03-31 01:33:33 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -66,7 +66,7 @@ endif
 # The core libraries are usually rather platform-dependent and are
 # specified below.
 
-NW_CORE_SUBDIRS = include basis db geom global inp input \
+NW_CORE_SUBDIRS = include basis geom global inp input \
 	ma pstat rtdb tcgmsg util $(CORE_SUBDIRS_EXTRA)
 
 # These are the directories required to build the various high-level
@@ -357,7 +357,7 @@ ifeq ($(TARGET),SGITFP)
 #
 # CORE_SUBDIRS_EXTRA are those machine specific libraries required 
 
-    CORE_SUBDIRS_EXTRA = blas lapack
+  CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
          CC = cc
          AR = ar
@@ -374,7 +374,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-so=1,-o=1
  COPTIMIZE = -O
 
     DEFINES = -DSGITFP -DSGI -DLongInteger
-       CORE_LIBS = -lguess -lutil -lglobal -ltcgmsg -llapack -lblas
+  CORE_LIBS = -lguess -lutil -lglobal -ltcgmsg -llapack -lblas
 
   EXPLICITF = FALSE
 endif
@@ -408,7 +408,7 @@ endif
 
 ifeq ($(TARGET),IBM)
 #
-# IBM AIX . tested rak 4/94
+# IBM AIX
 # note: using only source blas.
 #
 
@@ -438,11 +438,13 @@ ifeq ($(TARGET),IBM)
 	      -brename:.dgetrf_,.dgetrf \
 	      -brename:.dgetrs_,.dgetrs \
 	      -brename:.dscal_,.dscal \
-	      -brename:.dspsvx_,.dspsvx \
-	      -brename:.dpotrf_,.dpotrf \
-	      -brename:.dpotri_,.dpotri \
-	      -brename:.times_,.times \
 	      -brename:.idamax_,.idamax 
+# include these for DFT?  
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dpotri_,.dpotri \
+	      -brename:.times_,.times \
+
 
  EXPLICITF = TRUE
 #
