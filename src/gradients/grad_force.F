@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.20 1997-04-04 21:24:38 d3g681 Exp $
+c     $Id: grad_force.F,v 1.21 1997-04-06 20:58:57 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -770,6 +770,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
 c
       integer rtdb              ! [input]
       integer natoms            ! [input]
@@ -796,10 +798,13 @@ C     fill lookup table
             oactive(int_mb(k_actlist+i-1)) = .true.
          enddo
 c
-         write(6,1) (int_mb(k_actlist+i-1),i=1,nactive)
- 1       format('  gradient active actoms ',15i4)
-         write(6,2) (oactive(i),i=1,natoms)
- 2       format('  oactive ',30l2)
+         if (util_print('active atoms', print_low) .and. 
+     $       ga_nodeid().eq.0)   then
+           write(6,1) (int_mb(k_actlist+i-1),i=1,nactive)
+ 1         format('  gradient active actoms ',15i4)
+*           write(6,2) (oactive(i),i=1,natoms)
+* 2         format('  oactive ',30l2)
+	 endif
 c
          if (.not. MA_free_heap(l_actlist)) call errquit
      $        ('grad_act_at: free of actlist?',0)
