@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.109 1995-05-17 16:35:36 mg650 Exp $
+# $Id: makefile.h,v 1.110 1995-05-28 19:56:16 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -215,7 +215,7 @@ ifeq ($(TARGET),CRAY-T3D)
 # Requires single-precision BLAS
 # CRAY-T3D cross-compiled on YMP (atw)
 #
-   CORE_SUBDIRS_EXTRA =	blas lapack 
+   CORE_SUBDIRS_EXTRA =	
                RANLIB = @echo
             MAKEFLAGS = -j 2
               INSTALL = @echo $@ is built
