@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.25 2004-03-31 00:25:28 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.26 2004-03-31 00:40:35 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -208,7 +208,7 @@ c
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
-     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,nscr,
+     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
