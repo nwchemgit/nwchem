@@ -1,7 +1,7 @@
 
-        OBJ = cphf_poliz.o \
-              mjdtest.o \
-              int_dip_ga.o
+        OBJ = int_dip_ga.o cphf_int_debug.o
+
+# cphf_poliz.o mjdtest.o
 
     LIBRARY = libcphf.a
 
