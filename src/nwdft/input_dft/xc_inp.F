@@ -62,7 +62,6 @@ c
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx','optc','becke97-2','mpw91'/
-cedo     ,     'optx','optc','becke97-2','lb94','mpw91'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -876,23 +875,6 @@ c
         cfac(23) = 1.d0
        lcfac(23) = .true.
       nlcfac(23) = .true.
-c
-      goto 10
-c     
-c     
-c     lb94 Leeuwen&Baerends 94
-c     using SVWN5 as LDA bit
-c             
- 3600 xccomb(15) = .true.
-        xfac(2) = 1
-       lxfac(2) = .true.
-      nlxfac(2) = .false.
-        cfac(1) = 1.d0
-       lcfac(1) = .true.
-      nlcfac(1) = .false.
-        xfac(18) = 1.d0
-!       lxfac(18) = .false.
-!      nlxfac(18) = .true.
 c
       goto 10
 c     
