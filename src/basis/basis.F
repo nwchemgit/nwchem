@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.69 1997-05-17 03:19:31 d3e129 Exp $
+c $Id: basis.F,v 1.70 1997-06-02 17:56:16 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1368,7 +1368,7 @@ c
      &          ') is an atom ',
      $          'but has no functions in basis "',a,'"'/
      $          ' ERROR: only bq* centers can have no functions')
-            call util_flush(6)
+            if (ga_nodeid().eq.0) call util_flush(6)
             call errquit
      &          ('bas_geobas_build: basis/geometry mismatch', 0)
           else
@@ -1383,7 +1383,7 @@ c
  11         format(/'WARNING: geometry tag ',i4, ' ', a,
      $          ' not found in basis "',a,'"'/)
             int_mb(mb_ibs_ce2uce(i,basis)) = 0
-            call util_flush(6)
+            if (ga_nodeid().eq.0) call util_flush(6)
           endif
         endif
 00102   continue
@@ -3170,8 +3170,8 @@ c
      &          ibs_ce2cnr(K_ibs,basis),
      &          ibs_ce2cnr(SZ_ibs,basis)
           enddo
+          call util_flush(luout)
         endif
-        call util_flush(luout)
       enddo
       end
       logical function bas_match_tags(tag_from_geom,basisin,btag)
