@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.56 2001-12-27 19:40:34 edo Exp $
+c $Id: bas_input.F,v 1.57 2002-01-15 19:04:39 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -856,7 +856,11 @@ c 2. default path or user defined path -> append a file, check if it exists
 c
       filestring = filename
       lenn = inp_strlen(filename)
+#ifdef WIN32
+      if (filestring(lenn:lenn) .eq. '\') then
+#else
       if (filestring(lenn:lenn) .eq. '/') then
+#endif
 c
 c we have to append the name of a basis set file to the path
 c append, but remove some problem characters from basis name in standard:
@@ -893,7 +897,9 @@ c
 c     Open the library file and try to locate the basis
 c
       if (filename .eq. ' ') filename = 'library'
+      write(6,*) ' trying to open!',filestring,'!'
       open(33, file=filestring, status='old', err=1000)
+      write(0,*) ' opened'
 
       call inp_save_state()     ! Save state for unit 5.
 
@@ -1041,6 +1047,8 @@ c
       logical debug
       logical foundit
       logical nwrcopen
+      logical util_find_dir
+      external util_find_dir
       integer calls
       data calls/0/
       save calls
@@ -1159,6 +1167,12 @@ c
       libname = compiled_name
       does_it_exist = .false.
       inquire(file=libname,exist=does_it_exist)
+c
+c     check if it is a directory
+c
+      if(.not.does_it_exist) then
+         does_it_exist=util_find_dir(libname)
+      endif
       if (does_it_exist)then
         from_compile = .true.
       else
