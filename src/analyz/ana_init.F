@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai)
 c
-c $Id: ana_init.F,v 1.1 1998-12-29 18:01:02 d3j191 Exp $
+c $Id: ana_init.F,v 1.2 1999-01-05 21:46:09 d3j191 Exp $
 c
       implicit none
 c
@@ -43,6 +43,9 @@ c
       if(me.eq.0) then
       write(*,'(a,i5)') 'Input option irmsd    ',irmsd
       endif
+c
+      if(.not.ma_push_get(mt_int,nsa,'isel',l_isel,i_isel))
+     + call errquit('Failed to allocate memory for isel',me)
 c
       if(irmsd.gt.0) then
       if(.not.ma_push_get(mt_dbl,3*nsa,'xref',l_xref,i_xref))

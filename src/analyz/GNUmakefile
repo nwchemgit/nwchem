@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 1998-12-29 18:01:05 d3j191 Exp $
+# $Id: GNUmakefile,v 1.2 1999-01-05 21:46:10 d3j191 Exp $
 #
  OBJ_OPTIMIZE = ana_data.o\
                 ana_finish.o\
@@ -9,6 +9,7 @@
                 ana_input.o\
                 ana_rmsdev.o\
                 ana_rtdbin.o\
+                ana_select.o\
                 ana_super.o\
                 analyz.o
 

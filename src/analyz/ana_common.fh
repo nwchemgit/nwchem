@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.1 1998-12-29 18:01:01 d3j191 Exp $
+c $Id: ana_common.fh,v 1.2 1999-01-05 21:46:09 d3j191 Exp $
 c
       integer irtdb,me,np,lfnana
       common/ana_rtdb/irtdb,me,np,lfnana
@@ -11,8 +11,8 @@ c
       character*255 filnam,filana,rmsfil
       common/ana_txt/filnam,filana,rmsfil
 c
-      integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt
-      common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt
+      integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel
+      common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel
 c
       integer nsa,msa,ndata
       common/ana_dim/nsa,msa,ndata
