@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2002-02-11 18:27:10 edo Exp $
+# $Id: GNUmakefile,v 1.8 2003-06-26 21:15:37 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -10,6 +10,7 @@
 			cram.o \
 			balance.o \
 			G_init.o \
+			c_G_init.o \
 			strfac.o \
 			cstrfac.o 
 
