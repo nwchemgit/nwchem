@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.33 1999-11-02 21:14:30 d3j191 Exp $
+c $Id: pre_input.F,v 1.34 1999-11-04 22:53:08 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
       integer isgm,icyren,model,nxlnk
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
-      real*8 polar,value,forcon,forc2
+      real*8 polar,value,forcon,forc2,box(3)
       character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
@@ -31,6 +31,7 @@ c
       integer nxrep,nyrep,nzrep
       real*8 rrep
       real*8 value1,value2
+      character*4 scount
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -77,7 +78,10 @@ c
       rrep=0.25d0
 c
       touch=0.25d0
-      xpndw=0.20d0
+      xpndw=0.00d0
+      box(1)=0.0d0
+      box(2)=0.0d0
+      box(3)=0.0d0
 c
       ltouch=.false.
       lrdcoo=.false.
@@ -299,13 +303,19 @@ c
       goto 2
       endif
 c
+c     add counter ions to sequence file
+c     ---------------------------------
+c
+      if(inp_compare(.false.,'counter',item)) then
+      if(.not.inp_i(icount)) call errquit('pre_input: counter',9999)
+      if(.not.inp_a(item)) call errquit('pre_input: counter',9999)
+      scount=item(1:4)
+      goto 2
+      endif
+c
 c     fix commands
 c     ------------
 c
-      if(inp_compare(.false.,'counter',item)) then
-      icount=1
-      goto 2
-      endif
       if(inp_compare(.false.,'fix',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
       if(inp_compare(.false.,'atoms',item)) then
@@ -766,6 +776,19 @@ c
       goto 2
       endif
 c
+c     box
+c     ---
+c
+      if(inp_compare(.false.,'box',item)) then
+      if(.not.inp_f(box(1))) call errquit('pre_input: box',9999)
+      if(.not.inp_f(box(2))) call errquit('pre_input: box',9999)
+      if(.not.inp_f(box(3))) call errquit('pre_input: box',9999)
+      write(68,8686) box
+ 8686 format('setbox',3f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
 c     write
 c     -----
 c
@@ -985,6 +1008,10 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:icount',mt_int,1,icount))
      + call errquit('pre_input: rtdb_put failed',0)
+      if(icount.gt.0) then
+      if(.not.rtdb_cput(irtdb,'prep:scount',1,scount))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
       if(mgrid.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
      + call errquit('pre_input: rtdb_put failed',0)

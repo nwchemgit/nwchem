@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.4 1998-10-30 15:33:51 d3j191 Exp $
+c $Id: pre_fix.F,v 1.5 1999-11-04 22:53:07 d3j191 Exp $
 c
       implicit none
 c
@@ -19,10 +19,11 @@ c
       character*16 csa(msa)
 c
       integer iatom,isgmnt,jsgmnt,ndx,ndy
-      integer i,j,ifrst,ilast,jfrst,jlast
+      integer i,j,k,ifrst,ilast,jfrst,jlast
       character*6 aname
       logical lsin
       real*8 dx,dy,dz,d2,rfix2
+      character*4 csgmnt,string
 c
       rfix2=rfix*rfix
 c
@@ -33,7 +34,17 @@ c
       ndx=index(cfix,':')
       ndy=index(cfix,' ')
       if(ndx.gt.0) then
-      read(cfix(1:ndx-1),*) isgmnt
+      csgmnt='    '
+      read(cfix(1:ndx-1),*,err=99) isgmnt
+      goto 999
+   99 continue
+      isgmnt=0
+      if(ndx.le.4) then
+      csgmnt(1:ndx-1)=cfix(1:ndx-1)
+      else
+      csgmnt=cfix(1:4)
+      endif
+  999 continue
       if(ndy-ndx.gt.5)
      + call errquit('pre_fix: atom name problem',9999)
       aname(1:ndy-ndx)=cfix(ndx+1:ndy)
@@ -45,10 +56,19 @@ c
       if(aname(i:i).eq.'_') aname(i:i)=' '
     1 continue
 c
-      if(util_print('where',print_high)) then
-      write(lfnout,1000) ifix,jfix,rfix,isgmnt,aname
- 1000 format('FIX ',2i5,f12.6,1x,i5,':',a)
+  100 continue
+c
+      if(csgmnt.ne.'    ') then
+      do 101 i=1,nsa
+      string=csa(i)(1:4)
+      if(csgmnt.eq.string.and.isgmnt.lt.isgm(i)) then
+      isgmnt=isgm(i)
+      goto 102
       endif
+  101 continue
+      goto 199
+      endif
+  102 continue
 c
 c     determine iatom : atom number of specified atom
 c               ifrst : number first atom of the segment
@@ -64,8 +84,16 @@ c
       ilast=i
       endif
     2 continue
-      if(iatom.eq.0.or.ifrst.eq.0.or.ilast.eq.0)
-     + call errquit('pre_fix: center not found',9999)
+c
+      if(iatom.eq.0.or.ifrst.eq.0.or.ilast.eq.0) then
+      write(*,'(a,i,a,a)') 'Unable to find ',isgmnt,':',aname
+      call errquit('pre_fix: center not found',9999)
+      endif
+c
+      if(util_print('where',print_high)) then
+      write(lfnout,1000) ifix,jfix,rfix,isgmnt,aname,ifrst,ilast
+ 1000 format('FIX ',2i5,f12.6,1x,i5,':',a,5x,2i7)
+      endif
 c
 c     fix solvent molecules
 c     ---------------------
@@ -144,6 +172,9 @@ c
     8 continue
 c
       endif
+c
+      if(csgmnt.ne.'    ') goto 100
+  199 continue
 c
       pre_fix=.true.
       return

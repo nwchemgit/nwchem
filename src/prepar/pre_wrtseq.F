@@ -1,8 +1,8 @@
       logical function pre_wrtseq(lfnseq,filseq,
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
-     + slvmdl)
+     + slvmdl,icount,scount)
 c
-c $Id: pre_wrtseq.F,v 1.7 1998-09-18 22:59:44 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.8 1999-11-04 22:53:08 d3j191 Exp $
 c
 c     function to write the sequence file
 c
@@ -14,7 +14,8 @@ c
       character*5 cseq(2,mseq)
       character*10 slvmdl
       character*255 filseq
-      integer i,length,mol
+      integer i,length,mol,icount,ll
+      character*4 scount
 c
       length=index(filseq,' ')-1
 c
@@ -33,13 +34,25 @@ c
 c      write(lfnseq,1000) lseq(1,i),cseq(2,i)(1:length)
       write(lfnseq,1000) lseq(1,i),cseq(2,i)
  1000 format(i5,a)
+      ll=lseq(1,i)
     1 continue
+c
+      if(icount.gt.0) then
+      write(lfnseq,1005)
+ 1005 format('fraction')
+      do 3 i=1,icount
+      write(lfnseq,1006) ll+i,scount
+ 1006 format(i5,a)
+      if(i.lt.icount) write(lfnseq,1007)
+ 1007 format('molecule')
+    3 continue
+      endif
 c
 c      do 2 i=1,nssb
 c      write(lfnseq,1002) lssb(1,i),3,lssb(2,i),3
 c    2 continue
 c
-      do 3 i=1,nlnk
+      do 4 i=1,nlnk
       if(i.le.nlnkf) then
       write(lfnseq,1002) lseq(1,llnk(1,i)),clnk(1,i),
      + lseq(1,llnk(2,i)),clnk(2,i)
@@ -49,7 +62,7 @@ c
      + lseq(1,llnk(2,i)),clnk(2,i)
  1003 format('link ',i5,a4,i5,a4)
       endif
-    3 continue
+    4 continue
 c
 c     solvent model
 c     -------------

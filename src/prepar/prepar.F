@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.31 1999-09-21 22:31:33 d3j191 Exp $
+c $Id: prepar.F,v 1.32 1999-11-04 22:53:08 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -48,6 +48,7 @@ c
       character*3 slvnam
       character*80 source
       character*1 altloc,chain
+      character*4 scount
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf
@@ -113,7 +114,7 @@ c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold,
-     + ignore))
+     + ignore,scount))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -227,7 +228,8 @@ c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
-     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk))
+     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
+     + icount,scount))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)

@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.36 1999-11-02 18:27:46 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.37 1999-11-04 22:53:08 d3j191 Exp $
 c
       implicit none
 c
@@ -253,7 +253,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model))
+     + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
@@ -426,7 +426,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model))
+     + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
@@ -434,6 +434,12 @@ c
      + ' Number of missing coordinates',t40,i8,/,
      + ' Total number of atoms',t40,i8,/)
       endif
+      endif
+c
+c     set box
+c
+      if(card(1:6).eq.'setbox') then
+      read(card(7:42),'(3f12.6)') box
       endif
 c
 c     read restart file
@@ -522,7 +528,7 @@ c
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
-      if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,
+      if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,box,
      + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
@@ -607,7 +613,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model))
+     + chain,model,box))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1011) filpdb(1:index(filpdb,' ')-1),nmis,nsa

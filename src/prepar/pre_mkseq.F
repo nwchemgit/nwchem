@@ -1,9 +1,10 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
-     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk)
+     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
+     + icount,scount)
 c
-c $Id: pre_mkseq.F,v 1.26 1999-06-17 17:20:39 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.27 1999-11-04 22:53:08 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -39,7 +40,7 @@ c
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
-      integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
+      integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp,icount
 c
       real*8 qscale
 c
@@ -51,6 +52,7 @@ c
       character*80 source
       character*10 slvmdl
       character*1 altloc,chain
+      character*4 scount
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp,lfnmod
       integer igeom,numslv,nlnkf
@@ -345,7 +347,8 @@ c
       if(.not.pre_wrtseq(lfnseq,filseq,
      + byte_mb(i_cseq),int_mb(i_lseq),mseq,nseq,
      + int_mb(i_lssb),mssb,nssb,
-     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl))
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl,
+     + icount,scount))
      + call errquit('pre_wrtseq failed',9999)
 c
       if(util_print('where',print_debug)) then

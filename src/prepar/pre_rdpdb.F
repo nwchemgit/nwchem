@@ -1,8 +1,8 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.15 1999-06-17 20:06:24 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.16 1999-11-04 22:53:08 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       character*255 filpdb,filtmp
       character*16 cwa(mwa),csa(msa)
       integer isar(msa),isgm(msa),iwmr(mwm),isfnd(msa),iwfnd(mwm)
-      real*8 xs(3,msa),vs(3,msa)
+      real*8 xs(3,msa),vs(3,msa),box(3)
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
       character*3 namslv
       integer iwater,model
@@ -89,6 +89,16 @@ c
 c
       read(lfnpdb,1000,end=9,err=9999) card
  1000 format(a)
+c
+c     BOX
+c
+      if(card(1:6).eq.'BOX   ') then
+      read(card(7:42),'(3f12.6)') box
+      box(1)=0.1d0*box(1)
+      box(2)=0.1d0*box(2)
+      box(3)=0.1d0*box(3)
+      goto 100
+      endif
 c
 c     MODEL
 c

@@ -1,9 +1,9 @@
-      logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,
+      logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,box,
      + num,amass,mat,
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep)
 c
-c $Id: pre_wrtpdb.F,v 1.10 1999-11-02 18:27:46 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.11 1999-11-04 22:53:08 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
-      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
       integer nxrep,nyrep,nzrep
       real*8 drep(3)
 c
@@ -37,13 +37,14 @@ c
       open(unit=lfnpdb,file=filpdb(1:length),form='formatted',
      + status='unknown',err=9999)
 c
-      write(lfnpdb,1000)
+      write(lfnpdb,1000) (1.0d1*box(i),i=1,3)
  1000 format(
      + 'HEADER',/,
      + 'TITLE     ',/,
      + 'TITLE    2',/,
      + 'TITLE    3',/,
-     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
+     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
+     + 'BOX   ',3f12.6)
 c
       print*,nxrep,nyrep,nzrep
 c
