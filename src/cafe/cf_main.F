@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.94 2001-07-03 22:09:08 d3j191 Exp $
+c $Id: cf_main.F,v 1.95 2001-07-06 22:22:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1901,7 +1901,7 @@ c
 c
       if(nsa.le.0) return
 c
-      i0=3
+      i0=1
       if(icentr.eq.1) i0=3
 c
       do 1 i=1,3
