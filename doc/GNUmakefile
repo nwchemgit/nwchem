@@ -2,6 +2,7 @@ all:	user.ps author.ps
 user.ps:	user.tex	fullpage.sty
 	latex user
 	latex user
+	latex user
 	dvips user -o 
 uview:	user.ps
 	ghostview user.ps
