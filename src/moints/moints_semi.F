@@ -32,6 +32,7 @@ c
       call wopen( fdummy, nblk, istat, ierr )
       dunits(unit) = fdummy
 #endif
+      if(ierr.ne.0)call errquit('waopen failed',unit)
       return
       end
 
@@ -67,6 +68,7 @@ c
       xu = dunits(unit)
       call putwa( xu, v, addr, len, ierr )
 #endif
+      if(ierr.ne.0)call errquit('waput failed',unit)
       return
       end
 
@@ -88,12 +90,13 @@ c
       xu = dunits(unit)
       call getwa( xu, v, addr, len, ierr )
 #endif
+      if(ierr.ne.0)call errquit('waget failed',unit)
       return
       end
 
 
 c
-c  $Id: moints_semi.F,v 1.16 1996-02-02 06:20:35 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.17 1996-02-15 18:48:42 mg141 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -115,6 +118,14 @@ c  |<------------------------------------------------------------->
 c
 c
 c  nnbf:  triangle of basis functions (with sparsity) <= (nbf*(nbf+1))/2
+
+
+
+
+
+
+
+
 c  nvirl: number of virtual indices this processor owns ~nvir/nproc
 c  nseg:  length of occupied segment
 c    
@@ -809,7 +820,7 @@ c
       double precision orbe(nbf)
 c
       integer nocc, nnbf, ioff, p, o, oo
-      integer pohi, polo, itmp, len
+      integer pohi, polo, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       logical status
       character*256 fname, tmpname
@@ -889,7 +900,7 @@ c
       integer pvlo, pvhi, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       integer j, oj, jj, vvlo, vvhi, k_local, ld, myid
-      integer rlo, rhi, clo, chi, len
+      integer rlo, rhi, clo, chi
       integer g_exch
       double precision tmp2
       character*256 fname, tmpname
@@ -899,8 +910,6 @@ c
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
-       integer i
-
       tmp2 = tcgtime()
       call util_file_prefix('khalf',tmpname)
       call util_pname(tmpname, fname)
@@ -940,16 +949,10 @@ c
      $                        ioff, dbl_mb(k_t))
           call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
           call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
-
-c$$$          WRITE(6,900) O,V,PVLO,PVHI
-c$$$ 900      FORMAT(5X,' READ [O,V]:',2I5,5X,'VRANGE:',2I5)
-c$$$          CALL MOINTS_MATPRINT(NBF,NBF,DBL_MB(K_X))
-
           call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x),
      $               nbf, c(1,olo), nbf, 0.d0, dbl_mb(k_t), nbf )
           call dgemm( 't', 'n', nvir, nocc, nbf, 1.d0, c(1,vlo),
      $               nbf, dbl_mb(k_t), nbf, 0.d0, dbl_mb(k_x), nvir )
-
           vvlo = (v-vlo)*nvir + 1
           vvhi = (v-vlo+1)*nvir
           do j=olo,o
