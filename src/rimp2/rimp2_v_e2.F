@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.11 1994-10-31 19:29:06 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.12 1994-11-08 23:15:26 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -179,6 +179,7 @@ C
 C
 C        Create the global array for the I block
 C
+         Call GA_Sync
          Call PStat_On( PS_Create)
          Status = GA_Create_One_By_Shells( MT_Dbl,
      $      Min( NOcc(ISpin), IBlock) * NVir(ISpin), FitBas,
@@ -262,6 +263,7 @@ C
 C
 C                 Create the global array for the J block
 C
+                  Call GA_Sync
                   Call PStat_On( PS_Create)
                   Status = GA_Create_One_By_Shells( MT_Dbl,
      $               NJ * NVir(JSpin), FitBas,
@@ -302,6 +304,7 @@ C                    (ia|jb) = (ia|s')(s'|jb)
 C                 where the |s') = V^{-1/2} |s) has been done
 C                 as part of the transformation.
 C
+                  Call GA_Sync
                   Call PStat_On( PS_form_4ci)
                   Call GA_DGEMM('N', 'T',
      $               NI*NVir(ISpin), NJ* NVir(JSpin), NFit,
@@ -355,6 +358,7 @@ C
 C                 So in every case except UHF Ab, we can initialize
 C                 B with A transpose, but on a block-wise basis.
 C
+                  Call GA_Sync
                   Call PStat_On( PS_form_ab)
                   If ( ISpin .eq. JSpin) then
                      Call GA_Zero(G_bigB)
@@ -422,6 +426,7 @@ C                 * Apply denominators to B *
 C                 ***************************
 C                 Each processor does this on the panel of B it owns.
 C
+                  Call GA_Sync
                   Call PStat_On( PS_denom)
                   Call RIMP2_Denom( G_bigB, ILo, JLo, NVir(ISpin),
      $               NVir(JSpin), Eig(1, ISpin), Eig(1, JSpin),
@@ -439,6 +444,7 @@ C                 * Form IJ pair energy *
 C                 ***********************
 C                 Another data parallel routine.
 C
+                  Call GA_Sync
                   Call PStat_On(PS_PrEn)
 c$$$                  Call RIMP2_Pair_Energy(G_bigA, G_BigB, ILo, JLo,
 c$$$     $               NVir(ISpin), NVir(JSpin),
