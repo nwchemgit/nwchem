@@ -54,7 +54,7 @@ end
 task oniom
 
 title "ONIOM Me-Me"
-geometry #autosym # Me-Me 6-311++g** b3lyp geometry
+geometry noautosym # Me-Me 6-311++g** b3lyp geometry
   H   -0.72023641     0.72023641    -1.16373235
   H    0.98386124     0.26362482    -1.16373235
   H   -0.26362482    -0.98386124    -1.16373235
