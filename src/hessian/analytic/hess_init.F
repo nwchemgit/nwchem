@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.52 2004-03-31 00:25:29 edo Exp $
+C $Id: hess_init.F,v 1.53 2004-04-17 01:45:10 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -403,6 +403,8 @@ c
      .     job_grid_acc
       logical xc_got2nd      
       external xc_got2nd
+      logical grid_clinit,gstatus
+      external grid_clinit
       character*15 gridtype
 c     
 c  Get theory type
@@ -516,6 +518,12 @@ c
          if (.not. rtdb_put(rtdb, 'dft:gridsym',
      $        MT_LOG, 1, .false.)) call errquit(
      $        ' task_hessian: rtdb_put failed',0, RTDB_ERR)
+c
+c     get xfac for doing xc_gotxc right on restart
+c     but ignore the status since there are not xfac 
+c     on rtdb when we are in start mode
+c
+         gstatus=grid_clinit(rtdb)
          call grid_cleanup(.false.)
 c
 c     set deltaE at least to 1d-7 
@@ -560,8 +568,8 @@ c
       integer rtdb      ! [input] rtdb handle
 c
       integer geom1, basis1
-      integer ecp_handle, ipol, mult
-      logical cdfit, ecp, dmd_rel, dk_rel
+      integer ipol, mult
+      logical cdfit, dmd_rel, dk_rel
 c
       hess_check = .false.
       cdfit = .false.
