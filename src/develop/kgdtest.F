@@ -1,7 +1,6 @@
-c $Id: kgdtest.F,v 1.2 1998-10-23 18:43:14 mg201 Exp $
+c $Id: kgdtest.F,v 1.3 1998-10-26 16:12:10 d3e129 Exp $
       logical function kgdtest (rtdb)
       implicit none
-      integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"

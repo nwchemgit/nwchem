@@ -1,6 +1,6 @@
       logical function task_pderiv(rtdb)
 *
-* $Id: rak20.F,v 1.4 1998-06-09 23:41:00 d3e129 Exp $
+* $Id: rak20.F,v 1.5 1998-10-26 16:12:11 d3e129 Exp $
 *
 ***********************************************************************
 * This is about the nuclear coordinate derivatives of multicenter 
@@ -2687,5 +2687,5 @@ c
           enddo
         enddo
       enddo
-10000 format(1x,'<',i3,',',i3,',',i3,',',i3,',',i3'> =',3(1pd20.10))
+10000 format(1x,'<',i3,',',i3,',',i3,',',i3,',',i3,'> =',3(1pd20.10))
       end
