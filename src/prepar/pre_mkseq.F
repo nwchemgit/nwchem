@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.12 1998-04-29 18:35:18 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.13 1998-06-03 14:36:37 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -26,9 +26,9 @@ c
 c
       integer irtdb
       logical pre_pdbsiz,pre_pdbseq,pre_rtdbsq,pre_wrtnam
-      logical pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
+      logical pre_rename,pre_sgmnum,pre_sgmndx,pre_gensgm
       external pre_pdbsiz,pre_pdbseq,pre_rtdbsq,pre_wrtnam
-      external pre_namamb,pre_sgmnum,pre_sgmndx,pre_gensgm
+      external pre_rename,pre_sgmnum,pre_sgmndx,pre_gensgm
       logical pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
@@ -213,12 +213,10 @@ c
 c     comply with force field segment names
 c     -------------------------------------
 c
-      if(ffield(1:5).eq.'amber') then
-      if(.not.pre_namamb(lfnout,lprint,
+      if(.not.pre_rename(lfnout,lprint,ffield,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
-     + call errquit('pre_namamb failed',9999)
-      endif
+     + call errquit('pre_rename failed',9999)
 c
 c     write atom names to temporary file
 c     ----------------------------------

@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.12 1998-04-30 06:06:23 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.13 1998-06-03 14:36:36 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -180,6 +180,26 @@ c
      + nring3,nring4,nring5,nring6))
      + call errquit('pre_atype failed',9999)
 c
+      found=.true.
+      do 16 j=ilo,ihi
+      if(latm(2,j).gt.0) then
+      if(catm(3,j)(1:1).eq.' ') found=.false.
+      endif
+   16 continue
+      if(.not.found) then
+      length=index(csgm(i),' ')-1
+      if(length.le.0) length=5
+      write(lfnout,3002) csgm(i)(1:length)
+      do 17 j=ilo,ihi
+      if(latm(2,j).gt.0) then
+      write(lfnout,2003) j+1-ilo,catm(2,j),catm(3,j),
+     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
+      endif
+   17 continue
+      write(lfnout,3006) csgm(i)(1:length)
+      goto 9999
+      endif
+c
 c     memory deallocation
 c     -------------------
 c
@@ -269,6 +289,7 @@ c
     1 continue
 c
       pre_mkfrg=.true.
+      write(*,'(a,a)') 'SGM1=',cseq(1,1)
       return
 c
  9999 continue

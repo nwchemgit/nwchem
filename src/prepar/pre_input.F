@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.9 1998-05-05 22:09:21 d3j191 Exp $
+c $Id: pre_input.F,v 1.10 1998-06-03 14:36:36 d3j191 Exp $
 c
       implicit none
 c
@@ -186,11 +186,11 @@ c
 c     topology
 c     --------
 c
-      if(inp_compare(.false.,'topology',item)) then
+      if(inp_compare(.false.,'new_top',item)) then
       newtop=1
    21 continue
       if(.not.inp_a(item)) goto 1
-      if(inp_compare(.false.,'sequence',item)) then
+      if(inp_compare(.false.,'new_seq',item)) then
       newseq=1
       goto 2
       endif
@@ -200,7 +200,7 @@ c
 c     newrst
 c     ------
 c
-      if(inp_compare(.false.,'newrst',item)) then
+      if(inp_compare(.false.,'new_rst',item)) then
       newrst=1
       goto 2
       endif
