@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.26 2004-04-21 15:09:53 bylaska Exp $
+* $Id: D3dB-new.F,v 1.27 2004-04-21 22:10:31 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -85,6 +85,7 @@ ccccccccccc  #define TCGMSG
 *     **************************
 *     ****** Slab mapping ******
 *     **************************
+      if (mapping.eq.1) then
 
 *     **** allocate q_map,p_map,k_map
       value = MA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
@@ -151,6 +152,7 @@ c           k_map(q_map(k)) = k
 *     ******************************
 *     ****** Hilbert mappings ******
 *     ******************************
+      else
 
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
       value =           MA_alloc_get(mt_int,ny(nb)*nz(nb),
@@ -201,6 +203,7 @@ c           k_map(q_map(k)) = k
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
       write(*,*) taskid,"nq3=",nq3(nb)
+      end if
 
  
       return
@@ -242,18 +245,23 @@ c     integer i2_start(NFFT3+1)
       call D3dB_fft_end(nb)
 
       value=.true.
+
       !**** slab mapping ****
+      if (mapping.eq.1) then
       value = value.and.MA_free_heap(q_map(2,nb))
       value = value.and.MA_free_heap(p_map(2,nb))
       value = value.and.MA_free_heap(k_map(2,nb))
+      end if
 
       !**** hilbert mappings ****
+      if (mapping.eq.2) then
       value = value.and.MA_free_heap(q_map1(2,nb))
       value = value.and.MA_free_heap(p_map1(2,nb))
       value = value.and.MA_free_heap(q_map2(2,nb))
       value = value.and.MA_free_heap(p_map2(2,nb))
       value = value.and.MA_free_heap(q_map3(2,nb))
       value = value.and.MA_free_heap(p_map3(2,nb))
+      end if
 
 
       !**** transpose mappings ****
@@ -527,7 +535,8 @@ c     p = p_map(k)
 
 *     **** do other initializations ****
       call Mapping_Init(nb)
-      call D3dB_c_transpose_jk_init(nb)
+      if (mapping.eq.1) call D3dB_c_transpose_jk_init(nb)
+      if (mapping.eq.2) call D3dB_c_transpose_ijk_init(nb)
       call D3dB_channel_init(nb)
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
@@ -1719,8 +1728,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       complex*16 tmp(*)
 
-#include "D3dB.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
 
+#include "D3dB.fh"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1728,14 +1739,20 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       
 *     *** local variables ***
+      logical value
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_to, p_here,q
-      integer index,k
+      integer index,k,j
       integer source,msglen
+      integer tmp1(2),tmp2(2)
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -1774,11 +1791,82 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
       end if
 
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call dread(iunit,tmp,(nx(nb)+2))
+
+            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_to.eq.MASTER) then
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+            else
+               msglen = (nx(nb)/2+1)
+               call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+            end if
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+            
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)/2+1)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+
+            end if
+         end do
+         end do
+      end if
+
+*     **** allocate temporary space  ****
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                    tmp1(2),tmp1(1))
+      value = value.and.
+     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+*
+      call D3dB_c_transpose_ijk(nb,5,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
+
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      end if
+
+
 *     **** wait ****
       call ga_sync()
 
       return
       end
+
+
+
+
 
       subroutine D3dB_r_Read(nb,iunit,A,tmp)
       implicit none 
@@ -1787,8 +1875,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8  A(*)
       real*8  tmp(*)
 
+#include "mafdecls.fh"
 #include "D3dB.fh"
-
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1804,6 +1892,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -1856,10 +1948,65 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          end do
       end if
 
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call dread(iunit,tmp,(nx(nb)))
+
+            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_to.eq.MASTER) then
+               index = (q-1)*(nx(nb)+2) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+            else
+               msglen = (nx(nb)+2)
+               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+            end if
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)+2)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+               index = (q-1)*(nx(nb)+2) + 1
+               call dcopy((nx(nb)+2),tmp,1,A(index),1)
+
+            end if
+         end do
+         end do
+       end if
+
+
+      end if
+
 *     **** wait ****
       call ga_sync()
       return
       end
+
+
+
 
       subroutine D3dB_t_Read(nb,iunit,A,tmp)
       implicit none 
@@ -1868,6 +2015,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8  A(*)
       real*8  tmp(*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
 #include "D3dB.fh"
 
 
@@ -1880,12 +2029,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *** local variables ***
       integer MASTER,taskid
       parameter(MASTER=0)
+
+      logical value
       integer p_to, p_here,q
-      integer k,index
+      integer j,k,index
       integer source,msglen
+      integer tmp1(2),tmp2(2)
 
       call Parallel_taskid(taskid)
 
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -1925,6 +2078,73 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
 
 
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call dread(iunit,tmp,(nx(nb)+2))
+
+            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_to.eq.MASTER) then
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
+            else
+               msglen = (nx(nb)/2+1)
+               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+            end if
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            if (p_here.eq.taskid) then
+
+               msglen = (nx(nb)/2+1)
+               source  = MASTER
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                  source,rcv_proc,1)
+
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
+
+            end if
+         end do
+         end do
+      end if
+
+*     **** allocate temporary space  ****
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                    tmp1(2),tmp1(1))
+      value = value.and.
+     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+*
+      call D3dB_t_transpose_ijk(nb,5,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
+
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+
+
+      end if
 *     **** wait ****
       call ga_sync()
       return
@@ -2404,6 +2624,9 @@ c     i2_start(np+1) = index2
       complex*16 A(*)
       complex*16 tmp(*)
 
+
+#include "mafdecls.fh"
+#include "errquit.fh"
 #include "D3dB.fh"
 
 
@@ -2415,13 +2638,19 @@ c     i2_start(np+1) = index2
 *     *** local variables ***
       integer MASTER,taskid
       parameter(MASTER=0)
+      logical value
       integer p_from, p_here,q
-      integer k,index
+      integer j,k,index
       integer dest,source,status,msglen
       integer dum,dum_msglen
+      integer tmp1(2),tmp2(2)
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -2474,11 +2703,99 @@ c     i2_start(np+1) = index2
          end do
       end if
 
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** allocate temporary space  ****
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                    tmp1(2),tmp1(1))
+      value = value.and.
+     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+*
+      call D3dB_c_transpose_ijk(nb,6,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      call ga_sync()
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_from.eq.MASTER) then
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb)/2+1)
+               status  = msglen
+               source  = p_from
+
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
+               call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
+     >                       source,rcv_proc,1)
+
+            end if
+
+            call dwrite(iunit,tmp,(nx(nb)+2))
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+           
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)+2),A(index),1,tmp,1)
+
+
+               msglen  = (nx(nb)/2+1)
+               dest    = MASTER
+
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
+               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
+
+            end if
+
+         end do
+         end do
+      end if
+
+
+      end if
+
 *     **** wait ****
       call ga_sync()
 
       return
       end
+
+
 
       subroutine D3dB_r_Write(nb,iunit,A,tmp)
       implicit none 
@@ -2487,6 +2804,7 @@ c     i2_start(np+1) = index2
       real*8     A(*)
       real*8     tmp(*)
 
+#include "mafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -2505,6 +2823,10 @@ c     i2_start(np+1) = index2
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -2559,6 +2881,65 @@ c     i2_start(np+1) = index2
          end do
       end if
 
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            
+
+            if (p_from.eq.MASTER) then
+              index = (q-1)*(nx(nb)+2) + 1
+              call dcopy(nx(nb),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb))
+               status  = msglen
+               source  = p_from
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+
+            end if
+
+            call dwrite(iunit,tmp,(nx(nb)))
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)+2) + 1
+               call dcopy(nx(nb),A(index),1,tmp,1)
+
+               msglen  = nx(nb)
+               dest    = MASTER
+
+               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+            end if
+
+         end do
+         end do
+      end if
+
+
+      end if
+
 *     **** wait ****
       call ga_sync()
       return
@@ -2572,6 +2953,8 @@ c     i2_start(np+1) = index2
       real*8 A(*)
       real*8 tmp(*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
 #include "D3dB.fh"
 
 
@@ -2583,13 +2966,19 @@ c     i2_start(np+1) = index2
 *     *** local variables ***
       integer MASTER,taskid
       parameter(MASTER=0)
+      logical value
       integer p_from, p_here,q
-      integer k,index
+      integer j,k,index
       integer dest,source,status,msglen
       integer dum,dum_msglen
+      integer tmp1(2),tmp2(2)
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -2642,6 +3031,93 @@ c     i2_start(np+1) = index2
          end do
       end if
 
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** allocate temporary space  ****
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                    tmp1(2),tmp1(1))
+      value = value.and.
+     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+*
+      call D3dB_t_transpose_ijk(nb,6,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      call ga_sync()
+
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_from.eq.MASTER) then
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)/2+1),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb)/2+1)
+               status  = msglen
+               source  = p_from
+
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+
+            end if
+
+            call dwrite(iunit,tmp,(nx(nb)/2+1))
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)/2+1) + 1
+               call dcopy((nx(nb)/2+1),A(index),1,tmp,1)
+
+
+               msglen  = (nx(nb)/2+1)
+               dest    = MASTER
+
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       dest,rcv_proc,1)
+               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+            end if
+
+         end do
+         end do
+      end if
+
+
+      end if
+
 *     **** wait ****
       call ga_sync()
 
@@ -2662,6 +3138,7 @@ c     i2_start(np+1) = index2
       real*8     A(*)
       real*8     tmp(*)
 
+#include "mafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -2679,6 +3156,10 @@ c     i2_start(np+1) = index2
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
@@ -2737,6 +3218,71 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
          end do
       end if
 
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+
+            if (p_from.eq.MASTER) then
+              index = (q-1)*(nx(nb)+2) + 1
+              call dcopy(nx(nb),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb))
+               status  = msglen
+               source  = p_from
+
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+
+            end if
+
+            !call dwrite(iunit,tmp,(nx(nb)))
+            write(iunit,'(3E26.14)') (tmp(i), i=1,nx(nb))
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+
+            if (p_here.eq.taskid) then
+
+               index = (q-1)*(nx(nb)+2) + 1
+               call dcopy(nx(nb),A(index),1,tmp,1)
+
+               msglen  = nx(nb)
+               dest    = MASTER
+
+               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+            end if
+
+         end do
+         end do
+      end if
+
+
+
+      end if
+
 *     **** wait ****
       return
       end
@@ -2771,6 +3317,10 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
 
       call Parallel_taskid(taskid)
 
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do i=1,nx(nb)
@@ -2823,6 +3373,65 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
 
          end do
          end do
+      end if
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call D3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+              if (p_from.eq.MASTER) then
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call D3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+              
+              if (p_here.eq.taskid) then
+
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
       end if
 
 *     **** wait ****
@@ -4423,13 +5032,15 @@ c     integer i2_start(NFFT3+1)
       integer pto,qto,np,taskid
       integer pfrom,qfrom
       integer phere,qhere
-      integer index1,index2,itmp
+      integer index1,index2,itmp,itmp2
       integer it
       integer i2,j2,k2
       integer i3,j3,k3
       integer nyh,nzh
       logical value
 
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
 
 *     **** allocate timereverse_blk common block ****
       value = MA_alloc_get(mt_int,(2*ny(nb)*nq(nb)),
@@ -4439,15 +5050,13 @@ c     integer i2_start(NFFT3+1)
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(nz(nb)+1),
+     >        MA_alloc_get(mt_int,(np+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nz(nb)+1),
+     >        MA_alloc_get(mt_int,(np+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
 
   
       nyh = ny(nb)/2
@@ -4477,24 +5086,26 @@ c        i2_start(it+1) = index2
             j3 = j3 + 1
 
 *           **** packing scheme ****
-            call D3dB_ktoqp(nb,i3,qhere,phere)
-            call D3dB_ktoqp(nb,j3,qto,pto)
+            call D3dB_ijktoindexp(nb,1,1,i3,itmp,phere)
+            call D3dB_ijktoindexp(nb,1,1,j3,itmp2,pto)
+            !call D3dB_ktoqp(nb,i3,qhere,phere)
+            !call D3dB_ktoqp(nb,j3,qto,pto)
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = 1 + (i2-1)*(nx(nb)/2+1) 
-     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
+c               itmp = 1 + (i2-1)*(nx(nb)/2+1) 
+c     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
 c               iq_to_i1(index1) = itmp
                int_mb(iq_to_i1(1,nb)+index1-1)=itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
-            call D3dB_ktoqp(nb,j3,qhere,phere)
-            call D3dB_ktoqp(nb,i3,qfrom,pfrom)
-            if ((phere.eq.taskid).and.(pfrom.eq.proc_from)) then
-               itmp = 1 + (j2-1)*(nx(nb)/2+1) 
-     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
+            !call D3dB_ktoqp(nb,j3,qhere,phere)
+            !call D3dB_ktoqp(nb,i3,qfrom,pfrom)
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+c               itmp = 1 + (j2-1)*(nx(nb)/2+1) 
+c     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
 c               iq_to_i2(index2) = itmp
-               int_mb(iq_to_i2(1,nb)+index2-1) = itmp
+               int_mb(iq_to_i2(1,nb)+index2-1) = itmp2
                index2 = index2 + 1
             end if
 
@@ -4519,24 +5130,26 @@ c               iq_to_i2(index2) = itmp
             j3 = j3 + 1
 
 *           **** packing scheme ****
-            call D3dB_ktoqp(nb,i3,qhere,phere)
-            call D3dB_ktoqp(nb,j3,qto,pto)
+            call D3dB_ijktoindexp(nb,1,i2,i3,itmp,phere)
+            call D3dB_ijktoindexp(nb,1,j2,j3,itmp2,pto)
+            !call D3dB_ktoqp(nb,i3,qhere,phere)
+            !call D3dB_ktoqp(nb,j3,qto,pto)
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               itmp = 1 + (i2-1)*(nx(nb)/2+1) 
-     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
+c               itmp = 1 + (i2-1)*(nx(nb)/2+1) 
+c     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
 c               iq_to_i1(index1) = itmp
                int_mb(iq_to_i1(1,nb)+index1-1) = itmp
                index1 = index1 + 1
             end if
 
 *           **** unpacking scheme ****
-            call D3dB_ktoqp(nb,j3,qhere,phere)
-            call D3dB_ktoqp(nb,i3,qfrom,pfrom)
-            if ((phere.eq.taskid).and.(pfrom.eq.proc_from)) then
-               itmp = 1 + (j2-1)*(nx(nb)/2+1) 
-     >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
+            !call D3dB_ktoqp(nb,j3,qhere,phere)
+            !call D3dB_ktoqp(nb,i3,qfrom,pfrom)
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+c              itmp = 1 + (j2-1)*(nx(nb)/2+1) 
+c    >                  + (qhere-1)*(nx(nb)/2+1)*ny(nb)
 c               iq_to_i2(index2) = itmp
-               int_mb(iq_to_i2(1,nb)+index2-1)=itmp
+               int_mb(iq_to_i2(1,nb)+index2-1)=itmp2
                index2 = index2 + 1
             end if
          end do
@@ -4553,125 +5166,6 @@ c     i2_start(np+1) = index2
 
 
              
-c*     ***********************************
-c*     *					*
-c*     *	   D3dB_c_timereverse 		*
-c*     *					*
-c*     ***********************************
-c
-c      subroutine D3dB_c_timereverse(nb,A,tmp1,tmp2)
-c
-c*****************************************************
-c*                                                   *
-c*      This routine performs the operation          *
-c*            A(i,j,k) <- conjugate(A(i,-j,-k))      * 
-c*                                                   *
-c*      np = the number of worker nodes              *
-c*      proc#=0...(np-1)                             *
-c*                                                   *
-c*****************************************************
-c      implicit none
-c      integer     nb
-c      complex*16  A(*)
-c      complex*16  tmp1(*)
-c      complex*16  tmp2(*)
-c
-c#include "mafdecls.fh"
-c
-c#include "D3dB.fh"
-c
-c
-c*     **** indexing variables ****
-cc     integer iq_to_i1(2**NFFT2*NSLABS)
-cc     integer iq_to_i2(2**NFFT2*NSLABS)
-c     integer i1_start(NFFT3+1)
-cc     integer i2_start(NFFT3+1)
-c      integer iq_to_i1(2,NBLOCKS)
-c      integer iq_to_i2(2,NBLOCKS)
-c      integer i1_start(2,NBLOCKS)
-c      integer i2_start(2,NBLOCKS)
-c      common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
-c
-c*     **** Used to avoid asynchronous communications ****
-c      integer Nchannels(NBLOCKS)
-c      integer channel_proc(2,NBLOCKS)
-c      integer channel_type(2,NBLOCKS)
-c      common / channel_blk / channel_proc,channel_type,Nchannels
-c
-c#include "tcgmsg.fh"
-c#include "msgtypesf.h"
-c      integer  rcv_len,rcv_proc
-c
-c*     **** local variables ***
-c      integer i,c
-c      integer it
-c      integer source
-c      integer msglen
-c      integer pfrom,pto
-c      integer taskid,np
-c      integer index1,index2      
-c 
-c      call Parallel_taskid(taskid)
-c      call Parallel_np(np)
-c
-c*     **** pack A(i) array ****
-c      do index1=int_mb(i1_start(1,nb)+1-1),
-c     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
-c         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
-c      end do
-c
-c*     **** it = 0, transpose data on same thread ****  
-c      msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
-c      do i=1,msglen
-c         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
-c     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
-c      end do
-c         
-c
-c      do c=1,Nchannels(nb)
-c*        **** receive packed array data ****
-c         if (int_mb(channel_type(1,nb)+c-1) .eq. 1) then
-c            pfrom=int_mb(channel_proc(1,nb)+c-1)
-c            it = mod((taskid+np-pfrom),np)
-c
-c            source=pfrom
-c            msglen = (int_mb(i2_start(1,nb)+it+2-1) 
-c     >             -  int_mb(i2_start(1,nb)+it+1-1))
-c         
-c            if (msglen.gt.0) then
-c               call RCV(9+MSGDBL,
-c     >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
-c     >                  mdtob(2*msglen),rcv_len,
-c     >                  source,rcv_proc,1)
-c            end if
-c         end if
-c
-c*        **** send packed array to other processors ****
-c         if (int_mb(channel_type(1,nb)+c-1) .eq. 0) then
-c            pto=int_mb(channel_proc(1,nb)+c-1)
-c            it = mod((pto-taskid+np),np)
-c
-c            msglen    = (int_mb(i1_start(1,nb)+it+2-1)
-c     >                - int_mb(i1_start(1,nb)+it+1-1))
-c      
-c            if (msglen.gt.0) then
-c               call SND(9+MSGDBL,
-c     >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-c     >                  mdtob(2*msglen),pto,1)
-c            end if
-c         end if
-c
-c      end do
-c
-c*     **** unpack A(i) array ****
-c      do index2=int_mb(i2_start(1,nb)+1-1),
-c     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
-c        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
-c      end do
-c      
-c      return
-c      end
-
 *     ***********************************
 *     *					*
 *     *	     D3dB_timereverse_end 	*	

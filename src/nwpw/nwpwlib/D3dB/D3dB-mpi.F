@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.3 2004-04-21 15:09:47 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.4 2004-04-21 22:10:31 bylaska Exp $
 *
 
 #ifdef MPI
@@ -266,6 +266,283 @@ c     integer i2_start(NFFT3+1)
 
 
 
+#endif
+
+
+
+
+
+#ifdef MPI
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_transpose_ijk		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_c_transpose_ijk(nb,op,A,tmp1,tmp2)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation          *
+*               A(i,k,j) <- A(i,j,k)                * 
+*                                                   *
+*      np = the number of worker nodes              *
+*      proc#=0...(np-1)
+*                                                   *
+*       this transpose uses more buffer space       *
+*       then transpose2                             *
+*****************************************************
+      implicit none
+      integer nb,op
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+
+#include "mafdecls.fh"
+
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer h_iq_to_i1(2,6,NBLOCKS)
+      integer h_iq_to_i2(2,6,NBLOCKS)
+      integer h_i1_start(2,6,NBLOCKS)
+      integer h_i2_start(2,6,NBLOCKS)
+      common / trans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+
+#include "mpif.h"
+      integer mpierr
+
+*     **** local variables ***
+      integer i,q,nnfft3d
+      integer proc_to,proc_from,it
+      integer size,msgtype,source
+c     integer msglen,type,nbytes
+c     integer msgid
+      integer msglen,type
+      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer taskid,np
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+
+*     **** pack A(i) array ****
+      if ((op.eq.1).or.(op.eq.5)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
+      if ((op.eq.2).or.(op.eq.4)) nnfft3d = (ny(nb))    *nq2(nb)
+      if ((op.eq.3).or.(op.eq.6)) nnfft3d = (nz(nb))    *nq3(nb)
+!DIR$ ivdep
+      do i=1,nnfft3d
+         tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
+      end do
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,nb)+1-1)
+!DIR$ ivdep
+      do i=1,msglen
+         tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
+     > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
+      end do
+         
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np) 
+
+         msgtype = 1
+         source=proc_from
+         type   = 1
+         msglen = (int_mb(h_i2_start(1,op,nb)+it+2-1) 
+     >          -  int_mb(h_i2_start(1,op,nb)+it+1-1))
+         
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,type,MPI_COMM_WORLD,
+     >                    request(reqcnt),mpierr) 
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np) 
+         msglen    = (int_mb(h_i1_start(1,op,nb)+it+2-1)
+     >              - int_mb(h_i1_start(1,op,nb)+it+1-1))
+         msgtype   = 1
+      
+         if (msglen.gt.0) then
+            call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+         end if
+
+      end do
+
+   
+*     **** wait for completion of mp_send, also do a sync ****
+      call MPI_WAITALL(reqcnt,request,status,mpierr)
+
+*     **** unpack A(i) array ****
+      if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
+      if ((op.eq.1).or.(op.eq.3)) nnfft3d = (ny(nb))    *nq2(nb)
+      if ((op.eq.2).or.(op.eq.5)) nnfft3d = (nz(nb))    *nq3(nb)
+!DIR$ ivdep
+      do i=1,nnfft3d
+         A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
+      end do
+      
+      return
+      end
+#endif
+
+
+
+
+#ifdef MPI
+*     ***********************************
+*     *					*
+*     *	   D3dB_t_transpose_ijk		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_t_transpose_ijk(nb,op,A,tmp1,tmp2)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation          *
+*               A(i,k,j) <- A(i,j,k)                * 
+*                                                   *
+*      np = the number of worker nodes              *
+*      proc#=0...(np-1)
+*                                                   *
+*       this transpose uses more buffer space       *
+*       then transpose2                             *
+*****************************************************
+      implicit none
+      integer nb,op
+      real*8  A(*)
+      real*8  tmp1(*),tmp2(*)
+
+#include "mafdecls.fh"
+
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer h_iq_to_i1(2,6,NBLOCKS)
+      integer h_iq_to_i2(2,6,NBLOCKS)
+      integer h_i1_start(2,6,NBLOCKS)
+      integer h_i2_start(2,6,NBLOCKS)
+      common / trans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+
+#include "mpif.h"
+      integer mpierr
+
+*     **** local variables ***
+      integer i,q,nnfft3d
+      integer proc_to,proc_from,it
+      integer size,msgtype,source
+c     integer msglen,type,nbytes
+c     integer msgid
+      integer msglen,type
+      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer taskid,np
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+
+*     **** pack A(i) array ****
+      if ((op.eq.1).or.(op.eq.5)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
+      if ((op.eq.2).or.(op.eq.4)) nnfft3d = (ny(nb))    *nq2(nb)
+      if ((op.eq.3).or.(op.eq.6)) nnfft3d = (nz(nb))    *nq3(nb)
+!DIR$ ivdep
+      do i=1,nnfft3d
+         tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
+      end do
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,nb)+1-1)
+!DIR$ ivdep
+      do i=1,msglen
+         tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
+     > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
+      end do
+         
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np) 
+
+         msgtype = 1
+         source=proc_from
+         type   = 1
+         msglen = (int_mb(h_i2_start(1,op,nb)+it+2-1) 
+     >          -  int_mb(h_i2_start(1,op,nb)+it+1-1))
+         
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+            call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    source,type,MPI_COMM_WORLD,
+     >                    request(reqcnt),mpierr) 
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np) 
+         msglen    = (int_mb(h_i1_start(1,op,nb)+it+2-1)
+     >              - int_mb(h_i1_start(1,op,nb)+it+1-1))
+         msgtype   = 1
+      
+         if (msglen.gt.0) then
+            call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+         end if
+
+      end do
+
+   
+*     **** wait for completion of mp_send, also do a sync ****
+      call MPI_WAITALL(reqcnt,request,status,mpierr)
+
+*     **** unpack A(i) array ****
+      if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
+      if ((op.eq.1).or.(op.eq.3)) nnfft3d = (ny(nb))    *nq2(nb)
+      if ((op.eq.2).or.(op.eq.5)) nnfft3d = (nz(nb))    *nq3(nb)
+!DIR$ ivdep
+      do i=1,nnfft3d
+         A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
+      end do
+      
+      return
+      end
 #endif
 
 
