@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.49 2003-07-30 22:32:57 edo Exp $
+#$Id: GNUmakefile,v 1.50 2004-01-02 21:38:26 edo Exp $
 
  LIBRARY = libnwcutil.a
 
@@ -21,4 +21,7 @@ include ../config/makelib.h
   endif
   ifeq ($(FC),ifc)
 	    FOPTIONS += -save
+  endif
+  ifeq ($(FC),xlf)
+	    FOPTIONS += -qsave
   endif
