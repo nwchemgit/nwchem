@@ -5,6 +5,7 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "context.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "pstat.fh"
@@ -12,6 +13,7 @@
 c
        integer rtdb
 c
+       character*255 tmpname
        integer geom, basis
        integer nbf, nclosed, nvir, nact, noper, nsym
        integer nactel, nela, nelb, multip, orlen
@@ -27,7 +29,7 @@ c
        integer blen
        double precision pfac
        double precision thresh, lshift0
-       double precision eone, etwo, enrep, etrace
+       double precision eone, etwo, enrep, energy
        double precision ecore, eci, e0
        double precision citol, citol_now
        double precision tol2e, gnorm, gnrmv(100), cjgtol
@@ -51,6 +53,7 @@ c
        data blen/25/
 c
        mcscf = .true.
+       oconverged = .false.
 c
        call util_print_push
        call util_print_rtdb_load(rtdb, 'mcscf')
@@ -108,7 +111,7 @@ c
        if (.not.rtdb_get(rtdb,'mcscf:microci',MT_LOG,1,ostepci))
      $      ostepci = .true.
        if (.not.rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
-     $      citol = 1.d-5
+     $      citol = min(1.d-6,thresh)
        if (.not. rtdb_get(rtdb,'mcscf:canonical',MT_LOG,1,ocanonical))
      $      ocanonical = .true.
        if (.not. rtdb_get(rtdb,'mcscf:natural',MT_LOG,1,onatural))
@@ -345,9 +348,11 @@ c
          if (gnorm.lt.thresh) then
            write(6,928)
  928       format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
+           mcscf = .true.
          else
            write(6,929)
  929       format(//,5x,'--- maximum iterations reached ---')
+           mcscf = .false.
          endif
        endif
 c
@@ -397,7 +402,6 @@ c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                   g_coul, g_exch, g_hcore )
        ocivecprint = util_print('converged civec',print_default)
-       citol = min(citol,gnorm*0.1d0)
        call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                     nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
      $                     g_hcore, g_coul, 
@@ -455,9 +459,9 @@ c
      $                    .true., oskel, tol2e, dbl_mb(k_dm1),
      $                    dbl_mb(k_dm2), g_movecs, g_coul,
      $                    eone, etwo, ecore )
-       etrace = eone + etwo + enrep
+       energy = eone + etwo + enrep
        if (util_print('trace energy',print_default).and.
-     $     (ga_nodeid().eq.0)) write(6,674) etrace, gnorm
+     $     (ga_nodeid().eq.0)) write(6,674) energy, gnorm
  674   format(//,20x,'Energy:',11x,f20.14,
      $         /,20x,'Gradient Norm:',4x,e20.4)
 
@@ -468,6 +472,17 @@ c
        call mcscf_debugger( rtdb, basis, geom, nbf, nclosed, nact,
      $                      g_movecs, dbl_mb(k_evals) )
 #endif
+c
+c  Store energy and convergence status
+c
+      if (.not. context_prefix('energy', tmpname)) 
+     $  call errquit('mcscf: context_prefix failed', 0)
+      if (.not. rtdb_put(rtdb, tmpname, MT_DBL, 1, energy)) 
+     $  call errquit('mcscf: failed to store energy in rtdb', 0)
+      if (.not. context_prefix('converged', tmpname)) 
+     $  call errquit('mcscf: context_prefix failed', 0)
+      if (.not. rtdb_put(rtdb, tmpname, MT_LOG, 1, oconverged))
+     $  call errquit('mcscf: failed to store converged in rtdb', 0)
 c
 c  Cleanup
 c

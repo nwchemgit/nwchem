@@ -1,5 +1,5 @@
-c
-c  $Id: mcscf_orb.F,v 1.22 1996-07-17 16:32:39 d3g681 Exp $
+---------------------c
+c  $Id: mcscf_orb.F,v 1.23 1996-08-05 15:19:02 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
