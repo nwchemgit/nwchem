@@ -5,7 +5,7 @@ c     Look for lines ending in E that should probably be a D for
 c     double precision.  The stuff on the following line is often
 c     gibberish.
 c
-c$$$c $Id: rt123.F,v 1.5 2001-03-06 19:34:03 bjohnson Exp $
+c$$$c $Id: rt123.F,v 1.6 2001-08-09 22:25:08 bjohnson Exp $
 c$$$C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 c$$$C   IN DNODE
 c$$$C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1150,29 +1150,20 @@ c$$$      END
 #include "bettis.fh"
 #endif
       COMMON /RYS/ T,RYSR(10),RYSW(10),XX,F0,F1,F2,F3,F4,F5,NROOTS
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         call errquit('Screened operator enabled in FT0',0)
+      endif
+#endif
       K=INT(T)+1
       IF (K.GE.30) GO TO 10
       GO TO (30,60,70,90,100,110,120,130,140,140,160,160,170,170,170,180
      1,180,180,180,190,190,190,190,190,210,210,210,210,210), K
  10   F1=0.5D0/(T*DSQRT(T))
       F0=T*(F1+F1)
-#ifdef BETTIS
-      if (bettis_screened_operator_enabled()) then
-c         write(*,*)'  ***Scaling by',bettis_Ks(),' in FT0'
-         F1 = F1 * bettis_Ks()
-         F0 = F0 * bettis_Ks()
-      endif
-#endif
       RETURN
    20 F0=E1
       F1=E2
-#ifdef BETTIS
-      if (bettis_screened_operator_enabled()) then
-c         write(*,*)'  ***Scaling by',bettis_Ks(),' in FT0'
-         F1 = F1 * bettis_Ks()
-         F0 = F0 * bettis_Ks()
-      endif
-#endif
       RETURN
  30   E1=+6.43087831936D0/(T+1.08661386687D1+1.27504794351D1/(T+1.698645
      175747D1+2.64713617864D2/(T-1.36070368227D1)))
@@ -1518,15 +1509,16 @@ c
       data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
      & 1.0d0,2.0d0/
 c
-c
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         call errquit('Screened operator enabled in fm',0)
+      endif
+#endif
       if (x.le.zero) then
 c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 100 i=0,m
           f(i)=twopi/(2*i+1)
  100    continue
-#ifdef BETTIS
-        goto 999
-#endif
         return
       else if (x.gt.30.0d0) then
         f(0)=one/sqrt(x)
@@ -1534,9 +1526,6 @@ c       write(*,*) 'Fm(x) called with negative argument, x=',x
         do 300 i=1,m
            f(i)=f(i-1)*rx*(i-half)
  300    continue
-#ifdef BETTIS
-        goto 999
-#endif
         return
       else
         if (m.le.1) then
@@ -1570,15 +1559,6 @@ c      m between 6 and 9
             if(j.gt.0) go to 200
         end if
       end if
-#ifdef BETTIS
- 999  continue
-      if (bettis_screened_operator_enabled()) then
-c         write(*,*)'  ***Scaling by',bettis_Ks(),' in fm'
-         do i = 0,m
-            f(i) = f(i) * bettis_Ks()
-         enddo
-      endif
-#endif
       return
       end
       subroutine ft05 (t,f0,f1,f2,f3,f4,f5)
@@ -1708,7 +1688,7 @@ c
       data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
      & 1.0d0,2.0d0/
 #ifdef BETTIS
-      if (bettis_screened_operator_enabled()) then
+      if (bs_scroperator_enabled()) then
          call errquit('Screened operator on in fm0',0)
       endif
 #endif
@@ -1849,3 +1829,233 @@ c     common /rys/ t,rysr(10),rysw(10),xx,f0,f1,f2,f3,f4,f5,nroots
       go to 20
 c
       end
+c
+c
+#ifdef BETTIS
+      subroutine screened_fm(F,m,T,theta)
+      implicit none
+      integer m, i, maxpow, j !!! j is temp
+      double precision F(0:m), T, theta, Ks, K, sqrtT, KmT, KpT,
+     &     F0m, F0p, expT, d(0:7), fac(2:10), S, C, Fm0(0:50),
+     &     expK2, exp2KsqT
+      double precision derfc, bettis_Ks
+      double precision pi, twosqpi
+#if 0
+c
+c     Uncomment this code to return to the original test of scaling HF K
+c
+      call fm_orig(T,m,F)
+      Ks = bettis_Ks()
+      do i = 0, m
+         F(i) = F(i) * Ks
+      enddo
+      return
+#endif
+c
+c     The NWChem convention is to include the factor of 2/sqrt(pi)
+c     in the values of Fm(T)
+c
+      pi = acos(-1d0)
+      twosqpi = 2d0/sqrt(pi)
+c
+      Ks = bettis_Ks()
+      K = 0.5d0 * Ks / theta
+      if (T .lt. 5d-2) then
+c
+c     Small T case - Taylor expansion about T = 0
+c
+         maxpow = 5             ! Highest power of T in Taylor series
+c
+c     Calculate Fm(0) values
+c
+         Fm0(0) = twosqpi - 2d0*K*exp(K*K)*derfc(K)
+         do i = 1, m+maxpow
+            Fm0(i) = (twosqpi - 2d0*K*K*Fm0(i-1)) / (2d0*i+1d0)
+         enddo
+c
+c     Compute inverse factorials
+c
+         fac(2) = 0.5d0
+         do i = 3, maxpow
+            fac(i) = fac(i-1) / i
+         enddo
+c
+c     Compute Fm(T) values
+c
+         do i = 0, m
+            F(i) = Fm0(i)
+     &           - T*(Fm0(i+1)
+     &           - T*(Fm0(i+2)*fac(2)
+     &           - T*(Fm0(i+3)*fac(3)
+     &           - T*(Fm0(i+4)*fac(4)
+     &           - T* Fm0(i+5)*fac(5)))))
+         enddo
+      else if (T .gt. 30.0d0) then
+c
+c     Large T case - compute for numerical stability, exp(-T) considered
+c     negligible
+c
+         sqrtT = sqrt(T)
+         expK2 = exp(K*K)
+         exp2KsqT = exp(-2d0*K*sqrtT)
+         KmT = K - sqrtT
+         KpT = K + sqrtT
+c
+         F0p = 0.5d0*derfc(KpT)/exp2KsqT ! Actually F0p * exp(T)
+         F0m = 0.5d0*derfc(KmT)*exp2KsqT ! Actually F0m * exp(T)
+         F(0) = expK2/sqrtT*(F0m-F0p)
+         if (m .ge. 1) then
+c
+c     For F1(T), compute exp(-T)*C(T) directly for stability
+c
+            F(1) = (F(0) + 2d0*K*expK2*(F0m+F0p)) / (2d0*T)
+            do i = 2, m
+               F(i) = ((2d0*i-1d0)*F(i-1) + 2d0*K*K*F(i-2)) / (2d0*T)
+            enddo
+         endif
+      else
+c
+c     Regular case
+c
+         sqrtT = sqrt(T)
+         KmT = K - sqrtT
+         KpT = K + sqrtT
+         F0p = 0.5d0*exp(KpT*KpT)*derfc(KpT)
+         F0m = 0.5d0*exp(KmT*KmT)*derfc(KmT)
+         expT = exp(-T)
+         F(0) = expT/sqrtT*(F0m-F0p)
+         if (m .ge. 1) then
+            F(1) = (F(0) - expT*(twosqpi - 2d0*K*(F0m+F0p))) / (2d0*T)
+            do i = 2, m
+               F(i) = ((2d0*i-1d0)*F(i-1) + 2d0*K*K*F(i-2)
+     &              - twosqpi*expT) / (2d0*T)
+            enddo
+         endif
+      endif
+#if 1
+c
+c     !!! Consistency checks - can be commented out when stable
+c
+      do i = 1, m
+         if (F(i) .gt. F(i-1)) then
+            write(*,*)'Error: T m K',T,i,K
+            do j = 0,i
+               write(*,*)'  m F',j,F(j)/twosqpi
+            enddo
+            call errquit('Check 1 failed in screened_fm',0)
+         endif
+      enddo
+      do i = 0, m
+         if (F(i) .lt. 0d0) then
+            write(*,*)'Error: T m K',T,i,K,
+     &           ((2*i-1)*F(i-1)+2*K*K*F(i-2)),twosqpi
+            do j = 0,i
+               write(*,*)'  m F',j,F(j)/twosqpi
+            enddo
+            call errquit('Check 2 failed in screened_fm',0)
+         endif
+      enddo
+      do i = 0, m
+         if (F(i) .gt. twosqpi/(2*i+1)) then
+            write(*,*)'Error: T m K bound',T,i,K,twosqpi/(2*i+1)
+            do j = 0,i
+               write(*,*)'  m F',j,F(j)/twosqpi
+            enddo
+            call errquit('Check 3 failed in screened_fm',0)
+         endif
+      enddo
+#endif
+c
+      return
+      end
+c
+      subroutine fm_orig(x,m,f)
+c     this subroutine returns the incomplete gamma function fm(x)
+c     in t.  x must be non-negative, m is a non-negative integer
+      implicit real*8 (a-h,o-z)
+      dimension f(0:*)
+      common /fmtable/fx(5,600),gx(5,600)
+c
+      data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
+     & 1.0d0,2.0d0/
+c
+c
+      if (x.le.zero) then
+c       write(*,*) 'Fm(x) called with negative argument, x=',x
+        do 100 i=0,m
+          f(i)=twopi/(2*i+1)
+ 100    continue
+        return
+      else if (x.gt.30.0d0) then
+        f(0)=one/sqrt(x)
+        rx=one/x
+        do 300 i=1,m
+           f(i)=f(i-1)*rx*(i-half)
+ 300    continue
+        return
+      else
+        if (m.le.1) then
+          call ft01 (x,f(0),f(1))
+        else if (m.le.5) then
+          call ft05 (x,f(0),f(1),f(2),f(3),f(4),f(5))
+        else if (m.ge.20) then
+          call fm0_orig(x,m,f)
+          return
+        else
+          ix=x*20+1
+          dx=(ix+ix-1)*0.025d0-x
+          ex=exp(-x)*twopi
+cWolinski if(m.gt.10) then
+          if(m.ge.10) then
+            j=20
+            ff=(((fx(5,ix)*dx+fx(4,ix))*dx+fx(3,ix))*dx+fx(2,ix))*dx+
+     1       fx(1,ix)
+          else
+c      m between 6 and 9
+            j=10
+            ff=(((gx(5,ix)*dx+gx(4,ix))*dx+gx(3,ix))*dx+gx(2,ix))*dx+
+     1       gx(1,ix)
+          end if
+          jj=j+j+1
+          twox=two*x
+ 200        j=j-1
+            jj=jj-2
+            ff=(ex+twox*ff)/jj
+            if(j.le.m) f(j)=ff
+            if(j.gt.0) go to 200
+        end if
+      end if
+      return
+      end
+c
+      subroutine fm0_orig(x,m,f)
+      implicit real*8 (a-h,o-z)
+      dimension f(0:*)
+      data twopi,half,zero,one,two/1.128379167096d0,0.5d0,0.0d0,
+     & 1.0d0,2.0d0/
+      if (x.le.zero) then
+c       write(*,*) 'Fm(x) called with negative argument, x=',x
+        do 100 i=0,m
+          f(i)=twopi/(2*i+1)
+ 100    continue
+      else if (x.lt.30.0d0) then
+        j=20+m/2.0+2.0*x
+        ex=exp(-x)*twopi
+        jj=j+j+1
+        ff=ex/jj
+        twox=two*x
+ 200      j=j-1
+          jj=jj-2
+c         ff=(ex+twox*ff)*rj(jj)
+          ff=(ex+twox*ff)/jj
+          if(j.le.m) f(j)=ff
+          if(j.gt.0) go to 200
+      else
+        f(0)=one/sqrt(x)
+        rx=one/x
+        do 300 i=1,m
+           f(i)=f(i-1)*rx*(i-half)
+ 300    continue
+      end if
+      end
+#endif
