@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.11 1996-05-18 01:10:34 d3g681 Exp $
+C$Id: rohf.F,v 1.12 1996-06-30 18:48:21 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -90,8 +90,9 @@ C
       if (ga_nodeid() .eq. 0) then
          if (util_print('final evals', print_default)) then
             call util_print_centered(6,'Final eigenvalues',20,.true.)
+	    nprint = min(nclosed+nopen+10,nmo)
             call output(dbl_mb(k_eval),
-     $           1, min(nclosed+nopen+10,nmo),
+     $           1, nprint,
      $           1, 1, nmo, 1, 1)
             call util_flush(6)
          endif
