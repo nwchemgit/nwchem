@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.38 1996-08-19 15:18:09 d3g681 Exp $
+C$Id: scf.F,v 1.39 1996-08-29 17:17:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -100,9 +100,10 @@ c
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
      $        '  use symmetry    = ', l1/
-     $        '  symmetry adapt  = ', l1/)
+     $        '  symmetry adapt  = ', l1)
          if (olock) write(6,124) olock
- 124     format('  lock orbitals   = ', l1/)
+ 124     format('  lock orbitals   = ', l1)
+         write(6,*)
          if (oadapt .and. util_print('basis sym', print_default)) then
             call sym_bas_irreps(basis, .true., nbf_per_ir)
          endif

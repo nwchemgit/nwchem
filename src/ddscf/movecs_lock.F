@@ -2,6 +2,7 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "util.fh"
       integer geom, basis
       integer g_old             ! [input] Old movecs unchanged
       integer g_new             ! [input/output] New movecs reordered
@@ -55,7 +56,12 @@ c
 c
 c     new vector i corresponds to old vector j
 c
-         if (i. ne. j) write(6,*) ' movecs_lock', i, j
+         if (i. ne. j) then
+            if (util_print('movecs_lock', print_default)) then
+               write(6,*) ' movecs_lock', i, j
+               call util_flush(6)
+            endif
+         endif
          call ga_get(g_tmp, 1, nbf, i, i, dbl_mb(k_v), 1)
          call ga_put(g_new, 1, nbf, j, j, dbl_mb(k_v), 1)
          evals(j) = dbl_mb(k_e+i-1)
