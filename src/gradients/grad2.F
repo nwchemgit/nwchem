@@ -7,7 +7,7 @@
      $  nproc, nat, scr, lscr, buf, lbuf, tol2e,
      $  s34, oactive, oskel, scftype, omp2,
      $  pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,maxsh,nopen,nbf)
-c     $Id: grad2.F,v 1.21 1997-03-04 21:04:11 d3g681 Exp $
+c     $Id: grad2.F,v 1.22 1997-03-21 02:00:48 d3g681 Exp $
 
       implicit none
 c     
@@ -22,6 +22,7 @@ c
 #include "bas.fh"
 #include "schwarz.fh"
 #include "rtdb.fh"
+#include "util.fh"
 
 C-----------------------parameters---------------------------------
       integer ldim,             ! max dimension of density block
@@ -36,7 +37,9 @@ c     FOR MCSCF ONLY
       double precision pdm2a(nopen,nopen,nopen,maxsh)
       double precision pdm2b(nopen,nopen,maxsh,maxsh)
       double precision pdm2c(nopen,maxsh,maxsh,maxsh)
-      double precision pdm2d(maxsh,maxsh,maxsh,maxsh)
+
+c     FOR EVERYONE
+      double precision pdm2d(maxsh*maxsh*maxsh*maxsh)
       double precision coeff(nbf,nopen)
 c     
 
@@ -76,6 +79,7 @@ C-------------------------local variables-----------------------------
       external nxtask
 
       double precision dE, den2, q4, q2, s12, half, quart, eigh, sixh
+      double precision s1234, psum
 
       logical status, oij, okl, oikjl, oschwarz12, osym, ouhf, orohf,
      $  ochkpt, oskip, ofinish, grad_restart, omcscf
@@ -314,23 +318,146 @@ c
                 if (okl) itop4 = ish3
                 if (oikjl .and. ish1.eq.ish3) itop4 = ish2
                 do ish4 = iac4f, itop4
-                 if (schwarz_shell(ish1,ish2)
-     $             * schwarz_shell(ish3,ish4) 
-     $             * q4 .ge. tol2e) 
-     $             then
+
+                 scale = 1.0d0
+                 if (.not.oij .or. ish1.ne.ish2) scale = scale*2.0d0
+                 if (.not.okl .or. ish3.ne.ish4) scale = scale*2.0d0
+                 if (.not.oikjl .or. ish1.ne.ish3 .or. 
+     $             ish2.ne.ish4) scale = scale*2.0d0
+
+                 s1234 = schwarz_shell(ish1,ish2)
+     $             * schwarz_shell(ish3,ish4) * q4 * scale
+
+                 if (s1234 .ge. tol2e) then
                   status = bas_cn2bfr(basis,ish4,if4,il4)
+                  id4 = il4 - if4   + 1
                   if (omcscf) call grad_mcscf_d
-     $              (nbf,nopen,maxsh,id1,id2,id3,
+     $              (nbf,nopen,maxsh,id1,id2,id3,id4,
      $              if4,il4,coeff,pdm2c,pdm2d)
                   if4 = if4 - iab4f + 1
                   il4 = il4 - iab4f + 1
-                  id4 = il4 - if4   + 1
 
 C---------------------------------------------------------------------
 
+c     Compute the shell block of the 2-pdm
 
-C     find contraction in atomic block
-
+                  icount = 1
+                  if (omp2) then  
+                   if (ouhf) then ! UHF + MP2
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = quart *(
+     $                    (d_ij(ip1,ip2)  + d_ij2(ip1,ip2))
+     $                    *(d_kl3(ip3,ip4) + d_kl4(ip3,ip4))
+     $                    +(d_ij3(ip1,ip2) + d_ij4(ip1,ip2))
+     $                    *(d_kl(ip3,ip4) + d_kl2(ip3,ip4)))
+     $                    - eigh *(d_il(ip1,ip4) * d_jk3(ip2,ip3) 
+     $                    + d_jk(ip2,ip3) * d_il3(ip1,ip4)
+     $                    + d_jl(ip2,ip4) * d_ik3(ip1,ip3)
+     $                    + d_ik(ip1,ip3) * d_jl3(ip2,ip4)
+     $                    + d_il2(ip1,ip4) * d_jk4(ip2,ip3) 
+     $                    + d_jk2(ip2,ip3) * d_il4(ip1,ip4)
+     $                    + d_jl2(ip2,ip4) * d_ik4(ip1,ip3)
+     $                    + d_ik2(ip1,ip3) * d_jl4(ip2,ip4))
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   else if (orohf) then
+                    call errquit('only RHF or UMP2 grads available',110)
+                   else         ! RHF + MP2
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = quart*(d_ij(ip1,ip2)*d_kl2(ip3,ip4)
+     $                    +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
+     $                    - sixh *(d_il(ip1,ip4) * d_jk2(ip2,ip3) 
+     $                    + d_jk(ip2,ip3) * d_il2(ip1,ip4)
+     $                    + d_jl(ip2,ip4) * d_ik2(ip1,ip3)
+     $                    + d_ik(ip1,ip3) * d_jl2(ip2,ip4))
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   end if
+                  else
+                   if (ouhf) then ! UHF
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
+     $                    - eigh  *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3)
+     $                    +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
+     $                    +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   else if (orohf) then ! ROHF
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
+     $                    + quart *(d_ij(ip1,ip2) * d_kl2(ip3,ip4)
+     $                    +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
+     $                    + eigh *(d_ij2(ip1,ip2) * d_kl2(ip3,ip4))
+     $                    - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+     $                    - sixh *(d_ik(ip1,ip3) * d_jl2(ip2,ip4)
+     $                    +  d_il2(ip1,ip4) * d_jk(ip2,ip3)
+     $                    +  d_ik2(ip1,ip3) * d_jl(ip2,ip4)
+     $                    +  d_il(ip1,ip4) * d_jk2(ip2,ip3)
+     $                    +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
+     $                    +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   else if (omcscf) then ! MCSCF
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
+     $                    - eigh * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+     $                    + 0.5d0*pdm2d(icount)
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   else         ! RHF
+                    do ip1 = if1, il1
+                     do ip2 = if2, il2
+                      do ip3 = if3, il3
+                       do ip4 = if4, il4
+                        den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
+     $                    - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
+     $                    +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+                        pdm2d(icount) = den2
+                        icount = icount + 1
+                       end do
+                      end do
+                     end do
+                    end do
+                   end if
+                  endif
 
 c     Determine the number of ERIs in this block of integrals.
 
@@ -338,199 +465,42 @@ c     Determine the number of ERIs in this block of integrals.
                   nshbfq = id3*id4
                   Nint = nshbfp*nshbfq
 
-C     2el. integral derivatives
-                  call intd_2e4c(basis, ish1, ish2, basis, ish3, ish4,
-     &              lscr, scr, lbuf, buf, idatom)
-                  
-                  scale = 1.0d0
-                  if (.not.oij .or. ish1.ne.ish2) scale = scale*2.0d0
-                  if (.not.okl .or. ish3.ne.ish4) scale = scale*2.0d0
-                  if (.not.oikjl .or. ish1.ne.ish3 .or. 
-     $              ish2.ne.ish4) scale = scale*2.0d0
+c     Sparsity test using magnitude of the density matrix
 
-                  icount = 1
-                  do i = 1, 4
-                   if (idatom(i).ge.1) then
-                    if (.not. omp2) then
-                     if (ouhf) then
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
-     $                       - eigh  *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                       +  d_il(ip1,ip4) * d_jk(ip2,ip3)
-     $                       +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
-     $                       +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                   dE * q4 * scale
-                      end do
-                     else if (orohf) then
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = half *(d_ij(ip1,ip2) * d_kl(ip3,ip4))
-     $                       + quart *(d_ij(ip1,ip2) * d_kl2(ip3,ip4)
-     $                       +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
-     $                       + eigh *(d_ij2(ip1,ip2) * d_kl2(ip3,ip4))
-     $                       - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                       +  d_il(ip1,ip4) * d_jk(ip2,ip3))
-     $                       - sixh *(d_ik(ip1,ip3) * d_jl2(ip2,ip4)
-     $                       +  d_il2(ip1,ip4) * d_jk(ip2,ip3)
-     $                       +  d_ik2(ip1,ip3) * d_jl(ip2,ip4)
-     $                       +  d_il(ip1,ip4) * d_jk2(ip2,ip3)
-     $                       +  d_ik2(ip1,ip3) * d_jl2(ip2,ip4)
-     $                       +  d_il2(ip1,ip4) * d_jk2(ip2,ip3))
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                   dE * q4 * scale
-                      end do
-                     else if (omcscf) then
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
-     $                       - eigh * (d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                       +  d_il(ip1,ip4) * d_jk(ip2,ip3))
-     $                       + 0.5d0*pdm2d(ip4-if4+1,ip3-if3+1,
-     $                       ip2-if2+1,ip1-if1+1)
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                   dE * q4 * scale
-                      end do
-                     else       ! RHF
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = half *(d_ij(ip1,ip2)*d_kl(ip3,ip4))
-     $                       - eigh *(d_ik(ip1,ip3) * d_jl(ip2,ip4)
-     $                       +  d_il(ip1,ip4) * d_jk(ip2,ip3))
+                  psum = 0.0d0
+                  do icount = 1, nint
+                   psum = psum + pdm2d(icount)*pdm2d(icount)
+                  enddo
+                  psum = sqrt(psum)
 c
-c     The following may be uncommented to print out the integrals
-c
-*                           if (abs(buf(icount)) .gt. 1d-9) then
-*                              write(6,111) 
-*     $                             idatom(i), icart, 
-*     $                             ip1+iab1f-1,
-*     $                             ip2+iab2f-1,
-*     $                             ip3+iab3f-1,
-*     $                             ip4+iab4f-1,
-*     $                             buf(icount)
-* 111                          format(' atom=',i2,', xyz=',i2,', ijkl=',
-*     $                             4i3,', d(ij|kl)/dq=',1p,d16.8)
-*                           endif
-c
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                   dE * q4 * scale
-                      end do
-                     end if      ! rhf
+                  if (psum*s1234 .gt. tol2e) then
 
-                    else        ! MP2
-
-                     if (ouhf) then
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = quart *(
-     $                       (d_ij(ip1,ip2)  + d_ij2(ip1,ip2))
-     $                       *(d_kl3(ip3,ip4) + d_kl4(ip3,ip4))
-     $                       +(d_ij3(ip1,ip2) + d_ij4(ip1,ip2))
-     $                       *(d_kl(ip3,ip4) + d_kl2(ip3,ip4)))
-     $                       - eigh *(d_il(ip1,ip4) * d_jk3(ip2,ip3) 
-     $                       + d_jk(ip2,ip3) * d_il3(ip1,ip4)
-     $                       + d_jl(ip2,ip4) * d_ik3(ip1,ip3)
-     $                       + d_ik(ip1,ip3) * d_jl3(ip2,ip4)
-     $                       + d_il2(ip1,ip4) * d_jk4(ip2,ip3) 
-     $                       + d_jk2(ip2,ip3) * d_il4(ip1,ip4)
-     $                       + d_jl2(ip2,ip4) * d_ik4(ip1,ip3)
-     $                       + d_ik2(ip1,ip3) * d_jl4(ip2,ip4))
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) +
-     $                   dE * q4 * scale
-                      end do
-
-                     else if (orohf) then
-                      call errquit('only OUMP2 grads available',110)
-                     else       ! RMP2
-                      do icart = 1, 3
-                       dE = 0.D0
-                       do ip1 = if1, il1
-                        do ip2 = if2, il2
-                         do ip3 = if3, il3
-                          do ip4 = if4, il4
-                           den2 = quart*(d_ij(ip1,ip2)*d_kl2(ip3,ip4)
-     $                       +  d_ij2(ip1,ip2) * d_kl(ip3,ip4))
-     $                       - sixh *(d_il(ip1,ip4) * d_jk2(ip2,ip3) 
-     $                       + d_jk(ip2,ip3) * d_il2(ip1,ip4)
-     $                       + d_jl(ip2,ip4) * d_ik2(ip1,ip3)
-     $                       + d_ik(ip1,ip3) * d_jl2(ip2,ip4))
-                           dE = dE + den2 * buf(icount)
-                           icount = icount + 1
-                          end do
-                         end do
-                        end do
-                       end do
-                       frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
-     $                   dE * q4 * scale
-                      end do
-
-                     end if      ! closed shell
-                     
-                    end if       ! MP2
-
-                   else         ! idatom
-                    icount = icount + 3 * Nint
-                   end if
-                  end do         ! i (1:4 derivative center on integral)
+                   call intd_2e4c(basis, ish1, ish2, basis, ish3, ish4,
+     &               lscr, scr, lbuf, buf, idatom)
+                   
+                   icount = 1
+                   do i = 1, 4
+                    if (idatom(i).ge.1) then
+                     do icart = 1, 3
+                      dE = ddot(nint,pdm2d,1,buf(icount),1)
+                      frc(icart,idatom(i)) = frc(icart,idatom(i)) + 
+     $                  dE * q4 * scale
+                      icount = icount + nint
+                     enddo
+                    else        ! idatom
+                     icount = icount + 3 * Nint
+                    end if
+                   end do       ! i (1:4 derivative center on integral)
+                  endif         ! Sparsity test with density
 
 C---------------------------------------------------------------------
-                 end if          !schwarz(1234)
-                end do           ! ish4
-               end do            ! ish3
-              end if             !schwarz(12)
-             end do              ! ish2
-            end do               ! ish1
+                 end if         !schwarz(1234)
+                end do          ! ish4
+               end do           ! ish3
+              end if            !schwarz(12)
+             end do             ! ish2
+            end do              ! ish1
+            
 
             if (ochkpt) then
 
@@ -541,14 +511,14 @@ C---------------------------------------------------------------------
             end if
             
             next = nxtask(nproc,task_size)
-           end if                ! next
+           end if               ! next
 
  1020      continue             ! Jump here for inactive/zero
-          end do                 ! iat4
+          end do                ! iat4
          end if
-        end do                   ! iat2
-       end do                    ! iat1
-      end do                     ! iat3
+        end do                  ! iat2
+       end do                   ! iat1
+      end do                    ! iat3
 
 C     final assembly of the forces
       ofinish = .true.
@@ -692,13 +662,14 @@ c
 
 
       subroutine  grad_mcscf_d
-     $     (nbf,nopen,maxsh,pdim,qdim,rdim,slo,shi,coeff,pdm2c,pdm2d)
+     $     (nbf,nopen,maxsh,pdim,qdim,rdim,sdim,slo,shi,
+     $     coeff,pdm2c,pdm2d)
       implicit none
       integer nbf, nopen, maxsh
-      integer pdim,qdim,rdim,slo,shi
+      integer pdim,qdim,rdim,sdim,slo,shi
       double precision coeff(nbf,nopen)
       double precision pdm2c(nopen,maxsh,maxsh,maxsh)
-      double precision pdm2d(maxsh,maxsh,maxsh,maxsh)
+      double precision pdm2d(sdim,rdim,qdim,pdim)
 c     
 c     pdm2d(s,r,q,p) = sum(l) C(s,l) pdm2c(l,r,q,p)
 c     
@@ -706,24 +677,14 @@ c     for s in given shell(slo<=s<=shi)
 c     
       integer l                 ! Active MOs
       integer p, q, r, s        ! AO
-      integer sdim
       double precision pdm2clrqp
-c     
-      sdim = (shi-slo+1)
-c     
-      do p = 1, pdim
-         do q = 1, qdim
-            do r = 1, rdim
-               do s = 1, sdim
-                  pdm2d(s,r,q,p) = 0.0d0
-               end do
-            end do
-         end do
-      end do
 c     
       do p =  1, pdim
          do q = 1, qdim
             do r = 1, rdim
+               do s = 1, sdim
+                  pdm2d(s,r,q,p) = 0.0d0
+               enddo
                do l = 1, nopen
                   pdm2clrqp = pdm2c(l,r,q,p)
                   do s = 1, sdim

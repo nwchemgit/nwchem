@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.17 1997-03-04 06:17:05 d3e129 Exp $
+c     $Id: grad_force.F,v 1.18 1997-03-21 02:00:50 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -97,6 +97,7 @@ C------------------------------------------------------------------------------
      $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh,
      $     l_frc_mp2, k_frc_mp2
 
+c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer l_pdm2, l_pdm2a, l_pdm2b, l_pdm2c, l_pdm2d ! MCSCF 2-pdm
       integer k_pdm2, k_pdm2a, k_pdm2b, k_pdm2c, k_pdm2d ! MCSCF 2-pdm
       integer l_coeff, k_coeff  ! MCSCF local copy of Active space MOs
@@ -280,10 +281,11 @@ C     global density
      $        'density matrix')
       enddo
 c
+      if (.not. bas_high_angular(basis, maxsh))
+     $     call errquit('gradients: basis corrupt',0)
+      maxsh = (maxsh+1)*(maxsh+2)/2 ! Assume Cartesian worst case
+c
       if (scftype .eq. 'MCSCF') then
-         if (.not. bas_high_angular(basis, maxsh))
-     $        call errquit('gradients: basis corrupt',0)
-         maxsh = (maxsh+1)*(maxsh+2)/2 ! Assume Cartesian worst case
          if (.not. ma_alloc_get(mt_dbl, nopen**4, 'pdm2', 
      $        l_pdm2 , k_pdm2 )) call errquit
      $        ('gradient:failed allocating pdm2',nopen**4)
@@ -296,21 +298,20 @@ c
          if (.not. ma_alloc_get(mt_dbl, (maxsh**3)*(nopen**1), 'pdm2c',
      $        l_pdm2c, k_pdm2c)) call errquit
      $        ('gradient:failed allocating pdm2c',(maxsh**3)*(nopen**1))
-         if (.not. ma_alloc_get(mt_dbl, maxsh**4, 'pdm2d',
-     $        l_pdm2d, k_pdm2d)) call errquit
-     $        ('gradient:failed allocating pdm2d',maxsh**4)
          if (.not. ma_alloc_get(mt_dbl, nopen*nbf, 'coeff',
      $        l_coeff, k_coeff)) call errquit
      $        ('gradient:failed allocating coeff',nopen*nbf)
       else
-         maxsh   = 1             ! To avoid SEGV
-         k_pdm2  = 1
+         k_pdm2  = 1             ! To avoid SEGV
          k_pdm2a = 1
          k_pdm2b = 1
          k_pdm2c = 1
-         k_pdm2d = 1
          k_coeff = 1
       endif
+c
+      if (.not. ma_alloc_get(mt_dbl, maxsh**4, 'pdm2d',
+     $     l_pdm2d, k_pdm2d)) call errquit
+     $     ('gradient:failed allocating pdm2d',maxsh**4)
 
 C     scratch array for Schwarz screening
       status = MA_alloc_get(MT_DBL, nat, 'schwarz limits', l_sch, k_sch)
@@ -701,7 +702,7 @@ C     print timing information
 C     free memory
 
       status = MA_free_heap(l_act)
-      if (scftype .ne. 'RHF' .or. omp2) then
+      if ((scftype .eq. 'UHF') .or. (scftype.eq.'ROHF') .or. omp2) then
          if (scftype .eq. 'ROHF' .or. omp2) then
             status = MA_free_heap(lh_kl2)
             status = MA_free_heap(lh_ij2)
@@ -710,10 +711,6 @@ C     free memory
          status = MA_free_heap(lh_il2)
          status = MA_free_heap(lh_jl2)
          status = MA_free_heap(lh_ik2)
-         if (scftype .eq. 'ROHF') then
-            status = MA_free_heap(lh_ij2)
-            status = MA_free_heap(lh_kl2)
-         endif
       endif
       if (scftype .eq. 'UHF' .and. omp2) then
          status = MA_free_heap(lh_ij3)
@@ -738,9 +735,9 @@ C     free memory
       status = MA_free_heap(l_scr)
       status = MA_free_heap(l_buf)
 c
+      status = MA_free_heap(l_pdm2d)
       if (scftype .eq. 'MCSCF') then
          status = MA_free_heap(l_coeff)
-         status = MA_free_heap(l_pdm2d)
          status = MA_free_heap(l_pdm2c)
          status = MA_free_heap(l_pdm2b)
          status = MA_free_heap(l_pdm2a)
