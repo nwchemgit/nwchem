@@ -1,12 +1,12 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.15 2000-10-13 20:08:26 d3g681 Exp $
-*------------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999     *
-*         Pacific Northwest National Laboratory,       * 
-*         Battelle Memorial Institute.                 *
-*------------------------------------------------------*
-*------------> All Rights Reserved <-------------------*
-*------------------------------------------------------*
+* $Id: util_legal.F,v 1.16 2000-10-26 00:07:49 windus Exp $
+*--------------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,2000  *
+*         Pacific Northwest National Laboratory,         * 
+*         Battelle Memorial Institute.                   *
+*--------------------------------------------------------*
+*------------> All Rights Reserved <---------------------*
+*--------------------------------------------------------*
 c
 c routine to print legal disclaimer to stdout
 c
@@ -183,7 +183,7 @@ c
      &    /,12x,'Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
-     &    'Version 3.3.1" (1999),',
+     &    'Version 4.0" (1999),',
      &    /,22x,'Pacific Northwest National Laboratory,',
      &    /,22x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
