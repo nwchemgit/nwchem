@@ -97,6 +97,17 @@ c$$$
 
 
 
+       subroutine hv_readv(lun,len,x)
+       implicit none
+       integer lun, len
+       double precision x(len)
+       
+       read(lun) x
+       return
+       end
+
+
+
 
        subroutine ga_rowprint( text, g_a )
        implicit none
