@@ -204,9 +204,39 @@ It defines an ECP for the carbon and oxygen atoms in the molecule.
 
 Spin-orbit ECPs are fitted in precisely the same functional form as the
 scalar RECPs and have the same properties, with the exception that there is
-no local potential ul and no $s$ potential. Spin-orbit potentials are
+no local potential ul, no $s$ potential and no effective charge has to be
+defined. Spin-orbit potentials are
 specified in the same way as ECPs except that the directive \verb+SO+ is
-used instead of \verb+ECP+
+used instead of \verb+ECP+. The \verb+SO+ directive is as follows:
+
+\begin{verbatim}
+  SO [<string name default "so basis">] \
+        [print || noprint default print]
+
+     <string tag> library [<string tag_in_lib>] \
+                  <string standard_set> [file <filename>]
+
+        ...
+
+     <string tag> <string shell_type>
+     <real r-exponent> <real Gaussian-exponent> <real list_of_coefficients>
+        ...
+     
+  END
+\end{verbatim}    
+
+Note: in the literature the coefficients of the spin-orbit potentials are NOT 
+always defined in the same manner. The NWChem code assumes that the spin-orbit
+potential defined in the input is of the form:
+\begin{equation}
+\Delta U^{\rm NWChem}_{\ell} = \frac{2}{2\ell+1} \Delta U_{\ell} 
+\end{equation}
+For example, in the literature the Stuttgart potentials are defined as 
+\Delta U_{\ell} and, hence, have to be multiplied by $2/(2\ell+1)$. On the 
+other hand, the CRENBL potentials in the published papers are defined as 
+\frac{2}{2\ell+1} \Delta U_{\ell} and, hence, have to be multiplied by 
+$2/{\ell}$ (Warning: on the CRENBL website the spin-orbit potential have been 
+corrected with the $2/{\ell}$ factor).
 
 %RJH: Align six comment symbols (#) with the other two.--fmr.
 %Generally contracted ECP basis sets are not in wide use, but the
