@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.118 2002-05-08 22:51:24 bert Exp $
+c $Id: basis.F,v 1.119 2002-05-08 23:47:03 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -446,7 +446,7 @@ c::-local
       integer mylcont ! loop range value (last)
       integer mycont  ! number of contractions
       integer mynbf   ! number of functions
-      integer tmp1, tmp2
+      integer tmp1, tmp2, tmp3
       integer myngen
       integer mytype
       integer jtype
@@ -454,11 +454,6 @@ c::-local
       integer cnt_type(0:6)
 *
 #include "ecpso_sfnP.fh"
-*
-      if (star_nr_tags .gt. 0) then
-         bas_summary_print = .true.
-         return
-      endif
 *
       bas_summary_print =
      &    bas_check_handle(basisin,'bas_summary_print')
@@ -549,6 +544,28 @@ c::-local
      &      mycont,
      &      mynbf,dum_string(1:tmp1)
       enddo
+      do i_tag=1,star_nr_tags
+        tmp1 = inp_strlen(star_bas_typ(i_tag))
+        if (tmp1 .lt. (30-1)) then
+          tmp2 = (30-tmp1)/2
+        else
+          tmp2 = 1
+        endif
+        dum_stdtag = ' '
+        dum_stdtag(tmp2:) = star_bas_typ(i_tag)
+        tmp1 = 1
+        if (i_tag .gt. 1) tmp1 = star_nr_excpt(i_tag-1) + 1
+        if ((star_nr_excpt(i_tag) - tmp1) .gt. -1) then
+           write(LuOut,10002) star_tag(i_tag), 
+     &           dum_stdtag(1:30), 'all atoms except',
+     &           (star_excpt(tmp3)(1:inp_strlen(star_excpt(tmp3))),
+     &           tmp3=tmp1,star_nr_excpt(i_tag))
+        else
+           write(LuOut,10002) star_tag(i_tag), 
+     &           dum_stdtag(1:30), 'on all atoms '
+        endif
+      enddo
+
       write(luout,'(/)')
       call util_flush(luout)
       bas_summary_print = .true.
@@ -561,6 +578,7 @@ c::-local
      $    ' ---------------- ------------------------------  ',
      &    '------  ---------------------')
 10001 format(1x,a16,1x,a30,2x,i4,5x,i4,3x,a)
+10002 format(1x,a16,1x,a30,2x,a17,1x,10(a))
 *
       end
 *.....................................................................
