@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.16 1997-06-24 02:57:58 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.17 1997-10-13 06:34:49 d3e129 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -518,7 +518,7 @@ c
          oseg_lo = oseg_hi + 1
          oseg_hi = min(oseg_hi+nvpass,vir_hi)
          if (iam.eq.0)write(*,846)npass
- 846     format(' commencing integral evaluation ',i5)
+ 846     format(' commencing integral evaluation ',i8)
          tx(1)=tcgtime()
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
@@ -535,9 +535,11 @@ c
      $      g_coul,g_exch,ncor,nocc,nvir,iprt,
      $      empt(1),empt(2),oseg_lo,oseg_hi)
          tx(3)=tcgtime()
-         if (iam.eq.0)write(6,*)'Time for integral evaluation pass ',
-     $      npass,tx(2)-tx(1)
-         if (iam.eq.0)write(6,*)'Time for triples evaluation pass ',
+         if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
+     &       'Time for integral evaluation pass ',
+     $       npass,tx(2)-tx(1)
+         if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
+     &       'Time for triples evaluation pass  ',
      $      npass,tx(3)-tx(2)
       enddo
       empt(1)=empt(1)+empt(1)
@@ -546,8 +548,10 @@ c
       eccsdt=empt(1)+empt(2)
       if (iam.eq.0)then
        write(6,100)empt(1),empt(2),eccsdt
- 100   format(/,' pseudo-e(mp4) ',e22.14,/,
-     &        ' pseudo-e(mp5) ',e22.14,/,' e(t)   ',e22.14,/)
+ 100   format(/,
+     &     ' pseudo-e(mp4) ',e22.14,/,
+     &     ' pseudo-e(mp5) ',e22.14,/,
+     &     '        e(t)   ',e22.14,/)
       endif
 
       stat=ga_destroy(g_coul)
@@ -583,6 +587,7 @@ c
             Write (LuOut, '(1X, A, F30.15)')
      $         'Total CCSD(T) energy:      ', RefEner + eccsd + eccsdt
          EndIf
+         call util_flush(6)
       EndIf
 C
 C     Write our energy out to the database

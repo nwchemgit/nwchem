@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E)
-C     $Id: ccsd_iterdrv2.F,v 2.11 1997-06-05 17:45:40 gg502 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.12 1997-10-13 06:34:50 d3e129 Exp $
       implicit none
 c
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
@@ -22,6 +22,9 @@ c$$$      double precision rtc
 c$$$      external rtc
 c
 #include "ccsd_len.fh"
+*rak-s
+#include "ccsd_time.fh"
+*rak-e
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
      &        i,j,a,b,av,lhoo,lhoov,ad1,ad2,ad3,ad4
@@ -84,8 +87,14 @@ c ----------------------------------------------------------
 c begin iterations
 c ----------------------------------------------------------
       if (iam.eq.0)write(6,1234)
- 1234 format(//,71(1h-),/,' iter',8x,'correlation',11x,'delta',9x,
-     &       'rms',/,15x,'energy',14x,'energy',/,71(1h-))
+*rak 1234 format(//,71(1h-),/,' iter',8x,'correlation',11x,'delta',9x,
+*rak     &       'rms',/,15x,'energy',14x,'energy',/,71(1h-))
+ 1234 format(//,73('-'),/,' iter',5x,'correlation',5x,'delta',7x,
+     &       'rms',7x,'T2',5x,'Non-T2',6x,'Main',
+     &    /,13x,'energy',6x,'energy',6x,'error',
+     &    6x,'ampl',5x,'ampl',6x,'Block',
+     &    /,48x,'time',5x,'time',6x,'time',
+     &    /,73('-'))
    99 continue
       iter=iter+1
       idiis=idiis+1
@@ -96,13 +105,13 @@ c ----------------------------------------------------------
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
-     &         /,71(1h-),/)
+     &         /,73('-'),/)
         goto 999 
       endif
       if (iter.gt.maxit)then
         if (iam.eq.0)write(6,1237)
  1237   format(18x,'****maximum iterations exceeded****',18x,
-     &         /,71(1h-),/)
+     &         /,73('-'),/)
         goto 999
       endif
       if (iprt.gt.5.and.iam.eq.0)write(6,134)iter,idiis,ndiis
@@ -158,9 +167,14 @@ c ----------------------------------------------------------
       tend=tx(4)
       if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis ',tend-tstart
       if (iam.eq.0)then
-      write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
-     &                                       (tx(2)-tx(1))
- 1235 format(i4,d24.14,2d12.4,2d12.4)
+*rak      write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
+*rak     &                                       (tx(2)-tx(1))
+*rak 1235 format(i4,d24.14,2d12.4,2d12.4)
+          write(6,1235)iter,eccsd,deccsd,rms,
+     &      tx(2)-tx(1),
+     &      tx(4)-tx(3)-(tx(2)-tx(1)),
+     &      main_block_time
+ 1235 format(i4,f18.10,2(1pd11.3),3(f9.2))
 c
       call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
       call ecce_print1('ccsd delta energy', mt_dbl, deccsd, 1)

@@ -1,6 +1,6 @@
       Logical Function ccsd(rtdb)
        implicit none
-C     $Id: ccsd.F,v 2.6 1997-05-14 20:08:06 d3g681 Exp $
+C     $Id: ccsd.F,v 2.7 1997-10-13 06:34:50 d3e129 Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -59,6 +59,8 @@ c ------NEW AO CCSD CODE
      $     call errquit('ccsd: no ao basis ', 0)
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in)) 
      $     call util_file_name('movecs', .false.,.false.,movecs_in)
+c
+      call qstat_init()
 c
       Call ccsd_driver( rtdb, geom, basis, movecs_in )
 C

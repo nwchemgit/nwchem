@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.8 1997-05-29 16:42:54 gg502 Exp $
+C     $Id: ccsd_t2pm.F,v 2.9 1997-10-13 06:34:51 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -288,7 +288,9 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-
+*rak-s
+#include "ccsd_time.fh"
+*rak-e
       integer ad1,ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,next,
      &        icnt,nfi,nfk,lnijkl,offjl,offlj,lnoo,nfj,nfl,nodes,iam
       double precision schwarz1,schwarz2
@@ -413,7 +415,8 @@ c
       call ga_sync()
       tx(2)=tcgtime()
       if (iam.eq.0) then
-         write(6,*)'Time around main block',tx(2)-tx(1)
+*rak     write(6,*)'Time around main block',tx(2)-tx(1)
+         main_block_time = tx(2)-tx(1)
       endif
 c
       call qexit('sxy',0)

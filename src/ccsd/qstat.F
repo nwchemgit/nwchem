@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.3 1997-04-14 06:35:08 gg502 Exp $
+C     $Id: qstat.F,v 2.4 1997-10-13 06:34:52 d3e129 Exp $
       Implicit NONE
       Character*(*) NameIn
       Integer IPrint
@@ -134,10 +134,12 @@ C
       tiotot=zip
       nodes = ga_nnodes()
       iam = ga_nodeid()
+      call ga_sync()
       do 100 i=1,nrout
       tcptot=tcptot+tcp(i)
       tiotot=tiotot+tio(i)
  100  continue
+      call ga_sync()
      
       do 310 nde=0,min(3,nodes-1)
       if (iam.eq.nde)then
@@ -170,4 +172,21 @@ c$$$      implicit real*8 (a-h,o-z)
 *     
       data level,nrout/0,0/
 *
+      end
+      subroutine qstat_init
+      implicit none
+#include "qdata.fh"
+      integer i
+*
+      call ifill(mxlev,0,no,1)
+      Tcp0 = 0.0d00
+      Tio0 = 0.0d00
+      call dfill(mxrout,0.0d00,tcp   ,1)
+      call dfill(mxrout,0.0d00,tio   ,1)
+      call ifill(mxrout,0     ,ncall ,1)
+      do i = 1,mxrout
+        name(i) = ' '
+      enddo
+      level = 0
+      nrout = 0
       end
