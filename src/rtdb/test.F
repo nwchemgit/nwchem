@@ -1,17 +1,17 @@
       program test
       implicit none
 c
-#include 'rtdb.fh'
-#include 'mafdecls.fh'
+#include "rtdb.fh"
+#include "mafdecls.fh"
 c
-      integer rtdb
+      integer rtdb, ma_handle, ma_index
       integer itest(3), ibuf(3)
       real ftest(4), fbuf(4)
       double precision dtest(5), dbuf(5)
       character *20 cbuf(4), ccbuf(4)
       character *20 name
       character *26 date
-      integer status, type, nelem
+      integer status, type, nelem, i
 c
       data itest/1, 2, 3/
       data ftest/1.0e0, 2.0e0, 3.0e0, 4.0e0/
@@ -57,6 +57,24 @@ c
  10   if (status) then
          if (.not. rtdb_get_info(rtdb, name, type, nelem, date)) stop 9
          write(6,*) name, type, nelem, date
+         if (type.eq.mt_int .or. type.eq.mt_dbl) then
+            type = -1
+            nelem = -1
+            if (.not. rtdb_ma_get(rtdb, name, type, nelem, ma_handle))
+     $           stop 88
+            write(6,*) name, type, nelem, date
+            if (.not. ma_get_index(ma_handle, ma_index)) stop 89
+            if (type .eq. mt_int) then
+               write(6,1) (int_mb(ma_index+i),i=0,nelem-1)
+ 1             format(1x,10i5)
+            else if (type .eq. mt_dbl) then
+               write(6,2) (dbl_mb(ma_index+i),i=0,nelem-1)
+ 2             format(1x,5d16.8)
+            else
+               stop 91
+            endif
+            status = ma_free_heap(ma_handle)
+         endif
          status = rtdb_next(rtdb, name)
          goto 10
       endif

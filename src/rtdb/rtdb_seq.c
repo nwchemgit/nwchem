@@ -86,8 +86,6 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     break;
 
   case MT_BASE + 1:	/* int */
-  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
-
     for (nprint=i=0; i<nelem; i++) {
       nprint += fprintf(file, "%d ", ((int *) p)[i]);
       if (nprint >= 72) {
@@ -97,6 +95,18 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
     }
     if (nprint > 0) (void) fprintf(file, "\n");
     break;
+
+  case MT_BASE + 10:	/* Fortran integer ... not equivalent on KSR */
+    for (nprint=i=0; i<nelem; i++) {
+      nprint += fprintf(file, "%d ", ((Integer *) p)[i]);
+      if (nprint >= 72) {
+	(void) fprintf(file, "\n");
+	nprint = 0;
+      }
+    }
+    if (nprint > 0) (void) fprintf(file, "\n");
+    break;
+
 
   case MT_BASE + 2:	/* long int */
 
@@ -351,7 +361,7 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
   for (new=0; new<MAX_RTDB; new++)
     if (rtdb[new].active)
       if (strcmp(filename, rtdb[new].filename) == 0) {
-	(void) fprintf("rtdb_seq_open: %s is already open\n", filename);
+	(void) fprintf(stderr, "rtdb_seq_open: %s is already open\n", filename);
 	return 0;
       }
 
@@ -970,63 +980,45 @@ int rtdb_seq_ma_get(const int handle, const char *name, int *ma_type,
   char date[26];
   void *ma_data;
   int nelem_actual;
+  Integer ma_handle_buf;
+  Integer ma_type_buf;
+  Integer nelem_buf;
 
   if (!check_handle(handle)) {
-    (void) fprintf(stderr, "rtdb_seq_get_ma: handle (%d) is invalid\n", handle);
+    (void) fprintf(stderr, "rtdb_seq_ma_get: handle (%d) is invalid\n", handle);
     return 0;
   }
-
-  db = rtdb[handle].db;
 
   /* Retrieve the type info from the data base */
 
   if (!rtdb_seq_get_info(handle, name, ma_type, nelem, date)) {
-    (void) fprintf(stderr, "rtdb_seq_get_ma: get info failed for \"%s\" in %s\n",
+    (void) fprintf(stderr, "rtdb_seq_ma_get: get info failed for \"%s\" in %s\n",
 		   name, rtdb[handle].filename);
-    return 0;
-  }
-
-  /* Get the data from the data base */
-
-  key = wrap_DBT(name, strlen(name)+1);
-
-  if ((status = db->get(db, &key, &value, (u_int) 0))) {
-    if (status == -1) {
-      (void) fprintf(stderr, "rtdb_seq_get_ma: db get failed for \"%s\" in %s\n",
-		     name, rtdb[handle].filename);
-    }
-    else {
-      /* Entry not found ... quietly return error so that failed
-	 probes are not excessively verbose */
-    }
-    return 0;
-  }
-
-  /* Now check sizes are consistent */
-
-  nelem_actual = MA_sizeof(MT_CHAR, value.size, *ma_type);
-
-  if (nelem_actual != *nelem) {
-    (void) fprintf(stderr, 
-		   "rtdb_seq_get_ma: size error for \"%s\" in %s: %d != %d\n",
-		   name, rtdb[handle].filename, *nelem, nelem_actual);
     return 0;
   }
 
   /* Allocate MA pointers */
 
-  if (!MA_allocate_heap(*ma_type, *nelem, name, ma_handle)) {
-    (void) fprintf(stderr, "rtdb_seq_get_ma: MA_allocate_heap failed, nelem=%d\n",
+  ma_type_buf = (Integer) *ma_type;
+  nelem_buf   = (Integer) *nelem;
+
+  if (!MA_allocate_heap(ma_type_buf, nelem_buf, name, &ma_handle_buf)) {
+    (void) fprintf(stderr, "rtdb_seq_ma_get: MA_allocate_heap failed, nelem=%d\n",
 		   *nelem);
     return 0;
   }
+  *ma_handle = ma_handle_buf;
   
-  if (!MA_get_pointer(*ma_handle, &ma_data)) {
-    (void) fprintf(stderr, "rtdb_seq_get_ma: MA_get_pointer failed\n");
+  if (!MA_get_pointer(ma_handle_buf, &ma_data)) {
+    (void) fprintf(stderr, "rtdb_seq_ma_get: MA_get_pointer failed\n");
     return 0;
   }
 
-  (void) memcpy(ma_data, value.data, value.size);
+  if (!rtdb_seq_get(handle, name, *ma_type, *nelem, ma_data)) {
+    (void) fprintf(stderr, "rtdb_seq_ma_get: rtdb_seq_get failed for %s\n", name);
+    (void) MA_free_heap(ma_handle_buf);
+    return 0;
+  }
 
   return 1;
 }

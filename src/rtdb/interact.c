@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   const char *opts[N_OPTS] = {"quit", "open", "close", "info", "put", "get", 
 			  "first", "next", "print"};
 
-  if (!MA_initialize(MT_DBL, -1, -1))
+  if (!MA_init(MT_DBL, -1, -1))
     exit(1);
 
   while (1) {

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1994-08-22 03:10:33 d3g681 Exp $
+# $Id: GNUmakefile,v 1.4 1994-08-31 19:25:41 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -26,14 +26,14 @@ davetest:	davetest.o $(LIBRARY)
 cntx:	cntx.o $(LIBRARY) 
 	$(FC) $(FFLAGS) -o $@ cntx.o $(LIBS)
 
-interact:	interact.o $(LIBRARY)
-	$(CC) $(CFLAGS) -o $@ interact.o $(TEST_LIBS)
+interact:	interact.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) -lm
 
-test:	test.o $(LIBRARY)
-	$(FC) $(FFLAGS) -o $@ test.o $(TEST_LIBS)
+test:	test.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
 
-rtdbtest:	rtdbtest.o $(LIBRARY)
-	$(CC) $(CFLAGS) -o $@ rtdbtest.o $(TEST_LIBS)
+rtdbtest:	rtdbtest.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 rtdbpartest:	rtdb_par_test.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ rtdb_par_test.o $(TEST_LIBS)
