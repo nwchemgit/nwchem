@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.8 1997-04-11 00:32:38 d3g681 Exp $
+C$Id: mull_pop.F,v 1.9 1997-04-18 00:15:46 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -80,7 +80,7 @@ c
       integer ifirst,ilast,nbf_at,max_at_bf2
       integer ish1,ish2,ish,nn,iat,mu
       integer me,nproc, geom
-      double precision psmu
+      double precision psmu, coord(3), qnuc
       double precision qatom(natoms),qshell(nshells),PSmat(max_at_bf2)
       character*2 symbol
       character*16 tag
@@ -132,8 +132,12 @@ c
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &         call errquit(' exiting in mull_pop',4)
-          if (.not. geom_cent_tag(geom, iat, tag)) call errquit
-     $         ('mull_pop: geom_cent_tag failed',0)
+c
+          if (.not. geom_cent_get(geom, iat, tag, coord, qnuc)) 
+     $         call errquit('mull_pop: geom_cent_tag failed',0)
+c
+          qatom(iat) = qnuc - qatom(iat)
+c
           if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $         symbol = 'X'
           if (ish2.ge.ish1) then
