@@ -1,6 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.3 1995-02-25 18:37:19 d3e129 Exp $
+C$Id: scat_mat.F,v 1.4 1995-04-09 08:09:26 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       dimension T(mi,mj),TT(Ni,Nj),ibf(mi),jbf(mj)
@@ -18,6 +18,7 @@ c
       
       return
       end
+C
       Subroutine transp_mat(TT,T,Ni,Nj)
 
       Implicit real*8 (a-h,o-z)
@@ -37,21 +38,4 @@ c
       
       return
       end
-      Subroutine gat_mat(T,TT,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
-
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      dimension T(mi,mj),TT(Ni,Nj),ibf(mi),jbf(mj)
-
-c
-c     gather into matrix 
-c     
-      do j = 1,mj
-        jj=jbf(j)-jfirst+1
-        do i =1,mi
-          T(i,j)=TT((ibf(i)-ifirst+1),jj)
-        enddo
-      enddo
-      
-      return
-      end
+C
