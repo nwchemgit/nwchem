@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.30 1999-09-17 22:22:01 d3j191 Exp $
+c $Id: md_start.F,v 1.31 1999-09-20 15:03:42 d3j191 Exp $
 c
       implicit none
 c
@@ -105,6 +105,18 @@ c
      + call errquit('Failed to allocate memory for ess',0)
       if(.not.ma_push_get(mt_dbl,msf,'esk',l_esk,i_esk))
      + call errquit('Failed to allocate memory for esk',0)
+      if(ipolt.gt.0) then
+      if(.not.ma_push_get(mt_dbl,6*mwa*mwm,'pw',l_pw,i_pw))
+     + call errquit('Failed to allocate memory for pw',0)
+      if(.not.ma_push_get(mt_dbl,6*msa,'ps',l_ps,i_ps))
+     + call errquit('Failed to allocate memory for ps',0)
+      if(lpert2.or.lpert3) then
+      if(.not.ma_push_get(mt_dbl,12*mwa*mwm,'pwp',l_pwp,i_pwp))
+     + call errquit('Failed to allocate memory for pwp',0)
+      if(.not.ma_push_get(mt_dbl,12*msa,'psp',l_psp,i_psp))
+     + call errquit('Failed to allocate memory for psp',0)
+      endif
+      endif
 c
 c     retrieve current coordinates for this node
 c     ------------------------------------------

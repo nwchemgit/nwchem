@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.9 1999-08-31 17:24:41 d3j191 Exp $
+c $Id: md_finish.F,v 1.10 1999-09-20 15:03:42 d3j191 Exp $
 c
       implicit none
 c
@@ -10,6 +10,18 @@ c
 c     deallocate memory for coordinates, velocities, etc.
 c     ---------------------------------------------------
 c
+      if(ipolt.gt.0) then
+      if(lpert2.or.lpert3) then
+      if(.not.ma_pop_stack(l_psp))
+     + call errquit('Failed to deallocate memory for psp',0)
+      if(.not.ma_pop_stack(l_pwp))
+     + call errquit('Failed to deallocate memory for pwp',0)
+      endif
+      if(.not.ma_pop_stack(l_ps))
+     + call errquit('Failed to deallocate memory for ps',0)
+      if(.not.ma_pop_stack(l_pw))
+     + call errquit('Failed to deallocate memory for pw',0)
+      endif
       if(.not.ma_pop_stack(l_esk))
      + call errquit('Failed to deallocate memory for esk',0)
       if(.not.ma_pop_stack(l_ess))

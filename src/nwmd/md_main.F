@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.37 1999-09-17 22:22:01 d3j191 Exp $
+c $Id: md_main.F,v 1.38 1999-09-20 15:03:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1280,10 +1280,15 @@ c
       locali=.true.
       call timer_start(13)
 c
-      call sp_nbbl(nbbl)
-c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+      if(ipolt.gt.0) then
+      call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
+     + dbl_mb(i_pwp),dbl_mb(i_ps),dbl_mb(i_psp))
+      endif
+c
+      call sp_nbbl(nbbl)
 c
       do 1 ibbl=1,nbbl
 c
@@ -1320,6 +1325,161 @@ c
       if(ipme.gt.0) then
       call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
       endif
+c
+      return
+      end
+      subroutine md_induce(iwl,isl,xw,xwm,xs,pw,pwp,ps,psp)
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
+      real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
+      real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
+c
+      logical lself,local
+      integer npolit,ibbl,nbbl,lhandl
+      integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
+      integer i,j,k
+c
+c     initialize induced fields to zero for first order polarization
+c
+      if(ipolt.eq.1) then
+      if(nwmloc.gt.0) then
+      do 1 k=1,nwa
+      do 2 j=1,3
+      do 3 i=1,nwmloc
+      pw(i,j,k,1)=zero
+      pw(i,j,k,2)=zero
+    3 continue
+    2 continue
+    1 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 4 j=1,3
+      do 5 i=1,nsaloc
+      ps(i,j,1)=zero
+      ps(i,j,2)=zero
+    5 continue
+    4 continue
+      endif
+      if(lpert2.or.lpert3) then
+      if(nwmloc.gt.0) then
+      do 6 k=1,nwa
+      do 7 j=1,3
+      do 8 i=1,nwmloc
+      pwp(i,j,k,1,1)=zero
+      pwp(i,j,k,1,2)=zero
+      pwp(i,j,k,2,1)=zero
+      pwp(i,j,k,2,2)=zero
+    8 continue
+    7 continue
+    6 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 9 j=1,3
+      do 10 i=1,nsaloc
+      psp(i,j,1,1)=zero
+      psp(i,j,1,2)=zero
+      psp(i,j,2,1)=zero
+      psp(i,j,2,2)=zero
+   10 continue
+    9 continue
+      endif
+      endif
+      endif
+c
+c     iterative cycle to generate induced fields
+c     ------------------------------------------
+c
+      npolit=0
+      call sp_nbbl(nbbl)
+   11 continue
+c
+c     copy fields from previous iteration
+c     -----------------------------------
+c
+      if(nwmloc.gt.0) then
+      do 12 k=1,nwa
+      do 13 j=1,3
+      do 14 i=1,nwmloc
+      pw(i,j,k,2)=pw(i,j,k,1)
+      pw(i,j,k,1)=zero
+   14 continue
+   13 continue
+   12 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 15 j=1,3
+      do 16 i=1,nsaloc
+      ps(i,j,2)=ps(i,j,1)
+      ps(i,j,1)=zero
+   16 continue
+   15 continue
+      endif
+      if(mdtype.gt.3) then
+      if(nwmloc.gt.0) then
+      do 17 k=1,nwa
+      do 18 j=1,3
+      do 19 i=1,nwmloc
+      pwp(i,j,k,1,2)=pwp(i,j,k,1,1)
+      pwp(i,j,k,1,1)=zero
+      pwp(i,j,k,2,2)=pwp(i,j,k,2,1)
+      pwp(i,j,k,2,1)=zero
+   19 continue
+   18 continue
+   17 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 20 j=1,3
+      do 21 i=1,nsaloc
+      psp(i,j,1,2)=psp(i,j,1,1)
+      psp(i,j,1,1)=zero
+      psp(i,j,2,2)=psp(i,j,2,1)
+      psp(i,j,2,1)=zero
+   21 continue
+   20 continue
+      endif
+      endif
+c
+c     copy current fields into local global array
+c     -------------------------------------------
+c
+c     call sp_putp(me,pw,nwmloc,ps,nsaloc)
+c     if(lpert2.or.lpert3) then
+c     call sp_putpp(me,pwp,nwmloc,psp,nsaloc)
+c     endif
+c
+c     synchronize to ensure induced fields are available
+c     --------------------------------------------------
+c
+      call ga_sync()
+c
+      do 22 ibbl=1,nbbl
+c
+      call sp_getxpbl(ibbl,lhandl,local,
+     + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself)
+c
+      call cf_comw(xw,xwm,jwfr,jwto)
+c
+      call induce(lself,xw,xwm,pw,pwp,iwl(1,lwdyn),int_mb(i_iwz),
+     + iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),ps,psp,
+     + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
+     + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
+     + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl)
+c
+      call sp_accpbl(ibbl,lhandl,pw,pwp,ps,psp,
+     + lpair,int_mb(i_iwz),int_mb(i_isz))
+c
+   22 continue
+c
+c     if not converged goto 11
+c
 c
       return
       end
