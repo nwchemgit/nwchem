@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.9 2002-08-16 00:39:53 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.10 2003-02-12 17:29:42 edo Exp $
 c
       implicit none
 c      
@@ -158,6 +158,7 @@ c
             iptr=3
 c hack for nbo
             if(tag(3:4).eq.'gh') iptr=5
+            if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
             if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
@@ -165,7 +166,6 @@ c hack for nbo
                elseif (inp_compare(.false.,tag(1:1),'X')) then 
                   i_atomic_number = 0
                else
-                  write(0,*) ' tag ',tag
                   call errquit(
      &            'grid_atom_type_info: non-bq center with zero charge',
      &             0)

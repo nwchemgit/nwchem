@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.33 2002-10-01 00:01:08 edo Exp $
+c$Id: grid_acc_def.F,v 1.34 2003-02-12 17:29:42 edo Exp $
 c
       implicit none
 c      
@@ -396,6 +396,7 @@ c
             iptr=3
 c hack for nbo
             if(tag(3:4).eq.'gh') iptr=5
+            if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
             if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 

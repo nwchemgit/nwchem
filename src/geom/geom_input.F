@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.157 2003-02-11 00:12:44 edo Exp $
+C     $Id: geom_input.F,v 1.158 2003-02-12 17:29:40 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2464,6 +2464,14 @@ C
                   ENDIF
                ENDIF
             ENDDO
+         ELSEif(
+     .           inp_compare(.false.,atname(iat)(1:2),'bq').or.
+     .           inp_compare(.false.,atname(iat)(1:1),'X')
+     .           ) then
+c
+c     try to detect bq"atom symbol" or X"atom symbol"
+c
+            atnum(iat)=1d30
          ELSEIF(NCHR.EQ.2) THEN
             DO ISYMBL=1,105
                IF((ATLBL1(ISYMBL)(1:1).EQ.ATNAME(IAT)(1:1).AND.
@@ -2480,14 +2488,6 @@ C
                   ENDIF
                ENDIF
             ENDDO
-         ELSEif(
-     .           inp_compare(.false.,atname(iat)(1:2),'bq').or.
-     .           inp_compare(.false.,atname(iat)(1:1),'x')
-     .           ) then
-c
-c     try to detect bq"atom symbol" or X"atom symbol"
-c
-            atnum(iat)=1d30
          else
             WRITE(IW,8883) IAT,NCHR
             CALL HND_HNDERR(3,ERRMSG)
