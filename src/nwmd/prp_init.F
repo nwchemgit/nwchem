@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi)
 c
-c $Id: prp_init.F,v 1.18 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: prp_init.F,v 1.19 2000-02-18 04:52:19 d3j191 Exp $
 c
       implicit none
 c
@@ -204,6 +204,7 @@ c
 c
       isprop=98
       if(nsf.gt.0) then
+      it=0
       do 3 i=1,nsf
       it=isprop+(i-1)*27
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
@@ -254,8 +255,8 @@ c
       write(pronam(it+26)(30:32),'(i3)') i
       write(pronam(it+27)(30:32),'(i3)') i
     3 continue
-      it=it+27
       if(nsf.gt.1) then
+      it=it+27
       do 5 i=1,nsf-1
       do 6 j=i+1,nsf
       it=it+1

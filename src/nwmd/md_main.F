@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.61 2000-02-12 00:04:50 d3j191 Exp $
+c $Id: md_main.F,v 1.62 2000-02-18 04:52:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1311,8 +1311,6 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
-c
-      integer i,j,k
 c
 c     initialize cf
 c

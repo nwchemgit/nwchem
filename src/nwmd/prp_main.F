@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.29 2000-02-01 00:55:48 d3j191 Exp $
+c $Id: prp_main.F,v 1.30 2000-02-18 04:52:19 d3j191 Exp $
 c
       implicit none
 c
@@ -13,11 +13,8 @@ c
       external frequency
 c
       integer mdstep
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3),vol
-      real*8 epot,epotw,epotsw,epots,stime,esk(msf),uqmd,uqmmm
-c
-c      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm,
-c     + epot,epotw,epotsw,epots,vol)
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
+      real*8 stime,esk(msf),uqmd,uqmmm
 c
       if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme(iset))
 c
@@ -177,6 +174,7 @@ c
 c
       maxp=isprop
       if(nsf.gt.0) then
+      it=0
       do 33 i=1,nsf
       it=isprop+(i-1)*27
       p(it+2)=ess(i,i,6,1)
@@ -191,8 +189,8 @@ c
       p(it+16)=esk(i)
       endif
    33 continue
-      it=it+27
       if(nsf.gt.1) then
+      it=it+27
       do 35 i=1,nsf-1
       do 36 j=i+1,nsf
       it=it+1
