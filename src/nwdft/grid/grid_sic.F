@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.5 2003-02-18 18:31:14 pollack Exp $
+C$Id: grid_sic.F,v 1.6 2003-05-27 22:25:51 pollack Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -67,7 +67,7 @@ c
      ,     rdens_atom,
      ,     Fmat, Pmat, Bmat,
      ,     vect1,delrho_sig,
-     &     tau)
+     &     tau, kske)
       implicit none
 #include "cdft.fh"
       integer nqpts,mbf_ao ! [in]
@@ -78,6 +78,7 @@ c
       double precision rho(*),delrho(*) ! [in]
 
       double precision tau(*)
+      logical kske
 
       double precision chi_ao(*), delchi_ao(*),
      ,     rchi_atom(*), rdelchi_atom(*),rdens_atom(*)
@@ -96,7 +97,7 @@ c
      &        ibf_ao, iniz, ifin, rho, delrho,
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax,
-     &         tau )
+     &         tau,kske )
 !      endif
       return
       end

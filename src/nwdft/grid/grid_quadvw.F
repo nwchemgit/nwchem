@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau)
 c
-c$Id: grid_quadvw.F,v 1.34 2003-02-18 18:31:14 pollack Exp $
+c$Id: grid_quadvw.F,v 1.35 2003-05-27 22:25:51 pollack Exp $
 c
       implicit none
 #define USE_BP
@@ -40,8 +40,8 @@ c
       logical oreadfile, owritefile
       integer filesize, memsize
       character*255 gridfilename
-      logical xc_chkgrad
-      external xc_chkgrad
+      logical xc_chkgrad, kske, xc_chktau
+      external xc_chkgrad, xc_chktau
       logical grid_file_open
       external grid_file_open
       logical grid_test_mem,cube_done
@@ -78,6 +78,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
+      kske=xc_chktau()
       npts_per_ang=nqmax
  2001 continue
       nsubb_curr=0
@@ -188,7 +189,7 @@ c
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,                    l3d,triplet,
-     &                    tau)
+     &                    tau, kske)
 
                   endif
  100           continue ! end loop over angular shells
@@ -209,7 +210,7 @@ c
      ,                 Ex, Ec, amat,cmat,g_vxc, amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,l3d,
      ,     triplet,
-     &      tau )
+     &      tau, kske )
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1

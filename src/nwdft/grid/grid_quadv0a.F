@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet,tau)
 c
-c$Id: grid_quadv0a.F,v 1.35 2003-02-18 18:31:13 pollack Exp $
+c$Id: grid_quadv0a.F,v 1.36 2003-05-27 22:25:51 pollack Exp $
 c
       implicit none
 c
@@ -38,8 +38,8 @@ c
 
       logical grid_file_rewind
       external grid_file_rewind
-      logical xc_chkgrad
-      external xc_chkgrad
+      logical xc_chkgrad, xc_chktau, kske
+      external xc_chkgrad, xc_chktau
       logical l3d
       logical triplet
 
@@ -48,7 +48,10 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
+      kske=xc_chktau()
       if(n_rec_in_file.eq.0) goto 100
+
+
 c
 c     rewind grid pts file
 c
@@ -125,7 +128,7 @@ c
      ,           l3d,triplet,
      .           int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .           log_mb(idocsetx),
-     &            tau )
+     &            tau, kske )
             ntot_cube=ntot_cube+1
          endif
       enddo

@@ -14,9 +14,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     l3d,triplet, tau)
+     ,     l3d,triplet, tau, kske)
 c
-c$Id: grid_quadvw1.F,v 1.14 2003-02-18 18:31:14 pollack Exp $
+c$Id: grid_quadvw1.F,v 1.15 2003-05-27 22:25:51 pollack Exp $
 c
       implicit none
 #define USE_BP
@@ -54,6 +54,7 @@ c
       logical l3d
       logical triplet
 
+      logical kske
       double precision tau(*)
 
 c
@@ -112,7 +113,7 @@ c
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,        l3d,triplet,
-     &         tau)
+     &         tau, kske)
          
 c     
 c     now pack this aqbuf into the write buffer 

@@ -16,9 +16,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet,
-     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau)
+     .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske)
 c
-c$Id: grid_quadv0b.F,v 1.35 2003-02-18 18:31:14 pollack Exp $
+c$Id: grid_quadv0b.F,v 1.36 2003-05-27 22:25:51 pollack Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -53,7 +53,7 @@ c !!! temp !!! ***
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
       logical l3d
-      logical triplet
+      logical triplet, kske
 
       double precision tau(*)
 C
@@ -136,7 +136,7 @@ c
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,wmax, tau)
+     &           rdens_atom, cetobfr,wmax, tau, kske)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
      ,           rho,delrho,grad,ibf_ao, iniz, ifin,
@@ -145,7 +145,7 @@ c
      ,           rdens_atom,
      ,           Fmat, Pmat, Bmat,
      ,           dbl_mb(i_vect1),dbl_mb(idelrho_sig),
-     &           tau)
+     &           tau, kske)
          endif
       else  if (do_cpks_l) then
 #ifdef QUADV0_REVERT
@@ -155,7 +155,7 @@ c
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,1d0,tau)
+     &           rdens_atom, cetobfr,1d0,tau, kske)
 #else
             call xc_rhogen_pert(tol_rho, AO_bas_han, g_dens,
      &           nbf_ao_mxnbf_ce, natoms, nmat+1,ipol, nqpts, 
