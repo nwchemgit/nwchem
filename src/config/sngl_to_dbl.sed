@@ -22,7 +22,7 @@
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Nn][Rr][Mm]2\([^A-Za-z0-9_]\)/\1dnrm2\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ii][Ss][Aa][Mm][Aa][Xx]\([^A-Za-z0-9_]\)/\1idamax\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Aa][Ss][Uu][Mm]\([^A-Za-z0-9_]\)/\1dasum\2/g
-/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Rr][Oo][Tt]\([^A-Za-z0-9_]\)/\1srot\2/g
+/^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Rr][Oo][Tt]\([^A-Za-z0-9_]\)/\1drot\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Rr][Oo][Tt][Gg]\([^A-Za-z0-9_]\)/\1drotg\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Ss][Ww][Aa][Pp]\([^A-Za-z0-9_]\)/\1dswap\2/g
 /^[ 0-9]/ s/\([^A-Za-z0-9_]\)[Ss][Mm][Aa][Cc][Hh]\([^A-Za-z0-9_]\)/\1dmach\2/g
