@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.9 1997-02-25 17:29:38 d3j191 Exp $
+c     $Id: mcscf_fock.F,v 1.10 1997-04-10 02:04:45 d3g681 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -439,8 +439,8 @@ c
       end
 
 
-      subroutine mcscf_dump_for_grad(geom, basis, nbf, nclosed, nact,
-     $     oskel, tol2e, dm1, dm2, g_movecs,  g_coul)
+      subroutine mcscf_dump_for_grad(rtdb, geom, basis, nbf, nclosed,
+     $     nact,oskel, tol2e, dm1, dm2, g_movecs,  g_coul)
       implicit none
 #include "global.fh"
 #include "eaf.fh"
@@ -457,6 +457,9 @@ c     (3) Negative energy weighted density in the AO basis
 c
 c     NOTE: the dm2 is destroyed in this process
 c
+c     Also while we have the AO 1-pdm compute the multipoles
+c
+      integer rtdb
       integer geom, basis       ! [input] Geometry and basis handles
       integer nbf               ! [input] Number of basis functions
       integer nclosed           ! [input] Number of closed shells
@@ -615,9 +618,73 @@ c
 c
       call ga_sync()
 c
+      call mcscf_mpole(rtdb, geom, basis, g_gfock)
+c
       if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0)
       if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0)
       if (.not. ga_destroy(g_ifock)) call errquit('mcscf: dump GA?',0)
       if (.not. ga_destroy(g_afock)) call errquit('mcscf: dump GA?',0)
+c
+      end
+      subroutine mcscf_mpole(rtdb, geom, basis, g_dens)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "rtdb.fh"
+      integer rtdb, geom, basis, g_dens
+c
+      integer len_moments, lmax
+      parameter (lmax = 2)
+      parameter (len_moments = (lmax+1)*(lmax+2)*(lmax+3)/6)
+      double precision totalmoments(len_moments) 
+      double precision nuclmoments (len_moments)
+      double precision center(3)
+      logical oprintmultipole
+      integer k, l, m, ltotal, ind
+      data center/3*0.0d0/
+c      
+      call dfill(len_moments, 0.0d0, totalmoments, 1)
+      call dfill(len_moments, 0.0d0, nuclmoments, 1)
+      call geom_nuc_mpole(geom, center, lmax, nuclmoments, len_moments)
+      call multipole_density(basis, center, lmax, g_dens, 
+     $     totalmoments, len_moments)
+      do k = 1, len_moments
+         totalmoments(k) = totalmoments(k) + nuclmoments(k)
+      enddo
+c     
+      oprintmultipole = util_print('multipole', print_default)
+      if (oprintmultipole .and. ga_nodeid().eq.0) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Multipole analysis of the density', 20, .true.)
+         write(6,*)
+         write(6,*) '    L   x y z        total',
+     $                 '        nuclear'
+         write(6,*) '    -   - - -        -----',
+     $        '        -------'
+         ind = 0
+         do ltotal = 0, lmax
+            do k = ltotal, 0, -1
+               do l = ltotal-k, 0, -1
+                  m = ltotal - k - l
+                  ind = ind + 1
+                  write(6,12) ltotal, k, l, m, totalmoments(ind),
+     $                 nuclmoments(ind)
+ 12               format(4x,i2,2x,3i2,2f14.6)
+               enddo
+            enddo
+            write(6,*)
+         enddo
+      endif
+      call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)
+      call ecce_print1('nuclear dipole', mt_dbl, nuclmoments(2), 3)
+      call ecce_print1('total quadrupole', mt_dbl, totalmoments(5), 6)
+      call ecce_print1('nuclear quadrupole', mt_dbl, nuclmoments(5), 6)
+c
+c     Store the dipole moment
+c
+      if (.not. rtdb_put(rtdb, 'mcscf:dipole', mt_dbl, 
+     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
 c
       end

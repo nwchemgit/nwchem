@@ -225,7 +225,7 @@ c      Failure is not acceptable since otherwise the line search
 c      will get lost.  C.f. Sean Connery ... "Only losers whine
 c      about their best; winners go home and **** the prom queen."
 
-      lshift = lshift*2.0d0 + 0.5
+      lshift = lshift*2.0d0 + 0.2
 
       if (ga_nodeid() .eq. 0) then
         write(6,'(a,f8.2)') ' Increase level shift to ', lshift

@@ -553,7 +553,7 @@ c
          call sym_movecs_adapt(basis, 1.d-8, g_movecs,
      $        int_mb(k_sym), nmixed)
          call ga_orthog_mos(basis, g_movecs)
-c     
+c
          call mcscf_save_vec(rtdb,geom,basis, nbf, 
      $        dbl_mb(k_evals), dbl_mb(k_occ), g_movecs)
 c     
@@ -627,8 +627,11 @@ c
       call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
       call ecce_print1('one-electron energy', mt_dbl, eone, 1)
       call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
+      call movecs_ecce(nbf, nbf, 1, nbf, dbl_mb(k_evals),
+     $     dbl_mb(k_occ), int_mb(k_sym), 
+     $     g_movecs, 'mcscf', ' ')
 c     
-      call mcscf_dump_for_grad(geom, basis, nbf, nclosed, nact,
+      call mcscf_dump_for_grad(rtdb, geom, basis, nbf, nclosed, nact,
      $     oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2), 
      $     g_movecs,  g_coul)
 

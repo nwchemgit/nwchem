@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.39 1997-04-02 19:59:28 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.40 1997-04-10 02:04:46 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -198,7 +198,7 @@ c  Adjust level-shift
 c
        if (gnorm .gt. 1.d-1) then
          lshift = lshift0
-       else if (lshift.eq.lshift0) then
+       else if (gnorm .gt. 1.d-2) then
          lshift = lshift0/5.d0
        else
          lshift = 0.d0
