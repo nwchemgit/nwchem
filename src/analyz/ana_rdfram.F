@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix)
 c
-c $Id: ana_rdfram.F,v 1.1 1999-01-29 18:10:41 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.2 1999-09-20 20:15:38 d3j191 Exp $
 c
       implicit none
 c
@@ -15,53 +15,57 @@ c
       integer i,j,na,lq
       character*255 fname
       character*3 cnum
+      character*1 cdum
 c
-      logical succes
+      logical succes,lxw,lvw,lsx,lsv
 c
       if(me.eq.0) then
     1 continue
-      read(lfnsco,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9999,end=9999) card
  1000 format(a)
-      if(card(1:5).ne.'time:') goto 1
-      read(lfnsco,1001,err=9999,end=9999) time
- 1001 format(f12.6)
+      if(card(1:5).ne.'frame') goto 1
+      read(lfntrj,1001,err=9999,end=9999) time,temp,pres
+ 1001 format(2f12.6,e12.5)
       time=time+timoff
+      read(lfntrj,1002) box
+ 1002 format(f12.6,36x,f12.6,36x,f12.6)
+      read(lfntrj,1003) lxw,lvw,lsx,lsv,nwm,nwa,nsa
+ 1003 format(4l1,3i10)
+      if(nsa.gt.msa) call errquit('Error in trj',0)
+      if((lxw.or.lvw).and.nwm.gt.0) then
+      do 2 i=1,nwm*nwa
+      read(lfntrj,1004) cdum
+ 1004 format(a1)
     2 continue
-      read(lfnsco,1000,err=9999,end=9999) card
-      if(card(1:15).ne.'box_dimensions:') goto 2
-      read(lfnsco,1002,err=9999,end=9999) box
- 1002 format(3f12.6)
-    3 continue
-      read(lfnsco,1000,err=9999,end=9999) card
-      if(card(1:10).ne.'atom_list:') goto 3
-      do 4 i=1,nsa
-      read(lfnsco,1003,err=9999,end=9999) (x(i,j),j=1,3)
- 1003 format(3f8.3)
-      x(i,1)=0.1d0*x(i,1)
-      x(i,2)=0.1d0*x(i,2)
-      x(i,3)=0.1d0*x(i,3)
+      endif
+      if(nsa.gt.0) then
+      if(.not.lsx) call errquit('Error in trj',0)
+      do 3 i=1,nsa
+      read(lfntrj,1005) (x(i,j),j=1,3)
+ 1005 format(3f8.3)
       ix(i)=i
-    4 continue
+    3 continue
+      endif
       succes=.true.
       goto 9000
 c
  9999 continue 
 c
-      close(unit=lfnsco)
+      close(unit=lfntrj)
 c
-      fname=filsco
+      fname=filtrj
 c
-      lq=index(filsco,'?')
+      lq=index(filtrj,'?')
       if(lq.eq.0) goto 9998
 c
       iscof=iscof+1
       if(iscof.gt.ilast) goto 9998
       write(cnum,'(i3.3)') iscof
 c
-      fname=filsco(1:lq-1)//cnum//filsco(lq+1:index(filsco,' ')-1)
-      open(unit=lfnsco,file=fname(1:index(fname,' ')-1),
+      fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
+      open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9998)
-      write(*,'(a,a)') 'Opening sco file ',fname(1:index(fname,' ')-1)
+      write(*,'(a,a)') 'Opening trj file ',fname(1:index(fname,' ')-1)
       goto 1
 c
  9998 continue

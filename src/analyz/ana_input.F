@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.5 1999-07-12 16:13:42 d3j191 Exp $
+c $Id: ana_input.F,v 1.6 1999-09-20 20:15:38 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
 c
       integer irtdb
       character*255 item,select,filtag,fpref,project
-      character*255 filref,filsco,filcop,filsup
+      character*255 filref,filtrj,filcop,filsup
       integer lcop,lsup,lrms
       character*3 fmtcop,fmtsup
 c
@@ -57,9 +57,9 @@ c     default reference taken from ${file_prefix}.rst
 c
       filref=fpref(1:index(fpref,' ')-1)//'.rst '
 c
-c     default trajectory taken from ${file_prefix}.sco
+c     default trajectory taken from ${file_prefix}.trj
 c
-      filsco=fpref(1:index(fpref,' ')-1)//'.sco '
+      filtrj=fpref(1:index(fpref,' ')-1)//'.trj '
 c
 c     default esp charges take from ${file_prefix}.q
 c
@@ -68,10 +68,10 @@ c
       filxyz=' '
 c
       filcop=' '
-      fmtcop='sco'
+      fmtcop='trj'
 c
       filsup=' '
-      fmtsup='sco'
+      fmtsup='trj'
 c
       open(unit=69,file=select(1:index(select,' ')-1),
      + form='formatted',status='unknown',err=9999)
@@ -121,7 +121,7 @@ c
       endif
 c
       if(inp_compare(.false.,'file',item)) then
-      if(.not.inp_a(filsco)) call errquit('ana_input: file failed',0)
+      if(.not.inp_a(filtrj)) call errquit('ana_input: file failed',0)
       if(.not.inp_i(ifrst)) ifrst=0
       if(.not.inp_i(ilast)) ilast=0
       goto 2
@@ -294,21 +294,23 @@ c
       call errquit('ana_input: error reading input file',0)
       endif
 c
-      fpref=filsco
-      if(index(filsco,'.coo').gt.0) then
-      fpref=filsco(1:index(filsco,'.coo')-1)
-      elseif(index(filsco,'.sco').gt.0) then
-      fpref=filsco(1:index(filsco,'.sco')-1)
+      fpref=filtrj
+      if(index(filtrj,'.coo').gt.0) then
+      fpref=filtrj(1:index(filtrj,'.coo')-1)
+      elseif(index(filtrj,'.sco').gt.0) then
+      fpref=filtrj(1:index(filtrj,'.sco')-1)
+      elseif(index(filtrj,'.trj').gt.0) then
+      fpref=filtrj(1:index(filtrj,'.trj')-1)
       else
-      filsco=fpref(1:index(fpref,' ')-1)//'.sco'
+      filtrj=fpref(1:index(fpref,' ')-1)//'.trj'
       endif
 c
       if(filcop(1:1).eq.' ') then
-      filcop=fpref(1:index(fpref,' ')-1)//'-copy.sco'
+      filcop=fpref(1:index(fpref,' ')-1)//'-copy.trj'
       endif
 c
       if(filsup(1:1).eq.' ') then
-      filsup=fpref(1:index(fpref,' ')-1)//'-super.sco'
+      filsup=fpref(1:index(fpref,' ')-1)//'-super.trj'
       endif
 c
       if(filchg(1:1).eq.' ') then
@@ -346,7 +348,7 @@ c
 c
 c     trajectory input file
 c
-      if(.not.rtdb_cput(irtdb,'ana:filsco',1,filsco))
+      if(.not.rtdb_cput(irtdb,'ana:filtrj',1,filtrj))
      + call errquit('ana_input: rtdb_put failed',0)
 c
 c     copy trajectory

@@ -1,24 +1,25 @@
 c
-c $Id: ana_common.fh,v 1.4 1999-03-15 21:27:41 d3j191 Exp $
+c $Id: ana_common.fh,v 1.5 1999-09-20 20:15:38 d3j191 Exp $
 c
-      integer irtdb,me,np,lfnana,lfnref,lfnsco,lfncop,lfnsup,
+      integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz
-      common/ana_rtdb/irtdb,me,np,lfnana,lfnref,lfnsco,lfncop,lfnsup,
+      common/ana_rtdb/irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz
 c
       real*8 time,timoff,box(3),spac,rcut,xmax(3),xmin(3)
+      real*8 temp,pres
       integer irmsd,lcop,lsup,lrms,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz
-      common/ana_inp/time,timoff,box,spac,rcut,xmax,xmin,
+      common/ana_inp/time,timoff,box,spac,rcut,xmax,xmin,temp,pres,
      + irmsd,lcop,lsup,lrms,ifrfr,ifrto,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz
 c
-      character*255 filnam,filana,filref,filsco,filcop,filsup,
+      character*255 filnam,filana,filref,filtrj,filcop,filsup,
      + filchg,filplt,filxyz
       character*3 fmtcop,fmtsup
-      common/ana_txt/filnam,filana,filref,filsco,filcop,filsup,
+      common/ana_txt/filnam,filana,filref,filtrj,filcop,filsup,
      + filchg,filplt,filxyz,fmtcop,fmtsup
 c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
@@ -28,6 +29,6 @@ c
      + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
      + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag
 c
-      integer nsa,msa,ndata,nq
-      common/ana_dim/nsa,msa,ndata,nq
+      integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq
+      common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq
 c

@@ -1,12 +1,12 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag)
 c
-c $Id: ana_wthdr.F,v 1.3 1999-07-13 14:31:32 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.4 1999-09-20 20:15:40 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 c
-      character*16 sgmnam(msa)
+      character*16 cwa,sgmnam(msa)
       integer iunit
       character*3 fmt
       character*4 cnum
@@ -60,40 +60,29 @@ c
       write(*,'(a,a)') 'Opened super file ',fname(1:index(fname,' ')-1)
       endif
 c
-      if(fmt.eq.'sco') then
+      if(fmt.eq.'trj') then
       write(iunit,1000)
- 1000 format('title: NWChem:analysis')
-      write(iunit,1001)
- 1001 format('type: molecule')
-      write(iunit,1002)
- 1002 format('cell_units: angstroms')
-      write(iunit,1003)
- 1003 format('atom_info: symbol cart')
-      write(iunit,1004) 0
- 1004 format('num_solvent_atoms:',i8)
-      write(iunit,1005) nsa
- 1005 format('num_solute_atoms:',i8)
-      write(iunit,1006) nsa
- 1006 format('num_atoms:',i8)
-      write(iunit,1007)
- 1007 format('atom_names:')
-      do 1 i=1,nsa
-      write(iunit,1008) sgmnam(i)(6:9),sgmnam(i)(1:5),sgmnam(i)(11:16)
- 1008 format(a4,a5,a6)
-    1 continue
-      open(unit=44,file='bond.list',form='formatted',
+ 1000 format('header')
+      open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nsb
- 4401 format(11x,i8)
-      write(iunit,4005) nsb
- 4005 format('num_bonds:      ',i7,/,'bond_list')
-      do 2 i=1,nsb
-      read(44,4402) ib,jb
- 4402 format(2i8)
-      write(iunit,4006) ib,jb
- 4006 format(2i8)
+      read(44,4401) nwa,nsa,nsb
+      write(iunit,4401) nwa,nsa,nsb
+ 4401 format(3i10)
+      do 1 i=1,nwa
+      read(44,4402) cwa
+ 4402 format(a16)
+      write(iunit,4402) cwa
+    1 continue
+      do 2 i=1,nsa
+      read(44,4402) cwa
+      write(iunit,4402) cwa
     2 continue
+      do 3 i=1,nsb
+      read(44,4403) ib,jb
+      write(iunit,4403) ib,jb
+ 4403 format(2i8)
+    3 continue
       close(unit=44)
       endif
 c
@@ -125,15 +114,19 @@ c
  4003 format('num_atoms:      ',i7)
       write(iunit,4004)
  4004 format('atom_info:      symbol cart')
-      open(unit=44,file='bond.list',form='formatted',
+      open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nsb
-      write(iunit,4005) nsb
-      do 3 i=1,nsb
-      read(44,4402) ib,jb
-      write(iunit,4006) ib,jb
-    3 continue
+      read(44,4401) nwa,nsa,nsb
+      do 4 i=1,nwa+nsa
+      read(44,4402) cdummy
+    4 continue
+      write(iunit,6003) nsb
+ 6003 format('num_bonds:      ',i7,/,'bond_list:')
+      do 5 i=1,nsb
+      read(44,4403) ib,jb
+      write(iunit,4403) ib,jb
+    5 continue
       close(unit=44)
       endif
 c
@@ -146,32 +139,32 @@ c
       if(fmt.eq.'frm') then
       write(iunit,6001) nsa
  6001 format('Atoms {',/,i8)
-      do 4 i=1,nsa
+      do 6 i=1,nsa
       elemnt=sgmnam(i)(6:7)
       name=sgmnam(i)(11:16)//':'//sgmnam(i)(1:5)//':'//sgmnam(i)(6:10)
-      do 5 j=8,14
+      do 7 j=8,14
       if(name(j:j).eq.' ') name(j:j)='_'
-    5 continue
+    7 continue
       if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
      + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
       write(iunit,6002) elemnt,name,tag(i,1)(1:index(tag(i,1),' ')-1),
      + tag(i,2)(1:index(tag(i,2),' ')-1)
  6002 format(a2,1x,a18,1x,a,1x,a)
-    4 continue
-      open(unit=44,file='bond.list',form='formatted',
+    6 continue
+      open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4441) nsb
- 4441 format(11x,i8)
-c      read(44,4442) cdummy
-c 4442 format(a1)
+      read(44,4401) nwa,nsa,nsb
+      do 8 i=1,nwa+nsa
+      read(44,4402) cdummy
+    8 continue
       write(iunit,6005) nsb
  6005 format('}',/,'Bonds {',/,i8)
-      do 6 i=1,nsb
+      do 9 i=1,nsb
       read(44,6006) ib,jb
       write(iunit,6006) ib,jb
  6006 format(2i8)
-    6 continue
+    9 continue
       close(unit=44)
       write(iunit,6007)
  6007 format('}')

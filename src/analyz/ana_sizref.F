@@ -1,6 +1,6 @@
       subroutine ana_sizref(nsai,msai)
 c
-c $Id: ana_sizref.F,v 1.1 1999-01-29 18:10:42 d3j191 Exp $
+c $Id: ana_sizref.F,v 1.2 1999-09-20 20:15:40 d3j191 Exp $
 c
       implicit none
 c
@@ -9,35 +9,32 @@ c
 #include "msgids.fh"
 c
       character*1 cdum
-      integer i,nwm,nwa,nsai,msai
+      integer i,nwm,nwa,nsai,msai,nsm
 c
       integer ibroad(10)
 c
       if(me.eq.0) then
       open(unit=lfnref,file=filref(1:index(filref,' ')-1),
      + status='old',err=9999)
+c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
  1000 format(a)
-      read(lfnref,1001) nwm
- 1001 format(48x,i5)
-      read(lfnref,1002) nwa
- 1002 format(40x,i5)
+c
       read(lfnref,1000) cdum
-      if(nwm.eq.1) then
+c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
-      endif
-      if(nwa.ne.0) then
+c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum
-      read(lfnref,1000) cdum
-      endif
-      read(lfnref,1003) nwm,nwa,nsai
- 1003 format(2i10,10x,i10)
+c
+      read(lfnref,1002) nwm,nwa,nsm,nsai
+ 1002 format(4i10)
+c
       close(unit=lfnref)
       endif
 c

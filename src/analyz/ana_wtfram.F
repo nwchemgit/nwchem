@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam)
 c
-c $Id: ana_wtfram.F,v 1.2 1999-03-15 21:27:51 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.3 1999-09-20 20:15:40 d3j191 Exp $
 c
       implicit none
 c
@@ -44,19 +44,17 @@ c
       endif
       endif
 c
-      if(fmt.eq.'sco') then
+      if(fmt.eq.'trj') then
       write(iunit,1000)
- 1000 format('time:')
-      write(iunit,1001) time
- 1001 format(f12.6)
-      write(iunit,1002)
- 1002 format('box_dimensions:')
-      write(iunit,1003) box 
- 1003 format(3f12.6)
-      write(iunit,1004)
- 1004 format('atom_list:')
+ 1000 format('frame')
+      write(iunit,1001) time,temp,pres
+ 1001 format(2f12.6,e12.5)
+      write(iunit,1002) box
+ 1002 format(f12.6,36x,f12.6,36x,f12.6)
+      write(iunit,1003) .false.,.false.,.true.,.false.,0,0,nsa
+ 1003 format(4l1,3i10)
       do 1 i=1,nsa
-      write(iunit,1005) (1.0d1*x(i,j),j=1,3)
+      write(iunit,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
     1 continue
       endif
@@ -118,13 +116,15 @@ c
       write(iunit,6002) elemnt,(1.0d1*x(i,j),j=1,3)
  6002 format(a2,3f12.4)
     4 continue
-      open(unit=44,file='bond.list',form='formatted',
+      open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nsb
- 4401 format(11x,i8)
+      read(44,4401) nwa,nsa,nsb
+ 4401 format(3i10)
+      do 7 i=1,nwa+nsa
       read(44,4402) cdummy
  4402 format(a1)
+    7 continue
       write(iunit,6003) nsb
  6003 format('num_bonds:      ',i7,/,'bond_list:')
       do 5 i=1,nsb

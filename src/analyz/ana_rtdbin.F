@@ -1,6 +1,6 @@
       subroutine ana_rtdbin
 c
-c $Id: ana_rtdbin.F,v 1.2 1999-01-29 18:10:42 d3j191 Exp $
+c $Id: ana_rtdbin.F,v 1.3 1999-09-20 20:15:39 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
 c
 c     trajectory input file
 c
-      if(.not.rtdb_cget(irtdb,'ana:filsco',1,filsco))
+      if(.not.rtdb_cget(irtdb,'ana:filtrj',1,filtrj))
      + call errquit('ana_input: rtdb_get failed',0)
 c
 c     copy trajectory
@@ -103,7 +103,7 @@ c     logical file numbers
 c
       lfnana=75
       lfnref=76
-      lfnsco=77
+      lfntrj=77
       lfncop=78
       lfnsup=79
       lfnchg=80
