@@ -592,16 +592,10 @@ to stop the restart file generation
 The chemical system for a calculation is specified in the topology
 and restart files. These files should be created using the utilities
 \nwtop\ and \nwrst\ before a simulation can be performed.
-\begin{itemize}
-\item
-The names of these files are determined from the required project directive
-\begin{verbatim}
-{start | restart | continue} <c project>
-\end{verbatim}
+The names of these files are determined from the NWChem START directive.
 There is no default. If the project name is given as {\bf pr\_id},
 the topology file used is {\bf pr.top}, while all other files
 are named {\bf pr\_id.ext}.
-\end{itemize}
 \subsection{Single point energy}
 \begin{itemize}
 \item
