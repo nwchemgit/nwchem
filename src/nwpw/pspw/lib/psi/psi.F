@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.30 2003-05-07 21:52:26 bylaska Exp $
+* $Id: psi.F,v 1.31 2003-06-30 01:23:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -705,6 +705,63 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
       error_out = dabs(e0-eold)
       return
       end
+
+c*     ***********************************
+c*     *                                 *
+c*     *       orb_geodesic_energy       *
+c*     *                                 *
+c*     ***********************************
+c*    This routine performs returns the energy of
+c* a linesearch on orbital i, in the direction t.  
+c* This routine is needed for a KS minimizer.
+c*  e0 = <orb|g>
+c*  de0 = 2*<t|g>
+c*
+c
+c      real*8 function orb_geodesic_energy(theta)
+c      implicit none
+c      real*8 theta
+c     
+c#include "mafdecls.fh"
+c#include "psi.fh"
+c
+c      integer t(2),psi_ptr
+c      common / orb_geodesic/ t, i,psi_ptr
+c  
+c
+c*     **** allocate stack memory ****
+c      value = MA_push_get(mt_dcpl,npack1,'orb',
+c     >                       orb(2),orb(1))
+c      value = value.and. 
+c     >        MA_push_get(mt_dcpl,npack1,'g',
+c     >                       g(2),g(1))
+c      if (.not. value) call errquit(
+c     >     'psi_linesearch_update: out of stack memory',0)
+c 
+c
+c      call Pack_c_Copy(1,dcpl_mb(psi_ptr),
+c     >                   dcpl_mb(orb(1)))
+c
+c*     **** orb2 = orb*cos(theta) + t*sin(theta) ****
+c      x = cos(theta)
+c      y = sin(theta)
+c      call Pack_c_SMul(1,x,
+c     >                  dcpl_mb(psi_ptr),
+c     >                  dcpl_mb(orb(1)))
+c      call Pack_cc_daxpy(1,y,
+c     >                   dcpl_mb(t(1)),
+c     >                   dcpl_mb(orb(1))
+c
+c*     *** determine theta ***
+c      call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+c      call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
+c     >                   dcpl_mb(g(1)),
+c     >                   e1)
+c      e1 = -e1
+c
+c      org_geodesic_energy = e1
+c      return
+c      end
 
 
 *     ***********************************
@@ -2850,23 +2907,30 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 *     ***** local variables *****
       integer ms,index,i,j,shift1,shift2
 
-      call dcopy(2*npack1*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
+      !call dcopy(2*npack1*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
       do ms=1,ispin
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
-         do j=1,ne(ms)
-           do i=1,ne(ms)
-              index = (i-1) + (j-1)*ne(ms) + shift2
-             
+
+         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+     >              (1.0d0),
+     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(hml(1)+shift2),ne(ms),
+     >              (0.0d0),
+     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1)
+c        do j=1,ne(ms)
+c          do i=1,ne(ms)
+c             index = (i-1) + (j-1)*ne(ms) + shift2
+c            
 c              call D3dB_cc_daxpy(1,dbl_mb(hml(1)+index),
 c     >                           dcpl_mb(psi1(1)+(i-1+shift1)*nfft3d),
 c     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d)) 
-              call Pack_cc_daxpy(1,dbl_mb(hml(1)+index),
-     >                           dcpl_mb(psi1(1)+(i-1+shift1)*npack1),
-     >                           dcpl_mb(psi2(1)+(j-1+shift1)*npack1)) 
+c             call Pack_cc_daxpy(1,dbl_mb(hml(1)+index),
+c    >                           dcpl_mb(psi1(1)+(i-1+shift1)*npack1),
+c    >                           dcpl_mb(psi2(1)+(j-1+shift1)*npack1)) 
+c          end do
+c        end do
 
-           end do
-         end do
       end do
 
       return

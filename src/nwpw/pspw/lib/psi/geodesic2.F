@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.3 2003-02-05 03:45:25 bylaska Exp $
+* $Id: geodesic2.F,v 1.4 2003-06-30 01:23:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -145,7 +145,11 @@
 
 *     **** calculate A=<Y|H> ****
       do ms=1,ispin
-         call Grsm_ggm_dot(npack1,ne(ms),
+c        call Grsm_ggm_dot(npack1,ne(ms),
+c    >                     Y(1+(ms-1)*ne(1)*npack1),
+c    >                     H(1+(ms-1)*ne(1)*npack1),
+c    >                     dbl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
+         call Pack_ccm_dot(1,ne(ms),
      >                     Y(1+(ms-1)*ne(1)*npack1),
      >                     H(1+(ms-1)*ne(1)*npack1),
      >                     dbl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
@@ -156,7 +160,11 @@
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
-         call Grsm_ggm_dot(npack1,n,                  ! R=Yt*H
+c        call Grsm_ggm_dot(npack1,n,                  ! R=Yt*H
+c    >                     Y(1+(ms-1)*ne(1)*npack1),
+c    >                     H(1+(ms-1)*ne(1)*npack1),
+c    >                     dbl_mb(R(1)+shift))
+         call Pack_ccm_dot(1,n,                  ! R=Yt*H
      >                     Y(1+(ms-1)*ne(1)*npack1),
      >                     H(1+(ms-1)*ne(1)*npack1),
      >                     dbl_mb(R(1)+shift))
@@ -334,19 +342,33 @@
         shift1 = (ms-1)*ne(1)
         shift2 = (ms-1)*ne(1)*ne(1)
 
-        do k=1,n
-          call dcopy(2*npack1,0.0d0,0,Ynew(1+(k-1+shift1)*npack1),1)
-          do j=1,n
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(MM(1)+j-1+(k-1)*n+shift2),
-     >                         Yold(1+(j-1+shift1)*npack1),
-     >                         Ynew(1+(k-1+shift1)*npack1))
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(NN(1)+j-1+(k-1)*n+shift2),
-     >                         dcpl_mb(Q(1)+(j-1+shift1)*npack1),
-     >                         Ynew(1+(k-1+shift1)*npack1))
-          end do
-        end do
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (1.0d0),
+     >              Yold(1+shift1*npack1),2*npack1,
+     >              dbl_mb(MM(1)+shift2),n,
+     >              (0.0d0),
+     >              Ynew(1+shift1*npack1),2*npack1)
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (1.0d0),
+     >              dcpl_mb(Q(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(NN(1)+shift2),n,
+     >              (1.0d0),
+     >              Ynew(1+shift1*npack1),2*npack1)
+c       do k=1,n
+c         call dcopy(2*npack1,0.0d0,0,Ynew(1+(k-1+shift1)*npack1),1)
+c         do j=1,n
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(MM(1)+j-1+(k-1)*n+shift2),
+c    >                         Yold(1+(j-1+shift1)*npack1),
+c    >                         Ynew(1+(k-1+shift1)*npack1))
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(NN(1)+j-1+(k-1)*n+shift2),
+c    >                         dcpl_mb(Q(1)+(j-1+shift1)*npack1),
+c    >                         Ynew(1+(k-1+shift1)*npack1))
+c         end do
+c       end do
 
  100    continue
 
@@ -422,18 +444,27 @@
 *     **** TT(t) = -R^t*NN(t) ****
       do ms=1,ispin
         n=ne(ms)
-        do j=1,n
-        do i=1,n
-           sum =0.0d0
-           shift = (i-1) + (j-1)*n + (ms-1)*ne(1)*ne(1)
-           do k=1,n
-              shift1 = (k-1) + (i-1)*n + (ms-1)*ne(1)*ne(1)
-              shift2 = (k-1) + (j-1)*n + (ms-1)*ne(1)*ne(1)
-              sum = dbl_mb(R(1)+shift1)*dbl_mb(NN(1)+shift2)
-           end do
-           dbl_mb(TT(1)+shift) = -sum
-        end do
-        end do
+        shift2 = (ms-1)*ne(1)*ne(1)
+
+        call DGEMM('T','N',n,n,n,
+     >              (-1.0d0),
+     >              dbl_mb(R(1) +shift2),n,
+     >              dbl_mb(NN(1)+shift2),n,
+     >              (0.0d0),
+     >              dbl_mb(TT(1)+shift2),n)
+c       do j=1,n
+c       do i=1,n
+c          sum =0.0d0
+c          shift = (i-1) + (j-1)*n + (ms-1)*ne(1)*ne(1)
+c          do k=1,n
+c             shift1 = (k-1) + (i-1)*n + (ms-1)*ne(1)*ne(1)
+c             shift2 = (k-1) + (j-1)*n + (ms-1)*ne(1)*ne(1)
+c             sum = dbl_mb(R(1)+shift1)*dbl_mb(NN(1)+shift2)
+c          end do
+c          dbl_mb(TT(1)+shift) = -sum
+c       end do
+c       end do
+
       end do
 
 *     *** Hnew <-- Hold*M(t) + Yold*TT(t) ***
@@ -443,19 +474,32 @@
         shift1 = (ms-1)*ne(1)
         shift2 = (ms-1)*ne(1)*ne(1)
 
-        do k=1,n         
-          call dcopy(2*npack1,0.0d0,0,Hnew(1+(k-1+shift1)*npack1),1)
-          do j=1,n
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(MM(1)+j-1+(k-1)*n+shift2),
-     >                         dcpl_mb(Hold(1)+(j-1+shift1)*npack1),
-     >                         Hnew(1+(k-1+shift1)*npack1))
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(TT(1)+j-1+(k-1)*n+shift2),
-     >                         Yold(1+(k-1+shift1)*npack1),
-     >                         Hnew(1+(k-1+shift1)*npack1))
-          end do
-        end do
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (1.0d0),
+     >              dcpl_mb(Hold(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(MM(1)+shift2),n,
+     >              (0.0d0),
+     >              Hnew(1+shift1*npack1),2*npack1)
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (1.0d0),
+     >              Yold(1+shift1*npack1),2*npack1,
+     >              dbl_mb(TT(1)+shift2),n,
+     >              (1.0d0),
+     >              Hnew(1+shift1*npack1),2*npack1)
+c       do k=1,n         
+c         call dcopy(2*npack1,0.0d0,0,Hnew(1+(k-1+shift1)*npack1),1)
+c         do j=1,n
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(MM(1)+j-1+(k-1)*n+shift2),
+c    >                         dcpl_mb(Hold(1)+(j-1+shift1)*npack1),
+c    >                         Hnew(1+(k-1+shift1)*npack1))
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(TT(1)+j-1+(k-1)*n+shift2),
+c    >                         Yold(1+(k-1+shift1)*npack1),
+c    >                         Hnew(1+(k-1+shift1)*npack1))
+c         end do
+c       end do
 
  100    continue
 

@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.12 2003-03-23 22:21:54 bylaska Exp $
+* $Id: geodesic.F,v 1.13 2003-06-30 01:23:11 bylaska Exp $
 *
 
 *     ***********************************
@@ -283,7 +283,9 @@ c     real*8 sum1,sumv
 
 
 *     ***** generate V and Sigma^2 ****
-      call Grsm_ggm_sym_dot(npack,ne,A,A,V)
+      !call Grsm_ggm_sym_dot(npack,ne,A,A,V)
+      call Pack_ccm_sym_dot(1,ne,A,A,V)
+
       !call eigen(ne,ne,V,S,dbl_mb(tmp1(1)),ierr)
       call DSYEV('V','U',ne,
      >           V,ne,
@@ -293,7 +295,13 @@ c     real*8 sum1,sumv
 
          
 *     **** generate U*Sigma ****
-      call Grsm_gmg_Mul(npack,ne,A,V,U)
+      call DGEMM('N','N',2*npack,ne,ne,
+     >              (1.0d0),
+     >              A,2*npack,
+     >              V,ne,
+     >              (0.0d0),
+     >              U,2*npack)
+      !call Grsm_gmg_Mul(npack,ne,A,V,U)
 
 
 *     **** normalize U*sigma, and sqrt(S^2) ****
@@ -419,20 +427,34 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
      >              dbl_mb(tmp2(1)+shift2),n)
 
 
-        do k=1,n
-          call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
-          do j=1,n
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2),
-     >                         Yold(1+(j-1+shift1)*npack1),
-     >                         Ynew(1+(k-1+shift1)*npack1))
-            call Pack_cc_daxpy(1,
-     >                         dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
-     >                         dcpl_mb(U(1)+(j-1+shift1)*npack1),
-     >                         Ynew(1+(k-1+shift1)*npack1))
 
-          end do
-        end do
+        call DGEMM('N','N',2*npack1,n,n,
+     >              one,
+     >              Yold(1+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp2(1)+shift2),n,
+     >              zero,
+     >              Ynew(1+shift1*npack1),2*npack1)
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              one,
+     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp3(1)+shift2),n,
+     >              one,
+     >              Ynew(1+shift1*npack1),2*npack1)
+
+c       do k=1,n
+c         call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
+c         do j=1,n
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2),
+c    >                         Yold(1+(j-1+shift1)*npack1),
+c    >                         Ynew(1+(k-1+shift1)*npack1))
+c           call Pack_cc_daxpy(1,
+c    >                         dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
+c    >                         dcpl_mb(U(1)+(j-1+shift1)*npack1),
+c    >                         Ynew(1+(k-1+shift1)*npack1))
+c         end do
+c       end do
 
  100    continue
 
@@ -555,20 +577,35 @@ c     end if
      >              dbl_mb(tmp2(1)+shift2), n)
 
 
-        do k=1,n
-          call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
-          do j=1,n
-            call Pack_cc_daxpy(1,
-     >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-     >              Yold(1+(j-1+shift1)*npack1),
-     >              Ynew(1+(k-1+shift1)*npack1))
-            call Pack_cc_daxpy(1,
-     >              dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
-     >              dcpl_mb(U(1)+(j-1+shift1)*npack1),
-     >              Ynew(1+(k-1+shift1)*npack1))
 
-          end do
-        end do
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (-1.0d0),
+     >              Yold(1+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp2(1)+shift2),n,
+     >              zero,
+     >              Ynew(1+shift1*npack1),2*npack1)
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              one,
+     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp3(1)+shift2),n,
+     >              one,
+     >              Ynew(1+shift1*npack1),2*npack1)
+
+c       do k=1,n
+c         call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
+c         do j=1,n
+c           call Pack_cc_daxpy(1,
+c    >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
+c    >              Yold(1+(j-1+shift1)*npack1),
+c    >              Ynew(1+(k-1+shift1)*npack1))
+c           call Pack_cc_daxpy(1,
+c    >              dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
+c    >              dcpl_mb(U(1)+(j-1+shift1)*npack1),
+c    >              Ynew(1+(k-1+shift1)*npack1))
+c         end do
+c       end do
 
  200    continue
 
@@ -650,10 +687,15 @@ c     end if
         shift1 = (ms-1)*psi_ne(1)
         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 
-        call Grsm_ggm_dot(npack1,n,
+c       call Grsm_ggm_dot(npack1,n,
+c    >             dcpl_mb(U(1)+shift1*npack1),
+c    >             tG(1+shift1*npack1),
+c    >             dbl_mb(tmp1(1)+shift2))
+        call Pack_ccm_dot(1,n,
      >             dcpl_mb(U(1)+shift1*npack1),
      >             tG(1+shift1*npack1),
      >             dbl_mb(tmp1(1)+shift2))
+
 c       call Grsm_ggm_dot(npack1,n,
 c    >            dcpl_mb(U(1)+shift1*npack1),
 c    >            tG(1+shift1*npack1),
@@ -679,18 +721,32 @@ c    >            dbl_mb(tmp3(1)+shift2))
      >              dbl_mb(tmp2(1)+shift2), n)
 
 
-        do k=1,n
-          do j=1,n
-            call Pack_cc_daxpy(1,
-     >             (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-     >             Yold(1+(j-1+shift1)*npack1),
-     >               tG(1+(k-1+shift1)*npack1))
-            call Pack_cc_daxpy(1,
-     >             (-1.0d0*dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2)),
-     >             dcpl_mb(U(1)+(j-1+shift1)*npack1),
-     >             tG(1+(k-1+shift1)*npack1))
-          end do
-        end do
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (-1.0d0),
+     >              Yold(1+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp2(1)+shift2),n,
+     >              one,
+     >              tG(1+shift1*npack1),2*npack1)
+
+        call DGEMM('N','N',2*npack1,n,n,
+     >              (-1.0d0),
+     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+     >              dbl_mb(tmp3(1)+shift2),n,
+     >              one,
+     >              tG(1+shift1*npack1),2*npack1)
+c       do k=1,n
+c         do j=1,n
+c           call Pack_cc_daxpy(1,
+c    >             (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
+c    >             Yold(1+(j-1+shift1)*npack1),
+c    >               tG(1+(k-1+shift1)*npack1))
+c           call Pack_cc_daxpy(1,
+c    >             (-1.0d0*dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2)),
+c    >             dcpl_mb(U(1)+(j-1+shift1)*npack1),
+c    >             tG(1+(k-1+shift1)*npack1))
+c         end do
+c       end do
 
  300    continue
 
