@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.395 2003-02-10 20:54:59 edo Exp $
+# $Id: makefile.h,v 1.396 2003-02-11 22:18:41 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -843,7 +843,7 @@ ifeq ($(TARGET),IBM)
   endif
   COPTIMIZE = -O -qarch=auto -qtune=auto
 
-    DEFINES = -DIBM -DAIX -DEXTNAME
+    DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
    CORE_LIBS +=  $(BLASOPT) 
 ifdef USE_ESSL
    DEFINES += -DESSL
