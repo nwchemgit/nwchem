@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.59 2003-05-13 19:30:38 edo Exp $
+$Id: INSTALL,v 1.60 2003-10-09 01:03:52 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -157,6 +157,7 @@ BASIC BUILD INSTRUCTIONS:
                   ppc             RH6.0,YD2.1     GNU
    LINUX64        Alpha           RedHat 6.2      Compaq          y
                   ia64            RedHat 7.2      Intel           y
+                  x86_64          Suse SLES8      PGI             y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
    HPUX64         hppa            HPUX 11.0                       y
