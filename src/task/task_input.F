@@ -93,8 +93,8 @@ c
 c
       if (inp_n_field() .eq. 4) then
          if (.not. inp_irange(range(1),range(2),range(3))) then
+            call inp_errout()
             if (inp_a(test)) then
-               write(6,*) ' test ' ,test
                if (inp_compare(.false.,test,'all')) then
                   range(1) = 0
                   range(2) = ga_nnodes()-1
@@ -102,6 +102,8 @@ c
                   goto 10
                endif
             endif
+         else
+            goto 10
          endif
          call errquit('task shell: bad format for processor range',0)
 c
