@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.26 1997-04-28 22:17:51 d3g681 Exp $
+C$Id: opt_drv.F,v 1.27 1997-05-14 01:18:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -54,10 +54,8 @@ c
       logical       geom_zmt_get_nizmat
       integer       rtdb
       integer       geom
-      logical       status
       integer       idriver
       logical       hnd_sadx
-      logical       opt_input
       logical       some
       logical       dbug
       logical       cvged
@@ -102,37 +100,29 @@ c
       endif
 c
 c     ----- parameters for optimization driver -----
-c           may have been read in already. if
-c           not, use default.
+c     user input with defaults
 c
-      if (ga_nodeid().eq.0)  then
-         status=rtdb_parallel(.false.)
-         if (.not. rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)) then
-            cvgopt=8.0d-04
-            nptopt=20
-            linopt=10
-            inhess=0
-            modupd=1
-            modsad=0
-            moddir=1
-            do i=1,mxcoor
-               icfrz(i)=0
-            enddo
-            do i=1,mxatom
-               iatfrz(i)=0
-            enddo
-         endif
-         status=rtdb_parallel(.true.)
-      endif
-      call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
-      call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
-      call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
-      call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
-      call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
-      call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
-      call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
-      call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
-      call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
+      do i=1,mxcoor             ! These are presently unused
+         icfrz(i)=0
+      enddo
+      do i=1,mxatom
+         iatfrz(i)=0
+      enddo
+c
+      if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_int,1,nptopt))
+     $     cvgopt=8.0d-04
+      if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
+     $     nptopt=20
+      if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess))
+     $     inhess=0
+      if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt))
+     $     linopt=10
+      if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd))
+     $     modupd=1
+      if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir))
+     $     moddir=1
+      if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad))
+     $     modsad=0
 c
       if (ga_nodeid().eq.0.or.dbug)  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
@@ -368,13 +358,21 @@ c
       call hnd_opt_input(rtdb)
 c
       opt_input=.true.
-      status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input)
-      status=status.and.
-     &    rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
+      status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input) ! This for task
       status=status.and.
      &    rtdb_put(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)
       status=status.and.
-     &    rtdb_put(rtdb,'driver:intopt',mt_int,6,nptopt)
+     &    rtdb_put(rtdb,'driver:nptopt',mt_int,1,nptopt)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:inhess',mt_int,1,inhess)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:linopt',mt_int,1,linopt)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:modupd',mt_int,1,modupd)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad)
       if(.not.status) then
          call errquit('driver_input : rtdb_put failed',911)
       endif
@@ -1169,7 +1167,6 @@ C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
 c      LOGICAL   DRIVER_OPT_GET_HESS
-      LOGICAL   STATUS
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
