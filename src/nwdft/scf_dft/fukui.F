@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
+c     $Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -366,6 +366,13 @@ c
          write(LuOut,'("                        = ",f7.2," eV")')
      &                                        ele_afi*27.211
       end if
+      if (me.eq.0.and.oprint_fukui)then
+         write(LuOut,*) ' ------------------------------------'
+         write(LuOut,'("  Electronegativity (I+A)/2 = ",f7.2," eV")') 
+     &                        0.5d00*(ion_pot + ele_afi)*27.211
+         write(LuOut,'("  Hardness (I-A) = ",f7.2," eV")') 
+     &                        (ion_pot - ele_afi)*27.211
+      end if
 c
 cc    Energy difference for high multiplicity
 c
@@ -499,7 +506,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
+C$Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -659,7 +666,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
+C$Id: fukui.F,v 1.10 2000-04-18 21:25:50 jolguin Exp $
 c
       implicit none
 #include "stdio.fh"
