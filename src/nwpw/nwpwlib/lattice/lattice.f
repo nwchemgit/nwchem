@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.5 2003-02-14 22:59:04 bylaska Exp $
+* $Id: lattice.f,v 1.6 2003-07-12 21:54:28 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -261,6 +261,77 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 
       return
       end
+
+
+      subroutine lattice_r_grid_sym(r)
+      implicit none
+      real*8 r(3,*)
+
+*     **** local variables ****
+      integer nfft3d,n2ft3d
+      integer i,j,k,p,q,taskid
+      integer index,k1,k2,k3
+      integer np1,np2,np3
+      integer nph1,nph2,nph3
+      real*8  a(3,3)
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
+
+*     **** constants ****
+      call Parallel_taskid(taskid)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+
+      nph1 = np1/2
+      nph2 = np2/2
+      nph3 = np3/2
+
+*     **** elemental vectors ****
+      do i=1,3
+         a(i,1) = lattice_unita(i,1)/np1
+         a(i,2) = lattice_unita(i,2)/np2
+         a(i,3) = lattice_unita(i,3)/np3
+      end do
+
+      call dcopy(3*n2ft3d,0.0d0,0,r,1)
+
+*     **** grid points in coordination space ****
+      do k3 = -nph3+1, nph3-1
+        do k2 = -nph2+1, nph2-1
+          do k1 = -nph1+1, nph1-1
+
+               i = k1 + nph1
+               j = k2 + nph2
+               k = k3 + nph3
+
+               call D3dB_ktoqp(1,k+1,q,p)
+               if (p .eq. taskid) then
+                  index = (q-1)*(np1+2)*np2
+     >                  + j    *(np1+2)
+     >                  + i+1
+c               r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
+c               r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
+c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+
+*               **** reverse y and z ****
+                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+                r(2,index) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+
+               end if
+          end do
+        end do
+      end do
+
+      return
+      end
+
 
 
       subroutine get_cube(unita,unitg,volume)
