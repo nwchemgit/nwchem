@@ -1,6 +1,38 @@
+      logical function dft_energy_gradient(rtdb)
+      implicit none
+#include "rtdb.fh"
+      integer rtdb
+c
+      logical nwdft, grad_dft
+      external nwdft, grad_dft
+      logical status
+c
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
+      status = nwdft(rtdb)
+      if (status) status = grad_dft(rtdb)
+      dft_energy_gradient = status
+      call grid_cleanup(rtdb,.false.)
+c
+      end
+      logical function sodft_energy_gradient(rtdb)
+      implicit none
+#include "rtdb.fh"
+      integer rtdb
+c
+      logical nwdft, grad_dft
+      external nwdft, grad_dft
+      logical status
+c
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
+      status = nwdft(rtdb)
+      if (status) status = grad_dft(rtdb)
+      sodft_energy_gradient = status
+      call grid_cleanup(rtdb,.false.)
+c
+      end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.29 2000-07-18 01:13:21 edo Exp $
+* $Id: grad_dft.F,v 1.30 2000-11-04 03:20:38 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -40,7 +72,7 @@ c
       call util_print_rtdb_load(rtdb,'dft')
       call ecce_print_module_entry ('dft')
 c
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0)
       if(theory .eq. 'dft')then 
          status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 

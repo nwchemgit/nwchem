@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.52 2000-06-08 02:06:29 edo Exp $
+c     $Id: dft_inpana.F,v 1.53 2000-11-04 03:26:44 d3g681 Exp $
 c
 c*********************************************************************
 c     
@@ -40,7 +40,7 @@ c
       character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
-      character*16 tag
+      character*16 tag, theory
       character*20 rgridnames(8)
       data rgridnames /'Euler-MacLaurin','Mura-Knowles',
      .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
@@ -60,6 +60,8 @@ c
 c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
 c     
+      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
+     $        call errquit('dft_inpana: theory not specified',0)
       if (.not. geom_nuc_charge(geom, anucl_charg))
      &     call errquit('dft_inpana: geom_nuc_charge failed', 0)
       nel = nint(anucl_charg - rcharge)
@@ -76,8 +78,7 @@ c
 c     
 c     odd # of electrons or not a singlet state --> LSD
 c     
-      if ((.not.even).or.(mult.ne.1)) ipol=2
-      
+      if ((.not.even).or.(mult.ne.1).or.(theory.eq.'sodft')) ipol=2
       noc(2)=0
 c     
 c     Calculate number of occupied orbitals.

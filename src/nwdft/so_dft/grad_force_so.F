@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.8 2000-10-31 02:02:02 zzhang Exp $
+c     $Id: grad_force_so.F,v 1.9 2000-11-04 03:27:27 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -175,7 +175,7 @@ c
 
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('grad: failed getting theory',0)
 
 C     get SCF MO vectors for density

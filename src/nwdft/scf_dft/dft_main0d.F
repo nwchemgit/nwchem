@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.48 2000-10-19 01:26:36 edo Exp $
+c     $Id: dft_main0d.F,v 1.49 2000-11-04 03:27:07 d3g681 Exp $
 c     
       implicit none
 c
@@ -402,7 +402,7 @@ c      dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
 c     &     iter, g_dens, g_evecs, g_vxc, g_fock, 
 c     &     g_svecs, isvals, g_xcinv, g_s)
 c 
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0)
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.82 2000-07-21 20:40:41 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.83 2000-11-04 03:26:45 d3g681 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -39,6 +39,9 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
+c
+      if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
+     $     call errquit('dft_rdinput: failed getting theory',0)
 c
       do iline=1,numfunc
           xfac(iline)=0.d0
@@ -158,9 +161,12 @@ c
      &       call errquit('dft_rdinput: rtdb_put failed', 9104)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1,
-     &   ipol))then
-         ipol=1
+      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))then
+         if (theory .eq. 'sodft') then
+            ipol = 2
+         else
+            ipol=1
+         endif
          if (.not. rtdb_put(rtdb, 'dft:ipol',
      &      mt_int, 1, ipol))
      &      call errquit('dft_rdinput: rtdb_put failed', 105)
@@ -823,9 +829,7 @@ c
 c
 c     For spin-orbit calculations, turn off oskel 
 c
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('dft_rdinput: failed getting theory',0)
-      if(theory .eq. 'sodft')oskel=.false.
+      if(theory .eq. 'sodft') oskel=.false.
 c
 c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
