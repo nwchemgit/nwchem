@@ -4,13 +4,19 @@ public class BondDefinition{
 
     public int atomi,atomj;
     public int type, source;
+    public int source1,source2,source3;
     public double bond1,bond2,bond3,force1,force2,force3;
 
     public BondDefinition(String card1, String card2){
 	atomi=Integer.parseInt(card1.substring(5,10).trim());
 	atomj=Integer.parseInt(card1.substring(10,15).trim());
 	type=Integer.parseInt(card1.substring(15,20).trim());
-	source=Integer.parseInt(card1.substring(20,25).trim());
+	source3=Integer.parseInt(card1.substring(24,25).trim());
+	source1=source3;
+	source2=source3;
+	if(card1.charAt(22)!=' ') source1=Integer.parseInt(card1.substring(20,23).trim());
+	if(card1.charAt(23)!=' ') source2=Integer.parseInt(card1.substring(23,24).trim());
+	source=source1;
 	bond1=Double.valueOf(card2.substring(0,12)).doubleValue();
 	bond2=Double.valueOf(card2.substring(24,36)).doubleValue();
 	bond3=Double.valueOf(card2.substring(48,60)).doubleValue();

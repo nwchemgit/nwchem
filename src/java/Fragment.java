@@ -10,7 +10,7 @@ public class Fragment{
     public Fragment(){
     };
 
-    void FragmentRead(String fileName){
+    void read(String fileName){
 	//	System.out.println("Reading file "+fileName);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(fileName));

@@ -67,6 +67,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 
     JButton writeButton = new JButton("Write");
     JButton orderButton = new JButton("Order");
+
+    String frName = new String(" ");
+    String toName = new String(" ");
     
     public nwchem_Segment(){
 	
@@ -300,8 +303,8 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		if(id[k][1]>=0){idt[id[k][1]+1]=k;};
 	    };
 	    try{
-		PrintfWriter sgmFile = new PrintfWriter(new FileWriter("NEW.sgm"));
-		sgmFile.println("# Merged Segment File");
+		PrintfWriter sgmFile = new PrintfWriter(new FileWriter("TEMP.sgm"));
+		sgmFile.println("# Merged Segment File for "+frName+" to "+toName);
 		sgmFile.printf("%5d",atmNumber);
 		// count new number of bonds
 		int number=0;
@@ -977,6 +980,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		};
 		sgmFile.close();
 	    } catch (Exception ee) { ee.printStackTrace(); };
+	    Segment tempSgm = new Segment();
+	    tempSgm.read("TEMP.sgm");
+	    tempSgm.order();
+	    tempSgm.write("NEW.sgm");
 	};
 	if(e.getSource()==orderButton){
 	    if(ordering) {
@@ -1050,13 +1057,15 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		j=sgmList.getSelectedIndex();
 		fileName=sgmDef[j].Dir+sgmDef[j].Name;
 		if(frBool){
-		    FrSgm.SegmentRead(fileName);
+		    FrSgm.read(fileName);
 		    frLabel.setText(" "+sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm")));
 		    frRead=true;
+		    frName=sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm"));
 		} else {
-		    ToSgm.SegmentRead(fileName);
+		    ToSgm.read(fileName);
 		    toLabel.setText(" "+sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm")));
 		    toRead=true;
+		    toName=sgmDef[j].Name.substring(0,sgmDef[j].Name.indexOf(".sgm"));
 		};
 		if(frRead && !toRead){
 		    id = new int[FrSgm.numAtoms][2];

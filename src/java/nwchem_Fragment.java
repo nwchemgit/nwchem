@@ -623,7 +623,7 @@ class nwchem_Fragment extends JFrame implements ActionListener, ChangeListener, 
 	    if(mouse.getSource()==frgList){
 		j=frgList.getSelectedIndex();
 		fileName=frgDef[j].Dir+frgDef[j].Name;
-		FrFrg.FragmentRead(fileName);
+		FrFrg.read(fileName);
 		frLabel.setText(" "+frgDef[j].Name.substring(0,frgDef[j].Name.indexOf(".frg")));
 		frRead=true;
 		if(frRead && !toRead){
