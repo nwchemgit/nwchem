@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.14 1998-04-17 21:15:41 gg502 Exp $
+* $Id: task_energy.F,v 1.15 1999-03-15 21:16:30 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,8 +30,8 @@ c     Also returns status through the function value
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, nwargos, rimp2g
-      external semi_dir_mp2, nwargos, rimp2g
+      logical semi_dir_mp2, nwargos, rimp2g,nwmd
+      external semi_dir_mp2, nwargos, rimp2g,nwmd
 c
       logical status
       double precision energy, cpu, wall, dipole(3)
@@ -89,7 +89,7 @@ c
      $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'md') then
-         status = nwargos(rtdb)
+         status = nwmd(rtdb)
       else if (theory .eq. 'qmmm') then
          if(ga_nodeid().eq.0) then
            write(6,*)'task_energy: qmmm should never be the theory '

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.31 1998-12-29 18:02:08 d3j191 Exp $
+* $Id: task.F,v 1.32 1999-03-15 21:16:29 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,20 +30,21 @@ c
       double precision task_cpu, task_wall
       logical oprint_task_times
 c
-      logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
-      logical  nwargos, property, dplot, gapss, task_shell, moints_full
-      logical  analyz,esp,prepar, kgdtest, jvltest, jvltest2
-      logical  task_energy, task_gradient, task_optimize, task_freq
-      logical  task_hessian, task_saddle, task_lst
-      logical  task_qmmm, task_python, task_nbo
+      logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
+      logical nwargos, property, dplot, gapss, task_shell, moints_full
+      logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
+      logical task_energy, task_gradient, task_optimize, task_freq
+      logical task_hessian, task_saddle, task_lst,task_dynamics
+      logical task_qmmm, task_python, task_nbo,task_thermo
       logical task_version
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
+      external analyz,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
-      external task_hessian, task_saddle, task_lst
-      external task_version, task_python, task_nbo
-      external esp,prepar, kgdtest
+      external task_hessian, task_saddle, task_lst,task_dynamics
+      external task_version, task_python, task_nbo,task_thermo
+      external kgdtest
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
@@ -64,8 +65,8 @@ c
 c for qmmm start in nwargos.  nwargos will call appropriate task routines
 c
       if (task_qmmm) then
-        if (theory.eq.'md'.or.theory.eq.'nwargos') call errquit
-     &      ('task:theory must be a QM method for QMMM',911)
+        if (theory.eq.'nwmd'.or.theory.eq.'md'.or.theory.eq.'nwargos')
+     + call errquit('task:theory must be a QM method for QMMM',911)
         status = nwargos(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           errmsg = ' '
@@ -110,7 +111,7 @@ c
          else if (inp_compare(.false.,'nwargos', theory)) then
             status = nwargos(rtdb)
          else if (inp_compare(.false.,'md', theory)) then
-            status = nwargos(rtdb)
+            status = nwmd(rtdb)
          else if (inp_compare(.false.,'md_ideaz', theory)) then
             status = mdmain(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
@@ -170,9 +171,9 @@ c
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
-         status=nwargos(rtdb)
+         status=task_dynamics(rtdb)
       else if(inp_compare(.false.,'thermodynamics',operation)) then
-         status=nwargos(rtdb)
+         status=task_thermo(rtdb)
       else
          call errquit('task: unknown generic operation',0)
       endif

@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -35,8 +35,8 @@ c
 c     
       character*20 theory
 c     
-      logical  task_gradient, stpr_walk_task, drv_opt, nwargos
-      external task_gradient, stpr_walk_task, drv_opt, nwargos
+      logical  task_gradient, stpr_walk_task, drv_opt, nwargos,nwmd
+      external task_gradient, stpr_walk_task, drv_opt, nwargos,nwmd
 c     
       call ecce_print_module_entry('task optimize')
 c     
@@ -62,8 +62,10 @@ c
 c     
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0)
-      if (theory.eq.'md'.or.theory.eq.'nwargos') then
-         status=nwargos(rtdb)
+      if (theory.eq.'md') then
+      status=nwmd(rtdb)
+      elseif(theory.eq.'nwargos') then
+      status=nwargos(rtdb)
       else if (theory.eq.'qmmm') then
          if (ga_nodeid().eq.0) then
             write(6,*)'task_optimize: qmmm should never be the theory '
@@ -118,7 +120,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -244,7 +246,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.15 1998-08-26 00:27:53 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
