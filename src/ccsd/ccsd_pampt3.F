@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.9 1997-10-18 20:14:37 d3g681 Exp $
+C     $Id: ccsd_pampt3.F,v 2.10 1997-11-14 00:06:49 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
@@ -63,7 +63,7 @@ c - Make t2+/- with 2 ao and 2 occ indices
 c ------------------------------------------------------------
       lscr=nbf*nbf
       stat=.true.
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
+      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra1',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_t2pm ',0)
       call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
@@ -90,7 +90,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,max2e,'eri2',l_eri2, k_eri2)
       stat=stat.and.ma_push_get(MT_DBL,mem2,'scre',l_scre,k_scre)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
+      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra2',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_sxy ',0)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
@@ -116,7 +116,7 @@ c - Change ht2+/- with 2 ao and 2 occ indices into normal ht2
 c ------------------------------------------------------------
       stat=.true.
       lscr=nbf*nbf
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
+      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra3',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0)
       call ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -129,7 +129,7 @@ c ------------------------------------------------------------
 c other terms using B intermediate
 c ------------------------------------------------------------
       lscr=nact*nact
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
+      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra4',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scre',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrf',l_sc4, k_sc4)

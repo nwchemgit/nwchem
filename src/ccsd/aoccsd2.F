@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.21 1997-10-27 18:04:52 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.22 1997-11-14 00:06:48 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -174,7 +174,7 @@ c
       stat=stat.and.ma_push_get(MT_DBL,(mxvec+1)*(mxvec+2),'bb',
      &                          l_bb,k_bb)
       stat=stat.and.ma_push_get(MT_INT,nsh*(nsh+1),'tklst',l_tk,k_tk)
-      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+      stat=stat.and.ma_push_get(MT_DBL,lnobj,'1scra',l_scra,k_scra)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
       if (.not.stat)call errquit('ccsd: failed to allocate ',0)
 c
@@ -269,7 +269,7 @@ c
       call ga_zero(g_objv)
 c
       lnobj=lnoov+max(lnooo,lnoov)
-      stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+      stat=stat.and.ma_push_get(MT_DBL,lnobj,'1scra',l_scra,k_scra)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nact,'scrb',l_scrb,k_scrb)
       call ccsd_trpmo(ncor,nocc,nvir,nact,nbf,dbl_mb(k_scra),
      $            dbl_mb(k_scrb),dbl_mb(k_t1),g_nt2,g_objv,g_ncoul,
@@ -286,7 +286,7 @@ CRK
 c
       If ( Do_Z) then
         lnobj=max(lnoov,nbf*nbf)
-        stat=stat.and.ma_push_get(MT_DBL,lnobj,'scra',l_scra,k_scra)
+        stat=stat.and.ma_push_get(MT_DBL,lnobj,'3scra',l_scra,k_scra)
         stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
          stat=stat.and.ma_push_get(MT_DBL,lnov,'z1',l_z1,k_z1)
          call ccsd_graddrv(basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -767,8 +767,6 @@ C
 c
       if (.not. ga_destroy(g_objo))
      &     call errquit('g_objo ga_destroy failed',0)
-      if (.not. ga_destroy(g_objv))
-     &     call errquit('g_objv ga_destroy failed',0)
 c
 c -- end of triples calculation
 c
@@ -779,7 +777,10 @@ c       call ga_summarize(.false.)
 c      endif
       call ga_sync()
       call qexit('triples',0)
-  999 continue
+c
+ 999  if (.not. ga_destroy(g_objv))
+     &     call errquit('g_objv ga_destroy failed',0)
+c
       call qstat()
       return
       end

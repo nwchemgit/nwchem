@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.5 1997-10-15 20:00:19 d3e129 Exp $
+C     $Id: qstat.F,v 2.6 1997-11-14 00:06:50 d3g681 Exp $
       Implicit NONE
       Character*(*) NameIn
       Integer IPrint
@@ -9,10 +9,17 @@ C
 C
 C
 #include "qdata.fh"
+***      logical ma_verify_allocator_stuff
+***      external ma_verify_allocator_stuff
 c
       double precision zip
       data zip/0.0d00/
 *
+
+***      write(6,*) 'qenter:', namein
+***      call util_flush(6)
+***      if (.not. ma_verify_allocator_stuff()) call errquit(namein,0)
+
       call cputime(tcp1)
       tio1=zip
 *

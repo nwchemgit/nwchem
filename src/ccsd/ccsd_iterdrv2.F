@@ -5,13 +5,16 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E)
-C     $Id: ccsd_iterdrv2.F,v 2.14 1997-10-22 16:40:55 d3g681 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.15 1997-11-14 00:06:49 d3g681 Exp $
       implicit none
+#include "util.fh"
 c
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
      & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
       Double Precision Thre, Tol2E
+      double precision time_iter_start
+      integer time_prev_iter
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -34,7 +37,7 @@ c
 
       Integer IAm
       logical orestart
-      character*255 t1file, t2file
+      character*255 t2file
 
       logical ccsd_read_restart, ccsd_write_restart
       external ccsd_read_restart, ccsd_write_restart
@@ -63,16 +66,17 @@ c - starting vectors
 
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
 
-      call util_file_name('t1', .false.,.false.,t1file)
       call util_file_name('t2', .false.,.false.,t2file)
 
       if (.not.rtdb_get(rtdb, 'ccsd:restart',MT_LOG, 1, orestart))
-     $    orestart = .false.
+     $    orestart = .true.   ! By default always try to restart
 
       if (orestart) orestart = 
-     $     ccsd_read_restart(t1file, t2file, t1, g_t2, lnov)
+     $     ccsd_read_restart(t2file, g_t2, nvir, lhoov)
+
 c Note that if restart fails orestart will be set false
       if (.not. orestart) then
+         if (iam .eq. 0) write(6,*) ' Using MP2 initial guess vector '
         call dfill(lnov,zip,t1,1)
         if (nvp1.ge.ilo.and.nvp1.le.ihi)then
          call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
@@ -114,6 +118,7 @@ c ----------------------------------------------------------
      &    /,48x,'time',5x,'time',6x,'time',
      &    /,73('-'))
    99 continue
+      time_iter_start = util_wallsec()
       iter=iter+1
       idiis=idiis+1
       if (idiis.gt.mxvec)idiis=1
@@ -123,8 +128,10 @@ c ----------------------------------------------------------
 
 c
 c     Write out the current T1 and T2 for possible restart
+c     (note that T1 is kept at end of T2)
 c
-      if (.not. ccsd_write_restart(t1file, t2file, t1, g_t2, lnov))
+      if (.not. ccsd_write_restart(t2file, g_t2, 
+     $     nvir, lhoov, offt2))
      $     call errquit('ccsd: failed saving vector for restart',0)
 c
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
@@ -207,7 +214,15 @@ c
       call ecce_print1('ccsd rms error', mt_dbl, rms, 1)
 c
       endif
-      goto 99
+c
+      time_prev_iter = nint((util_wallsec() - time_iter_start)*1.2d0)
+c
+      if (util_test_time_remaining(rtdb,time_prev_iter)) then
+         goto 99
+      else
+         goto 999
+      endif
+c
  999  continue
 c
       if (.not.ga_destroy(g_nht2))
@@ -219,99 +234,51 @@ c
       call qexit('iterdrv',0)
       return
       end
-
-      logical function ccsd_read_restart(t1file, t2file, t1, g_t2, lnov)
+      logical function ccsd_read_restart(t2file, g_t2, nvir, lhoov)
       implicit none
 #include "global.fh"
-#include "eaf.fh"
-      character*(*) t1file, t2file
-      integer lnov
-      double precision t1(lnov)
+#include "inp.fh"
+      character*(*) t2file
+      integer nvir, lhoov
       integer g_t2
 c
-      integer fd, iam, ierr
-      logical file_read_ga
-      external file_read_ga
+      logical file_read_ga_patch
+      external file_read_ga_patch
 c
       call ga_sync
 c
-      iam = ga_nodeid()
-c
-      ccsd_read_restart = .false.
-c
-      if (.not. file_read_ga(t2file,g_t2)) then
-         if (iam .eq. 0) write(6,*) ' Restart from T2 failed'
-         return
-      endif
-c
-      ierr = 0
-c
-      if (iam .eq. 0) then
-         ierr = eaf_open(t1file, eaf_rw, fd)
-         if (ierr .eq. 0) then
-            ierr = eaf_read(fd, 0.0d0, t1, 8*lnov)
-            if (ierr .ne. 0) write(6,*) ' Reading from T1 failed'
-            if (eaf_close(fd) .ne. 0) call errquit('ccsd:closing t1',0)
+      ccsd_read_restart = 
+     $     file_read_ga_patch(t2file,g_t2,1,lhoov,1,nvir+1)
+
+      if (ga_nodeid().eq. 0) then
+         if (ccsd_read_restart) then
+            write(6,*) ' Restarting from old vector in ',
+     $           t2file(1:inp_strlen(t2file))
          else
-            write(6,*) ' Opening T1 failed'
+            write(6,*) ' Failed reading restart vector from ',
+     $           t2file(1:inp_strlen(t2file))
          endif
       endif
-c
-      call ga_igop(321,ierr,1,'+')
-      if (ierr .ne. 0) return
-c
-      call ga_brdcst(322,t1,8*lnov,0)
-c
-      call ga_sync
-c
-      ccsd_read_restart = .true.
 c
       end
-
-         
-      logical function ccsd_write_restart(t1file, t2file, t1, g_t2,lnov)
+      logical function ccsd_write_restart(t2file, g_t2, nvir, lhoov, 
+     $     offt2)
       implicit none
 #include "global.fh"
-#include "eaf.fh"
-      character*(*) t1file, t2file
-      integer lnov
-      double precision t1(lnov)
+      character*(*) t2file
+      integer nvir, lhoov, offt2
       integer g_t2
 c
-      integer fd, iam, ierr
-      logical file_write_ga
-      external file_write_ga
+      logical file_write_ga_patch
+      external file_write_ga_patch
 c
       call ga_sync
 c
-      iam = ga_nodeid()
-c
-      ccsd_write_restart = .false.
-c
-      if (.not. file_write_ga(t2file,g_t2)) then
-         if (iam .eq. 0) write(6,*) ' Writing to T2 failed'
-         return
-      endif
-c
-      ierr = 0
-c
-      if (iam .eq. 0) then
-         ierr = eaf_open(t1file, eaf_rw, fd)
-         if (ierr .eq. 0) then
-            ierr = eaf_write(fd, 0.0d0, t1, 8*lnov)
-            if (ierr .ne. 0) write(6,*) ' Writing to T1 failed'
-            if (eaf_close(fd) .ne. 0) call errquit('ccsd:closing t1',0)
-         else
-            write(6,*) ' Opening T1 failed'
-         endif
-      endif
-c
-      call ga_igop(321,ierr,1,'+')
-      if (ierr .ne. 0) return
-c
-      call ga_sync
-c
-      ccsd_write_restart = .true.
+      ccsd_write_restart = 
+     $     file_write_ga_patch(t2file,g_t2,offt2+1,offt2+lhoov,1,nvir+1)
+
+      if ((.not. ccsd_write_restart) .and. ga_nodeid().eq. 0) 
+     $     write(6,*) ' Write of T2 failed'
 c
       end
 
