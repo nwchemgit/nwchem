@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.24 2001-12-19 22:41:56 windus Exp $
+C $Id: hess_init.F,v 1.25 2001-12-22 02:07:06 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -24,10 +24,10 @@ c
 c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
-      integer i, j, dftnoc(2), numfunc, nbsize
+      integer dftnoc(2), numfunc, nbsize
       parameter(numfunc = 30) ! took this from gradient code, may need to be
                               ! changed in the future
-      logical status, oprint
+      logical oprint
       character*256 sx_name
       character*256 fx_name
       double precision zero, one, onem
@@ -39,7 +39,7 @@ c     integer rtdb, mult, g_vecs(2)
       logical int_normalize,int_norm_2c
       external int_normalize,int_norm_2c
       logical cdfit
-      integer cd_basis,nbf_cd
+      integer nbf_cd
 c
 c  print out follow information
 c
@@ -70,6 +70,7 @@ c
          else
             if (.not. bas_destroy(cd_basis))
      &           call errquit('rdinput:not able to destroy CD_bas:',86)
+            cd_basis=0
          endif
 c
 c  Get theory type
@@ -83,10 +84,16 @@ c  initialize the second derivative integrals
 c  making sure that the schwarz stuff is initialized
 c
       if (oprint) write(LuOut,*) 'HESS: initializing integrals'
-      call int_init(rtdb, 1, basis)
+      nbasis=1
+      basis_list(1)=basis
+      if(cdfit) then
+         nbasis=2
+         basis_list(2)=cd_basis
+      endif
+      call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
       call int_terminate()
-      call intdd_init(rtdb,1,basis)
+      call intdd_init(rtdb,nbasis,basis_list)
       if(.not.int_normalize(rtdb,basis))
      &        call errquit('hess_init: int_normalize failed', 208)
       if(cdfit) then
@@ -157,10 +164,11 @@ c     Get information about fitting and scale factors
 c
         if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
      $        ocdfit = .false.
+        write(0,*) ' ocdfit ',ocdfit
         if (ocdfit) jfac(1) = 0.0d0 
         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
      $        call errquit('gradients: xfac not in rtdb ', 0)
-        kfac(1) = xfac(1)
+        kfac(1) = xfac(1)*(-0.5d0)
 c
 c  I don't like the way I am getting the number of mo's, but I can't find
 c  another way to get this from the DFT.
@@ -254,6 +262,7 @@ c    &    ('hess_init: Failed to initialize DRA interface',555)
      &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create fx DRA',555)
 
+
       return
       end
 c
@@ -273,6 +282,8 @@ c
        integer rtdb
        integer geomnew
        double precision uthresh, ithresh
+       logical whatever,grid_file_close
+       external grid_file_close
 c
 c  Get theory type
 c
@@ -329,5 +340,11 @@ c
         endif
       endif
 c
+c     kill symmetry for XC grid build
+c
+        if (.not. rtdb_put(rtdb, 'dft:gridsym',
+     $       MT_LOG, 1, .false.)) call errquit(
+     .        ' task_hessian: rtdb_put failed',0)
+        whatever=grid_file_close(.false.)
       return
       end

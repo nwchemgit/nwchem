@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.27 2001-12-15 01:24:39 windus Exp $
+C $Id: twodd_cont.F,v 1.28 2001-12-22 02:07:06 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -90,8 +90,15 @@ c
      *     dbl_mb(k_hess_xc),scftype)
         call xc_cpks_rhs(geom,rtdb,nbf,basis,
      *       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
-        if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
+        if (ocdfit) then
+           call schwarz_tidy()  ! need to get rid of temp buffers
+           call intdd_terminate()
+           call int_init(rtdb, nbasis, basis_list)
+           call schwarz_init(geom, basis)
+           call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
+           call int_terminate()
+        endif
       if (otwoprint) then
         if(ga_nodeid().eq.0) then
          write(LuOut,*)
@@ -163,11 +170,10 @@ c
 c initialize for integrals
 c
       call schwarz_tidy()    ! need to get rid of temp buffers
-      call intdd_terminate()
-      call int_init(rtdb, 1, basis)
+      call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
       call int_terminate()
-      call intdd_init(rtdb, 1, basis)
+      call intdd_init(rtdb, nbasis, basis_list)
 c
 c For now I am not dealing with the active atom stuff, just setting every
 c atom to active.

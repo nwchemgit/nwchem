@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.14 2001-12-15 01:24:39 windus Exp $
+c $Id: shell_fock_build.F,v 1.15 2001-12-22 02:07:06 edo Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -41,7 +41,8 @@ c
       parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
       integer ga_create_atom_blocked
-      external ga_create_atom_blocked
+      logical xc_gotxc
+      external ga_create_atom_blocked,xc_gotxc
 c
 c     write(6,*) 'inside of shell_fock_build'
 c
@@ -183,6 +184,7 @@ c     enddo
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
 c
+      if(xc_gotxc())call xc_newfock(nder, nfock, g_fock)
        if (osym) call nga_symmetrize(g_fock)
 c
 c  Clean up memory allocated in this routine
@@ -766,4 +768,75 @@ c              f_jk(xyz,j,k)=f_jk(xyz,j,k)-g*d_il(v,i,l)
 c        end if
       end do
 c
+      end
+      subroutine xc_newfock(nder, nfock,g_fock)
+      implicit none
+#include "global.fh"
+#include "bgj.fh"
+#include "mafdecls.fh"
+#include "hess_info.fh"
+      integer nder,nfock
+      integer g_fock
+c
+      integer dims(3),chunk(3)
+      integer g_xc
+      integer ifock
+      logical xc_active
+      double precision ffac
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c
+      
+      write(0,*) ' newfockxc nder ',nder, ' nfock ',nfock
+      if(nder.eq.-2) then
+         g_xc = ga_create_atom_blocked
+     $        (geom, basis, 'new_fockxc: g_xc')
+      else
+         dims(1) = nfock
+         dims(2) = nbf
+         dims(3) = nbf
+         chunk(1) = dims(1)
+         chunk(2) = -1
+         chunk(3) = -1
+         write(0,*) ' d ',dims
+         write(0,*) ' chunk ',chunk
+         if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
+     &        g_xc))
+     &        call errquit('fock_2e: could not allocate g_xc',555)
+      endif
+      write(0,*) ' got create: g_xc=',g_xc
+      call ga_zero(g_xc)
+
+      call fock_xc(geom, nbf,basis,
+     ,     nfock, g_dens, g_xc,scftype)
+      do ifock = 1, nder
+!         if (xc_active.and.jfac(1).ne.0d0) then
+!         if (xc_active) then
+         if (.true.) then
+c     Scale the XC matrices by the same scaling factor as J in this case
+c     since there is no explicit way to pass in an XC scaling factor, yet
+c     the 2nd derivative code uses a scale factor of 8 for the OO part of
+c     the CPSCF RHS that needs to be applied to XC also.
+            write(0,*) ' newfxc jfac ',jfac
+            write(0,*) ' newfxc kfac ',kfac
+            if (jfac(1) .ne. 1d0 .and. jfac(1) .ne. 8d0) then
+               write(*,*)'cant Scale XC matrix',ifock,' by',jfac(1)
+               ffac=kfac(1)
+               write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
+            else
+               ffac=jfac(1)
+            endif
+            call ga_add(jfac(1), g_xc, 1.0d0, g_fock,
+     &           g_fock)
+         endif
+         if (bgj_print() .gt. 1) then
+            write(*,*)'*** fock_2e: fock matrix',ifock
+            call ga_print(g_fock)
+         endif
+      enddo
+      if (.not.ga_destroy(g_xc)) then
+         call errquit('fock_2e: problem destroying test array',1)
+      endif
+
+      return
       end

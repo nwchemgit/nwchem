@@ -1,11 +1,12 @@
 C
-C $Id: hess_info.fh,v 1.8 2001-12-19 22:41:56 windus Exp $
+C $Id: hess_info.fh,v 1.9 2001-12-22 02:07:06 edo Exp $
 C
 c  Hold all of the variables common to all hessian calculations.
 c  Wavefunction specific variables are set in the directories below.
 c
 c     geom       = Geometry handle
 c     basis      = Basis handle
+c     cd_basis   = CD basis handle
 c     n3xyz      = no. of nuclear perturbations
 c     n3xyz2     = no. of nuclear perturbations squared
 c     l/k_exy    = hessian matrix (local ma handle)
@@ -33,6 +34,7 @@ c     fx_dra_handle = handle for the DRA file that holds the F derivatives
 c
 
       integer geom, basis, n3xyz, n3xyz2, l_exy, k_exy, ncent, nbf 
+      integer cd_basis,basis_list,nbasis
       integer  nclosed, nopen, nalpha, nbeta, nmo, nvirt, vlen
       integer qy, g_dens, g_wdens, g_rhs, g_rhs_xc, ndens
       integer l_hess_xc, k_hess_xc, k_act, l_act, nactive
@@ -52,7 +54,8 @@ c
 c
 c  Integers
 c
-     *   geom, basis, n3xyz, n3xyz2, l_exy, k_exy, l_hess_xc, 
+     *   geom, basis, cd_basis, basis_list(3),nbasis,
+     *   n3xyz, n3xyz2, l_exy, k_exy, l_hess_xc, 
      *   k_hess_xc, k_act,
      *   l_act, ncent, nactive,
      *   nclosed, nopen, nalpha, nbeta, nmo, nvirt(2), vlen,
