@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.4 2003-02-15 22:58:36 marat Exp $
+c $Id: paw_pot_hartree.F,v 1.5 2003-02-16 05:51:55 bylaska Exp $
 c
 
 !**************************************************
@@ -23,7 +23,8 @@ c
       !*** local variables ***
       logical ok
       integer in,ia
-      integer paw_pot_hartree_size
+
+      ! integer paw_pot_hartree_size
 
   
 c     !*** calculate the size and indexing ***
@@ -35,8 +36,7 @@ c     !*** calculate the size and indexing ***
          int_mb(i_paw_pot_hartree(1) + in - 1) = paw_pot_hartree_size
          ia = ion_katm(in)
          paw_pot_hartree_size = paw_pot_hartree_size
-     >                + paw_proj_nbasis(ia)**2
-c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
+     >                        + paw_proj_nbasis(ia)**2
       end do
 
 
@@ -100,7 +100,7 @@ c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       double precision gen_gaunt_coeff
       external gen_gaunt_coeff
       integer in,ia
-      integer i_w,i_w1,i_w0
+      integer i_w,i_w0
       integer i_mtr,i_mtr0
       integer i,j,li,lj,mi,mj
       integer ip,jp,lip,ljp,mip,mjp
@@ -110,6 +110,11 @@ c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
       integer i_hp,i_hp0
       integer nilm,njlm,niplm,njplm
       complex tmp_hartree_pot
+
+      !*** zero out paw_pot_hartree ***
+      call dcopy(2*paw_pot_hartree_size,
+     >           0.0d0,0,
+     >           dcpl_mb(paw_pot_hartree(1)),1)
 
       do in=1,ion_nion()
         ia = ion_katm(in)
@@ -122,34 +127,49 @@ c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
         i_w0 = int_mb(i_paw_ovlp_w(1) + in - 1)
         i_hp0 = int_mb(i_paw_pot_hartree(1) + in - 1)
         do l=0,mult_l
+
         nilm = 0
         do i=1,nb
         li = paw_basis_orb_l(i,ia)
+
         njlm = 0
         do j=1,nb
         lj = paw_basis_orb_l(j,ia)
+
         niplm = 0
         do ip=1,nb
         lip = paw_basis_orb_l(ip,ia)
+
         njplm = 0
         do jp=1,nb
         ljp = paw_basis_orb_l(jp,ia)
-        IF( l.LE.(li+lj) .AND. l.GE.ABS(li-lj) .and. l.LE.(lip+ljp)
-     >                            .AND. l.GE.ABS(lip-ljp) ) THEN
+
+        if( (l.le.(li+lj))    .and. 
+     >      (l.ge.ABS(li-lj)) .and. 
+     >      (l.le.(lip+ljp))  .and. 
+     >      (l.GE.ABS(lip-ljp)) ) then
 
         do m=-l,l
           do mi=-li,li
           do mj=-lj,lj
           if ( m.eq.(mi-mj)) then
-            i_w1 = 0
+
             do mip=-lip,lip
             do mjp=-ljp,ljp
               if (m.eq.(mjp-mip)) then
-                 i_w   = i_w0-1+(njplm+ljp+mjp+1)+
-     >                   (niplm+lip+mip)*paw_proj_nbasis(ia)
 
-                 i_hp  = i_hp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+c                !**** indicies in wrong order ****
+c                i_w   = i_w0-1+(njplm+ljp+mjp+1)+
+c    >                   (niplm+lip+mip)*paw_proj_nbasis(ia)
+c                i_hp  = i_hp0-1+(njlm+lj+mj+1)+
+c    >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+c                !**** indicies in wrong order ****
+
+                 i_w   = i_w0-1+(niplm+lip+mip+1)+
+     >                   (njplm+ljp+mjp)*paw_proj_nbasis(ia)  ! overlap weights index
+                 i_hp  = i_hp0-1+(nilm+li+mi+1)+
+     >                   (njlm+lj+mj)*paw_proj_nbasis(ia)   ! G(alpha,beta) index
+
 
                  i_mtr = i_mtr0-1+i+(j-1)*nb+(ip-1)*nb2+(jp-1)*nb3+l*nb4
 
@@ -162,14 +182,6 @@ c     >                + paw_proj_nbasis(ia)**2*ion_natm(ia)
      >                  dcpl_mb(paw_pot_hartree(1)+i_hp)+
      >                  tmp_hartree_pot
 
-c      write(*,*) "hpot:i,mi,j,mj",i,mi,j,mj
-c      write(*,*) "hpot:ip,mip,jp,mjp",ip,mip,jp,mjp
-c      write(*,*) "hpot:matrix",dbl_mb(paw_hartree_matrix(1)+i_mtr)
-c      write(*,*) "hpot:g",gen_gaunt_coeff(l,m,li,mi,lj,mj)*
-c     >                     gen_gaunt_coeff(l,m,ljp,mjp,lip,mip)
-c      write(*,*) "hpot:ovlp",dcpl_mb(paw_ovlp_w(1)+i_w)
-c      write(*,*) "hpot:tmp_pot", tmp_hartree_pot
-c      write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp),i_hp
 
               end if
             end do !mjp
@@ -179,15 +191,16 @@ c      write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp),i_hp
           end do !mj
         end do !m
         end if
+
         njplm = njplm + 2*ljp+1
         end do !jp
+
         niplm = niplm + 2*lip+1
         end do !ip
-c        write(*,*) "hpot:i,mi,j,mj",i,mi,j,mj,
-c     >              dcpl_mb(paw_pot_hartree(1)+i_hp)
-c        write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp)
+
         njlm = njlm + 2*lj+1
         end do !j
+
         nilm = nilm + 2*li+1
         end do !i  
         end do !l
@@ -207,8 +220,8 @@ c        write(*,*) "hpot:pot",dcpl_mb(paw_pot_hartree(1)+i_hp)
             do j=1,nb
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
-                 i_hp  = i_hp0-1+(njlm+lj+mj+1)+
-     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+                 i_hp  = i_hp0-1+(nilm+li+mi+1)+
+     >                   (njlm+lj+mj)*paw_proj_nbasis(ia)
 
                   write(*,*) i,mi,j,mj,dcpl_mb(paw_pot_hartree(1)+i_hp),
      >                     i_hp
