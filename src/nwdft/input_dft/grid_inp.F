@@ -70,21 +70,61 @@ c
 c     
 c     gausleg; use Gauss-Legendre for angular quadrature (ala Handy) 
 c     
-  300 iangquad=0
+  300 gridtype='gausleg'
+c
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 300) 
+c
+c
+c     set iangquad = 0 = not lebedev
+c
+      iangquad=0
       if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      &   call errquit('grid_inp: rtdb_put failed', 300)
+c
+      if (.not. inp_i(nradpts)) then
+         write(6,*)' grid_inp: nradpts value not found; ',
+     &             ' defaulting to 50 '
+         nradpts = 50
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
+     &   call errquit('grid_inp: rtdb_put failed', 900)
+c
+      if (.not. inp_i(nagrid)) then
+         write(6,*)' grid_inp: nagrid value not found; ',
+     &             ' defaulting to 10 '
+         nagrid = 10
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     &   call errquit('grid_inp: rtdb_put failed', 900)
+c
 c
       goto 10
 c     
 c     lebedev; use Lebedev angular quadrature
 c     
-  400 if (.not. inp_i(iangquad)) then
-         write(6,*)' grid_inp: lebedev value not found; defaulting ',
+  400 gridtype='lebedev'
+c
+      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     &   call errquit('grid_inp: rtdb_put failed', 400) 
+c
+      write(*,*) ' in GRID_INP: gridtype set to lebedev'
+      if (.not. inp_i(nradpts)) then
+         write(6,*)' grid_inp: nradpts value not found; ',
+     &             ' defaulting to 50 '
+         nradpts = 50
+      endif
+      if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
+     &   call errquit('grid_inp: rtdb_put failed', 400)
+c
+      if (.not. inp_i(iangquad)) then
+         write(6,*)' grid_inp: iangquad value not found; defaulting ',
      &             ' to 4.'
          iangquad=4
       endif
       if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      &   call errquit('grid_inp: rtdb_put failed', 400)
+c
 c
       goto 10
 c     
@@ -127,15 +167,15 @@ c
      &   call errquit('grid_inp: rtdb_put failed', 900) 
       if (.not. inp_i(nagrid)) then
          write(6,*)' grid_inp: nagrid value not found; ',
-     &             ' defaulting to 8 '
-         nagrid = 8
+     &             ' defaulting to 10 '
+         nagrid = 10
       endif
       if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
      &   call errquit('grid_inp: rtdb_put failed', 900)
       if (.not. inp_i(nradpts)) then
          write(6,*)' grid_inp: nradpts value not found; ',
-     &             ' defaulting to 40 '
-         nradpts = 40
+     &             ' defaulting to 50 '
+         nradpts = 50
       endif
       if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
      &   call errquit('grid_inp: rtdb_put failed', 900)
@@ -179,7 +219,8 @@ c
       return
 c     
 10000 write(6,10001)
-10001 format(/,' grid [[delley], [becke], [gausleg], [lebedev ival], ',
+10001 format(/,' grid [[delley], [becke], [gausleg], 
+     &       [lebedev ival ival], ',
      &       /,' [coarse], [medium], [fine], [xfine], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
      &       /,' [rm rval] ')

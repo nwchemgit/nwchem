@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.31 1997-02-21 20:44:51 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.32 1997-02-22 16:19:56 gutowski Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -38,9 +38,10 @@ c
       Logical int_normalize
       Logical int_norm_2c
       integer num_gridtypes, ind 
-      parameter (num_gridtypes = 5)
+      parameter (num_gridtypes = 6)
       character*15 gridtypes(num_gridtypes)
-      data gridtypes /'coarse', 'medium', 'fine', 'xfine', 'user'/
+      data gridtypes /'coarse', 'medium', 'fine', 'xfine', 
+     &                'gausleg', 'lebedev'/
 c     
       External int_normalize
       External int_norm_2c
@@ -436,7 +437,7 @@ c
          gridtype='medium'
          ind = 2
       endif
-      goto (10, 20, 30, 40, 50, 99) ind
+      goto (10, 20, 30, 40, 50, 60, 99) ind
       call errquit('dft_rdinput: unknown gridtype', ind)
    10 continue
 c
@@ -468,12 +469,22 @@ c
       goto 99
    50 continue
 c
-c     user grid;
+c     gausleg grid;
 c
       if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &   nagrid = 8
+     &   nagrid = 10
       if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
-     &   nradpts = 40
+     &   nradpts = 50
+      goto 99
+   60 continue
+c
+c     lebedev grid;
+c
+      write(*,*) ' in DFT_RDINPUT : gridtype recognized as lebedev'
+      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
+     &   iangquad = 4
+      if (.not. rtdb_get(rtdb,'dft:nradpts', mt_int, 1, nradpts))
+     &   nradpts = 50
    99 continue
       do n = 1, dft_ntags_bsmx
          nrad(n) = nradpts
