@@ -2,9 +2,9 @@ c
 c     Precomputes coefficients of basis functions pairs for use in
 c     making multiple XC matrices for CPKS
 c
-c     BGJ - 8/97
+c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.1 1998-09-09 13:21:12 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.2 1998-10-13 02:06:36 bjohnson Exp $
 c
       Subroutine xc_cpks_coeff(rho, delrho, Amat2, Cmat2, npert, ipol,
      &                         nq, GRAD)

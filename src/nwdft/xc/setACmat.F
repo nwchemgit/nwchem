@@ -1,7 +1,7 @@
 c
 c     Modified to handle second derivatives while reusing code
 c
-c     BGJ - 8/97
+c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
       Subroutine setACmat(Amat, Cmat, qwght, ipol, nq, GRAD)
@@ -11,7 +11,7 @@ c
      &                       GRAD)
 #endif
 c
-C$Id: setACmat.F,v 1.8 1998-09-09 13:32:35 bjohnson Exp $
+C$Id: setACmat.F,v 1.9 1998-10-13 02:13:48 bjohnson Exp $
 c
       implicit none
       integer ipol, nq

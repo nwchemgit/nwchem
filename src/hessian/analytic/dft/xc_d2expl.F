@@ -8,9 +8,9 @@
 c
 c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
-c     BGJ - 8/97
+c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.2 1998-09-15 18:29:49 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.3 1998-10-13 02:06:37 bjohnson Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Bmat, Cmat, Cmat2,
      &     Dmat, F, Pmat, ff, chi, delchi, heschi, curatoms, ncuratoms,

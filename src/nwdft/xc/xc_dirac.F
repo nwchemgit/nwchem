@@ -1,7 +1,7 @@
 c
 c     Modified to handle second derivatives while reusing code
 c
-c     BGJ - 8/97
+c     BGJ - 8/98
 c
 #ifndef SECOND_DERIV
       Subroutine xc_dirac(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.9 1998-09-09 13:32:35 bjohnson Exp $
+C$Id: xc_dirac.F,v 1.10 1998-10-13 02:13:48 bjohnson Exp $
 c
       Implicit none
 c
