@@ -59,7 +59,6 @@ c
         call ga_acc(g_t, i, i, i, i, -1.d0, 1, 1.d0 )
       enddo
       call ga_sync()
-      call ga_dadd( bshift, g_t, 1.d0, g_b, g_b )
 c
 c  AO contribution
 c
@@ -108,8 +107,6 @@ c
       call ga_zero( g_tmp )
       call mcscf_K_trace( nbf, nclosed, nact, dm2, g_t, g_exch, g_tmp )
       call ga_dadd(2.d0, g_tmp, 1.d0, g_b, g_b )
-c
-c
 c
       if (.not.ga_destroy(g_t))
      $  call errquit('mcscf_b: cannot destroy T',0)

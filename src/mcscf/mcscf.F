@@ -355,19 +355,19 @@ c$$$  call mcscf_ifock( geom, basis, nbf, nclosed, nact,
 c$$$  $                       oskel, tol2e, g_movecs, eone, etwo,
 c$$$  $                       ecore, g_hcore )                          ! this will give correct CI total energy
             call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $           g_coul, g_exch, g_hcore ) ! wrong CI total energy but saves 1 fock build
-            e0 = ecore + enrep
+     $           g_coul, g_exch, g_hcore ) ! wrong frozen core energy but saves 1 fock build
+***   e0 = ecore + enrep  ! RJH ... report only valence CI number
             if (omcscfprof) call pstat_on(ps_ci)
             citol_now = min(citol, (gnorm*0.05d0))
             call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $           nsym, int_mb(k_sym), e0,
+     $           nsym, int_mb(k_sym), 0.0d0, ! Was e0 here 
      $           dbl_mb(k_evals), g_hcore, g_coul, 
      $           citol_now, ocirestart, oprciconv,
      $           ocivecprint,
      $           dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
             if (util_print('ci energy',print_default).and.
      $           (ga_nodeid().eq.0)) write(6,882) eci
- 882        format(/,11x,'>>>| CI energy:',7x,f22.12)
+ 882        format(/,11x,'>>>| Valence CI:',6x,f22.12)
             if (omcscfprof) call pstat_off(ps_ci)
          else
             if (oprinfo) write(6,834) 

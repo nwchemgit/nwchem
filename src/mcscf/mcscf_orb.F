@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.36 1997-03-26 20:20:31 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.37 1997-04-01 18:01:52 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -65,7 +65,7 @@ c
        integer iter, vlen, pflg
        integer molo, mohi, i, iter1, nstep
        double precision tol2e, enrep, energy, lshift0
-       double precision snorm, alpha, gsscale, gnorm0, tnorm
+       double precision snorm, alpha, gsscale, gnorm0
        double precision eprec, p_acc, ndigit
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
@@ -85,7 +85,7 @@ c
        double precision lshift, bshift
        double precision e0, eci
        save lshift
-       double precision mone
+       double precision mone, knorm
 c
        logical line_search
        external line_search
@@ -176,7 +176,7 @@ c
        gnorm0 = gnorm
        energy = enrep + eone + etwo
        if (oprconv) write(6,922) energy,gnorm
- 922   format(11x,'>>>| Fock energy:',5x,f22.12,/,
+ 922   format(11x,'>>>| MCSCF energy:',4x,f22.12,/,
      $        11x,'>>>| Gradient norm:',3x,d22.9)
        oconverged = (gnorm.lt.gnorm_tol)
        if (oconverged) goto 555                              ! jump to clean-up and return
@@ -194,15 +194,16 @@ c
 c
 c  Adjust level-shift
 c
-       if (gnorm.gt.1.d-2) then
+       if (gnorm .gt. 1.d-1) then
          lshift = lshift0
        else if (lshift.eq.lshift0) then
          lshift = lshift0/5.d0
        else
          lshift = 0.d0
        endif
-C       bshift = lshift*0.1d0
-       bshift = 0.d0
+       bshift = lshift
+*       write(6,*) ' bshift ', bshift
+*       bshift = 0.d0
 c
 c  Check on vanishing/negative Hessian diagonals
 c
@@ -364,16 +365,22 @@ c
      $                   g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
            call ga_dgemm( 't', 'n', nbf, nbf, nbf, 1.d0, g_b, g_u,
      $                    0.d0, g_tmp )
+c
            call mcscf_gfock2grad(nbf, nclosed, nact, g_tmp, g_grad )
+c
            do i=1+ga_nodeid(),nbf,ga_nnodes()
              call ga_acc(g_u, i, i, i, i, mone, 1, 1.d0 )
            enddo
-           tnorm = ga_ddot( g_u, g_u )
-           tnorm = sqrt( tnorm )
+c
+c     Apply level shift of 0.5*bshift*T^2 to the energy, bshift*T to gradient
+c     Don't have T in a convenient form but we have K.
+c
+           call ga_dadd( bshift, g_kvec, 1.d0, g_grad, g_grad )
+           knorm = ga_ddot(g_kvec, g_kvec)
            call ga_transpose( g_b, g_tmp )
            call ga_dadd( 1.d0, g_gfock, 1.d0, g_tmp, g_b )
            call ga_transpose( g_b, g_tmp )
-           energy = eev(0) + ga_ddot( g_tmp, g_u )
+           energy = eev(0) + ga_ddot( g_tmp, g_u ) + 0.5d0*bshift*knorm
          else
            call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                      oskel, tol2e, dm1, dm2,
