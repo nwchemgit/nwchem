@@ -1,6 +1,6 @@
 
 c
-c $Id: nwpw_library.F,v 1.8 2004-10-14 22:57:56 bylaska Exp $
+c $Id: nwpw_library.F,v 1.9 2004-12-20 05:18:57 bylaska Exp $
 c
 	subroutine nwpw_libgeninp(iopt,element,filename)
 	implicit none
@@ -15,10 +15,10 @@ c
 
 c
 	character*255 elem_fname
-	integer lef,unitrc
+	integer lef,unitrc,library_type
 	logical isopen
 c
-	call nwpw_libfile(iopt,elem_fname,element)
+	call nwpw_libfile(iopt,elem_fname,element,library_type)
 	lef=inp_strlen(elem_fname)
 c
 c       open the library file
@@ -41,7 +41,7 @@ c
      &        status='new', err=99,
      &        form='formatted',
      &        access='sequential')
-	call nwpw_libparse(unitrc,unitrc+1)
+	call nwpw_libparse(library_type,unitrc,unitrc+1)
 	close(unitrc)
 	close(unitrc+1)
 
@@ -87,11 +87,12 @@ c
 	return
 	end
 
-	subroutine nwpw_libparse(u_library,u_psp_inp)
+	subroutine nwpw_libparse(library_type,u_library,u_psp_inp)
 	implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "nwpw_inp.fh"
+        integer library_type
 	integer u_library,u_psp_inp
 	character*1024 line
 	character*12 keyread
@@ -107,6 +108,13 @@ c
 	locp_read=-1
 	rlocal_read=1.d0
         psp_type=0
+
+        if      (library_type.eq.2) then
+          psp_type = 2
+        else if (library_type.eq.3) then
+          psp_type = 3
+        end if
+
  1	continue
 	read(u_library,'(A)',end=2001,err=2002) line
 	l_lgth=inp_strlen(line)

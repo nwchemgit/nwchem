@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.12 2004-10-14 22:57:56 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.13 2004-12-20 05:18:57 bylaska Exp $
 *
 
 *
@@ -10,7 +10,7 @@
 c the string pspw_default is appended by default for pspw
 c the string paw_default is appended by default for paw
 c
-      subroutine nwpw_libfile(flag,filename,element)
+      subroutine nwpw_libfile(flag,filename,element,library_type)
       implicit none
 
 #include "inp.fh"
@@ -18,10 +18,13 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "mafdecls.fh"
+
 
       integer       flag
       character*(*) filename !RESULT
       character*(*) element
+      integer       library_type
 c
       character*255 libname,rtdb_name,library,library_name
       external util_find_dir
@@ -81,6 +84,7 @@ c
 *     **** library for paw ****
       if (flag.eq.2) then
 
+        library_type = 0
         rtdb = control_rtdb()
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
@@ -115,12 +119,30 @@ c     >   //'_basis'
         if (.not.rtdb_cget(rtdb,rtdb_name,1,library_name))
      >    library_name = 'pspw_default'
 
-        ind = index(library_name,' ')  -1
-        library = library_name(1:ind)//'/'
-        ind = index(library,' ')  -1
+        rtdb_name = element(1:l)//':pspw_library_type'
+        if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,library_type))
+     >    library_type = 0
 
-        filename=
-     >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+
+        !*** library directory ***
+        if (library_type.eq.0) then
+          ind = index(library_name,' ')  -1
+          library = library_name(1:ind)//'/'
+          ind = index(library,' ')  -1
+
+          filename=
+     >     libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+
+        !*** cpi filename ***
+        else if (library_type.eq.2) then
+          ind = index(library_name,' ')  -1
+          filename= library_name(1:ind)
+        !*** teter filename ***
+        else if (library_type.eq.3) then
+          ind = index(library_name,' ')  -1
+          filename= library_name(1:ind)
+        end if
+
 
         if (hprint) then
         write(luout,*)

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_set_library.F,v 1.1 2003-12-02 19:50:26 bylaska Exp $
+c $Id: nwpw_set_library.F,v 1.2 2004-12-20 05:18:57 bylaska Exp $
 c
 
       subroutine nwpw_set_library(rtdb)
@@ -14,14 +14,17 @@ c
 
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 3)
+      parameter (num_dirs = 5)
       character*30 dirs(num_dirs)
       data dirs / 'pspw_library',
      >            'library',
-     >            'paw_library' /
+     >            'paw_library',
+     >            'cpi',
+     >            'teter' /
 
       character*4  atom
       character*255 rtdb_name,library_type,library_name
+      integer idum
 
 
  10   if (.not. inp_read())
@@ -48,7 +51,7 @@ c
      >              0,INPUT_ERR)
 c
 c
-      goto ( 20, 20, 30) ind
+      goto ( 20, 20, 30, 40, 50) ind
       call errquit('nwpw_set_library: unimplemented directive', ind,
      &       INPUT_ERR)
 
@@ -61,6 +64,11 @@ c
       ind = index(library_name,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      rtdb_name = atom(1:ind)//':pspw_library_type'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,0))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -76,6 +84,45 @@ c
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
+
+c
+c CPI filename
+c
+  40  ind = index(atom,' ') - 1
+      rtdb_name = atom(1:ind)//':pspw_library'
+      ind = index(library_name,' ') - 1
+      if (.not. rtdb_cput(rtdb,rtdb_name,
+     >                  1,library_name(1:ind)))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      idum = 2
+      ind = index(atom,' ') - 1
+      rtdb_name = atom(1:ind)//':pspw_library_type'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,idum))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+      goto 10
+
+c
+c TETER filename
+c
+  50  ind = index(atom,' ') - 1
+      rtdb_name = atom(1:ind)//':pspw_library'
+      ind = index(library_name,' ') - 1
+      if (.not. rtdb_cput(rtdb,rtdb_name,
+     >                  1,library_name(1:ind)))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      idum = 3
+      ind = index(atom,' ') - 1
+      rtdb_name = atom(1:ind)//':pspw_library_type'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,idum))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+      goto 10
+
 
 
  100  continue
