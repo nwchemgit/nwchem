@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.36 1996-08-19 15:15:15 d3g681 Exp $
+# $Id: makelib.h,v 1.37 1997-02-17 20:31:14 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -203,14 +203,6 @@ subdirs:
         done
 endif
 
-.PHONY:	depend
-depend:	
-ifdef SUBDIRS
-	$(MAKESUBDIRS)
-endif
-	@echo Making depend in `pwd`
-	$(CNFDIR)/depend.x $(LIB_INCLUDES)
-
 
 ifdef HEADERS
 include_stamp:	$(HEADERS)
@@ -285,11 +277,13 @@ endif
 
 
 .PHONY:	realclean
-realclean:	clean
+realclean:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	-$(RM) -f *~ \#*\# makefile.bak $(LIBRARY_PATH)
+	-$(RM) -f *~ \#*\#  makefile.bak $(LIBRARY_PATH)
+	$(MAKE) clean
+	-$(RM) dependencies
 
 
 .PHONY:	src.F
@@ -310,3 +304,18 @@ src.F:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
+
+#
+# If make cannot find the dependencies file it will generate it
+# using this rule.  We also need to make sure that the program
+# that makes the dependencies has been built.
+#
+$(BINDIR)/depend.x:	
+	( cd $(CNFDIR); $(MAKE) $@ ; )
+
+dependencies:	$(wildcard *.c) $(wildcard *.F) $(BINDIR)/depend.x
+	$(BINDIR)/depend.x $(LIB_INCLUDES) > dependencies
+
+
+include dependencies
+

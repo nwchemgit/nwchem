@@ -162,6 +162,13 @@ int main(int argc, const char *argv[])
     DIR *dirp;
     struct dirent *ent;
 
+    /* This code used to append dependencies to the makefiles.
+       Now it generates dependencies on STDOUT and does not
+       mess with the makefiles at all.  However, the old stuff
+       is left in here just in case.   To recover the old version
+       recompile with -DAPPENDMAKEFILE */
+
+#ifdef ADDPENDMAKEFILE
     /* Figure out the name of the makefile */
 
     if (access("makefile",R_OK|W_OK) == 0)
@@ -187,6 +194,7 @@ int main(int argc, const char *argv[])
     }
 
     copy_truncate_makefile(backup);
+#endif
 
     /* Extract list of include paths */
 

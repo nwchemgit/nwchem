@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.202 1997-02-15 02:25:29 twclark Exp $
+# $Id: makefile.h,v 1.203 1997-02-17 20:31:13 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -73,36 +73,10 @@ NW_CORE_SUBDIRS = include basis geom global inp input chemio \
 	ma pstat rtdb tcgmsg task symmetry util $(CORE_SUBDIRS_EXTRA)
 endif
 
-# These are the directories required to build the various high-level
-# computational modules for NWChem.  They are built after the core
-# directories.
+# Include the modules to build defined by 'make nwchem_config' at top level
 
-KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
-	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
 
-# These are the libraries for the high-level modules.  They should be
-# specified in an order that will link correctly, but that shouldn't
-# be too hard to come up with.  These should be platform-independent.
-
-KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
-                    -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
-                    -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
-                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
-                    -ldplot -loimp2 -lproperty 
-
-# This include file handles configuration of the NW_MODULE_SUBDIRS and
-# NW_MODULE_LIBS macros for what we actually want to build.  It
-# works from KNOWN_MODULE_SUBDIRS and KNOWN_MODULES_LIBS (keeping the order
-# but removing unneeded elements) and produces the following
-# additional macros:
-#
-# NW_MODULE_SUBDIRS:	List of directories that must be built
-# NW_MODULE_LIBS:	List of libraries to be linked against
-# EXCLUDED_SUBDIRS:	Those directories that were removed from
-# 			KNOWN_MODULE_SUBDIRS to produce NW_MODULE_SUBDIRS
-
-include $(TOPDIR)/src/config/nwchem_config.h
+include $(CNFDIR)/nwchem_config.h
 
 # Finally, we can set the full list of interesting directories, which
 # is what most makefile will care about.
@@ -680,58 +654,58 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -lpfft -lpeigs -llapack -lblas\
-	      -brename:.daxpy_,.daxpy \
-	      -brename:.dcopy_,.dcopy \
-	      -brename:.ddot_,.ddot \
-	      -brename:.dgemm_,.dgemm \
-	      -brename:.dgemv_,.dgemv \
-	      -brename:.dgesv_,.dgesv \
-	      -brename:.dgetrf_,.dgetrf \
-	      -brename:.dgetrs_,.dgetrs \
-	      -brename:.dlaset_,.dlaset \
-	      -brename:.dpotrf_,.dpotrf \
-	      -brename:.dpotri_,.dpotri \
-	      -brename:.dscal_,.dscal \
-	      -brename:.dspsvx_,.dspsvx \
-	      -brename:.idamax_,.idamax \
-	      -brename:.dswap_,.dswap \
-	      -brename:.dger_,.dger \
-	      -brename:.dtrsm_,.dtrsm \
-              -brename:.dnrm2_,.dnrm2 \
-              -brename:.dtrmm_,.dtrmm \
-              -brename:.drot_,.drot \
-              -brename:.dasum_,.dasum \
-              -brename:.dtrmv_,.dtrmv \
-              -brename:.dspmv_,.dspmv \
-              -brename:.dspr_,.dspr \
-              -brename:.dsyrk_,.dsyrk \
-              -brename:.dsymm_,.dsymm \
-              -brename:.dsyr2k_,.dsyr2k \
-              -brename:.dsyr2_,.dsyr2 \
-              -brename:.dtrsv_,.dtrsv \
-              -brename:.dsymv_,.dsymv \
-              -brename:.dznrm2_,.dznrm2 \
-              -brename:.zaxpy_,.zaxpy \
-              -brename:.zcopy_,.zcopy \
-              -brename:.zdotc_,.zdotc \
-              -brename:.zdscal_,.zdscal \
-              -brename:.zgemm_,.zgemm \
-              -brename:.zgemv_,.zgemv \
-              -brename:.zgerc_,.zgerc \
-              -brename:.zhemm_,.zhemm \
-              -brename:.zhemv_,.zhemv \
-              -brename:.zher2_,.zher2 \
-              -brename:.zher2k_,.zher2k \
-              -brename:.zherk_,.zherk \
-              -brename:.zscal_,.zscal \
-              -brename:.zswap_,.zswap \
-              -brename:.ztrmm_,.ztrmm \
-              -brename:.ztrmv_,.ztrmv \
-              -brename:.ztrsm_,.ztrsm \
-              -brename:.ztrsv_,.ztrsv 
-# times should no longer ever be needed
-#              -brename:.times_,.times
+       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas
+#	      -brename:.daxpy_,.daxpy \
+#	      -brename:.dcopy_,.dcopy \
+#	      -brename:.ddot_,.ddot \
+#	      -brename:.dgemm_,.dgemm \
+#	      -brename:.dgemv_,.dgemv \
+#	      -brename:.dgesv_,.dgesv \
+#	      -brename:.dgetrf_,.dgetrf \
+#	      -brename:.dgetrs_,.dgetrs \
+#	      -brename:.dlaset_,.dlaset \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dpotri_,.dpotri \
+#	      -brename:.dscal_,.dscal \
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.idamax_,.idamax \
+#	      -brename:.dswap_,.dswap \
+#	      -brename:.dger_,.dger \
+#	      -brename:.dtrsm_,.dtrsm \
+#              -brename:.dnrm2_,.dnrm2 \
+#              -brename:.dtrmm_,.dtrmm \
+#              -brename:.drot_,.drot \
+#              -brename:.dasum_,.dasum \
+#              -brename:.dtrmv_,.dtrmv \
+#              -brename:.dspmv_,.dspmv \
+#              -brename:.dspr_,.dspr \
+#              -brename:.dsyrk_,.dsyrk \
+#              -brename:.dsymm_,.dsymm \
+#              -brename:.dsyr2k_,.dsyr2k \
+#              -brename:.dsyr2_,.dsyr2 \
+#              -brename:.dtrsv_,.dtrsv \
+#              -brename:.dsymv_,.dsymv \
+#              -brename:.dznrm2_,.dznrm2 \
+#              -brename:.zaxpy_,.zaxpy \
+#              -brename:.zcopy_,.zcopy \
+#              -brename:.zdotc_,.zdotc \
+#              -brename:.zdscal_,.zdscal \
+#              -brename:.zgemm_,.zgemm \
+#              -brename:.zgemv_,.zgemv \
+#              -brename:.zgerc_,.zgerc \
+#              -brename:.zhemm_,.zhemm \
+#              -brename:.zhemv_,.zhemv \
+#              -brename:.zher2_,.zher2 \
+#              -brename:.zher2k_,.zher2k \
+#              -brename:.zherk_,.zherk \
+#              -brename:.zscal_,.zscal \
+#              -brename:.zswap_,.zswap \
+#              -brename:.ztrmm_,.ztrmm \
+#              -brename:.ztrmv_,.ztrmv \
+#              -brename:.ztrsm_,.ztrsm \
+#              -brename:.ztrsv_,.ztrsv 
+## times should no longer ever be needed
+##              -brename:.times_,.times
 #comment out from dtrmm_ inclusive
 ifdef USE_ESSL
        CORE_LIBS += -lessl

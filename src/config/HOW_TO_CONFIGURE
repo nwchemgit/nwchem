@@ -70,9 +70,7 @@ treatment.
 		information to all makefiles (included by
 		src/config/makefile.h)
 The files listed above are all generated automatically when the code
-is reconfigured.  YOU SHOULD NOT NORMALLY NEED TO EDIT THESE FILES.
-YOU SHOULD NOT NORMALLY CHECK THEM INTO THE REPOSITORY -- the proper
-defaults are already checked in!
+is reconfigured.  NEVER CHECK THESE FILES IN.
 
 For those curious about how it all works, the main player is
 src/config/make_nwchem_config, a makefile which is used a

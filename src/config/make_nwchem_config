@@ -2,10 +2,6 @@
 # makefile.h, the src/stubs.f file, and the NWCHEM_CONFIG file which says
 # how things are configured in human-readable form.
 #
-# Inputs to this makefile are:
-#	Complete KNOWN_MODULES_SUBDIRS and KNOWN_MODULE_LIBS, normally
-#	obtained by including makefile.h.
-#
 #	NWCHEM_MODULES	normally set by the invoker of this makefile.
 # These should be used eventually, but they don't work as we would
 # want them to now -- NWCHEM_TOP has to be set for makefile.h to
@@ -13,9 +9,44 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.55 1997-02-12 17:40:25 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.56 1997-02-17 20:31:12 d3g681 Exp $
 #-----------------------------------------------------------------------------
-include makefile.h
+# These are the directories required to build the various high-level
+# computational modules for NWChem.  They are built after the core
+# directories.
+
+KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
+	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos \
+	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss
+
+# These are the libraries for the high-level modules.  They should be
+# specified in an order that will link correctly, but that shouldn't
+# be too hard to come up with.  These should be platform-independent.
+
+KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
+                    -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
+                    -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
+                    -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos \
+                    -ldplot -loimp2 -lproperty 
+
+# This include file handles configuration of the NW_MODULE_SUBDIRS and
+# NW_MODULE_LIBS macros for what we actually want to build.  It
+# works from KNOWN_MODULE_SUBDIRS and KNOWN_MODULES_LIBS (keeping the order
+# but removing unneeded elements) and produces the following
+# additional macros:
+#
+# NW_MODULE_SUBDIRS:	List of directories that must be built
+# NW_MODULE_LIBS:	List of libraries to be linked against
+# EXCLUDED_SUBDIRS:	Those directories that were removed from
+# 			KNOWN_MODULE_SUBDIRS to produce NW_MODULE_SUBDIRS
+
+ifndef NWCHEM_TOP
+error1:
+	@echo You must define NWCHEM_TOP in your environment to be the path
+	@echo of the top level nwchem directory ... something like
+	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
+	@exit 1
+endif
 
 # Set a default here in case the caller doesn't
 
@@ -29,7 +60,7 @@ EXPANSIONS = all qm md qmmd argos
 
 EXP_all = $(filter-out gapss oimp2 ideaz scfaux plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
-          stepper ccsd vib mcscf property dftgrad selci dplot mp2_grad
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad
 EXP_ver2 = nwaprep nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver
 #plane_wave ... broken? RJH
