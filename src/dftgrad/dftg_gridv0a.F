@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.22 2003-10-17 22:54:42 carlfahl Exp $
+c     $Id: dftg_gridv0a.F,v 1.23 2003-10-23 19:48:38 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -158,7 +158,7 @@ c
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
      &     call errquit('dftg_gridv0a: cannot allocate docset',
-     ,     ncontrset)
+     ,     ncontrset,0)
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
      &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0,

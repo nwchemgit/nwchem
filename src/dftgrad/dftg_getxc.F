@@ -1,10 +1,9 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.36 2003-10-21 18:04:58 edo Exp $
+* $Id: dftg_getxc.F,v 1.37 2003-10-23 19:48:38 edo Exp $
 *
       implicit none
-#include "errquit.fh"
 c      
 c     compute XC component of energy gradient.  
 c
@@ -28,6 +27,7 @@ c
 #include "sym.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "errquit.fh"
 c!!! BGJ test !!!
 #include "bgj.fh"
 c!!! BGJ test !!!

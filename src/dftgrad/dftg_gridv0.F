@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.18 2003-10-21 18:04:58 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.19 2003-10-23 19:48:38 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.18 2003-10-21 18:04:58 edo Exp $
+c $Id: dftg_gridv0.F,v 1.19 2003-10-23 19:48:38 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -278,7 +278,8 @@ c      nelem_tau=3*npol*n_per_rec
      &       MA_ERR)
 
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'Mmat',lmmat,immat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',0,13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',
+     &   13, MA_ERR)
 
 
 
@@ -466,7 +467,7 @@ c
      &                   rdens_atom,  cetobfr,
      &                    dbl_mb(itau), dbl_mb(immat) )
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
-     .     errquit(' dftggridv0: xcrepclose failed ',0)
+     .     errquit(' dftggridv0: xcrepclose failed ',0, 0)
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
       if (do_hess .or. do_cpks_r) then
