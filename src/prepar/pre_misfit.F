@@ -1,7 +1,7 @@
       logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
-     + idsb,cdsb,msb,nsb,grid,mgrid,gdist)
+     + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist)
 c
-c $Id: pre_misfit.F,v 1.4 1998-08-07 19:23:14 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.5 1998-08-24 17:28:11 d3j191 Exp $
 c
       implicit none
 c

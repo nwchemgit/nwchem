@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.17 1998-08-18 19:21:54 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.18 1998-08-24 17:28:13 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -91,24 +91,24 @@ c                  3       : number of bonds to this atom
 c                  4       : atom center type
 c                  5       : link number
 c
-      if(.not.ma_push_get(mt_int,5*matm,"latm",l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,5*matm,'latm',l_latm,i_latm))
      + call errquit('Memory allocation failed for latm',9999)
 c
 c     char*6  catm(1,matm) : atom name on pdb
 c                  2       : atom name on top
 c                  3       : atom type
 c
-      if(.not.ma_push_get(mt_byte,18*matm,"catm",l_catm,i_catm))
+      if(.not.ma_push_get(mt_byte,18*matm,'catm',l_catm,i_catm))
      + call errquit('Memory allocation failed for catm',9999)
 c
 c     real*8  xatm(1:3,matm) : atomic coordinates in nm
 c
-      if(.not.ma_push_get(mt_dbl,3*matm,"xatm",l_xatm,i_xatm))
+      if(.not.ma_push_get(mt_dbl,3*matm,'xatm',l_xatm,i_xatm))
      + call errquit('Memory allocation failed for xatm',9999)
 c
 c     real*8 qatm(matm) : partial atomic charges
 c
-      if(.not.ma_push_get(mt_dbl,matm,"qatm",l_qatm,i_qatm))
+      if(.not.ma_push_get(mt_dbl,matm,'qatm',l_qatm,i_qatm))
      + call errquit('Memory allocation failed for qatm',9999)
 c
 c     allocate memory for secondary segment links
@@ -117,7 +117,7 @@ c
 c     integer lssb(1,mssb) : link segment 1
 c                  2       : link segment 2
 c
-      if(.not.ma_push_get(mt_int,2*mssb,"lssb",l_lssb,i_lssb))
+      if(.not.ma_push_get(mt_int,2*mssb,'lssb',l_lssb,i_lssb))
      + call errquit('Memory allocation failed for lssb',9999)
 c
 c     integer llnk(1,mlnk) : link segment 1
@@ -127,9 +127,9 @@ c                  4       : link segment 2 global atom number
 c     char*4  clnk(1,mlnk) : link segment 1 atom name
 c                  2       : link segment 2 atom name
 c
-      if(.not.ma_push_get(mt_int,4*mlnk,"llnk",l_llnk,i_llnk))
+      if(.not.ma_push_get(mt_int,4*mlnk,'llnk',l_llnk,i_llnk))
      + call errquit('Memory allocation failed for llnk',9999)
-      if(.not.ma_push_get(mt_byte,8*mlnk,"clnk",l_clnk,i_clnk))
+      if(.not.ma_push_get(mt_byte,8*mlnk,'clnk',l_clnk,i_clnk))
      + call errquit('Memory allocation failed for clnk',9999)
 c
 c     allocate memory for sequence
@@ -140,13 +140,13 @@ c                  2       : index into unique segment list
 c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
-      if(.not.ma_push_get(mt_int,4*mseq,"lseq",l_lseq,i_lseq))
+      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
      + call errquit('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
 c                  2       : name of sequence entry on top
 c
-      if(.not.ma_push_get(mt_byte,10*mseq,"cseq",l_cseq,i_cseq))
+      if(.not.ma_push_get(mt_byte,10*mseq,'cseq',l_cseq,i_cseq))
      + call errquit('Memory allocation failed for cseq',9999)
 c
 c
@@ -202,13 +202,13 @@ c                  2       : index into unique segment list
 c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
-c      if(.not.ma_push_get(mt_int,4*mseq,"lseq",l_lseq,i_lseq))
+c      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
 c     + call errquit('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
 c                  2       : name of sequence entry on top
 c
-c      if(.not.ma_push_get(mt_byte,10*mseq,"cseq",l_cseq,i_cseq))
+c      if(.not.ma_push_get(mt_byte,10*mseq,'cseq',l_cseq,i_cseq))
 c     + call errquit('Memory allocation failed for cseq',9999)
 c
 c     check segment links
@@ -253,12 +253,12 @@ c     integer lsgm(1,msgm) : number of segments of this type
 c                  2       : source, 0,1,2,3,4=?,s,x,u,t
 c                  3       : number of atoms in segment
 c
-      if(.not.ma_push_get(mt_int,3*msgm,"lsgm",l_lsgm,i_lsgm))
+      if(.not.ma_push_get(mt_int,3*msgm,'lsgm',l_lsgm,i_lsgm))
      + call errquit('Memory allocation failed for lsgm',9999)
 c
 c     char*5  csgm(msgm)   : segment names
 c
-      if(.not.ma_push_get(mt_byte,5*msgm,"csgm",l_csgm,i_csgm))
+      if(.not.ma_push_get(mt_byte,5*msgm,'csgm',l_csgm,i_csgm))
      + call errquit('Memory allocation failed for csgm',9999)
 c
 c     scan the database directories for segment files
@@ -281,22 +281,22 @@ c     ------------------------------------
 c
 c     integer lbnd(1:2,mbnd) : bond indices
 c
-      if(.not.ma_push_get(mt_int,2*mbnd,"bnd",l_bnd,i_bnd))
+      if(.not.ma_push_get(mt_int,2*mbnd,'bnd',l_bnd,i_bnd))
      + call errquit('mkseq: Memory allocation failed for bnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
 c
-      if(.not.ma_push_get(mt_int,3*mang,"ang",l_ang,i_ang))
+      if(.not.ma_push_get(mt_int,3*mang,'ang',l_ang,i_ang))
      + call errquit('mkseq: Memory allocation failed for ang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c
-      if(.not.ma_push_get(mt_int,4*mdih,"dih",l_dih,i_dih))
+      if(.not.ma_push_get(mt_int,4*mdih,'dih',l_dih,i_dih))
      + call errquit('mkseq: Memory allocation failed for dih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c
-      if(.not.ma_push_get(mt_int,4*mimp,"imp",l_imp,i_imp))
+      if(.not.ma_push_get(mt_int,4*mimp,'imp',l_imp,i_imp))
      + call errquit('mkseq: Memory allocation failed for imp',9999)
 c
 c     generate fragment files for missing segments in dir_t

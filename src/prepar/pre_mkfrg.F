@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.17 1998-08-18 16:45:46 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.18 1998-08-24 17:28:12 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -175,7 +175,7 @@ c     memory allocation for work array ltyp
 c     -------------------------------------
 c
       mtyp=jhi-jlo+1
-      if(.not.ma_push_get(mt_int,15*mtyp,"ltyp",l_ltyp,i_ltyp))
+      if(.not.ma_push_get(mt_int,15*mtyp,'ltyp',l_ltyp,i_ltyp))
      + call errquit('Memory allocation failed for ltyp',9999)
 c
 c     determine atom types

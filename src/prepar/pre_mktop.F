@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.10 1998-06-24 20:06:37 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.11 1998-08-24 17:28:15 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -95,13 +95,13 @@ c                  2       : link type
 c                  3       : index of first atom of sequence entry
 c                  4       : molecule number
 c
-      if(.not.ma_push_get(mt_int,4*mseq,"lseq",l_lseq,i_lseq))
+      if(.not.ma_push_get(mt_int,4*mseq,'lseq',l_lseq,i_lseq))
      + call errquit('Memory allocation failed for lseq',9999)
 c
 c     char*5  cseq(1,mseq) : name of sequence entry on pdb
 c                  2       : name of sequence entry on top
 c
-      if(.not.ma_push_get(mt_byte,10*mseq,"cseq",l_cseq,i_cseq))
+      if(.not.ma_push_get(mt_byte,10*mseq,'cseq',l_cseq,i_cseq))
      + call errquit('Memory allocation failed for cseq',9999)
 c
 c     allocate memory for link list
@@ -112,9 +112,9 @@ c                  2       : link segment 2
 c     char*4  clnk(1,mlnk) : link segment 1 atom name
 c                  2       : link segment 2 atom name
 c
-      if(.not.ma_push_get(mt_int,2*mlnk,"llnk",l_llnk,i_llnk))
+      if(.not.ma_push_get(mt_int,2*mlnk,'llnk',l_llnk,i_llnk))
      + call errquit('Memory allocation failed for llnk',9999)
-      if(.not.ma_push_get(mt_byte,8*mlnk,"clnk",l_clnk,i_clnk))
+      if(.not.ma_push_get(mt_byte,8*mlnk,'clnk',l_clnk,i_clnk))
      + call errquit('Memory allocation failed for clnk',9999)
 c
 c     read the sequence file
@@ -189,9 +189,9 @@ c                  2       : atom type set 1
 c                  3       : atom type set 2
 c                  4       : atom type set 3
 c
-      if(.not.ma_push_get(mt_int,8*matm,"latm",l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,8*matm,'latm',l_latm,i_latm))
      + call errquit('Memory allocation failed for latm',9999)
-      if(.not.ma_push_get(mt_byte,24*matm,"catm",l_catm,i_catm))
+      if(.not.ma_push_get(mt_byte,24*matm,'catm',l_catm,i_catm))
      + call errquit('Memory allocation failed for catm',9999)
 c
 c     real*8 qatm(1,matm) : partial atomic charges set 1
@@ -201,7 +201,7 @@ c                 4       : polarizability set 2
 c                 5       : partial atomic charges set 3
 c                 6       : polarizability set 3
 c
-      if(.not.ma_push_get(mt_dbl,6*matm,"qatm",l_qatm,i_qatm))
+      if(.not.ma_push_get(mt_dbl,6*matm,'qatm',l_qatm,i_qatm))
      + call errquit('Memory allocation failed for qatm',9999)
 c
 c     allocate memory for bonded lists
@@ -217,9 +217,9 @@ c                  4         : force constant set 2
 c                  5         : bond length set 3
 c                  6         : force constant set 3
 c
-      if(.not.ma_push_get(mt_int,4*mbnd,"lbnd",l_lbnd,i_lbnd))
+      if(.not.ma_push_get(mt_int,4*mbnd,'lbnd',l_lbnd,i_lbnd))
      + call errquit('Memory allocation failed for lbnd',9999)
-      if(.not.ma_push_get(mt_dbl,6*mbnd,"rbnd",l_rbnd,i_rbnd))
+      if(.not.ma_push_get(mt_dbl,6*mbnd,'rbnd',l_rbnd,i_rbnd))
      + call errquit('Memory allocation failed for rbnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
@@ -232,9 +232,9 @@ c                  4         : force constant set 2
 c                  5         : angle set 3
 c                  6         : force constant set 3
 c
-      if(.not.ma_push_get(mt_int,5*mang,"lang",l_lang,i_lang))
+      if(.not.ma_push_get(mt_int,5*mang,'lang',l_lang,i_lang))
      + call errquit('Memory allocation failed for lang',9999)
-      if(.not.ma_push_get(mt_dbl,6*mang,"rang",l_rang,i_rang))
+      if(.not.ma_push_get(mt_dbl,6*mang,'rang',l_rang,i_rang))
      + call errquit('Memory allocation failed for rang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
@@ -255,11 +255,11 @@ c                    4       : force constant set 2
 c                    5       : pahse angle set 3
 c                    6       : force constant set 3 
 c
-      if(.not.ma_push_get(mt_int,9*mdih,"ldih",l_ldih,i_ldih))
+      if(.not.ma_push_get(mt_int,9*mdih,'ldih',l_ldih,i_ldih))
      + call errquit('Memory allocation failed for ldih',9999)
-      if(.not.ma_push_get(mt_int,18*mdih,"kdih",l_kdih,i_kdih))
+      if(.not.ma_push_get(mt_int,18*mdih,'kdih',l_kdih,i_kdih))
      + call errquit('Memory allocation failed for ldih',9999)
-      if(.not.ma_push_get(mt_dbl,36*mdih,"rdih",l_rdih,i_rdih))
+      if(.not.ma_push_get(mt_dbl,36*mdih,'rdih',l_rdih,i_rdih))
      + call errquit('Memory allocation failed for rdih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
@@ -276,9 +276,9 @@ c                  4         : force constant set 2
 c                  5         : pahse angle set 3
 c                  6         : force constant set 3
 c
-      if(.not.ma_push_get(mt_int,9*mimp,"limp",l_limp,i_limp))
+      if(.not.ma_push_get(mt_int,9*mimp,'limp',l_limp,i_limp))
      + call errquit('Memory allocation failed for limp',9999)
-      if(.not.ma_push_get(mt_dbl,6*mimp,"rimp",l_rimp,i_rimp))
+      if(.not.ma_push_get(mt_dbl,6*mimp,'rimp',l_rimp,i_rimp))
      + call errquit('Memory allocation failed for rimp',9999)
 c
 c     generate the atomic and bonded lists
@@ -293,7 +293,7 @@ c
 c     allocate memory for link matrix
 c     -------------------------------
 c
-      if(.not.ma_push_get(mt_int,10*mseq,"lmat",l_lmat,i_lmat))
+      if(.not.ma_push_get(mt_int,10*mseq,'lmat',l_lmat,i_lmat))
      + call errquit('Memory allocation failed for lmat',9999)
 c
       if(.not.pre_mklist(lfnout,lfnsgm,
@@ -341,15 +341,15 @@ c
 c     allocate memory for atom type lists
 c     -----------------------------------
 c
-      if(.not.ma_push_get(mt_int,3*matt,"latt",l_latt,i_latt))
+      if(.not.ma_push_get(mt_int,3*matt,'latt',l_latt,i_latt))
      + call errquit('Memory allocation failed for latt',9999)
-      if(.not.ma_push_get(mt_int,3*matt,"lats",l_lats,i_lats))
+      if(.not.ma_push_get(mt_int,3*matt,'lats',l_lats,i_lats))
      + call errquit('Memory allocation failed for lats',9999)
-      if(.not.ma_push_get(mt_byte,36*matt,"catt",l_catt,i_catt))
+      if(.not.ma_push_get(mt_byte,36*matt,'catt',l_catt,i_catt))
      + call errquit('Memory allocation failed for catt',9999)
-      if(.not.ma_push_get(mt_dbl,12*matt*matt,"patt",l_patt,i_patt))
+      if(.not.ma_push_get(mt_dbl,12*matt*matt,'patt',l_patt,i_patt))
      + call errquit('Memory allocation failed for patt',9999)
-      if(.not.ma_push_get(mt_dbl,3*matt,"ratt",l_ratt,i_ratt))
+      if(.not.ma_push_get(mt_dbl,3*matt,'ratt',l_ratt,i_ratt))
      + call errquit('Memory allocation failed for ratt',9999)
 c
 c     substitute force field parameters
@@ -376,7 +376,7 @@ c     ---------------------------------------
 c
       m3rd=6*mang
       n3rd=0
-      if(.not.ma_push_get(mt_int,2*m3rd,"l3rd",l_l3rd,i_l3rd))
+      if(.not.ma_push_get(mt_int,2*m3rd,'l3rd',l_l3rd,i_l3rd))
      + call errquit('Memory allocation failed for l3rd',9999)
 c
 c     construct third neighbor list
@@ -403,7 +403,7 @@ c     --------------------------------------
 c
       mexc=n3rd+nbnd+nang
       nexc=0
-      if(.not.ma_push_get(mt_int,2*mexc,"lexc",l_lexc,i_lexc))
+      if(.not.ma_push_get(mt_int,2*mexc,'lexc',l_lexc,i_lexc))
      + call errquit('Memory allocation failed for lexc',9999)
 c
 c     construct excluded pair list
@@ -423,7 +423,7 @@ c     -------------------------------------------
 c
       mnon=(natmt-natm)*(natmt-natm)
       nnon=0
-      if(.not.ma_push_get(mt_int,mnon,"lnon",l_lnon,i_lnon))
+      if(.not.ma_push_get(mt_int,mnon,'lnon',l_lnon,i_lnon))
      + call errquit('Memory allocation failed for lnon',9999)
 c
 c     construct solvent non-bonded list

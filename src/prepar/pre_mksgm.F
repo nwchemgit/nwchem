@@ -1,7 +1,7 @@
       logical function pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.8 1998-08-18 16:45:47 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.9 1998-08-24 17:28:14 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -62,39 +62,39 @@ c                  3       :
 c                  4       :
 c                  5       :
 c
-      if(.not.ma_push_get(mt_int,5*matm,"latm",l_latm,i_latm))
+      if(.not.ma_push_get(mt_int,5*matm,'latm',l_latm,i_latm))
      + call errquit('mksgm: Memory allocation failed for latm',9999)
 c
 c     char*6  catm(1,matm) : atom name
 c                  2       : atom type
 c
-      if(.not.ma_push_get(mt_byte,12*matm,"catm",l_catm,i_catm))
+      if(.not.ma_push_get(mt_byte,12*matm,'catm',l_catm,i_catm))
      + call errquit('mksgm: Memory allocation failed for catm',9999)
 c
 c     real*8 qatm(1,matm) : partial atomic charges
 c                 2       : polarizabilities
 c
-      if(.not.ma_push_get(mt_dbl,2*matm,"qatm",l_qatm,i_qatm))
+      if(.not.ma_push_get(mt_dbl,2*matm,'qatm',l_qatm,i_qatm))
      + call errquit('mksgm: Memory allocation failed for qatm',9999)
 c
 c     integer lbnd(1:2,mbnd) : bond indices
 c
-      if(.not.ma_push_get(mt_int,2*mbnd,"bnd",l_bnd,i_bnd))
+      if(.not.ma_push_get(mt_int,2*mbnd,'bnd',l_bnd,i_bnd))
      + call errquit('mksgm: Memory allocation failed for bnd',9999)
 c
 c     integer lang(1:3,mang) : angle indices
 c
-      if(.not.ma_push_get(mt_int,3*mang,"ang",l_ang,i_ang))
+      if(.not.ma_push_get(mt_int,3*mang,'ang',l_ang,i_ang))
      + call errquit('mksgm: Memory allocation failed for ang',9999)
 c
 c     integer ldih(1:4,mdih) : torsion indices
 c
-      if(.not.ma_push_get(mt_int,4*mdih,"dih",l_dih,i_dih))
+      if(.not.ma_push_get(mt_int,4*mdih,'dih',l_dih,i_dih))
      + call errquit('mksgm: Memory allocation failed for dih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
 c
-      if(.not.ma_push_get(mt_int,4*mimp,"imp",l_imp,i_imp))
+      if(.not.ma_push_get(mt_int,4*mimp,'imp',l_imp,i_imp))
      + call errquit('mksgm: Memory allocation failed for imp',9999)
 c
 c     read atom list and bond list from fragment file

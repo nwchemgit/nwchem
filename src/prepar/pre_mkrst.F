@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.18 1998-07-16 01:45:01 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.19 1998-08-24 17:28:13 d3j191 Exp $
 c
       implicit none
 c
@@ -83,35 +83,35 @@ c     integer isfnd(msa)     : solute atom found flags
 c     real*8 qsa(msa)        : solute atom charges
 c     real*8 xs(3,msa)       : solute atom coordinates
 c
-      if(.not.ma_push_get(mt_int,2*mnoe,"inoe",l_inoe,i_inoe))
+      if(.not.ma_push_get(mt_int,2*mnoe,'inoe',l_inoe,i_inoe))
      + call errquit('Memory allocation failed for inoe',9999)
-      if(.not.ma_push_get(mt_dbl,5*mnoe,"dnoe",l_dnoe,i_dnoe))
+      if(.not.ma_push_get(mt_dbl,5*mnoe,'dnoe',l_dnoe,i_dnoe))
      + call errquit('Memory allocation failed for dnoe',9999)
-      if(.not.ma_push_get(mt_int,mat,"anum",l_num,i_num))
+      if(.not.ma_push_get(mt_int,mat,'anum',l_num,i_num))
      + call errquit('Memory allocation failed for anum',9999)
-      if(.not.ma_push_get(mt_dbl,mat,"amass",l_mas,i_mas))
+      if(.not.ma_push_get(mt_dbl,mat,'amass',l_mas,i_mas))
      + call errquit('Memory allocation failed for amass',9999)
-      if(.not.ma_push_get(mt_byte,16*mwa,"cwa",l_cwa,i_cwa))
+      if(.not.ma_push_get(mt_byte,16*mwa,'cwa',l_cwa,i_cwa))
      + call errquit('Memory allocation failed for cwa',9999)
-      if(.not.ma_push_get(mt_byte,16*msa,"csa",l_csa,i_csa))
+      if(.not.ma_push_get(mt_byte,16*msa,'csa',l_csa,i_csa))
      + call errquit('Memory allocation failed for csa',9999)
-      if(.not.ma_push_get(mt_int,msa,"sar",l_sar,i_sar))
+      if(.not.ma_push_get(mt_int,msa,'sar',l_sar,i_sar))
      + call errquit('Memory allocation failed for sar',9999)
-      if(.not.ma_push_get(mt_int,msa,"sat",l_sat,i_sat))
+      if(.not.ma_push_get(mt_int,msa,'sat',l_sat,i_sat))
      + call errquit('Memory allocation failed for sat',9999)
-      if(.not.ma_push_get(mt_int,msa,"sgm",l_sgm,i_sgm))
+      if(.not.ma_push_get(mt_int,msa,'sgm',l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
-      if(.not.ma_push_get(mt_int,msa,"sfnd",l_sfnd,i_sfnd))
+      if(.not.ma_push_get(mt_int,msa,'sfnd',l_sfnd,i_sfnd))
      + call errquit('Memory allocation failed for sfnd',9999)
-      if(.not.ma_push_get(mt_dbl,msa,"qsa",l_qsa,i_qsa))
+      if(.not.ma_push_get(mt_dbl,msa,'qsa',l_qsa,i_qsa))
      + call errquit('Memory allocation failed for qsa',9999)
-      if(.not.ma_push_get(mt_dbl,3*msa,"xs",l_xs,i_xs))
+      if(.not.ma_push_get(mt_dbl,3*msa,'xs',l_xs,i_xs))
      + call errquit('Memory allocation failed for xs',9999)
-      if(.not.ma_push_get(mt_dbl,3*msa,"vs",l_vs,i_vs))
+      if(.not.ma_push_get(mt_dbl,3*msa,'vs',l_vs,i_vs))
      + call errquit('Memory allocation failed for xs',9999)
-      if(.not.ma_push_get(mt_int,2*msb,"idsb",l_isb,i_isb))
+      if(.not.ma_push_get(mt_int,2*msb,'idsb',l_isb,i_isb))
      + call errquit('Memory allocation failed for idsb',9999)
-      if(.not.ma_push_get(mt_dbl,msb,"cdsb",l_csb,i_csb))
+      if(.not.ma_push_get(mt_dbl,msb,'cdsb',l_csb,i_csb))
      + call errquit('Memory allocation failed for cdsb',9999)
 c
       lslvnt=.false.
@@ -133,24 +133,24 @@ c
       if(.not.lcryst) then
       nwmc=0
       mwmc=1
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
      + call errquit('ma_alloc_get failed for xwc',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
      + call errquit('ma_alloc_get failed for vwc',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
      + call errquit('ma_alloc_get failed for wfnd',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
       endif
       if(.not.lsolva) then
       nwm=0
       mwm=1
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'xw',l_xw,i_xw))
      + call errquit('ma_alloc_get failed for xw',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'vw',l_vw,i_vw))
      + call errquit('ma_alloc_get failed for vw',9999)
-      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+      if(.not.ma_alloc_get(mt_int,mwm,'iwmr',l_iwmr,i_iwmr))
      + call errquit('ma_alloc_get failed for iwmr',9999)
       lsolva=.true.
       endif
@@ -221,13 +221,13 @@ c
       endif
       mwmc=nwmc
       if(nwmc.eq.0) mwmc=1
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
      + call errquit('ma_alloc_get failed for xwc',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
      + call errquit('ma_alloc_get failed for vwc',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
      + call errquit('ma_alloc_get failed for wfnd',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
 c
@@ -245,7 +245,7 @@ c
  1006 format(' PDB file',t40,a,/)
       endif
       if(nmis.gt.0) then
-      if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,"grid",l_grid,
+      if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
      + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
@@ -356,9 +356,9 @@ c
 c     allocate memory for solvent coordinates and velocities
 c     ------------------------------------------------------
 c
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,"xslv",l_xslv,i_xslv))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,'xslv',l_xslv,i_xslv))
      + call errquit('ma_alloc_get failed for xslv',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,"vslv",l_vslv,i_vslv))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,'vslv',l_vslv,i_vslv))
      + call errquit('ma_alloc_get failed for vslv',9999)
 c
 c     read solvent coordinates and velocities
@@ -423,11 +423,11 @@ c
       lsolva=.false.
       endif
       mwm=nnwm
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'xw',l_xw,i_xw))
      + call errquit('ma_alloc_get failed for xw',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'vw',l_vw,i_vw))
      + call errquit('ma_alloc_get failed for vw',9999)
-      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+      if(.not.ma_alloc_get(mt_int,mwm,'iwmr',l_iwmr,i_iwmr))
      + call errquit('ma_alloc_get failed for iwmr',9999)
       lsolva=.true.
       endif
@@ -517,13 +517,13 @@ c
       lcryst=.false.
       endif
       mwmc=nwmc
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
      + call errquit('ma_alloc_get failed for xwc',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
      + call errquit('ma_alloc_get failed for vwc',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
      + call errquit('ma_alloc_get failed for wfnd',9999)
-      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
      + call errquit('ma_alloc_get failed for wcmr',9999)
       lcryst=.true.
       endif
@@ -672,11 +672,11 @@ c
 c     allocate memory for system solvent
 c     ----------------------------------
 c
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'xw',l_xw,i_xw))
      + call errquit('ma_alloc_get failed for xw',9999)
-      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,'vw',l_vw,i_vw))
      + call errquit('ma_alloc_get failed for vw',9999)
-      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+      if(.not.ma_alloc_get(mt_int,mwm,'iwmr',l_iwmr,i_iwmr))
      + call errquit('ma_alloc_get failed for iwmr',9999)
       lsolva=.true.
 c

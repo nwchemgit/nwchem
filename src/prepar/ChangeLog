@@ -76,3 +76,5 @@ Aug 18 1998	 Repair memory leak in pre_charge
 		 Initialization bug fix in pre_mklist
 		 Destroy geometry object when no longer needed in pre_mkseq
 Aug 24 1998	 Add OH charge separation
+		 Resolve varying number arguments
+		 Single quote strings
