@@ -21,6 +21,7 @@ c
  10   do i = center, lent
          title(i-center+1:i-center+1) = title(i:i)
       enddo
+      title(lent-center+2:) = ' '
 c     
 c     Write out centered and underlined title
 c
