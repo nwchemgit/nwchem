@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.155 1996-06-07 00:16:10 rg240 Exp $
+# $Id: makefile.h,v 1.156 1996-06-27 21:50:24 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -424,6 +424,9 @@ ifeq ($(TARGET),SGITFP)
 #     ... could benefit from -Wk on FOPTIMIZE ... actually have it on now.
 #     ... roundoff/ieee only modify pipelining which happens only at O3
 #
+# TPS 96/06/27:
+# Added -lutil to core libraries (again!)
+#
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
@@ -439,7 +442,7 @@ FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  COPTIMIZE = -O
 
     DEFINES = -DSGI -DSGITFP -DLongInteger
-  CORE_LIBS = -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lglobal -llapack -lblas
 endif
 
 
