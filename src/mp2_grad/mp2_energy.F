@@ -14,14 +14,25 @@
       character*8 task
       integer num_oa_sym(0:7),num_va_sym(0:7)    
       integer num_ob_sym(0:7),num_vb_sym(0:7)
-      integer sym_lo_oa(0:7)    ! [output] First MO in each sym
-      integer sym_hi_oa(0:7)    ! [output] Last MO in each sym
+      integer sym_lo_oa(0:7)    ! First MO in each sym
+      integer sym_hi_oa(0:7)    ! Last MO in each sym
       integer sym_lo_va(0:7)
       integer sym_hi_va(0:7)
-      integer sym_lo_ob(0:7)    ! [output] First MO in each sym
-      integer sym_hi_ob(0:7)    ! [output] Last MO in each sym
+      integer sym_lo_ob(0:7)    ! First MO in each sym
+      integer sym_hi_ob(0:7)    ! Last MO in each sym
       integer sym_lo_vb(0:7)
       integer sym_hi_vb(0:7)
+c
+      integer num_foa_sym(0:7),num_fva_sym(0:7) ! Ditto for frozen
+      integer num_fob_sym(0:7),num_fvb_sym(0:7) 
+      integer sym_lo_foa(0:7)
+      integer sym_hi_foa(0:7)
+      integer sym_lo_fva(0:7)
+      integer sym_hi_fva(0:7)
+      integer sym_lo_fob(0:7)
+      integer sym_hi_fob(0:7)
+      integer sym_lo_fvb(0:7)
+      integer sym_hi_fvb(0:7)
       integer nmixed
       integer rtdb,basis,geom
       integer g_vecs_a,g_vecs_b
@@ -32,14 +43,14 @@
       integer l_eval_a,k_eval_a,k_eval_b
       integer noa_frozen,nva_frozen,nob_frozen,nvb_frozen
       integer noa_lo,noa_hi,nob_lo,nob_hi,nva_lo,nva_hi,nvb_lo,nvb_hi
-      integer noa_correl,nob_correl
+      integer noa_active,nob_active,nva_active,nvb_active
       integer k_irs_a,k_irs_b,l_irs_a,l_irs_b
       integer k_occ_a,k_occ_b,l_occ_a
       integer pass
       integer noa,nob,nva,nvb
       double precision tol2e,escf,e2,e_total,norm
       integer ga_create_atom_blocked
-      logical otrace, omatrix, oskel
+      logical otrace, omatrix, oskel, osym
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
@@ -69,6 +80,7 @@ c
 c     
       if (.not.rtdb_get(rtdb, 'mp2:skeleton',MT_LOG, 1, oskel))
      $     oskel = sym_number_ops(geom) .gt. 0
+      osym = oskel .and. sym_abelian_group(geom)
 c
       otrace = util_print('matrix trace',print_debug)
       omatrix = util_print('matrix debug', print_debug)
@@ -94,10 +106,22 @@ c
       if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
       nmo = nmos(1)
 c     
-      noa_frozen = 0            ! No freezing yet
-      nva_frozen = 0
-      nob_frozen = 0
-      nvb_frozen = 0
+      if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
+     $     status)) then
+         if (.not. geom_num_core(geom,noa_frozen)) 
+     $        call errquit('semi_direct_mp2: geom_num_core?',0)
+      else if (rtdb_get(rtdb, 'mp2:frozen core', MT_INT, 1,
+     $        noa_frozen)) then
+      else
+         noa_frozen = 0
+      endif
+      if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
+     $     nva_frozen)) nva_frozen = 0
+      if ((task.eq.'gradient') .and. (noa_frozen.gt.0)) call errquit
+     $     ('mp2_gradient: unable to freeze virtuals for gradient',0)
+c
+      nob_frozen = noa_frozen
+      nvb_frozen = nva_frozen
 c     
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('mp2:scftype absent',1)
@@ -162,11 +186,17 @@ c
 c     
       call int_init (rtdb, 1, basis) ! Needed for overlap
 c     
-      call sym_movecs_adapt(basis,1d-8,g_vecs_a,int_mb(k_irs_a),
-     $     nmixed)
-c     
-      call sym_movecs_adapt(basis,1d-8,g_vecs_b,int_mb(k_irs_b),
-     $     nmixed)      
+      if (osym) then
+         call sym_movecs_adapt(basis,1d-8,g_vecs_a,int_mb(k_irs_a),
+     $        nmixed)
+         call sym_movecs_adapt(basis,1d-8,g_vecs_b,int_mb(k_irs_b),
+     $        nmixed)      
+      else
+         do i = 0, nmo-1
+            int_mb(k_irs_a + i) = 1
+            int_mb(k_irs_b + i) = 1
+         enddo
+      endif
 c
       if (omatrix) then
          call ga_print(g_vecs_a)
@@ -184,15 +214,17 @@ c
 c     
       noa_lo=noa_frozen+1
       noa_hi=noa
-      noa_correl=noa_hi-noa_lo+1
+      noa_active=noa_hi-noa_lo+1
       nva_lo=noa+1
       nva_hi=nmo-nva_frozen
+      nva_active=nva_hi-nva_lo+1
 c     
       nob_lo=nob_frozen+1
       nob_hi=nob
-      nob_correl=nob_hi-noa_lo+1
+      nob_active=nob_hi-nob_lo+1
       nvb_lo=nob+1
       nvb_hi=nmo-nvb_frozen
+      nvb_active=nvb_hi-nvb_lo+1
 c     
 c     map_a/b hold reordering vector from MO file to symmetry blocked
 c     
@@ -202,19 +234,38 @@ c
      $     call errquit('could not alloc map_b',1)
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work)) ! Holds an MO
      $     call errquit('could not alloc work',1)
-c     
+c
+      if (noa_frozen .gt. 0)
+     $     call moints_vecs_sym_sort(g_vecs_a,nbf,1,noa_lo-1,
+     $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_foa_sym,
+     $     sym_lo_foa,sym_hi_foa)
+      if (nob_frozen .gt. 0) 
+     $     call moints_vecs_sym_sort(g_vecs_b,nbf,1,nob_lo-1,
+     $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_fob_sym,
+     $     sym_lo_fob,sym_hi_fob)
+c
       call moints_vecs_sym_sort(g_vecs_a,nbf,noa_lo,noa_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_oa_sym,
      $     sym_lo_oa,sym_hi_oa)
       call moints_vecs_sym_sort(g_vecs_b,nbf,nob_lo,nob_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_ob_sym,
      $     sym_lo_ob,sym_hi_ob)
+c     
       call moints_vecs_sym_sort(g_vecs_a,nbf,nva_lo,nva_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_va_sym,
      $     sym_lo_va,sym_hi_va)
       call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_vb_sym,
      $     sym_lo_vb,sym_hi_vb)
+c
+      if (nva_frozen .gt. 0)
+     $     call moints_vecs_sym_sort(g_vecs_a,nbf,nva_hi+1,nmo,
+     $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_fva_sym,
+     $     sym_lo_fva,sym_hi_fva)
+      if (nvb_frozen .gt. 0)
+     $     call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_hi+1,nmo,
+     $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_fvb_sym,
+     $     sym_lo_fvb,sym_hi_fvb)
 c
       if (omatrix) then
          call ga_print(g_vecs_a)
@@ -233,15 +284,29 @@ c
          dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
       end do
 c     
-c     These look as if should only be done for RHF ... now copy
-c     the apha evals over above so don't need it here?
-c$$$  call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
-c$$$  call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
-c     
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
-      tol2e=1d-10
+      if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
+     $     tol2e = 1d-9
+c
+      if (util_print('information',print_low).and.ga_nodeid().eq.0) then
+         write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
+     $        noa_active, nob_active, nva_active, nvb_active,
+     $        osym, oskel
+ 123     format(
+     $        '  Basis functions       = ', i6/
+     $        '  Molecular orbitals    = ', i6/
+     $        '  Frozen core           = ', i6/
+     $        '  Frozen virtuals       = ', i6/
+     $        '  Active alpha occupied = ', i6/
+     $        '  Active beta occupied  = ', i6/
+     $        '  Active alpha virtual  = ', i6/
+     $        '  Active beta virtual   = ', i6/
+     $        '  Use MO symmetry       = ', l1/
+     $        '  Use skeleton AO sym   = ', l1/)
+         call util_flush(6)
+      endif
 c
 c     RJH DEBUG
 c
@@ -507,7 +572,7 @@ c
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
      $        noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
-     $        g_p_tot_a,g_p_tot_b,scftype)
+     $        g_p_tot_a,g_p_tot_b)
 c     
          call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
 c     
@@ -535,7 +600,7 @@ c...
 c...  call to Herbert's stuff
 c...  
          call pstat_on(ps_sep)
-         call grad_force(rtdb,basis,geom,movecs) 
+         call grad_force(rtdb,basis,geom) 
          call pstat_off(ps_sep)
 c     
          if(.not.ga_destroy(g_rhs))call errquit(

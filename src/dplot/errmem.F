@@ -5,7 +5,7 @@
 *
 *---- Arguments of a ErrMem call
       Logical LResult
-      Character*80 Note
+      Character*(*) Note
       Integer iRC
 *
 ************************************************************************

@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.18 1997-03-25 18:02:52 d3e129 Exp $
+C     $Id: moints_full.F,v 1.19 1997-03-25 19:11:05 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -150,7 +150,8 @@ c
 c
 c     Apply swaps of movecs
 c
-      call movecs_swap(rtdb,'ROHF',g_vecs,dbl_mb(k_occ),dbl_mb(k_evals))
+      call movecs_swap(rtdb,'fourindex', 'ROHF', 
+     $     g_vecs,dbl_mb(k_occ),dbl_mb(k_evals))
 c     
 c     Get other parameters from data base
 c     ... frozen core & virtual offsets, block
@@ -165,7 +166,8 @@ c
      $     oblk)) oblk = .false.
       odisk = .false.
       if (.not. rtdb_get(rtdb,'fourindex:osym',MT_LOG,1,
-     $     osym)) osym = (sym_number_ops(geom) .gt. 0) 
+     $     osym)) osym = (sym_number_ops(geom) .gt. 0) .and.
+     $     sym_abelian_group(geom)
       if (.not. rtdb_get(rtdb,'fourindex:ignore contamination',MT_LOG,1,
      $     ocontam)) ocontam = .false.
       if (.not. rtdb_get(rtdb,'fourindex:tol', MT_DBL,1,

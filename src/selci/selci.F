@@ -39,8 +39,8 @@ c
       integer nroot, iwpt
       double precision diag_tol, roots(max_roots), rootspt(max_roots)
       character*10 reference
-      logical scf, mcscf
-      external scf, mcscf
+      logical scf, mcscf, moints_full
+      external scf, mcscf, moints_full
 c
       call ga_sync()
 c
@@ -73,7 +73,12 @@ c
      $     oforce = .false.
       if (ga_nodeid() .eq. 0) inquire(file=moints, exist=oexist)
       call ga_brdcst(303, oexist, mitob(1), 0)
-      if (oforce .or. (.not. oexist)) call moints_full(rtdb)
+      if (oforce .or. (.not. oexist)) then
+         if (.not. moints_full(rtdb)) then
+            selci = .false.
+            return
+         endif
+      endif
       call ga_sync()
 c
 c     Allocate all available MA space

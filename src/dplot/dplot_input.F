@@ -40,8 +40,6 @@
 *
 ************************************************************************
 *
-      Call Context_Push('dplot_input')
-*
 *---- Set up defaults
       Units     = 'angstrom'
       What      = 'density'
@@ -231,7 +229,5 @@
       If (.not.rtdb_cput(rtdb,'dplot:Where',1,Where))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - Where',0)
 *
-      Call Context_Pop('dplot_input')
-*     
       End
 

@@ -1,6 +1,6 @@
       SUBROUTINE vib_TORS(EQVAL,NOINT,I,J,K,L,C,B,NDIM)
 C*MODULE VIB  *DECK TORS
-* $Id: vib_tors.F,v 1.3 1995-11-15 00:53:50 d3g681 Exp $
+* $Id: vib_tors.F,v 1.4 1997-03-25 19:11:54 d3g681 Exp $
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
 C
@@ -23,6 +23,8 @@ c
       double precision zero, one, tol, tolrd
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, TOL=1.0D-07)
       PARAMETER (TOLRD=1.0001D+00)
+c
+      double precision ddot
 C
       double precision RIJ(3), RJK(3), RKL(3)
       double precision EIJ(3), EJK(3), EKL(3)

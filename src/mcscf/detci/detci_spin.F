@@ -321,7 +321,7 @@ c
       call ga_inquire(g_a,type,nrow,ncol)
       do i=1,nrow
         do j=1,ncol
-          yy = drand()*xx
+          yy = drand(0)*xx
           call ga_acc(g_a,i,i,j,j,yy,1,1.d0)
         enddo
       enddo

@@ -55,7 +55,7 @@ c
       junk = selci_mfree(irefo)
 c
       status = rtdb_parallel(.true.)
-99999 call ga_sync(911)
+99999 call ga_sync()
       if (ga_nodeid() .eq. 0) then
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)

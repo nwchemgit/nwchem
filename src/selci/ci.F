@@ -90,6 +90,6 @@ c
          call util_flush(6)
       endif
 c
-      call ga_sync(1234)
+      call ga_sync()
 c
       end

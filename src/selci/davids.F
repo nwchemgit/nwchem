@@ -99,7 +99,7 @@ c
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
          call util_flush(6)
       endif
-      call ga_sync(12345)
+      call ga_sync()
 c
       end
       subroutine selci_ddavid(work, roots, hd, alpha, redh,
@@ -451,9 +451,10 @@ c     iorder = 0 -> select by abs max components and also print
 c                   statistics about size of components
 c     iorder = 1 -> select by min components
 c
-      if (iorder.ne.0 .and. iorder.ne.1) then
-         write(6,*) ' iorder odd in analci ... default to zero '
-         iorder = 0
+      myiorder = iorder
+      if (myiorder.ne.0 .and. myiorder.ne.1) then
+         write(6,*) ' myiorder odd in analci ... default to zero '
+         myiorder = 0
       endif
       write(6,1)
  1    format(1x,'    coeff.      conf  spin     conf norm'/
@@ -464,7 +465,7 @@ c
 c     find the ndo largest coefficients
 c
       do 10 i = 1,ndo
-         if (iorder.eq.0) then
+         if (myiorder.eq.0) then
             it = idamax(nci,ci,1)
          else
             it = idmin(nci,ci,1)
@@ -495,7 +496,7 @@ c
      $        ioconf(1,iconf), nintpo,nbitpi)
  60   continue
 c
-      if (iorder.eq.0) then
+      if (myiorder.eq.0) then
          call ifill(21,0,irange,1)
          do 70 i = 1,nci
             test = abs(ci(i))

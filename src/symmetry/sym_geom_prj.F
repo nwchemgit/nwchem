@@ -1,5 +1,5 @@
       subroutine sym_geom_project(geom, tol)
-C     $Id: sym_geom_prj.F,v 1.2 1996-01-10 16:00:51 d3g681 Exp $
+C     $Id: sym_geom_prj.F,v 1.3 1997-03-25 19:11:39 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 #include "sym.fh"
@@ -18,8 +18,8 @@ c
       integer iat, jat, k, op
       integer nops, nat, l_tmp, k_tmp
       double precision rnew(3), r
-      logical geom_check_handle
-      external geom_check_handle
+      logical geom_check_handle, geom_print
+      external geom_check_handle, geom_print
 c     
       if (.not. geom_check_handle(geom, 'sym_geom_project'))
      $     call errquit('sym_geom_project: bad geom',0)
@@ -32,7 +32,8 @@ c
 c     
       if (util_print('sym_geom_project', print_debug)) then
          write(6,*) ' sym_geom_project: Input geometry'
-         call geom_print(geom)
+         if (.not. geom_print(geom)) call errquit
+     $        ('sym_geom_project: geom print failed',0)
       endif
 c
       call dcopy(3*nat, coords(1,1,geom), 1, dbl_mb(k_tmp), 1)
@@ -51,7 +52,8 @@ c
      $                 dbl_mb(k_tmp-1 + k + (jat-1)*3) + rnew(k)
                enddo
             else
-               call geom_print(geom)
+               if (.not. geom_print(geom)) call errquit
+     $              ('sym_geom_project: geom print failed',0)
                call errquit('sym_geom_project: sym_center_map'//
      $              ' is inconsistent with requested accuracy',
      $              op)
@@ -70,7 +72,8 @@ c
 c     
       if (util_print('sym_geom_project', print_debug)) then
          write(6,*) ' sym_geom_project: Output geometry'
-         call geom_print(geom)
+         if (.not. geom_print(geom)) call errquit
+     $        ('sym_geom_project: geom print failed',0)
       endif
 c
       if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_p: ma?',0)

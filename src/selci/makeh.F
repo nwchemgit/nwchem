@@ -103,7 +103,8 @@ c    zero the upper half and diagonal of work1 to simplify putinb
      $        ninjb)
  10   continue
 c     
-      call selci_putinb(iflham,-1,0,hbuf,0,jbuf,0)
+      ninjb = 0
+      call selci_putinb(iflham,-1,0,hbuf,0,jbuf,ninjb)
 c     if running in parallel need to get all the diags together
       call ga_dgop (99, hd, nci, '+')
       if (me .eq. 0) then
