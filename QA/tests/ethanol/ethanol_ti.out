@@ -1,7 +1,7 @@
 
- FREE ENERGY EVALUATION                                                                                      00/06/01  13:03:06  
+ FREE ENERGY EVALUATION                                                                                      00/06/01  13:03:42  
 
- Title   NWChem:MD input                                                                                     00/06/01  13:03:06  
+ Title   NWChem:MD input                                                                                     00/06/01  13:03:42  
                                                                                          
                                                                                          
 
@@ -150,16 +150,16 @@
 
       0:    8(    786+      9)
 
- THERMODYNAMIC INTEGRATION, LAMBDA=   0.00000     FTFFFFFFFFFF FTFTFFFFFFFF                                  00/06/01  13:03:07  
+ THERMODYNAMIC INTEGRATION, LAMBDA=   0.00000     FTFFFFFFFFFF FTFTFFFFFFFF                                  00/06/01  13:03:42  
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.00200  303.13 1.29E+06     7.765 0.9998 0.9998 1.0000-1.3198E+04 2.2974E+03-1.0882E+04 2.0074E+03-8.8743E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
 
                                            Statistics over last        1 steps     Statistics over last        1 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -201,9 +201,9 @@
  Energy solvent kinetic                  1.98845E+03  0.00000E+00 nan            1.98845E+03  0.00000E+00 nan                kJ/mol
  Mean square displacement solvent /6     1.95587E-04  0.00000E+00 nan            1.95587E-04  0.00000E+00 nan                 nm**2
  Diffusion constant solvent * e9         9.77935E-08  0.00000E+00 nan            9.77935E-08  0.00000E+00 nan                m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.80000E-05  0.00000E+00 nan                     s
- Efficiency load balancing               9.99615E-01  0.00000E+00 nan            9.99615E-01  0.00000E+00 nan                      
- Time per step                           9.87820E-02  0.00000E+00 nan            9.87820E-02  0.00000E+00 nan                     s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00 nan                     s
+ Efficiency load balancing               9.99589E-01  0.00000E+00 nan            9.99589E-01  0.00000E+00 nan                      
+ Time per step                           8.75000E-02  0.00000E+00 nan            8.75000E-02  0.00000E+00 nan                     s
  Energy solute   1 intra-electrostatic   3.13974E+01  0.00000E+00 nan            3.13974E+01  0.00000E+00 nan                kJ/mol
  Energy solute   1 intra-van der Waals   3.61185E+00  0.00000E+00 nan            3.61185E+00  0.00000E+00 nan                kJ/mol
  Energy solute   1-solvent electrostatic-1.09662E+02  0.00000E+00 nan           -1.09662E+02  0.00000E+00 nan                kJ/mol
@@ -216,14 +216,14 @@
  Energy solute   1 potential            -5.79899E+00  0.00000E+00 nan           -5.79899E+00  0.00000E+00 nan                kJ/mol
  Moment of inertia solute molecule    1  6.13934E-01  0.00000E+00 nan            6.13934E-01  0.00000E+00 nan            kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.00400  302.59 2.49E+06     7.765 0.9998 0.9998 1.0000-1.3203E+04 2.2996E+03-1.0883E+04 2.0039E+03-8.8788E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
 
                                            Statistics over last        1 steps     Statistics over last        2 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -265,9 +265,9 @@
  Energy solvent kinetic                  1.98563E+03  0.00000E+00 nan            1.98704E+03  1.40764E+00 -1.40764E+03       kJ/mol
  Mean square displacement solvent /6     2.04958E-04  0.00000E+00 nan            2.00272E-04  4.68529E-06  4.68529E-03        nm**2
  Diffusion constant solvent * e9         5.12394E-08  0.00000E+00 nan            7.45165E-08  2.32771E-08 -2.32771E-05       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.80000E-05  0.00000E+00 -1.32349E-17            s
- Efficiency load balancing               9.99552E-01  0.00000E+00 nan            9.99584E-01  3.16558E-05 -3.16558E-02             
- Time per step                           8.48220E-02  0.00000E+00 nan            9.18020E-02  6.98000E-03 -6.98000E+00            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  4.54747E-13  2.77536E-14            s
+ Efficiency load balancing               9.99565E-01  0.00000E+00 nan            9.99577E-01  1.16508E-05 -1.16508E-02             
+ Time per step                           8.28100E-02  0.00000E+00 nan            8.51550E-02  2.34500E-03 -2.34500E+00            s
  Energy solute   1 intra-electrostatic   3.15803E+01  0.00000E+00 nan            3.14889E+01  9.14300E-02  9.14300E+01       kJ/mol
  Energy solute   1 intra-van der Waals   2.95182E+00  0.00000E+00 nan            3.28183E+00  3.30019E-01 -3.30019E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.12216E+02  0.00000E+00 nan           -1.10939E+02  1.27710E+00 -1.27710E+03       kJ/mol
@@ -280,14 +280,14 @@
  Energy solute   1 potential            -5.45051E+00  0.00000E+00 nan           -5.62475E+00  1.74237E-01  1.74237E+02       kJ/mol
  Moment of inertia solute molecule    1  6.13893E-01  0.00000E+00 nan            6.13913E-01  2.04629E-05 -2.04629E-02   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.00600  302.64 3.79E+06     7.765 0.9999 0.9999 1.0000-1.3203E+04 2.3013E+03-1.0881E+04 2.0042E+03-8.8769E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
 
                                            Statistics over last        1 steps     Statistics over last        3 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -329,9 +329,9 @@
  Energy solvent kinetic                  1.98390E+03  0.00000E+00 nan            1.98600E+03  1.87407E+00 -1.13694E+03       kJ/mol
  Mean square displacement solvent /6     2.14289E-04  0.00000E+00 nan            2.04944E-04  7.63484E-06  4.67536E-03        nm**2
  Diffusion constant solvent * e9         3.57148E-08  0.00000E+00 nan            6.15826E-08  2.63778E-08 -1.55197E-05       m**2/s
- Synchronization time                    5.40000E-05  0.00000E+00 nan            4.33333E-05  7.54247E-06  4.00000E-03            s
- Efficiency load balancing               9.99389E-01  0.00000E+00 nan            9.99519E-01  9.53767E-05 -5.66023E-02             
- Time per step                           8.83660E-02  0.00000E+00 nan            9.06567E-02  5.92485E-03 -2.60400E+00            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00 -1.38834E-14            s
+ Efficiency load balancing               9.99558E-01  0.00000E+00 nan            9.99571E-01  1.29496E-05 -7.57230E-03             
+ Time per step                           8.15000E-02  0.00000E+00 nan            8.39367E-02  2.57579E-03 -1.50000E+00            s
  Energy solute   1 intra-electrostatic   3.12268E+01  0.00000E+00 nan            3.14015E+01  1.44325E-01 -4.26478E+01       kJ/mol
  Energy solute   1 intra-van der Waals   2.25695E+00  0.00000E+00 nan            2.94021E+00  5.53199E-01 -3.38727E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.10440E+02  0.00000E+00 nan           -1.10772E+02  1.06893E+00 -1.94585E+02       kJ/mol
@@ -344,14 +344,14 @@
  Energy solute   1 potential            -4.99007E+00  0.00000E+00 nan           -5.41319E+00  3.31291E-01  2.02229E+02       kJ/mol
  Moment of inertia solute molecule    1  6.13319E-01  0.00000E+00 nan            6.13715E-01  2.80717E-04 -1.53725E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.00800  303.39 3.04E+06     7.765 0.9999 0.9999 1.0000-1.3207E+04 2.3026E+03-1.0885E+04 2.0092E+03-8.8755E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
 
                                            Statistics over last        1 steps     Statistics over last        4 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -393,9 +393,9 @@
  Energy solvent kinetic                  1.98528E+03  0.00000E+00 nan            1.98582E+03  1.65195E+00 -5.61458E+02       kJ/mol
  Mean square displacement solvent /6     2.23572E-04  0.00000E+00 nan            2.09601E-04  1.04297E-05  4.66429E-03        nm**2
  Diffusion constant solvent * e9         2.79465E-08  0.00000E+00 nan            5.31735E-08  2.70920E-08 -1.12533E-05       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            4.20000E-05  6.92820E-06  8.00000E-04            s
- Efficiency load balancing               9.99546E-01  0.00000E+00 nan            9.99525E-01  8.34105E-05 -1.86192E-02             
- Time per step                           8.36180E-02  0.00000E+00 nan            8.88970E-02  5.96801E-03 -2.09740E+00            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00  2.77933E-15            s
+ Efficiency load balancing               9.99558E-01  0.00000E+00 nan            9.99567E-01  1.25378E-05 -4.97091E-03             
+ Time per step                           8.14040E-02  0.00000E+00 nan            8.33035E-02  2.48570E-03 -9.79900E-01            s
  Energy solute   1 intra-electrostatic   3.03863E+01  0.00000E+00 nan            3.11477E+01  4.57043E-01 -1.69348E+02       kJ/mol
  Energy solute   1 intra-van der Waals   1.79118E+00  0.00000E+00 nan            2.65295E+00  6.90704E-01 -3.07845E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.08866E+02  0.00000E+00 nan           -1.10296E+02  1.24039E+00  2.08161E+02       kJ/mol
@@ -408,14 +408,14 @@
  Energy solute   1 potential            -6.33464E+00  0.00000E+00 nan           -5.64355E+00  4.91440E-01 -5.73250E+01       kJ/mol
  Moment of inertia solute molecule    1  6.12330E-01  0.00000E+00 nan            6.13369E-01  6.47195E-04 -2.69267E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.01000  304.29 9.71E+04     7.765 0.9998 0.9998 1.0000-1.3217E+04 2.3036E+03-1.0895E+04 2.0151E+03-8.8795E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
 
                                            Statistics over last        1 steps     Statistics over last        5 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -457,9 +457,9 @@
  Energy solvent kinetic                  1.98805E+03  0.00000E+00 nan            1.98627E+03  1.72737E+00 -5.70345E+01       kJ/mol
  Mean square displacement solvent /6     2.32806E-04  0.00000E+00 nan            2.14242E-04  1.31596E-05  4.65260E-03        nm**2
  Diffusion constant solvent * e9         2.32806E-08  0.00000E+00 nan            4.71950E-08  2.70214E-08 -8.61594E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            4.12000E-05  6.40000E-06  0.00000E+00            s
- Efficiency load balancing               9.99540E-01  0.00000E+00 nan            9.99528E-01  7.48391E-05 -7.82988E-03             
- Time per step                           8.26520E-02  0.00000E+00 nan            8.76480E-02  5.89353E-03 -1.67320E+00            s
+ Synchronization time                    3.80000E-05  0.00000E+00 nan            3.64000E-05  8.00000E-07  2.00000E-04            s
+ Efficiency load balancing               9.99532E-01  0.00000E+00 nan            9.99560E-01  1.80355E-05 -6.01677E-03             
+ Time per step                           8.12240E-02  0.00000E+00 nan            8.28876E-02  2.37379E-03 -6.97900E-01            s
  Energy solute   1 intra-electrostatic   2.92832E+01  0.00000E+00 nan            3.07748E+01  8.50496E-01 -2.71127E+02       kJ/mol
  Energy solute   1 intra-van der Waals   1.61356E+00  0.00000E+00 nan            2.44507E+00  7.44655E-01 -2.57861E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.09429E+02  0.00000E+00 nan           -1.10122E+02  1.16240E+00  1.90795E+02       kJ/mol
@@ -472,14 +472,14 @@
  Energy solute   1 potential            -8.65130E+00  0.00000E+00 nan           -6.24510E+00  1.28088E+00 -3.29437E+02       kJ/mol
  Moment of inertia solute molecule    1  6.11164E-01  0.00000E+00 nan            6.12928E-01  1.05483E-03 -3.55084E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.01200  304.42-1.49E+06     7.765 0.9998 0.9998 1.0000-1.3221E+04 2.3043E+03-1.0897E+04 2.0160E+03-8.8805E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
 
                                            Statistics over last        1 steps     Statistics over last        6 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -521,9 +521,9 @@
  Energy solvent kinetic                  1.98787E+03  0.00000E+00 nan            1.98653E+03  1.68696E+00  8.23026E+01       kJ/mol
  Mean square displacement solvent /6     2.41991E-04  0.00000E+00 nan            2.18867E-04  1.58509E-05  4.64065E-03        nm**2
  Diffusion constant solvent * e9         2.01659E-08  0.00000E+00 nan            4.26901E-08  2.66445E-08 -6.85404E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            4.06667E-05  5.96285E-06 -2.28571E-04            s
- Efficiency load balancing               9.99546E-01  0.00000E+00 nan            9.99531E-01  6.86496E-05 -3.18342E-03             
- Time per step                           8.37880E-02  0.00000E+00 nan            8.70047E-02  5.56904E-03 -1.23183E+00            s
+ Synchronization time                    3.80000E-05  0.00000E+00 nan            3.66667E-05  9.42809E-07  2.28571E-04            s
+ Efficiency load balancing               9.99532E-01  0.00000E+00 nan            9.99556E-01  1.94988E-05 -5.44043E-03             
+ Time per step                           8.12620E-02  0.00000E+00 nan            8.26167E-02  2.25005E-03 -5.14914E-01            s
  Energy solute   1 intra-electrostatic   2.82137E+01  0.00000E+00 nan            3.03480E+01  1.23035E+00 -3.37862E+02       kJ/mol
  Energy solute   1 intra-van der Waals   1.70091E+00  0.00000E+00 nan            2.32104E+00  7.34170E-01 -2.00504E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.12466E+02  0.00000E+00 nan           -1.10513E+02  1.37449E+00 -5.84195E+01       kJ/mol
@@ -536,14 +536,14 @@
  Energy solute   1 potential            -1.06850E+01  0.00000E+00 nan           -6.98508E+00  2.02609E+00 -5.05382E+02       kJ/mol
  Moment of inertia solute molecule    1  6.10041E-01  0.00000E+00 nan            6.12447E-01  1.44393E-03 -4.09130E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.01400  303.26-9.93E+05     7.765 0.9998 0.9998 1.0000-1.3213E+04 2.3049E+03-1.0886E+04 2.0083E+03-8.8779E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
 
                                            Statistics over last        1 steps     Statistics over last        7 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -585,9 +585,9 @@
  Energy solvent kinetic                  1.98183E+03  0.00000E+00 nan            1.98586E+03  2.26774E+00 -2.00275E+02       kJ/mol
  Mean square displacement solvent /6     2.51130E-04  0.00000E+00 nan            2.23476E-04  1.85153E-05  4.62879E-03        nm**2
  Diffusion constant solvent * e9         1.79379E-08  0.00000E+00 nan            3.91541E-08  2.61445E-08 -5.60979E-06       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            4.00000E-05  5.75698E-06 -3.92857E-04            s
- Efficiency load balancing               9.99569E-01  0.00000E+00 nan            9.99537E-01  6.49240E-05  3.91210E-05             
- Time per step                           8.35820E-02  0.00000E+00 nan            8.65157E-02  5.29320E-03 -9.53250E-01            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.65714E-05  9.03508E-07  1.07143E-04            s
+ Efficiency load balancing               9.99559E-01  0.00000E+00 nan            9.99556E-01  1.80851E-05 -3.23374E-03             
+ Time per step                           8.16040E-02  0.00000E+00 nan            8.24720E-02  2.11307E-03 -3.76071E-01            s
  Energy solute   1 intra-electrostatic   2.74497E+01  0.00000E+00 nan            2.99339E+01  1.52514E+00 -3.66427E+02       kJ/mol
  Energy solute   1 intra-van der Waals   2.01833E+00  0.00000E+00 nan            2.27780E+00  6.87914E-01 -1.41532E+02       kJ/mol
  Energy solute   1-solvent electrostatic-1.07573E+02  0.00000E+00 nan           -1.10093E+02  1.63628E+00  1.20963E+02       kJ/mol
@@ -600,14 +600,14 @@
  Energy solute   1 potential            -6.63415E+00  0.00000E+00 nan           -6.93494E+00  1.87981E+00 -2.97064E+02       kJ/mol
  Moment of inertia solute molecule    1  6.09085E-01  0.00000E+00 nan            6.11966E-01  1.78076E-03 -4.35811E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.01600  301.03 2.27E+06     7.765 0.9998 0.9998 1.0000-1.3198E+04 2.3055E+03-1.0867E+04 1.9936E+03-8.8739E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
 
                                            Statistics over last        1 steps     Statistics over last        8 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -649,9 +649,9 @@
  Energy solvent kinetic                  1.96980E+03  0.00000E+00 nan            1.98386E+03  5.71848E+00 -8.02574E+02       kJ/mol
  Mean square displacement solvent /6     2.60232E-04  0.00000E+00 nan            2.28070E-04  2.11596E-05  4.61735E-03        nm**2
  Diffusion constant solvent * e9         1.62645E-08  0.00000E+00 nan            3.62929E-08  2.56007E-08 -4.69359E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.97500E-05  5.42563E-06 -3.45238E-04            s
- Efficiency load balancing               9.99544E-01  0.00000E+00 nan            9.99538E-01  6.07735E-05  3.12866E-04             
- Time per step                           8.32800E-02  0.00000E+00 nan            8.61113E-02  5.06566E-03 -7.70321E-01            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.65000E-05  8.66025E-07  4.76190E-05            s
+ Efficiency load balancing               9.99556E-01  0.00000E+00 nan            9.99556E-01  1.69171E-05 -2.15493E-03             
+ Time per step                           8.11180E-02  0.00000E+00 nan            8.23028E-02  2.02668E-03 -3.07131E-01            s
  Energy solute   1 intra-electrostatic   2.71871E+01  0.00000E+00 nan            2.95906E+01  1.69131E+00 -3.58735E+02       kJ/mol
  Energy solute   1 intra-van der Waals   2.50213E+00  0.00000E+00 nan            2.30584E+00  6.47747E-01 -8.50073E+01       kJ/mol
  Energy solute   1-solvent electrostatic-1.05649E+02  0.00000E+00 nan           -1.09538E+02  2.12194E+00  2.65802E+02       kJ/mol
@@ -664,14 +664,14 @@
  Energy solute   1 potential            -2.77021E+00  0.00000E+00 nan           -6.41435E+00  2.23362E+00 -2.45124E+01       kJ/mol
  Moment of inertia solute molecule    1  6.08352E-01  0.00000E+00 nan            6.11515E-01  2.05019E-03 -4.41124E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.01800  298.74 6.11E+06     7.765 0.9999 0.9999 1.0000-1.3186E+04 2.3061E+03-1.0855E+04 1.9784E+03-8.8763E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
 
                                            Statistics over last        1 steps     Statistics over last        9 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -713,9 +713,9 @@
  Energy solvent kinetic                  1.95518E+03  0.00000E+00 nan            1.98067E+03  1.05010E+01 -1.51759E+03       kJ/mol
  Mean square displacement solvent /6     2.69306E-04  0.00000E+00 nan            2.32652E-04  2.37891E-05  4.60668E-03        nm**2
  Diffusion constant solvent * e9         1.49615E-08  0.00000E+00 nan            3.39227E-08  2.50503E-08 -3.99656E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.95556E-05  5.14482E-06 -3.00000E-04            s
- Efficiency load balancing               9.99543E-01  0.00000E+00 nan            9.99538E-01  5.73210E-05  3.91945E-04             
- Time per step                           8.31280E-02  0.00000E+00 nan            8.57798E-02  4.86710E-03 -6.38667E-01            s
+ Synchronization time                    3.80000E-05  0.00000E+00 nan            3.66667E-05  9.42809E-07  8.33333E-05            s
+ Efficiency load balancing               9.99537E-01  0.00000E+00 nan            9.99554E-01  1.70834E-05 -2.15758E-03             
+ Time per step                           8.20220E-02  0.00000E+00 nan            8.22716E-02  1.91281E-03 -2.24350E-01            s
  Energy solute   1 intra-electrostatic   2.75212E+01  0.00000E+00 nan            2.93606E+01  1.72210E+00 -3.20092E+02       kJ/mol
  Energy solute   1 intra-van der Waals   3.03350E+00  0.00000E+00 nan            2.38669E+00  6.52113E-01 -3.52499E+01       kJ/mol
  Energy solute   1-solvent electrostatic-1.09941E+02  0.00000E+00 nan           -1.09582E+02  2.00461E+00  1.72598E+02       kJ/mol
@@ -728,14 +728,14 @@
  Energy solute   1 potential            -3.26464E+00  0.00000E+00 nan           -6.06439E+00  2.32692E+00  8.78317E+01       kJ/mol
  Moment of inertia solute molecule    1  6.07906E-01  0.00000E+00 nan            6.11114E-01  2.24104E-03 -4.29069E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:07  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
     0.02000  297.06 1.15E+07     7.766 1.0000 1.0000 1.0000-1.3169E+04 2.3065E+03-1.0840E+04 1.9672E+03-8.8724E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:07  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
 
                                            Statistics over last        1 steps     Statistics over last       10 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -777,9 +777,9 @@
  Energy solvent kinetic                  1.94166E+03  0.00000E+00 nan            1.97677E+03  1.53696E+01 -2.16769E+03       kJ/mol
  Mean square displacement solvent /6     2.78366E-04  0.00000E+00 nan            2.37224E-04  2.64084E-05  4.59704E-03        nm**2
  Diffusion constant solvent * e9         1.39183E-08  0.00000E+00 nan            3.19223E-08  2.45108E-08 -3.45217E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.94000E-05  4.90306E-06 -2.60606E-04            s
- Efficiency load balancing               9.99543E-01  0.00000E+00 nan            9.99539E-01  5.43983E-05  4.15322E-04             
- Time per step                           8.31580E-02  0.00000E+00 nan            8.55176E-02  4.68385E-03 -5.35988E-01            s
+ Synchronization time                    3.60000E-05  0.00000E+00 nan            3.66000E-05  9.16515E-07  4.24242E-05            s
+ Efficiency load balancing               9.99560E-01  0.00000E+00 nan            9.99555E-01  1.63197E-05 -1.39494E-03             
+ Time per step                           8.18940E-02  0.00000E+00 nan            8.22338E-02  1.81819E-03 -1.73461E-01            s
  Energy solute   1 intra-electrostatic   2.84422E+01  0.00000E+00 nan            2.92688E+01  1.65680E+00 -2.57842E+02       kJ/mol
  Energy solute   1 intra-van der Waals   3.45059E+00  0.00000E+00 nan            2.49308E+00  6.96129E-01  3.37906E+00       kJ/mol
  Energy solute   1-solvent electrostatic-1.08211E+02  0.00000E+00 nan           -1.09445E+02  1.94576E+00  1.62941E+02       kJ/mol
@@ -793,7 +793,7 @@
  Moment of inertia solute molecule    1  6.07901E-01  0.00000E+00 nan            6.10792E-01  2.33435E-03 -3.99680E-01   kg nm2/mol
 
 
- MULTICONFIGURATION THERMODYNAMIC INTEGRATION                                                                00/06/01  13:03:07  
+ MULTICONFIGURATION THERMODYNAMIC INTEGRATION                                                                00/06/01  13:03:43  
 
  Run Lambda   Size  Derivative  Derivative  Derivative Lambda Free Energy Free Energy Free Energy  Sampling
                        Average       Error       Drift        Accumulated       Error       Drift     Ratio
@@ -802,7 +802,7 @@
    1  0.000     10     230.277   14.644125 2292.168853  0.025       5.757    0.366103   57.304221   2.34539
 
 
- MULTISTEP THERMODYNAMIC PERTURBATION                                                                        00/06/01  13:03:07  
+ MULTISTEP THERMODYNAMIC PERTURBATION                                                                        00/06/01  13:03:43  
 
  Run Lambda   Size     Reverse     Forward    Ensemble Lambda Accumulated 
                         kJ/mol      kJ/mol      kJ/mol             kJ/mol
@@ -815,4 +815,4 @@
 
                                                Wall            CPU
 
- MD step                   10                 0.089          0.086
+ MD step                   10                 0.086          0.084
