@@ -1,0 +1,180 @@
+NWChem Version 4.1 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.4.1.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 4.1. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+The changes for version 4.1 are listed at the bottom of this file.
+
+Several new major capabilities are available in NWChem, including several new
+modules. The new modules are: 
+
+  o 
+  o 
+  o 
+  o 
+  o 
+
+For each of these capabilities, the user is referred to the User Manual for more
+information. 
+
+Additional major additions to the capabilities include: 
+
+  o 
+  o 
+  o 
+  o 
+  o 
+
+Again, for each of these capabilities, the user is referred to the User Manual 
+for more information. 
+
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+Top level directives:
+
+  o 
+  o 
+  o 
+
+Initial orbital Guess: 
+
+  o 
+  o 
+  o 
+
+Basis Sets: 
+
+  o The "*" tag is introduced in the basis set input block to increase the user
+    flexibility and ease when creating the basis set input. When a star tag is 
+    used the code will use the geometry and assign the basis set defined
+    at the star tag line to all atoms in the geometry. In addition an "except" 
+    keyword is introduced. Other new tags possibe are bq* and <tag string>*.
+  o Basis set library file has been split into one file per basis set to allow
+    for easier access. These files are located in the directory "libraries".
+
+Geometry: 
+
+  o 
+  o 
+  o 
+
+DFT: 
+
+  o 
+  o 
+  o 
+
+SCF: 
+
+  o 
+  o 
+  o 
+
+Driver: 
+
+  o 
+  o 
+  o 
+
+Properties: 
+
+  o 
+  o 
+  o 
+
+MP2: 
+
+  o 
+  o 
+  o 
+
+Hessian and Frequencies: 
+
+  o 
+  o 
+  o 
+
+Prepare:
+
+  o 
+  o 
+  o 
+
+MD: 
+
+  o 
+  o 
+  o 
+
+Analysis:
+
+  o 
+  o 
+  o 
+
+Integral changes: 
+
+  o 
+  o 
+  o 
+
+DPLOT:
+
+  o 
+  o 
+  o 
+
+Tests, manuals and misc script changes: 
+
+  o Updated User's Manual to reflect new and modified functionality in
+    NWChem. 
+  o QA tests have been updated to reflect the new functionality and the
+    TITLE change. 
+  o 
+  o 
+  o 
+
+Installation availability: 
+
+The current tested platforms and O/S versions are: 
+
+  o IBM SP with P2SC nodes, AIX 4.3.2, and PSSP 3.1
+  o IBM SP with silver nodes (SMP nodes with two 604e processors), AIX
+    4.3.2, and PSSP 3.1. 
+  o IBM SP with Power 3 nodes (SMP nodes with four processors), AIX 4.3.2
+    and PSSP 3.1
+  o IBM RS6000 workstation, AIX 4.1 and 4.3 
+  o Cray T3E, 2.0.4.61 UNICOSMK 
+  o SGI R8000/10000/12000 IRIX 6.5 
+  o SUN workstations Solaris 5.6 
+  o Compaq DEC alpha workstion (600 MHz EV6), Tru64 V4.0 and V5.0,
+    DEC C V5.8-009, Digital Fortran V5.2 
+  o Linux with Intel x86 cpus. Since there are at least 8 popular
+    distributions of the Linux operating system and numerous others in
+    existence, including downloading everything and building your own Linux OS,
+    it is impossible to test all possible versions of Linux with NWChem.
+    NWChem Release 4.0 has been tested on, RedHat 6.0 and 6.2, Debian 2.2.1,
+    Suse 6.4, TurboLinux 6.04, Mandrake based on RedHat 6.0, FreeBSD 4.1.4,
+    and RedHat 6.0 for the Power PC Macintosh. These all use the EGCS 
+    compilers at different levels. However, the Portland Group Compiler has 
+    been tested in a less robust manner.
+  o Linux with Alpha cpus has been tested with RedHat 6.1 and 6.2.
+    Usage of the Compaq Fortran and C compilers is necessary for compiling.
+  o HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
+    compilation.
+  o Intel x86 with Windows 98 and NT has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
+
+A general FAQ is available at 
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
+
+A list of Known Bugs is available at
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/known_bugs.4.1.html
+
