@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.148 2001-12-20 23:04:29 edo Exp $
+C     $Id: geom_input.F,v 1.149 2002-01-05 01:14:35 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -433,12 +433,16 @@ c     ----- detect symmetry -----
 c     
             if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
      $           call errquit('geom_input: geom_cart_get failed', 0)
+            if (.not. geom_vel_get(geom, velocities))
+     $        call errquit('geom_input: geom_vel_get failed', 0)
             ncenter_before_auto = ncenter
             call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
-     $           threquiv,groupname)
+     $           threquiv,groupname,velocities)
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
      $              call errquit('geom_input: geom_cart_set failed', 0)
+               if (.not. geom_vel_set(geom, velocities))
+     $              call errquit('geom_input: geom_vel_set failed', 0)
                if (ncenter_before_auto .ne. ncenter) call errquit
      $              ('geom_input: autosym bug : number of atoms wrong',
      $              ncenter)
@@ -1096,11 +1100,12 @@ c
       logical      found_cart
       double precision zmat
       double precision c
+      double precision v
       double precision zan
       double precision units
       integer iw
       common/hnd_mollab/atmlab(mxatom)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),v(3,mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
       common/hnd_zmtfrz/izfrz(mxcoor),nzfrz
@@ -1498,12 +1503,12 @@ c
       integer izmat, nat
       integer mxcoor, mxizmt, nizmat
       integer mxatom
-      double precision cc, zan
+      double precision cc, zan, v
       parameter (mxatom = nw_max_atom)
       parameter (mxcoor = nw_max_coor)
       parameter (mxizmt = nw_max_izmat)
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
-      common/hnd_molxyz/cc(3,mxatom),zan(mxatom),nat
+      common/hnd_molxyz/cc(3,mxatom),zan(mxatom),v(3,mxatom),nat
 c
       integer iadd, itype, izvar, i, j, k, l, ind, iat, orient
       double precision rij, aijk, aijkl, angs_to_au, pi, deg_to_rad
@@ -2829,7 +2834,7 @@ c
       end
       subroutine  geom_auto_sym(rtdb,geom,
      1                          coords,charge,tags,ncenter,threquiv,
-     $     group)
+     $     group,veloct)
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -2849,6 +2854,8 @@ c
       double precision coords
       double precision charge
       double precision c
+      double precision v
+      double precision veloct
       double precision zan
       character*16 tags
       character*16 atmlab
@@ -2857,10 +2864,11 @@ c
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom)
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),v(3,mxatom),nat
       dimension coords(3,*)
       dimension charge(  *)
       dimension   tags(  *)
+      dimension veloct(3,*)
       logical odone
 c
       dbug=.false.
@@ -2888,6 +2896,9 @@ c
          c(1,i)=coords(1,i)
          c(2,i)=coords(2,i)
          c(3,i)=coords(3,i)
+         v(1,i)=veloct(1,i)
+         v(2,i)=veloct(2,i)
+         v(3,i)=veloct(3,i)
       enddo
       if(dbug) then
          do i=1,nat    
@@ -2907,6 +2918,9 @@ c
          coords(1,i)=c(1,i)
          coords(2,i)=c(2,i)
          coords(3,i)=c(3,i)
+         veloct(1,i)=v(1,i)
+         veloct(2,i)=v(2,i)
+         veloct(3,i)=v(3,i)
       enddo
 c
       return
@@ -2928,12 +2942,14 @@ c
       LOGICAL     OUT
       LOGICAL     DBUG
       COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
+      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),V(3,MXATOM),NAT
       COMMON/HND_SYMTRY/INVT(MXSYM),NT,NTMAX,NTWD,NOSYM
       DIMENSION   CI(3),AI(3,3)
       DIMENSION   C1(3,MXATOM)
       DIMENSION   C2(3,MXATOM)
       DIMENSION   C3(3,MXATOM)
+      DIMENSION   V2(3,MXATOM)
+      DIMENSION   V3(3,MXATOM)
       DIMENSION   AXS(3,3),EIG(3)
       DIMENSION   RT(3,3)
 C
@@ -2983,7 +2999,7 @@ C
 C     ----- IDENTIFY SYMMETRY OPERATIONS -----
 C
       CALL HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,THREQUIV,
-     $     groupname,geom)
+     $     groupname,geom,V,V2,V3)
 C
 C     ----- CREATE ATOM AND SHELL MAPPINGS -----
 C
@@ -3005,6 +3021,9 @@ c
          c(1,i) = c3(1,i)
          c(2,i) = c3(2,i)
          c(3,i) = c3(3,i)
+         v(1,i) = v3(1,i)
+         v(2,i) = v3(2,i)
+         v(3,i) = v3(3,i)
       enddo
 C
       RETURN
@@ -3016,7 +3035,7 @@ C
  9996 FORMAT(/)
       END
       SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
-     $     THREQUIV,groupname,geom)
+     $     THREQUIV,groupname,geom,V,V2,V3)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     ----- ROUTINE DETECTS MOLECULAR SYMMETRY OPERATIONS -----
@@ -3096,6 +3115,9 @@ C
       DIMENSION C1(3,*)
       DIMENSION C2(3,*)
       DIMENSION C3(3,*)
+      DIMENSION  V(3,*)
+      DIMENSION V2(3,*)
+      DIMENSION V3(3,*)
       DIMENSION CM(3),AM(3,3)
       DIMENSION AXM(3,3)
       DIMENSION C2AXS(3)
@@ -3910,6 +3932,18 @@ C
             C3(J,IAT)=DUM
          ENDDO
       ENDDO
+c
+c Need to rotate the velocities too !!
+c
+      DO IAT=1,NAT
+         DO J=1,3
+            DUM=ZERO
+            DO I=1,3
+               DUM=DUM+V(I,IAT)*RT(I,J)
+            ENDDO
+            V3(J,IAT)=DUM
+         ENDDO
+      ENDDO
       IF(OUT) THEN
          WRITE(IW,9990)
          DO IAT=1,NAT
@@ -3935,10 +3969,12 @@ c
             do jat = 1, nat
               do iat = 1, 3
                 c2(iat,jat) = c3(iat,jat)
+                v2(iat,jat) = v3(iat,jat)
               enddo
             enddo
 c
             call rot_theta_z (theta,c2,nat)
+            call rot_theta_z (theta,v2,nat)
 c
             if(out) then
             write(LuOut,*)'New coordinates after theta of ',theta*degree
@@ -3957,6 +3993,7 @@ c
           do jat = 1, nat
             do iat = 1, 3
               c3(iat,jat) = c2(iat,jat)
+              v3(iat,jat) = v2(iat,jat)
             enddo
           enddo
         endif
@@ -3991,6 +4028,8 @@ C
                C3(I,IAT)=C(I,IAT)
                C2(I,IAT)=C(I,IAT)
                C1(I,IAT)=C(I,IAT)
+               V3(I,IAT)=C(I,IAT)
+               V2(I,IAT)=C(I,IAT)
             ENDDO
          ENDDO
       ENDIF
@@ -4105,6 +4144,9 @@ c
             temp=c3(1,iat)
             c3(1,iat)=c3(3,iat)
             c3(3,iat)=temp
+            temp=v3(1,iat)
+            v3(1,iat)=v3(3,iat)
+            v3(3,iat)=temp
           enddo
         else             ! switch z and y coordinates
           mirrzx=.false.
@@ -4113,6 +4155,9 @@ c
             temp=c3(2,iat)
             c3(2,iat)=c3(3,iat)
             c3(3,iat)=temp
+            temp=v3(2,iat)
+            v3(2,iat)=v3(3,iat)
+            v3(3,iat)=temp
           enddo
         endif
       endif
@@ -4151,18 +4196,21 @@ c
         if (theta.eq.-1.d+0) call errquit
      1    ('hnd_molops: could not determine rotation angle',555)
         call rot_theta_z (theta,c3,nat)
+        call rot_theta_z (theta,v3,nat)
       endif
 c
       if ((groupname(1:3).eq.'C5V').and.mirryz) then
         pi2 = 2*atan(1d0)
         theta = pi2
         call rot_theta_z (theta,c3,nat)
+        call rot_theta_z (theta,v3,nat)
       endif
 c
       if (groupname(1:3).eq.'D4D') then
 c       theta = tan(-0.38d+0/0.92d+0)    !+ 8.72663d-03
         theta = 22.5d+0/degree
         call rot_theta_z (theta,c3,nat)
+        call rot_theta_z (theta,v3,nat)
       endif
 c
       if (((groupname(1:3).eq.'D5H').or.(groupname(1:3).eq.'D5 '))
@@ -4170,12 +4218,14 @@ c
         pi2 = 2*atan(1.d+0)  ! pi divided by 2 (90 degrees)
         theta = pi2
         call rot_theta_z (theta,c3,nat)
+        call rot_theta_z (theta,v3,nat)
       endif
 c
       if ((groupname(1:3).eq.'D5D').and.symc2y) then
         pi2 = 2*atan(1.d+0)
         theta = -pi2
         call rot_theta_z (theta,c3,nat)
+        call rot_theta_z (theta,v3,nat)
       endif
 c
       IF(OUT) THEN
@@ -4184,11 +4234,15 @@ c
             WRITE(IW,9984) IAT,(C(I,IAT),I=1,3),(C1(I,IAT),I=1,3),
      1                                          (C3(I,IAT),I=1,3)
          ENDDO
+         WRITE(IW,9976)
+         DO IAT=1,NAT
+            WRITE(IW,9984) IAT,(V(I,IAT),I=1,3),(V3(I,IAT),I=1,3)
+         ENDDO
       ENDIF
       IF(OUT) THEN
          WRITE(IW,9977)
          DO IAT=1,NAT
-            WRITE(IW,9984) IAT,(C3(I,IAT),I=1,3)
+            WRITE(IW,9975) IAT,(C3(I,IAT),I=1,3),(V3(I,IAT),I=1,3)
          ENDDO
       ENDIF
 C
@@ -4224,7 +4278,9 @@ C
  9980 FORMAT(' ORDER OF PERMUTED AXES = ',3I3)
  9979 FORMAT(' PROPER/IMPROPER CHECK FOR -IAXIS- AND -ORDER- = ',2I3)
  9978 FORMAT(' I EIG = ',I5,F20.8)
- 9977 FORMAT(' coordinates in local symmetry frame ',/)
+ 9977 FORMAT(' Coordinates (and velocities) in local symmetry frame ',/)
+ 9976 FORMAT(/,17X,'ORIGINAL -VEL-',22X,' FINAL  -VEL-')
+ 9975 FORMAT(1X,I5,3F12.8,' ( ',3F12.8,' ) ')
       END
       SUBROUTINE HND_MOLSMB(MIRRYZ,MIRRZX,MIRRXY,
      1                     SYMC2X,SYMC2Y,SYMINV,
