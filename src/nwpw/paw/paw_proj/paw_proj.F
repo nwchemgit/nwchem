@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.24 2003-02-11 01:41:24 edo Exp $
+* $Id: paw_proj.F,v 1.25 2003-02-13 01:58:55 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2003/02/11 01:41:24  edo
+* eliminated f90-isms
+*
 * Revision 1.23  2003/02/09 21:27:07  marat
 * commented out some of the write statements
 * MV
@@ -577,7 +580,6 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       call ion_atom_plus_suffix(ia,'_basis',atomname)
       call ion_atom_plus_suffix(ia,'.jpp',jppname)
 
-c      write(*,*) "atomname,jppname:",atomname,jppname
 
       !*** read in projectors from _basis file ***
       i_rgrid   = paw_basis_i_rgrid(ia)
@@ -585,14 +587,14 @@ c      write(*,*) "atomname,jppname:",atomname,jppname
       basis_nbasis    = int_mb(paw_basis_i_nbasis(ia))
       nr        = int_mb(paw_basis_i_ngrid(ia))
       log_amesh = dbl_mb(paw_basis_i_log_amesh(ia))
-c      write(*,*) "basis_nbasis:",basis_nbasis," ngrid:",nr
+
       
       nbasis = 0
       do ii=1,basis_nbasis
          l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
          nbasis = nbasis + 2*l+1
       end do
-c      write(*,*) "nbasis:",nbasis
+
 
       call Parallel_taskid(taskid)
       unita(1,1) = lattice_unita(1,1)

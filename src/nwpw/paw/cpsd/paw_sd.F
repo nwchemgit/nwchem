@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.24 2003-02-12 21:39:13 bylaska Exp $
+* $Id: paw_sd.F,v 1.25 2003-02-13 01:58:07 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -219,6 +219,7 @@
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
       call paw_proj_init()
+      call paw_vloc_init()
       call paw_comp_charge_init()
       !call dealloc_paw_basis_data()
       !call paw_proj_end()
@@ -467,6 +468,102 @@
 
 
 
+*         |****************************************|
+*********** produce CHECK file and diagonalize hml *****************
+*         |****************************************|
+
+*     **** produce CHECK FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name('CHECK',.true.,
+     >                               .false.,
+     >                        full_filename)
+         open(unit=17,file=full_filename,form='formatted')
+      end if
+
+*     **** check total number of electrons ****
+      do ms =1,ispin
+         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
+         en(ms) = sumall*lattice_omega()
+     >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
+      end do
+      if (taskid.eq.MASTER) then
+         write(17,1320) (en(ms),ms=1,ispin)
+      end if
+
+*     **** comparison between hamiltonian an lambda matrix ****
+      n = ne(1)
+      nn = n*n
+      if (taskid.eq.MASTER) then
+         write(17,1330)
+         do ms=1,ispin
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               do j=n1(ms),n2(ms)
+                  jj = j-n1(ms)
+                  index = (ii+1) + jj*n +(ms-1)*nn
+                  write(17,1340) ms,ii+1,jj+1,
+     >                           dbl_mb(hml(1)+index-1),
+     >                           dbl_mb(lmd(1)+index-1),
+     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
+               end do
+            end do
+         end do
+      end if
+
+
+*     **** check orthonormality ****
+      if (taskid.eq.MASTER) then
+         write(17,1350)
+      end if
+
+      do ms=1,ispin
+         do i=n1(ms),n2(ms)
+            ii = i-n1(ms)+1
+            do j=i,n2(ms)
+               jj = j-n1(ms)+1
+               call paw_overlap_matrix_gen(1,1,
+     >                          dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                          dcpl_mb(psi1(1)+(j-1)*npack1),
+     >                          w)
+               if (taskid.eq.MASTER) then
+                  write(17,1360) ms,ii,jj,w
+               end if
+            end do
+         end do
+      end do
+
+*     **** close check file ****
+      if (taskid.eq.MASTER) then
+         close(17)
+      end if
+
+*     ***** diagonalize the hamiltonian matrix ****
+      n = ne(1)
+      nn = n*n
+      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
+      do ms=1,ispin
+         call eigen(n,ne(ms),
+     >              dbl_mb(hml(1)+(ms-1)*nn),
+     >              dbl_mb(eig(1)+(ms-1)*n),
+     >              dbl_mb(lmd(1)),ierr)
+      end do
+
+      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
+      do ms=1,ispin
+         do j=n1(ms),n2(ms)
+            jj = j-n1(ms)
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               index = (ii+1) + jj*n + (ms-1)*nn
+
+               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
+     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
+     >                            dcpl_mb(psi2(1)+(j-1)*npack1))
+            end do
+         end do
+      end do
+
+
 
 *                |***************************|
 ****************** report summary of results **********************
@@ -560,6 +657,7 @@
      
       call dealloc_paw_basis_data()
       call paw_proj_end()
+      call paw_vloc_end()
       call paw_ovlp_end()
       call paw_comp_charge_end()
       call end_paw_kin_matrix()

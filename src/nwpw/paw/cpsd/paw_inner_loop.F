@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.8 2003-02-12 21:39:13 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.9 2003-02-13 01:58:07 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -203,31 +203,14 @@
 
 
 
-
-
 *       *****************************************
 *       **** generate local pseudopotential  ****
 *       **** and also get force if move true ****
 *       *****************************************
- 
-c        call v_local(dcpl_mb(vl(1)),
-c     >               move,
-c     >               dcpl_mb(dng(1)),
-c     >               dbl_mb(fion(1)))
-c
-c
-c*       *** long-range psp for charge systems ***
-c        if (control_version().eq.4) then
-c          call v_lr_local(dbl_mb(r_grid(1)),
-c     >                    dbl_mb(vlr_l(1)))
-c          if (move) then
-c             call grad_v_lr_local(dbl_mb(r_grid(1)),
-c     >                            dbl_mb(rho(1)),
-c     >                            dbl_mb(fion(1)))
-c          end if
-c        end if
-
-
+        call paw_vloc(dcpl_mb(vl(1)),
+     >               move,
+     >               dcpl_mb(dng(1)),
+     >               dbl_mb(fion(1)))
 
 
 *       ************************************
@@ -258,20 +241,17 @@ c        end if
 *       **** get Hpsi ****
 *       ******************
         call nwpw_timing_start(13)
-c        if (control_version().eq.3) 
-c     >     call paw_psi_H(ispin,ne,psi1,psi_r,
-c     >             dcpl_mb(vl(1)),
-c     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-c     >             move,dbl_mb(fion(1)))
-c
-c        if (control_version().eq.4) 
-c     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
-c     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-c     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-c     >             move,dbl_mb(fion(1)))
-       !**** set HPSI toi ZERO!!! ****
-       call dcopy(2*n2(ispin)*npack1,0.0d0,0,Hpsi,1)
-
+        if (control_version().eq.3) 
+     >     call paw_psi_H(ispin,ne,psi1,psi_r,
+     >             dcpl_mb(vl(1)),
+     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             move,dbl_mb(fion(1)))
+ 
+        if (control_version().eq.4) 
+     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
+     >             dcpl_mb(vl(1)),
+     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             move,dbl_mb(fion(1)))
 
         
 *       ************************************
@@ -393,8 +373,6 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
     
 *     **** get free-space ion-ion energy ****
       if (control_version().eq.4) eion = ion_ion_e()
-
-
 
            
 *     **** get coulomb energy ****
