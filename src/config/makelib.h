@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.35 1996-07-26 16:23:38 d3g681 Exp $
+# $Id: makelib.h,v 1.36 1996-08-19 15:15:15 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -291,3 +291,22 @@ ifdef SUBDIRS
 endif
 	-$(RM) -f *~ \#*\# makefile.bak $(LIBRARY_PATH)
 
+
+.PHONY:	src.F
+src.F:
+	@/bin/rm -f src.F
+	@touch src.F
+	@for file in nonexistent $(OBJ) $(OBJ_OPTIMIZE); do \
+		body=`basename $$file .o` ; \
+		if [ -f $$body.f ] ; then \
+		  echo $$body.f; \
+		  cat $$body.f >> src.F; \
+		fi ; \
+		if [ -f $$body.F ] ; then \
+		  echo $$body.F; \
+		  cat $$body.F >> src.F; \
+		fi ; \
+        done
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif

@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.164 1996-08-06 05:27:52 d3g681 Exp $
+# $Id: makefile.h,v 1.165 1996-08-19 15:15:13 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -248,7 +248,8 @@ ifeq ($(TARGET),SOLARIS)
 # -depend enables more loop restructuring
   FOPTIMIZE = -O3 -fsimple=2 -depend 
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
-     FDEBUG = -g -O2
+# but is slow and impairs debug ... use -O1 for speed and debugability
+     FDEBUG = -g -O1
   COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS
@@ -613,7 +614,7 @@ ifeq ($(TARGET),SP1)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 25 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
