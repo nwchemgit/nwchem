@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.28 1999-11-26 18:46:06 d3j191 Exp $
+c $Id: sp_main.F,v 1.29 1999-11-26 20:13:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1561,6 +1561,7 @@ c
  8000 format('Could not find box',i5,' on node',i5,' in sp_gtxpbl')
       write(lfndbg,8001) jnode,(jpl(30+i,1),i=1,jpl(1,1))
  8001 format('Box list obtained from node',i5,' is',/,(20i5))
+      call util_flush(lfndbg)
       endif
       call errquit('Remote node box not found',0)
       endif
@@ -1668,6 +1669,7 @@ c
  8000 format('Could not find box',i5,' on node',i5,' in sp_acpbl')
       write(lfndbg,8001) jnode,(jpl(30+i,1),i=1,jpl(1,1))
  8001 format('Box list obtained from node',i5,' is',/,(20i5))
+      call util_flush(lfndbg)
       endif
       call errquit('Remote node box not found',0)
       endif

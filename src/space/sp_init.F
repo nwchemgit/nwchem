@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.42 1999-11-26 17:38:18 d3j191 Exp $
+c $Id: sp_init.F,v 1.43 1999-11-26 20:13:07 d3j191 Exp $
 c
       implicit none
 c
@@ -872,6 +872,18 @@ c
       ibownr(ibz,3)=((ibz-1)*npz)/nbz
       boxsiz(ibz,3)=(box(3)*dble(ibz))/dble(nbz)
     3 continue
+      if(idebug.eq.1) then
+      write(lfndbg,8003) nbx,nby,nbz,maxbox,npx,npy,npz
+ 8003 format('ibownr in sp_decomp',7i5)
+      write(lfndbg,8004) (ibownr(ibx,1),ibx=1,nbx)
+ 8004 format('ibownr x',/,(20i5))
+      write(lfndbg,8005) (ibownr(iby,2),iby=1,nby)
+ 8005 format('ibownr y',/,(20i5))
+      write(lfndbg,8006) (ibownr(ibz,3),ibz=1,nbz)
+ 8006 format('ibownr z',/,(20i5))
+      write(lfndbg,8002)
+ 8002 format('boxlist')
+      endif
 c
 c     determine neighboring nodes and store in neighb(27,2)
 c     such that:
@@ -1015,12 +1027,28 @@ c
     2 continue
     1 continue
 c
+      if(idebug.eq.1) then
+      write(lfndbg,8003) nbx,nby,nbz,maxbox
+ 8003 format('ibownr in sp_initip',4i5)
+      write(lfndbg,8004) (ibownr(ibx,1),ibx=1,nbx)
+ 8004 format('ibownr x',/,(20i5))
+      write(lfndbg,8005) (ibownr(iby,2),iby=1,nby)
+ 8005 format('ibownr y',/,(20i5))
+      write(lfndbg,8006) (ibownr(ibz,3),ibz=1,nbz)
+ 8006 format('ibownr z',/,(20i5))
+      write(lfndbg,8002)
+ 8002 format('boxlist')
+      endif
       nbiown=0
       do 3 ibx=1,nbx
       do 4 iby=1,nby
       do 5 ibz=1,nbz
       nrbox=((ibz-1)*nby+iby-1)*nbx+ibx-1
       nrnod=(ibownr(ibz,3)*npy+ibownr(iby,2))*npx+ibownr(ibx,1)
+      if(idebug.eq.1) then
+      write(lfndbg,8001) ibx,iby,ibz,nrbox,nrnod
+ 8001 format(5i5)
+      endif
       if(me.eq.nrnod) then
       nbiown=nbiown+1
       ipl(30+nbiown,1)=nrbox
