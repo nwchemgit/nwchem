@@ -1,6 +1,6 @@
-      Subroutine dft_mxspin_ovlp(basis, noc, g_alpha, g_beta, g_tmp)
+      Subroutine dft_mxspin_ovlp(rtdb,basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.11 2002-01-08 18:02:19 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.12 2002-01-08 18:38:42 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -16,12 +16,13 @@ C$Id: dft_mxspin_ovlp.F,v 1.11 2002-01-08 18:02:19 d3k958 Exp $
 #include "msgids.fh"
 #include "stdio.fh"
 #include "util.fh"   
+#include "rtdb.fh"   
 c
 c     local
 c
       logical oprint
 c
-      integer me,nproc
+      integer me,nproc, rtdb
 c
       integer i,j,jbig,n,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
@@ -202,6 +203,8 @@ c with partners, the overlap is very nearly 1.0. For
 c un-partnered orbitals, the overlap is zero.
 c See J. Chem. Phys. (1967) 47, 1936.
 c
+      call util_print_push
+      call util_print_rtdb_load(rtdb,'dft')
       oprint = util_print('svd vectors', print_high)
 c
 c if the SVD vectors and overlap aren't desired in the output,
@@ -318,8 +321,13 @@ c
 c associate SVD transformed alpha orbitals with the original
 c alpha orbitals:
 c
+      if(me.eq.0) then
+      if (nalp.GT.1) then
+        write(6,9990) nalp
+      endif 
+      endif
+c
  9990 format(/,18x,'THERE ARE',i3,1x,'UN-PARTNERED ALPHA ORBITALS')
-       write(6,9990) nalp
 c
        call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
      &'Alpha Orbitals without Beta Partners (after maximizing alpha/beta
@@ -361,6 +369,7 @@ c
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
 c
+      call util_print_pop
       endif !oprint
 c
       if(.not.MA_Pop_Stack(l_non))
