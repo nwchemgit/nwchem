@@ -363,9 +363,13 @@ c     load fixed atoms
 c
       status = rtdb_get(rtdb,tag_n,
      >     mt_int,1,nfa) 
-        if(.not.status) call errquit(
-     >     'input_set: unable to get prior fixed atoms',
-     >      nfa, MA_ERR)
+      if(.not.status) then
+          nfa=0
+      end if
+      if(nfa.eq.0) then
+        write(*,*) "no fixed atoms found"
+        return
+      end if
 
       if ( .not. ma_push_get( MT_INT, nfa, 'h_tmp_id',
      &      h_tmp_id, i_tmp_id) ) call errquit(

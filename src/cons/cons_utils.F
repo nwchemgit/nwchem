@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.9 2004-04-06 00:09:39 marat Exp $
+c $Id: cons_utils.F,v 1.10 2004-04-09 23:05:09 marat Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -524,6 +524,7 @@ c
      >      nhb, MA_ERR)
        end if
 
+     
       do i=1,nhb
       write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
      >           int_mb(i_tmp_id+2*(i-1)+1),
@@ -591,15 +592,14 @@ c     local variables:
       integer rtdb
 
       if(ga_nodeid().eq.0) then
-      call cons_print_header()
-
-      call util_print_centered(6,
+        call cons_print_header()
+        call util_print_centered(6,
      >     "General Information",
      >     1,.true.)
+      end if
 
       call cons_info_fixed_atoms(rtdb)
       call cons_info_springs(rtdb)
-      end if
 
       end
 c
