@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.68 2005-04-01 03:13:14 marat Exp $
+* $Id: task.F,v 1.69 2005-04-03 07:39:25 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -70,8 +70,8 @@ c
       external task_et
       external task_property
 
-      logical bq_init
-      external bq_init
+      logical bq_init,bq_end
+      external bq_init,bq_end
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
@@ -280,6 +280,13 @@ c     *** task_paw handles paw specific "operations" ***
 
       if(ocons) call cons_end(rtdb)
 c
+      if(task_bq) then
+       status = bq_end(rtdb)
+       if ((ga_nodeid().eq.0) .and. (.not. status)) then
+              call errquit("failed to uninitialize bq", 0, CALC_ERR)
+        end if
+      end if
+cc
       call ga_sync()
 99999 continue
 c
