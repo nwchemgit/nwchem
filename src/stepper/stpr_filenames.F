@@ -1,4 +1,8 @@
       subroutine stpr_filenames
+*
+* $Id: stpr_filenames.F,v 1.3 1997-10-31 20:50:35 d3e129 Exp $
+*
+      implicit none
 #include "cstprfiles.fh"
 c
 c     initialize the common with filenames
