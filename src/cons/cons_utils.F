@@ -1,13 +1,13 @@
-c $Id: cons_utils.F,v 1.5 2004-04-01 02:35:49 marat Exp $
-      subroutine cons_add_spring(i,j,k,r,rtdb)
+c $Id: cons_utils.F,v 1.6 2004-04-02 02:36:16 marat Exp $
+      subroutine cons_add_spring(namespace,i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c     
+      character*(*) namespace
       integer i,j
       double precision k
       double precision r
@@ -22,8 +22,20 @@ c
       integer i0,j0
       double precision k0
       double precision r0
+      character(255) tag_id
+      character(255) tag_n
+      character(255) tag_r
+      character(255) tag_k
+
+      call cons_set_namespace(namespace)
+
+      call cons_hbond_id_tag(tag_id)
+      call cons_hbond_n_tag(tag_n)
+      call cons_hbond_k_tag(tag_k)
+      call cons_hbond_r_tag(tag_r)
+
       
-      if(.not.rtdb_get(rtdb,"cons:hbond_n",mt_int,1,nhb0)) then
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb0)) then
          nhb0 = 0
       end if
       nhb = nhb0 + 1
@@ -42,19 +54,19 @@ c
      &      nhb, MA_ERR)
 
        if(nhb0 .ge. 1) then
-        status = rtdb_get(rtdb,"cons:hbond_ij",
+        status = rtdb_get(rtdb,tag_id,
      >     mt_int,2*nhb0,int_mb(i_tmp_id)) 
-        status = status . and. rtdb_get(rtdb,"cons:hbond_kij",
+        status = status . and. rtdb_get(rtdb,tag_k,
      >     mt_dbl,nhb0,dbl_mb(i_tmp_k)) 
-        status = status . and. rtdb_get(rtdb,"cons:hbond_rij",
+        status = status . and. rtdb_get(rtdb,tag_r,
      >     mt_dbl,nhb0,dbl_mb(i_tmp_r)) 
         if(.not.status) call errquit(
      >     'cons_add_spring: unable to get prior harm bonds',
      >      nhb, MA_ERR)
-       status =              rtdb_delete(rtdb,"cons:hbond_n")
-       status = status .and. rtdb_delete(rtdb,"cons:hbond_ij")
-       status = status .and. rtdb_delete(rtdb,"cons:hbond_kij")
-       status = status .and. rtdb_delete(rtdb,"cons:hbond_rij")
+       status =              rtdb_delete(rtdb,tag_n)
+       status = status .and. rtdb_delete(rtdb,tag_id)
+       status = status .and. rtdb_delete(rtdb,tag_k)
+       status = status .and. rtdb_delete(rtdb,tag_r)
        if(.not.status) call errquit(
      >     'cons_add_spring: unable to delete prior harm bonds',
      >      0, MA_ERR)
@@ -83,12 +95,12 @@ c
        nhb=nhb0
       end if
 
-       status = rtdb_put(rtdb,"cons:hbond_n",mt_int,1,nhb)
-       status = status . and. rtdb_put(rtdb,"cons:hbond_ij",
+       status = rtdb_put(rtdb,tag_n,mt_int,1,nhb)
+       status = status . and. rtdb_put(rtdb,tag_id,
      >     mt_int,2*nhb,int_mb(i_tmp_id)) 
-        status = status . and. rtdb_put(rtdb,"cons:hbond_kij",
+        status = status . and. rtdb_put(rtdb,tag_k,
      >     mt_dbl,nhb,dbl_mb(i_tmp_k)) 
-        status = status . and. rtdb_put(rtdb,"cons:hbond_rij",
+        status = status . and. rtdb_put(rtdb,tag_r,
      >     mt_dbl,nhb,dbl_mb(i_tmp_r)) 
         if(.not.status) call errquit(
      >     'cons_add_spring: unable to get prior harm bonds',
@@ -106,14 +118,14 @@ c
 
       end
 
-      subroutine cons_add_fixed_atoms(nat,id,rtdb)
+      subroutine cons_add_fixed_atoms(namespace,nat,id,rtdb)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c     
+      character*(*) namespace
       integer nat
       integer id(nat)
       integer rtdb
@@ -124,10 +136,13 @@ c
       integer n
       integer h_tmp_id,i_tmp_id 
       
-      character tag_id*(*) 
-      parameter (tag_id = 'cons:fxd_at_id') 
-      character tag_n*(*) 
-      parameter (tag_n = 'cons:fxd_at_n') 
+      character(255) tag_id
+      character(255) tag_n
+
+      call cons_set_namespace(namespace)
+
+      call cons_fxd_atoms_id_tag(tag_id)
+      call cons_fxd_atoms_n_tag(tag_n)
 
       call cons_sort_i(nat,id)
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
@@ -181,14 +196,14 @@ c
 
       end
 
-      subroutine cons_unfix_atoms(nat,id,rtdb)
+      subroutine cons_unfix_atoms(namespace,nat,id,rtdb)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c     
+      character*(*) namespace
       integer nat
       integer id(nat)
       integer rtdb
@@ -198,12 +213,15 @@ c
       integer n0
       integer n
       integer h_tmp_id,i_tmp_id 
-      
-      character tag_id*(*) 
-      parameter (tag_id = 'cons:fxd_at_id') 
-      character tag_n*(*) 
-      parameter (tag_n = 'cons:fxd_at_n') 
 
+      character(255) tag_id
+      character(255) tag_n
+
+      call cons_set_namespace(namespace)
+      call cons_fxd_atoms_id_tag(tag_id)
+      call cons_fxd_atoms_n_tag(tag_n)
+
+      
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
          n=0
       end if
@@ -266,8 +284,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
-c     
       integer nat
       logical oactive(nat)
       integer nactive
@@ -278,12 +294,14 @@ c
       integer n
       integer id
       integer h_tmp_id,i_tmp_id 
-      
-      character tag_id*(*) 
-      parameter (tag_id = 'cons:fxd_at_id') 
-      character tag_n*(*) 
-      parameter (tag_n = 'cons:fxd_at_n') 
 
+      character(255) tag_id
+      character(255) tag_n
+
+      call cons_fxd_atoms_id_tag(tag_id)
+      call cons_fxd_atoms_n_tag(tag_n)
+
+      
       do i=1,nat
         oactive(i)=.true. 
       end do
@@ -330,7 +348,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c     
       integer rtdb
 c
@@ -338,12 +355,13 @@ c
       integer i
       integer n
       integer h_tmp_id,i_tmp_id 
-      
-      character tag_id*(*) 
-      parameter (tag_id = 'cons:fxd_at_id') 
-      character tag_n*(*) 
-      parameter (tag_n = 'cons:fxd_at_n') 
 
+      character(255) tag_id
+      character(255) tag_n
+
+      call cons_fxd_atoms_id_tag(tag_id)
+      call cons_fxd_atoms_n_tag(tag_n)
+      
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n)) then
          n = 0
       end if
@@ -378,19 +396,27 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c
       integer rtdb
 c     
-      character*10 ifmt,jfmt
       logical status
       integer i
       integer nhb
       integer h_tmp_id,i_tmp_id 
       integer h_tmp_k,i_tmp_k 
       integer h_tmp_r,i_tmp_r 
+      character(255) tag_id
+      character(255) tag_n
+      character(255) tag_k
+      character(255) tag_r
+
+      call cons_hbond_id_tag(tag_id)
+      call cons_hbond_n_tag(tag_n)
+      call cons_hbond_k_tag(tag_k)
+      call cons_hbond_r_tag(tag_r)
+
       
-      if(.not.rtdb_get(rtdb,"cons:hbond_n",mt_int,1,nhb)) then
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) then
          nhb = 0
       end if
        
@@ -413,11 +439,11 @@ c
      &      nhb, MA_ERR)
 
        if(nhb .ge. 1) then
-        status = rtdb_get(rtdb,"cons:hbond_ij",
+        status = rtdb_get(rtdb,tag_id,
      >     mt_int,2*nhb,int_mb(i_tmp_id)) 
-        status = status . and. rtdb_get(rtdb,"cons:hbond_kij",
+        status = status . and. rtdb_get(rtdb,tag_k,
      >     mt_dbl,nhb,dbl_mb(i_tmp_k)) 
-        status = status . and. rtdb_get(rtdb,"cons:hbond_rij",
+        status = status . and. rtdb_get(rtdb,tag_r,
      >     mt_dbl,nhb,dbl_mb(i_tmp_r)) 
         if(.not.status) call errquit(
      >     'cons_add_spring: unable to get prior harm bonds',
@@ -499,4 +525,101 @@ c     local variables:
       call cons_info_springs(rtdb)
 
       end
-   
+c
+      subroutine cons_fxd_atoms_id_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":fxd_atom_id"
+
+      end
+
+      subroutine cons_fxd_atoms_n_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":fxd_atom_n"
+
+      end
+
+      subroutine cons_hbond_id_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hbond_id"
+
+      end
+
+      subroutine cons_hbond_n_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hbond_n"
+
+      end
+
+      subroutine cons_hbond_r_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hbond_r"
+
+      end
+
+      subroutine cons_hbond_k_tag(tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character(255) cons_name
+c
+      call cons_get_namespace(cons_name)
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hbond_k"
+
+      end
+     

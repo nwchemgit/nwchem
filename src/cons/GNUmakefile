@@ -1,7 +1,7 @@
-# $Id: GNUmakefile,v 1.3 2004-03-30 20:10:49 marat Exp $
+# $Id: GNUmakefile,v 1.4 2004-04-02 02:36:16 marat Exp $
   LIBRARY = libcons.a
   
-  OBJ = cons_input.o cons.o cons_utils.o
+  OBJ = cons_input.o cons.o cons_utils.o cons_data.o
  
  
 

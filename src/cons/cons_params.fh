@@ -1,0 +1,16 @@
+*
+* $Id: cons_params.fh,v 1.1 2004-04-02 02:36:16 marat Exp $
+*
+
+      integer max_fixed_atoms
+      parameter (max_fixed_atoms=100)
+
+      integer max_harm_bonds
+      parameter (max_harm_bonds=100)
+
+      integer max_harm_angles
+      parameter (max_harm_angles=100)
+    
+      character*(*) cons_default
+      parameter(cons_default="default")
+

@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.5 2004-04-01 02:35:49 marat Exp $
+c $Id: cons_input.F,v 1.6 2004-04-02 02:36:16 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -6,11 +6,12 @@ c $Id: cons_input.F,v 1.5 2004-04-01 02:35:49 marat Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
+#include "cons_params.fh"
 c     
       integer rtdb
 c
       character*255 test
+      character*255 namespace
       integer max_fp
       integer i_tmp_id,h_tmp_id
       integer nfp
@@ -26,6 +27,8 @@ c     enable constraints by default
       status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .true.)
       if(.not.status)
      &  call errquit('cons_input: cannot activate constraints',0,0) 
+c
+      namespace=cons_default
  
       max_fp = min( max_fixed_atoms*4, ma_inquire_avail(MT_INT))
       if ( .not. ma_push_get( MT_INT, max_fp, 
@@ -82,7 +85,8 @@ c     ----------------------------
          if (inp_compare(.false.,'pos', test)) then
            status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
            if(status) then
-             call cons_add_fixed_atoms(nfp,int_mb(i_tmp_id),rtdb)
+             call cons_add_fixed_atoms(namespace,nfp,
+     >                     int_mb(i_tmp_id),rtdb)
            else
              call errquit('cons_input: failed fixed atom input', 0,
      >        0)
@@ -117,7 +121,7 @@ c     ----------------------------
      >        0)
          if (inp_compare(.false.,'bond', test)) then
            if(cons_harm_bond_input(id(1),id(2),k,r)) then 
-             call cons_add_spring(id(1),id(2),k,r,rtdb)
+             call cons_add_spring(namespace,id(1),id(2),k,r,rtdb)
            else
              call errquit('cons_input: failed harm bond input', 0,
      >        0)
@@ -150,7 +154,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include "cons_data.fh"
 c     
       logical cons_harm_bond_input
       integer i,j
