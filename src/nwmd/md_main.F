@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.57 2000-02-01 00:55:48 d3j191 Exp $
+c $Id: md_main.F,v 1.58 2000-02-02 21:36:54 d3j191 Exp $
 c
       implicit none
 c
@@ -868,8 +868,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
 c
-      write(projct,4000) mequi,idacq,filnam(1:60)
- 4000 format('md ',i7,'+ ',i7,' ',a)
+      write(projct,4000) mequi,idacq,tmpext,filnam(1:48)
+ 4000 format('md ',i7,'+ ',i7,' @ ',f7.2,' K ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
       if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
@@ -981,8 +981,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
 c
-      write(projct,4000) irun,mrun,mequi,idacq,filnam(1:47)
- 4000 format('ti ',i5,'/',i5,' :'i7,'+ ',i7,' ',a)
+      write(projct,4000) irun,mrun,mequi,idacq,tmpext,filnam(1:35)
+ 4000 format('ti ',i5,'/',i5,' :'i7,'+ ',i7,' @ ',f7.2,' K ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
