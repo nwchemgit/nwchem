@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.146 2002-07-31 18:57:42 d3j191 Exp $
+c $Id: md_main.F,v 1.147 2002-07-31 19:21:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1411,11 +1411,13 @@ c
 c
       if(ndec.gt.2) call cf_print_dera(lfnout,ndec)
 c
+      if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       close(unit=lfntrj,status='keep')
       endif
       if(nfprop.gt.0) then
       close(unit=lfnprp,status='keep')
+      endif
       endif
 c
     1 continue
@@ -2510,7 +2512,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.146 2002-07-31 18:57:42 d3j191 Exp $
+c $Id: md_main.F,v 1.147 2002-07-31 19:21:09 d3j191 Exp $
 c
       implicit none
 c
