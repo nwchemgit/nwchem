@@ -799,12 +799,33 @@ The {\tt system} keyword can assume the following values
 \item {\tt molecule} --- no translational symmetry (this is the default)
 \end{itemize}   
 
-When the system possess translational symmetry, fractional coordinates
+When the system possess translational symmetry, {\bf fractional} coordinates
 are used in the directions where translational symmetry exists. 
 This means that for crystals $x$, $y$ and $z$ are fractional, for
 surfaces $x$ and $y$  are fractional, whereas for polymers only $z$ is
 fractional.
+For example, in the following H$_2$O layer input (a 2-d  periodic
+system), $x$ and $y$ coordinates are fractionay, whereas $z$
+is expressed in \AA .
+\begin{verbatim}
+geometry units angstrom
+  O     0.353553    0.353553         2.100000000
+  H     0.263094    0.353553         2.663590000
+  H     0.444007    0.353553         2.663590000
+\end{verbatim}
 
+Since no space group symmetry is available yet other than $P1$, input
+of cell parameters is relative to the primitive cell. For example,
+this is the input  required for the cubic face-centered type structure
+of bulk MgO.
+
+\begin{verbatim}
+
+  system crystal
+   lat_a 2.97692 lat_b 2.97692 lat_c 2.97692 
+   alpha 60.00 beta 60.00 gamma 60.00
+  end
+\end{verbatim}
 
 
 
