@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.15 1995-11-29 01:52:38 d3e129 Exp $
+C$Id: geom.fh,v 1.16 1995-12-27 19:53:00 d3e129 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -38,6 +38,11 @@ c
       logical geom_num_core
       logical geom_tag_to_default_mass
       logical geom_atn_to_default_mass
+c
+      logical geom_masses_set
+      logical geom_masses_get
+      logical geom_mass_set
+      logical geom_mass_get
 c
       external geom_check_handle
       external geom_check_cent
@@ -79,3 +84,8 @@ c
       external geom_default_charge_with_ecp
       external geom_tag_to_default_mass
       external geom_atn_to_default_mass
+c
+      external geom_masses_set
+      external geom_masses_get
+      external geom_mass_set
+      external geom_mass_get

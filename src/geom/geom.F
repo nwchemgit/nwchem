@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.42 1995-12-01 16:58:17 d3g681 Exp $
+C$Id: geom.F,v 1.43 1995-12-27 19:52:51 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -290,6 +290,9 @@ c
       tmp(k:) = ':charges'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
+      tmp(k:) = ':masses'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, geom_mass(1,geom))
       tmp(k:) = ':efield'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
@@ -542,6 +545,10 @@ c
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     charge(1,geom))
+      tmp(k:) = ':masses'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+     $     geom_mass(1,geom))
       tmp(k:) = ':efield'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
@@ -670,6 +677,8 @@ c
       tmp(k:) = ':coords'
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':charges'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':masses'
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':efield'
       status = status .and. rtdb_delete(rtdb, tmp)
@@ -1087,9 +1096,9 @@ c
 c
       write(6,3) 
  3    format('  No.       Tag          Charge          X',
-     $     '              Y              Z'/
+     $     '              Y              Z             Mass'/
      $       ' ---- ---------------- ---------- --------------',
-     $     ' -------------- --------------')
+     $     ' -------------- -------------- --------------')
       do icent = 1, ncenter(geom)
 c
 c     Convert from cartesian to crystallographic coordinates
@@ -1103,8 +1112,8 @@ c
             tmp(i) = tmp(i)*scale ! Scale units as necessary
          end do
          write(6,4) icent, tags(icent,geom), charge(icent,geom),
-     $        (tmp(i),i=1,3)
- 4       format(' ',i4,' ',a16,' ',f10.6,3f15.8)
+     $        (tmp(i),i=1,3), geom_mass(icent,geom)
+ 4       format(' ',i4,' ',a16,' ',f10.6,3f15.8,f15.8)
       end do
       write(6,*)
 c
@@ -1604,11 +1613,11 @@ c
       integer atn             ! [input] atomic number of element
       double precision mass   ! [output] default elemental atomic mass.
 c
-      double precision masses(nelements)
+      double precision def_masses(nelements)
 c
       integer i
 c
-      data (masses(i),i=1,50) /
+      data (def_masses(i),i=1,50) /
      &  1.007825d0, 4.0026d0,    7.016d0,    9.01218d0, 11.00931d0,
      & 12.0d0,     14.00307d0,  15.99491d0, 18.9984d0,  19.99244d0,
      & 22.9898d0,  23.98504d0,  26.98154d0, 27.97693d0, 30.97376d0,
@@ -1619,7 +1628,7 @@ c
      & 83.912d0,   84.9117d0,   87.9056d0,  88.9054d0,  89.9043d0,
      & 92.9060d0,  97.9055d0,   97.9072d0, 101.9037d0, 102.9048d0,
      &105.9032d0, 106.90509d0, 113.9036d0, 114.9041d0, 117.9018d0/
-      data (masses(i),i=51,103) /
+      data (def_masses(i),i=51,103) /
      & 120.9038d0, 129.9067d0, 126.9004d0, 131.9042d0, 132.9051d0,
      & 137.9050d0, 138.9061d0, 139.9053d0, 140.9074d0, 143.9099d0,
      & 144.9128d0, 151.9195d0, 152.9209d0, 157.9241d0, 159.9250d0,
@@ -1639,7 +1648,104 @@ c
       if (atn.gt.nelements) call errquit
      &    ('geom_atn_to_default_mass: atomic number too large',atn)
 c
-      mass = masses(atn)
+      mass = def_masses(atn)
       geom_atn_to_default_mass = .true.
 c
       end
+      logical function geom_masses_set(geom, ncent, masses)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom                   ! [input] geometry handle
+      integer ncent                  ! [input] number of centers
+      double precision masses(ncent) ! [input] mass on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_masses_set = geom_check_handle(geom, 'geom_masses_set')
+      if (.not. geom_masses_set) return
+c
+      if (ncent.le.0 .or. ncent.gt.max_cent) then
+         write(6,*) ' geom_masses_set: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      do i = 1, ncent
+        geom_mass(i,geom) = masses(i)
+      enddo
+c
+      end      
+      logical function geom_masses_get(geom, ncent, masses)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom                   ! [input] geometry handle
+      integer ncent                  ! [input] number of centers
+      double precision masses(ncent) ! [output] mass on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_masses_get = geom_check_handle(geom, 'geom_masses_get')
+      if (.not. geom_masses_get) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+        masses(i) = geom_mass(i,geom)
+      enddo
+c
+      end      
+      logical function geom_mass_set(geom, icent, mass)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom            ! [input] geometry handle
+      integer icent           ! [input] number of center for mass
+      double precision mass   ! [input] mass on center icent
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_mass_set = geom_check_handle(geom, 'geom_mass_set')
+      if (.not. geom_mass_set) return
+c
+      if (icent.le.0 .or. icent.gt.ncenter(geom)) then
+         write(6,*) ' geom_mass_set: icent out of range',icent,
+     &        ncenter(geom),
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      geom_mass(icent,geom) = mass
+c
+      end      
+      logical function geom_mass_get(geom, icent, mass)
+      implicit none
+#include "geomP.fh"
+c
+      integer geom            ! [input] geometry handle
+      integer icent           ! [input] number of center for mass
+      double precision mass   ! [output] mass on center icent
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_mass_get = geom_check_handle(geom, 'geom_mass_get')
+      if (.not. geom_mass_get) return
+c
+      if (icent.le.0 .or. icent.gt.ncenter(geom)) then
+         write(6,*) ' geom_mass_get: icent out of range',icent,
+     &        ncenter(geom),
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      mass = geom_mass(icent,geom)
+c
+      end      

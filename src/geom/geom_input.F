@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.23 1995-12-16 02:18:36 d3g681 Exp $
+C     $Id: geom_input.F,v 1.24 1995-12-27 19:53:03 d3e129 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -148,11 +148,17 @@ c
      $           ('geom_input: too many centers?', ncenter)
             tags(ncenter+1) = field
             oecp(ncenter+1) = .false.
-            mass(ncenter+1) = 0.0d0
             charge(ncenter+1) = 0.0d0
 c     
             is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
      $           element, atn)
+c
+c.. set default mass
+c
+            if (.not.
+     &            geom_atn_to_default_mass(atn,mass((ncenter+1))))
+     &            call errquit(' geom_input: default mass failed',
+     &            911)
 c     
 c     Old style input  tag charge x y z
 c     
@@ -239,6 +245,9 @@ c
 c     
       if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
+c
+      if (.not. geom_masses_set(geom, ncenter, mass))
+     &      call errquit('geom_input: geom_masses_set failed', 0)
 c     
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
