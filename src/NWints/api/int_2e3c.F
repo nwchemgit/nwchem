@@ -1,6 +1,6 @@
       subroutine int_2e3c(brain, ish, ketin, jsh, ksh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e3c.F,v 1.5 1996-01-22 21:46:23 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.6 1996-02-09 22:35:53 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two electron integrals
@@ -45,6 +45,7 @@ c:: local
       logical status_txs
       integer num_quart, dummy_lab(2)
       double precision roff(3), q4 
+      integer txs_i,txs_j,txs_k,txs_d
       integer nint
       logical dum_log
 #endif
@@ -74,6 +75,7 @@ c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)
 #if defined(USE_TEXAS)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,ksh)
+      status_txs = .false.
 #endif
 c
 c     define center information required 
@@ -102,13 +104,19 @@ c
         roff(1) = 0.0d00
         roff(2) = 0.0d00
         roff(3) = 0.0d00
+        txs_i = ish
+        txs_j = jsh
+        txs_k = ksh
+        txs_d = 0
         dum_log = .false.
         q4 = 1.0d00
         nint = 0
-        call texas_hf2_m(brain,ish,0,ketin,jsh,ksh,num_quart,
-     &      q4,.false.,roff,roff,roff,roff,.false.,
-     &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
-     &      nint, .false., dum_log, scr, lscr)
+        call texas_hf2_m(
+     &        brain,txs_i,txs_d,
+     &        ketin,txs_j,txs_k,num_quart,
+     &        q4,.false.,roff,roff,roff,roff,.false.,
+     &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+     &        nint, .false., dum_log, scr, lscr)
 
       else if(status_nw) then
 #else

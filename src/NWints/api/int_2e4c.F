@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.18 1996-01-22 21:46:24 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.19 1996-02-09 22:35:54 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -49,11 +49,12 @@ c:: local
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
 c.txs
       integer num_quart, dummy_lab(2)
+      integer txs_i,txs_j,txs_k,txs_l
       double precision roff(3)
       double precision q4
       integer nint
       logical dum_log
-      logical status_sp, status_nw, status_txs
+      logical status_sp, status_nw, status_txs, status_gen
       integer texas_ang_limit
 c
 #if defined(PERF_NORMAL)
@@ -124,20 +125,26 @@ c... stat texas
       texas_ang_limit = 2
       ucont   = (sf_ibs_cn2ucn(ish,bra))
       La      = infbs_cont(CONT_TYPE ,ucont,bra)
+      a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
       ucont   = (sf_ibs_cn2ucn(jsh,bra))
       Lb      = infbs_cont(CONT_TYPE ,ucont,bra)
+      b_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
       ucont   = (sf_ibs_cn2ucn(ksh,ket))
       Lc      = infbs_cont(CONT_TYPE ,ucont,ket)
+      c_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
       ucont   = (sf_ibs_cn2ucn(lsh,ket))
       Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
+      d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
       status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
       status_txs = status_txs .and. brain.eq.ketin
-      status_txs = status_txs .and.
-     &    ( (La.gt.texas_ang_limit).or.
-     &      (Lb.gt.texas_ang_limit).or.
-     &      (Lc.gt.texas_ang_limit).or.
-     &      (Ld.gt.texas_ang_limit)  )
-
+      status_gen = max(a_gen,b_gen,c_gen,d_gen).gt.1
+      if (.not.status_gen) then
+        status_txs = status_txs .and.
+     &        ( (La.gt.texas_ang_limit).or.
+     &        (Lb.gt.texas_ang_limit).or.
+     &        (Lc.gt.texas_ang_limit).or.
+     &        (Ld.gt.texas_ang_limit)  )
+      endif
 c... stat nw
       status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
       if (status_sp) then
@@ -159,13 +166,19 @@ c
         dum_log = .false.
 *...check symmetry here
         q4 = 1.0d00
-        call texas_hf2_m(brain,ish,jsh,ketin,ksh,lsh,num_quart,
-     &      q4,.false.,
+        txs_i = ish
+        txs_j = jsh
+        txs_k = ksh
+        txs_l = lsh
+        call texas_hf2_m(
+     &        brain,txs_i,txs_j,
+     &        ketin,txs_k,txs_l,num_quart,
+     &        q4,.false.,
 c............................... use roff set false
-     &      roff,roff,roff,roff,.false.,
-     &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
+     &        roff,roff,roff,roff,.false.,
+     &        eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
 c............... gen labs .. more_integrals
-     &      nint, .false., dum_log, scr, lscr)
+     &        nint, .false., dum_log, scr, lscr)
 
       elseif(status_nw) then
 c

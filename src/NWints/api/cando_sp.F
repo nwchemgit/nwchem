@@ -1,9 +1,9 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.15 1996-02-08 20:00:00 d3e129 Exp $
+c $Id: cando_sp.F,v 1.16 1996-02-09 22:35:50 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
-c this allows one function for all 1e and 2e permutations
+c this allows one function for all 2e permutations
 c 
 c for two electron cases then there are two calls to cando_sp
 c that are required
@@ -59,7 +59,7 @@ c
       implicit none
 c
 c a zero [i|j]sh means ignore this shell
-c this allows one function for all 1e and 2e permutations
+c this allows one function for all 2e permutations
 c 
 c for two electron cases then there are two calls to cando_nw
 c that are required
@@ -78,7 +78,7 @@ c
 c::passed
       integer basisin,ish,jsh
 c::local
-      integer basis, mytype, ucont
+      integer basis, mytype, mygen, ucont
 c
 #include "bas_ibs_sfn.fh"
 c
@@ -95,14 +95,18 @@ c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
-        cando_nw = cando_nw .and.(mytype.gt.-1)
+        mygen  = infbs_cont(CONT_NGEN,ucont,basis)
+        cando_nw = cando_nw .and.(mytype.gt.-1) 
+        cando_nw = cando_nw .and.(mygen.eq.1)
       endif
 c
 c.... check jsh
       if (jsh.gt.0) then
         ucont  = (sf_ibs_cn2ucn(jsh,basis))
         mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        mygen  = infbs_cont(CONT_NGEN,ucont,basis)
         cando_nw = cando_nw .and.(mytype.gt.-1)
+        cando_nw = cando_nw .and.(mygen.eq.1)
       endif
 c
       end
@@ -110,7 +114,7 @@ c
       implicit none
 c
 c a zero [i|j]sh means ignore this shell/contraction
-c this allows one function for all 1e and 2e permutations
+c this allows one function for all 2e permutations
 c 
 c for two electron cases then there are two calls to cando_sp_u
 c that are required
@@ -231,10 +235,8 @@ c
       implicit none
 c
 c a zero [i|j]sh means ignore this shell
-c this allows one function for all 1e and 2e permutations
+c this allows one function for all 1e permutations
 c 
-c for two electron cases then there are two calls to cando_nw_1e
-c that are required
 c
 c this routine does not check the shell and int_init
 c because it only called by routines that do this.

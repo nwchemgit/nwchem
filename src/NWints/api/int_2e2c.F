@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.5 1996-01-22 21:46:22 d3e129 Exp $
+c $Id: int_2e2c.F,v 1.6 1996-02-09 22:35:52 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -44,6 +44,7 @@ c:: local
       logical status_txs
       integer num_quart, dummy_lab(2)
       double precision roff(3), q4 
+      integer txs_i,txs_j,txs_d1,txs_d2
       integer nint
       logical dum_log
 #endif
@@ -73,6 +74,7 @@ c
       status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
 #if defined(USE_TEXAS)
       status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
+      status_txs = .false.
 #endif
 c
 c     define center information required 
@@ -103,7 +105,13 @@ c
         dum_log = .false.
         q4 = 1.0d00
         nint = 0
-        call texas_hf2_m(brain,ish,0,ketin,jsh,0,num_quart,
+        txs_i = ish
+        txs_j = jsh
+        txs_d1 = 0
+        txs_d2 = 0
+        call texas_hf2_m(
+     &      brain,txs_i,txs_d1,
+     &      ketin,txs_j,txs_d2,num_quart,
      &      q4,.false.,roff,roff,roff,roff,.false.,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
      &      nint, .false., dum_log, scr, lscr)

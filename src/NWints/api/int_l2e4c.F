@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.13 1996-01-22 21:46:33 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.14 1996-02-09 22:35:55 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -35,6 +35,7 @@ c::local
       integer numint, newlscr
       logical dum_log_f, dum_log_t
       integer num_quart, intp 
+      integer txs_i,txs_j,txs_k,txs_l
       double precision roff(3), val, q4
 
 c
@@ -51,28 +52,6 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
       if (.not.shells_ok)
      &       call errquit('int_l2e4c: invalid contraction/shell',0)
-*rak: no longer valid assumption :c
-*rak: no longer valid assumption :c   check canonicalizations of input shells
-*rak: no longer valid assumption :c      
-*rak: no longer valid assumption :      shells_ok = ish.ge.jsh
-*rak: no longer valid assumption :      shells_ok = shells_ok .and. ksh.ge.lsh
-*rak: no longer valid assumption :      ijsh = isym2(ish,jsh)
-*rak: no longer valid assumption :      klsh = isym2(ksh,lsh)
-*rak: no longer valid assumption :      if (brain.eq.ketin) shells_ok = shells_ok .and. ijsh.ge.klsh
-*rak: no longer valid assumption :      if (.not.shells_ok) then
-*rak: no longer valid assumption :        write(6,*)'int_2e4c: shells not canonical on input '
-*rak: no longer valid assumption :        write(6,*)'bra basis set handle:',brain
-*rak: no longer valid assumption :        write(6,*)'ket basis set handle:',ketin
-*rak: no longer valid assumption :        write(6,*)'                 ish:',ish
-*rak: no longer valid assumption :        write(6,*)'                 jsh:',jsh
-*rak: no longer valid assumption :        write(6,*)'                 ksh:',ksh
-*rak: no longer valid assumption :        write(6,*)'                 lsh:',lsh
-*rak: no longer valid assumption :        if (brain.eq.ketin) then
-*rak: no longer valid assumption :          write(6,*)'                ijsh:',ijsh
-*rak: no longer valid assumption :          write(6,*)'                klsh:',klsh
-*rak: no longer valid assumption :        endif
-*rak: no longer valid assumption :        call errquit('int_l2e4c: shells not in canonical order',0)
-*rak: no longer valid assumption :      endif
 c
       status_sp  = cando_sp(brain, ish, jsh)  .and.
      &    cando_sp(ketin, ksh, lsh)
@@ -88,7 +67,13 @@ c
         dum_log_f = .false.
         dum_log_t = .true.
         q4 = 1.0d00
-        call texas_hf2_m (brain, ish, jsh, ketin, ksh, lsh, num_quart,
+        txs_i = ish
+        txs_j = jsh
+        txs_k = ksh
+        txs_l = lsh
+        call texas_hf2_m (
+     &      brain, txs_i, txs_j,
+     &      ketin, txs_k, txs_l, num_quart,
      &      q4, dum_log_f,
      &      roff, roff, roff, roff, dum_log_f,
      &      eri, leri,
