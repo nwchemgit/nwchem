@@ -1,4 +1,4 @@
-      logical function pre_mklist(lfnout,lfnsgm,
+      logical function pre_mklist(lfnout,lfnsgm,lfnmat,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,
@@ -10,7 +10,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx)
 c
-c $Id: pre_mklist.F,v 1.23 2000-06-15 07:16:25 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.24 2000-09-15 22:21:53 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer pre_atnum
       external pre_sgmfil,pre_rdsgm,pre_atnum
 c
-      integer lfnout,lfnsgm
+      integer lfnout,lfnsgm,lfnmat
       character*80 ffield
       character*255 dir_s,dir_x,dir_u,dir_t
       integer mseq,nseq
@@ -55,7 +55,7 @@ c
       integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
       character*4 atl1,atl2
-      character*255 filsgm
+      character*255 filsgm,filmat
       integer in,jn,ln,ir,itmp
 c
       igrp=0
@@ -63,6 +63,8 @@ c
       do 1 i=1,nseq
 c
       lseq(3,i)=natm+1
+c
+      filmat=cseq(i)(1:index(cseq(i),' ')-1)//'.mat '
 c
 c     generate segment filename
 c     -------------------------
@@ -75,7 +77,7 @@ c     append the atom and bonded lists
 c     --------------------------------
 c
       if(.not.pre_rdsgm(lfnout,ffield,lseq(4,i),i,igrp,ipgrp,
-     + lfnsgm,filsgm,
+     + lfnsgm,filsgm,lfnmat,filmat,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,wcorr))
@@ -858,12 +860,13 @@ c
       ndiht=ndih
       nimpt=nimp
       if(cseq(nseq+1)(1:1).ne.' ') then
+      filmat=cseq(i)(1:index(cseq(nseq+1),' ')-1)//'.mat '
       lseq(3,nseq+1)=natm+1
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_sgmfil failed',9999)
       if(.not.pre_rdsgm(lfnout,ffield,0,0,igrp,ipgrp,lfnsgm,
-     + filsgm,latm,catm,qatm,matm,natmt,
+     + filsgm,lfnmat,filmat,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
      + ldih,kdih,rdih,mdih,ndiht,limp,rimp,mimp,nimpt,wcorr))
      + call errquit('pre_rdsgm failed',9999)

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.37 2000-07-06 18:48:57 d3j191 Exp $
+c $Id: prepar.F,v 1.38 2000-09-15 22:21:54 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -56,7 +56,7 @@ c
       character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov
+      integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
       integer ncount,icyren,model,iconst
@@ -93,6 +93,7 @@ c
       lfnnoe=25
       lfnpmf=26
       lfnpov=27
+      lfnmat=28
 c
 c     node 0 only please
 c     ------------------
@@ -238,7 +239,8 @@ c     ---------------------------------------------
 c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
+     + lfntmp,filtmp,lfnmod,filmod,
+     + dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst))
      + call errquit('pre_mkseq failed',9999)
@@ -254,7 +256,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore))
+     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
@@ -301,7 +303,7 @@ c
       if(.not.pre_mkrst(irtdb,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
-     + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk))
+     + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue

@@ -1,16 +1,17 @@
       logical function pre_rdsgm(lfnout,ffield,imol,isgm,igrp,
-     + ipgrp,lfnsgm,filsgm,latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
+     + ipgrp,lfnsgm,filsgm,lfnmat,filmat,
+     + latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.12 1999-05-10 22:38:06 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.13 2000-09-15 22:21:54 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp
-      character*255 filsgm
+      integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp,lfnmat
+      character*255 filsgm,filmat
       character*80 ffield
       integer matm,natm
       integer latm(9,matm)
@@ -31,9 +32,9 @@ c
       real*8 wcorr(3)
 c
       character*80 card
-      integer i,j,l,length,na,jmol
-      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3)
-      real*8 rd(6)
+      integer i,j,l,length,na,jmol,nzmat
+      integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3),izm(4)
+      real*8 rd(6),zm(3)
 c
       jmol=imol
 c
@@ -50,8 +51,8 @@ c
       read(lfnsgm,1000) card
  1000 format(a)
       if(card(1:1).eq.'#'.or.card(1:1).eq.'$') goto 1
-      read(card,1001,err=9999) nsatm,nsbnd,nsang,nsdih,nsimp,wcorr
- 1001 format(5i5,3f12.6)
+      read(card,1001,err=9999) nsatm,nsbnd,nsang,nsdih,nsimp,wcorr,nzmat
+ 1001 format(5i5,3f12.6,i5)
       if(natm+nsatm.gt.matm) call errquit('increase matm',9999)
       if(nbnd+nsbnd.gt.mbnd) call errquit('increase mbnd',9999)
       if(nang+nsang.gt.mang) call errquit('increase mang',9999)
@@ -198,6 +199,21 @@ c
       limp(4,nimp)=limp(4,nimp)+na
 c
     6 continue
+c
+c     copy the z-matrix information
+c     -----------------------------
+c
+      if(nzmat.gt.0) then
+      open(unit=lfnmat,file=filmat(1:index(filmat,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      do 7 i=1,nzmat
+      read(lfnsgm,1012) izm,zm
+      write(lfnmat,1013) izm,zm
+ 1012 format(5x,4i5,3f12.6)
+ 1013 format(4i5,3f12.6)
+    7 continue
+      close(unit=lfnmat)
+      endif
 c
       close(unit=lfnsgm)
       pre_rdsgm=.true.

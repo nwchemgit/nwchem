@@ -1,8 +1,9 @@
-      logical function pre_misfit(lfnout,isfnd,xs,csa,qsa,msa,nsa,
+      logical function pre_misfit(lfnout,lfnmat,
+     + isfnd,xs,csa,qsa,isgm,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.20 2000-07-27 17:47:31 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.21 2000-09-15 22:21:53 d3j191 Exp $
 c
       implicit none
 c
@@ -12,18 +13,62 @@ c
       integer util_nint
       external util_nint
 #endif
+      logical md_zmat
+      external md_zmat
 c
       integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
-      integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp
+      integer lfnmat
+      integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp,isgm(msa)
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
       character*16 csa(msa)
       real*8 xw(3,mwa,mwm),qwa(mwa),box(3)
+      character*255 filmat
 c
       real*8 grid(4,mgrid),distx,disty,distz
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
       real*8 d(3),c(3),p(3),t(3),r,dr,dd,px(3),pn(3),pz(3),pw(3)
       real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle,boxh(3)
       integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
+c
+      integer isg,ioff,iz,jz,kz,lz
+      real*8 dz,az,tz
+      logical lmat
+c
+c     process z-matrices for missing atoms
+c     ------------------------------------
+c
+      ioff=0
+      isg=0
+      lmat=.false.
+      do 30 i=1,nsa
+      if(isgm(i).ne.isg) then
+      isg=isgm(i)
+      ioff=i-1
+      filmat=csa(i)(1:index(csa(i),' ')-1)//'.mat '
+      lmat=.false.
+      if(lmat) close(unit=lfnmat)
+      open(unit=lfnmat,file=filmat(1:index(filmat,' ')-1),
+     + form='formatted',status='old',err=30)
+      lmat=.true.
+      endif
+      if(lmat.and.isfnd(i).ne.1) then
+      rewind(lfnmat)
+   31 continue
+      read(lfnmat,1000,end=30,err=30) iz,jz,kz,lz,dz,az,tz
+ 1000 format(4i5,3f12.6)
+      if(i.eq.iz+ioff.and.isfnd(ioff+jz).ne.0.and.
+     + isfnd(ioff+kz).ne.0.and.isfnd(ioff+lz).ne.0) then
+      if(md_zmat(xs(1,i),xs(1,ioff+kz),xs(1,ioff+kz),xs(1,ioff+kz),
+     + dz,az,tz)) isfnd(i)=1
+      else
+      goto 31
+      endif
+      endif
+   30 continue
+      if(lmat) close(unit=lfnmat)
+c
+c     generate missing coordinates based on simple rules
+c     --------------------------------------------------
 c
       gdist2=gdist*gdist
       boxh(1)=0.5d0*box(1)

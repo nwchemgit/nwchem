@@ -1,7 +1,7 @@
       logical function pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.10 2000-07-13 23:13:02 edo Exp $
+c $Id: pre_mksgm.F,v 1.11 2000-09-15 22:21:54 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -24,11 +24,12 @@ c
       character*255 filfrg,filsgm
 c
       integer length
-      integer matm,mbnd,mang,mdih,mimp
-      integer natm,nbnd,nang,ndih,nimp
+      integer matm,mbnd,mang,mdih,mimp,mzmat
+      integer natm,nbnd,nang,ndih,nimp,nzmat
 c
       integer l_latm,i_latm,l_catm,i_catm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
+      integer i_izmat,l_izmat,i_zmat,l_zmat
 c
       length=index(filsgm,' ')-1
 c
@@ -37,7 +38,7 @@ c
  2000 format(//,'SEGMENT FILE ',a)
       endif
 c
-      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd))
+      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd,nzmat))
      + call errquit('pre_frgsiz failed',9999)
 c
 c     allocate memory for bonds, angles, torsions and impropers
@@ -52,6 +53,7 @@ c
       nang=0
       ndih=0
       nimp=0
+      mzmat=nzmat+1
 c
 c     allocate memory for atom list
 c     -----------------------------
@@ -97,12 +99,20 @@ c
       if(.not.ma_push_get(mt_int,4*mimp,'imp',l_imp,i_imp))
      + call errquit('mksgm: Memory allocation failed for imp',9999)
 c
+      if(mzmat.gt.0) then
+      if(.not.ma_push_get(mt_int,4*mzmat,'izmat',l_izmat,i_izmat))
+     + call errquit('mksgm: Memory allocation failed for izmat',9999)
+      if(.not.ma_push_get(mt_dbl,3*mzmat,'zmat',l_zmat,i_zmat))
+     + call errquit('mksgm: Memory allocation failed for zmat',9999)
+      endif
+c
 c     read atom list and bond list from fragment file
 c     -----------------------------------------------
 c
       if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
-     + int_mb(i_bnd),mbnd,nbnd))
+     + int_mb(i_bnd),mbnd,nbnd,int_mb(i_izmat),
+     + dbl_mb(i_zmat),mzmat,nzmat))
      + call errquit('mksgm: pre_frgrd failed',9999)
 c
 c     make the angle list
@@ -145,12 +155,19 @@ c
       if(.not.pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
-     + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))
+     + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp,
+     + int_mb(i_izmat),dbl_mb(i_zmat),mzmat,nzmat))
      + call errquit('mksgm: pre_wrtsgm failed',9999)
 c
 c     deallocate memory
 c     -----------------
 c
+      if(mzmat.gt.0) then
+      if(.not.ma_pop_stack(l_zmat))
+     + call errquit('mksgm: Memory deallocation failed for zmat',9999)
+      if(.not.ma_pop_stack(l_izmat))
+     + call errquit('mksgm: Memory deallocation failed for izmat',9999)
+      endif
       if(.not.ma_pop_stack(l_imp))
      + call errquit('mksgm: Memory deallocation failed for imp',9999)
       if(.not.ma_pop_stack(l_dih))

@@ -1,9 +1,10 @@
       logical function pre_mkrst(irtdb,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
-     + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
+     + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
+     + lfnmat)
 c
-c $Id: pre_mkrst.F,v 1.60 2000-09-11 17:21:51 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.61 2000-09-15 22:21:53 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +24,7 @@ c
       logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
 c
-      integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
+      integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
       integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
       character*255 filxyz,filqqq,filpov
@@ -274,8 +275,8 @@ c
       if(nmis.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
-     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,
+      if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
+     + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
@@ -493,8 +494,8 @@ c
       if(nmis.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
-     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,
+      if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
+     + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
@@ -758,8 +759,8 @@ c
       if(nmis.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,'grid',l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
-     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,
+      if(.not.pre_misfit(lfnout,lfnmat,int_mb(i_sfnd),dbl_mb(i_xs),
+     + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
      + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))

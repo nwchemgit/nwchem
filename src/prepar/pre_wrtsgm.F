@@ -1,8 +1,8 @@
       logical function pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
-     + ldih,mdih,ndih,limp,mimp,nimp)
+     + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat)
 c
-c $Id: pre_wrtsgm.F,v 1.10 1999-06-17 20:14:37 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.11 2000-09-15 22:21:54 d3j191 Exp $
 c
       implicit none
 c
@@ -14,6 +14,9 @@ c
       integer limp(4,mimp)
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
+      integer mzmat,nzmat
+      integer izmat(mzmat,4)
+      real*8 zmat(mzmat,3)
       character*255 filsgm
       character*80 ffield
 c
@@ -27,8 +30,8 @@ c
  2000 format('# This is an automatically generated segment file',/,
      + '#')
 c
-      write(lfnsgm,2001) natm,nbnd,nang,ndih,nimp
- 2001 format(5i5)
+      write(lfnsgm,2001) natm,nbnd,nang,ndih,nimp,nzmat
+ 2001 format(5i5,36x,i5)
 c
       do 1 i=1,natm
       write(lfnsgm,2002) i,catm(1,i),(catm(2,i),j=1,3),latm(3,i),
@@ -60,6 +63,11 @@ c
       endif
  2006 format(i5,6i5,/,3(i3,f10.6,e12.5))
     5 continue
+c
+      do 6 i=1,nzmat
+      write(lfnsgm,2007) i,(izmat(i,j),j=1,4),(zmat(i,j),j=1,3)
+ 2007 format(5i5,3f12.6)
+    6 continue
 c
       close(unit=lfnsgm)
 c

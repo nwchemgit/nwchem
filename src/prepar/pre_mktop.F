@@ -1,8 +1,8 @@
       logical function pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
+     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.22 2000-09-05 22:00:46 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.23 2000-09-15 22:21:54 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -28,7 +28,7 @@ c
       logical pre_nonbon,pre_modify
       external pre_nonbon,pre_modify
 c
-      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore
+      integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
       character*80 ffield
       character*255 filseq,filtop,filpar,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
@@ -309,7 +309,7 @@ c
      + call errquit('Memory allocation failed for ndx',9999)
       if(.not.ma_push_get(mt_dbl,nval,'rval',l_rval,i_rval))
      + call errquit('Memory allocation failed for rval',9999)
-      if(.not.pre_mklist(lfnout,lfnsgm,
+      if(.not.pre_mklist(lfnout,lfnsgm,lfnmat,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,

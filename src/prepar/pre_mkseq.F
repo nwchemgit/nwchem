@@ -1,10 +1,11 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
+     + lfntmp,filtmp,lfnmod,filmod,
+     + dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst)
 c
-c $Id: pre_mkseq.F,v 1.34 2000-04-26 20:32:20 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.35 2000-09-15 22:21:53 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
