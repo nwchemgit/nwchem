@@ -100,12 +100,23 @@ c
       n1 = nxtask(nproc,icount)
       n2 = 0
       do 240 ishc = 1,nshells_ao
+        if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
+     *       call errquit('Exiting in dft_fitcd',111)
+        nshbfc=ilastc-ifirstc+1
+
         do 230 ishd = 1,ishc
           if( n1.eq.n2 )then
-            
+            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
+     *         call errquit('Exiting in dft_fitcd',1111)
+            nshbfd=ilastd-ifirstd+1
+            Nao2=nshbfd*nshbfc
+C
 c           Gather the needed density matrix elements.
-            call gat_lab_can(AO_bas_han, ishc, ishd, 
-     &                       iga_dens, DBL_MB(igvec),Nao2)
+c
+            call ga_get(iga_dens,
+     *           ifirstd,ilastd,
+     *           ifirstc,ilastc,
+     *           dbl_mb(igvec),nshbfd)
             
             
 c           Determine the maximum density matrix element for this product of AO shells.
