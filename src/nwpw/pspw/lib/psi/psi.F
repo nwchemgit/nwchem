@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.32 2003-07-01 13:39:48 bylaska Exp $
+* $Id: psi.F,v 1.33 2003-07-02 15:01:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -582,6 +582,7 @@
       logical value,done,oneloop
       integer it
       real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 theta
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
@@ -606,6 +607,7 @@
       done = .false.
       error0 = 0.0d0 
       e0 = 0.0d0
+      theta = -3.14159d0/600.0d0
       it = 0
  2    continue
 
@@ -628,6 +630,7 @@
          !  percent_error = dabs(e0-eold)/error0
          !end if
 
+         
 c        done = ((it.gt.maxiteration) 
 c    >           .or.
 c    >           ((percent_error.lt.perror)
@@ -689,9 +692,11 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
          end if
 
          de0 = -2.0d0*de0
-         call psi_linesearch_update(psi_number,i,e0,de0,dcpl_mb(t(1)))
+         call psi_linesearch_update(psi_number,i,
+     >                              theta,e0,de0,dcpl_mb(t(1)))
 
       go to 2
+
 
 
 *     **** release stack memory ****
@@ -775,10 +780,11 @@ c      end
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
-      subroutine psi_linesearch_update(psi_number,i,e0,de0,t)
+      subroutine psi_linesearch_update(psi_number,i,theta,e0,de0,t)
       implicit none
       integer psi_number
       integer i
+      real*8  theta
       real*8  e0,de0
       complex*16 t(*) !search direction
       
@@ -788,7 +794,8 @@ c      end
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,theta,e1
+      real*8 x,y,pi,theta,e1,de1
+      real*8 theta2,e2,de2
 
       if (psi_number.eq.1) then
          psi_ptr=psi1(1)
@@ -812,8 +819,9 @@ c      end
      >                   dcpl_mb(orb(1)))
 
 *     **** orb2 = orb*cos(pi/300) + t*sin(pi/300) ****
-      x = cos(pi/300.0d0)
-      y = sin(pi/300.0d0)
+      !theta = pi/300.0d0
+      x = cos(theta)
+      y = sin(theta)
       call Pack_c_SMul(1,x,
      >                  dcpl_mb(orb(1)),
      >                  dcpl_mb(psi_ptr+(i-1)*npack1))
@@ -823,13 +831,22 @@ c      end
 
 *     *** determine theta ***
       call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+
       call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
      >                   dcpl_mb(g(1)),
      >                   e1)
       e1 = -e1
-      x = (e0 - e1 + 0.5d0*de0*sin(2*pi/300.0d0))
-     >    /(1.0d0-cos(2*pi/300.0d0))
+      x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
+     >    /(1.0d0-cos(2*theta))
       theta = 0.5d0*datan(0.5d0*de0/x) 
+
+c     call Pack_cc_dot(1,t,
+c    >                 dcpl_mb(g(1)),
+c    >                 de1)
+c     de1 = -2.0d0*de1
+c     theta  = -de1*(pi/300.0d0)/(de1-de0)
+
+      !write(*,*) "i,theta,e1:",i,theta,e1
 
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
@@ -843,7 +860,19 @@ c      end
      >                   dcpl_mb(psi_ptr+(i-1)*npack1))
 
 *     **** update orb2_r and H*orb2 ****
-      call electron_run_orb(i,dcpl_mb(psi_ptr)) 
+      !call electron_run_orb(i,dcpl_mb(psi_ptr)) 
+c     call psi_get_gradient_orb(psi_number,i,dcpl_mb(g(1)))
+c     call Pack_cc_dot(1,dcpl_mb(psi_ptr+(i-1)*npack1),
+c    >                   dcpl_mb(g(1)),
+c    >                   e2)
+c     e2 = -e2
+c     call Pack_cc_dot(1,t,
+c    >                 dcpl_mb(g(1)),
+c    >                 de2)
+c     de2 = -2.0d0*de2
+
+c     write(*,*) "i,theta,es:",i,theta,e0,e1,e2
+c     write(*,*)
 
 *     **** release stack memory ****
       value =           MA_pop_stack(g(2))
