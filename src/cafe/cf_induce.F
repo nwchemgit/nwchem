@@ -31,7 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_induce.F,v 1.4 1999-07-29 00:57:12 d3e129 Exp $
+c $Id: cf_induce.F,v 1.5 1999-10-25 17:42:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -93,7 +93,7 @@ c     induced dipoles
 c     ---------------
 c
       ndxp=lstptr
-      lptr=i_list+ndxp      
+      lptr=i_list+ndxp+24
 c
       if(lself.and.nwloc.gt.0) then
 c      call cf_fw(iwfr,iwto,xw,fw,iwdt,int_mb(i_iwa),int_mb(i_iwq),
@@ -108,8 +108,6 @@ c     + int_mb(i_iimp(1)),dbl_mb(i_imp(1)),dbl_mb(i_rimp(1)),
 c     + mtt(1),numt(1),int_mb(i_itrd(1)),
 c     + mxt(1),numx(1),int_mb(i_ixcl(1)))
       endif
-c
-      lptr=i_list+ndxp
 c
 c     solvent-solvent polarization
 c
