@@ -300,8 +300,6 @@
       
       call Parallel_taskid(taskid)
       n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
-      if (.not. value) call errquit('out of stack memory',0)
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -340,9 +338,14 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
          call D3dB_r_Zero_Ends(1,dn(1,ms))
       end do
 
+
 *     ********************************************
 *     **** loop over orbital and density list ****
 *     ********************************************
+
+      value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
       value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
       do i=1,count
@@ -419,7 +422,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *****************
 *          *** laplacian ***
 *          *****************
- 750       call D3dB_r_Copy(1,dn(1,ispin),dbl_mb(rho(1)))
+ 750       call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
            call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
            call Pack_c_pack(1,dbl_mb(rho(1)))
@@ -438,19 +441,21 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *          *******************************
 *          *** Electrostatic Potential ***
 *          *******************************
- 760       call D3dB_r_Copy(1,dn(1,ispin),dbl_mb(rho(1)))
+ 760       call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
            if (control_version().eq.3) then
-             call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
              call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
              call Pack_c_pack(0,dbl_mb(rho(1)))
-c             call pspw_add_core_dng(dbl_mb(rho(1)))
-             call coulomb_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call Pack_c_SMul(0,scal1,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call pspw_add_core_dng(1.0d0,dbl_mb(rho(1)))
              call Pack_c_SMul(0,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call coulomb_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
+c             call Pack_c_SMul(0,(1.0d0/scal2),
+c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
              call Pack_c_unpack(0,dbl_mb(rho(1)))
              call D3dB_cr_fft3b(1,dbl_mb(rho(1)))
            else
              call coulomb2_v(dbl_mb(rho(1)),dbl_mb(rho(1)))
-c             call pspw_add_core_pot(dbl_mb(rho(1)))
+             call pspw_add_core_pot(1.0d0,dbl_mb(rho(1)))
            end if
            if (taskid.eq.MASTER) then
              write(*,*) '   writing electrostatic potential',
@@ -840,3 +845,137 @@ c     if (.not. value) call errquit('closing geometry',0)
 
       return
       end
+
+
+*     ********************************
+*     *                				 *
+*     *        pspw_add_core_dng     *
+*     *                 			 *
+*     ********************************
+      subroutine pspw_add_core_dng(rcut,dng)
+      implicit none
+      real*8     rcut
+      complex*16 dng(*)
+
+#include "mafdecls.fh"
+
+*     *** local variables ***
+      logical value
+      integer nfft3d
+      integer i,ii
+      integer exi(2),vg(2),G(3)
+      real*8  w,scal,gg
+
+*     **** external functions ****
+      integer  G_indx,ion_nion,ion_katm
+      real*8   ion_zv,lattice_omega
+      external G_indx,ion_nion,ion_katm
+      external ion_zv,lattice_omega
+
+
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
+      if (.not. value) call errquit('pspw_add_core_dng:push stack',0)
+
+      G(1) = G_indx(1)
+      G(2) = G_indx(2)
+      G(3) = G_indx(3)
+      w    = 0.25d0*rcut*rcut
+
+
+      do ii=1,ion_nion()
+         scal = -ion_zv(ii)/lattice_omega()
+
+*        *** fourier transform of a gaussian ***
+         do i=1,nfft3d
+            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+            dbl_mb(vg(1)+i-1) = (scal)*exp(-w*gg)
+         end do
+
+*        **** add to dng ***
+         call strfac(ii,dcpl_mb(exi(1)))
+         call Pack_c_pack(0,dcpl_mb(exi(1)))
+         call Pack_t_pack(0,dbl_mb(vg(1)))
+         call Pack_tc_Mul(0,dbl_mb(vg(1)),
+     >                   dcpl_mb(exi(1)),
+     >                   dcpl_mb(exi(1)))
+         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
+
+      end do
+
+      value = MA_pop_stack(vg(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('pspw_add_core_dng:pop stack',1)
+      return
+      end
+      
+*     ********************************
+*     *                              *
+*     *        pspw_add_core_pot     *
+*     *                              *
+*     ********************************
+      subroutine pspw_add_core_pot(rcut,vh)
+      implicit none
+      real*8  rcut
+      real*8 vh(*)
+
+#include "mafdecls.fh"
+
+*     *** local variables ***
+      logical value
+      integer n2ft3d
+      integer i,ii
+      integer rgrid(2)
+      real*8  c,q,r,xerf,yerf,sqrt_pi
+      real*8  xii,yii,zii
+      real*8  xi,yi,zi
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm
+      real*8   ion_zv,ion_rion,util_erf
+      external ion_nion,ion_katm
+      external ion_zv,ion_rion,util_erf
+
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
+      if (.not. value) call errquit('pspw_add_core_pot:push stack',0)
+
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      c       = 1.0d0/rcut
+
+      call lattice_r_grid(dbl_mb(rgrid(1)))
+
+      do ii=1,ion_nion()
+         q = -ion_zv(ii)
+         xii = ion_rion(1,ii)
+         yii = ion_rion(2,ii)
+         zii = ion_rion(3,ii)
+
+         do i=1,n2ft3d
+            xi = dbl_mb(rgrid(1) + 3*(i-1))
+            yi = dbl_mb(rgrid(1) + 3*(i-1)+1)
+            zi = dbl_mb(rgrid(1) + 3*(i-1)+2)
+            r = dsqrt((xii-xi)**2 + (yii-yi)**2 + (zii-zi)**2)
+
+            if (r .gt. 1.0d-15) then
+              xerf  = r*c
+              yerf  = util_erf(xerf)
+              vh(i) = vh(i) + (q/r)*yerf
+            else
+              vh(i) = vh(i) + 2.0d0*q*c/sqrt_pi
+            end if
+         end do
+
+      end do
+
+      value = MA_pop_stack(rgrid(2))
+      if (.not. value) call errquit('pspw_add_core_pot:pop stack',1)
+      return
+      end
+      
