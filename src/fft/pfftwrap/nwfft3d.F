@@ -1,5 +1,5 @@
 *
-* $Id: nwfft3d.F,v 1.11 2000-10-23 15:52:01 windus Exp $
+* $Id: nwfft3d.F,v 1.12 2002-05-09 23:14:09 d3g270 Exp $
 *
 c************************************************************************
 c Complex 3D FFT interface.
@@ -61,6 +61,8 @@ c *** local variables
       logical  bstatus
       integer  dblh,inth, idbl,iint 
       integer  initSCRATCH, mamem 
+      integer nvecs1, nvecs2, n1max, n2max, nele, nelebk
+      integer lstcnt, ii, m2, n1, n3
 #endif
 c       integer isize
 c       parameter (isize=128*128*128)
@@ -125,14 +127,46 @@ c     ** fft x1(nd1,nd2,*)
       endif
 #endif
 
+
+
+c determine map if necessary (required once) for EMSL routine
 #ifdef EMSLFFT
-c The following scratch memory calculation is derived from code in 
-c pfft1.0/comm/chk3d.f. Apparently, a buffer of size 10,000/nbyted 
-c is needed in the communication routines there. (Also see peigs/src/comm.)
-c                v does not always work, but gets through chk3d.F
-c     nrealscr = MAX(nd2,MAX(nd3,10000) + nproc
-      nrealscr = MAX(2*n123/(nproc),10000) + nproc + 20
-        
+      if (blksz.LE.0) then
+       call errquit('nwfft3d:: internal error: bad blocksize',0)
+      endif
+      if (doMap.EQ.1 .OR. computedMap.EQ.0) then
+        owner = 0
+        do d3 = 1, nd3
+          if (d3.GT.blksz*(owner+1)) owner = owner+1
+          map1(d3) = owner
+          map2(d3) = owner
+        enddo
+        computedMap = 1
+      endif
+c     
+      
+      NELEBK = 2 * N1           ! complex to complex
+      NELEBK = 2 * ( N1 / 2 + 1 ) ! real-> complex
+c
+      if ( me.eq.0) then
+         do ii=1, nd3
+            write(*,*) ' map1, map2 ', ii, map1(ii), map2(ii)
+         enddo
+         call ffflush()
+      endif
+c
+      NELEBK = max(2*n1, 2*(n1/2+1))
+      NVECS1 = LSTCNT( ME, MAP1, nd3 )
+      NVECS2 = LSTCNT( ME, MAP2, nd3 )
+      N1MAX = 0
+      N2MAX = 0
+      do iI = 0, NPROC-1
+         N1MAX = MAX( N1MAX, LSTCNT( iI, MAP1, N3 ) )
+         N2MAX = MAX( N2MAX, LSTCNT( iI, MAP2, M2 ) )
+      enddo
+      NELE = NELEBK * MAX( M2 * N1MAX, N3 * N2MAX )
+      nrealscr = nele
+c
       if (rwrklen.NE.0.AND.iwrklen.NE.0) then
         mamem = 0 
       else
@@ -158,7 +192,7 @@ c free previous space if present
 c integer scratch depends on the number of processes. Assume, therefore,
 c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
       if (mamem.EQ.1.AND.initSCRATCH.EQ.0) then
-        ma_nintscr = 2*nproc+100
+        ma_nintscr = 5*nproc+100
         nwords = MA_inquire_heap(MT_INT)
         if (nwords.LT.ma_nintscr) then
            call errquit('nwfft3d: insufficient heap for iscratch',0)
@@ -173,34 +207,21 @@ c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
 #endif
 
 
-c determine map if necessary (required once) for EMSL routine
-#ifdef EMSLFFT
-      if (blksz.LE.0) then
-       call errquit('nwfft3d:: internal error: bad blocksize',0)
-      endif
-      if (doMap.EQ.1 .OR. computedMap.EQ.0) then
-        owner = 0
-        do d3 = 1, nd3
-          if (d3.GT.blksz*(owner+1)) owner = owner+1
-          map1(d3) = owner
-          map2(d3) = owner
-        enddo
-        computedMap = 1
-      endif
-#endif
-
 
 #ifdef ESSLFFT
       call pdcft3(x1,x2,nd1,nd2,nd3,isign,scale,icontext,ip)
 #endif
 #ifdef EMSLFFT
 c     * make the EMSL destructive interface, nondestructive
+c
       do d1 = 1, nd1*nd2*blksz*2
          x2(d1) = x1(d1)
       enddo
 c	print*,'-->',isign,nd1,nd2,nd3,x2(1),map1(1),map2(1),blksz
 c     call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
 c    .            isize,work,isize,iwork,jstatus)
+
+      
       if (mamem.EQ.1) then
         call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
      .       ma_nrealscr,dbl_mb(idbl),ma_nintscr,int_mb(iint),jstatus)
