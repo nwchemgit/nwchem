@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.18 2003-01-28 02:03:38 marat Exp $
+* $Id: paw_sd.F,v 1.19 2003-01-31 19:05:04 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -296,7 +296,7 @@
       call phafac()
       call paw_ovlp_init()
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
-
+      call paw_ovlp_weights_set()
       call paw_comp_charge_update()
 
 *                |**************************|
