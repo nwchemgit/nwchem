@@ -1,17 +1,21 @@
 #
-# $Id: GNUmakefile,v 1.5 2004-03-14 14:36:26 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2004-04-09 22:41:12 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o
  OBJ = 
 
+ifeq ($(USE_MPI),y)
+  OBJ_OPTIMIZE += D3dB-mpi.o
+else
+  OBJ_OPTIMIZE += D3dB-tcgmsg.o
+endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D3dB-new.F
+    USES_BLAS = D3dB-new.F 
 
   LIB_DEFINES = 
-
 
 
 include ../../../config/makefile.h
@@ -32,3 +36,4 @@ ifeq ($(USE_MPI),y)
 else
   FOPTIONS += -DTCGMSG
 endif
+
