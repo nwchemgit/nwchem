@@ -1,4 +1,6 @@
-# $Id: GNUmakefile,v 1.55 1995-12-29 02:04:11 vg038 Exp $
+# $Id: GNUmakefile,v 1.56 1996-01-04 21:29:01 d3g681 Exp $
+
+#   LIB_DEFINES = -DDDSCF_TEXAS
 
 
   OBJ = comp4_bins.o              rhf_dens_mo.o \
@@ -62,11 +64,6 @@
 		rohf_precon.F \
 		fock_2e_file.F rohf_fock.F rohf_h2e.F \
 		scf_get_info.F ao_fock_2e.F
-
-#
- LIB_DEFINES = 
-#
-
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh
 
