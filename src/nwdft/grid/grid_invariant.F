@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.4 1999-06-15 20:49:12 d3e129 Exp $
+c$Id: grid_invariant.F,v 1.5 1999-11-02 02:40:43 edo Exp $
 c
       implicit none
 c      
@@ -73,7 +73,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.4 1999-06-15 20:49:12 d3e129 Exp $
+c$Id: grid_invariant.F,v 1.5 1999-11-02 02:40:43 edo Exp $
 c
       implicit none
 c
@@ -95,6 +95,15 @@ c
 c
       call dzero(qrot, 9)
       call dzero(tvec, 3)
+c
+c     atomic case 
+c
+      if(ncenters.eq.1) then
+         qrot(1,1)=1d0
+         qrot(2,2)=1d0
+         qrot(3,3)=1d0
+         return
+      endif
 c
 c     calculate the T vector
 c
