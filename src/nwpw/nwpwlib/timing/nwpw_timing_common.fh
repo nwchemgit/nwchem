@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing_common.fh,v 1.1 2001-12-17 23:31:14 bylaska Exp $
+* $Id: nwpw_timing_common.fh,v 1.2 2002-01-12 00:15:09 bylaska Exp $
 *
 
 *     ***** timing variables *****
@@ -15,6 +15,6 @@
 *    10 - geodesic_time
       real*8 nwpw_tim1(50),nwpw_tim2(50)
       real*8 times(50)
-      common / timing / times
-      common / timing2 / nwpw_tim1,nwpw_tim2
+      common / nwpw_timing_block / times
+      common / nwpw_timing2_block / nwpw_tim1,nwpw_tim2
 
