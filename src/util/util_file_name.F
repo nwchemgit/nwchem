@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.20 2001-07-14 00:23:17 edo Exp $
+C$Id: util_file_name.F,v 1.21 2002-01-09 23:55:11 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -723,6 +723,22 @@ c
       endif
 c
       end
+      logical function util_find_dir(dname)
+      implicit none
+c
+c     hack that returns true if directory exists
+c
+#include "eaf.fh"
+#include "inp.fh"
+      character*(*) dname
+c
+      double precision availkb
+      character*20 fstype
+c
+      util_find_dir=eaf_stat(dname(1:inp_strlen(dname)),
+     .     availkb, fstype).eq.0
+      return
+      end
 
 
-
+      

@@ -5,7 +5,7 @@
 *      
 c the string library1 is appended by default for now
 c
-C $Id: nwpw_libfile.F,v 1.2 2002-01-09 01:19:42 edo Exp $
+C $Id: nwpw_libfile.F,v 1.3 2002-01-09 23:55:11 edo Exp $
       subroutine nwpw_libfile(filename,element)
       implicit none
 #include "inp.fh"
@@ -14,16 +14,16 @@ C $Id: nwpw_libfile.F,v 1.2 2002-01-09 01:19:42 edo Exp $
       character*(*) element
 c
       character*255 libname
+      external util_find_dir
+      logical  util_find_dir,lexist
       integer lgth
-      logical lexist,from_environment
+      logical from_environment
 c
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
       lgth=inp_strlen(libname)
       from_environment = .false.
       if (lgth.gt.0) then
-         lexist = .false.
-         inquire(file=libname,exist=lexist)
-         if (lexist)then
+         if (util_find_dir(libname)) then
             from_environment = .true.
             goto 99
          else
@@ -36,15 +36,16 @@ c
       endif
       libname = 
      &NWPW_LIBRARY
-         lexist = .false.
-         inquire(file=libname(1:inp_strlen(libname)),exist=lexist)
-         if (.not.lexist)then
-        write(luout,*)' warning:::::::::::::: from_compile'
-        write(luout,*)' NWPW_BASIS_LIBRARY is: <',
-     &      libname(1:inp_strlen(libname)),'>'
-        write(luout,*)' but file does ','not exist or you ',
-     &      'do not have ','access to it !'
-         endif
+      if (util_find_dir(libname)) then
+         goto 99
+      else
+         write(luout,*)' warning:::::::::::::: from_compile'
+         write(luout,*)' NWPW_BASIS_LIBRARY is: <',
+     &        libname(1:inp_strlen(libname)),'>'
+         write(luout,*)' but file does ','not exist or you ',
+     &        'do not have ','access to it !'
+      endif
+      call errquit('nwpwlibfile: no nwpw library found',0)
  99   continue
       if (from_environment) then
           write(luout,*)' library name resolved from: environment'
