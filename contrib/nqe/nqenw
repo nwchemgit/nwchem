@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqenw,v 1.4 1998-08-07 08:34:45 d3e129 Exp $
+# $Id: nqenw,v 1.5 1999-06-10 06:03:43 d3e129 Exp $
 #
 
 onintr interrupted
@@ -139,11 +139,12 @@ if ($#argv == 0) then
   set TEST = "$<"
   if ("$TEST" != "") set ACCOUNT = "$TEST"
 
-  if (!($NERSC)) then
-     echo -n "NQE queue ($QUEUE): "
-     set TEST = "$<"
-     if ("$TEST" != "") set QUEUE = "$TEST"
+  if ($NERSC) then
+	echo "     Note: Queue can only be batch, debug, or long at NERSC"
   endif
+  echo -n "NQE queue ($QUEUE): "
+  set TEST = "$<"
+  if ("$TEST" != "") set QUEUE = "$TEST"
 
   again1:
   echo -n "NWChem executable ($NWCHEM): "
@@ -330,6 +331,13 @@ echo "Start date:\`date\`"
 time mpprun -n $NPROC ./nwchem $THEINPUT
 echo " End  date:\`date\`"
 ja -cst
+
+############################################################################
+# Add debugview 
+############################################################################
+if (-e core) then
+   debugview -c core ./nwchem
+endif
 
 ############################################################################
 # End of the job script
