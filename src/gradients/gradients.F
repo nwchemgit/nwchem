@@ -75,7 +75,7 @@ c
       character*255 title
       double precision charge
 c
-      character*255 movecs
+      character*255 movecs_in, movecs_out
 c
 c     Push context down to GRADIENTS
 c
@@ -104,7 +104,21 @@ c
       if(.not. int_normalize(basis))
      $     call errquit('gradients: normalization failed',911)
 
-      movecs = 'movecs'
+c
+c     Figure output input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $     movecs_in = 'atomic'
+      if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
+     $     movecs_out = ' '
+      if (movecs_out.eq.' ') then
+         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+            movecs_out = 'movecs'
+         else
+            movecs_out = movecs_in
+         endif
+      endif
 c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -139,7 +153,7 @@ c initialize for schwarz screening
       call intd_init(1,basis)
       call schwarz_init (geom, basis)
 c
-      call force(rtdb,basis,geom,movecs)
+      call force(rtdb,basis,geom,movecs_out)
 c
       call schwarz_tidy ()
 c
