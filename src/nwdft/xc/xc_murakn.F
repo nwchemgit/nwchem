@@ -1,6 +1,6 @@
       Subroutine xc_murakn(znumber,r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.5 2000-01-06 00:41:35 edo Exp $
+C$Id: xc_murakn.F,v 1.6 2000-01-08 00:47:56 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -23,11 +23,11 @@ c ME Mura and PJ Knowles, J Chem Phys 104, 9848 (1996)
 c
 c***************************************************************************
       nr = nr+1
-cedo      if(lreset) then
-cedo         alpha=-range/log(1d0-(nr/(1d0+nr))**3)
-cedo      else
+      if(lreset) then
+         alpha=-range/log(1d0-(nr/(1d0+nr))**3)
+      else
          alpha=5d0
-cedo      endif
+      endif
       fmn = rm/dble(nr)
 
       do 10 i = 1,nr-1
