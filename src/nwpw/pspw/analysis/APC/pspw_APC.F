@@ -414,6 +414,8 @@
 
       integer dng(2),tmp(2)
 
+      if (nga.gt.0) then
+
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -444,6 +446,8 @@
 
       value = value.and.MA_pop_stack(dng(2))
       if (.not. value) call errquit('popping of stack memory',0)
+
+      end if
 
       return
       end
@@ -503,6 +507,7 @@
       external     ion_nion,ion_katm
       external     psp_zv
       
+      if (nga.gt.0) then
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) then
@@ -572,6 +577,8 @@
      >                     (-dbl_mb(q(1)+i-1+(j-1)*nga),i=1,nga)
          end do
 
+
+      end if
 
       end if
       return
