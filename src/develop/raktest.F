@@ -18,7 +18,10 @@ c
       integer rtdb
       integer basis, geom
       integer nscr, hscr, iscr
-      integer nbf, nshells, nat
+      integer nbf, nshells, nat, maxg, size2e,size2ed
+      integer h2e, i2e, h2efd, i2efd, h2ep, i2ep, h2em, i2em 
+      integer h2ediff, i2ediff
+      integer hbuf2e, ibuf2e
       integer buf1esz, hbuf1e, ibuf1e
       integer sa_size, hsa, isa, hsafd, isafd
       integer hta, ita, htafd, itafd
@@ -116,6 +119,9 @@ c..... space for Ta&Tafd so to sum it to Va&Fafd
       call dfill(nscr,0.0,dbl_mb(iscr),1)
       call buildSa(dbl_mb(isa),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,.true.)
+#if defined(SUN)
+      call flush(6)
+#endif
       call buildSafd(dbl_mb(isafd),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,dbl_mb(ibuf1e),dbl_mb(ibuf1e+nbf*nbf),
      &       dbl_mb(ibuf1e+2*nbf*nbf),
@@ -123,6 +129,9 @@ c..... space for Ta&Tafd so to sum it to Va&Fafd
       call daxpy(sa_size,-1.0d00,dbl_mb(isa),1,dbl_mb(isafd),1)
       write(6,*)' Sa difference norm =',
      &       ddot(sa_size,dbl_mb(isafd),1,dbl_mb(isafd),1)
+#if defined(SUN)
+      call flush(6)
+#endif
 c
 c.... do T
       call dfill(sa_size,0.0,dbl_mb(isa),1)
@@ -133,6 +142,9 @@ c.... do T
       call buildTa(dbl_mb(isa),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,.true.)
       call dcopy(sa_size,dbl_mb(isa),1,dbl_mb(ita),1) 
+#if defined(SUN)
+      call flush(6)
+#endif
       call buildTafd(dbl_mb(isafd),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,dbl_mb(ibuf1e),dbl_mb(ibuf1e+nbf*nbf),
      &       dbl_mb(ibuf1e+2*nbf*nbf),
@@ -141,6 +153,9 @@ c.... do T
       call daxpy(sa_size,-1.0d00,dbl_mb(isa),1,dbl_mb(isafd),1)
       write(6,*)' Ta difference norm =',
      &       ddot(sa_size,dbl_mb(isafd),1,dbl_mb(isafd),1)
+#if defined(SUN)
+      call flush(6)
+#endif
 c.. do V
       call dfill(sa_size,0.0,dbl_mb(isa),1)
       call dfill(sa_size,0.0,dbl_mb(isafd),1)
@@ -150,6 +165,9 @@ c.. do V
       call buildVa(dbl_mb(isa),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,.true.)
       call daxpy(sa_size,1.0d00,dbl_mb(isa),1,dbl_mb(ita),1)
+#if defined(SUN)
+      call flush(6)
+#endif
       call buildVafd(dbl_mb(isafd),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,dbl_mb(ibuf1e),dbl_mb(ibuf1e+nbf*nbf),
      &       dbl_mb(ibuf1e+2*nbf*nbf),
@@ -159,12 +177,18 @@ c.. do V
       call printdmat('Va difference matrix',dbl_mb(isafd),nat,nbf)
       write(6,*)' Va difference norm =',
      &       ddot(sa_size,dbl_mb(isafd),1,dbl_mb(isafd),1)
+#if defined(SUN)
+      call flush(6)
+#endif
 c... print H derivs
       call printdmat(' Ha ',dbl_mb(ita),nat,nbf)
       call printdmat(' Ha <<<FD>>> ',dbl_mb(itafd),nat,nbf)
       call daxpy(sa_size,-1.0d00,dbl_mb(ita),1,dbl_mb(itafd),1)
       write(6,*)' Ha difference norm =',
      &       ddot(sa_size,dbl_mb(itafd),1,dbl_mb(itafd),1)
+#if defined(SUN)
+      call flush(6)
+#endif
 c
       if (.not.MA_Pop_Stack(htafd))
      &       call errquit('raktest: ma_pop_stack htafd failed',911)
@@ -181,10 +205,92 @@ c
       if (.not.MA_Pop_Stack(hsa))
      &       call errquit('raktest: ma_pop_stack hsa failed',911)
 c
+c
+c
+c... do two electron integral stuff
+c
+      call int_mem_2e4c(maxg,nscr)
+      write(6,*)' nscr    => ',nscr
+      write(6,*)' maxg    => ',maxg
+      nscr = nscr*12    ! 8x scratch for derivatives
+      maxg = 12*maxg    ! quadruple buffer size for derivatives
+      size2e = nbf*(nbf+1)/2
+      size2e = size2e*(size2e+1)/2
+      size2ed= size2e*3*nat
+      write(6,*)' nscr    => ',nscr
+      write(6,*)' maxg    => ',maxg
+      write(6,*)' nbf     => ',nbf
+      write(6,*)' nat     => ',nat
+      write(6,*)' size2e  => ',size2e
+      write(6,*)' size2ed => ',size2ed
+#if defined(SUN)
+      call flush(6)
+#endif
+      if (.not.MA_Push_Get(MT_Dbl,size2ed,'2e d',h2ediff,i2ediff))
+     &       call errquit('raktest: allocation h2ediff failed',size2ed)
+      if (.not.MA_Push_Get(MT_Dbl,size2ed,'2e d',h2e,i2e))
+     &       call errquit('raktest: allocation h2e failed',size2ed)
+      if (.not.MA_Push_Get(MT_Dbl,size2ed,'2e fd',h2efd,i2efd))
+     &       call errquit('raktest: allocation h2efd failed',size2ed)
+      if (.not.MA_Push_Get(MT_Dbl,size2e,'2e +buf',h2ep,i2ep))
+     &       call errquit('raktest: allocation h2ep failed',size2e)
+      if (.not.MA_Push_Get(MT_Dbl,size2e,'2e -buf',h2em,i2em))
+     &       call errquit('raktest: allocation h2em failed',size2e)
+      if (.not.MA_Push_Get(MT_Dbl,nscr,'scr 2ed',hscr,iscr))
+     &       call errquit('raktest: allocation hscr failed',nscr)
+      if (.not.MA_Push_Get(MT_Dbl,maxg,'buf2e 2ed',hbuf2e,ibuf2e))
+     &       call errquit('raktest: allocation hbuf2e failed',maxg)
+      threen = 3*nat
+      if (.not.MA_Push_Get(MT_dbl,2*threen,'xyzxyz buffer',hxyz,ixyz))
+     &       call errquit('raktest: allocation for safd failed')
+      call dfill(size2ed,0.0,dbl_mb(i2e),1)
+      call dfill(size2ed,0.0,dbl_mb(i2efd),1)
+      call dfill(size2e,0.0,dbl_mb(i2ep),1)
+      call dfill(size2e,0.0,dbl_mb(i2em),1)
+      call dfill(2*threen,0.0,dbl_mb(ixyz),1)
+      call dfill(nscr,0.0,dbl_mb(iscr),1)
+      call dfill(maxg,0.0,dbl_mb(ibuf2e),1)
+      
+      call build_d2e(geom,basis,nbf,nshells,nat,size2e,dbl_mb(i2e),
+     &       maxg,dbl_mb(ibuf2e),nscr,dbl_mb(iscr))
+      call print2de(nat,size2e,dbl_mb(i2e),1.0d-05,nbf,'anal:d2e')
+      call dfill(nscr,0.0,dbl_mb(iscr),1)
+      call dfill(maxg,0.0,dbl_mb(ibuf2e),1)
+      call build_d2efd(geom,basis,nbf,nshells,nat,size2e,
+     &       dbl_mb(i2efd),
+     &       dbl_mb(i2ep),dbl_mb(i2em),dbl_mb(ixyz),
+     &       dbl_mb(ixyz+threen),
+     &       maxg,dbl_mb(ibuf2e),nscr,dbl_mb(iscr))
+      call print2de(nat,size2e,dbl_mb(i2efd),1.0d-05,nbf,'fd:d2e')
+      call dcopy(size2ed,dbl_mb(i2efd),1,dbl_mb(i2ediff),1)
+      call daxpy(size2ed,-1.0d00,dbl_mb(i2e),1,dbl_mb(i2ediff),1)
+      write(6,*)' 2ed difference norm = ',
+     &       ddot(size2ed,dbl_mb(i2ediff),1,dbl_mb(i2ediff),1)
+
+      call print2de_diff(nat,size2e,dbl_mb(i2ediff),
+     &       dbl_mb(i2e),dbl_mb(i2efd),1.0d-05,nbf)
+
+      if (.not.MA_Pop_Stack(hxyz))
+     &       call errquit('raktest: ma_pop_stack hxyz failed',911)
+      if (.not.MA_Pop_Stack(hbuf2e))
+     &       call errquit('raktest: ma_pop_stack hbuf2e failed',911)
+      if (.not.MA_Pop_Stack(hscr))
+     &       call errquit('raktest: ma_pop_stack hscr failed',911)
+      if (.not.MA_Pop_Stack(h2em))
+     &       call errquit('raktest: ma_pop_stack h2em failed',911)
+      if (.not.MA_Pop_Stack(h2ep))
+     &       call errquit('raktest: ma_pop_stack h2ep failed',911)
+      if (.not.MA_Pop_Stack(h2efd))
+     &       call errquit('raktest: ma_pop_stack h2efd failed',911)
+      if (.not.MA_Pop_Stack(h2e))
+     &       call errquit('raktest: ma_pop_stack h2e failed',911)
+      if (.not.MA_Pop_Stack(h2ediff))
+     &       call errquit('raktest: ma_pop_stack h2ediff failed',911)
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
      &       call errquit('rak:error destroying gbs pair',0)
+      call MA_summarize_allocated_blocks()
       end
 c.......................................................................
       Subroutine onedint_fd(basisin,geom,W0,maxW0)
@@ -752,10 +858,10 @@ c
             ids = (iatom-1)*3+1
             ide = ids + 2
             do 00300 id = ids,ide
-              do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00500 ibf = ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00400 ibf = ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   sa(ibf,jbf,id) = scr(icount)
                   sa(jbf,ibf,id) = scr(icount)
@@ -765,10 +871,10 @@ c
             ids = (jatom-1)*3+1
             ide = ids + 2
             do 00600 id = ids,ide
-              do 00700 jbf = ibs_cn2bfr(1,jsh,basis),
+              do 00700 ibf = ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00800 jbf = ibs_cn2bfr(1,jsh,basis),
      &               ibs_cn2bfr(2,jsh,basis)
-                do 00800 ibf = ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
                   icount = icount + 1
                   sa(ibf,jbf,id) = scr(icount)
                   sa(jbf,ibf,id) = scr(icount)
@@ -833,6 +939,9 @@ c
         do 00060 dxyz = 1,3
           id = id + 1
           write(6,*)' Sa:fd <atom:',datom,'> <xyz:',dxyz,'>'
+#if defined(SUN)
+      call flush(6)
+#endif
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzp,1)
           xyzxyzp(dxyz,datom) = xyzxyzp(dxyz,datom) + delta
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzm,1)
@@ -879,10 +988,10 @@ c
      &               scr,scr,scr,nint,
      &               FT,FF,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00301 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00401 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00301 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00401 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   b(jbf,ibf) = scr(icount)
 00401           continue
@@ -905,10 +1014,10 @@ c
      &               scr,scr,scr,nint,
      &               FT,FF,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00300 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00400 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00300 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bplus(jbf,ibf) = scr(icount)
 00400           continue
@@ -932,10 +1041,10 @@ c
      &               scr,scr,scr,nint,
      &               FT,FF,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00600 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00500 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00600 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bminus(jbf,ibf) = scr(icount)
 00600           continue
@@ -982,8 +1091,8 @@ c
       write(6,10000)
       return
 10000 format(80('-'))
-10001 format(1x,'<atom:',i3,'>  <x:',1pd12.5,'>  <y:',1pd12.5,
-     &       '>  <z:',1pd12.5,'>')
+10001 format(1x,'<atom:',i3,'>  <x:',1pd20.10,'>  <y:',1pd20.10,
+     &       '>  <z:',1pd20.10,'>')
       end
 c.......................................................................
       subroutine myoutput (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
@@ -1135,10 +1244,10 @@ c
             ids = (iatom-1)*3+1
             ide = ids + 2
             do 00300 id = ids,ide
-              do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00500 ibf = ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00400 ibf = ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   Ta(ibf,jbf,id) = scr(icount)
                   Ta(jbf,ibf,id) = scr(icount)
@@ -1148,10 +1257,10 @@ c
             ids = (jatom-1)*3+1
             ide = ids + 2
             do 00600 id = ids,ide
-              do 00700 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00800 ibf = ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00700 ibf = ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00800 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   Ta(ibf,jbf,id) = scr(icount)
                   Ta(jbf,ibf,id) = scr(icount)
@@ -1216,6 +1325,9 @@ c
         do 00060 dxyz = 1,3
           id = id + 1
           write(6,*)' Ta:fd <atom:',datom,'> <xyz:',dxyz,'>'
+#if defined(SUN)
+      call flush(6)
+#endif
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzp,1)
           xyzxyzp(dxyz,datom) = xyzxyzp(dxyz,datom) + delta
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzm,1)
@@ -1262,10 +1374,10 @@ c
      &               scr,scr,scr,nint,
      &               FF,FT,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00301 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00401 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00301 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00401 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   b(jbf,ibf) = scr(icount)
 00401           continue
@@ -1288,10 +1400,10 @@ c
      &               scr,scr,scr,nint,
      &               FF,FT,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00300 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00400 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00300 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bplus(jbf,ibf) = scr(icount)
 00400           continue
@@ -1315,10 +1427,10 @@ c
      &               scr,scr,scr,nint,
      &               FF,FT,FF,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00600 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00500 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00600 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bminus(jbf,ibf) = scr(icount)
 00600           continue
@@ -1422,10 +1534,10 @@ c
           do 00300 datom = 1,nat
             do 00400 dxyz = 1,3
               id = id + 1
-              do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00600 ibf = ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00500 ibf = ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00600 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   Va(ibf,jbf,id) = scr(icount)
                   Va(jbf,ibf,id) = scr(icount)
@@ -1490,6 +1602,9 @@ c
         do 00060 dxyz = 1,3
           id = id + 1
           write(6,*)' Va:fd <atom:',datom,'> <xyz:',dxyz,'>'
+#if defined(SUN)
+      call flush(6)
+#endif
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzp,1)
           xyzxyzp(dxyz,datom) = xyzxyzp(dxyz,datom) + delta
           call dcopy(3*nat,coords(1,1,geom),1,xyzxyzm,1)
@@ -1536,10 +1651,10 @@ c
      &               scr,scr,scr,nint,
      &               FF,FF,FT,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00301 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00401 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00301 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00401 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   b(jbf,ibf) = scr(icount)
 00401           continue
@@ -1562,17 +1677,17 @@ c
      &               scr,scr,scr,nint,
      &               FF,FF,FT,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00300 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00400 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00300 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bplus(jbf,ibf) = scr(icount)
 00400           continue
 00300         continue
 c
 c........ do minus
-              call dfill(nscr,0.0,scr,1)
+              call dfill(nscr,0.0d00,scr,1)
 c
               call hf1(
      &               xyzxyzm(1,iatom),
@@ -1589,10 +1704,10 @@ c
      &               scr,scr,scr,nint,
      &               FF,FF,FT,FF,FF,scr(iscr),(nscr-used))
               icount = 0
-              do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
-     &               ibs_cn2bfr(2,jsh,basis)
-                do 00600 ibf=ibs_cn2bfr(1,ish,basis),
-     &                 ibs_cn2bfr(2,ish,basis)
+              do 00500 ibf=ibs_cn2bfr(1,ish,basis),
+     &               ibs_cn2bfr(2,ish,basis)
+                do 00600 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                 ibs_cn2bfr(2,jsh,basis)
                   icount = icount + 1
                   bminus(jbf,ibf) = scr(icount)
 00600           continue
@@ -1641,4 +1756,453 @@ c
 00200   continue
 00100 continue
       return
+      end
+      subroutine build_d2e(geom,basisin,nbf,ncont,nat,intsize,d2e,
+     &       maxg,gbuf,nscr,scr)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geom.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+c::passed
+      integer geom,basisin,nbf,nat,intsize,maxg,nscr,ncont
+      double precision d2e(intsize,3,nat)
+      double precision gbuf(maxg)
+      double precision scr(nscr)
+c::local
+      integer ucont,basis,nint,iduse,ipfrom,ipto,icount,id
+      integer idatom(4)
+      integer index,ixyz
+c
+C     SET-UP FUNCTIONS
+C
+      integer ibf, ish, iatom, inp, igen, iexp, icf, itype
+      integer jbf, jsh, jatom, jnp, jgen, jexp, jcf, jtype
+      integer kbf, ksh, katom, knp, kgen, kexp, kcf, ktype
+      integer lbf, lsh, latom, lnp, lgen, lexp, lcf, ltype
+c
+c...  statement function
+C
+C     SET-UP FUNCTIONS
+      integer min,max
+      intrinsic min,max
+      integer i,j,k,l,isym2,isym4
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+      isym4(i,j,k,l)=max(isym2(i,j),isym2(k,l))*
+     &               (max(isym2(i,j),isym2(k,l))-1)/2+
+     &               min(isym2(i,j),isym2(k,l))
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c      
+      do 00100 ish = 1,ncont
+c.
+        iatom = ibs_cn2ce(ish,basis)
+        ucont = ibs_cn2ucn(ish,basis)
+        inp   = infbs_cont(CONT_NPRIM,ucont,basis)
+        igen  = infbs_cont(CONT_NGEN,ucont,basis)
+        iexp  = infbs_cont(CONT_IEXP,ucont,basis)
+        icf   = infbs_cont(CONT_ICFP,ucont,basis)
+        itype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+        do 00200 jsh= 1,ish
+c.
+          jatom = ibs_cn2ce(jsh,basis)
+          ucont = ibs_cn2ucn(jsh,basis)
+          jnp   = infbs_cont(CONT_NPRIM,ucont,basis)
+          jgen  = infbs_cont(CONT_NGEN,ucont,basis)
+          jexp  = infbs_cont(CONT_IEXP,ucont,basis)
+          jcf   = infbs_cont(CONT_ICFP,ucont,basis)
+          jtype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+          do 00300 ksh = 1,jsh
+c.
+            katom = ibs_cn2ce(ksh,basis)
+            ucont = ibs_cn2ucn(ksh,basis)
+            knp   = infbs_cont(CONT_NPRIM,ucont,basis)
+            kgen  = infbs_cont(CONT_NGEN,ucont,basis)
+            kexp  = infbs_cont(CONT_IEXP,ucont,basis)
+            kcf   = infbs_cont(CONT_ICFP,ucont,basis)
+            ktype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+            do 00400 lsh = 1,ksh
+c.
+              latom = ibs_cn2ce(lsh,basis)
+              ucont = ibs_cn2ucn(lsh,basis)
+              lnp   = infbs_cont(CONT_NPRIM,ucont,basis)
+              lgen  = infbs_cont(CONT_NGEN,ucont,basis)
+              lexp  = infbs_cont(CONT_IEXP,ucont,basis)
+              lcf   = infbs_cont(CONT_ICFP,ucont,basis)
+              ltype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+              nint = (itype+1)*(itype+2)/2
+              nint = nint*(jtype+1)*(jtype+2)/2
+              nint = nint*(ktype+1)*(ktype+2)/2
+              nint = nint*(ltype+1)*(ltype+2)/2
+c
+              if (
+     &               iatom.eq.jatom.and.
+     &               jatom.eq.katom.and.
+     &               katom.eq.latom
+     &               ) then
+                continue
+              else
+                call hf2d(
+     &                 coords(1,iatom,geom),exndcf(iexp,basis),
+     &                 exndcf(icf,basis),inp,igen,itype,iatom,
+c
+     &                 coords(1,jatom,geom),exndcf(jexp,basis),
+     &                 exndcf(jcf,basis),jnp,jgen,jtype,jatom,
+c
+     &                 coords(1,katom,geom),exndcf(kexp,basis),
+     &                 exndcf(kcf,basis),knp,kgen,ktype,katom,
+c
+     &                 coords(1,latom,geom),exndcf(lexp,basis),
+     &                 exndcf(lcf,basis),lnp,lgen,ltype,latom,
+c
+     &                 gbuf,nint,.false.,.false.,.false.,scr,nscr)
+c 
+                call logic_atom(idatom,iatom,jatom,katom,latom)
+c do sums
+                do 00500 iduse=2,4
+                  if(idatom(iduse).gt.0) then 
+                    continue
+                  else
+                    ipto   = (abs(idatom(iduse)) -1)*nint + 1
+                    ipfrom = (iduse-1)*nint + 1
+                    call daxpy(nint,1.0d00,gbuf(ipfrom),1,gbuf(ipto),1)
+                  endif
+00500           continue
+c
+c ... fill integral buffers              
+                icount = 0
+                do 00600 iduse = 1,4
+                  if (idatom(iduse).lt.1) then
+                    icount = icount + nint
+                  else
+                    id = idatom(iduse)
+                    do 00700 ixyz = 1,3
+                      do 00800 ibf = ibs_cn2bfr(1,ish,basis),
+     &                       ibs_cn2bfr(2,ish,basis)
+                        do 00900 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                         ibs_cn2bfr(2,jsh,basis)
+                          do 01000 kbf = ibs_cn2bfr(1,ksh,basis),
+     &                           ibs_cn2bfr(2,ksh,basis)
+                            do 01100 lbf = ibs_cn2bfr(1,lsh,basis),
+     &                             ibs_cn2bfr(2,lsh,basis)
+                              index = isym4(ibf,jbf,kbf,lbf)
+                              icount = icount + 1
+                              d2e(index,ixyz,id) = gbuf(icount)
+01100                       continue
+01000                     continue
+00900                   continue
+00800                 continue
+00700               continue
+                  endif
+00600           continue
+c
+              endif
+c
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+      end
+      subroutine logic_atom(idat,iat,jat,kat,lat)
+      implicit none
+      integer iat,jat,kat,lat
+      integer idat(4)
+c
+      idat(1) = iat
+      idat(2) = jat
+      idat(3) = kat
+      idat(4) = lat
+      if (iat.eq.jat) idat(2) = -1
+      if (iat.eq.kat) idat(3) = -1
+      if (iat.eq.lat) idat(4) = -1
+      if (jat.eq.kat) then
+        if(idat(2).gt.0) then
+          idat(3) = -2
+        else
+          idat(3) = idat(2)
+        endif
+      endif
+      if (jat.eq.lat) then
+        if(idat(2).gt.0) then
+          idat(4) = -2
+        else
+          idat(4) = idat(2)
+        endif
+      endif
+      if (kat.eq.lat) then
+        if(idat(3).gt.0) then
+          idat(4) = -3
+        else
+          idat(4) = idat(3)
+        endif
+      endif
+      end
+      subroutine build_d2efd(geom,basisin,nbf,ncont,nat,intsize,d2e,
+     &       bp,bm,xyzp,xyzm,
+     &       maxg,gbuf,nscr,scr)
+      implicit none
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geom.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+c::passed
+      integer geom,basisin,nbf,nat,intsize,maxg,nscr,ncont
+      double precision d2e(intsize,3,nat)
+      double precision gbuf(maxg)
+      double precision scr(nscr)
+      double precision bp(intsize),bm(intsize)
+      double precision xyzp(3,nat),xyzm(3,nat)
+c:: local
+      integer basis
+      double precision delta
+      integer dxyz,datom,nint,ucont,index,icount
+      integer ibf, ish, iatom, inp, igen, iexp, icf, itype
+      integer jbf, jsh, jatom, jnp, jgen, jexp, jcf, jtype
+      integer kbf, ksh, katom, knp, kgen, kexp, kcf, ktype
+      integer lbf, lsh, latom, lnp, lgen, lexp, lcf, ltype
+c
+c
+c...  statement function
+C
+C     SET-UP FUNCTIONS
+      integer min,max
+      intrinsic min,max
+      integer i,j,k,l,isym2,isym4
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+      isym4(i,j,k,l)=max(isym2(i,j),isym2(k,l))*
+     &               (max(isym2(i,j),isym2(k,l))-1)/2+
+     &               min(isym2(i,j),isym2(k,l))
+c
+      delta = 1.0d-06
+      basis = basisin + BASIS_HANDLE_OFFSET
+c      
+      do 00100 datom = 1,nat
+        do 00200 dxyz = 1,3
+          call dcopy(3*nat,coords(1,1,geom),1,xyzp,1)
+          call dcopy(3*nat,coords(1,1,geom),1,xyzm,1)
+          xyzp(dxyz,datom) =  xyzp(dxyz,datom) + delta
+          xyzm(dxyz,datom) =  xyzm(dxyz,datom) - delta
+          call print_coords('2e +',xyzp,nat)
+          call print_coords('2e -',xyzm,nat)
+c
+          do 00300 ish = 1,ncont
+c.
+            iatom = ibs_cn2ce(ish,basis)
+            ucont = ibs_cn2ucn(ish,basis)
+            inp   = infbs_cont(CONT_NPRIM,ucont,basis)
+            igen  = infbs_cont(CONT_NGEN,ucont,basis)
+            iexp  = infbs_cont(CONT_IEXP,ucont,basis)
+            icf   = infbs_cont(CONT_ICFP,ucont,basis)
+            itype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+            do 00400 jsh = 1,ish
+c.
+              jatom = ibs_cn2ce(jsh,basis)
+              ucont = ibs_cn2ucn(jsh,basis)
+              jnp   = infbs_cont(CONT_NPRIM,ucont,basis)
+              jgen  = infbs_cont(CONT_NGEN,ucont,basis)
+              jexp  = infbs_cont(CONT_IEXP,ucont,basis)
+              jcf   = infbs_cont(CONT_ICFP,ucont,basis)
+              jtype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+              do 00500 ksh = 1,jsh
+c.
+                katom = ibs_cn2ce(ksh,basis)
+                ucont = ibs_cn2ucn(ksh,basis)
+                knp   = infbs_cont(CONT_NPRIM,ucont,basis)
+                kgen  = infbs_cont(CONT_NGEN,ucont,basis)
+                kexp  = infbs_cont(CONT_IEXP,ucont,basis)
+                kcf   = infbs_cont(CONT_ICFP,ucont,basis)
+                ktype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+                do 00600 lsh = 1,ksh
+c.
+                  latom = ibs_cn2ce(lsh,basis)
+                  ucont = ibs_cn2ucn(lsh,basis)
+                  lnp   = infbs_cont(CONT_NPRIM,ucont,basis)
+                  lgen  = infbs_cont(CONT_NGEN,ucont,basis)
+                  lexp  = infbs_cont(CONT_IEXP,ucont,basis)
+                  lcf   = infbs_cont(CONT_ICFP,ucont,basis)
+                  ltype = infbs_cont(CONT_TYPE,ucont,basis) 
+c.
+                  nint = (itype+1)*(itype+2)/2
+                  nint = nint*(jtype+1)*(jtype+2)/2
+                  nint = nint*(ktype+1)*(ktype+2)/2
+                  nint = nint*(ltype+1)*(ltype+2)/2
+c
+c... do plus
+                  call dfill(nscr,0.0d00,scr,1)
+                  call dfill(maxg,0.0d00,gbuf,1)
+                  call hf2(
+     &                   xyzp(1,iatom),exndcf(iexp,basis),
+     &                   exndcf(icf,basis),inp,igen,itype,
+c
+     &                   xyzp(1,jatom),exndcf(jexp,basis),
+     &                   exndcf(jcf,basis),jnp,jgen,jtype,
+c
+     &                   xyzp(1,katom),exndcf(kexp,basis),
+     &                   exndcf(kcf,basis),knp,kgen,ktype,
+c
+     &                   xyzp(1,latom),exndcf(lexp,basis),
+     &                   exndcf(lcf,basis),lnp,lgen,ltype,
+c
+     &                   gbuf,nint,.false.,.false.,.false.,.false.,
+     &                   scr,nscr)
+c
+                  icount = 0
+                  do 00700 ibf = ibs_cn2bfr(1,ish,basis),
+     &                   ibs_cn2bfr(2,ish,basis)
+                    do 00800 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                     ibs_cn2bfr(2,jsh,basis)
+                      do 00900 kbf = ibs_cn2bfr(1,ksh,basis),
+     &                       ibs_cn2bfr(2,ksh,basis)
+                        do 01000 lbf = ibs_cn2bfr(1,lsh,basis),
+     &                         ibs_cn2bfr(2,lsh,basis)
+                          index = isym4(ibf,jbf,kbf,lbf)
+                          icount = icount + 1
+                          bp(index) = gbuf(icount)
+01000                   continue
+00900                 continue
+00800               continue
+00700             continue
+c
+c... do minus
+                  call dfill(nscr,0.0d00,scr,1)
+                  call dfill(maxg,0.0d00,gbuf,1)
+                  call hf2(
+     &                   xyzm(1,iatom),exndcf(iexp,basis),
+     &                   exndcf(icf,basis),inp,igen,itype,
+c
+     &                   xyzm(1,jatom),exndcf(jexp,basis),
+     &                   exndcf(jcf,basis),jnp,jgen,jtype,
+c
+     &                   xyzm(1,katom),exndcf(kexp,basis),
+     &                   exndcf(kcf,basis),knp,kgen,ktype,
+c
+     &                   xyzm(1,latom),exndcf(lexp,basis),
+     &                   exndcf(lcf,basis),lnp,lgen,ltype,
+c
+     &                   gbuf,nint,.false.,.false.,.false.,.false.,
+     &                   scr,nscr)
+c
+                  icount = 0
+                  do 00701 ibf = ibs_cn2bfr(1,ish,basis),
+     &                   ibs_cn2bfr(2,ish,basis)
+                    do 00801 jbf = ibs_cn2bfr(1,jsh,basis),
+     &                     ibs_cn2bfr(2,jsh,basis)
+                      do 00901 kbf = ibs_cn2bfr(1,ksh,basis),
+     &                       ibs_cn2bfr(2,ksh,basis)
+                        do 01001 lbf = ibs_cn2bfr(1,lsh,basis),
+     &                         ibs_cn2bfr(2,lsh,basis)
+                          index = isym4(ibf,jbf,kbf,lbf)
+                          icount = icount + 1
+                          bm(index) = gbuf(icount)
+01001                   continue
+00901                 continue
+00801               continue
+00701             continue
+c
+00600           continue
+00500         continue
+00400       continue
+00300     continue
+          call cdif(bp,bm,delta,intsize)
+          call dcopy(intsize,bp,1,d2e(1,dxyz,datom),1)
+00200   continue
+00100 continue
+c
+      end
+      subroutine print2de_diff(nat,size2e,diff,d2e,d2efd,thresh,nbf)
+      implicit none 
+      integer nat,size2e,index
+      double precision diff (size2e,3,nat)
+      double precision d2e  (size2e,3,nat)
+      double precision d2efd(size2e,3,nat)
+      double precision thresh, ra2fd,  rfd2a
+      integer ibf,jbf,kbf,lbf
+      integer nbf
+c
+      integer dxyz,datom
+
+      do 00100 datom = 1,nat
+        do 00200 dxyz = 1,3
+          do 00300 index = 1,size2e
+            if (abs(diff(index,dxyz,datom)).gt.thresh) then
+              call getfromi(index,nbf,ibf,jbf,kbf,lbf)
+              ra2fd = d2e(index,dxyz,datom)/d2efd(index,dxyz,datom)
+              rfd2a = d2efd(index,dxyz,datom)/d2e(index,dxyz,datom)
+              write(6,10000)
+     &               ibf,jbf,kbf,lbf,
+     &               index,dxyz,datom,diff(index,dxyz,datom),
+     &               d2e(index,dxyz,datom),d2efd(index,dxyz,datom),
+     &               ra2fd,rfd2a
+#if defined(SUN)
+              call flush(6)
+#endif              
+            endif
+00300     continue
+00200   continue
+00100 continue
+10000 format(' <',i2,i2,'|',i2,i2,'||',i5,'|xyz:',i2,'|a:',i2,'>  ',
+     &       '<diff:',1pd14.6,'> ','<anal:',1pd14.6,'> ',
+     &       '<fd:',1pd14.6,'> <ra2fd:',1pd14.6,'> <rfd2a:',
+     &       1pd14.6,'>')
+      end
+      subroutine getfromi(index,nbf,i,j,k,l)
+      implicit none
+      integer index,nbf,i,j,k,l,lhi
+c
+      integer icount
+c
+      icount = 1
+      do 00100 i=1,nbf
+        do 00200 j=1,i
+          do 00300 k=1,i
+            lhi = k
+            if (k.eq.i) lhi = j
+            do 00400 l=1,lhi
+              if (icount.eq.index) return
+              icount = icount + 1
+00400       continue
+00300     continue
+00200   continue
+00100 continue
+      write(6,*)' index/nbf =',index,nbf
+      stop ' getfromi fucked '
+      end
+      subroutine print2de(nat,size2e,d2e,thresh,nbf,msg)
+      implicit none 
+      integer nat,size2e,index
+      double precision d2e  (size2e,3,nat)
+      double precision thresh
+      integer ibf,jbf,kbf,lbf
+      character*(*)msg
+      integer nbf
+c
+      integer dxyz,datom
+
+      do 00100 datom = 1,nat
+        do 00200 dxyz = 1,3
+          do 00300 index = 1,size2e
+            if (abs(d2e(index,dxyz,datom)).gt.thresh) then
+              call getfromi(index,nbf,ibf,jbf,kbf,lbf)
+              write(6,10000) ibf,jbf,kbf,lbf,
+     &               index,dxyz,datom,msg,d2e(index,dxyz,datom)
+#if defined(SUN)
+              call flush(6)
+#endif              
+            endif
+00300     continue
+00200   continue
+00100 continue
+10000 format(' <',i2,i2,'|',i2,i2,'||',i5,'|xyz:',i2,'|a:',i2,'>  ',
+     &       '<',a,':',1pd14.6,'> ')
       end
