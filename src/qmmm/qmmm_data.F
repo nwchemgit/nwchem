@@ -81,6 +81,7 @@ c
       logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
+      logical flag
 
       pname = "qmmm_data_init: "
 
@@ -133,6 +134,18 @@ c     initialize rtdb parameters
        end if
       if(master)
      > write(6,21) "fixed link bonds",tag,fixlinks
+
+      tag = "qmmm:bq_dynamical"
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,flag)) then
+        flag = .false.
+        if (.not.rtdb_put(irtdb,tag,mt_log,1,flag)) 
+     >      call errquit(pname//'failed to store fixlinks',0,
+     >       RTDB_ERR)
+
+       end if
+      if(master)
+     > write(6,21) "dynamical bq update",tag,flag
+
 
       tag ="qmmm:bq_exclude" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
@@ -241,6 +254,8 @@ c
       else if (inp_compare(.false.,'dynamics',operation)) then
         interface = "mm"
       end if
+
+      if(interface.eq."mm") bq_dynamical = .false.
 
       tag ="qmmm:fixqm" 
       if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
@@ -580,6 +595,17 @@ c     --------------------------
       logical qmmm_master
 
       qmmm_master = master
+
+      end 
+
+      function qmmm_bq_dynamical()
+      implicit none
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+
+      logical qmmm_bq_dynamical
+
+      qmmm_bq_dynamical = bq_dynamical
 
       end 
 
