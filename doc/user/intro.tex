@@ -1,11 +1,12 @@
 
-NWChem is a quantum chemistry package that is
-designed to run on high-performance parallel supercomputers as well as
-workstation clusters.  It aims to be scalable in both the ability to
-treat large problems efficiently, and in the usage of available
-parallel computing resources.  The suite utilizes parallel programming
-tools (TCGMSG and the Global Array library) developed by PNNL staff
-with funding from both the High Performance Computing and
+
+NWChem is a quantum chemistry package
+designed to run on high-performance parallel supercomputers and
+workstation clusters.  It is scalable in both its ability to
+treat large problems efficiently, and in its usage of available
+parallel computing resources.  NWChem utilizes parallel programming
+tools TCGMSG and the Global Array library developed by PNNL staff
+for the High Performance Computing and
 Communication Initiative (HPCCI) grand-challenge software program and
 the Environmental Molecular Sciences Laboratory (EMSL) Project, which
 has supplied the majority of the development costs.
@@ -21,70 +22,353 @@ The EMSL Software Agreement stipulates that the use of NWChem be
 acknowledged in any publications which use results obtained with
 NWChem.  The acknowledgment should be of the form:
 \begin{quote}
+
   NWChem Version \nwchemversion, as developed and distributed by
   Pacific Northwest National Laboratory, P.~O.~Box 999, Richland,
   Washington 99352 USA, and funded by the U.~S.~Department of Energy,
   was used to obtain some of these results.
 \end{quote}
-and adding the words ``A modified version of'' at the start
+
+The words ``A modified version of'' should be added at the beginning,
 if appropriate.  {\em Note: Your EMSL Software Agreement contains the
-actual specification of the required acknowledgment.}
+complete specification of the required acknowledgment.}
 
 If you wish to cite NWChem in the references section of a publication,
 please use the following citation:
 \begin{quote}
   High Performance Computational Chemistry Group, {\em NWChem, A
-    Computational Chemistry Package for Parallel Computers, Version
+   Computational Chemistry Package for Parallel Computers, Version
     \nwchemversion{}} (\nwchemyear), Pacific Northwest National
   Laboratory, Richland, Washington 99352, USA.
 \end{quote}
 
-\subsection{In Case of Problems (or Compliments)}
+\subsection{User Feedback}
 
 Although this software comes without warranty or guarantee of support,
 we do try to meet the needs of our user community.  Please send bug
-reports, requests for enhancement, or even compliments to {\tt
-nwchem-support@emsl.pnl.gov}.
-Please be sure to provide as much information as you can about the
-problem and provide inputs and outputs if possible.  It is also
-important to know what platform you are running on.
+reports, requests for enhancement, or other comments to
 
-There is also a mailing list for users of the code which provides a
-more general forum for users of the code to exchange information.
-To subscribe, send a mail message to {\tt majordomo@emsl.pnl.gov} with
-a body containing the line {\tt subscribe nwchem-users}.  If you need
-help in using the Majordomo list manager, send a message to the above
-address with {\tt help} in the body.  You may post to the list by
-sending mail to {\tt nwchem-users@emsl.pnl.gov}.
-
-Although the developers do monitor the nwchem-users list, we much
-prefer to receive bug reports at the {\tt nwchem-support} address,
-where our problem tracking system is based.
-
-\section{Functionality}
-
-Current functionality includes:
 \begin{itemize}
-\item Self Consistent Field or Hartree Fock energy and analytic
-  gradients (RHF, UHF, high-spin ROHF)
-\item Gaussian Density Functional Theory (DFT) energy and analytic
-  gradients with many local and
-      non-local exchange-correlation potentials
-\item MP2 energy using direct or semi-direct algorithms, or using the
-  resolution of the identity integral approximation.  Analytic
-  gradients are under development.
-\item Geometry Optimization (Minimization and Transition State).
-\item Second-derivatives by numerical difference of gradients.
-\item Generation of the electron density file for the {\em Insight}
-      graphical program.
-\item Interface to the natural bond orbital package.
+\item {\tt nwchem-support@emsl.pnl.gov}
 \end{itemize}
+
+When reporting problems, please provide as much information as possible, 
+including;
+
+\begin{itemize}
+\item detailed description of problem:
+\item platform you are running on:
+\begin{itemize}
+\item operating system:
+\item compiler:
+\end{itemize}
+\item input file:
+\item output file:
+\item contact name and telephone number:
+\end{itemize}
+
+
+Users can also subscribe to an electronic mailing list of other users of
+ the code.  This is intended as a general forum through which code users 
+can contact one another and the developers to share experience with the code
+and discuss problems.  Specific bugs and problems should be sent to the
+nwchem-support@emsl.pnl.gov address, however.
+
+To subscribe to the user list, send a message to 
+
+\begin{itemize}
+\item {\tt majordomo@emsl.pnl.gov}
+\end{itemize}
+
+The body of the message must contain the line 
+
+\begin{itemize}
+\item {\tt subscribe nwchem-users}
+\end{itemize}
+
+The automated list manager is capable of recognizing a number of commands, including
+'subscribe', 'unsubscribe', 'get', 'index', 'which', 'who', 'info' and 
+'lists'.  The command 'end' halts processing of commands.  It will provide
+some help if the message includes the line {\tt help} in the body.  Messages
+can be posted to the list by
+sending mail to {\tt nwchem-users@emsl.pnl.gov}.  Reports of problems can
+be posted to this list, if the user wishes to do so, but they should also
+be posted to the {\tt nwchem-support} address.  The NWChem developers
+will monitor the user list to help them stay aprised of user traffic and
+ current problems, but 
+the tracking system for bug reports is based on reports to the
+ {\tt nwchem-support} address.  Users are encouraged to use the support 
+address rather than the mailing list for
+the initial report of any problems with the code.
 
 \section{Getting Started}
 \label{sec:getstart}
 
-  Here is the input to perform a SCF geometry optimization on the nitrogen
-molecule in a Dunning cc-pvdz basis set.
+The input to NWChem is composed of commands, called directives, which define 
+functions, actions, and keywords telling the code where to look for needed
+input information, what databases to use, and what to write to output files.
+The top level directives (see Section 4) are global and known to all modules.
+Directives that are specific to a particular module in general define keywords
+and other input that is local to that module only.  
+The input is free format, and
+keywords or blocks of module-specific directives can, with certain
+minor restrictions, appear in any order.  Case is ignored except
+for actual data (e.g., names/tags of centers, titles).  This section describes
+the input format and the syntax used for the directives 
+(see subsection \ref{sec:syntax}).
+The structure of an NWChem input file is also described (see subsection 
+\ref{sec:simplesample}), and  illustrated using a simple example.  In 
+addition, a  more realistic and therefore more complicated example input 
+file is also presented (see subsection \ref{sec:realsample}).
+
+Sections 4 through 20 present detailed descriptions of the individual
+directives, giving the format of each along with options and defaults.  Where
+appropriate, examples are presented to illustrate the features and options
+available for the directive.  The directives fall into four main categories;
+
+\begin{itemize}
+\item top level directives for setup and job control (see Section 4)
+\item directives to describe the geometry of the problem (see Section 5)
+\item directives to define the basis set(s) for the problem (see Sections 6 and 7)
+\item directives to define theory and operations to be used to solve the problem (see Sections 8 through 20)
+\end{itemize}
+
+To make the input as short and simple as possible, most of the options and
+features in the code have default values.  The user needs to supply input only
+for those items that have no defaults, or for items that must be different
+from the defaults for the particular application.  In the discussion of each
+directive, the defaults are noted, where applicable.
+
+\subsection{Input Format and Syntax for Directives}
+\label{sec:syntax}
+
+The input format for the directives used for NWChem is similar to that 
+of UNIX shells, 
+which is also used in other chemistry packages, most notably GAMESS-UK.  An
+input line is parsed into whitespace (blanks or tabs) separating tokens
+or fields.  Any token that contains whitespace should be enclosed in
+double quotes; for example, the basis set with the descriptive name
+\verb+modified Dunning DZ+ must appear in a directive as 
+\verb+"modified Dunning DZ"+, since the name consists of three separate words.
+
+  
+Each logical or physical input line must be no longer than 1023 characters.
+Data is read until an end-of-file is detected, or until an \verb+EOF+ 
+directive is encountered\footnote{The
+  free-format input library does not read past the string \verb+EOF+
+  (ignoring case) on a line by itself.  This is a convenience so that
+  unused input can be left in the same file.}.
+
+Directives consist of a keyword and optional input.  The description of
+each directive includes the type of input required for each option, which
+may be 'string' to specify that the input must be a string variable, 
+'integer' to specify that the input must be an integer value, etc.
+The default value for any optional input is noted in the description of
+the directive by preceeding it with the word 'default'.
+
+A directive can consist of one line or many.  Simple directives 
+consist of a single
+line of input with one or more fields.  Compound directives can have
+multiple input lines, and must be terminated with an END directive.  The
+directives START (Section \ref{sec:start}) and ECHO (Section \ref{sec:echo})
+are examples of simple directives.  The directive GEOMETRY (Section 5) is 
+an example of a compound directive.
+
+
+Some limited checking for self-consistency of the input is performed
+by the input module, but most defaults are imposed by the
+application modules at runtime.  It is therefore usually impossible
+to determine beforehand whether or not all selected options are
+consist with each other.
+
+The following notation is used for definition of the directives:
+
+\begin{itemize}
+\item a string, token, or field is a sequence of ASCII characters *NOTE: if 
+the string includes blanks or tabs (i.e., white space) the entire string must
+be enclosed in quotes*
+\item \verb+()+ is used to group items (the parentheses and other
+      special symbols do not appear in the input)
+\item \verb+||+ separate exclusive options/parameters/formats
+\item \verb+[ ]+ enclose optional entries with a default value
+\item \verb+< >+ enclose a type, a name of a value to be specified,
+      and a default value if any.
+
+\item \verb+\+ is used to concatenate lines in a description *NOTE: within 
+a string, the \verb+\+ causes the preceeding character (including a blank) 
+to be eliminated* 
+\item \verb+$variable$+ is used to indicate the substitution of the value of a
+      variable
+\item \verb+...+ is used to indicate indefinite continuation of a list
+\end{itemize}
+
+An input parameter is identified in the description of the
+directive by prefacing the item with the name of the type of data expected;
+i.e., 'string' for an ASCII character string, 'integer' for integer
+value(s) for a variable or an array, 'logical' for a true/false logical
+variable.  If an input item is not prefaced by one of these type names,
+it is assumed to be of type 'real'.
+ 
+Using the directive VECTORS  as an example, 
+the generic input line is as follows;
+\begin{verbatim}
+  VECTORS [[input] (<string input_movecs default atomic>) || \
+                   (project <string basisname> <string filename>)] \
+          [swap [(alpha|beta)] <integer vec1 vec2> ...] \
+          [output <string output_movecs default "$file_prefix$.movecs">]
+\end{verbatim}
+
+A complete description of the keywords
+and options for the VECTORS directive can be found in Section \ref{vectors}.
+As an illustration of directive syntax, this example shows that there are 
+three optional keywords in the VECTORS directive, as indicated by
+the three main sets of square brackets, enclosing the keywords (\verb+input+,
+\verb+swap+, and \verb+output+).  The keyword \verb+input+ allows the user
+to specify the source of the molecular orbital vectors.  When this keyword
+is invoked, there are two mutually exclusive options for specifying the
+vectors, as indicated by the \verb+||+ symbol separating the two descriptions;
+
+\begin{verbatim}
+(<string input_movecs default atomic>) || \
+                   (project <string basisname> <string filename>)] \
+
+\end{verbatim}
+
+The first option, \verb+(<string input_movecs default atomic>)+, allows
+the user to specify an ASCII character string for the parameter {\tt 
+input_movecs}.
+If no entry is specified, the code assumes a
+standard source of the vectors with a default of \verb+``atomic''+ 
+(atomic guess).  The second option, 
+\verb+(project <string basisname> <string filename>)+, contains the
+keyword \verb+project+, which takes two additional string arguments.
+When this keyword is used, the vectors will be projected from the basis
+\verb+basisname+ in the file \verb+filename+.
+
+The second keyword, /verb+swap+, allows the user to re-order the starting
+vector.  The optional keyword \verb+[alpha|beta]+ allows the user to swap
+the alpha and beta spin orbitals, and specify in pairs the integer numbers
+of the vectors to be swapped.  As many pairs as the user wishes to have
+swapped can be listed between the angle braces \verb+<integer vec1 vec2 ... >+
+enclosing this input.
+
+The third keyword, /verb+output+, allows the user to tell the code where
+to put the output values of the vectors by specifying an ASCII string
+for the parameteer {\tt output_movecs}.  If no entry is specified for
+this parameter, the default is to write them
+back into the input file, {\tt $file_prefix$.movecs}.
+
+% The keyword \verb+input+ is the default,
+% which means that the directive expects some sort of input to specify the
+% vectors.    
+% The \verb+input+ keyword is followed by two mutually exclusive
+% options.  One is to specify a standard source of the vectors, using the
+% default keyword \verb+"atomic"+ for (atomic guess).  The other option is 
+% to specify a projected set of vectors.  This option is obtained by 
+% specifying 
+% the keyword \verb+project+ instead of the keyword \verb+''atomic''+.
+% The keyword \verb+project+ takes two additional string arguments.  
+% These arguments indicate that vectors should be obtained by projecting 
+% from vectors in
+% a smaller basis.  The \verb+swap+ keyword may be optionally applied to
+% the alpha or beta spin orbitals and takes as an argument a list of
+% pairs of integers. The \verb+output+ keyword requires a string
+% argument, which takes a de fault value constructed from the value of
+% the file prefix appended with \verb+".movecs"+.
+
+A particular example of the VECTOR directive is shown below.  It specifies
+both the \verb+input+ and \verb+output+ keywords, but does not use the 
+\verb+swap+ option.
+
+\begin{verbatim}
+  vectors input project "small basis" "small_basis.movecs" \
+          output "large_basis.movecs"
+\end{verbatim}
+
+This directive tells the code to generate input vectors by projecting from a 
+smaller basis named \verb+''small basis''+, which is stored in file 
+\verb+''small_basis.movecs''+.  The output vectors will be stored in the file
+ \verb+''large_basis.movecs''+.
+
+The order of keyed optional entries within a directive should not matter,
+unless noted otherwise in the specific instructions for a particular directive.
+
+
+\subsection{Input File Structure}
+\label{sec:inputstructure}
+
+The structure of an input file reflects the internal structure of
+NWChem.  At the beginning of a calculation NWChem needs to have a number
+of start-up directives telling it such things as how much memory to use, 
+the name of the database, whether it is a new, restarted, or continuing job, 
+where to put scratch/permanent files, etc..  It is not necessary to put
+this information at the top of the input file, however.  The first (zeroth)
+process in NWChem reads through the {\em entire} the input file looking for 
+the start-up directives.  In this pass, all other directives are ignored.  
+
+The start-up directives are
+
+\begin{itemize}
+\item START
+\item CONTINUE
+\item RESTART
+\item SCRATCH{\verb+_+}DIR
+\item PERMANENT{\verb+_+}DIR
+\item MEMORY
+\item ECHO
+
+% what about TITLE, PRINT/NOPRINT, SET/UNSET, STOP, TASK, and CHARGE?
+% these appear in Section 4 Top Level Directives...
+
+\end{itemize}
+
+The input values for keywords, etc. for these start-up directives are
+broadcast to the other nodes\footnote{Once the database has been opened
+process zero can insert data into the database which may be
+subsequently accessed directly by all processes.}.
+
+After the input file has been scanned for the start-up directives, it
+is rewound and read sequentially.  Input is
+processed either by the top-level parser (for the directives listed in
+Section 4;
+\verb+TITLE+, \verb+SET+, \ldots) or by the specific computational modules
+invoked for the particular case
+(e.g., SCF, DFT, \ldots).  Any directives that have already been processed
+(e.g., \verb+MEMORY+) are ignored.  Input is read until a \verb+TASK+
+directive (see Section \ref{sec:task}) is encountered, which specifies the 
+level of theory to be used to solve the problem and the operations to be 
+performed.  Input processing stops and the specified task is executed.  
+The TASK directive in effect defines the end of the input for a given job.  
+Processing of the input resumes upon the successful completion of the task,
+however, and the results of that task can be used as input to a subsequent
+problem in the same input file, as defined by a new \verb+TASK+ directive.
+
+The name of the input file is usually provided as an argument to the execute
+command for NWChem.  For example;
+
+\begin{itemize}
+\item \verb+nwchem input_file+
+\end{itemize}
+
+The default name for the input file is \verb+nwchem.nw+.  If an input
+file name \verb+input_file+ is specified without an extension, the code
+assumes a default extension of \verb+input_file.nw+.  If the code cannot
+locate a file named either \verb+nwchem.nw+ or \verb+input_file.nw, an 
+error is reported and execution terminates.  The following
+subsection presents two input files to illustrate the directive syntax and 
+input file format for NWChem applications.
+
+\subsection{Simple N2 Input File}
+\label{sec:simplesample}
+
+An example of a very simple problem that can be run with NWChem is the
+SCF geometry optimization on the nitrogen molecule using the Dunning 
+cc-pvdz basis set.  If this problem is run using the defaults in NWChem, 
+it requires only a very short input file.  This input file contains
+the bare minimum of information the user must specify in order to run 
+this type of problem.  The file consists of fewer than ten lines of input,
+as follows;
+
 \begin{verbatim}
   title; Nitrogen cc-pvdz SCF geometry optimization
   geometry 
@@ -97,171 +381,55 @@ molecule in a Dunning cc-pvdz basis set.
   task scf optimize
 \end{verbatim}
 
-If this input is in the file \verb+"n2.nw"+, then to run the job on
-most UNIX workstations type
-\begin{verbatim}
-  nwchem n2
-\end{verbatim}
+Examining the input file line by line, it can be seen that it contains 
+only four directives; TITLE, GEOMETRY, BASIS, and TASK.  The TITLE directive
+is optional, and is used only as a means for the user to more easily identify
+outputs from different jobs.  The TASK directive tells the code what to
+do with the case, and the GEOMETRY and BASIS directives are needed
+to define the problem.
 
-Let's have a closer look at he above input (the structure will be
-described in more detail in the following section). It contains only a
-necessary amount of information, as NWChem will use default values
-for most input parameters.
-
-The title is only used to give the user a means to identify
-outputs from different jobs quickly.
-
-The input geometry is generally given in cartesian coordinates (for
-Z-matrix inputs see section \ref{sec:Z-matrix}), and, if no further
-information is given, in atomic units (Bohr). 
+The default for the input geometry is cartesian coordinates.  (The Z-matrix
+can be selected by setting the keyword 'zmat' (see Section \ref{sec:Z-matrix}).
+The default for geometric units is the atomic unit (Bohr).  Since no other
+option is specified in this directive, the numbers provided on the lines
+following the geometry directive are assumed to be in atomic units.
+(See Section 5 for a complete discussion of available options for the 
+GEOMTERY directive.) 
 
 The basis input block is structured like the geometry block (keyword,
 \ldots, end) and contains basis set information for every atom type in
-the geometry. In this case a default basis set from the library is
-chosen (see sections appendix \ref{knownbasis} and section
-\ref{sec:basis} for a list of available basis sets or how to define
-your own).
+the geometry. In this case, a default basis set from the library is
+chosen.  Refer to Section \ref{knownbasis} and section \ref{sec:basis} 
+for a description of available basis sets and a discussion of how to define
+new ones.
 
 The last line ({\tt task scf optimize})
 tells the program what to calculate with the information given so
 far. For a description of possible tasks and the format of the input
-see section \ref{sec:task}.
+for the {\tt task} directive, refer to Section \ref{sec:task}.
 
-\subsection{Input format}
+If this input is in the file \verb+n2.nw+, the command to run the job on
+a typical UNIX workstation is as follows;
 
-The input is keyword or directive based.  It is free format and
-keywords or blocks of module-specific directives can, with certain
-small restrictions, appear in any order.  Case is ignored except
-for actual data (e.g., names/tags of centers, titles).
-
-Most details of the input format should be familiar from the UNIX
-shells and from other chemistry packages, most notably GAMESS-UK.  An
-input line is parsed into whitespace (blanks or tabs) separated tokens
-or fields.  Any token that contains whitespace (e.g., a descriptive
-name for a basis set, \verb+"modified Dunning DZ"+) should be enclosed
-in double quotes (\verb+"+).  A backslash (\verb+\+) concatenates one
-or more physical input lines. Note that a space is inserted at the
-physical line break so that it is not possible to split tokens between
-lines.  A semicolon marks the end of a logical input line, or
-statement, so that a physical input line may contain multiple logical
-input lines.  There is a limit of 1023 characters on the size of both
-logical and physical input lines.  All characters after a pound or
-hash symbol (\verb+#+) are treated as comments.  Data is read until
-end-of-file is detected, or until an \verb+EOF+ directive is
-encountered\footnote{The
-  free-format input library does not read past the string \verb+EOF+
-  (ignoring case) on a line by itself.  This is a convenience so that
-  unused input can be left in the same file.}.
-
-Directives appear in two forms.  Simple directives comprise a single
-line of input with one or more fields.  E.g., 
-\begin{itemize}
-\item the \verb+ECHO+ directive takes no additional parameters 
-  and causes the input file to be echoed to standard output;
-\item the \verb+START+ directive takes several optional
-      parameters which specify the database name and a common prefix
-      for all files.
-\end{itemize}
-Compound directives are spread over multiple input lines and
-are terminated with an \verb+END+ directive --- the 
-\verb+GEOMETRY+ directives above serve as an example. 
-
-Some limited checking for self-consistency of the input is performed
-by the input module, but most defaults are actually imposed by the
-application modules at runtime. 
-
-\subsection{Syntax for directives}
-
-The following notation is used for definition of the directives:
-
-\begin{itemize}
-\item \verb+()+ is used to group items (the parentheses and other
-      special symbols do not appear in the input)
-\item \verb+||+ separate exclusive options/parameters/formats
-\item \verb+[]+ enclose optional entries with a default value
-\item \verb+<>+ enclose a type, a name of a value to be specified,
-      and a default value if any.
-\item a string/token/field is just a sequence of characters, enclosed in
-      quotes if there is white space
-\item \verb+\+ is used to concatenate lines in a description
-\item \verb+$variable$+ is used to indicate the substitution of the value of a
-      variable
-\item \verb+...+ is used to indicate indefinite continuation of a list
-\end{itemize}
-
-For example,
 \begin{verbatim}
-  VECTORS [[input] (<string input_movecs default atomic>) || \
-                   (project <string basisname> <string filename>)] \
-          [swap [(alpha|beta)] <integer vec1 vec2> ...] \
-          [output <string output_movecs default "$file_prefix$.movecs">]
+  nwchem n2
 \end{verbatim}
-indicates that there are three optional keywords (\verb+input+,
-\verb+swap+, and \verb+output+).  The keyword \verb+input+ is optional
-(i.e., if no recognizable keyword is specified then input will be
-assumed).  The \verb+input+ keyword is followed by two exclusive
-options, which are to specify either a standard source of the vectors
-with a default of \verb+"atomic"+ (atomic guess) or the keyword
-\verb+project+ which takes two additional string arguments which
-indicate that vectors should be obtained by projecting from vectors in
-a smaller basis.  The \verb+swap+ keyword may be optionally applied to
-the alpha or beta spin orbitals and takes as an argument a list of
-pairs of integers. The \verb+output+ keyword requires a string
-argument, which takes a default value constructed from the value of
-the file prefix appended with \verb+".movecs"+.  For example
-\begin{verbatim}
-  vectors input project "small basis" "small_basis.movecs" \
-          output "large_basis.movecs"
-\end{verbatim}
-requests input vectors to be generated by projection from
-results in a smaller basis and output vectors to be stored in the file
-\verb+"large_basis.movecs"+.
 
-The order of keyed optional entries should not matter unless noted
-otherwise.
+The result obtained in NWChem for this case would be output to the
+default output file, with the default selection for output options.
 
-\subsection{The structure of an input file}
-\label{sec:inputstructure}
+\subsection{Water Molecule Sample Input File}
+\label{sec:realsample}
 
-The structure of an input file reflects the internal structure of
-NWChem.  At the start of a calculation NWChem needs to know such
-things as how much memory to use, the name of the database, if it is a
-startup or restart job, where to put scratch/permanent files, etc..
-Rather than require all this information be at the top of the input
-file, NWChem scans through {\em all} of your input looking for these
-start-up directives (section \ref{sec:inputstructure}) and ignores everything else.
-Since only process zero can read the input, these data are manually
-broadcast to the other nodes\footnote{Once the database has been opened
-process zero can insert data into the database which may be
-subsequently accessed directly by all processes.}.
+A more complex sample problem can be obtained using the geometry of
+a positively charged water molecule.  This is also a more realistic example
+of a NWChem input file.  In this problem, a preliminary optimization
+with SCF is performed using a relatively cheap basis set (sto-3g).  Then 
+the optimization is finished using second-order M{\o}ller-Plesset 
+perturbation theory and a basis set with polarization functions. 
+The final task is to calculate the vibrational frequencies.
 
-Next, the input file is rewound and read sequentially.  Input is
-processed either by the top-level parser (e.g., the directives
-\verb+TITLE+, \verb+SET+, \ldots) or by the computational modules
-(e.g., SCF, DFT, \ldots).  Anything that has already been processed
-(e.g., \verb+MEMORY+) is ignored.  Input is read until a \verb+TASK+
-directive (section \ref{sec:task}) is encountered at which point the specified
-task is executed.  Processing of the input resumes upon the successful
-completion of the task.
-
-\subsection{The input file name and the {\tt .nw} suffix}
-\label{sec:inputfilename}
-
-The name of the input file is usually provided as an argument to
-NWChem.  If no input file name is provided, then the default name of
-\verb+"nwchem.nw+ is used.  If the file cannot be located, then
-\verb+".nw"+ is appended to the name.  If the file can sill not be
-located, then an error is reported.
-
-\subsection{Another example}
-
-Now we can have a look at a more realistic example: The following
-input starts with a very crude approximation of the geometry of a
-positively charged water molecule. After a preliminary optimization
-with SCF and a relatively cheap basis set (sto-3g), the optimization
-is finished with second-order M{\o}ller-Plesset perturbation theory and
-a basis set with polarization functions. At the final geometry the
-vibrational frequencies are calculated.
+The input file to accomplish these three tasks is as follows;
 
 \begin{verbatim}
 start h2o_freq
@@ -323,33 +491,41 @@ task mp2 freq
 eof
 \end{verbatim}
 
-Let's have a closer look at this input deck. The {\tt start} directive
-tells NWChem that this run is to be started from the
-beginning. Existing database or vector files are ignored or
-overwritten. The second entry on the start line gives an internal name
-for the job, and the database as well as all temporary or permanent
-files associated with it will contain this string. This implies that
+This file beins with a {\tt start} directive, which tells NWChem that this 
+run is to be started from the beginning. Existing database or vector files 
+are to be ignored or overwritten. The entry \verb+h2o_freq+ on the 
+\verb+START+ line gives an internal name for the job and the database.  
+The name to be used for each temporary or permanent file associated with the
+job will also contain the string \verb+h2o_freq+. 
+For this reason,
 different jobs running in the same directory or sharing the same
-scratch directory (see section \ref{sec:dirs}) have to differ in this
-name.
+scratch directory (see Section \ref{sec:dirs})
+must use different names in this field.
 
-The geometry is again given in cartesian coordinates, this time in
+As in the first sample problem, the geometry is given in cartesian 
+coordinates.  In this case, however, the units are specified as
 {\AA}ngstr{\o}m instead of the default atomic units.
 
-The {\tt charge} directive defines the total charge of the system, so
-this calculation is done on an ion with charge +1. It is a top-level
+The {\tt charge} directive defines the total charge of the system.  This calculation is to be done on an ion with charge +1. Note that this is a top-level
 directive, independent of other input blocks.
 
-Next, two basis sets are defined and given (hopefully) intuitive names
-by which they can be referenced later in the input, the second one is
-also printed to the output file.
+The next two directives are the {\tt basis} directives.  These are compound
+directives that define the two basis sets to be used in the calculations.  
+The basis sets should be given names that will serve as a helpful mnemonic 
+for later reference in
+subsequent input directives.  The basis set specified on the second 
+\verb+BASIS+ directive will appear in the information
+written to the output file.
 
-The {\tt scf \ldots end} block contains details about the scf
+The {\tt scf} directive in the {\tt scf \ldots end} block specifies 
+details about the scf
 calculation to be performed. Unrestricted Hartree-Fock is chosen
 rather than the default high-spin ROHF. For the subsequent MP2
-calculation this is necessary, because only UMP2 is available for
-open-shell systems at the moment. For open-shell systems the spin
-multiplicity has to be given (it defaults to singlet). The maximum
+calculation, this is necessary because only UMP2 is available for
+open-shell systems currently (refer to Section \ref{sec:function} for
+a more complete discussion of code functionality). For open-shell 
+systems, the spin
+multiplicity has to be specifed, or it defaults to singlet. The maximum
 number of iterations is set to a high value to allow convergence in
 difficult cases. The print level is set to {\tt low} to reduce the
 output from the scf module to a minimum.
@@ -359,30 +535,41 @@ The energy convergence threshold for the geometry optimization module
 because the initial optimization with scf is not intended to find the
 exact minimum.
 
-Finally the ``{\tt ao basis}'', which is the default basis for all ab
-initio calculations, is set to the name of the first basis given
-above.
+Finally the {\tt set} directive is used to specify the
+starting basis as the ``{\tt ao basis}''.  This basis is the default
+basis for all {\em ab initio} calculations.  In this case, the ``{\tt
+ao basis}'' is set to the string ``{\tt starting basis}''.
 
-All input up to here only affects settings in the run-time database,
-from where the program takes its information. This means that the
-sequence is irrelevant, and an exchange of different blocks or
-directives would not affect the result. This is different for the 
-{\tt task} directive. It invokes the program and does a calculation
-using the parameters set before. In this case it is an SCF calculation
-with geometry optimization (for a list of available tasks and
-operations see section \ref{sec:task}).
+All input up to this point affects only the settings in the run-time database.
+The program takes its information from this data base, so the
+sequence of directives is irrelevant.  An exchange of order of the 
+different blocks or
+directives would not affect the result. 
 
-After this optimization is done, settings in the database are reused
-for further tasks unless they are overridden by new input directives.
-In this example the ``{\tt ao basis}'' is set to the better basis for
-the final calculations, scf output is completely discarded ({\tt print
-  none} means no output unless an error occurs that would make the
-result useless), and the starting guess is to be an SCF calculation on
-the atoms. The latter is necessary because the default would be to use
-existing MO vectors, but the basis has changed, and the difference is
-too big to make a projection of the old vectors on the new basis
-reasonable (for details on the different possible starting guesses see
-section \ref{sec:vectors}).
+The {\tt task} directive, however, must be specified last of all in the
+list of input directives for
+a given problem. The {\tt task} directive invokes the program and does a calculation
+using the parameters set in the previous directives. In this case, the 
+first task is an SCF calculation with geometry optimization.   (See Section 
+\ref{sec:task} for a list of available 
+tasks and operations.)
+
+After this optimization task is done, settings in the database are used
+in subsequent tasks without change, unless they are overridden by new 
+input directives.
+In this example, there are several important changes between the first
+and the second optimization task.  The ``{\tt ao basis}'' is set to a 
+better basis (i.e., ``{\tt property basis}'') for the final set of 
+calculations.  The scf output is completely 
+discarded (using the {\tt print  none} input in the {\tt scf} directive),
+which means that no output will be producedd unless an error occurs.
+The starting guess for the MP2 optimization task is to be an SCF calculation 
+on the atoms. The input must be specified using the {\tt scf} directive,
+because the default would be to use existing MO vectors.  Since the basis 
+has been changed in this task,
+the differences will be too large to make a projection of the old vectors 
+a reasonable representation on the new basis.  (See Section \ref{sec:vectors}
+for details on the different possible starting guesses.)
 
 As there is currently no input block for the MP2 gradients, parameters
 for this module have to be set in the database via the {\tt set}
@@ -391,73 +578,110 @@ amount of output is again reduced to the reasonable minimum. The
 convergence criterion for the geometry optimization program is set to
 a lower value, requesting a more exact minimum search.
 
-{\tt task mp2 optimize} calls for an optimization with MP2, starting
-with the geometry resulting from the previous task.
-
-At the final geometry a frequency calculation is performed. The second
+The directive {\tt task mp2 optimize} calls for an optimization with MP2, 
+starting with the geometry resulting from the previous task.  At the final 
+geometry a frequency calculation is performed. The second
 derivatives of the energy are calculated as numerical derivatives of
 analytical gradients. The gradients as such are not of interest, so
 the output from the {\tt mp2\_grad} program is completely discarded.
 
-The {\tt eof} directive marks the end of the input to be read. At the
-end of the file it is not necessary, but it allows further file
-contents (e.g.\ a description of the purpose of the calculation, or
-any other comments that are more than a few lines) that are ignored by
+The {\tt eof} directive marks the end of the input to be read. It is not
+necessary to specify the end-of-file as an explicit directive at the
+actual end of the file.  However, using the directive allows the user to
+have additional lines in the file that will not be processed as input.  For
+example, a description of the calculation(s) specified in the input, or
+notes on the purpose of the task(s) or other informational comments can be
+included in the input file in this way.  The {\tt eof} directive can also
+be used to remove a task (or series of tasks) from the calculation without
+actually removing the input for them from the file.  Any lines in the file
+that occur after the {\tt eof} directive are ignored by
 the program.
 
-\subsection{NWChem Architecture}
+
+
+\section{NWChem Architecture}
 \label{sec:arch}
 
-The high-level design of NWChem is still evolving and will undergo
-substantial modification in the coming months.  The following features
-can, however, be expected to be present in subsequent versions.
+NWChem consists of independent modules that perform the various functions
+of the code.  These functions include input processing, creation of basis
+sets and geometry sets, and solution operations using different theoretical
+models.  Different modules communicate through a database, using an approach
+similar in spirit to the GAMESS dumpfile or the Gaussian checkpoint file.  
+This allows the modules to share data, or to share access to files containing
+data.
 
-NWChem consists of independent modules (e.g., input, SCF, RIMP2) that
-communicate through a database (similar in spirit to the GAMESS
-dumpfile or the Gaussian checkpoint file).  The only way modules can
-share data is via the database, or via files whose names are stored in
-the database (which may have default values).  Everything stored
-directly in the database comprises a typed array described by
+It is not necessary for the user to be intimately familiar with the contents
+of the database in order to run NWChem.  Nor is it necessary to fully
+understand the theory and operation of the solution options in the code.
+However, a nodding acquaintance with the structure of the database and 
+the functionality of the code would probably help clarify the logic behind
+the input requirements of the code, in understanding the usefulness of the
+defaults, and in determining which models and operation are most appropriate
+for a given application.  Section \ref{sec:database} gives a general 
+description of the database, and Section \ref{sec:functionality} describes 
+the theorical models and operations currently available in the code.
+
+/subsection{Database Structure}
+/label{database}
+
+Data is shared between modules of NWChem by means of the database.  There
+are three main types of information stored in the data base; (1) arrays of
+data, (2) names of files that contain data, and (3) objects.  
+
+Arrays are stored directly in the database, and contain the following
+information;
+
 \begin{enumerate}
-\item a name which is a simple string of ASCII characters (e.g., 
+\item a string of ASCII characters that serve as the name of the array (e.g., 
       \verb+"reference energies"+),
-\item the type of the data (real, integer, logical, or character), 
-\item the number of data items, and
-\item the actual data (an array of items of the specified type).
+\item the type of the data in the array (i.e., real, integer, logical, or character), 
+\item the number (N) of data items in the array, and
+\item the N items of data of the specified type.
 \end{enumerate}
 
-The input module provides the \verb+SET+ directive (section
-\ref{sec:set}) which stores data directly into the database.  For
-instance, the directive
+Some arrays in the database are defined permanently in the code; some are
+defined or created while processing the input, others are created as part
+of a calculation.  The user can directly specify some arrays by means of
+the input, using the \verb+SET+ directive (see Section \ref{sec:set}).  
+For example, to store a (64-bit precision) three-element real array 
+with the name "reference energies" in the database, the directive is 
+as follows;
+
 \begin{verbatim}
   set "reference energies" real 0 1 -76.2
 \end{verbatim}
-stores a real (64 bit precision) array of three elements with the
-given values into the database.  The number of data items is automatically
-inferred from the input line.
 
-Objects more complex than simple arrays (e.g., a description of a
-basis set, or the history of a geometry optimization) are built up by
-providing a set of routines that manage the data associated with named
-instances of these objects.  This is done by internally establishing
-some policy about how to name quantities associated with an object.
-Current examples of this include the basis and geometry objects.  In
-this fashion multiple instances of such objects can be stored with
-different names in the same database without confusion.  E.g., the
-input
-\begin{verbatim}
-  geometry "test water geometry"
-    O     0.00000000    0.00000000    0.00000000
-    H     0.00000000    1.43042809   -1.10715266
-    H     0.00000000   -1.43042809   -1.10715266
-  end
-\end{verbatim}
-stores the geometry of water into the database with the name 
-\verb+"test water geometry"+.  If the name \verb+"test water geometry"+
-was not specified then the default name of \verb+"geometry"+ would
-have been adopted.  What is actually stored in the database is a whole
-load of stuff.  For example, for a geometry with the default name
-\verb+"geometry"+:
+The number of elements in the array is counted automatically when this input
+directive is processed, and this information is entered automatically
+into the array in the database.
+
+An item in the database can reference a file containing data, rather
+than containing the data itself.  The structure of such an entry is 
+similar to an ordinary array, except that it contains only three the following
+three items;
+
+\begin{enumerate}
+\item a string of ASCII characters that is the name of the file containing
+the data,
+\item the type of the data in the file (i.e., real, integer, logical, 
+or character), and 
+\item the number of data items in the file
+\end{enumerate}
+
+Objects in the database are in general more complex than simple arrays.
+An object consists of a set of related data that different routines in
+the code must read, manipulate, or write.  Currently, the code has two
+main objects; the basis sets and the geometry set.  Sections 5,6, and 7 
+present a complete discussion of the input to describe these objects; for
+the purposed of this discussion, these objects can be understood simply
+as a related packet of information, such as a description of a
+basis set, or the history of a geometry optimization.  A given object is
+built up following an internally consistent naming convention and set of 
+structural specifications and array ordering for that object. For example, 
+a geometry
+database with the default name \verb+"geometry"+ contains the following
+entries;
+
 \begin{verbatim}
  Contents of RTDB h2o.db
  -----------------------
@@ -473,25 +697,59 @@ load of stuff.  For example, for a geometry with the default name
  geometry:geometry:tags                  char[6]
  ...
 \end{verbatim}
-There is no need to be aware of this level of detail (which is subject
-to change) unless you have some, hopefully, very unusual problems.
 
-\sloppy
 
-Most of the computational modules require a geometry with name
-\verb+"geometry"+.  The input
+Using this approach, multiple instances of the geometry object can be 
+stored with different names in the same database without confusion.  
+For example, if a user needs to do calculations considering alternative
+geomteries for the water molecule, an input file can be constructed that
+allows more than one geometry object to exist in the database.  The
+{\tt geometry} directive can be used to define an alternative geometry
+object in the database, under a name different from the geometry object
+for water already in the code.  For example, the input directive to define
+a geometry object in the database with the name
+\verb+"test water geometry"+ can be specified as follows;
+
+\begin{verbatim}
+  geometry "test water geometry"
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+    H     0.00000000   -1.43042809   -1.10715266
+  end
+\end{verbatim}
+
+The geometry object contains more information than merely
+the numerical input in the directive, however.  The geometry directive
+allows the user to specify different values for the x,y,z coordinates of
+the atoms (or centers), and identify that object under a unique name, but 
+the other information in the geometry oject remains unchanged for all
+specifically named objects.  (Refer to Section 5 for a complete description of the {\tt geometry}
+directive.)  
+
+Unless a specific name is defined for the geometry object in the database
+(such as the name  \verb+"test water geometry"+ shown in the example), 
+the object in the database is 
+assigned the default name of \verb+"geometry"+.  This is the object name
+that computational modules requiring information from the geometry object
+will look for.  The {\tt set} directive can be used in the input to force a
+module (or modules) to look for a geometry object with 
+different name than \verb+"geometry"+ for a particular task.  For example, 
+to use the x,y,z coordinates specified for \verb+"my water geometry"+ 
+rather than those of the default geometry object \verb+"geometry"+, the
+input line is as follows;
+
 \begin{verbatim}
   set geometry "my water geometry"
 \end{verbatim}
-makes an entry in the database that associates the name
-\verb+"geometry"+ with the value \verb+"my water geometry"+.  The
-computer code for the geometry ``object'', when asked to load a geometry
-with name \verb+"geometry"+, will first attempt to translate the name
-before actually attempting to load the geometry.  The basis set object
+
+When the computer code for the geometry object is asked to load a geometry
+with name \verb+"geometry"+, during the calculation, it will first check for 
+a {\tt set} directive on the geometry object name before actually attempting 
+to load the geometry.  The basis set object
 functions in an identical fashion and it is intended that all such
-objects will do so.  What will change in the future is the naming
-conventions and mechanisms of associating data with specific modules
-or tasks.
+objects will do so.  (Note: the naming conventions and mechanisms of 
+associating data with specific modules or tasks is expected to change in
+the future, but the directive for specifying names should remain the same.)
 
 \fussy
 
@@ -501,6 +759,59 @@ data must be provided.  It also makes the behavior of successive
 restart jobs {\em identical} to that of multiple tasks within one job.
 However, sometimes this persistence is undesirable and in order to
 return an NWChem module to its default (input-free) behavior the
-\verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
+\verb+UNSET+ directive (see Section \ref{sec:unset}) 
+can be used to delete all
 database entries associated with a given module.
+
+
+\subsection{Functionality}
+\label{sec:functionality}
+
+Current functionality includes:
+\begin{itemize}
+\item Self Consistent Field or Hartree Fock energy and analytic
+  gradients (RHF, UHF, high-spin ROHF)
+\item Gaussian Density Functional Theory (DFT) energy and analytic
+  gradients with many local and
+      non-local exchange-correlation potentials
+\item MP2 energy using direct or semi-direct algorithms, or using the
+  resolution of the identity integral approximation.  Analytic
+  gradients are under development.
+\item Geometry Optimization (Minimization and Transition State).
+\item Second-derivatives by numerical difference of gradients.
+\item Generation of the electron density file for the {\em Insight}
+      graphical program.
+\item Interface to the natural bond orbital package.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
