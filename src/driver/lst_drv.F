@@ -95,7 +95,7 @@ c                mxcoor=max(mxcart,mxzmat)
       data alphmn /0.4d+00/
       data alphmx /2.5d+00/
 c
-      hnd_optx = .false.
+      hnd_lstx = .false.
 c
       dbug=.false.
       out =.false.
@@ -107,6 +107,7 @@ c
       endif
 c--
       if(some.or..not.some) then
+         hnd_lstx = .true.  
          return
       endif
 c--
@@ -183,7 +184,7 @@ c
 c     ----- branch to transition state search if demanded -----
 c
       if(idriver.ne.0.or.modsad.ne.0) then
-         hnd_optx=hnd_sadx(rtdb,idriver)
+         hnd_lstx=hnd_sadx(rtdb,idriver)
          return
       else
          if (ga_nodeid().eq.0.or.some)  then
@@ -383,7 +384,7 @@ c
          call ga_sync()
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
-         hnd_optx=.true.
+         hnd_lstx=.true.
          return
       endif
 c
@@ -417,7 +418,7 @@ c
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
          call ga_sync()
-         hnd_optx=.false.
+         hnd_lstx=.false.
          return
       endif
       do i=1,ncoord
@@ -455,7 +456,7 @@ c
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
          call ga_sync()
-         hnd_optx=.true.
+         hnd_lstx=.true.
          return
       endif
 c
@@ -484,13 +485,13 @@ c     ----- go back to next search direction -----
 c
       go to 100
 c
- 9999 format(/,10x,21(1h-),
-     1       /,10x,'Geometry Optimization',
-     2       /,10x,21(1h-))
- 9998 format(/,10x,22(1h-),
-     1       /,10x,'Optimization converged',
-     2       /,10x,22(1h-))
- 9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
+ 9999 format(/,10x,8(1h-),
+     1       /,10x,'LST Path',
+     2       /,10x,8(1h-))
+ 9998 format(/,10x,18(1h-),
+     1       /,10x,'LST Path completed',
+     2       /,10x,18(1h-))
+ 9997 format(' in hnd_lstx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
  9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
      1     /,' maximum number of energy evaluations  (nptopt) = ',i4,/,
      2       ' max.num. of points in linear search   (linopt) = ',i4,/,
