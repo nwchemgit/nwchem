@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.3 2002-01-09 19:02:17 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.4 2002-01-15 18:17:43 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -150,9 +150,9 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
 
       call dcopy(2*nx*ny*nz,0.0d0,0,B,1)
 
-      do k3 = -nzh+1,nzh
-      do k2 = -nyh+1,nyh
-      do k1 = 0,nxh
+      do k3 = -nzh+1,nzh-1
+      do k2 = -nyh+1,nyh-1
+      do k1 = 0,nxh-1
          i = k1
          j = k2
          k = k3
