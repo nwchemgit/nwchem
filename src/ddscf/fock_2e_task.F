@@ -7,7 +7,7 @@
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk,
      $     tmp,
-     $     sijkl, q4_atom, den_tol)
+     $     sijkl, q4_atom, tol2e, den_tol)
       implicit none
 #include "bas.fh"
 #include "cfock.fh"
@@ -26,12 +26,13 @@ c
       double precision tmp(*)
       double precision sijkl
       double precision q4_atom
-      double precision den_tol
+      double precision tol2e, den_tol
 c
 c     Given a task which comprises computing the contributions
 c     arising from a quartet of atoms, do everything necessary
 c
-      double precision denmax, dtol2e, test
+      double precision denmax, dtol2e
+      logical otest
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
 c
 c     With caching get density and flush necessary fock blocks
@@ -56,16 +57,21 @@ c
      $     denmax, tmp)
 c
 c     Apply screening on the density and schwarz inequality
-c     (don't use density if writing integrals to file)
+c     (don't use density screening if writing integrals to file)
 c
       if (owritefile) then
-         test = sijkl
-         dtol2e = den_tol
+         otest  = sijkl .gt. tol2e
       else
-         test   = sijkl * denmax
-         dtol2e = den_tol/denmax
+         otest  = (sijkl*denmax) .gt. den_tol
       endif
-      if (test .ge. den_tol) then
+c
+      if (otest) then
+c
+         if (owritefile) then
+            dtol2e = tol2e
+         else
+            dtol2e = den_tol / denmax
+         endif
 c     
 c     Construct these Fock atom-blocks
 c     

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.5 1995-04-11 04:45:10 og845 Exp $
+C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -141,7 +141,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.5 1995-04-11 04:45:10 og845 Exp $
+C     $Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -184,8 +184,7 @@ c
 c     Functions
 c     
       integer ga_create_atom_blocked
-      logical ga_iter_lsolve
-      external ga_create_atom_blocked, ga_iter_lsolve
+      external ga_create_atom_blocked
 C      external uhf_hessv, uhf_hessv_precond
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
@@ -403,7 +402,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.5 1995-04-11 04:45:10 og845 Exp $
+C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -489,7 +488,7 @@ c
 #include "cscf.fh"
 #include "util.fh"
 c     
-c     $Id: uhf.F,v 1.5 1995-04-11 04:45:10 og845 Exp $
+c     $Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -848,7 +847,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.5 1995-04-11 04:45:10 og845 Exp $
+C$Id: uhf.F,v 1.6 1995-05-24 16:12:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

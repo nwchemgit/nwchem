@@ -168,7 +168,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.6 1995-05-22 22:28:32 vg038 Exp $
+C$Id: scf_get_info.F,v 1.7 1995-05-24 16:12:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -229,9 +229,9 @@ c
          endif
       endif
 c
-      if (.not. rtdb_get(rtdb, 'scf:filesize',
+      if (.not. rtdb_get(rtdb, 'int2e:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-      if (.not. rtdb_get(rtdb, 'scf:memsize',
+      if (.not. rtdb_get(rtdb, 'int2e:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
 c
       oreadfile = .false.
@@ -239,7 +239,8 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          owritefile = .true.
-         call util_file_prefix('aoints',filename)
+         if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
+     $        call util_file_prefix('aoints',filename)
          if (.not. int2e_file_open(filename, memsize, filesize))
      $        call errquit('get_fock_param: opening aoints?', 0)
       endif

@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.10 1995-05-22 06:56:10 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.11 1995-05-24 16:12:03 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -19,7 +19,7 @@ c     see scf_init for input of task_chunks etc.
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.10 1995-05-22 06:56:10 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.11 1995-05-24 16:12:03 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -169,7 +169,7 @@ c
      $                       dij, dik, dli, djk, dlj, dlk,
      $                       fij, fik, fli, fjk, flj, flk,
      $                       tmp,
-     $                       sijkl, q4_atom, den_tol)
+     $                       sijkl, q4_atom, tol2e, den_tol)
 c
                         next = nxtask(nproc, task_chunks)
                      end if
