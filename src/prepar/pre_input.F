@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.99 2002-04-04 22:12:53 d3j191 Exp $
+c $Id: pre_input.F,v 1.100 2002-05-03 18:21:28 d3j191 Exp $
 c
       implicit none
 c
@@ -40,7 +40,7 @@ c
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk,rshell,xmerge(3)
-      integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert
+      integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert,irrep
       integer iskip,jskip,kskip
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
@@ -1478,6 +1478,7 @@ c
       iopt=0
       irrand=0
       invert=0
+      irrep=0
  6838 continue
       if(.not.inp_i(nxrep)) then
       if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
@@ -1501,6 +1502,10 @@ c
       invert=1
       goto 6838
       endif
+      if(inp_compare(.false.,'rest',item)) then
+      irrep=1
+      goto 6838
+      endif
       if(inp_compare(.false.,'chains',item)) iopt=1
       if(inp_compare(.false.,'molecules',item)) iopt=2
       if(inp_compare(.false.,'fractions',item)) iopt=3
@@ -1515,8 +1520,9 @@ c
       if(nxrep.lt.0) call errquit('pre_input: repeat 5',9999)
       if(nyrep.lt.0) call errquit('pre_input: repeat 6',9999)
       if(nzrep.lt.-2) call errquit('pre_input: repeat 7',9999)
-      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt,irrand,invert
- 6851 format('repeat ',3i5,2f12.6,3i5)
+      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt,irrand,invert,
+     + irrep
+ 6851 format('repeat ',3i5,2f12.6,4i5)
       numcmd=numcmd+1
       goto 1
       endif

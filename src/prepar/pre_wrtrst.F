@@ -1,9 +1,9 @@
       logical function pre_wrtrst(lfnout,lfnrst,filrst,
      + npbtyp,nbxtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
-     + isar,xs,vs,msa,nsa,msm,nsm)
+     + isar,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep)
 c
-c $Id: pre_wrtrst.F,v 1.14 2001-07-06 03:45:14 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.15 2002-05-03 18:21:28 d3j191 Exp $
 c
       implicit none
 c
@@ -11,13 +11,14 @@ c
 c
       integer lfnout,lfnrst
       integer mwm,mwa,nwm,nwa,msa,nsa,msm,nsm,mwmc,nwmc
-      integer npbtyp,nbxtyp
+      integer npbtyp,nbxtyp,irrep,nxrep,nyrep,nzrep
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
       integer iwmrc(mwmc),iwmr(mwm),isar(msa)
 c
-      integer i,j,k,length
+      integer i,j,k,length,ixrep,iyrep,izrep,nrep
+      real*8 orep(3)
       character*10 rstdat,rsttim
 c
 c     open the restart file
@@ -35,43 +36,91 @@ c
       if(box(3).lt.1.0e-6) box(3)=max(box(1),box(2),box(3))
       endif
 c
+      if(irrep.eq.0) then
+      orep(1)=0.0d0
+      orep(2)=0.0d0
+      orep(3)=0.0d0
+      nxrep=1
+      nyrep=1
+      nzrep=1
+      nrep=1
+      else
+      nrep=nxrep*nyrep*nzrep
+      endif
+c
       write(lfnrst,1001) 4.0,rstdat,rsttim,0,.false.
  1001 format('This is an automatically generated restart file',/,
      + ' ',/,' ',/,f12.6,2a10,i5,4x,l1)
-      write(lfnrst,1002) npbtyp,nbxtyp,box(1),0.0d0,0.0d0,0.0d0,
-     + box(2),0.0d0,0.0d0,0.0d0,box(3)
+      write(lfnrst,1002) npbtyp,nbxtyp,dble(nxrep)*box(1),0.0d0,0.0d0,
+     + 0.0d0,dble(nyrep)*box(2),0.0d0,0.0d0,0.0d0,dble(nzrep)*box(3)
  1002 format(2i5,/,(3f12.6))
       write(lfnrst,1003) 0.0d0
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0
  1004 format(3f12.6)
-      write(lfnrst,1005) nwmc+nwm,nwa,nsm,nsa,nwmc,0,0,0
+      write(lfnrst,1005) nrep*(nwmc+nwm),nwa,
+     + nrep*nsm,nrep*nsa,nrep*nwmc,0,0,0
  1005 format(7i10,2i5)
 c
 c     check wich version
 c
       if(nwm+nwmc.gt.0) then
       if(nwmc.gt.0) then
+      do 101 izrep=1,nzrep
+      do 102 iyrep=1,nyrep
+      do 103 ixrep=1,nxrep
+      if(irrep.gt.0) then
+      orep(1)=0.5d0*dble(2*ixrep-nxrep-1)*box(1)
+      orep(2)=0.5d0*dble(2*iyrep-nyrep-1)*box(2)
+      orep(3)=0.5d0*dble(2*izrep-nzrep-1)*box(3)
+      endif
       do 1 i=1,nwmc
-      write(lfnrst,1006) ((xwc(k,j,i),k=1,3),(vwc(k,j,i),k=1,3),j=1,nwa)
+      write(lfnrst,1006) ((xwc(k,j,i)+orep(k),k=1,3),
+     + (vwc(k,j,i),k=1,3),j=1,nwa)
  1006 format(2x,6f13.8)
       write(lfnrst,1007) iwmrc(i),(0.0d0,k=1,3)
  1007 format(i1,1x,3f13.8)
     1 continue
+  103 continue
+  102 continue
+  101 continue
+      endif
+      do 201 izrep=1,nzrep
+      do 202 iyrep=1,nyrep
+      do 203 ixrep=1,nxrep
+      if(irrep.gt.0) then
+      orep(1)=0.5d0*dble(2*ixrep-nxrep-1)*box(1)
+      orep(2)=0.5d0*dble(2*iyrep-nyrep-1)*box(2)
+      orep(3)=0.5d0*dble(2*izrep-nzrep-1)*box(3)
       endif
       do 2 i=1,nwm
-      write(lfnrst,1006) ((xw(k,j,i),k=1,3),(vw(k,j,i),k=1,3),j=1,nwa)
+      write(lfnrst,1006) ((xw(k,j,i)+orep(k),k=1,3),
+     + (vw(k,j,i),k=1,3),j=1,nwa)
       write(lfnrst,1007) iwmr(i),(0.0d0,k=1,3)
     2 continue
+  203 continue
+  202 continue
+  201 continue
       endif
       if(nsa.gt.0) then
+      do 301 izrep=1,nzrep
+      do 302 iyrep=1,nyrep
+      do 303 ixrep=1,nxrep
+      if(irrep.gt.0) then
+      orep(1)=0.5d0*dble(2*ixrep-nxrep-1)*box(1)
+      orep(2)=0.5d0*dble(2*iyrep-nyrep-1)*box(2)
+      orep(3)=0.5d0*dble(2*izrep-nzrep-1)*box(3)
+      endif
       write(lfnrst,1008)
-     + (isar(i),(xs(k,i),k=1,3),(vs(k,i),k=1,3),i=1,nsa)
+     + (isar(i),(xs(k,i)+orep(k),k=1,3),(vs(k,i),k=1,3),i=1,nsa)
  1008 format(i1,1x,6f13.8)
+  303 continue
+  302 continue
+  301 continue
       endif
 c
       if(nsm.gt.0) then
-      write(lfnrst,1011) ((0.0d0,k=1,3),i=1,nsm)
+      write(lfnrst,1011) ((0.0d0,k=1,3),i=1,nrep*nsm)
  1011 format(6f13.8)
       endif
 c

@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.81 2002-04-17 19:27:04 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.82 2002-05-03 18:21:28 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand,irrep
       integer invert,nmerge
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
       real*8 boxset(3),xmerge(3,100)
@@ -340,7 +340,8 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm))
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm,
+     + irrep,nxrep,nyrep,nzrep))
      + call errquit('pre_wrtrst failed',9999)
       endif
       goto 9
@@ -837,7 +838,8 @@ c
       if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm))
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,msm,nsm,
+     + irrep,nxrep,nyrep,nzrep))
      + call errquit('pre_wrtrst failed',9999)
       endif
 c
@@ -1292,7 +1294,9 @@ c
       read(card(47:51),'(i5)') iropt
       read(card(52:56),'(i5)') irrand
       read(card(57:61),'(i5)') invert
+      read(card(62:66),'(i5)') irrep
       if(invert.gt.0) nzrep=-iabs(nzrep)
+      if(irrep.eq.0) then
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,lfnout,drep,box,
@@ -1301,6 +1305,7 @@ c
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('pre_repeat failed',9999)
       nskip=0
+      endif
       endif
 c
 c     skip
