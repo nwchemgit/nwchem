@@ -1,4 +1,4 @@
-c $Id: basdeclsP.fh,v 1.6 1998-02-05 00:01:44 d3e129 Exp $
+c $Id: basdeclsP.fh,v 1.7 1999-10-26 21:34:08 mg201 Exp $
 c
 c compressed array pointer information variables.
 c
@@ -59,7 +59,7 @@ c
       parameter (CONT_TAG   = 6)
       parameter (CONT_IREXP = 7)
 c
-c bas_normialization specification values
+c bas_normalization specification values
 c
       integer BasNorm_UN   ! value that indicates unnormalized
       integer BasNorm_STD  ! value that indicates standard normalization via 
@@ -67,6 +67,10 @@ c.                         !  int_norm
       integer BasNorm_2c   ! value that indicates normalization via int_norm_2c 
 c.                         !  where the functions are normalized to a two center 
 c.                         !  two electron integral. 
+      integer BasNorm_rel  ! value that indicates normalization via int_norm
+c.                         !  with primitive normalization only for relativistic
+c.                         !  integrals, i.e. preserving contracted normalization
+c.                         !  information.
       integer BasNorm_lo   !  lowest value of BasNorm_ids
       integer BasNorm_hi   !  highest value of BasNorm_ids
 c...........................
@@ -75,6 +79,7 @@ c
       parameter(BasNorm_UN  = 0)
       parameter(BasNorm_STD = BasNorm_UN + 1)
       parameter(BasNorm_2c  = BasNorm_UN + 2)
+      parameter(BasNorm_rel  = BasNorm_UN + 3)
       parameter(BasNorm_lo  = BasNorm_UN)
-      parameter(BasNorm_hi  = BasNorm_2c)
+      parameter(BasNorm_hi  = BasNorm_rel)
 c
