@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.56 2003-04-24 22:28:51 edo Exp $
+$Id: INSTALL,v 1.57 2003-04-30 18:16:27 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -367,7 +367,7 @@ C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem /usr/local/NW
 D) cd $NWCHEM_TOP/src/basis 
    cp -r libraries /usr/local/NWChem/data
    cd $NWCHEM_TOP/src/
-   cp -r data /usr/local/NWChem/data
+   cp -r data /usr/local/NWChem
    cd $NWCHEM_TOP/src/nwpw/libraryps
    cp -r library1 /usr/local/NWChem/data
    cp -r library2 /usr/local/NWChem/data
