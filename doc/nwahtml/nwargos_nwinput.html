@@ -1,0 +1,26 @@
+<html>
+<title>NWChem input</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>NWChem input</em></h1>
+<hr>
+<p>
+<b><em>NWChem input file format</em></b>
+<p>
+The input file for <em>NWChem</em> determines the module that will
+be executed. For the <em>nwARGOS</em> module this file should be named
+<b>project_id</b>. To run a molecular dynamics job using <em>nwARGOS</em>,
+this file only the memory card, start and task card are required.
+<p>
+<hr>
+An example of the input for <em>NWChem</em> is
+<p>
+<tt>
+title; nwARGOS<br>
+memory noverify heap 1 mb stack 32 mb global 8 mb<br>
+start nwarg<br>
+task nwargos<br>
+</tt>
+<p>
+<hr>
+</body>
+</html>

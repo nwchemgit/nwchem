@@ -1,0 +1,325 @@
+<html>
+<title>nwArgos input</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS input</em></h1>
+<hr>
+<p>
+<b><em>Input file format</em></b>
+<p>
+The input file <b>project_id.inp</b> determines the type of calculation
+to be performed. Details of the calculation are given in keyworded
+format.
+<hr>
+<b><em>Input file keywords</em></b>
+<p>
+Keywords need to be given exactly as given below. Numeric values are
+in free format. Keywords recognized include
+<p>
+<b><tt>#</tt></b> <br>
+Any card in the input file that starts with the number sign (#) is
+treated as a comment, and ignored.
+<p>
+<b><tt> </tt></b> <br>
+Any card in the input file that starts with a space is
+treated as a comment, and ignored.
+<p>
+<b><tt>Title</tt></b> <br>
+Three title cards (a) and one with date and time (2a10) are read.
+<p>
+<b><tt>Task SP</tt></b> <br>
+Identifies that a single point energy evaluation is to be done using
+parameters from set 1.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task SP set 2</tt></b> <br>
+Identifies that a single point energy evaluation is to be done using
+parameters from set 2.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task SP set 3</tt></b> <br>
+Identifies that a single point energy evaluation is to be done using
+parameters from set 3.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task MD</tt></b> <br>
+Identifies that a molecular dynamics simulation is to be carried out using
+parameters from set 1.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task MD set 2</tt></b> <br>
+Identifies that a molecular dynamics simulation is to be carried out using
+parameters from set 2.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task MD set 3</tt></b> <br>
+Identifies that a molecular dynamics simulation is to be carried out using
+parameters from set 3.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task EM</tt></b> <br>
+Identifies that an energy minimization is to be performed out using
+parameters from set 1.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task EM set 2</tt></b> <br>
+Identifies that an energy minimization is to be performed out using
+parameters from set 2.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task EM set 3</tt></b> <br>
+Identifies that an energy minimization is to be performed out using
+parameters from set 3.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Task MCTI</tt></b> <br>
+Identifies that a multiconfiguration thermodynamic integration
+calculation will be carried out.
+This card cancels any previous <b><tt>Task</tt></b> cards in the input
+deck.
+<p>
+<b><tt>Start time</tt></b> <em>rvalue</em> <br>
+This keywords sets the initial time for molecular dynamics simulations
+to <em>rvalue</em>. The default value is 0.000 ps.
+<p>
+<b><tt>Time step</tt></b> <em>rvalue</em> <br>
+This keywords sets the time-step for molecular dynamics simulations
+to <em>rvalue</em>. The default value is 0.001 ps.
+<p>
+<b><tt>SD iterations</tt></b> <em>ivalue</em> <br>
+This keywords sets the maximum number of steepest descent iterations
+for energy minimization calculations to <em>ivalue</em>. 
+The default value is 100.
+<p>
+<b><tt>SD initial step</tt></b> <em>rvalue</em> <br>
+This keywords sets the initial step size for steepest descent
+energy minimization calculations to <em>rvalue</em>. 
+The default value is 0.010 nm.
+<p>
+<b><tt>CG iterations</tt></b> <em>ivalue</em> <br>
+This keywords sets the maximum number of conjugate gradient iterations
+for energy minimization calculations to <em>ivalue</em>. 
+The default value is 0.
+<p>
+<b><tt>CG cycles</tt></b> <em>ivalue</em> <br>
+This keywords sets the conjugate gradient refresh cycle
+for energy minimization calculations to <em>ivalue</em>. 
+The default value is 0.
+<p>
+<b><tt>MCTI windows total</tt></b> <em>ivalue</em> <br>
+This keywords sets the total number of multiconfiguration
+thermodynamic integration steps for a free energy calculations
+to <em>ivalue</em>. The default value is 21.
+<p>
+<b><tt>MCTI windows</tt></b> <em>ivalue</em> <br>
+This keywords sets the number of multiconfiguration thermodynamic 
+integration steps for a free energy calculation that will be done
+in this run to <em>ivalue</em>. The default value is equal to
+the total number of integration steps.
+<p>
+<b><tt>MCTI separation shifted scaling delta</tt></b> <em>rvalue</em> <br>
+This keywords sets the separation shifted scaling distance parameter
+delta to <em>rvalue</em>. The default, and recommended, value is
+0.075 nm^2.
+<p>
+<b><tt>MCTI separation shifted scaling</tt></b> <br>
+This keyword activates separation shifted scaling in MCTI free
+energy calculations. Per default separation shifted scaling is
+turned off.
+<p>
+<b><tt>Print topology</tt></b> <br>
+This keyword activates printing of the topology, for both solvent
+and solute. Per default the topology is not printed.
+<p>
+<b><tt>Print topology solvent</tt></b> <br>
+This keyword activates printing of the solvent topology.
+Per default the solvent topology is not printed.
+<p>
+<b><tt>Print topology solute</tt></b> <br>
+This keyword activates printing of the solute topology.
+Per default the solute topology is not printed.
+<p>
+<b><tt>Print step</tt></b> <br>
+This keyword activates printing of more detailed information
+at each printed time step. Per default only total system energies
+are printed.
+<p>
+<b><tt>Print step energies</tt></b> <br>
+This keyword activates printing of even more detailed energy information
+at each printed time step. Per default only total system energies
+are printed.
+<p>
+<b><tt>Print timing analysis all nodes</tt></b> <br>
+This keyword activates printing at the end of the run the timing
+analysis of all nodes. Per default only the timing analysis
+of node 0 is printed.
+<p>
+<b><tt>Equilibration steps</tt></b> <em>ivalue</em> <br>
+This keyword sets the number of equilibration steps in an MD run
+or in an MCTI window to <em>ivalue</em>. The default number
+of equilibration steps is 0.
+<p>
+<b><tt>Data gathering steps</tt></b> <em>ivalue</em> <br>
+This keyword sets the number of data gathering steps in an MD run
+or in an MCTI window to <em>ivalue</em>. The default number
+of data gathering steps is 100.
+<p>
+<b><tt>Cutoff radius WW SR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius WW LR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius SW SR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius WS SR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius SW LR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius WS LR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius SS SR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius SS LR</tt></b> <em>rvalue</em> <br>
+<p>
+<b><tt>Cutoff radius SR</tt></b> <em>rvalue</em> <br>
+This keyword sets all short-range cutoff radii to <em>rvalue</em>.
+The default value is 0.9 nm.
+<p>
+<b><tt>Cutoff radius LR</tt></b> <em>rvalue</em> <br>
+This keyword sets all long-range cutoff radii to <em>rvalue</em>.
+The default value is 0.9 nm.
+<p>
+<b><tt>Cutoff radius</tt></b> <em>rvalue</em> <br>
+This keyword sets all cutoff radii to <em>rvalue</em>.
+The default value is 0.9 nm.
+<p>
+<b><tt>SHAKE iterations W</tt></b> <em>ivalue</em> <br>
+This keywrods sets the maximum number of solvent SHAKE iterations
+to <em>ivalue</em>. The default is 100.
+<p>
+<b><tt>SHAKE iterations S</tt></b> <em>ivalue</em> <br>
+This keywrods sets the maximum number of solute SHAKE iterations
+to <em>ivalue</em>. The default is 100.
+<p>
+<b><tt>SHAKE iterations</tt></b> <em>ivalue</em> <br>
+This keywrods sets the maximum number of SHAKE iterations
+to <em>ivalue</em> for both solvent and solute. The default is 100.
+<p>
+<b><tt>SHAKE tolerance W</tt></b> <em>rvalue</em> <br>
+This keyword sets the solvent SHAKE tolerance to <em>rvalue</em>.
+The default value is 0.001 nm.
+<p>
+<b><tt>SHAKE tolerance S</tt></b> <em>rvalue</em> <br>
+This keyword sets the solute SHAKE tolerance to <em>rvalue</em>.
+The default value is 0.001 nm.
+<p>
+<b><tt>SHAKE tolerance</tt></b> <em>rvalue</em> <br>
+This keyword sets the SHAKE tolerance to <em>rvalue</em> for both
+solvent and solute. The default value is 0.001 nm.
+<p>
+<b><tt>Binary recording</tt></b> <br>
+This keyword enables binary recording. Per default all
+recording files are ASCII formatted files.
+<p>
+<b><tt>Frequency centering solute</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of centering the solute center
+of geometry. The default frequency is 0.
+<p>
+<b><tt>Frequency update pairlists</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of updating the pairlists.
+The default frequency is 1.
+<p>
+<b><tt>Frequency update LR forces</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of updating the long range forces.
+The default frequency is 1.
+<p>
+<b><tt>Frequency recording output</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of recording selected information
+of a MD step, EM iteration or MCTI integration step to the output
+file to <em>ivalue</em>. The default frequency is 1.
+<p>
+<b><tt>Frequency recording statistics</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of recording statistical information
+accumulated during MD and MCTI calculations to output to <em>ivalue</em>.
+The default frequency is 1.
+<p>
+<b><tt>Frequency recording restart</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of recording the restart file to
+<em>ivalue</em>. The default value is 0.
+<p>
+<b><tt>Frequency recording free energy</tt></b> <em>ivalue</em> <br>
+This keyword sets the frequency of recording the free energy data to 
+file to <em>ivalue</em>, during MCTI calculations. The default value 
+is 1.
+<p>
+<b><tt>Load balance box size</tt></b> <br>
+This keyword specifies that loadbalancing is to be done based on
+resizing of sub-boxes. Per default no load balancing is done.
+<p>
+<b><tt>Load balance box pairs</tt></b> <br>
+This keyword specifies that loadbalancing is to be done based on
+redistribution of internode sub-box pairs. Per default no load 
+balancing is done.
+<p>
+<b><tt>Constant pressure</tt></b> <em>rvalue</em> <br>
+This keyword specifies that the simulation is to be done for a
+constant pressure of <em>rvalue</em> Pa. Per default the simulation
+is at constant volume.
+<p>
+<b><tt>Pressure relaxation time</tt></b> <em>rvalue</em> <br>
+This keyword sets the pressure relation time to <em>rvalue</em> ps.
+The default value is 0.5 ps.
+<p>
+<b><tt>Compressebility</tt></b> <em>rvalue</em> <br>
+This keyword sets the compressebility of the molecular system
+to <em>rvalue</em> ps. The default value is 4.53 10^10.
+<p>
+<b><tt>Constant temperature WS</tt></b> <em>rvalue</em> <br>
+This keyword specifies that the simulation is to be done for a
+constant temperature of <em>rvalue</em> K, in which the scaling
+is done separately for solvent and solute. Per default the simulation
+is at constant energy.
+<p>
+<b><tt>Constant temperature</tt></b> <em>rvalue</em> <br>
+This keyword specifies that the simulation is to be done for a
+constant temperature of <em>rvalue</em> K, in which the scaling
+is done for the complete molecular system. Per default the simulation
+is at constant energy.
+<p>
+<b><tt>Temperature relaxation time W</tt></b> <em>rvalue</em> <br>
+This keyword sets the solvent temperature relation time to 
+<em>rvalue</em> ps. The default value is 0.1 ps.
+<p>
+<b><tt>Temperature relaxation time S</tt></b> <em>rvalue</em> <br>
+This keyword sets the solute temperature relation time to 
+<em>rvalue</em> ps. The default value is 0.1 ps.
+<p>
+<b><tt>Temperature relaxation time</tt></b> <em>rvalue</em> <br>
+This keyword sets the temperature relation time to 
+<em>rvalue</em> ps for both solvent and solute. 
+The default value is 0.1 ps.
+<p>
+<b><tt>Velocity reassignment frequency WS</tt></b> <em>ivalue</em> <br>
+The keyword sets the velocity reassignment frequency to <em>ivalue</em>
+for solvent and solute to separately obtain the reassigment
+temperature. The default value is 0.
+<p>
+<b><tt>Velocity reassignment frequency</tt></b> <em>ivalue</em> <br>
+The keyword sets the velocity reassignment frequency to <em>ivalue</em>
+for the molecular system to obtain the reassigment temperature. 
+The default value is 0.
+<p>
+<b><tt>Velocity reassignment temperature</tt></b> <em>rvalue</em> <br>
+This keyword sets the velocity reassignment temperature. The default
+value is 298.15 K.
+<p>
+<hr>
+</body>
+</html>

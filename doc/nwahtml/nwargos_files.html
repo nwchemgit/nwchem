@@ -1,0 +1,65 @@
+<html>
+<title>nwArgos file structure</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS file structure</em></h1>
+<hr>
+<p>
+<b><em>File names</em></b>
+<p>
+File names used by <em>nwARGOS</em> need to have the form
+<b>project_id.ext</b>, with exception of the <a href="nwargos_topology.html">
+topology</a> file, which should be named <b>project.top</b>, and the input
+file for <em>NWChem</em>, which should simply be <b>project</b>.
+Anything that refers to the definition of the chemical system can be used
+for <b>project</b>, as long as no periods or underlines are used. <br>
+The identifier <b>id</b> can be anything that refers to the type of calculation 
+to be performed for the system.<br> 
+The <a href="nwargos_extensions.html">extensions</a> <b>ext</b> 
+identify the kind of information on the file, and are determined by the 
+programs. Examples of extensions are <b>top</b> for the topology file, 
+<b>rst</b> for the restart file and <b>inp</b> for the input file.
+<p>
+This file naming convention allows for the creation of a single topology file
+<b>project.top</b> for a chemical system with which a number of different 
+calculations, identified with different <b>id</b>.
+<p>
+<hr>
+<p>
+<b><em>Database names</em></b>
+<p>
+A similar convention is used to identify databases used by the setup programs
+<a href="nwargos_nwTOP.html"><em>nwTOP</em></a>, 
+<a href="nwargos_nwRST.html"><em>nwRST</em></a> and
+<a href="nwargos_nwSGM.html"><em>nwSGM</em></a>. 
+Force field database names have the form
+<b>forcefield_level.ext</b>, where <b>forcefield</b> stands for any of the
+<a href="nwargos_forcefields.html">supported force fields</a>. The source
+of the data is identified by <b>level</b>, and can be 
+<p>
+<table>
+<tr>
+<th>level</th><th>Description</th><th>Availability</th>
+</tr>
+<tr>
+<td><b>s</b></td><td>original published data</td><td>public</td>
+</tr>
+<tr>
+<td><b>x</b></td><td>additional published data</td><td>public</td>
+</tr>
+<tr>
+<td><b>u</b></td><td>user preferred data</td><td>private</td>
+</tr>
+<tr>
+<td><b>r</b></td><td>user defined run specific data</td><td>private</td>
+</tr>
+</table>
+<p>
+Only the level <b>s</b> and <b>x</b> databases are publicly available. The user is
+responsible for the private level <b>u</b> and <b>r</b> databases.
+<p>
+Other database files include the force field independent fragment libraries and
+the solvation restart files.
+<p>
+<hr>
+</body>
+</html>

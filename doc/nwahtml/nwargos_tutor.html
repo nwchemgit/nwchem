@@ -1,0 +1,44 @@
+<html>
+<title>nwArgos tutorial</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS tutorial</em></h1>
+<hr>
+<p>
+Performing a simulation with <em>nwARGOS</em> requires a minimum of the following
+four files. Following the conventions of the <a href="nwargos_files.html">
+file structure</a>, these are
+<ul>
+<li><b>project.top</b>, describing the <a href="nwargos_topology.html">topology</a>
+    of the molecular system,
+<li><b>project_id.rst</b>, constaining the  <a href="nwargos_restart.html">(re-)start</a> 
+    information,
+<li><b>project_id.inp</b>, providing <a href="nwargos_input.html">input</a> details of 
+    the simulation to <em>nwARGOS</em>, and
+<li><b>project_id</b>, providing <a href="nwargos_nwinput.html">task</a> and memory 
+    information to <em>NWChem</em>.
+</ul>
+<p>
+Setting up a calculation is done in the following order
+<ol>
+<li>Create segment file <b>project.sgm</b>, using program
+    <a href="nwargos_nwSGM.html"><em>nwSGM</em></a>, if needed
+<li>Create the topology file <b>project.top</b>, using program 
+    <a href="nwargos_nwTOP.html"><em>nwTOP</em></a>
+<li>Generate the restart file <b>project_id.rst</b>, using program 
+    <a href="nwargos_nwRST.html"><em>nwRST</em></a>
+<li>Provide in the input file <b>project_id.inp</b> a stream of
+    keywords defining the simulation details
+<li>Provide in the <em>NWChem</em> input file <b>project_id</b> 
+    the task and memory information
+</ol>
+<p>
+The actual simulation is carried out with
+<p>
+<tt>nwchem project_id</tt>
+<p>
+<em>NWChem</em> will read the file <b>project_id</b>, allocate the specified memory and
+give control to the <em>nwARGOS</em> module. <em>nwARGOS</em> will strip the <tt>project_id</tt> 
+from the command line, and generate all needed filenames, such as <b>project.top</b>,
+<b>project_id.rst</b>, and <b>project_id.inp</b> from it.
+</body>
+</html>

@@ -1,0 +1,105 @@
+<html>
+<title>Sequence file format</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1>Sequence file format</h1>
+<hr>
+<table>
+<tr>
+<th>Card/Variable</th>
+<th>Format</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>I/1</td><td>A1</td><td><tt>$</tt> needed as search character</td>
+</tr>
+<tr>
+<td>I/2</td><td>A10</td><td>Name of sequence</td>
+</tr>
+<tr>
+<td>II/1</td><td>I5</td><td>Segment number, or<br> -1 to identify the
+end of a molecule,<br> -2 to identify the end of the solute part of
+the system,<br> -3 to identify the end of the sequence, or <br> 0 to
+identify the solvent</td>
+</tr>
+<tr>
+<td>II/2</td><td>A10</td><td>Segment name for 0 or positive segment 
+number<br>
+</tr>
+<tr>
+<td>II/3</td><td>I5</td><td>First link segment number</td>
+</tr>
+<tr>
+<td>II/4</td><td>I3</td><td>First link segment link atom</td>
+</tr>
+<tr>
+<td>II/5</td><td>I5</td><td>Second link segment number</td>
+</tr>
+<tr>
+<td>II/6</td><td>I3</td><td>Second link segment link atom</td>
+</tr>
+<tr>
+<td>II/7</td><td>I5</td><td>Third link segment number</td>
+</tr>
+<tr>
+<td>II/8</td><td>I3</td><td>Third link segment link atom</td>
+</tr>
+<tr>
+<td>II/9</td><td>I5</td><td>Fourth link segment number</td>
+</tr>
+<tr>
+<td>II/10</td><td>I3</td><td>Fourth link segment link atom</td>
+</tr>
+<tr>
+<td>II/11</td><td>I5</td><td>Fifth link segment number</td>
+</tr>
+<tr>
+<td>II/12</td><td>I3</td><td>Fifth link segment link atom</td>
+</tr>
+<tr>
+<td>II/13</td><td>I5</td><td>Sixth link segment number</td>
+</tr>
+<tr>
+<td>II/14</td><td>I3</td><td>Sixth link segment link atom</td>
+</tr>
+<tr>
+<td>II/15</td><td>I5</td><td>Seventh link segment number</td>
+</tr>
+<tr>
+<td>II/16</td><td>I3</td><td>Seventh link segment link atom</td>
+</tr>
+<tr>
+<td>II/17</td><td>I5</td><td>Eighth link segment number</td>
+</tr>
+<tr>
+<td>II/18</td><td>I3</td><td>Eighth link segment link atom</td>
+</tr>
+<tr>
+<td>II/19</td><td>I5</td><td>Ninth link segment number</td>
+</tr>
+<tr>
+<td>II/20</td><td>I3</td><td>Ninth link segment link atom</td>
+</tr>
+<tr>
+<td>II/21</td><td>I5</td><td>Tenth link segment number</td>
+</tr>
+<tr>
+<td>II/22</td><td>I3</td><td>Tenth link segment link atom</td>
+</tr>
+</table>
+<p>
+<b>Card I</b> needs a $ as the first character, immediately followed
+by a 10 character identifying name for the system. These 11 characters
+are used as a search string by <em>nwTOP</em>. Any number of lines
+may preceed the first sequence card, for example to give a description
+of the sequence and its author.<br>
+<p>
+<b>Card II</b> identifies an individual segment. Any number of Cards II
+can be specified. If solvent is specified
+it needs to be the last specified segment. If not given, first links are
+made automatically to the segment on the previous card, unless its
+segment number is negative. If not given, second links are made
+automatically to the segment on the next card, unless its segment
+number is negative.
+<hr>
+</body>
+</html>

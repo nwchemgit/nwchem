@@ -1,0 +1,29 @@
+<html>
+<title>nwArgos example: crown: sequence file</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS example: crown: sequence file</em></h1>
+<hr>
+<p>
+<pre>
+$crown 
+    1coc
+    2coc
+    3coc
+    4coc
+    5coc
+    6coc           0  0    1  1
+   -2
+    0SPCE
+   -3
+</pre>
+<p>
+<hr>
+Note that the sixth <tt>coc</tt> segment's second link is pointing
+to the first link atom of the first <tt>coc</tt> segment, to make
+the cyclic crown ether. Alternatively this could have been specified
+by letting the first <tt>coc</tt> segment's first link point to the
+sixth <tt>coc</tt> segment's second link atom. The other <tt>coc</tt>
+segments are automatically link their first link atom to their previous 
+segment's second link atom.
+</body>
+</html>

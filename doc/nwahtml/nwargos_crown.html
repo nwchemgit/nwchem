@@ -1,0 +1,63 @@
+<html>
+<title>nwArgos example: crown</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS example: crown</em></h1>
+<hr>
+<p>
+This example goes through the complete sequence of steps to perform a
+free energy difference simulation in which Na+ is mutated into K+,
+complexed to the crown ether 18C6, in aqueous solution.
+<p>
+<ol>
+<li>
+The crown ether wil be built from CH2-O-CH2 fragments. This fragment
+is not part of the standard segment database. Also a corresponding fragment 
+is not part of the fragment library. The fragment is created using an
+editor, and should be named 
+<a href="nwargos_crown_frg.html">coc_______.frg</a>.
+<p>
+<li>
+The fragment just created is force field independent. To create the
+force field <b>amber</b> dependent segment file, give the command
+<p>
+<tt>nwsgm coc_______ amber</tt>
+<p>
+This command searches the fragment libraries and the local file
+<b>coc_______.frg</b> for a fragment entry <tt>$coc</tt>.
+The generic atom types defined in the fragment are substituted for
+the <b>amber</b> atom types. The translation tables are found in
+the atom type translation library files or the local file
+<b>coc_______.att</b>, if present. 
+A segment file <a href="nwargos_crown_sgm.html">coc_______.sgm</a>
+is created that should be renamed to <b>crown.sgm</b>.
+Alternatively, this file may be appended to
+<b>amber_u.sgm</b> or <b>amber_r.sgm</b>, provided that these library
+files are defined in the file <b>$HOME/.nwargos</b>.
+<p>
+<li>
+A sequence file needs to be created, defining the molecular system
+in terms of segments. Using an editor create the file
+<a href="nwargos_crown_seq.html">crown.seq</a>. This file defines
+the 18C6 crown ether in terms of six cyclicly arranged <tt>coc</tt>
+fragments. It also specifies the solvent as the SPC/E water model.
+<p>
+<li>
+The topology file <a href="nwargos_crown_top.html">crown.top</a> is
+created, giving the command
+<p>
+<tt>nwtop crown amber</tt>
+<p>
+This command searches the <b>amber</b> sequence database files, and
+the local sequence file <b>crown.seq</b> for a sequence <tt>crown</tt>.
+The force field needs to be given in order to search the correct
+database files. If the sequence is found, it searches the <b>amber</b>
+segment databases and the local segment file <b>crown.sgm</b> for all
+segments specified in the sequence. When all segments have been found,
+the topology is generated using the rules appropriate for the force
+field. All parameters not explicitly given in the segment are added
+from the <b>amber</b> parameter library files, and the local file
+<b>crown.par</b> if present. Any segments or parameters not found
+can be supplied in the local files.
+</ol>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<html>
+<title>nwArgos topology</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS topology</em></h1>
+<hr>
+<p>
+The static information about a molecular system that is needed for
+a molecular simulation is provided to the simulation module in a
+topology file (<b>top</b>). 
+Items in this file include, among many other things, 
+a list of atoms, their non-bonded parameters for van der Waals and
+electrostatic interactions, and a complete connectivity in terms
+of bonds, angles and dihedrals.
+<br>
+In nwArgos, molecular systems are composed of <em>solvent</em> and 
+<em>solute</em>, which are treated separately. Solvent, is a collection 
+of identical molecules defined only once in the topology file. In the
+current implementation only one solvent can be defined. Everything
+else in the molecular system is solute. Solute is the collection of
+molecules in the system of which each atom is explicitly defined in
+the topology. 
+<br>
+Molecular systems are defined in terms of <em>segment</em>s. Molecules
+can be defined in a single segment, or as a collection of segments.
+Typically, repetitive parts of a molecule are each defined as a single
+segment. Segment files (<b>sgm</b>) can be quite complicated to define 
+and are, therefore, collected in a set of database libraries. 
+The list of segments and their connectivity that make a molecular system 
+is defined in a sequence file (<b>seq</b>). 
+A utility <b>nwTOP</b> reads the sequence from this file, retrieves all 
+needed segments from the available segment databases, and generates the
+topology file.
+<br>  
+Segments may not always be available in one of the existing databases.
+A utility <b>nwSGM</b> reads a rudimentary, force-field independent
+definition of a segment from a <em>fragment</em> file (<b>frg</b>), and 
+constructs a template for a force-field dependent segment. 
+Just like segments, fragments can be collected into a set of database files.
+<p>
+<ul>
+<li>Creating <b><em>frg</em></b> files
+<li>Creating <b><em>sgm</em></b> files
+<li>Creating <b><em>seq</em></b> files
+<li>Creating <b><em>top</em></b> files
+</ul>
+
+</body>
+</html>

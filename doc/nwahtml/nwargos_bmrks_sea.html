@@ -1,0 +1,138 @@
+<html>
+<title>nwArgos sea benchmark</title>
+<body bgcolor="#000066" text="#FFFF00" link="#8888FF" vlink="#FF0000">
+<h1><em>nwARGOS <b>sea</b> benchmark</em></h1>
+<hr>
+<h2>Molecular dynamics simulation of 13,824 SPC/E water molecules</h2>
+Timings are given for a molecular dynamics simulation of 13,824 SPC/E water molecules
+subject to periodic boundary conditions, in the NVT ensemble. These timings were 
+obtained from simulations of 1000 steps, and reflect the wall-clock time of a
+single molecular dynamics step. The setup time and time for periodic recording of 
+coordinates and velocities is not included.
+<p>
+<table>
+
+<tr>
+<th></th>
+<th>KSR-2</th>
+<th>IBM SP-2</th>
+<th>IBM SP-2</th>
+</tr>
+
+<tr>
+<th></th>
+<th>Rc=0.9</th>
+<th>Rc=0.9</th>
+<th>Rc=1.8</th>
+</tr>
+
+<tr>
+<td>4 nodes</td>
+<td>15.117976</td>
+<td>7.331969</td>
+<td>52.237927</td>
+</tr>
+
+<tr>
+<td>8 nodes</td>
+<td>7.169106</td>
+<td>3.816244</td>
+<td>27.631083</td>
+</tr>
+
+<tr>
+<td>16 nodes</td>
+<td>3.472468</td>
+<td>2.130735</td>
+<td>13.496562</td>
+</tr>
+
+<tr>
+<td>32 nodes</td>
+<td>1.782187</td>
+<td></td>
+<td>6.811522</td>
+</tr>
+
+<tr>
+<td>64 nodes</td>
+<td>0.921344</td>
+<td>1.007676</td>
+<td>3.663068</td>
+</tr>
+
+<tr>
+<td>128 nodes</td>
+<td></td>
+<td></td>
+<td>2.280681</td>
+</tr>
+
+</table>
+<hr>
+Speedups relative to the 4 node timings
+<table>
+<p>
+<table>
+
+<tr>
+<th></th>
+<th>KSR-2</th>
+<th>IBM SP-2</th>
+</tr>
+
+<tr>
+<th></th>
+<th>Rc=0.9</th>
+<th>Rc=0.9</th>
+<th>Rc=1.8</th>
+</tr>
+
+<tr>
+<td>4 nodes</td>
+<td>4.0</td>
+<td>4.0</td>
+<td>4.0</td>
+</tr>
+
+<tr>
+<td>8 nodes</td>
+<td>8.5</td>
+<td>8.0</td>
+<td>7.6</td>
+</tr>
+
+<tr>
+<td>16 nodes</td>
+<td>17.4</td>
+<td>14.5</td>
+<td>15.5</td>
+</tr>
+
+<tr>
+<td>32 nodes</td>
+<td>33.9</td>
+<td>25.9</td>
+<td>36.0</td>
+</tr>
+
+<tr>
+<td>64 nodes</td>
+<td>65.6</td>
+<td>30.1</td>
+<td>57.1</td>
+</tr>
+
+<tr>
+<td>128 nodes</td>
+<td></td>
+<td></td>
+<td>91.6</td>
+</tr>
+
+</table>
+<p>
+<hr>
+</body>
+</html>
+
