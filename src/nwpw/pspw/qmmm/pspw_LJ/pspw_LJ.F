@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.7 2002-02-27 23:56:26 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.8 2002-02-28 00:34:21 bylaska Exp $
 c
 
 *     *************************
@@ -224,18 +224,22 @@ c
       E = 0.0d0
       do i=1,nion
          call pspw_LJ_param_MM(i,si,ei)
+         if (ei.gt.1.0d-10) then
          ri(1) = pspw_qmmm_rion(1,i)
          ri(2) = pspw_qmmm_rion(2,i)
          ri(3) = pspw_qmmm_rion(3,i)
          do j=i+1,nion
            if (pspw_qmmm_different_frag(i,j)) then
              call pspw_LJ_param_MM(j,sj,ej)
+             if (ej.gt.1.0d-10) then
              rj(1) = pspw_qmmm_rion(1,j)
              rj(2) = pspw_qmmm_rion(2,j)
              rj(3) = pspw_qmmm_rion(3,j)
              E = E + LJ_Repulsion(ri,si,ei,rj,sj,ej)
+             end if
            end if
          end do
+         end if
       end do
 
 
@@ -270,16 +274,20 @@ c
       E = 0.0d0
       do i=1,nion_ion
          call pspw_LJ_param_Ion(i,si,ei)
+         if (ei.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,nion_mm
             call pspw_LJ_param_MM(j,sj,ej)
+            if (ej.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             E = E + LJ_Repulsion(ri,si,ei,rj,sj,ej)
+            end if
          end do
+         end if
       end do
 
 
@@ -327,19 +335,23 @@ c
 *     **** force from the MM atoms ****
       do i=1,pspw_qmmm_nion()
          call pspw_LJ_param_MM(i,si,ei)
+         if (ei.gt.1.0d-10) then
          ri(1) = pspw_qmmm_rion(1,i)
          ri(2) = pspw_qmmm_rion(2,i)
          ri(3) = pspw_qmmm_rion(3,i)
          do j=i+1,pspw_qmmm_nion()
            if (pspw_qmmm_different_frag(i,j)) then
              call pspw_LJ_param_MM(j,sj,ej)
+             if (ej.gt.1.0d-10) then
              rj(1) = pspw_qmmm_rion(1,j)
              rj(2) = pspw_qmmm_rion(2,j)
              rj(3) = pspw_qmmm_rion(3,j)
              call LJ_Ion_Repulsion_Force(ri,si,ei,f_mm(1,i),
      >                                   rj,sj,ej,f_mm(1,j))
+             end if  
            end if  
          end do
+         end if
       end do
 
 
@@ -347,17 +359,21 @@ c
       call dcopy(3,0.0d0,0,fion,1)
       do i=1,ion_nion()
          call pspw_LJ_param_Ion(i,si,ei)
+         if (ei.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,pspw_qmmm_nion()
             call pspw_LJ_param_MM(j,sj,ej)
+            if (ej.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             call LJ_Ion_Repulsion_Force(ri,si,ei,fion,
      >                                  rj,sj,ej,f_mm(1,j))
+            end if
          end do
+         end if
       end do
 
       return
@@ -402,17 +418,21 @@ c
       call dcopy(3,0.0d0,0,f_mm,1)
       do i=1,nion_ion
          call pspw_LJ_param_Ion(i,si,ei)
+         if (ei.gt.1.0d-10) then
          ri(1) = ion_rion(1,i)
          ri(2) = ion_rion(2,i)
          ri(3) = ion_rion(3,i)
          do j=1,nion_mm
             call pspw_LJ_param_MM(j,sj,ej)
+            if (ej.gt.1.0d-10) then
             rj(1) = pspw_qmmm_rion(1,j)
             rj(2) = pspw_qmmm_rion(2,j)
             rj(3) = pspw_qmmm_rion(3,j)
             call LJ_Ion_Repulsion_Force(ri,si,ei,fion(1,i),
      >                                  rj,sj,ej,f_mm)
+            end if
          end do
+         end if
       end do
 
       return
@@ -436,7 +456,7 @@ c
       real*8 xo,yo,zo,d2
       real*8 ee,ss
      
-      ee = (e1*e2)
+      ee = dsqrt(e1*e2)
       ss = (s1*s2)
 
       xo = r2(1)-r1(1)
@@ -470,7 +490,7 @@ c
       real*8 der
       real*8 ee,ss,fx,fy,fz
      
-      ee = (e1*e2)
+      ee = dsqrt(e1*e2)
       ss = (s1*s2)
 
       xo = r2(1)-r1(1)
