@@ -1,6 +1,17 @@
 *
-* $Id: blas_lapackf.h,v 1.7 1999-07-28 00:39:17 d3e129 Exp $
+* $Id: blas_lapackf.h,v 1.8 2000-10-24 18:52:12 d3g270 Exp $
 *
+
+#ifdef IEEE
+
+#define DLAMCHE 1.1102230246251565E-16
+#define DLAMCHP 1.1102230246251565E-16
+#define DLAMCHB 2.0000000000000000E+00
+#define DLAMCHS 2.2250738585072013E-308
+#define DLAMCHU 2.2250738585072013E-308
+
+#endif
+
 #ifdef KSR8
 
 #define dscal  sscal

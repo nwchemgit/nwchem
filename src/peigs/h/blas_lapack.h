@@ -1,6 +1,7 @@
 /*
- $Id: blas_lapack.h,v 1.19 2000-10-23 23:11:22 d3g270 Exp $
+ $Id: blas_lapack.h,v 1.20 2000-10-24 18:52:12 d3g270 Exp $
   c defines */
+
 #define NO_EVEC 0
 
 /*
