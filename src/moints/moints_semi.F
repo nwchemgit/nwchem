@@ -100,7 +100,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.27 1996-10-21 22:42:50 rg240 Exp $
+c  $Id: moints_semi.F,v 1.28 1996-10-22 08:40:08 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -137,6 +137,7 @@ c
 #include "global.fh"
 #include "sym.fh"
 #include "bas.fh"
+#include "util.fh"
 c
        integer basis                          ! [input]  Basis handle
        double precision tol2e                 ! [input]  Integral tolerance
@@ -146,7 +147,7 @@ c
        integer olo, ohi                       ! [input]  Correlated occupied index range
        integer vlo, vhi                       ! [input]  Virtual index range
        integer g_movecs                       ! [input]  MO coefficients
-       integer oblk                           ! [input]  Toggle AO integral blocking
+       logical oblk                           ! [input]  Toggle AO integral blocking
 c
        integer l_gmap, k_gmap
        integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
@@ -195,20 +196,31 @@ c  Memory arithmetic
 c
        lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
-     $   call errquit('cannot determine memory limit',0)
-       gmem = ga_memory_avail() - numnodes*lmemreq
+     $   call errquit('moints_semi: cannot determine memory limit',0)
+c
+       gmem = ga_memory_avail() / 8 ! Want amount in doubles
+       call ga_igop(313, gmem, 1, 'min')
+       if (ga_uses_ma()) gmem = gmem - lmemreq
+       gmem = gmem*numnodes
+c
+       gmem = gmem * 0.9d0      ! Protect against distribution inequity
+c
        itmp = 0
        if (ocoul) itmp = nocc
        if (oexch) itmp = itmp + nvir
-c$$$       mxrlen = gmem/(8*nseg*itmp)
-c$$$       mxrlen = min(mxrlen,(nbf*nbf))
-c$$$c       MXRLEN = 512
-       mxrlen=maxbfsh*maxbfsh*ga_nnodes()*10
 c
-c$$$       IF (GA_NODEID().EQ.0) WRITE(6,900) LMEMREQ, GMEM, MXRLEN
-c$$$ 900   FORMAT(/,'Local Memory required:  ',i10,' bytes '
-c$$$     $        /,'Global Memory remaining:',i10,' bytes ',
-c$$$     $        /,'IO Buffer length:       ',i10)
+       mxrlen = gmem/(nseg*itmp)
+       mxrlen = min(mxrlen, min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
+       if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
+     $      call errquit('moints_semi: insufficient GA available',
+     $      mxrlen*nseg*itmp)
+c
+      if (util_print('memory',print_high) .and. ga_nodeid().eq.0) 
+     $      write(6,900) lmemreq, gmem/numnodes, mxrlen
+900   format(/,'Semi-direct integral transformation',
+     $     /,' Local Memory required:   ',i10,' words '
+     $     /,' Global Memory remaining: ',i10,' words per node',
+     $     /,' IO Buffer length:        ',i10,' words')
 c
 c  Create GA coulomb buffer
 c
@@ -480,6 +492,8 @@ c
 c  Integrals allocation
 c
        call int_mem_2e4c(max2e, mem2)
+       write(6,*) ' max2e, mem2 ', max2e, mem2
+       call util_flush(6)
        status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
        status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)
 c
@@ -496,7 +510,8 @@ c
        status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
        status = ma_push_get(MT_DBL,n_hlp2,'hlp2 block',l_hlp2,k_hlp2)
        status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
-       if (.not.(status)) call errquit('cannot allocate local memory',0)
+       if (.not.(status)) call errquit
+     $      ('moints_semi: cannot allocate local memory',0)
 c
 c Initialize
 c
@@ -816,7 +831,9 @@ c
 c$$$            WRITE(6,901) O,P,FADDR
 c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
           else
-            call errquit('Unexpected distribution for GA buffer',0)
+            call errquit
+     $            ('moints_semi: Unexpected distribution for GA buffer',
+     $            0)
           endif
         enddo
       enddo
@@ -1260,7 +1277,7 @@ c
 
        integer function moints_lmem( basis, nocc, nvir,
      $                               ocoul, oexch, blen )
- 193   implicit none
+       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -1272,7 +1289,7 @@ c
        logical status
        integer moints_numgr
        external moints_numgr
-
+c
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
@@ -1287,7 +1304,9 @@ c
      $        max((bsize*maxbfsh*maxbfsh*nocc),(maxbfsh*nbf)) +
      $        maxbfsh*maxbfsh*nvir +
      $        maxbfsh*maxbfsh*nbf*nocc
-       moints_lmem = ma_sizeof(MT_DBL, memd, MT_BYTE) +
-     $               ma_sizeof(MT_INT, memi, MT_BYTE)
-       return
+c
+c     Add on the ubiquitous 10% 
+c
+       moints_lmem = (memd + ma_sizeof(MT_INT, memi, MT_DBL))*1.1
+c
        end
