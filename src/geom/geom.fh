@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.38 2003-01-30 01:10:43 bert Exp $
+C$Id: geom.fh,v 1.39 2003-02-20 01:13:50 mhackler Exp $
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load
@@ -94,6 +94,7 @@ c
       logical geom_print_dihedrals
       logical geom_zmt_put_data
       logical geom_makec1
+      logical geom_freeze
 c
       external geom_disable_zmatrix
       external geom_zmt_put_data
@@ -192,3 +193,4 @@ c
       external geom_strip_sym
       external geom_tag_to_covalent_radius
       external geom_makec1
+      external geom_freeze
