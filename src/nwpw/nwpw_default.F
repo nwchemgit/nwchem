@@ -1,0 +1,122 @@
+c
+c $Id: nwpw_default.F,v 1.1 2001-11-29 16:48:39 bylaska Exp $
+c
+      subroutine nwpw_default(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+*     ***** local variables *****
+      integer ind               
+      logical      value
+      character*30 cell_name
+      character*30 input_wavefunction_filename
+      character*30 output_wavefunction_filename
+      character*30 exchange_correlation
+      double precision fake_mass,time_step,rcut
+      integer loop(2),npsp,ncut
+      double precision tolerances(3),ecut,wcut
+      logical frac_coord,mulliken,allow_translation
+      integer ispin,multiplicity
+
+       
+*     ***** initializations ****
+      cell_name             = 'cell_default'
+      call util_file_prefix('movecs',input_wavefunction_filename)
+      call util_file_prefix('movecs',output_wavefunction_filename)
+      exchange_correlation         = 'vosko'
+      frac_coord                   = .false.
+      mulliken                     = .false.
+      allow_translation            = .false.
+      fake_mass = 400000.0d0
+      time_step = 5.8d0
+      loop(1) = 25
+      loop(2) = 100
+      tolerances(1) = 1.0d-9
+      tolerances(2) = 1.0d-9
+      tolerances(3) = 1.0d-4
+      ecut=9000.0d0
+      wcut=9000.0d0
+      rcut = 0.0d0
+      ncut = 0
+      npsp = 0
+      ispin        = 1
+      multiplicity = 1
+
+ 9999 continue
+      if (cell_name.eq.' ') 
+     >  call errquit('nwpw_default: nead a cell_name', 0)
+      if (input_wavefunction_filename.eq.' ') 
+     >  call errquit(
+     >       'nwpw_default: nead an input wavefunction_filename', 0)
+      if (output_wavefunction_filename.eq.' ') 
+     >  call errquit(
+     >       'nwpw_default: nead an output wavefunction_filename', 0)
+
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
+
+      ind = index(input_wavefunction_filename,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+
+*     *********************************
+*     **** used by task_save_state ****
+*     *********************************
+      ind = index(input_wavefunction_filename,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cg_pspw:input vectors',
+     >                    1,input_wavefunction_filename(1:ind))
+
+      ind = index(output_wavefunction_filename,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+     >                    1,output_wavefunction_filename(1:ind))
+
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,
+     >                       frac_coord)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
+     >                       mulliken)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,
+     >                       allow_translation)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:npsp',     mt_int,1,npsp)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      ind = index(exchange_correlation,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,'cgsd:exchange_correlation',
+     >                    1,exchange_correlation(1:ind))
+
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
+      value = value.and.
+     >        rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
+
+*     ***** Error writing to RTDB *****
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_default: error writing to rtdb', 0)
+
+      return
+      end
