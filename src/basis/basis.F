@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.37 1996-01-22 21:49:59 d3e129 Exp $
+c $Id: basis.F,v 1.38 1996-01-25 01:26:11 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1130,6 +1130,7 @@ c
         myang   = abs(infbs_cont(CONT_TYPE,i,basis))
         angular_bs(basis) = max(angular_bs(basis),myang)
 00800 continue
+      bas_geobas_build = .true.
       return
       end
 c......................................................................
