@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.2 1999-03-04 14:15:33 bjohnson Exp $
+c     $Id: bgj.F,v 1.3 1999-05-08 13:00:40 bjohnson Exp $
 c
 
 c
@@ -123,6 +123,29 @@ c
          bgj_have_j_fit = CDFIT
       endif
 c      write(*,*)'*** bgj_have_j_fit called: ',name,' ',bgj_have_j_fit
+c
+      return
+      end
+
+c
+c     Returns CD basis handle, or -1 if there's not one
+c
+      function bgj_cd_bas_han()
+c
+      implicit none
+      integer bgj_cd_bas_han
+c
+#include "../nwdft/include/cdft.fh"
+c
+      external bgj_have_xc
+      logical bgj_have_xc
+c
+      bgj_cd_bas_han = -1
+      if (bgj_have_xc()) then
+         if (CDFIT) then
+            bgj_cd_bas_han = CD_bas_han
+         endif
+      endif
 c
       return
       end
