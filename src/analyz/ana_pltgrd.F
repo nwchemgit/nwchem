@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.15 2000-09-11 18:35:47 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.16 2000-09-12 19:41:22 d3j191 Exp $
 c
       implicit none
 c
@@ -115,7 +115,9 @@ c
     1 continue
 c
       do 4 j=1,3
-      if(iesppb.eq.0.or.(iesppb.lt.3.and.j.eq.3).or.rcut.lt.0.0d0) then
+      if(iesppb.eq.0.or.rcut.lt.0.0d0.or.
+     + (iesppb.eq.1.and.j.ne.3).or.
+     + (iesppb.eq.2.and.j.eq.3)) then
       xd(j)=xmax(j)-xmin(j)+2.0d0*abs(rcut)
       xmin(j)=xmin(j)-abs(rcut)
       else
