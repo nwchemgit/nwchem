@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.4 1997-09-05 23:08:45 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.5 1997-10-03 01:52:06 mg201 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -420,12 +420,13 @@ c.. loop over primitives for |ket>
             lscr_guess = lscr
 *debug:            write(6,*)' lscr ',lscr
 
+#if defined(USE_OLD_ECP)
 c..  do dryrun to check memory for scratch array
             call ecp_integral(
      &          C,expa,coefa,1,1,type,i_c_A,
      &          C,expb,coefb,1,1,type,i_c_B,
      &          C,zeta_c,coef_c,n_prim_C,n_coef_c,
-     &          ind_c, n_tot_c,
+     &          ind_c, ind_c, n_tot_c, 
      &          atscf_n_zetac,
      &          l_c,i_cent_C,1,lmax_all,0,
      &          dbl_mb(k_ecp_c2s),mem_c2s,
@@ -433,7 +434,19 @@ c..  do dryrun to check memory for scratch array
      &          .true.,
      &          scr,lscr_guess,
      &          0)            
-
+#else
+              call ecp_integral(
+     &            C,expa,coefa,1,1,type,i_c_A,
+     &            C,expb,coefb,1,1,type,i_c_B,
+     &            C,zeta_c,coef_c,n_prim_C,n_coef_c,
+     &            ind_c, ind_c, atscf_n_zetac, atscf_n_zetac,
+     &            l_c,i_cent_C,1,lmax_all,0,
+     &            dbl_mb(k_ecp_c2s),mem_c2s,
+     &            ecp_ints,sz_ints,
+     &            .true.,
+     &            scr,lscr_guess,
+     &            0)            
+#endif 
 c.. make sure scratch array is big enough
             if (lscr_guess.gt.lscr) then
               write(luout,*)' lscr_guess =',lscr_guess
@@ -441,6 +454,7 @@ c.. make sure scratch array is big enough
               write(luout,*)' contact nwchem-support@emsl.pnl.gov'
               call errquit('atscf_ecp_build_hatom: fatal error',911)
             else
+#if defined(USE_OLD_ECP)
 c.. compute ecp integrals <bra|ecp|ket>
               call ecp_integral(
      &            C,expa,coefa,1,1,type,i_c_A,
@@ -454,6 +468,20 @@ c.. compute ecp integrals <bra|ecp|ket>
      &            .false.,
      &            scr,lscr,
      &            0)            
+#else
+c.. compute ecp integrals <bra|ecp|ket>
+              call ecp_integral(
+     &            C,expa,coefa,1,1,type,i_c_A,
+     &            C,expb,coefb,1,1,type,i_c_B,
+     &            C,zeta_c,coef_c,n_prim_C,n_coef_c,
+     &            ind_c, ind_c, atscf_n_zetac, atscf_n_zetac,
+     &            l_c,i_cent_C,1,lmax_all,0,
+     &            dbl_mb(k_ecp_c2s),mem_c2s,
+     &            ecp_ints,sz_ints,
+     &            .false.,
+     &            scr,lscr,
+     &            0)            
+#endif
 *              write(6,*)' ecp integrals, cart'
 *              call output(ecp_ints,1,sz_ints,1,1,sz_ints,1,1)
               nbf_x = (type+1)*(type+2)/2

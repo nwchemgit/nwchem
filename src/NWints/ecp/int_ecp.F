@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,indx_grad)
-* $Id: int_ecp.F,v 1.8 1997-09-05 22:25:20 d3e129 Exp $
+* $Id: int_ecp.F,v 1.9 1997-10-03 01:48:44 mg201 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
@@ -724,6 +724,7 @@ c
 *
 *      write(6,*)' lscr IN ecp_hf1:',lscr
 c
+#if defined(USE_OLD_ECP)
       call ecp_integral(
      &      xyza,
      &      expa,
@@ -748,6 +749,33 @@ c
      &      ecp_ints,sz_ints,
      &      dryrun,scr,lscr,
      &      0)  ! ibug
+#else
+      call ecp_integral(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+     &      int_mb(k_ecp_nprim_c),
+     &      int_mb(k_ecp_ncoef_c),  ! new name is n_colc_C
+     &      int_mb(k_ecp_ind_c),
+     &      int_mb(k_ecp_ind_c),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_ints,sz_ints,
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+#endif
 *
       end
       subroutine intd_ecp_hf1(
@@ -772,6 +800,7 @@ c
 *
 *      write(6,*)' lscr IN ecp_hf1:',lscr
 c
+#if defined(USE_OLD_ECP)
       call ecp_gradient(
      &      xyza,
      &      expa,
@@ -796,5 +825,32 @@ c
      &      ecp_grad,sz_grad,nat,
      &      dryrun,scr,lscr,
      &      0)  ! ibug
+#else
+      call ecp_gradient(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+     &      int_mb(k_ecp_nprim_c),
+     &      int_mb(k_ecp_ncoef_c),
+     &      int_mb(k_ecp_ind_c),
+     &      int_mb(k_ecp_ind_c),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_grad,sz_grad,nat,
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+#endif
 *
       end
