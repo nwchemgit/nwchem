@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.65 1998-03-03 00:58:12 d3e129 Exp $
+# $Id: GNUmakefile,v 1.66 1998-03-10 19:53:17 d3e129 Exp $
 
 include config/makefile.h
 
@@ -74,7 +74,6 @@ ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f nwchem_test
 endif
 	$(LINK.f) -o nwchem_test nwchem.o stubs.o -ltask $(LIBS)
-# removed because if testing don't recompile these:	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
@@ -139,6 +138,9 @@ directories:
 	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
 	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
 
+auxiliary:
+	$(MAKE) -C nwaprep $(LIB_TARGETS)
+	$(MAKE) -C nwajava
 # This target will change config/nwchem_config.h include file which
 # controls what we're going to build.
 $(CNFDIR)/nwchem_config.h nwchem_config:
