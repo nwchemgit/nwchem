@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.15 1998-07-15 22:03:48 d3j191 Exp $
+c $Id: pre_input.F,v 1.16 1998-07-16 15:31:56 d3j191 Exp $
 c
       implicit none
 c
@@ -61,7 +61,7 @@ c
       qscale=-1.2d0
 c
       touch=0.25
-      xpndw=0.10
+      xpndw=0.20
 c
       ltouch=.false.
       lrdcoo=.false.
