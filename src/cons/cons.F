@@ -201,7 +201,6 @@ c
       character*255 namespace
       logical oprint
       logical ocons
-      write(*,*) "in cons init"
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_inquire(namespace,rtdb)) then
