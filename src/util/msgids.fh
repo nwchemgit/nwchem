@@ -28,6 +28,7 @@ C
       Integer Msg_PStat_Min, Msg_PStat_Avg, Msg_PStat_Max
       Integer Msg_Stpr_Walk, Msg_RI_dens
       Integer Msg_ChkJK
+      Integer Msg_RAK
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -74,4 +75,6 @@ C
       Parameter (Msg_RI_dens   = MSG_Ftn_Base - 30) ! rhf_ri_two
 C
       Parameter (Msg_ChkJK = MSG_Ftn_Base - 31)     ! GA_Check_JKBlocked
+C
+      Parameter (Msg_RAK  = MSG_Ftn_Base - 32)     ! reserved for raktest
 C
