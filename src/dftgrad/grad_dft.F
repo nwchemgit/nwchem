@@ -88,7 +88,8 @@ c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       if (.not. context_push('dftgrad'))
      $     call errquit('grad_dft: context_push failed', 0)
-c      status = rtdb_print(rtdb,.true.)
+c**** debug
+      status = rtdb_print(rtdb,.true.)
 c
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
