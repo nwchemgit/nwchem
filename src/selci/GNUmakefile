@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 1997-10-31 23:42:10 d3e129 Exp $
+# $Id: GNUmakefile,v 1.18 1997-11-20 17:36:53 d3e129 Exp $
 #
 
 
@@ -42,6 +42,11 @@ USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+ifeq ($(TARGET),CRAY-T3E)
+# vector 3 breaks code in this directory only
+            FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
+endif
 
  LIBS = $(LIBRARY_PATH) $(LIBDIR)/libtcgmsg.a
 
