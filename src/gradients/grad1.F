@@ -36,6 +36,13 @@ C         if (mod(ijatom, nproc) .eq. iproc) then
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
             status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
 
+            if (iab1f.le.0 .or. iab2f.le.0) then
+c     
+c     At least one center has no functions on it ... next atom
+c
+              goto 1010
+            endif
+
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
 
@@ -104,6 +111,7 @@ C     D x H
  60           continue
  70         continue
 
+ 1010       continue
 
 C     Vnn 
 
