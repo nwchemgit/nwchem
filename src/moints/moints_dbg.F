@@ -35,10 +35,12 @@
        implicit none
        integer n,i,j
        double precision x(n,n)
-       
+       integer col
+
+       col = min(10,n)
        do i=1,n
-         write(6,901) (x(i,j),j=1,n)
- 901     format(15f9.4)
+         write(6,901) (x(i,j),j=1,col)
+ 901     format(10f12.6)
        enddo
        call util_flush(6)
        end
@@ -77,5 +79,26 @@
        return
        end
 
+
+
+
+
 #endif
+
+
+
+
+      subroutine dbg_matprint( n, m, x, lda )
+      implicit none
+      integer n,m,lda
+      double precision x(lda,*)
+      integer i,j,col
+      col = min(m,10)
+      do i=1,n
+        write(6,901) (x(i,j),j=1,col)
+ 901    format(10f12.5)
+      enddo
+      write(6,*)
+      return
+      end
 

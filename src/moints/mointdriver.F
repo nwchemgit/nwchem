@@ -1,4 +1,3 @@
-
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
        implicit none
 #include "mafdecls.fh"
@@ -28,7 +27,7 @@ c
        integer noper, nvir
        integer g_coul, g_exch
        logical oexch,ocoul,oprint
-       double precision emp2,chunk_factor
+       double precision emp2
 c
 c
 c
@@ -110,10 +109,10 @@ c
 c
        mo_indx_lo = 1
        mo_indx_hi = nocc
-       mo_indx2_lo = nocc + 1
-       mo_indx2_hi = nbf
-C       mo_indx2_lo = 1
+C       mo_indx2_lo = nocc + 1
 C       mo_indx2_hi = nbf
+       mo_indx2_lo = 1
+       mo_indx2_hi = nbf
        nvir = nbf - nocc
        nmo2 = mo_indx2_hi - mo_indx2_lo + 1
        noper = mo_indx_hi - mo_indx_lo + 1
@@ -127,27 +126,19 @@ c
 c
 c
 c
-c Get tasksize factor
-c
-       if (.not.rtdb_get(rtdb,'chunkfactor',MT_DBL,1,chunk_factor))
-     $      chunk_factor = 1.d0
-c
-c
-c
        if (ga_nodeid().eq.0) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,mo_indx_lo,mo_indx_hi,
-     $                mo_indx2_lo,mo_indx2_hi,movecs_in,chunk_factor
+     $                mo_indx2_lo,mo_indx2_hi,movecs_in
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
-     $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Chunksize Factor:',14x,f10.2)
+     $        10x,'MO coefficients read from:',2x,a25,/)
          call util_flush(6)
        endif
 c
@@ -165,10 +156,8 @@ c
      $                      mo_indx2_lo, mo_indx2_hi,
      $                      g_vecs,
      $                      g_coul, ocoul,
-     $                      g_exch, oexch,
-     $                      chunk_factor)
+     $                      g_exch, oexch )
 
-C       call moints_print_opermatrix(noper,nmo2,g_coul)
 c
 c
 c
@@ -188,8 +177,7 @@ c
        status = ma_pop_stack(l_evals)
        status = status.and.ma_pop_stack(l_occ)
        if (.not.status) call errquit('moints: cannot pop stack?',0)
-c
-c
+       status = ga_destroy(g_vecs)
 c
 c
 c
