@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.101 2001-11-02 16:06:14 d3j191 Exp $
+c $Id: md_start.F,v 1.102 2001-11-06 15:49:50 d3j191 Exp $
 c
       implicit none
 c
@@ -41,7 +41,8 @@ c
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,noshak,
-     + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
+     + iqmmm,ipolt,itscal,ipscal,ipopt,tmpext,prsext,
+     + tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl)
@@ -537,6 +538,7 @@ c
 c     constant p
 c
       ipscal=0
+      ipopt=0
       prsext=1.025d5
       prsrlx=0.5d0
       compr=4.53d-10
@@ -691,6 +693,8 @@ c
       if(.not.rtdb_get(irtdb,'md:nacfl',mt_int,1,nacfl))
      + call errquit('md_rtdbin: rtdb_get failed',23)
       if(.not.rtdb_get(irtdb,'md:ipscal',mt_int,1,ipscal))
+     + call errquit('md_rtdbin: rtdb_get failed',24)
+      if(.not.rtdb_get(irtdb,'md:ipopt',mt_int,1,ipopt))
      + call errquit('md_rtdbin: rtdb_get failed',24)
       if(.not.rtdb_get(irtdb,'md:itscal',mt_int,1,itscal))
      + call errquit('md_rtdbin: rtdb_get failed',25)
@@ -1383,6 +1387,10 @@ c
  1023 format(' Isobaric ensemble external pressure ',1pe12.5,' Pa',/,
      + ' Pressure relaxation time ',0pf12.6,' ps',/,
      + ' Compressebility ',1pe12.5,' m**2/N')
+      if(ipopt.eq.12) write(lfnout,2023)
+ 2023 format(' Pressure scaling in x and y only')
+      if(ipopt.eq.3) write(lfnout,3023)
+ 3023 format(' Pressure scaling in z only')
       endif
       if(iguide.gt.0) then
       write(lfnout,1038) fguide,tguide
@@ -1531,8 +1539,8 @@ c
       read(lfn,1005) mshitw,tlwsha
       read(lfn,1005) mshits,tlssha
  1005 format(i7,f12.6)
-      read(lfn,1006) ipscal,prsext,prsrlx,compr
- 1006 format(i5,e12.5,f12.6,e12.5)
+      read(lfn,1006) ipscal,prsext,prsrlx,compr,ipopt
+ 1006 format(i5,e12.5,f12.6,e12.5,i5)
       read(lfn,1007) itscal,tmpext1,tmprlx,tmsrlx,tmpext2,
      + tann1,tann2
  1007 format(i5,6f12.6)
@@ -1594,8 +1602,8 @@ c
       write(lfn,1005) mshitw,tlwsha
       write(lfn,1005) mshits,tlssha
  1005 format(i7,f12.6)
-      write(lfn,1006) ipscal,prsext,prsrlx,compr
- 1006 format(i5,e12.5,f12.6,e12.5)
+      write(lfn,1006) ipscal,prsext,prsrlx,compr,ipopt
+ 1006 format(i5,e12.5,f12.6,e12.5,i5)
       write(lfn,1007) itscal,tmpext1,tmprlx,tmsrlx,tmpext2,
      + tann1,tann2
  1007 format(i5,6f12.6)

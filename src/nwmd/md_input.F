@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.44 2001-10-11 18:55:39 d3j191 Exp $
+c $Id: md_input.F,v 1.45 2001-11-06 15:49:50 d3j191 Exp $
 c
       implicit none
 c
@@ -30,7 +30,7 @@ c
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
-      integer ifidi,ncoll
+      integer ifidi,ncoll,ipopt
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -75,6 +75,7 @@ c
       mdacq=1000
       ldacq=500
       ipscal=0
+      ipopt=0
       itscal=0
       nfgaus=0
       ipolt=0
@@ -524,8 +525,12 @@ c
       ipscal=2
       goto 250
       endif
-      if(inp_compare(.false.,'noz',item)) then
-      ipscal=-iabs(ipscal)
+      if(inp_compare(.false.,'xy',item)) then
+      ipopt=12
+      goto 250
+      endif
+      if(inp_compare(.false.,'z',item)) then
+      ipopt=3
       goto 250
       endif
       goto 3
@@ -1402,6 +1407,8 @@ c
       if(.not.rtdb_put(irtdb,'md:iapprx',mt_int,1,iapprx))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ipscal',mt_int,1,ipscal))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ipopt',mt_int,1,ipopt))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:itscal',mt_int,1,itscal))
      + call errquit('md_input: rtdb_put failed',0)

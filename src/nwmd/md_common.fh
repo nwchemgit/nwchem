@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.46 2001-10-11 18:55:39 d3j191 Exp $
+c $Id: md_common.fh,v 1.47 2001-11-06 15:49:50 d3j191 Exp $
 c
 c     parameters
 c
@@ -140,7 +140,7 @@ c
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
-     + isload,ncoll,inp_ptr
+     + isload,ncoll,ipopt,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -169,7 +169,7 @@ c
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
-     + isload,ncoll,inp_ptr
+     + isload,ncoll,ipopt,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi
