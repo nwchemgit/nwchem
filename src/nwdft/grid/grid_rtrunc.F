@@ -293,7 +293,7 @@ c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
      &        call errquit('Exiting in radtur.',11)
          if(ic2.lt.0) call errquit('gridrtunc:
-     .   no basis on ghost atom ??',ic2)
+     .   no basis on ghost atom?',ic2)
          min_exp=1d20
          range_max=0d0
          do icset = ic1,ic2
