@@ -3,6 +3,8 @@ tcsh runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
 tcsh runtests.unix h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 tcsh runtests.unix cosmo_trichloroethene esp dplot dft_bsse
 tcsh runtests.unix neda_nbo
+tcsh runtests.unix et_zn_dimer
+tcsh runtests.unix vectors_rotate
 
 REM ---   small tests that should fail!
 echo " "
