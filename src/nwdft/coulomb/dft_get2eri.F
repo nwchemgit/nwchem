@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri, geom)
 c
-C$Id: dft_get2eri.F,v 1.7 1997-10-31 23:20:34 d3h449 Exp $
+C$Id: dft_get2eri.F,v 1.8 1998-12-18 21:30:29 edo Exp $
 c
       implicit none
       integer CD_bas_han, geom
@@ -47,9 +47,9 @@ c
 c      write(6,*)' nproc, me, icount, maxg, mscratch_2e2c, MXint: ',
 c     &            nproc, me, icount, maxg, mscratch_2e2c, MXint
 c
-      if (.not.MA_Push_Get(MT_Dbl,MXint,'buf',lbuf,ibuf))
+      if (.not.MA_Push_Get(MT_Dbl,maxg,'buf',lbuf,ibuf))
      &   call errquit('dft_get2eri: cannot allocate buf',0)
-      if (.not.MA_Push_Get(MT_Dbl,MXint,'vec',lvec,ivec))
+      if (.not.MA_Push_Get(MT_Dbl,maxg,'vec',lvec,ivec))
      &   call errquit('dft_get2eri: cannot allocate buf',0)
       if (.not.MA_Push_Get(MT_Dbl,mscratch_2e2c,'scr',lscr,iscr))
      &   call errquit('dft_get2eri: cannot allocate scr',0)
