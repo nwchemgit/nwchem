@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.11 1999-07-15 22:41:18 d3e129 Exp $
+# $Id: nwparse.pl,v 1.12 1999-10-02 16:46:20 d3g681 Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -378,5 +378,6 @@ sub set_to_digits
     else              {$value += 0.5;}
     $value = int ($value);
     for ($i = 0; $i < $digits ; $i++) {$value /= 10.0;}
+    if (abs($value) == 0.0) {$value = 0.0;}
     return $value;
 }
