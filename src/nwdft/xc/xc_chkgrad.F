@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.16 2002-01-17 02:41:11 edo Exp $
+* $Id: xc_chkgrad.F,v 1.17 2002-02-19 02:06:40 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -49,6 +49,38 @@ c
       implicit none
 #include "cdft.fh"
       xc_getipol=ipol
+      return
+      end
+      logical function xc_got2nd()
+      implicit none
+#include "cdft.fh"
+c     return true for functional without 2nds
+      xc_got2nd=.not.(
+c     hcth functionals
+     .     xfac(4).ne.0d0.or.
+     .     xfac(5).ne.0d0.or.
+     .     xfac(6).ne.0d0.or.
+     .     xfac(10).ne.0d0.or.
+     .     xfac(11).ne.0d0.or.
+     .     xfac(12).ne.0d0.or.
+     .     xfac(13).ne.0d0.or.
+     .     xfac(14).ne.0d0.or.
+     .     xfac(15).ne.0d0.or.
+     .     cfac(13).ne.0d0.or.
+     .     cfac(14).ne.0d0.or.
+     .     cfac(15).ne.0d0.or.
+     .     cfac(16).ne.0d0.or.
+     .     cfac(17).ne.0d0.or.
+     .     cfac(18).ne.0d0.or.
+     .     cfac(19).ne.0d0.or.
+     .     cfac(20).ne.0d0.or.
+     .     cfac(21).ne.0d0.or.
+c     cperdew91
+     .     cfac(5).ne.0d0.or.
+c     cpbe
+     .     cfac(12).ne.0d0
+     .     )
+
       return
       end
 
