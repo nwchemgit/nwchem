@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.105 2003-12-31 02:14:32 nwchem Exp $
+# $Id: DEFS,v 1.106 2004-01-14 21:28:50 edo Exp $
 #
 #======================================================================
 #
@@ -577,7 +577,7 @@ peigs_FC +=     -DSTD_DBL  -D$(peigs_COMM)  -Ovector3
   endif
 endif
 
-ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGWIN CYGNUS))
+ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX INTERIX CYGWIN CYGNUS))
 #
 # Linux running on an x86 using f77 on f2c
 #

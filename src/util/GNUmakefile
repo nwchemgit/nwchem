@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.171 2003-10-23 01:42:41 edo Exp $
+# $Id: GNUmakefile,v 1.172 2004-01-14 21:28:50 edo Exp $
 
 include ../config/makefile.h
 
@@ -67,10 +67,12 @@ ifeq ($(TARGET),HPUX64)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS))
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS INTERIX))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  
   ifeq ($(LINUXCPU),x86)
-    EXTRA_OBJ += linux_setfpucw.o
+    ifneq ($(TARGET),INTERIX)
+      EXTRA_OBJ += linux_setfpucw.o
+    endif
   endif
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
   ifeq ($(FC),ifc)
@@ -186,6 +188,9 @@ ifdef SPEECH
    OBJ += udp.o
 endif
 
+ifeq ($(TARGET),INTERIX)
+DEFINES += -DNOSOCKLEN
+endif
 ifeq ($(TARGET),LINUX)
 DEFINES += -DNEED_LOC
 endif
