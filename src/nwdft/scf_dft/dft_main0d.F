@@ -1,16 +1,14 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.4 1995-10-25 20:34:27 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: dft_main0d.F,v 1.5 1995-11-03 00:07:03 og845 Exp $
+      implicit none
+      integer rtdb  ! rtdb handle [input]
+      integer nconst
+      integer iconst(*)
 
       Logical LResult,CDFIT,XCFIT,IOLGC
 
-c**** 
-c**** nwchem handles
-c**** 
-      integer rtdb
 c**** 
 
 #include "bas.fh"
@@ -29,7 +27,17 @@ c****
 #include "timer.fh"
 #endif
 
-      Dimension iconst(nconst),iga_dens(2),iga_evecs(2),iga_vxc(4)
+      integer g_dens(2),g_evecs(2),g_vxc(4)
+      integer g_svecs,g_olddens,g_xcinv,g_oi,g_2ceri,g_cdinv
+      integer g_s,g_fock,g_diis,g_tmpb,g_tmp
+      integer nbf_xc,nvxc
+      integer me,nproc,info
+      double precision Enuc,Etold
+      integer iter,itrscf,iscfcon,ipol,igcon,icvgtyp 
+      integer nfock,nExc,isdiag,lshift,ncysh,ndamp
+      integer iVxc_opt,lmiss,ivcoul_opt
+      integer isvals,lsvals,iw,idum
+
 
 c*****************************************************************************
 
@@ -95,9 +103,9 @@ c
         lmiss=1
         if(IOLGC)then
           call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',iga_xcinv,'row')
+     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
           if(me.eq.0) then
-            call dft_invio('XC',iga_xcinv,nbf_xc,'READ',lmiss)
+            call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
           endif
         call ga_sync
         call ga_brdcst(Msg_XC_Ex,lmiss,mitob(1),0)
@@ -108,39 +116,39 @@ c Compute the matrix inverse of the 2-ctr OIs.
 c         
           if(.not.IOLGC)             
      &         call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',iga_xcinv,'row')
+     &         geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
 
           call gacrea(
-     &         geom,XC_bas_han,nbf_xc,nbf_xc,'iga_oi',iga_oi,'row')
-          call ga_zero(iga_oi)
-          call xc_get2oi(XC_bas_han,iga_oi)
+     &         geom,XC_bas_han,nbf_xc,nbf_xc,'g_oi',g_oi,'row')
+          call ga_zero(g_oi)
+          call xc_get2oi(XC_bas_han,g_oi)
 #if defined(PARALLEL_DIAG)         
-          call ga_chol(iga_oi,iga_xcinv,info)
+          call ga_chol(g_oi,g_xcinv,info)
 #else
-          call ga_chol_seq(iga_oi,iga_xcinv,info)
+          call ga_chol_seq(g_oi,g_xcinv,info)
 #endif
 	  if(info.ne.0.and.me.eq.0) 
      &	  write(LuErr,*) ' XC info = ',info
           if(info.eq.0) then
 #if defined(PARALLEL_DIAG)         
-            call ga_inverse(iga_xcinv,iga_oi)
+            call ga_inverse(g_xcinv,g_oi)
             call ga_dgemm('T','N',nbf_xc,nbf_xc,nbf_xc,1.d0,
-     &      iga_oi,iga_oi,0.d0,iga_xcinv)
+     &      g_oi,g_oi,0.d0,g_xcinv)
 #else
-            call ga_copy(iga_xcinv,iga_oi)
-            call ga_inv_seq(iga_oi,iga_xcinv)
+            call ga_copy(g_xcinv,g_oi)
+            call ga_inv_seq(g_oi,g_xcinv)
 #endif
           else
-            call dft_invdiag(geom,XC_bas_han,iga_oi,iga_xcinv,nbf_xc)
+            call dft_invdiag(geom,XC_bas_han,g_oi,g_xcinv,nbf_xc)
           endif
           call ga_sync
-          call gadest(iga_oi)
+          call gadest(g_oi)
           if (me.eq.0.and.IOLGC) then
-            call dft_invio('XC',iga_xcinv,nbf_xc,'WRITE',lmiss)
+            call dft_invio('XC',g_xcinv,nbf_xc,'WRITE',lmiss)
           end if
         endif
         call ga_sync
-        if(IOLGC)  call gadest(iga_xcinv)
+        if(IOLGC)  call gadest(g_xcinv)
       end if
 
 c     
@@ -172,51 +180,51 @@ c
 c       Compute the matrix inverse of the CD 2-ctr ERIs.
 c       
         call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERI',iga_2ceri,'row')
-        call ga_zero(iga_2ceri)
-        call dft_get2eri(CD_bas_han,iga_2ceri,geom)
+     &       nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
+        call ga_zero(g_2ceri)
+        call dft_get2eri(CD_bas_han,g_2ceri,geom)
         call gacrea(geom,CD_bas_han,
-     &       nbf_cd,nbf_cd,'CD 2cERInv',iga_cdinv,'row')
+     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
         lmiss=1
         if( me.eq.0.and.IOLGC)then
-          call dft_invio('CDI',iga_cdinv,nbf_cd,'READ',lmiss)
+          call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
         endif
         call ga_brdcst(Msg_CD_Ex,lmiss,mitob(1),0)
         if(lmiss.eq.1) then
 #if defined(PARALLEL_DIAG)         
-        call ga_chol(iga_2ceri,iga_cdinv,info)
+        call ga_chol(g_2ceri,g_cdinv,info)
 #else
-        call ga_chol_seq(iga_2ceri,iga_cdinv,info)
+        call ga_chol_seq(g_2ceri,g_cdinv,info)
 #endif
 
 	  if(info.ne.0.and.me.eq.0) 
      &         write(LuErr,*) ' CD info = ',info
           if(info.eq.0) then
-            iga_tmpb=iga_2ceri
+            g_tmpb=g_2ceri
 #if defined(PARALLEL_DIAG)         
-            call ga_inverse(iga_cdinv,iga_tmpb)
+            call ga_inverse(g_cdinv,g_tmpb)
             call ga_dgemm('T','N',nbf_cd,nbf_cd,nbf_cd,1.d0,
-     &           iga_tmpb,iga_tmpb,0.d0,iga_cdinv)
+     &           g_tmpb,g_tmpb,0.d0,g_cdinv)
 #else
-            call ga_copy(iga_cdinv,iga_tmpb)
-            call ga_inv_seq(iga_tmpb,iga_cdinv)
+            call ga_copy(g_cdinv,g_tmpb)
+            call ga_inv_seq(g_tmpb,g_cdinv)
 #endif
 c         second gaget
 c
-            call ga_zero(iga_2ceri)
-            call dft_get2eri(CD_bas_han,iga_2ceri,geom)
+            call ga_zero(g_2ceri)
+            call dft_get2eri(CD_bas_han,g_2ceri,geom)
           else
-            call dft_invdiag(geom,CD_bas_han,iga_2ceri,iga_cdinv,nbf_cd)
+            call dft_invdiag(geom,CD_bas_han,g_2ceri,g_cdinv,nbf_cd)
           endif
           if(IOLGC.and.(me.eq.0)) then
-            call dft_invio('CDI',iga_cdinv,nbf_cd,'WRITE',lmiss)
-            call dft_invio('CD',iga_2ceri,nbf_cd,'WRITE',lmiss)
+            call dft_invio('CDI',g_cdinv,nbf_cd,'WRITE',lmiss)
+            call dft_invio('CD',g_2ceri,nbf_cd,'WRITE',lmiss)
           endif
           call ga_sync
         endif
         if(IOLGC) then
-          call gadest(iga_cdinv)
-          call gadest(iga_2ceri)
+          call gadest(g_cdinv)
+          call gadest(g_2ceri)
         endif
         call ga_sync
       endif
@@ -232,12 +240,12 @@ c
 c     Compute the AO overlap matrix.
 c     
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'ovl ',iga_s,'atom')
+     &     nbf_ao,nbf_ao,'ovl ',g_s,'atom')
       LResult = 
      &MA_Push_Get(MT_Dbl,nbf_ao,'ovl eig vals',lsvals,isvals)
-      call ga_zero(iga_s)
+      call ga_zero(g_s)
       call int_1e_ga(AO_bas_han,AO_bas_han,
-     &     iga_s,'overlap',.false.)
+     &     g_s,'overlap',.false.)
 
 c     
 #if defined(DFT_TIMER)
@@ -253,11 +261,11 @@ c
 c--   > Diag Overlap Matrix
 c     
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'ovl eig vecs',iga_svecs,'atom')
+     &     nbf_ao,nbf_ao,'ovl eig vecs',g_svecs,'atom')
 #if defined(PARALLEL_DIAG)         
-      call ga_diag_std(iga_s,iga_svecs,Dbl_MB(isvals))
+      call ga_diag_std(g_s,g_svecs,Dbl_MB(isvals))
 #else
-      call ga_diag_std_seq(iga_s,iga_svecs,Dbl_MB(isvals))
+      call ga_diag_std_seq(g_s,g_svecs,Dbl_MB(isvals))
 #endif
 c     
 #if defined(DFT_TIMER)
@@ -269,29 +277,29 @@ c
 c     
       call ga_sync
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'alpha evecs',iga_evecs(1),'atom')
+     &     nbf_ao,nbf_ao,'alpha evecs',g_evecs(1),'atom')
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'alpha density',iga_dens(1),'atom')
-      call ga_zero(iga_dens(1))
+     &     nbf_ao,nbf_ao,'alpha density',g_dens(1),'atom')
+      call ga_zero(g_dens(1))
       if( ipol.ne.1 )then
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'beta density',iga_dens(2),'atom')
-        call ga_zero(iga_dens(2))
+     &       nbf_ao,nbf_ao,'beta density',g_dens(2),'atom')
+        call ga_zero(g_dens(2))
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'beta evecs',iga_evecs(2),'atom')
+     &       nbf_ao,nbf_ao,'beta evecs',g_evecs(2),'atom')
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'olddens',iga_olddens,'atom')
+     &       nbf_ao,nbf_ao,'olddens',g_olddens,'atom')
         call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'Vxcs',iga_Vxc(2),'atom')
+     &     nbf_ao,nbf_ao,'Vxcs',g_Vxc(2),'atom')
       end if 
       nVxc=ipol
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'fock Matrix',iga_fock,'atom')
-      iga_vxc(1)=iga_fock
+     &     nbf_ao,nbf_ao,'fock Matrix',g_fock,'atom')
+      g_vxc(1)=g_fock
       if(icvgtyp.eq.2) 
      &       call gacrea(geom,AO_bas_han,
      &       nbf_ao,nbf_ao*(2*nfock*ipol),
-     &     'diis bufs',iga_diis,'row')
+     &     'diis bufs',g_diis,'row')
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -300,29 +308,29 @@ c
 #endif
 c     
 c     
-c     Begin iteration sequence with S**(-1/2) in iga_evecs arrays
+c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       iw=2
-      iga_tmp=iga_s
+      g_tmp=g_s
       call diis_builds12(
-     &     isvals,iga_svecs,iga_evecs(1),iga_tmp,nbf_ao,iw)
+     &     isvals,g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
 
-      if (ipol.gt.1) call ga_copy(iga_evecs(1),iga_evecs(2))
-      if(icvgtyp.ne.2) call gadest(iga_svecs)
+      if (ipol.gt.1) call ga_copy(g_evecs(1),g_evecs(2))
+      if(icvgtyp.ne.2) call gadest(g_svecs)
 
-      if(CDFIT)call gadest(iga_s)
+      if(CDFIT)call gadest(g_s)
 
       call dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
-     &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
-     &     iga_fock,iga_diis,iga_svecs,isvals,
-     &     iga_cdinv,iga_xcinv,iga_2ceri)
+     &     g_dens,g_evecs,g_olddens,g_vxc,
+     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_cdinv,g_xcinv,g_2ceri)
 c     
 c     Clean up memory usage.
 c     
       LResult = MA_Pop_Stack(lsvals)
-      if(.not.CDFIT)call gadest(iga_s)
+      if(.not.CDFIT)call gadest(g_s)
       if(me.eq.0) then
         if (CDFIT.and.IOLGC) then
           call dft_invio('CD',idum,1,'KILL',lmiss)
@@ -333,22 +341,22 @@ c
         endif
       endif
       if (CDFIT.and.(.not.IOLGC)) then
-        call gadest(iga_cdinv)
-        call gadest(iga_2ceri)
+        call gadest(g_cdinv)
+        call gadest(g_2ceri)
       endif
-      if (XCFIT.and.(.not.IOLGC)) call gadest(iga_xcinv)
-      if(icvgtyp.eq.2)call gadest(iga_diis)
-      call gadest(iga_fock)
+      if (XCFIT.and.(.not.IOLGC)) call gadest(g_xcinv)
+      if(icvgtyp.eq.2)call gadest(g_diis)
+      call gadest(g_fock)
       if(ipol.eq.2)
-     &     call gadest(iga_vxc(2))
+     &     call gadest(g_vxc(2))
       if(ipol.ne.1)then
-        call gadest(iga_olddens)
-        call gadest(iga_evecs(2))
-        call gadest(iga_dens(2))
+        call gadest(g_olddens)
+        call gadest(g_evecs(2))
+        call gadest(g_dens(2))
       endif
-      call gadest(iga_evecs(1))
-      call gadest(iga_dens(1))
-      if(icvgtyp.eq.2) call gadest(iga_svecs)
+      call gadest(g_evecs(1))
+      call gadest(g_dens(1))
+      if(icvgtyp.eq.2) call gadest(g_svecs)
       call schwarz_tidy
       call ga_sync
 c     

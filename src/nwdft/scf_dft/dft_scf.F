@@ -1,22 +1,22 @@
       Subroutine dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
-     &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
-     &     iga_fock,iga_diis,iga_svecs,isvals,
-     &     iga_cdinv,iga_xcinv,iga_2ceri)
+     &     g_dens,g_evecs,g_olddens,g_vxc,
+     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.12 1995-10-29 21:43:18 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
-      logical converged,XCFIT,wght_GA
-      logical lfrac,lfocka,lfockb
-      parameter(itol_min=6,iAOacc_min=15)
+C$Id: dft_scf.F,v 1.13 1995-11-03 00:07:04 og845 Exp $
+      implicit none
+      integer rtdb ! [input]
+      integer ipol
+      double precision Etold,Enuc
+      integer iVcoul_opt
+      integer iVxc_opt
+      integer iconst(*),nconst,iter
+      integer g_dens(*),g_evecs(*),g_olddens,g_vxc(*),
+     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_cdinv,g_xcinv,g_2ceri
       
-c**** 
-c**** nwchem handles
-c**** 
-      integer rtdb
 
 #include "bas.fh"
 #include "geom.fh"
@@ -37,13 +37,12 @@ c****
 #endif
       Logical movecs_write, movecs_read_header, movecs_read
       External movecs_write,movecs_read_header, movecs_read
-
-      Dimension iga_dens(2), iga_evecs(2), iga_vxc(4)
-      Dimension iconst(nconst)
-      Dimension Exc(2),noc(2),nmo(2),nmo_read(2),icall(2)
+      
+      double precision Exc(2)
+      integer noc(2),nmo(2),nmo_read(2),icall(2)
 
       Integer lSbn2,Type
-      Dimension iSbn2(2)
+      integer iSbn2(2)
       Character*255 movecs_out,movecs_in
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
@@ -53,6 +52,41 @@ c****
       integer finest ! CMM
       character*255 filename
       logical int2e_file_open
+
+      integer natoms,nTotEl
+      integer l_occ,k_occ,l_excit,i_excit,n_excit
+      integer n_full,n_empty
+      integer i,ii,j
+      integer n_ashift,n_bshift
+      integer me,nproc
+      integer g_jeff,g_tmp,g_fockt,g_s,g_wght,g_xyz
+      integer nheap,nsets,nstack
+      integer nbf_vecs,ispin,nxang,idone
+      integer ncysh,lshift,ndamp,itrscf
+      integer igcon,idisoff,isdiag,ielem
+      integer nexc,nfock,itol2e
+      integer l_afshift,n_afshift,i_afshift
+      integer l_bfshift,n_bfshift,i_bfshift
+      integer icvgtyp,iaoacc,iswitc
+      integer itol_max,iaoacc_max
+      integer imull,iguess,idmtot
+      integer leneval,lcd_coef,icd_coef
+      double precision ecoul,rb,facto,ecore,afact,anps,aaz
+      double precision rms,pp,bb,delta
+      double precision anucl_charg,rcharge,anel,anew_nel
+      double precision anoca,anocb,onempp
+      double precision etnew,tol2e,fock_el
+      Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
+      logical converged,XCFIT,wght_GA
+      logical lfrac,lfocka,lfockb
+      integer itol_min,iAOacc_min,iscfcon
+      double precision scfcon
+      double precision zero,onem,one
+      parameter(zero=0.d0,one=1.d0,onem=-one)
+      parameter(itol_min=6,iAOacc_min=15)
+      double precision dft_dencvg,dabssum
+      external dft_dencvg,dabssum
+      
 c-----------------------------------------------------------------------
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -250,19 +284,16 @@ c
 c     SCF energy convergence criterion. 
 c     
       scfcon = 10.D0**(-iscfcon)
-      zero = 0.0d0
-      one = 1.0d0
-      onem = -1.0d0
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'ga temp',iga_tmp,'atom')
+     &     nbf_ao,nbf_ao,'ga temp',g_tmp,'atom')
       if(ipol.gt.1) then
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'fock tr',iga_fockt,'atom')
+     &       nbf_ao,nbf_ao,'fock tr',g_fockt,'atom')
         if(icvgtyp.eq.2)
      &       call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'fock save',iga_jeff,'atom')
+     &       nbf_ao,nbf_ao,'fock save',g_jeff,'atom')
       else
-        iga_fockt=iga_fock
+        g_fockt=g_fock
       endif
 c     
 c     Initialize DIIS call counter.
@@ -324,10 +355,10 @@ c****     get orbitals (i.e. fock eigenvectors) and fock eigenvalues
 c****     
           LResult = LResult .and.
      &         movecs_read(movecs_in, ispin, dbl_mb(k_occ),
-     &         dbl_mb(iSbn2(ispin)), iga_evecs(ispin))
-          call ga_orthog_mos(AO_bas_han, iga_evecs(ispin))
+     &         dbl_mb(iSbn2(ispin)), g_evecs(ispin))
+          call ga_orthog_mos(AO_bas_han, g_evecs(ispin))
           if(LResult)
-     &         call dft_densm(iga_dens(ispin),iga_evecs(ispin),
+     &         call dft_densm(g_dens(ispin),g_evecs(ispin),
      &         nbf_ao,ipol,noc(ispin))
         enddo 
       else
@@ -342,16 +373,16 @@ c****
         if(me.eq.0)  
      &     write(LuOut,*) ' read movecs file as starting guess '
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',iga_s,'atom')
-        call ga_zero(iga_s)
+     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+        call ga_zero(g_s)
         call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       iga_s,'overlap',.false.)
+     &       g_s,'overlap',.false.)
         
 c       
 c       Form the total density matrix.
 c       
         if( ipol.eq.2 )then
-          call ga_dadd(one,iga_dens(1),one,iga_dens(2),iga_dens(1))
+          call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
         end if
 c       
 c       call to Mulliken Pop Ananlysis
@@ -359,14 +390,14 @@ c
         if (mulliken) then
           if(me.eq.0) call dft_header(
      &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,AO_bas_han,iga_dens(1),iga_s)
+          call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
           if(ipol.eq.2) then
             if(me.eq.0) call dft_header(
      &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,AO_bas_han,iga_dens(2),iga_s)
+            call mull_pop(geom,AO_bas_han,g_dens(2),g_s)
           endif
         endif
-        call gadest(iga_s)
+        call gadest(g_s)
       endif
 
  1000 continue
@@ -383,83 +414,83 @@ c
 C
 C       call to atomscf for initial density matrix
 C
-        call ga_zero(iga_dens(1))
-        call guess_dens(geom,AO_bas_han,iga_dens,ipol)
+        call ga_zero(g_dens(1))
+        call guess_dens(geom,AO_bas_han,g_dens,ipol)
         if(ipol.eq.2) then
-          call ga_copy(iga_dens(1),iga_dens(2))
+          call ga_copy(g_dens(1),g_dens(2))
           if((lfocka).or.(lfockb)) then
-            call ga_dscal(iga_dens(2),.5d0)
+            call ga_dscal(g_dens(2),.5d0)
           else
             rb=anocb/anel
-            if(me.eq.0) write(0,*) ' scaling beta DM by',rb
-            call ga_dscal(iga_dens(2),rb)
+            if(me.eq.0) write(luerr,*) ' scaling beta DM by',rb
+            call ga_dscal(g_dens(2),rb)
           endif
         endif
 
         if(abs(rcharge).gt.0.001) then
           afact=anel/dble(anel+rcharge)
-          call ga_dscal(iga_dens(1),afact)
-          if(ipol.eq.2) call ga_dscal(iga_dens(2),afact)
+          call ga_dscal(g_dens(1),afact)
+          if(ipol.eq.2) call ga_dscal(g_dens(2),afact)
         endif
 c       
 c       check normalization of DM
 c       
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',iga_s,'atom')
-        call ga_zero(iga_s)
+     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+        call ga_zero(g_s)
         call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       iga_s,'overlap',.false.)
+     &       g_s,'overlap',.false.)
         if(abs(rcharge).gt.0.001) then
-          anPS = ga_ddot(iga_dens(1),iga_s)
+          anPS = ga_ddot(g_dens(1),g_s)
           if(dabs(anPS-anel).gt.1.d-7) then
             if(me.eq.0) write(LuOut,*) ' renormalizing tot DM '
             facto=anel/anPS
             if(me.eq.0) write(LuOut,*) ' noc anel ',anPS,anel
-            call ga_dscal(iga_dens(1),facto)
+            call ga_dscal(g_dens(1),facto)
           endif
         endif
         if(ipol.eq.2) then
-          anPS = ga_ddot(iga_dens(2),iga_s)
+          anPS = ga_ddot(g_dens(2),g_s)
           if(dabs(anPS-anocb).gt.1.d-7) then
             if(me.eq.0) write(luOut,*) ' renormalizing beta DM'
             facto=anocb/anPS
             if(me.eq.0) write(LuOut,*) ' noc anel ',anPS,anocb
-            call ga_dscal(iga_dens(2),facto)
+            call ga_dscal(g_dens(2),facto)
           endif
         endif
-        call gadest(iga_s)
+        call gadest(g_s)
         iter=1
 c       
 c       call to Mulliken Pop Ananlysis
 c       
         if (mulliken) then
           call gacrea(geom,AO_bas_han,
-     &         nbf_ao,nbf_ao,'ovl ',iga_s,'atom')
-          call ga_zero(iga_s)
+     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+          call ga_zero(g_s)
           call int_1e_ga(AO_bas_han,AO_bas_han,
-     &         iga_s,'overlap',.false.)
+     &         g_s,'overlap',.false.)
           if(me.eq.0) call dft_header(
      &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,AO_bas_han,iga_dens(1),iga_s)
+          call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
           if(ipol.eq.2) then
             if(me.eq.0) call dft_header(
      &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,AO_bas_han,iga_dens(2),iga_s)
+            call mull_pop(geom,AO_bas_han,g_dens(2),g_s)
           endif
-          call gadest(iga_s)
+          call gadest(g_s)
         endif
       endif
       if( iter.gt.0 )then
-        call ga_zero(iga_fock)
+        call ga_zero(g_fock)
 C       
 C       accumulate core hamiltonian into Fock matrix
 C       compute core energy
 C       
         call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       iga_fock,'kinetic',.false.)
+     &       g_fock,'kinetic',.false.)
         call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       iga_fock,'potential',.false.)
-        Ecore = ga_ddot(iga_dens(1),iga_fock)
+     &       g_fock,'potential',.false.)
+        Ecore = ga_ddot(g_dens(1),g_fock)
 
 
 c
@@ -478,7 +509,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
      &     finest=4
           call dft_tstamp(' Before call to CMM.   ')
-        call dft_getspm(geom,lmax,finest,iga_dens,AO_bas_han)
+        call dft_getspm(geom,lmax,finest,g_dens,AO_bas_han)
         call errquit(' end of CMM ',1234)
 
       endif
@@ -499,7 +530,7 @@ c
           
           call dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
      &         Dbl_MB(icd_coef),  nbf_cd,
-     &         iga_cdinv, iga_dens, nTotEl, IOLGC,itol2e,
+     &         g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &         Ecoul)
         endif
 c       
@@ -511,13 +542,13 @@ c
 #endif  
         call dft_tstamp(' Before call to GETVCOUL.')
         call dft_getvc(rtdb,geom,AO_bas_han,CD_bas_han,
-     &       Dbl_MB(icd_coef),iga_tmp,
+     &       Dbl_MB(icd_coef),g_tmp,
      &       Ecoul,nbf_cd,iVcoul_opt,
-     &       iga_2ceri,iga_dens,IOLGC,itol2e)
+     &       g_2ceri,g_dens,IOLGC,itol2e)
 c       
 C       Add V coul to Fock Matrix
 C       
-        call ga_dadd(one,iga_tmp,one,iga_fock,iga_fock)
+        call ga_dadd(one,g_tmp,one,g_fock,g_fock)
         if (CDFIT)
      &       LResult = MA_Pop_Stack(lcd_coef)
 c       
@@ -531,29 +562,29 @@ c
 c         
 C         Restore alpha and beta densities.
 c         
-          call ga_dadd(one,iga_dens(1),onem,iga_dens(2),iga_dens(1))
+          call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
         endif
 c       
 c       Compute the XC potential and energy.
 c       
-        iga_vxc(1)=iga_tmp
-        call ga_zero(iga_vxc(1))
+        g_vxc(1)=g_tmp
+        call ga_zero(g_vxc(1))
         if(ipol.eq.2)
-     &       call ga_zero(iga_vxc(2))
+     &       call ga_zero(g_vxc(2))
         call dft_tstamp(' Before call to GETVXC.  ')
         call xc_getv(rtdb,geom,AO_bas_han,XC_bas_han,
      &       Exc,ipol,nExc,
-     &       iVxc_opt,iga_xcinv,
-     &       iga_dens,iga_vxc,IOLGC,iAOacc,
-     &       iga_wght,iga_xyz,wght_GA)
+     &       iVxc_opt,g_xcinv,
+     &       g_dens,g_vxc,IOLGC,iAOacc,
+     &       g_wght,g_xyz,wght_GA)
 
-        call ga_dadd(1.d0,iga_vxc(1),1.d0,iga_fock,iga_fock)
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_fock,g_fock)
         if(ipol.gt.1) then
 c         
 C         
-c         Put (-alpha+beta) in iga_vxc(2)
+c         Put (-alpha+beta) in g_vxc(2)
 c         
-          call ga_dadd(-1.d0,iga_vxc(1),1.d0,iga_vxc(2),iga_vxc(2))
+          call ga_dadd(-1.d0,g_vxc(1),1.d0,g_vxc(2),g_vxc(2))
         endif
 c       
         call dft_tstamp(' End of parallel region. ')
@@ -599,15 +630,15 @@ c
 C           
 C           initialize fock matrix
 C           
-            call ga_zero(iga_fock)
+            call ga_zero(g_fock)
 C           
 C           accumulate core hamiltonian into Fock matrix
 C           compute core energy
 C           
             call int_1e_ga(AO_bas_han,AO_bas_han,
-     &           iga_fock,'kinetic',.false.)
+     &           g_fock,'kinetic',.false.)
             call int_1e_ga(AO_bas_han,AO_bas_han,
-     &           iga_fock,'potential',.false.)
+     &           g_fock,'potential',.false.)
           endif
           call ga_sync
         elseif(iter.gt.0) then
@@ -615,9 +646,9 @@ C
 C         Add V xc to Fock Matrix
 C         
           if(icvgtyp.eq.2.and.ispin.eq.2) 
-     *         call ga_copy(iga_jeff,iga_fock)
+     *         call ga_copy(g_jeff,g_fock)
           if(ispin.eq.2) then
-            call ga_dadd(one,iga_vxc(ispin),one,iga_fock,iga_fock)
+            call ga_dadd(one,g_vxc(ispin),one,g_fock,g_fock)
           endif
 c         
 #if defined(DFT_TIMER)
@@ -640,8 +671,8 @@ c
             call diis_driver(
      &           1,ipol,icall,
      &           nfock,nbf_ao,geom,AO_bas_han,
-     &           iga_fock,iga_dens(1),iga_tmp,
-     &           iga_svecs,iga_diis,isvals)
+     &           g_fock,g_dens(1),g_tmp,
+     &           g_svecs,g_diis,isvals)
             icall(1)=0
             icall(2)=0
           endif
@@ -657,11 +688,11 @@ C           alpha
 C           
             do ii=0,n_afshift-1
               ielem= int_mb(i_afshift+ii)
-              call ga_get(iga_fock, ielem, ielem,
+              call ga_get(g_fock, ielem, ielem,
      *             ielem, ielem, fock_el, 1)
               fock_el = fock_el +5.d0
-              write(0,*) ' alpha ',ii,fock_el
-              call ga_put(iga_fock, ielem, ielem,
+              write(luerr,*) ' alpha ',ii,fock_el
+              call ga_put(g_fock, ielem, ielem,
      *             ielem, ielem, fock_el, 1)
             enddo
           endif
@@ -673,12 +704,12 @@ C
           if(me.eq.0) then
             do ii=0,n_bfshift-1
               ielem= int_mb(i_bfshift+ii)
-              call ga_get(iga_fock, ielem, ielem,
+              call ga_get(g_fock, ielem, ielem,
      *             ielem, ielem, fock_el, 1)
               fock_el = fock_el +5.d0
-              call ga_put(iga_fock, ielem, ielem,
+              call ga_put(g_fock, ielem, ielem,
      *             ielem, ielem, fock_el, 1)
-              write(0,*) ' beta ',ii,fock_el
+              write(luerr,*) ' beta ',ii,fock_el
             enddo
           endif
           call ga_sync
@@ -686,11 +717,11 @@ C
 
           if( icvgtyp.eq.2.and.delta.gt.10.d0**(-idisoff)) then
             if(ispin.eq.1.and.ipol.gt.1) 
-     &           call ga_copy(iga_fock,iga_jeff)
+     &           call ga_copy(g_fock,g_jeff)
             call diis_driver(ispin,ipol,icall,
      &           nfock,nbf_ao,geom,AO_bas_han,
-     &           iga_fock,iga_dens(ispin),iga_tmp,
-     &           iga_svecs,iga_diis,isvals)
+     &           g_fock,g_dens(ispin),g_tmp,
+     &           g_svecs,g_diis,isvals)
           endif
 c         
 #if defined(DFT_TIMER)
@@ -708,29 +739,29 @@ C
         call dft_second(tp3)
 #endif  
         call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       iga_evecs(ispin),iga_fock,zero,iga_tmp)
+     &       g_evecs(ispin),g_fock,zero,g_tmp)
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       iga_tmp,iga_evecs(ispin),zero,iga_fockt)
+     &       g_tmp,g_evecs(ispin),zero,g_fockt)
 
         if(lshift.ne.0.and.iter.lt.ncysh) then
           bb=0.1d0*lshift
           do j=noc(ispin)+1+me,nbf_ao,nproc
-            call ga_get(iga_fockt,
+            call ga_get(g_fockt,
      *           j,j,j,j,AAZ,1)
             AAZ=AAZ+bb
-            call ga_put(iga_fockt,
+            call ga_put(g_fockt,
      *           j,j,j,j,AAZ,1)
           enddo
         endif
         call ga_sync
 #if defined(PARALLEL_DIAG)
-        call ga_diag_std(iga_fockt,iga_tmp,Dbl_MB(ISbn2(ispin)))
+        call ga_diag_std(g_fockt,g_tmp,Dbl_MB(ISbn2(ispin)))
 #else   
-        call ga_diag_std_seq(iga_fockt,iga_tmp,Dbl_MB(ISbn2(ispin)))
+        call ga_diag_std_seq(g_fockt,g_tmp,Dbl_MB(ISbn2(ispin)))
 #endif  
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       iga_evecs(ispin),iga_tmp,zero,iga_fockt)
-        call ga_copy(iga_fockt,iga_evecs(ispin))
+     &       g_evecs(ispin),g_tmp,zero,g_fockt)
+        call ga_copy(g_fockt,g_evecs(ispin))
         call ga_sync
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -745,15 +776,15 @@ c       OR
 c       Sum in the old beta (ispin = 2) density matrix.
 c       
         if(ispin.eq.1)then
-          call ga_copy(iga_dens(1),iga_tmp)
+          call ga_copy(g_dens(1),g_tmp)
         else
-          call ga_copy(iga_dens(2),iga_olddens)
-          call ga_dadd(one,iga_tmp,one,iga_dens(2),iga_tmp)
+          call ga_copy(g_dens(2),g_olddens)
+          call ga_dadd(one,g_tmp,one,g_dens(2),g_tmp)
         endif
 c       
 c       Form a new density matrix.
 c       
-        call dft_densm(iga_dens(ispin),iga_evecs(ispin),
+        call dft_densm(g_dens(ispin),g_evecs(ispin),
      &       nbf_ao,ipol,noc(ispin))
 c       
         call ga_sync
@@ -762,19 +793,19 @@ c
           onempp=1.0d0 - pp
           if(ispin.eq.1)then
             call ga_dadd(
-     &           pp,iga_tmp,onempp,iga_dens(ispin),iga_dens(ispin))
+     &           pp,g_tmp,onempp,g_dens(ispin),g_dens(ispin))
           else
             call ga_dadd(
-     &           pp,iga_olddens,onempp,iga_dens(ispin),iga_dens(ispin))
+     &           pp,g_olddens,onempp,g_dens(ispin),g_dens(ispin))
           endif
         endif
 c
 c           check convergence on Density
 c
         if(ispin.eq.1) then
-            rms=rms+dft_dencvg(iga_dens(ispin),iga_tmp,nbf_ao)
+            rms=rms+dft_dencvg(g_dens(ispin),g_tmp,nbf_ao)
           else
-            rms=rms+dft_dencvg(iga_dens(ispin),iga_olddens,nbf_ao)
+            rms=rms+dft_dencvg(g_dens(ispin),g_olddens,nbf_ao)
           endif
         call ga_sync
       enddo     ! end loop over ispin
@@ -788,7 +819,7 @@ c
      &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &       'AO_basis',
      &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &       dbl_mb(ISbn2(1)), nbf_ao, iga_evecs))
+     &       dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
      &       call errquit('dft_scf: movec_write failed', 0)
 
         call ga_sync
@@ -798,7 +829,7 @@ c
 c     Form the total density matrix.
 c     
       if( ipol.eq.2 )then
-        call ga_dadd(one,iga_dens(1),one,iga_dens(2),iga_dens(1))
+        call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
           
         
       end if
@@ -808,26 +839,26 @@ c     call to Mulliken Pop Ananlysis
 c     
       if(mulliken) then
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',iga_s,'atom')
-        call ga_zero(iga_s)
+     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+        call ga_zero(g_s)
         call int_1e_ga(AO_bas_han,AO_bas_han,
-     &       iga_s,'overlap',.false.)
+     &       g_s,'overlap',.false.)
         if(me.eq.0)
      &       call dft_header(
      &       ' Total Density - Mulliken Population Analysis')
-        call mull_pop(geom,AO_bas_han,iga_dens(1),iga_s)
+        call mull_pop(geom,AO_bas_han,g_dens(1),g_s)
         if(ipol.eq.2) then
 c         
 c         analysis of spin density
 c         
           if(me.eq.0) call dft_header(
      &         ' Spin Density - Mulliken Population Analysis')
-          call ga_dadd(one,iga_dens(1),-2.d0,iga_dens(2),iga_dens(2))
-          call mull_pop(geom,AO_bas_han,iga_dens(2),iga_s) 
-          call ga_dadd(one,iga_dens(1),-1.d0,iga_dens(2),iga_dens(2))
-          call ga_dscal(iga_dens(2),0.5d0)
+          call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
+          call mull_pop(geom,AO_bas_han,g_dens(2),g_s) 
+          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
+          call ga_dscal(g_dens(2),0.5d0)
         endif
-        call gadest(iga_s)
+        call gadest(g_s)
       endif
       
 c     Check for SCF convergence.
@@ -839,7 +870,7 @@ c
 c       
 c       Compute the contribution to the total energy from the core Hamiltonian.
 c       
-        Ecore = ga_ddot(iga_dens(1),iga_fock)
+        Ecore = ga_ddot(g_dens(1),g_fock)
         write(LuOut,1111) Ecore
       else
         call ga_sync
@@ -881,7 +912,7 @@ c****
      &         movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &         'Unknown',
      &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &         dbl_mb(ISbn2(1)), nbf_ao, iga_evecs))
+     &         dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
@@ -913,19 +944,19 @@ c
           call diis_driver(
      &         1,ipol,icall,
      &         nfock,nbf_ao,geom,AO_bas_han,
-     &         iga_fock,iga_dens(1),iga_tmp,
-     &         iga_svecs,iga_diis,isvals)
+     &         g_fock,g_dens(1),g_tmp,
+     &         g_svecs,g_diis,isvals)
         end if
       endif
       if(ipol.gt.1) then
-        call gadest(iga_fockt)
+        call gadest(g_fockt)
         if(icvgtyp.eq.2)
-     &       call gadest(iga_jeff)
+     &       call gadest(g_jeff)
       endif
-      call gadest(iga_tmp)
+      call gadest(g_tmp)
       if(wght_GA) then
-        call gadest(iga_wght)
-        call gadest(iga_xyz)
+        call gadest(g_wght)
+        call gadest(g_xyz)
       endif
       if(lfocka) then
         If ( .NOT. MA_Free_Heap(l_afshift) ) Call ErrQuit(
@@ -944,7 +975,7 @@ c
      &     call errquit('exiting in dft_scf.',2)
       if(natoms.gt.1.and.NXang.gt.1) 
      &     call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
-     &     iga_dens, ipol, rmoments, 3)
+     &     g_dens, ipol, rmoments, 3)
 
 C
 C     computatation of <S2> for open shell
@@ -952,10 +983,10 @@ C
       if(ipol.gt.1)then
 
 C         Restore alpha and beta densities.
-          call ga_dadd(one,iga_dens(1),onem,iga_dens(2),iga_dens(1))
+          call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
 
           call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
-     &     nbf_ao,iga_dens(1),iga_dens(2))
+     &     nbf_ao,g_dens(1),g_dens(2))
 
         endif
 c
