@@ -12,6 +12,7 @@ c
       integer rtdb
 c
       character*255 token
+      character*32 optimize
       real*8 eatoms,qatoms
       logical xyz,xyzq,fixlinks
       integer linkatm,bq_exclude
@@ -24,6 +25,7 @@ c**** default values for parameters
       fixlinks = .false.
       linkatm=qmmm_halogen
       bq_exclude=qmmm_hydrogen
+      optimize='qm'
 c
       if (.not.inp_a(token))
      + call errquit('qmmm_input: no input available',0, INPUT_ERR)
@@ -83,6 +85,23 @@ c
         endif
       endif
 c
+      if(token.eq.'optimize') then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for optimize"
+         call errquit('qmmm_input: optimize',0,
+     &         INPUT_ERR)
+        end if
+        if(token.eq.'qm') then
+          optimize='qm'
+          goto 2
+        elseif(token.eq.'mm') then
+          optimize='mm'
+          goto 2
+        else
+          call errquit('qmmm_input: invalid option',0, INPUT_ERR)
+        endif
+      endif
+c
       if(token.eq.'bq_exclude') then
       if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
      &       INPUT_ERR)
@@ -123,7 +142,10 @@ c
       if (.not.rtdb_put(rtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
      + call errquit('qmmm_input: failed to store qmmm:fixlinks',
      &       0,RTDB_ERR)
-       return
+      if (.not.rtdb_cput(rtdb,'qmmm:optimize',1,optimize))
+     + call errquit('qmmm_input: failed to store qmmm:optimize',
+     &       0,RTDB_ERR)
+        return
       endif
 c
       write(luout,*)' unrecognized token in qmmm input:',
