@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.29 2000-04-11 10:08:38 hvd Exp $
+c$Id: grid_setrad.F,v 1.30 2000-04-22 01:05:45 edo Exp $
 c
       implicit none
 c      
@@ -277,9 +277,9 @@ c
 c
 c     debug writes
 c
-      if (ga_nodeid().eq.0.and.oprint_grid)then
-         call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
-      endif
+c      if (ga_nodeid().eq.0.and.oprint_grid)then
+c         call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
+c      endif
       do 420 itype = 1, ntypes
 c
          if (bsrad_atom_type(itype).le.eps) goto 420

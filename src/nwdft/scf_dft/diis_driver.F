@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
      .     g_diis,nbf_ao_mxnbf_ce,keeps,g_s12m,g_s12p)
 c
-C$Id: diis_driver.F,v 1.18 2000-03-17 00:29:14 edo Exp $
+C$Id: diis_driver.F,v 1.19 2000-04-22 01:05:46 edo Exp $
 c
       implicit none
 c      
@@ -204,7 +204,7 @@ c
 c
 c     Compute Pulays B matrix.
 c
-      call diis_core(derr, Dbl_MB(ipulay), MXhist, nhist, icall, nbf,
+      call diis_core(derr, Dbl_MB(ipulay), MXhist, nhist, icall, 
      &               ispin, ipol, g_diis, g_tmp)
 c
       lenp = (mxhist+1)*(mxhist+2)/2
@@ -212,7 +212,7 @@ c
 c     Solve DIIS equation for Hamiltonian weights.
 c
       call diis_bsolve(Dbl_MB(ipulay+lenp*(ispin-1)), Dbl_MB(ifwght),
-     &                 MXhist, nhist(ispin), icall(ispin))
+     &                 MXhist, nhist(ispin))
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -223,8 +223,8 @@ c
 c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
-      call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, nbf, icall, 
-     &                 ispin, ipol, g_fock, g_diis, g_tmp)
+      call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, nbf,icall, 
+     &                 ispin,  g_fock, g_diis, g_tmp)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)

@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.32 2000-03-28 19:52:37 edo Exp $
+c$Id: grid_rtrunc.F,v 1.33 2000-04-22 01:05:45 edo Exp $
 c
       implicit none
 c      
@@ -150,8 +150,8 @@ c
       call  grid_rtclea(l_coord,
      .     lpmat,l_ics,g_s)
 
-      if(me.eq.0) 
-     .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
+c      if(me.eq.0) 
+c     .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
       if (tol_reset)then
          radius = range_max + 3.0d0        
          if (.not. rtdb_put(rtdb, 'dft:radius',

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.42 2000-04-19 23:50:30 edo Exp $
+c     $Id: dft_main0d.F,v 1.43 2000-04-22 01:05:45 edo Exp $
 c     
       implicit none
 c
@@ -163,7 +163,7 @@ c
                call ga_inv_seq(g_oi, g_xcinv)
 #endif
             else
-               call dft_invdiag(geom, XC_bas_han, g_oi, g_xcinv, nbf_xc)
+               call dft_invdiag(g_oi, g_xcinv, nbf_xc)
             endif
             if (.not. ga_destroy(g_oi)) call errquit
      &         ('dft_main0d: could not destroy g_oi', 0)
@@ -217,7 +217,7 @@ c
      &      call errquit('dft_main0d: error creating g_2ceri',0)
 !      g_2ceri = ga_create_atom_blocked(geom, CD_bas_han, 'CD2cer')
          call ga_zero(g_2ceri)
-         call dft_get2eri(CD_bas_han, g_2ceri, geom)
+         call dft_get2eri(CD_bas_han, g_2ceri)
 *ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                        0, nbf_cd,g_cdinv)) 
@@ -257,7 +257,7 @@ c                  call errquit(' temp stop this should not happen',0)
                call ga_inv_seq(g_tmpb, g_cdinv)
 #endif
             else
-               call dft_invdiag(geom, CD_bas_han, g_2ceri, g_cdinv, 
+               call dft_invdiag(g_2ceri, g_cdinv, 
      &                          nbf_cd)
             endif
             call ga_zero(g_2ceri)

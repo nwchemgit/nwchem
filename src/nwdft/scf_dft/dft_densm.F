@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.17 2000-04-11 10:51:37 hvd Exp $
+C$Id: dft_densm.F,v 1.18 2000-04-22 01:05:45 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -63,7 +63,7 @@ cedo         if (check_deg.and.ipol.eq.2) then
                do isp=1,ipol
                   call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
      ,                 AO_bas_han,nbf,
-     *                 g_vecs(isp),g_dens(isp),toll,rhfuhf)
+     *                 g_vecs(isp),g_dens(isp),toll)
                enddo
                return
             endif
@@ -245,7 +245,7 @@ C         endif
       endif
       
       fmed=fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear,attempts)
+     *     ipol,efermi,evals,nbf,ntotel,ssmear)
       if(abs(fmed).gt.toll.and.abs(emin-emax).gt.toll*0.1d0) goto 1
 1999  if(ga_nodeid().eq.0) write(LuOut,*) ' fmed emin-emax ',abs(fmed),
      *abs(emin-emax)
@@ -253,9 +253,8 @@ C         endif
       return
       end
       double precision function fzero(
-     *     ipol,efermi,evals,nbf,ntotel,ssmear,attempts)
+     *     ipol,efermi,evals,nbf,ntotel,ssmear)
       implicit none
-      integer attempts
       integer ipol
       integer nbf 
       double precision efermi
@@ -298,7 +297,7 @@ c      write(0,*) ' fzero efer ',fzero,efermi
       return
       end
       subroutine dft_focdm(focc,noc,geom,AO_bas_han,nbf,
-     *     g_vecs,g_dens,toll,rhfuhf)
+     *     g_vecs,g_dens,toll)
       implicit none
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -307,7 +306,7 @@ c      write(0,*) ' fzero efer ',fzero,efermi
 #include "geom.fh"
       integer noc
       integer AO_bas_han,nbf,geom,g_vecs,g_dens
-      double precision focc(*),toll,rhfuhf
+      double precision focc(*),toll
 c
       integer me,nproc,ltmpm,itmpm,g_tmp,i,nocold
       double precision zero

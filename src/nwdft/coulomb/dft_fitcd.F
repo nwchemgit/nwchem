@@ -1,16 +1,15 @@
-      Subroutine dft_fitcd(nfit,CD_coef, i3c_ERI, Ecoul1, rtdb, 
+      Subroutine dft_fitcd(nfit,CD_coef, i3c_ERI, Ecoul1, 
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
-     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
+     &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.32 2000-02-02 02:36:18 edo Exp $
+* $Id: dft_fitcd.F,v 1.33 2000-04-22 01:05:43 edo Exp $
 *
       implicit none
 c
 #include "bas.fh"
 #include "mafdecls.fh"
-#include "rtdb.fh"
 #include "cdft.fh"
 #include "stdio.fh"
 #include "global.fh"
@@ -23,10 +22,6 @@ c
 #include "geom.fh"
 c
       integer natoms
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
-      double precision rdens_atom(natoms,natoms,ipol)
-      integer rtdb
       integer nfit           ! number of different fits to perform
       integer g_dens(nfit)   ! GA DM handles
       integer nTotEl
@@ -139,17 +134,6 @@ c
         iwhat_max = -1
         goto 25
       endif
-c      call ga_sync
-c      do n1 = 0, nproc
-c        if(me.eq.n1)then
-c          write(LuOut,*)' me, n_batch ', me, n_batch
-c          call util_flush(LuOut)
-c          call i_output(iwhat, 1, n_batch, 1, 1, n_batch, 1, 1)
-c          call util_flush(LuOut)
-c        endif
-c        call ga_sync
-c      enddo
-c      call ga_sync
 c
 c     Exhaust in-core 3c 2e- buffers first.
 c

@@ -1,10 +1,9 @@
       subroutine diis_core(derr,pulay,
-     &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.9 2000-03-16 00:06:27 edo Exp $
+     &     mxhist,nhist,icall,ispin,ipol, g_diis,g_err)
+C$Id: diis_core.F,v 1.10 2000-04-22 01:05:46 edo Exp $
       implicit none
 c
       integer mxhist
-      integer nbf
       integer ispin
       integer ipol
       integer g_diis(mxhist)

@@ -1,8 +1,8 @@
-      subroutine dft_scfcvg(rms, derr, etold, etnew, Enuc, e_conv, 
+      subroutine dft_scfcvg(rms, derr, etold, etnew, e_conv, 
      &                      d_conv, g_conv, ipol, iter, iterations, 
      &                      idone, rtdb, converged, diising)
 c
-c     $Id: dft_scfcvg.F,v 1.10 1997-07-10 16:35:14 d3h449 Exp $
+c     $Id: dft_scfcvg.F,v 1.11 2000-04-22 01:05:46 edo Exp $
 c
       implicit none
 c
@@ -10,7 +10,6 @@ c
       double precision derr(2)  ! [input]
       double precision etold    ! [input]
       double precision etnew    ! [input]
-      double precision Enuc     ! [input]
       double precision e_conv   ! [input]
       double precision d_conv   ! [input]
       double precision g_conv   ! [input]

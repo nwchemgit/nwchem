@@ -1,15 +1,16 @@
       logical function dft_mem3c(
-     I     itol_max,natoms,npol,oprint_parm,oprint_3c2e,
+     I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.1 2000-03-31 01:33:20 edo Exp $
+* $Id: dft_mem3c.F,v 1.2 2000-04-22 01:05:44 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "msgids.fh"
 #include "cdft.fh"
-      integer itol_max ! [in]
+#include "basP.fh"
+#include "bas.fh"
       integer natoms ! [in]
       integer npol ! [in]
       integer n3c_int ! [out]
@@ -29,6 +30,9 @@
       double precision n3c_dbl_r
       integer nao2_max,batch_max
       integer me,nproc,icount
+      integer maxg,scrmx
+      integer ishc,itype,nprimo,nshbfc,isphere
+      logical spherical_ao
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -39,8 +43,8 @@ c     2e- integrals.
 c     
 c     - amount needed for all incore:
 c     
-      n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
-      n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
+      n3c_dbl_r = dft_n3cdbl()
+      n3c_int = dft_n3cint()
 c     
 c     find - (minimum)amount local available memory on all nodes
 c     
@@ -100,6 +104,11 @@ c     max of 6 MW for semi-direct (I/O)
 c     
          availm_r = min(availm_r,6d+6)
       endif
+c
+c     check if availm_r is big enough for max batch
+c
+      call int_mem_2e3c(maxg, scrmx)
+
       n3c_dbl = nint(availm_r)
       if (me.eq.0 .and. oprint_parm)
      &     write(LuOut,3228)avail, availm, n3c_dbl
@@ -112,6 +121,18 @@ c
       if (nproc.eq.1)icount = 1
 c     
       nao2_max = nbf_ao_mxnbf_cn**2
+      spherical_ao=bas_spherical(ao_bas_han)
+      if(spherical_ao) then
+         nao2_max=0
+         do ishc=1,nshells_ao
+            if(.not.bas_continfo(ao_bas_han,ishc,
+     &           itype,nprimo,nshbfc,isphere))
+     &           call errquit('Exiting in fitcd.',44)
+           nao2_max=max(nao2_max,
+     ,           ((itype+1)*(itype+2))/2*nshbfc)
+         enddo
+         nao2_max=nao2_max**2
+      endif
 c     
 c     compute size of largest block of integrals computed
 c     
@@ -127,7 +148,8 @@ c
 c     cannot all be done incore, compute number of buffers 
 c     required if semi-direct (I/O)
 c     
-         n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
+         n_semi_bufs = nint(n3c_dbl_r/availm_r) 
+c         n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
       else
          n_semi_bufs = 0
       endif

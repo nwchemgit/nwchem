@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.155 2000-04-21 20:58:23 jolguin Exp $
+c     $Id: dft_scf.F,v 1.156 2000-04-22 01:05:45 edo Exp $
 c     
       implicit none
 c
@@ -300,16 +300,16 @@ c
 c
       if (CDFIT)then
          if(dft_mem3c(
-     I     itol_max,natoms,npol,oprint_parm,oprint_3c2e,
+     I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
-            call dft_3cincor(rtdb, n_batch, n3c_int, int_mb(k_3cwhat), 
+            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
      &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &                       n_semi_bufs, fd, int_mb(icntoce), 
-     &                       int_mb(icntobfr), int_mb(icetobfr), natoms)
+     &                       n_semi_bufs, fd)
             incore=.true.
          else
             if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
+            incore=.false.
          endif
       endif
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
@@ -603,12 +603,11 @@ c
      &        call errquit('dft_scf: cannot allocate cd_coef',0)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
-         call dft_fitcd(1,Dbl_MB(icd_coef),dbl_mb(k_3cERI),Ecoul,rtdb,
+         call dft_fitcd(1,Dbl_MB(icd_coef),dbl_mb(k_3cERI),Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  int_mb(k_3cwhat), n3c_dbl, iwhat_max, 
      &                  n_semi_bufs, fd, IOLGC, 
-     &                  dbl_mb(irdens_atom), int_mb(icntoce), 
-     &                  int_mb(icntobfr), int_mb(icetobfr), natoms,
+     .        natoms,
      &                  .false., 0d0, .false.)
       endif
 c     
@@ -620,12 +619,10 @@ c
 #endif
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
-      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul, rtdb,
-     &               g_tmp, iVcoul_opt, g_dens, n_batch, 
+      call dft_getvc(Dbl_MB(icd_coef), dbl_mb(k_3cERI), Ecoul,
+     &               g_tmp, iVcoul_opt, n_batch, 
      &               n3c_int, int_mb(k_3cwhat), n3c_dbl, iwhat_max,
      &               n_semi_bufs, fd, IOLGC,
-     &               dbl_mb(irdens_atom), int_mb(icntoce), 
-     &               int_mb(icntobfr), int_mb(icetobfr), natoms,
      &               .false., 1)
 c     
 c     Add V coul to Fock Matrix
@@ -976,7 +973,7 @@ c
       call ga_sync
       if (oprint_time)
      &     call dft_tstamp(' calling scfcvg ')
-      call dft_scfcvg(rms, derr, Etold, Etnew, Enuc, 
+      call dft_scfcvg(rms, derr, Etold, Etnew,
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)

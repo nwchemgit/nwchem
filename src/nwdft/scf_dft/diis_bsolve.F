@@ -1,6 +1,6 @@
-      subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
+      subroutine diis_bsolve(pulay,wght,mxhist,nhist)
 
-C$Id: diis_bsolve.F,v 1.6 1999-01-29 21:05:43 d3h449 Exp $
+C$Id: diis_bsolve.F,v 1.7 2000-04-22 01:05:46 edo Exp $
 
 c     
 c***********************************************************************
@@ -40,7 +40,6 @@ c
 c     
       implicit none
       integer mxhist
-      integer icall
       integer nhist
       double precision wght(mxhist+1),pulay((mxhist+1)*(mxhist+2)/2)
 c     

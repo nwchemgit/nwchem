@@ -1,14 +1,15 @@
-      double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
-     &     itol2e)
-C$Id: dft_n3c.F,v 1.10 1999-07-14 22:58:49 edo Exp $
+      double precision function dft_n3cdbl()
+C$Id: dft_n3c.F,v 1.11 2000-04-22 01:05:44 edo Exp $
       implicit none
 c****
 c**** nwchem handles
 c****
-      integer  AO_bas_han, CD_bas_han
-      integer itol2e ! bi-el int tolerance [input]
+!      integer  AO_bas_han, CD_bas_han
+!      integer itol2e ! bi-el int tolerance [input]
 c**** 
+#include "cdft.fh"
 #include "bas.fh"
+#include "basP.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "schwarz.fh"
@@ -18,67 +19,75 @@ c
 c     compute no. of 3-ctr integrals non null 
 c     according to Schwarz screening
 c
-      integer nshells_ao,me,nproc,ishc,ifirstc,ilastc,nshbfc,ishd,
-     &        ifirstd,ilastd,nshbfd,nbf_cd,nbf_ao,mxshbf_ao,
+      integer me,nproc,ishc,ifirstc,ilastc,nshbfc,ishd,
+     &        ifirstd,ilastd,nshbfd,mxshbf_ao,
      &        nao2_max,icount
+      integer maxg, mscratch_2e3c
+      integer itype,nprimo,isphere
       double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
-      logical oprint_3c2e
+      logical oprint_3c2e,spherical_ao,spherical_cd
 c
       oprint_3c2e = util_print('3c 2e integrals', print_default)
       THRESHOLD=10.d0**(-itol2e)
       nproc=ga_nnodes()
+      spherical_ao=bas_spherical(ao_bas_han)
+      spherical_cd=bas_spherical(cd_bas_han)
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
-      if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in dft_n3c.',2)
-      end if
-c      
-      if ( .not. bas_numbf(AO_bas_han,nbf_ao) ) then
-        call errquit('Exiting from dft_n3c',4)
-      endif 
 c
       if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
         call errquit('Exiting in dft_n3c.',1)
       end if
 c      
-      if ( .not. bas_numbf(CD_bas_han,nbf_cd) ) then
-        call errquit('Exiting from dft_n3c',5)
-      endif 
 c      
       me=ga_nodeid()
 c      
 c     Determine number of 3 center 2e- integrals based on Schwarz screening.
 c
       ischw1 = 0.0d0
+      call int_mem_2e3c(maxg, mscratch_2e3c)
 c      
       do 240 ishc = 1,nshells_ao
 c
-        if( .not.bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
-     &    call errquit('Exiting in dft_n3c.',3)
-c
-        nshbfc=ilastc-ifirstc+1
+         if(spherical_ao) then
+            if(.not.bas_continfo(ao_bas_han,ishc,
+     &           itype,nprimo,nshbfc,isphere))
+     &           call errquit('Exiting in fitcd.',44)
+            nshbfc=((itype+1)*(itype+2))/2*nshbfc
+         else
+            if( .not.bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
+     &           call errquit('Exiting in dft_n3c.',3)
+            nshbfc=ilastc-ifirstc+1
+         endif
 c        
         do 230 ishd = 1,ishc
 c         
-c         Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
+c          Schwarz Screen integral blocks:  (p|cd) .le. (cd|cd)
 c         
           ERI_est=schwarz_shell(ishc,ishd)
 c
           if( ERI_est.gt.THRESHOLD )then
 c
-            if (.not. bas_cn2bfr( AO_bas_han,ishd,
-     &           ifirstd,ilastd))
-     &           call errquit('Exiting in fitvcoul.',4)
-c
-            nshbfd=ilastd-ifirstd+1
-            ischw1 = ischw1 + dble(nbf_cd*nshbfc*nshbfd)
+             if(spherical_ao) then
+                if(.not.bas_continfo(ao_bas_han,ishd,
+     &               itype,nprimo,nshbfd,isphere))
+     &               call errquit('Exiting in fitcd.',44)
+                nshbfd=((itype+1)*(itype+2))/2*nshbfd
+             else
+                if (.not. bas_cn2bfr( AO_bas_han,ishd,
+     &               ifirstd,ilastd))
+     &               call errquit('Exiting in fitvcoul.',4)
+                nshbfd=ilastd-ifirstd+1
+             endif
+            ischw1 = ischw1 + dble(nshbfc*nshbfd)
 c
           end if
 c          
   230   continue
 c
   240 continue
+      ischw1 = ischw1*nbf_cd
 c
 c     add max 3-center 2e- batch size
 c      
@@ -125,25 +134,16 @@ c
 c      
       return
       end
-      integer function dft_n3cint(AO_bas_han, CD_bas_han, 
-     &      itol2e)
-C$Id: dft_n3c.F,v 1.10 1999-07-14 22:58:49 edo Exp $
+      integer function dft_n3cint()
+C$Id: dft_n3c.F,v 1.11 2000-04-22 01:05:44 edo Exp $
       implicit none
-            
-c****
-c**** nwchem handles
-c****
-      integer AO_bas_han, CD_bas_han
-      integer itol2e ! bi-el int tolerance [input]
-c**** 
 #include "bas.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
+#include "cdft.fh"
 c
-      integer nshells_ao
       integer nproc
 c
       nproc=ga_nnodes()

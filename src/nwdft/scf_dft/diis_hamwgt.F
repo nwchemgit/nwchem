@@ -1,4 +1,4 @@
-c$Id: diis_hamwgt.F,v 1.5 2000-03-16 00:06:27 edo Exp $
+c$Id: diis_hamwgt.F,v 1.6 2000-04-22 01:05:46 edo Exp $
 c***********************************************************************
 c
 c     subroutine hamwght
@@ -12,14 +12,13 @@ c
 c
 c***********************************************************************
 c
-      subroutine diis_hamwgt(wght,mxhist,nhist,nbf,icall,ispin,ipol,
+      subroutine diis_hamwgt(wght,mxhist,nhist,nbf,icall,ispin,
      &     g_fock,g_diis,g_tmp)
       implicit none
 c
       integer mxhist
       integer nbf
       integer ispin
-      integer ipol
       integer g_fock
       integer g_diis(mxhist)
       integer g_tmp

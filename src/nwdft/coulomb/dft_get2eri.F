@@ -1,9 +1,9 @@
-      Subroutine dft_get2eri(CD_bas_han, g_2ceri, geom)
+      Subroutine dft_get2eri(CD_bas_han, g_2ceri)
 c
-C$Id: dft_get2eri.F,v 1.8 1998-12-18 21:30:29 edo Exp $
+C$Id: dft_get2eri.F,v 1.9 2000-04-22 01:05:43 edo Exp $
 c
       implicit none
-      integer CD_bas_han, geom
+      integer CD_bas_han
       integer g_2ceri
 c
 #include "bas.fh"

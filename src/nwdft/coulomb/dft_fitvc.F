@@ -1,13 +1,11 @@
-      Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
+      Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2,  g_vc, 
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
-     &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.27 1999-07-08 19:10:59 d3e129 Exp $
+c     $Id: dft_fitvc.F,v 1.28 2000-04-22 01:05:43 edo Exp $
       implicit none
 c      
 #include "bas.fh"
-#include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -22,11 +20,6 @@ c
 #include "timer.fh"
 #endif
 c
-      integer natoms            !!! not needed !!! ask jeff
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms) !!! not needed !!! ask jeff
-      double precision rdens_atom(natoms,natoms,ipol) !!! not needed !!!
-      integer rtdb
       integer nmat    ! number of J matrices to make [input]
       integer g_vc(nmat)     ! GA handles for V Coulomb [output]
       integer n_batch        ! no. batches computed by this node [out]
@@ -50,12 +43,12 @@ c
       integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,ischw2,
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,n2,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,niter,next,nsh_blocks,
+     ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,next,
      ,     ntasks,nshbf_cd,imat
-      integer lcd_shell,icd_shell,lgvec,igvec,lsvec,isvec,
+      integer lcd_shell,icd_shell,lsvec,isvec,
      ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
-     ,     Vcoul_est,ERI_est,schw1,schw2
+     ,     Vcoul_est,ERI_est
       integer current_nbuf, n3c_b, n_batch_read
       double precision offset
       double precision length, q1
@@ -92,9 +85,6 @@ c
      &  lcd_shell,icd_shell))
      &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
 c      
-c!!! Is gvec needed?
-c!!!      if(.not.MA_Push_Get(MT_Dbl,nbf_cd_mxnbf_cn,'gvec',lgvec,igvec))
-c!!!     &  call errquit('dft_fitvc: cannot allocate gvec',0)
 c      
 c     Determine the largest magnitude of the CD expansion coefficients in
 c     each shell.
@@ -471,8 +461,6 @@ c
 c
       n1 = nxtask(-nproc,icount)
 c      
-c!!!      if(.not.ma_pop_stack(lgvec))
-c!!!     &  call errquit('dft_fitvc: cannot pop stack',0)
       if(.not.ma_pop_stack(lcd_shell))
      &  call errquit('dft_fitvc: cannot pop stack',0)
 c

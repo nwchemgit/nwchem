@@ -1,34 +1,28 @@
-      Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
-     &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
-     &                       cntoce, cntobfr, cetobfr, natoms)
+      Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
+     &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.16 1999-06-22 01:20:42 edo Exp $
+C$Id: dft_3cincor.F,v 1.17 2000-04-22 01:05:43 edo Exp $
 c
       implicit none
 c    
-      integer rtdb
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl ! max no. ints [in]
-      integer natoms
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c
 #include "bas.fh"
 #include "inp.fh"
-#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "schwarz.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "basP.fh"
 #include "eaf.fh"
 #include "util.fh"
 #include "sym.fh"
-      integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natoms)
 c     
 c     Compute the 3-center integrals and store as many of them 
 c     as possible in-core.
@@ -50,14 +44,15 @@ c
       logical oprint_3c2e
       double precision offset
 c
+      integer itype,nprimo,isphere
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
 c      write(0,*) ' in 3CINCO',itol2e
 c
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 6'
       THRESHOLD=10.d0**(-itol2e)
-      oprint_semi_file = util_print('semi-direct info', print_default)
-      oprint_3c2e = util_print('3c 2e integrals', print_default)
+      oprint_semi_file = util_print('semi-direct info', print_high)
+      oprint_3c2e = util_print('3c 2e integrals', print_high)
       me = ga_nodeid()
       call dzero(i3c_eri, n3c_dbl)
 c
@@ -116,25 +111,24 @@ c
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
-      nao2_max = nbf_ao_mxnbf_cn**2
-      batch_max = nao2_max*nbf_cd*icount
+c      nao2_max = nbf_ao_mxnbf_cn**2
+c      spherical_ao=bas_spherical(ao_bas_han)
+      nao2_max=0
+      do ishc=1,nshells_ao
+         if(.not.bas_continfo(ao_bas_han,ishc,
+     &        itype,nprimo,nshbfc,isphere))
+     &        call errquit('Exiting in fitcd.',44)
+         nao2_max=max(nao2_max,
+     ,        ((itype+1)*(itype+2))/2*nshbfc)
+      enddo
+      call int_mem_2e3c(maxg, mscratch_2e3c)
+      batch_max = nao2_max*nbf_cd*icount*maxg
 c
       nERI_max = Nao2_max*nbf_cd_mxnbf_cn
 c
-c      write(LuOut,*)' me, rtdb, geom, AO_bas_han, CD_bas_han: ',
-c     &                me, rtdb, geom, AO_bas_han, CD_bas_han
-c      call util_flush(LuOut)
-c      write(LuOut,*)' me, nbf_ao_mxnbf_cn, nbf_cd_mxnbf_cn, nbf_cd: ',
-c     &                me, nbf_ao_mxnbf_cn, nbf_cd_mxnbf_cn, nbf_cd
-c      call util_flush(LuOut)
-c      write(LuOut,*)' me, icount, nao2_max, batch_max, neri_max: ',
-c     &                me, icount, nao2_max, batch_max, neri_max
-c
-c      call util_flush(LuOut)
 c
 c     Determine/allocate scratch memory for 3 center 2e- integrals.
 c
-      call int_mem_2e3c(maxg, mscratch_2e3c)
       nscr    = mscratch_2e3c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_3cincor: cannot allocate scr',0)
@@ -190,6 +184,10 @@ c
 c                n_chk = ndone+nintegrals-1
                 n_chk = ndone+maxg-1
                 if( (n_chk) .gt. n3c_dbl) then
+                  write(LuOut,*) ' ishc ishd ishp ',ishc,ishd,Ishp
+                  write(LuOut,*) ' nshao nshcd ',
+     ,                 nshells_ao,nshells_cd
+                  write(Luout,*) ' batchmx maxg',batch_max,maxg
                   write(LuOut,*) ' nlast n3cdbl ',n_chk, n3c_dbl
                   call errquit('dft_3cincor: blew out buf of dbles',999)
                 endif
@@ -270,8 +268,6 @@ c
                 nxtbuf = batch_max
                 ndone = 1
                 n_batch_buf = 0
-c                write(6,*)' resetting nxtbuf & ndone: ',nxtbuf,ndone
-c                call ga_sync
 c
 c               check to see if there is still more disk space available:
 c
@@ -391,98 +387,12 @@ c
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 10'
-c
-c      call ga_sync
-c      do n1 = 0, nproc
-c        if(me.eq.n1)then
-c          write(LuOut,*)' me, n_batch ', me, n_batch
-c          call util_flush(LuOut)
-c          call i_output(iwhat, 1, n_batch, 1, 1, n_batch, 1, 1)
-c          call util_flush(LuOut)
-c        endif
-c        call ga_sync
-c      enddo
-c      call ga_sync
  3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',
      &       f6.2,/)
  3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
      &       f6.2,/,
      &       10x,' in ',i6,' integral buffers.',/)
       return
-      end
-      subroutine i_output (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
-     $     nctl)
-c.......................................................................
-c output prints a real*8 matrix in formatted form with numbered rows
-c and columns.  the input is as follows;
-c        matrix(*,*).........matrix to be output
-c        rowlow..............row number at which output is to begin
-c        rowhi...............row number at which output is to end
-c        collow..............column number at which output is to begin
-c        colhi...............column number at which output is to end
-c        rowdim..............row dimension of matrix(*,*)
-c        coldim..............column dimension of matrix(*,*)
-c        nctl................carriage control flag; 1 for single space
-c                                                   2 for double space
-c                                                   3 for triple space
-c the parameters that follow matrix are all of type integer*4.  the
-c program is set up to handle 5 columns/page with a 1p5d24.15 format for
-c the columns.  if a different number of columns is required, change
-c formats 1000 and 2000, and initialize kcol with the new number of
-c columns.
-c author;  nelson h.f. beebe, quantum theory project, university of
-c          florida, gainesville
-c.......................................................................
-C$Id: dft_3cincor.F,v 1.16 1999-06-22 01:20:42 edo Exp $
-      implicit none
-      integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
-      integer nctl, i, j, last, k
-      integer z(rowdim,coldim), zero
-      character*8 asa(3), column, ctl, blank
-      data column/'column'   /,asa/' ','00000000'  ,
-     1     '--------'  /,blank/' '/
-      data kcol/8/
-      data zero/0/
-      do 11 i=rowlow,rowhi
-         do 10 j=collow,colhi
-            if (z(i,j).ne.zero) go to 15
- 10      continue
- 11   continue
-      write (6,3000)
- 3000 format (/' zero matrix'/)
-      go to 3
- 15   continue
-      ctl = blank
-      if ((nctl.le.3).and.(nctl.gt.0)) ctl = asa(nctl)
-      if (rowhi.lt.rowlow) go to 3
-      if (colhi.lt.collow) go to 3
-      last = min(colhi,collow+kcol-1)
-      do 2 begin = collow,colhi,kcol
-*         write (6,1000) (column,i,i = begin,last)
-         write (6,1000) (i,i = begin,last)
-         do 1 k = rowlow,rowhi
-            do 4 i=begin,last
-               if (z(k,i).ne.zero) go to 5
- 4          continue
-            go to 1
- 5          write (6,2000) ctl,k,(z(k,i), i = begin,last)
- 1       continue
-         last = min(last+kcol,colhi)
- 2    continue
- 3    return
-* kcol = 4
-* 1000 format (/1h ,16x,3(a6,i3,2x),(a6,i3))
-* 2000 format (a1,3hrow,i4,2x,4f17.11)
-* kcol = 8
-*
-* if U like having rows and columns labelled with row and col
-* use these
-*
-* 1000 format (/1h ,11x,7(a3,i3,3x),(a3,i3))
-* 2000 format (a1,'row',i4,1x,8f9.4)
-c
- 1000 format (/1h ,8x,7('   ',i3,3x),('   ',i3))
- 2000 format (a1,i4,1x,8i9)
       end
       subroutine nxtask_nleft (nproc, ichunk, nxtask_n, nstill)
       implicit none
