@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.13 2002-12-24 06:13:31 sohirata Exp $
+c $Id: tce_tile.F,v 1.14 2003-01-08 22:59:14 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -89,67 +89,67 @@ c
       isize = int(size)
       if (model.eq."ccd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."lccd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."ccsd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."lccsd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."ccsdt") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = size ** (1.0d0/6.0d0)
         isize = min(isize,int(size))
       else if (model.eq."ccsdtq") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."qcisd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."cisd") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."cisdt") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = size ** (1.0d0/6.0d0)
         isize = min(isize,int(size))
       else if (model.eq."cisdtq") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else if (model.eq."mbpt2") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."mbpt3") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = dsqrt(dsqrt(size))
         isize = min(isize,int(size))
       else if (model.eq."mbpt4") then
         size = dfloat(available)
-        size = size / 2.0d0
+        size = size / 6.0d0
         size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else

@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.7 2002-12-17 00:03:10 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.8 2003-01-08 22:59:13 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -43,6 +43,7 @@ c
       integer next,count,nprocs
       integer N
       character*255 filename
+      double precision dbl_size
 c
 c     ===========
 c     Set offsets
@@ -66,12 +67,32 @@ c     Allocate SF
 c     ===========
 c
       sf_size_pq = 0
+      dbl_size = 0.0d0
       do g1b = 1,noa+nob+nva+nvb
         do g2b = g1b,noa+nob+nva+nvb
           sf_size_pq = sf_size_pq + int_mb(k_range+g1b-1)
      1                            * int_mb(k_range+g2b-1)
+          dbl_size   = dbl_size   + dfloat(int_mb(k_range+g1b-1))
+     1                            * dfloat(int_mb(k_range+g2b-1))
         enddo
       enddo
+#if !defined(EXT_INT)
+      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.
+     1   ((ioalg.eq.0).or.(ioalg.eq.1).or.(ioalg.eq.4))) then
+        write(LuOut,*) '--------------------------------------------'
+        write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
+        write(LuOut,*) 'Use GA/SF scheme or OS large file support'
+        write(LuOut,*) '--------------------------------------------'
+        call errquit('tce_ao2e: abort',0)
+      endif
+      if (dbl_size .gt. 2.0d0*1024.0d0**3) then
+        write(LuOut,*) '---------------------------------------------'
+        write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
+        write(LuOut,*) 'Use a machine with a 64 bit operating system'
+        write(LuOut,*) '---------------------------------------------'
+        call errquit('tce_ao2e: abort',0)
+      endif
+#endif
       sf_size_kl = nbf**2
       if (nodezero.and.util_print('ao2e',print_default)) then
         write(LuOut,*)
@@ -213,11 +234,20 @@ c
      1  call errquit('tcc_ao2e: MA problem',14)
       if (.not.ma_pop_stack(l_work1)) 
      1  call errquit('tcc_ao2e: MA problem',15)
+      if (nodezero.and.util_print('time',print_debug)) then
+        write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
+        write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)
+        write(LuOut,8000) 'put_block    ', cpusecs(3), cpusecs(53)
+        write(LuOut,8000) 'add_block    ', cpusecs(4), cpusecs(54)
+        write(LuOut,8000) 'get_block    ', cpusecs(5), cpusecs(55)
+        write(LuOut,8000) 'reconcilefile', cpusecs(6), cpusecs(56)
+      endif
 c
 c     ======
 c     Return
 c     ======
 c
+ 8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
  9190 format(/,'k- and l-shells',2i3,' has been assigned to node ',i3)
  9200 format(/,'k and l',2i3)
       return

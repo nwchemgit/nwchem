@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.6 2002-11-20 06:01:33 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.7 2003-01-08 22:59:14 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -202,6 +202,15 @@ c
      1  call errquit('tcc_mo2e: MA problem',10)
       if (.not.ma_pop_stack(l_pqboff)) 
      1  call errquit('tcc_mo2e: MA problem',12)
+      if (nodezero.and.util_print('time',print_debug)) then
+        write(LuOut,8000) 'createfile   ', cpusecs(1), cpusecs(51)
+        write(LuOut,8000) 'deletefile   ', cpusecs(2), cpusecs(52)
+        write(LuOut,8000) 'put_block    ', cpusecs(3), cpusecs(53)
+        write(LuOut,8000) 'add_block    ', cpusecs(4), cpusecs(54)
+        write(LuOut,8000) 'get_block    ', cpusecs(5), cpusecs(55)
+        write(LuOut,8000) 'reconcilefile', cpusecs(6), cpusecs(56)
+      endif
+ 8000 format(1x,'cpu & wall time in seconds for ',A,2f20.1)
 c
 c     Debug only
 c

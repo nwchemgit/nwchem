@@ -1,6 +1,6 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: oce.py,v 1.4 2002-11-26 21:28:56 sohirata Exp $
+# $Id: oce.py,v 1.5 2003-01-08 22:59:12 sohirata Exp $
 
 import string
 
@@ -921,6 +921,14 @@ class OperatorSequence:
             elif ((leftmost.type == "hole") and (operator.type == "particle")):
                continue
             elif ((leftmost.type == "particle") and (operator.type == "hole")):
+               continue
+            elif ((leftmost.type == "hole") and (leftmost.dagger == "annihilation")):
+               continue
+            elif ((leftmost.type == "particle") and (leftmost.dagger == "creation")):
+               continue
+            elif ((operator.type == "hole") and (operator.dagger == "creation")):
+               continue
+            elif ((operator.type == "particle") and (operator.dagger == "annihilation")):
                continue
 
             # check if the indexes can be made to match by virtue of summation

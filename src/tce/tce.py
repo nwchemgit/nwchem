@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.11 2002-12-11 20:07:25 sohirata Exp $
+# $Id: tce.py,v 1.12 2003-01-08 22:59:12 sohirata Exp $
 
 import string
 import types
@@ -608,13 +608,21 @@ class Factor:
                   show = string.join([show,"1"],"")
             show = string.join([show,"\\right)"])
       else:
-         fraction = abs(int(1.0/self.coefficients[0]))
-         if (1.0/float(fraction) != abs(self.coefficients[0])):
-            print " !!! WARNING !!! inaccurate arithmatic"
-         if (fraction == 1):
-            frac = ""
+         coefficient = self.coefficients[0]
+         if (abs(coefficient) < 1.0):
+            fraction = abs(int(1.0/coefficient))
+            if (1.0/float(fraction) != abs(coefficient)):
+               print " !!! WARNING !!! inaccurate arithmatic"
+            if (fraction == 1):
+               frac = ""
+            else:
+               frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
          else:
-            frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
+            fraction = abs(int(coefficient))
+            if (fraction == 1):
+               frac = ""
+            else:
+               frac = str(fraction)
          if (self.coefficients[0] >= 0.0):
             show = string.join(["+",frac])
          elif (self.coefficients[0] < 0.0):
@@ -861,7 +869,7 @@ class Tensor:
    def tex(self):
       """Returns a LaTeX string of the content"""
       intermediatelist = ["chi","xi","kappa","eta","zeta","gamma","theta","lambda","pi","sigma"]
-      persistentintermediatelist = ["Gamma","Theta","Lambda","Xi","Pi","Sigma","Upsilon","Omega"]
+      persistentintermediatelist = ["Theta","Gamma","Lambda","Xi","Pi","Sigma","Upsilon","Omega"]
       if (self.type == "i"):
          if (self.label < 10):
             show = string.join(["\\",intermediatelist[self.label]],"")
@@ -872,6 +880,29 @@ class Tensor:
             show = string.join(["\\",persistentintermediatelist[self.label]],"")
          else:
             show = string.join(["\\",persistentintermediatelist[0],"_{",repr(self.label),"}"],"")
+      else:
+         show = self.type
+      show = string.join([show, "^{"])
+      for index in self.indexes[0:len(self.indexes)/2]:
+         show = string.join([show, index.tex()])
+      show = string.join([show,"}"])
+      show = string.join([show, "_{"])
+      for index in self.indexes[len(self.indexes)/2:len(self.indexes)]:
+         show = string.join([show, index.tex()])
+      show = string.join([show,"}"])
+      if (self.conjugate):
+         show = string.join(["\\left(",show,"\\right)^{\\dagger}"],"")
+      return show
+ 
+   def textable(self,name=""):
+      """Returns a LaTeX string of the content"""
+      if (self.type == "i"):
+         if (not name):
+            show = "r"
+         else:
+            show = string.join(["\\left(\\xi_{",name,"}\\right)"],"")
+      elif (self.type == "j"):
+         show = string.join(["\\left(\\Xi_{",str(self.label),"}\\right)"],"")
       else:
          show = self.type
       show = string.join([show, "^{"])
@@ -1592,6 +1623,119 @@ class Tensor:
             newline = string.join(["size = size + int_mb(k_range+",index.show(),"b-1)"],"")
          else:
             newline = string.join([newline," * int_mb(k_range+",index.show(),"b-1)"],"")
+      if (newline == ""):
+         newline = "size = 1"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      
+      newcode.pointer = len(newcode.statements)
+      newline = "RETURN"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "END"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      return newcode
+
+   def utchemy(self,globaltargetindexes,subroutinename="NONAME"):
+      """Precompute offsets and size"""
+
+      errquit = 0
+
+      newcode = Code("Fortran90","OFFSET_"+subroutinename)
+ 
+      # header
+      newline = "!" + self.show()
+      newcode.add("headers",newline)
+      newline = "USE UT_SYS_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_MOLINP_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_TCE_MODULE"
+      newcode.add("headers",newline)
+      newline = "IMPLICIT NONE"
+      newcode.add("headers",newline)
+ 
+      # insert include statements
+      newline = '#include "global.fh"'
+      newcode.add("headers",newline)
+      newline = '#include "mafdecls.fh"'
+      newcode.add("headers",newline)
+ 
+      # declaration
+      newint = "d_a"
+      newcode.add("integers",newint)
+      newcode.add("arguments",newint)
+      newint = "a_offset"
+      newcode.add("integerarrays",newint)
+      newcode.add("arguments",newint)
+      newint = "size"
+      newcode.add("integers",newint)
+      newcode.add("arguments",newint)
+
+      # classify indexes
+      globalsuper = []
+      localsuper = []
+      globalsub = []
+      localsub = []
+      super = []
+      sub = []
+      for nindex in range(len(self.indexes)/2):
+         index = self.indexes[nindex]
+         super.append(index)
+         if (index.isin(globaltargetindexes)):
+            globalsuper.append(index)
+         else:
+            localsuper.append(index)
+      for nindex in range(len(self.indexes)/2,len(self.indexes)):
+         index = self.indexes[nindex]
+         sub.append(index)
+         if (index.isin(globaltargetindexes)):
+            globalsub.append(index)
+         else:
+            localsub.append(index)
+
+      # do loops and if's
+      newline = "size = 0"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newcode.inserttileddoloops(globalsuper)
+      newcode.inserttileddoloops(localsuper)
+      newcode.inserttileddoloops(globalsub)
+      newcode.inserttileddoloops(localsub)
+      newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifrestricted(super+sub)
+
+      # offsets and size (offset first!)
+      newline = ""
+      newlineend = ""
+      all = globalsuper + localsuper + globalsub + localsub
+      for nindex in range(len(all)-1,-1,-1):
+         if (all[nindex].type == "hole"):
+            boffset = "b - 1"
+            bfirstoffset = "b"
+         else:
+            boffset = "b - noab - 1"
+            bfirstoffset = "b - noab"
+         if (newline == ""):
+            newline = string.join(["a_offset(",all[nindex].show(),bfirstoffset],"")
+         else:
+            if (all[nindex+1].type == "hole"):
+               newline = string.join([newline," + noab * (",all[nindex].show(),boffset],"")
+            else:
+               newline = string.join([newline," + nvab * (",all[nindex].show(),boffset],"")
+            newlineend = string.join([newlineend,")"],"")
+      if (newline == ""):
+         newline = "int_mb(k_a_offset"
+      newline = string.join([newline,newlineend,") = size"],"")
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = ""
+      for index in all:
+         if (newline == ""):
+            newline = string.join(["size = size + range(",index.show(),"b)"],"")
+         else:
+            newline = string.join([newline," * range(",index.show(),"b)"],"")
       if (newline == ""):
          newline = "size = 1"
       newcode.statements.insert(newcode.pointer,newline)
@@ -2375,6 +2519,14 @@ class ElementaryTensorContraction:
       show = string.join([show, self.tensors[1].tex()])
       if (len(self.tensors) == 3):
          show = string.join([show, self.tensors[2].tex()])
+      return show 
+
+   def textable(self,name=""):
+      """Returns a LaTeX string of the content"""
+      show = self.factor.tex(0)
+      show = string.join([show, self.tensors[1].textable(name)])
+      if (len(self.tensors) == 3):
+         show = string.join([show, self.tensors[2].textable(name)])
       return show 
 
    def isoperation(self):
@@ -3778,6 +3930,1008 @@ class ElementaryTensorContraction:
 
       return newcode
 
+   def utchem(self,globaltargetindexes,subroutinename="NONAME"):
+      """Suggests an implementation in Fortran77 for an elementary tensor contraction C = A * B"""
+
+      if (len(self.tensors) == 3):
+         three = 1
+      else:
+         three = 0
+
+      errquit = 0
+
+      newcode = Code("Fortran90",subroutinename)
+
+      # header
+      newline = "!" + self.show(0)
+      newcode.add("headers",newline)
+      newline = "USE UT_SYS_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_MOLINP_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_TCE_MODULE"
+      newcode.add("headers",newline)
+      newline = "IMPLICIT NONE"
+      newcode.add("headers",newline)
+      
+      # insert include statements
+      newline = '#include "global.fh"'
+      newcode.add("headers",newline)
+      newline = '#include "mafdecls.fh"'
+      newcode.add("headers",newline)
+
+      # declaration
+      newint = "d_a"
+      newcode.add("integers",newint)
+      newcode.add("arguments",newint)
+      newint = "a_offset"
+      newcode.add("integerarrays",newint)
+      newcode.add("arguments",newint)
+      if (three):
+         newint = "d_b"
+         newcode.add("integers",newint)
+         newcode.add("arguments",newint)
+         newint = "b_offset"
+         newcode.add("integerarrays",newint)
+         newcode.add("arguments",newint)
+      newint = "d_c"
+      newcode.add("integers",newint)
+      newcode.add("arguments",newint)
+      newint = "c_offset"
+      newcode.add("integerarrays",newint)
+      newcode.add("arguments",newint)
+      newint = "NXTVAL"
+      newcode.add("integers",newint)
+      newcode.add("externals",newint)
+      newint = "next"
+      newcode.add("integers",newint)
+      newint = "nprocs"
+      newcode.add("integers",newint)
+      newint = "count"
+      newcode.add("integers",newint)
+            
+      # Tensor 0
+      superglobalzero = []
+      subglobalzero = []
+      superlocalzero = []
+      sublocalzero = []
+      for nindex in range(len(self.tensors[0].indexes)/2):
+         index = self.tensors[0].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            superglobalzero.append(index)
+         else:
+            superlocalzero.append(index)
+      for nindex in range(len(self.tensors[0].indexes)/2,len(self.tensors[0].indexes)):
+         index = self.tensors[0].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            subglobalzero.append(index)
+         else:
+            sublocalzero.append(index)
+
+      # Tensor 1
+      superglobalone = []
+      subglobalone = []
+      superlocalone = []
+      sublocalone = []
+      supercommonone = []
+      subcommonone = []
+      if (not self.tensors[1].conjugate):
+         superrangeone = range(len(self.tensors[1].indexes)/2)
+         subrangeone = range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes))
+      else:
+         superrangeone = range(len(self.tensors[1].indexes)/2,len(self.tensors[1].indexes))
+         subrangeone = range(len(self.tensors[1].indexes)/2)
+      for nindex in superrangeone:
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            superglobalone.append(index)
+         elif (self.summation):
+            if (index.isin(self.summation.indexes)):
+               supercommonone.append(index)
+            else:
+               superlocalone.append(index)
+         else:
+            superlocalone.append(index)
+      for nindex in subrangeone:
+         index = self.tensors[1].indexes[nindex]
+         if (index.isin(globaltargetindexes)):
+            subglobalone.append(index)
+         elif (self.summation):
+            if (index.isin(self.summation.indexes)):
+               subcommonone.append(index)
+            else:
+               sublocalone.append(index)
+         else:
+            sublocalone.append(index)
+
+      # Tensor 2
+      superglobaltwo = []
+      subglobaltwo = []
+      superlocaltwo = []
+      sublocaltwo = []
+      supercommontwo = []
+      subcommontwo = []
+      if (three):
+         if (not self.tensors[2].conjugate):
+            superrangetwo = range(len(self.tensors[2].indexes)/2)
+            subrangetwo = range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes))
+         else:
+            superrangetwo = range(len(self.tensors[2].indexes)/2,len(self.tensors[2].indexes))
+            subrangetwo = range(len(self.tensors[2].indexes)/2)
+         for nindex in superrangetwo:
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               superglobaltwo.append(index)
+            elif (self.summation):
+               if (index.isin(self.summation.indexes)):
+                  supercommontwo.append(index)
+               else:
+                  superlocaltwo.append(index)
+            else:
+               superlocaltwo.append(index)
+         for nindex in subrangetwo:
+            index = self.tensors[2].indexes[nindex]
+            if (index.isin(globaltargetindexes)):
+               subglobaltwo.append(index)
+            elif (self.summation):
+               if (index.isin(self.summation.indexes)):
+                  subcommontwo.append(index)
+               else:
+                  sublocaltwo.append(index)
+            else:
+               sublocaltwo.append(index)
+      if (len(supercommonone) > len(subcommontwo)):
+         supercommon = supercommonone
+      else:
+         supercommon = subcommontwo
+      if (len(subcommonone) > len(supercommontwo)):
+         subcommon = subcommonone
+      else:
+         subcommon = supercommontwo
+
+      # parallel related
+      newline = "nprocs = GA_NNODES()"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "count = 0"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "next = NXTVAL(nprocs)"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+
+      # loop over output tensor indexes
+      newcode.inserttileddoloops(superglobalone)
+      if (three):
+         newcode.inserttileddoloops(superglobaltwo)
+      newcode.inserttileddoloops(superlocalone)
+      if (three):
+         newcode.inserttileddoloops(superlocaltwo)
+      newcode.inserttileddoloops(subglobalone)
+      if (three):
+         newcode.inserttileddoloops(subglobaltwo)
+      newcode.inserttileddoloops(sublocalone)
+      if (three):
+         newcode.inserttileddoloops(sublocaltwo)
+
+      # parallel related
+      newline = "IF (next == count) THEN"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.setamark(4)
+      newcode.pointer = newcode.pointer + 1
+      newline = "next = NXTVAL(nprocs)"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "END IF"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "count = count + 1"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.getamark(4) + 1
+
+      # spin restriction on output tensor
+      newcode.inserttiledifrestricted(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
+
+      # symmetry of output tensor
+      super = superglobalzero + superlocalzero
+      sub = subglobalzero + sublocalzero
+      newcode.inserttiledifsymmetry(super,sub)
+
+      # loop over summation indexes
+      newcode.inserttileddoloops(supercommon)
+      newcode.inserttileddoloops(subcommon)
+
+      # symmetry of input tensor 1
+      if (three):
+         super = superglobalone + superlocalone + supercommonone
+         sub = subglobalone + sublocalone + subcommonone
+         newcode.inserttiledifsymmetry(super,sub)
+
+      # spin restriction on input tensor one
+      indexesone = superglobalone + superlocalone + supercommonone + subglobalone + sublocalone + subcommonone
+      if (indexesone):
+         newline = "IF ((restricted).and.("
+         conjugation = ""
+         for index in indexesone:
+            newint = string.join([index.show(),"b"],"")
+            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
+            conjugation = "+"
+         newline = string.join([newline," == ",repr(2*len(indexesone)),")) THEN"],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         for index in indexesone:
+            newint = string.join([index.show(),"b_1"],"")
+            newcode.add("integers",newint)
+            newline = string.join([newint," = alpha(",index.show(),"b)"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+         newline = "ELSE"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         for index in indexesone:
+            newint = string.join([index.show(),"b_1"],"")
+            newcode.add("integers",newint)
+            newline = string.join([newint," = ",index.show(),"b"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+         newline = "END IF"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+      # spin restriction on input tensor one
+      if (three):
+         indexestwo = superglobaltwo + superlocaltwo + supercommontwo + subglobaltwo + sublocaltwo + subcommontwo
+         if (indexestwo):
+            newline = "IF ((restricted).and.("
+            conjugation = ""
+            for index in indexestwo:
+               newint = string.join([index.show(),"b"],"")
+               newline = string.join([newline,conjugation,"spin(",newint,")"],"")
+               conjugation = "+"
+            newline = string.join([newline," == ",repr(2*len(indexestwo)),")) THEN"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for index in indexestwo:
+               newint = string.join([index.show(),"b_2"],"")
+               newcode.add("integers",newint)
+               newline = string.join([newint," = alpha(",index.show(),"b)"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "ELSE"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for index in indexestwo:
+               newint = string.join([index.show(),"b_2"],"")
+               newcode.add("integers",newint)
+               newline = string.join([newint," = ",index.show(),"b"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "END IF"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+
+      # create MA's for tensor 1
+      newcode.add("integers","dim_common")
+      newline = ""
+      for index in supercommonone + subcommonone:
+         if (newline == ""):
+            newline = string.join(["dim_common = range(",index.show(),"b)"],"")
+         else:
+            newline = string.join([newline," * range(",index.show(),"b)"],"")
+      if (newline == ""):
+         newline = "dim_common = 1"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newcode.add("integers","dima_sort")
+      newline = ""
+      for index in superglobalone + superlocalone + subglobalone + sublocalone:
+         if (newline == ""):
+            newline = string.join(["dima_sort = range(",index.show(),"b)"],"")
+         else:
+            newline = string.join([newline," * range(",index.show(),"b)"],"")
+      if (newline == ""):
+         newline = "dima_sort = 1"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newcode.add("integers","dima")
+      newline = "dima = dim_common * dima_sort"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+
+      # create MA's for tensor 2
+      if (three):
+         newcode.add("integers","dimb_sort")
+         newline = ""
+         for index in superglobaltwo + superlocaltwo + subglobaltwo + sublocaltwo:
+            if (newline == ""):
+               newline = string.join(["dimb_sort = range(",index.show(),"b)"],"")
+            else:
+               newline = string.join([newline," * range(",index.show(),"b)"],"")
+         if (newline == ""):
+            newline = "dimb_sort = 1"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newcode.add("integers","dimb")
+         newline = "dimb = dim_common * dimb_sort"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+      if (three):
+         newline = "IF ((dima > 0) .and. (dimb > 0)) THEN"
+      else:
+         newline = "IF (dima > 0) THEN"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "END IF"
+      newcode.statements.insert(newcode.pointer,newline)
+
+      # allocate sorted and unsorted tensor 1
+      newcode.add("doubleallocatables","a_sort")
+      newline = "ALLOCATE(a_sort(dima))"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newcode.add("doubleallocatables","a")
+      newline = "ALLOCATE(a(dima))"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+
+      # mapping to a permutation symmetry unique block
+      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+         superpermutations = restrictedpermutationwithparity(superlocalone,supercommonone,[])
+      else:
+         superpermutations = restrictedpermutationwithparity(superglobalone,superlocalone,supercommonone)
+      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+         subpermutations = restrictedpermutationwithparity(sublocalone,subcommonone,[])
+      else:
+         subpermutations = restrictedpermutationwithparity(subglobalone,sublocalone,subcommonone)
+      newcode.pointer = newcode.pointer - 1
+      newcode.setamark(1)
+      newcode.pointer = newcode.pointer + 1
+      ifblock = 0
+      for superpermutation in superpermutations:
+         superline = ""
+         if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+            if (superpermutation[1] == "empty"):
+               superpermutedindexes = superglobalone + sortindexes(superlocalone + supercommonone)
+               superfactor = 1
+            else:
+               superpermutedindexes = superglobalone + superpermutation[1:]
+               superfactor = parityofpermutation(superglobalone + sortindexes(superlocalone + supercommonone) + \
+                                                 superglobalone + superpermutation[1:])
+         else:
+            if (superpermutation[1] == "empty"):
+               superpermutedindexes = self.tensors[1].indexes[0:len(self.tensors[1].indexes)/2]
+               superfactor = 1
+            else:
+               superpermutedindexes = superpermutation[1:]
+               superfactor = parityofpermutation(self.tensors[1].indexes[0:len(self.tensors[1].indexes)/2] + \
+                                                 superpermutation[1:])
+         if (superpermutation[1] != "empty"):
+            for nindex in range(len(superpermutedindexes)-1):
+               indexa = superpermutedindexes[nindex]
+               indexb = superpermutedindexes[nindex+1]
+               if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
+                  continue
+               if (indexa.isin(superglobalone) and indexb.isin(superglobalone)):
+                  continue
+               if (indexa.isin(superlocalone) and indexb.isin(superlocalone)):
+                  continue
+               if (indexa.isin(supercommonone) and indexb.isin(supercommonone)):
+                  continue
+               if (indexa.isgreaterthan(indexb)):
+                  inequality = " < "
+               else:
+                  inequality = " <= "
+               if (superline):
+                  superline = string.join([superline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+               else:
+                  superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+         for subpermutation in subpermutations:
+            subline = superline
+            if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+               if (subpermutation[1] == "empty"):
+                  subpermutedindexes = subglobalone + sortindexes(sublocalone + subcommonone)
+                  subfactor = 1
+               else:
+                  subpermutedindexes = subglobalone + subpermutation[1:]
+                  subfactor = parityofpermutation(subglobalone + sortindexes(sublocalone + subcommonone) + \
+                                                  subglobalone + subpermutation[1:])
+            else:
+               if (subpermutation[1] == "empty"):
+                  subpermutedindexes = self.tensors[1].indexes[len(self.tensors[1].indexes)/2:len(self.tensors[1].indexes)]
+                  subfactor = 1
+               else:
+                  subpermutedindexes = subpermutation[1:]
+                  subfactor = parityofpermutation(self.tensors[1].indexes[len(self.tensors[1].indexes)/2:len(self.tensors[1].indexes)] + \
+                                                  subpermutation[1:])
+            if (subpermutation[1] != "empty"):
+               for nindex in range(len(subpermutedindexes)-1):
+                  indexa = subpermutedindexes[nindex]
+                  indexb = subpermutedindexes[nindex+1]
+                  if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
+                     continue
+                  if (indexa.isin(subglobalone) and indexb.isin(subglobalone)):
+                     continue
+                  if (indexa.isin(sublocalone) and indexb.isin(sublocalone)):
+                     continue
+                  if (indexa.isin(subcommonone) and indexb.isin(subcommonone)):
+                     continue
+                  if (indexa.isgreaterthan(indexb)):
+                     inequality = " < "
+                  else:
+                     inequality = " <= "
+                  if (subline):
+                     subline = string.join([subline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+                  else:
+                     subline = string.join([subline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+            if (subline):
+               subline = string.join([subline,") THEN"],"")
+               newcode.pointer = newcode.getamark(1) + 1
+               newcode.statements.insert(newcode.pointer,subline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END IF"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.setamark(1)
+               ifblock = 1
+
+            permutedindexes = superpermutedindexes + subpermutedindexes
+
+            # get a block
+            arguments = ""
+            argumentsend = ""
+            for nindex in range(len(permutedindexes)-1,-1,-1):
+               if (permutedindexes[nindex].type == "hole"):
+                  boffset = "b_1 - 1"
+               else:
+                  if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
+                     boffset = "b_1 - 1"
+                  else:
+                     boffset = "b_1 - noab - 1"
+               if (arguments == ""):
+                  arguments = string.join(["d_a,a,dima,a_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
+               else:
+                  if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
+                     arguments = string.join([arguments," + (noab+nvab) * (",permutedindexes[nindex].show(),boffset],"")
+                  else:
+                     if (permutedindexes[nindex+1].type == "hole"):
+                        arguments = string.join([arguments," + noab * (",permutedindexes[nindex].show(),boffset],"")
+                     else:
+                        arguments = string.join([arguments," + nvab * (",permutedindexes[nindex].show(),boffset],"")
+                  argumentsend = string.join([argumentsend,")"],"")
+            if (not arguments):
+               arguments = "d_a,a,dima,a_offset"
+            else:
+               arguments = string.join([arguments,argumentsend,")"],"")
+            newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+
+            # sort indexes of tensor 1
+            doloopofa = 0
+            for nindex in range(len(permutedindexes)):
+               index = permutedindexes[nindex]
+               newint = index.show()
+               newcode.add("integers",newint)
+               newline = string.join(["DO ",newint," = 1,range(",newint,"b)"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END DO"
+               newcode.statements.insert(newcode.pointer,newline)
+               doloopofa = 1
+               if ((not ifblock) and (nindex == 0)):
+                  newcode.setamark(1)
+            newline = ""
+            newlineend = ""
+            newcode.add("integers","idima")
+            for nindex in range(len(permutedindexes)-1,-1,-1):
+               if (newline == ""):
+                  newline = string.join(["idima = ",permutedindexes[nindex].show()],"")
+               else:
+                  newline = string.join([newline," + range(",permutedindexes[nindex+1].show(),"b)"\
+                                         " * ((",permutedindexes[nindex].show()," - 1)"],"")
+                  newlineend = string.join([newlineend,")"],"")
+            newline = string.join([newline,newlineend],"")
+            if (not newline):
+               newline = "idima = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            newline = ""
+            newlineend = ""
+            newcode.add("integers","idima_sort")
+            sorted = supercommonone + subcommonone + superglobalone + superlocalone + subglobalone + sublocalone
+            for nindex in range(len(sorted)):
+               if (newline == ""):
+                  newline = string.join(["idima_sort = ",sorted[nindex].show()],"")
+               else:
+                  newline = string.join([newline," + range(",sorted[nindex-1].show(),"b)"\
+                                         " * ((",sorted[nindex].show()," - 1)"],"")
+                  newlineend = string.join([newlineend,")"],"")
+            newline = string.join([newline,newlineend],"")
+            if (not newline):
+               newline = "idima_sort = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            if (superfactor * subfactor == 1):
+               newline = "a_sort(idima_sort) = a(idima)"
+            else:
+               newline = "a_sort(idima_sort) = - a(idima)"
+            newcode.statements.insert(newcode.pointer,newline)
+            if (not doloopofa):
+               newcode.setamark(1)
+            newcode.pointer = newcode.pointer + 1
+
+      newcode.pointer = newcode.getamark(1) + 1
+      newline = "DEALLOCATE(a)"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      errquit = errquit + 1
+
+      # allocate sorted and unsorted tensor 2
+      if (three):
+         newcode.add("doubleallocatables","b_sort")
+         newline = "ALLOCATE(b_sort(dimb))"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newcode.add("doubleallocatables","b")
+         newline = "ALLOCATE(b(dimb))"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+   
+         # mapping to a permutation symmetry unique block
+         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+            superpermutations = restrictedpermutationwithparity(superlocaltwo,supercommontwo,[])
+         else:
+            superpermutations = restrictedpermutationwithparity(superglobaltwo,superlocaltwo,supercommontwo)
+         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+            subpermutations = restrictedpermutationwithparity(sublocaltwo,subcommontwo,[])
+         else:
+            subpermutations = restrictedpermutationwithparity(subglobaltwo,sublocaltwo,subcommontwo)
+         newcode.pointer = newcode.pointer - 1
+         newcode.setamark(2)
+         newcode.pointer = newcode.pointer + 1
+         ifblock = 0
+         for superpermutation in superpermutations:
+            superline = ""
+            if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+               if (superpermutation[1] == "empty"):
+                  superpermutedindexes = superglobaltwo + sortindexes(superlocaltwo + supercommontwo)
+                  superfactor = 1
+               else:
+                  superpermutedindexes = superglobaltwo + superpermutation[1:]
+                  superfactor = parityofpermutation(superglobaltwo + sortindexes(superlocaltwo + supercommontwo) + \
+                                                    superglobaltwo + superpermutation[1:])
+            else:
+               if (superpermutation[1] == "empty"):
+                  superpermutedindexes = self.tensors[2].indexes[0:len(self.tensors[2].indexes)/2]
+                  superfactor = 1
+               else:
+                  superpermutedindexes = superpermutation[1:]
+                  superfactor = parityofpermutation(self.tensors[2].indexes[0:len(self.tensors[2].indexes)/2] + \
+                                                    superpermutation[1:])
+            if (superpermutation[1] != "empty"):
+               for nindex in range(len(superpermutedindexes)-1):
+                  indexa = superpermutedindexes[nindex]
+                  indexb = superpermutedindexes[nindex+1]
+                  if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
+                     continue
+                  if (indexa.isin(superglobaltwo) and indexb.isin(superglobaltwo)):
+                     continue
+                  if (indexa.isin(superlocaltwo) and indexb.isin(superlocaltwo)):
+                     continue
+                  if (indexa.isin(supercommontwo) and indexb.isin(supercommontwo)):
+                     continue
+                  if (indexa.isgreaterthan(indexb)):
+                     inequality = " < "
+                  else:
+                     inequality = " <= "
+                  if (superline):
+                     superline = string.join([superline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+                  else:
+                     superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+            for subpermutation in subpermutations:
+               subline = superline
+               if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+                  if (subpermutation[1] == "empty"):
+                     subpermutedindexes = subglobaltwo + sortindexes(sublocaltwo + subcommontwo)
+                     subfactor = 1
+                  else:
+                     subpermutedindexes = subglobaltwo + subpermutation[1:]
+                     subfactor = parityofpermutation(subglobaltwo + sortindexes(sublocaltwo + subcommontwo) + \
+                                                     subglobaltwo + subpermutation[1:])
+               else:
+                  if (subpermutation[1] == "empty"):
+                     subpermutedindexes = self.tensors[2].indexes[len(self.tensors[2].indexes)/2:len(self.tensors[2].indexes)]
+                     subfactor = 1
+                  else:
+                     subpermutedindexes = subpermutation[1:]
+                     subfactor = parityofpermutation(self.tensors[2].indexes[len(self.tensors[2].indexes)/2:len(self.tensors[2].indexes)] + \
+                                                     subpermutation[1:])
+               if (subpermutation[1] != "empty"):
+                  for nindex in range(len(subpermutedindexes)-1):
+                     indexa = subpermutedindexes[nindex]
+                     indexb = subpermutedindexes[nindex+1]
+                     if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
+                        continue
+                     if (indexa.isin(subglobaltwo) and indexb.isin(subglobaltwo)):
+                        continue
+                     if (indexa.isin(sublocaltwo) and indexb.isin(sublocaltwo)):
+                        continue
+                     if (indexa.isin(subcommontwo) and indexb.isin(subcommontwo)):
+                        continue
+                     if (indexa.isgreaterthan(indexb)):
+                        inequality = " < "
+                     else:
+                        inequality = " <= "
+                     if (subline):
+                        subline = string.join([subline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+                     else:
+                        subline = string.join([subline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+               if (subline):
+                  subline = string.join([subline,") THEN"],"")
+                  newcode.pointer = newcode.getamark(2) + 1
+                  newcode.statements.insert(newcode.pointer,subline)
+                  newcode.pointer = newcode.pointer + 1
+                  newline = "END IF"
+                  newcode.statements.insert(newcode.pointer,newline)
+                  newcode.setamark(2)
+                  ifblock = 1
+   
+               permutedindexes = superpermutedindexes + subpermutedindexes
+
+               # get a block
+               arguments = ""
+               argumentsend = ""
+               for nindex in range(len(permutedindexes)-1,-1,-1):
+                  if (permutedindexes[nindex].type == "hole"):
+                     boffset = "b_2 - 1"
+                  else:
+                     if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
+                        boffset = "b_2 - 1"
+                     else:
+                        boffset = "b_2 - noab - 1"
+                  if (arguments == ""):
+                     arguments = string.join(["d_b,b,dimb,b_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
+                  else:
+                     if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
+                        arguments = string.join([arguments," + (noab+nvab) * (",permutedindexes[nindex].show(),boffset],"")
+                     else:
+                        if (permutedindexes[nindex+1].type == "hole"):
+                           arguments = string.join([arguments," + noab * (",permutedindexes[nindex].show(),boffset],"")
+                        else:
+                           arguments = string.join([arguments," + nvab * (",permutedindexes[nindex].show(),boffset],"")
+                     argumentsend = string.join([argumentsend,")"],"")
+               if (not arguments):
+                  arguments = "d_b,b,dimb,b_offset"
+               else:
+                  arguments = string.join([arguments,argumentsend,")"],"")
+               newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+   
+               # sort indexes of tensor 2
+               doloopofb = 0
+               for nindex in range(len(permutedindexes)):
+                  index = permutedindexes[nindex]
+                  newint = index.show()
+                  newcode.add("integers",newint)
+                  newline = string.join(["DO ",newint," = 1,range(",newint,"b)"],"")
+                  newcode.statements.insert(newcode.pointer,newline)
+                  newcode.pointer = newcode.pointer + 1
+                  newline = "END DO"
+                  newcode.statements.insert(newcode.pointer,newline)
+                  doloopofb = 1
+                  if ((not ifblock) and (nindex == 0)):
+                     newcode.setamark(2)
+               newline = ""
+               newlineend = ""
+               newcode.add("integers","idimb")
+               for nindex in range(len(permutedindexes)-1,-1,-1):
+                  if (newline == ""):
+                     newline = string.join(["idimb = ",permutedindexes[nindex].show()],"")
+                  else:
+                     newline = string.join([newline," + range(",permutedindexes[nindex+1].show(),"b)"\
+                                            " * ((",permutedindexes[nindex].show()," - 1)"],"")
+                     newlineend = string.join([newlineend,")"],"")
+               newline = string.join([newline,newlineend],"")
+               if (not newline):
+                  newline = "idimb = 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = ""
+               newlineend = ""
+               newcode.add("integers","idimb_sort")
+               # note the sub - super order !
+               sorted = subcommontwo + supercommontwo + superglobaltwo + superlocaltwo + subglobaltwo + sublocaltwo
+               for nindex in range(len(sorted)):
+                  if (newline == ""):
+                     newline = string.join(["idimb_sort = ",sorted[nindex].show()],"")
+                  else:
+                     newline = string.join([newline," + range(",sorted[nindex-1].show(),"b)"\
+                                            " * ((",sorted[nindex].show()," - 1)"],"")
+                     newlineend = string.join([newlineend,")"],"")
+               newline = string.join([newline,newlineend],"")
+               if (not newline):
+                  newline = "idimb_sort = 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               if (superfactor * subfactor == 1):
+                  newline = "b_sort(idimb_sort) = b(idimb)"
+               else:
+                  newline = "b_sort(idimb_sort) = - b(idimb)"
+               newcode.statements.insert(newcode.pointer,newline)
+               if (not doloopofb):
+                  newcode.setamark(2)
+               newcode.pointer = newcode.pointer + 1
+
+         newcode.pointer = newcode.getamark(2) + 1
+         newline = "DEALLOCATE(b)"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+         # factor
+         factorialforsuper = 0
+         if (len(supercommon) > 1):
+            factorialforsuper = 1
+            newint = "nsuper"
+            newcode.add("integers",newint)
+            newline = "nsuper = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for nindex in range(len(supercommon)-1):
+               newline = string.join(["IF (",supercommon[nindex].show(),"b /= ",supercommon[nindex+1].show(),\
+                                      "b) nsuper = nsuper + 1"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         factorialforsub = 0
+         if (len(subcommon) > 1):
+            factorialforsub = 1
+            newint = "nsub"
+            newcode.add("integers",newint)
+            newline = "nsub = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for nindex in range(len(subcommon)-1):
+               newline = string.join(["IF (",subcommon[nindex].show(),"b /= ",subcommon[nindex+1].show(),\
+                                      "b) nsub = nsub + 1"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         if (factorialforsuper and factorialforsub):
+            newdbl = "FACTORIAL"
+            newcode.add("doubles",newdbl)
+            newcode.add("externals",newdbl)
+            factor = "FACTORIAL(nsuper)*FACTORIAL(nsub)"
+         elif (factorialforsuper):
+            newdbl = "FACTORIAL"
+            newcode.add("doubles",newdbl)
+            newcode.add("externals",newdbl)
+            factor = "FACTORIAL(nsuper)"
+         elif (factorialforsub):
+            newdbl = "FACTORIAL"
+            newcode.add("doubles",newdbl)
+            newcode.add("externals",newdbl)
+            factor = "FACTORIAL(nsub)"
+         else:
+            factor = "1.0d0"
+   
+         # perform contraction and store the result
+         newcode.add("doubleallocatables","c_sort")
+         if (three):
+            newline = "ALLOCATE(c_sort(dima_sort*dimb_sort))"
+         else:
+            newline = "ALLOCATE(c_sort(dima_sort))"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newline = string.join(["CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,",factor,\
+                                ",a_sort,dim_common,b_sort,dim_common,0.0d0,c_sort,dima_sort)"],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+      # create an MA for unsorted tensor 0
+      newcode.add("doubleallocatables","c")
+      if (three):
+         newline = "ALLOCATE(c(dima_sort*dimb_sort))"
+      else:
+         newline = "ALLOCATE(c(dima_sort))"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+         
+      # mapping to a permutation symmetry unique block
+      newcode.pointer = newcode.pointer - 1
+      newcode.setamark(3)
+      newcode.pointer = newcode.pointer + 1
+      ifblock = 0
+      for npermutation in range(len(self.factor.permutations)):
+         permutation = self.factor.permutations[npermutation]
+         indexesintheoriginalorder = copy.deepcopy(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
+         permutedindexes = performpermutation(indexesintheoriginalorder,permutation,1)
+         newline = ""
+         for nindex in range(len(permutedindexes)-1):
+            # no IF across super and sub indexes
+            if (nindex == len(permutedindexes)/2-1):
+               continue
+            indexa = permutedindexes[nindex]
+            indexb = permutedindexes[nindex+1]
+            if (indexa.isin(superglobalone) and indexb.isin(superglobalone)):
+               continue
+            if (indexa.isin(superglobaltwo) and indexb.isin(superglobaltwo)):
+               continue
+            if (indexa.isin(superlocalone) and indexb.isin(superlocalone)):
+               continue
+            if (indexa.isin(superlocaltwo) and indexb.isin(superlocaltwo)):
+               continue
+            if (indexa.isin(subglobalone) and indexb.isin(subglobalone)):
+               continue
+            if (indexa.isin(subglobaltwo) and indexb.isin(subglobaltwo)):
+               continue
+            if (indexa.isin(sublocalone) and indexb.isin(sublocalone)):
+               continue
+            if (indexa.isin(sublocaltwo) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.type != indexb.type):
+               continue
+            inequality = " <= "
+            if (newline):
+               newline = string.join([newline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+            else:
+               newline = string.join(["IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
+         if (newline):
+            newline = string.join([newline,") THEN"],"")
+            newcode.pointer = newcode.getamark(3) + 1
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            newline = "END IF"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.setamark(3)
+            ifblock = 1
+
+         # sort indexes of tensor 0
+         doloop = 0
+         for nindex in range(len(permutedindexes)):
+            index = permutedindexes[nindex]
+            newint = index.show()
+            newcode.add("integers",newint)
+            newline = string.join(["DO ",newint," = 1,range(",newint,"b)"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            newline = "END DO"
+            newcode.statements.insert(newcode.pointer,newline)
+            if (nindex == 0):
+               if (ifblock):
+                  newcode.setamark(4)
+                  doloop = 1
+               else:
+                  newcode.setamark(3)
+                  doloop = 1
+         newline = ""
+         newlineend = ""
+         if (three):
+            newcode.add("integers","idimc_sort")
+         sorted = superglobalone + superlocalone + subglobalone + sublocalone \
+                + superglobaltwo + superlocaltwo + subglobaltwo + sublocaltwo
+         for nindex in range(len(sorted)):
+            if (newline == ""):
+               if (three):
+                  newline = string.join(["idimc_sort = ",sorted[nindex].show()],"")
+               else:
+                  newline = string.join(["idima_sort = ",sorted[nindex].show()],"")
+            else:
+               newline = string.join([newline," + range(",sorted[nindex-1].show(),"b)"\
+                                      " * ((",sorted[nindex].show()," - 1)"],"")
+               newlineend = string.join([newlineend,")"],"")
+         newline = string.join([newline,newlineend],"")
+         if (not newline):
+            if (three):
+               newline = "idimc_sort = 1"
+            else:
+               newline = "idima_sort = 1"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newline = ""
+         newlineend = ""
+         newcode.add("integers","idimc")
+         for nindex in range(len(permutedindexes)-1,-1,-1):
+            if (newline == ""):
+               newline = string.join(["idimc = ",permutedindexes[nindex].show()],"")
+            else:
+               newline = string.join([newline," + range(",permutedindexes[nindex+1].show(),"b)"\
+                                      " * ((",permutedindexes[nindex].show()," - 1)"],"")
+               newlineend = string.join([newlineend,")"],"")
+         if (not newline):
+            newline = "idimc = 1"
+         newline = string.join([newline,newlineend],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         if (three):
+            if (self.factor.coefficients[npermutation] == 1.0):
+               newline = "c(idimc) = c_sort(idimc_sort)"
+            elif (self.factor.coefficients[npermutation] == - 1.0):
+               newline = "c(idimc) = - c_sort(idimc_sort)"
+            else:
+               newline = string.join(["c(idimc) = ",repr(self.factor.coefficients[npermutation]),\
+                                      "d0 * c_sort(idimc_sort)"],"")
+         else:
+            if (self.factor.coefficients[npermutation] == 1.0):
+               newline = "c(idimc) = a_sort(idima_sort)"
+            elif (self.factor.coefficients[npermutation] == - 1.0):
+               newline = "c(idimc) = - a_sort(idima_sort)"
+            else:
+               newline = string.join(["c(idimc) = ",repr(self.factor.coefficients[npermutation]),\
+                                      "d0 * a_sort(idima_sort)"],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+         # accumulate a block
+         if (ifblock):
+            newcode.pointer = newcode.getamark(4) + 1
+         elif (doloop):
+            newcode.pointer = newcode.getamark(3) + 1
+         arguments = ""
+         argumentsend = ""
+         for nindex in range(len(permutedindexes)-1,-1,-1):
+            if (permutedindexes[nindex].type == "hole"):
+               boffset = "b - 1"
+            else:
+               boffset = "b - noab - 1"
+            if (arguments == ""):
+               if (three):
+                  arguments = string.join(["d_c,c,dima_sort*dimb_sort,c_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
+               else:
+                  arguments = string.join(["d_c,c,dima_sort,c_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
+            else:
+               if (permutedindexes[nindex+1].type == "hole"):
+                  arguments = string.join([arguments," + noab * (",permutedindexes[nindex].show(),boffset],"")
+               else:
+                  arguments = string.join([arguments," + nvab * (",permutedindexes[nindex].show(),boffset],"")
+               argumentsend = string.join([argumentsend,")"],"")
+         if (arguments == ""):
+            if (three):
+               arguments = "d_c,c,dima_sort*dimb_sort,c_offset(1"
+            else:
+               arguments = "d_c,c,dima_sort,c_offset(1"
+            argumentsend = ""
+         arguments = string.join([arguments,argumentsend,")"],"")
+         newline = string.join(["CALL ADD_BLOCK(",arguments,")"],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         if (not ifblock):
+            newcode.setamark(3)
+         newcode.pointer = newcode.pointer + 1
+
+      newcode.pointer = newcode.getamark(3) + 1
+      newline = "DEALLOCATE(c)"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      if (three):
+         newline = "DEALLOCATE(c_sort)"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newline = "DEALLOCATE(b_sort)"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         newline = "DEALLOCATE(a_sort)"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+      else:
+         newline = "DEALLOCATE(a_sort)"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+      # close the subroutine
+      newcode.pointer = len(newcode.statements)
+      newline = "next = NXTVAL(-nprocs)"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "call GA_SYNC()"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "RETURN"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "END"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+
+      return newcode
+
 class OperationTree:
  
    def __init__(self,contraction=NoOperation(),common=[],children=[],sisters=[]):
@@ -3839,6 +4993,54 @@ class OperationTree:
       for child in self.children:
          if (child.isoperation()):
             show = show + child.texa(ntab+1,verbose)
+      return show
+
+   def textable(self,name=""):
+      """Returns the contents as a list of strings in LaTeX table format"""
+      show = []
+      show.append("\\begin{table}")
+      show.append("\\begin{tabular}{l}")
+      if (self.sisters):
+         for sister in self.sisters:
+            show.append(string.join(["$\\displaystyle ",sister.tensors[0].textable()," = ",sister.textable(),"$\\\\"],""))
+      newline = ""
+      counter = 0
+      for child in self.children:
+         if (child.isoperation()):
+            counter = counter + 1
+            newname = string.join([name,str(counter)],"")
+            show = show + child.textablea(newname)
+            if (child.contraction.isoperation()):
+               if (not newline):
+                  newline = string.join(["$\\displaystyle ",child.contraction.tensors[0].textable(name)," = "],"")
+               newline = string.join([newline,child.contraction.textable(newname)],"")
+      if (newline):
+         newline = string.join([newline,"$\\\\"],"")
+         show.append(newline)
+      show.append("\\end{tabular}")
+      show.append("\\end{table}")
+      return show
+
+   def textablea(self,name):
+      """Returns the contents as a list of strings in LaTeX table format"""
+      show = []
+      if (self.sisters):
+         for sister in self.sisters:
+            show.append(string.join(["$\\displaystyle ",sister.tensors[0].textable()," = ",sister.textable(),"$\\\\"],""))
+      newline = ""
+      counter = 0
+      for child in self.children:
+         if (child.isoperation()):
+            counter = counter + 1
+            newname = string.join([name,str(counter)],"")
+            show = show + child.textablea(newname)
+            if (child.contraction.isoperation()):
+               if (not newline):
+                  newline = string.join(["$\\displaystyle ",child.contraction.tensors[0].textable(name)," = "],"")
+               newline = string.join([newline,child.contraction.textable(newname)],"")
+      if (newline):
+         newline = string.join([newline,"$\\\\"],"")
+         show.append(newline)
       return show
  
    def tensorslist(self,list=[]):
@@ -4594,6 +5796,355 @@ class OperationTree:
             newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
             newcode.statements.insert(0,newline)
             newline = string.join(["IF (.not.MA_POP_STACK(",l_c_offset,")) CALL ERRQUIT('",subroutinename,"',-1)"],"")
+            newcode.statements.insert(0,newline)
+ 
+      newcode.reverse()
+      return newcode
+
+   def utchem(self,filename="NONAME"):
+      """Suggests an implementation in Fortran90 for the whole operation tree"""
+
+      newlistofcodes = ListofCodes()
+
+      # callees (tensor contraction subroutines called from the main)
+      callees = ListofCodes()
+
+      # copy of self will be reduced as we write the program
+      selfcopy = OperationTree()
+      selfcopy.contraction = copy.deepcopy(self.contraction)
+      selfcopy.common = copy.deepcopy(self.common)
+      selfcopy.children = copy.deepcopy(self.children)
+      selfcopy.sisters = copy.deepcopy(self.sisters)
+
+      # target indexes
+      if (selfcopy.children[0].contraction.isoperation()):
+         globaltargetindexes = copy.deepcopy(selfcopy.children[0].contraction.tensors[0].indexes)
+      else:
+         return "The tree top must be an addition"
+
+      newcode = Code("Fortran90",filename)
+
+      # header
+      for newline in self.show(0,0):
+         newline = string.join(["!",newline],"")
+         newcode.add("headers",newline)
+      newline = "USE UT_SYS_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_MOLINP_MODULE"
+      newcode.add("headers",newline)
+      newline = "USE UT_TCE_MODULE"
+      newcode.add("headers",newline)
+      newline = "IMPLICIT NONE"
+      newcode.add("headers",newline)
+      newline = '#include "global.fh"'
+      newcode.add("headers",newline)
+      newline = '#include "mafdecls.fh"'
+      newcode.add("headers",newline)
+      
+      # loop over the tree
+      newcode.join(selfcopy.utchema(filename,globaltargetindexes,callees).expand())
+
+      # antisymmetrizer
+      newcode.pointer = len(newcode.statements)
+#     if (globaltargetindexes):
+#        newline = string.join(["CALL ANTISYM_",filename,"(d_i0,i0_offset)"],"")
+#        newcode.statements.insert(newcode.pointer,newline)
+#        newcode.pointer = newcode.pointer + 1
+#        antisymmetrizer = selfcopy.children[0].contraction.tensors[0].utchemx(filename)
+
+      # close the subroutine
+#     newline = "CALL RECONCILEFILE(d_i0,size_i0)"
+#     newcode.statements.insert(newcode.pointer,newline)
+#     newcode.pointer = newcode.pointer + 1
+      newline = "RETURN"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+      newline = "END"
+      newcode.statements.insert(newcode.pointer,newline)
+      newcode.pointer = newcode.pointer + 1
+
+      # append the callees
+      newlistofcodes.add(newcode)
+      newlistofcodes.join(callees)
+#     if (globaltargetindexes):
+#        newlistofcodes.add(antisymmetrizer)
+
+      newlistofcodes.list[0].sortarguments()
+      return newlistofcodes
+
+   def utchema(self,subroutinename,globaltargetindexes,callees):
+      """Returns a part of program that is generated by recursively interpreting the tree"""
+
+      newcode = Code("Fortran90",subroutinename)
+
+      # check if we need to proceed
+      if ((not self.children) and (not self.sisters)):
+         return newcode
+      else:
+         empty = 1
+         for child in self.children:
+            if (child.contraction.isoperation()):
+               empty = 0
+         if (empty):
+            return newcode
+
+      # loop over sisters
+      if (self.sisters):
+         counter = 0
+         for sister in self.sisters:
+            counter = counter + 1
+            name = string.join([subroutinename,"__",repr(counter)],"")
+ 
+            # Tensor 1
+            superglobalzero = []
+            subglobalzero = []
+            superlocalzero = []
+            sublocalzero = []
+            for nindex in range(len(sister.tensors[0].indexes)/2):
+               index = sister.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  superglobalzero.append(index)
+               else:
+                  superlocalzero.append(index)
+            for nindex in range(len(sister.tensors[0].indexes)/2, \
+                                len(sister.tensors[0].indexes)):
+               index = sister.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  subglobalzero.append(index)
+               else:
+                  sublocalzero.append(index)
+
+            d_c = string.join(["d_j",repr(sister.tensors[0].label)],"")
+            newcode.add("integers",d_c)
+            c_offset = string.join(["j",repr(sister.tensors[0].label),"_offset"],"")
+            size_c = string.join(["size_j",repr(sister.tensors[0].label)],"")
+            newcode.add("integerarrays",c_offset)
+            newcode.add("integers",size_c)
+ 
+            # generate the contraction callee
+            callee = sister.utchem(globaltargetindexes,name)
+            callees.add(callee)
+
+            # Tensor 2
+            d_a = string.join(["d_",sister.tensors[1].type,repr(len(sister.tensors[1].indexes)/2)],"") 
+            newcode.add("integers",d_a)
+            newcode.add("arguments",d_a)
+            a_offset = string.join([sister.tensors[1].type,\
+                         repr(len(sister.tensors[1].indexes)/2),"_offset"],"")
+            newcode.add("integerarrays",a_offset)
+            newcode.add("arguments",a_offset)
+
+            # Tensor 3
+            d_b = string.join(["d_",sister.tensors[2].type,repr(len(sister.tensors[2].indexes)/2)],"") 
+            newcode.add("integers",d_b)
+            newcode.add("arguments",d_b)
+            b_offset = string.join([sister.tensors[2].type,\
+                         repr(len(sister.tensors[2].indexes)/2),"_offset"],"")
+            newcode.add("integerarrays",b_offset)
+            newcode.add("arguments",b_offset)
+ 
+            # allocate offsets
+            arguments = ""
+            for index in sister.tensors[0].indexes:
+               if (index.type == "hole"):
+                  factor = "noab"
+               else:
+                  factor = "nvab"
+               if (arguments):
+                  arguments = string.join([arguments,"*",factor],"")
+               else:
+                  arguments = factor
+            if (arguments == ""):
+               arguments = "1"
+            newline = string.join(["ALLOCATE(",c_offset,"(",arguments,"))"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+
+            # dump the caller
+            newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+            newchar = "filename"
+            newcode.add("characters",newchar)
+            filename = string.join([name,"_j",repr(sister.tensors[0].label)],"")
+            newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+            callee = sister.tensors[0].utchemy(globaltargetindexes,name)
+            callees.add(callee)
+            argument = string.join([d_a,",",a_offset],"")
+            argument = string.join([argument,",",d_b,",",b_offset],"")
+            argument = string.join([argument,",",d_c,",",c_offset],"")
+            newline = string.join(["CALL ",name,"(",argument,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
+            newcode.statements.insert(0,newline)
+ 
+      # get a filename for intermediate storage
+      d_c = string.join(["d_i",repr(self.children[0].contraction.tensors[0].label)],"")
+      newcode.add("integers",d_c)
+      if (not self.contraction.isoperation()):
+         newcode.add("arguments",d_c)
+      c_offset = string.join(["i",repr(self.children[0].contraction.tensors[0].label),"_offset"],"")
+      size_c = string.join(["size_i",repr(self.children[0].contraction.tensors[0].label)],"")
+#     newcode.add("integers",size_c)
+      if (self.contraction.isoperation()):
+         newcode.add("integerallocatables",c_offset)
+      else:
+         newcode.add("integerarrays",c_offset)
+         newcode.add("arguments",c_offset)
+#        newcode.add("arguments",size_c)
+
+      # loop over children
+      if (self.contraction.isoperation()):
+         createfile = 1
+      else:
+         createfile = 0
+      counter = 0
+      for nchild in range(len(self.children)):
+         child = self.children[nchild]
+         if (child.contraction.isoperation()):
+            counter = counter + 1
+            name = string.join([subroutinename,"_",repr(counter)],"")
+ 
+            # Tensor 1
+            superglobalzero = []
+            subglobalzero = []
+            superlocalzero = []
+            sublocalzero = []
+            for nindex in range(len(child.contraction.tensors[0].indexes)/2):
+               index = child.contraction.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  superglobalzero.append(index)
+               else:
+                  superlocalzero.append(index)
+            for nindex in range(len(child.contraction.tensors[0].indexes)/2, \
+                                len(child.contraction.tensors[0].indexes)):
+               index = child.contraction.tensors[0].indexes[nindex]
+               if (index.isin(globaltargetindexes)):
+                  subglobalzero.append(index)
+               else:
+                  sublocalzero.append(index)
+
+            # generate the contraction callee
+            callee = child.contraction.utchem(globaltargetindexes,name)
+            callees.add(callee)
+
+            if (child.contraction.tensors[1].type == "i"):
+               d_a = string.join(["d_i",repr(child.contraction.tensors[1].label)],"") 
+               size_a = string.join(["size_i",repr(child.contraction.tensors[1].label)],"") 
+               newcode.add("integers",d_a)
+               a_offset = string.join(["i",repr(child.contraction.tensors[1].label),"_offset"],"")
+               newcode.add("integerarrays",a_offset)
+            elif (child.contraction.tensors[1].type == "j"):
+               d_a = string.join(["d_j",repr(child.contraction.tensors[1].label)],"") 
+               size_a = string.join(["size_j",repr(child.contraction.tensors[1].label)],"") 
+               newcode.add("integers",d_a)
+               a_offset = string.join(["j",repr(child.contraction.tensors[1].label),"_offset"],"")
+               newcode.add("integerarrays",a_offset)
+            else:
+               d_a = string.join(["d_",child.contraction.tensors[1].type,repr(len(child.contraction.tensors[1].indexes)/2)],"") 
+               newcode.add("integers",d_a)
+               newcode.add("arguments",d_a)
+               a_offset = string.join([child.contraction.tensors[1].type,\
+                            repr(len(child.contraction.tensors[1].indexes)/2),"_offset"],"")
+               newcode.add("integerarrays",a_offset)
+               newcode.add("arguments",a_offset)
+            if (len(child.contraction.tensors) == 3):
+               if (child.contraction.tensors[2].type == "i"):
+                  d_b = string.join(["d_i",repr(child.contraction.tensors[2].label)],"") 
+                  size_b = string.join(["size_i",repr(child.contraction.tensors[2].label)],"") 
+                  newcode.add("integers",d_b)
+                  b_offset = string.join(["i",repr(child.contraction.tensors[2].label),"_offset"],"")
+                  newcode.add("integerallocatables",b_offset)
+               elif (child.contraction.tensors[2].type == "j"):
+                  d_b = string.join(["d_j",repr(child.contraction.tensors[2].label)],"") 
+                  size_b = string.join(["size_j",repr(child.contraction.tensors[2].label)],"") 
+                  newcode.add("integers",d_b)
+                  b_offset = string.join(["j",repr(child.contraction.tensors[2].label),"_offset"],"")
+                  newcode.add("integerallocatables",b_offset)
+               else:
+                  d_b = string.join(["d_",child.contraction.tensors[2].type,repr(len(child.contraction.tensors[2].indexes)/2)],"") 
+                  newcode.add("integers",d_b)
+                  newcode.add("arguments",d_b)
+                  b_offset = string.join([child.contraction.tensors[2].type,\
+                               repr(len(child.contraction.tensors[2].indexes)/2),"_offset"],"")
+                  newcode.add("integerarrays",b_offset)
+                  newcode.add("arguments",b_offset)
+            else:
+               d_b = ""
+            
+            # dump the code
+            if (createfile):
+ 
+               # allocate offsets
+               arguments = ""
+               for index in child.contraction.tensors[0].indexes:
+                  if (index.type == "hole"):
+                     factor = "noab"
+                  else:
+                     factor = "nvab"
+                  if (arguments):
+                     arguments = string.join([arguments,"*",factor],"")
+                  else:
+                     arguments = factor
+               if (arguments == ""):
+                  arguments = "1"
+               newline = string.join(["ALLOCATE(",c_offset,"(",arguments,"))"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+
+               newint = string.join(["size_i",repr(self.children[0].contraction.tensors[0].label)],"")
+               newcode.add("integers",newint)
+               newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+               newcode.statements.insert(0,newline)
+               newchar = "filename"
+               newcode.add("characters",newchar)
+               filename = string.join([name,"_i",repr(child.contraction.tensors[0].label)],"")
+               newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
+               newcode.statements.insert(0,newline)
+               newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
+               newcode.statements.insert(0,newline)
+               callee = child.contraction.tensors[0].utchemy(globaltargetindexes,name)
+               callees.add(callee)
+               createfile = 0
+            newcode.statements.insert(0,child.utchema(name,globaltargetindexes,callees))
+            if (child.contraction.tensors[1].type == "i"):
+               newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
+               newcode.statements.insert(0,newline)
+            if (d_b):
+               if (child.contraction.tensors[2].type == "i"):
+                  newline = string.join(["CALL RECONCILEFILE(",d_b,",",size_b,")"],"")
+                  newcode.statements.insert(0,newline)
+            argument = string.join([d_a,",",a_offset],"")
+            if (d_b):
+               argument = string.join([argument,",",d_b,",",b_offset],"")
+            argument = string.join([argument,",",d_c,",",c_offset],"")
+            newline = string.join(["CALL ",name,"(",argument,")"],"")
+            newcode.statements.insert(0,newline)
+            if (child.contraction.tensors[1].type == "i"):
+               newline = string.join(["CALL DELETEFILE(",d_a,")"],"")
+               newcode.statements.insert(0,newline)
+               newline = string.join(["DEALLOCATE(",a_offset,")"],"")
+               newcode.statements.insert(0,newline)
+            if (d_b):
+               if (child.contraction.tensors[2].type == "i"):
+                  newline = string.join(["CALL DELETEFILE(",d_b,")"],"")
+                  newcode.statements.insert(0,newline)
+                  newline = string.join(["DEALLOCATE(",b_offset,")"],"")
+                  newcode.statements.insert(0,newline)
+
+      if (self.sisters):
+         counter = 0
+         for isister in range(len(self.sisters)-1,-1,-1):
+            sister = self.sisters[isister]
+            counter = counter + 1
+            d_c = string.join(["d_j",repr(sister.tensors[0].label)],"")
+            c_offset = string.join(["j",repr(sister.tensors[0].label),"_offset"],"")
+            name = string.join([subroutinename,"_r_",repr(counter)],"")
+            newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
+            newcode.statements.insert(0,newline)
+            newline = string.join(["DEALLOCATE(",c_offset,")"],"")
             newcode.statements.insert(0,newline)
  
       newcode.reverse()
@@ -6057,8 +7608,10 @@ class Code:
       self.arguments = []
       self.integers = []
       self.integerarrays = []
+      self.integerallocatables = []
       self.doubles = []
       self.doublearrays = []
+      self.doubleallocatables = []
       self.logicals = []
       self.logicalarrays = []
       self.characters = []
@@ -6081,7 +7634,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.11 2002-12-11 20:07:25 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.12 2003-01-08 22:59:12 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -6114,10 +7667,14 @@ class Code:
          result.add("integers",n)
       for n in self.integerarrays:
          result.add("integerarrays",n)
+      for n in self.integerallocatables:
+         result.add("integerallocatables",n)
       for n in self.doubles:
          result.add("doubles",n)
       for n in self.doublearrays:
          result.add("doublearrays",n)
+      for n in self.doubleallocatables:
+         result.add("doubleallocatables",n)
       for n in self.logicals:
          result.add("logicals",n)
       for n in self.logicalarrays:
@@ -6263,11 +7820,20 @@ class Code:
          for n in self.integerarrays:
             show.insert(pointer,string.join([self.indent,"INTEGER :: ",n,"(*)"],""))
             pointer = pointer + 1
+         for n in self.integerallocatables:
+            show.insert(pointer,string.join([self.indent,"INTEGER, ALLOCATABLE :: ",n,"(:)"],""))
+            pointer = pointer + 1
          for n in self.doubles:
-            show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION :: ",n],""))
+#           show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION :: ",n],""))
+            show.insert(pointer,string.join([self.indent,"REAL*8 :: ",n],""))
             pointer = pointer + 1
          for n in self.doublearrays:
-            show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION :: ",n,"(*)"],""))
+#           show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION :: ",n,"(*)"],""))
+            show.insert(pointer,string.join([self.indent,"REAL*8 :: ",n,"(*)"],""))
+            pointer = pointer + 1
+         for n in self.doubleallocatables:
+#           show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION, ALLOCATABLE :: ",n,"(:)"],""))
+            show.insert(pointer,string.join([self.indent,"REAL*8, ALLOCATABLE :: ",n,"(:)"],""))
             pointer = pointer + 1
          for n in self.logicals:
             show.insert(pointer,string.join([self.indent,"LOGICAL :: ",n],""))
@@ -6276,7 +7842,7 @@ class Code:
             show.insert(pointer,string.join([self.indent,"LOGICAL :: ",n,"(*)"],""))
             pointer = pointer + 1
          for n in self.characters:
-            show.insert(pointer,string.join([self.indent,"CHARACTER :: ",n,"*(*)"],""))
+            show.insert(pointer,string.join([self.indent,"CHARACTER(LEN=255) :: ",n],""))
             pointer = pointer + 1
          for n in self.externals:
             show.insert(pointer,string.join([self.indent,"EXTERNAL :: ",n],""))
@@ -6339,10 +7905,14 @@ class Code:
          self.add("integers",n)
       for n in another.integerarrays:
          self.add("integerarrays",n)
+      for n in another.integerallocatables:
+         self.add("integerallocatables",n)
       for n in another.doubles:
          self.add("doubles",n)
       for n in another.doublearrays:
          self.add("doublearrays",n)
+      for n in another.doubleallocatables:
+         self.add("doubleallocatables",n)
       for n in another.logicals:
          self.add("logicals",n)
       for n in another.logicalarrays:
@@ -6371,6 +7941,13 @@ class Code:
                redundant = 1
          if (not redundant):
             self.integerarrays.append(what)
+      elif (towhat == "integerallocatables"):
+         redundant = 0
+         for n in self.integerallocatables:
+            if (n == what):
+               redundant = 1
+         if (not redundant):
+            self.integerallocatables.append(what)
       elif (towhat == "doubles"):
          redundant = 0
          for n in self.doubles:
@@ -6385,6 +7962,13 @@ class Code:
                redundant = 1
          if (not redundant):
             self.doublearrays.append(what)
+      elif (towhat == "doubleallocatables"):
+         redundant = 0
+         for n in self.doubleallocatables:
+            if (n == what):
+               redundant = 1
+         if (not redundant):
+            self.doubleallocatables.append(what)
       elif (towhat == "logicals"):
          redundant = 0
          for n in self.logicals:
@@ -6517,9 +8101,15 @@ class Code:
       conjugation = ""
       for index in indexes:
          newint = string.join([index.show(),"b"],"")
-         newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         if (self.language == "Fortran77"):
+            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         elif (self.language == "Fortran90"):
+            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
          conjugation = "+"
-      newline = string.join([newline,".ne.",repr(2*len(indexes)),")) THEN"],"")
+      if (self.language == "Fortran77"):
+         newline = string.join([newline,".ne.",repr(2*len(indexes)),")) THEN"],"")
+      elif (self.language == "Fortran90"):
+         newline = string.join([newline," /= ",repr(2*len(indexes)),")) THEN"],"")
       self.statements.insert(self.pointer,newline)
       self.pointer = self.pointer + 1
       newline = "END IF"
@@ -6538,12 +8128,21 @@ class Code:
       conjugation = ""
       for index in super:
          newint = string.join([index.show(),"b"],"")
-         newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         if (self.language == "Fortran77"):
+            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         elif (self.language == "Fortran90"):
+            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
          conjugation = "+"
-      conjugation = " .eq. "
+      if (self.language == "Fortran77"):
+         conjugation = " .eq. "
+      elif (self.language == "Fortran90"):
+         conjugation = " == "
       for index in sub:
          newint = string.join([index.show(),"b"],"")
-         newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         if (self.language == "Fortran77"):
+            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         elif (self.language == "Fortran90"):
+            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
          conjugation = "+"
       newline = string.join([newline,") THEN"],"")
       self.statements.insert(self.pointer,newline)
@@ -6558,14 +8157,23 @@ class Code:
       for nindex in range(len(all)-1):
          index = all[nindex]
          newint = string.join([index.show(),"b"],"")
-         newline = string.join([newline,conjugation,"ieor(int_mb(k_sym+",newint,"-1)"],"")
+         if (self.language == "Fortran77"):
+            newline = string.join([newline,conjugation,"ieor(int_mb(k_sym+",newint,"-1)"],"")
+         elif (self.language == "Fortran90"):
+            newline = string.join([newline,conjugation,"ieor(sym(",newint,")"],"")
          conjugation = ","
       index = all[len(all)-1]
       newint = string.join([index.show(),"b"],"")
-      newline = string.join([newline,",int_mb(k_sym+",newint,"-1)"],"")
+      if (self.language == "Fortran77"):
+         newline = string.join([newline,",int_mb(k_sym+",newint,"-1)"],"")
+      elif (self.language == "Fortran90"):
+         newline = string.join([newline,",sym(",newint,")"],"")
       for nindex in range(len(all)-1):
          newline = string.join([newline,")"],"")
-      newline = string.join([newline," .eq. 0) THEN"],"")
+      if (self.language == "Fortran77"):
+         newline = string.join([newline," .eq. 0) THEN"],"")
+      elif (self.language == "Fortran90"):
+         newline = string.join([newline," == 0) THEN"],"")
       self.statements.insert(self.pointer,newline)
       self.pointer = self.pointer + 1
       newline = "END IF"
@@ -6581,7 +8189,10 @@ class Code:
                return
             elif ((indexa.type == "particle") and (indexb.type == "hole")):
                raise ValueError, "A particle, hole sequence in a tensor"
-         newline = string.join(["IF (",indexa.show(),"b .le. ",indexb.show(),"b) THEN"],"")
+         if (self.language == "Fortran77"):
+            newline = string.join(["IF (",indexa.show(),"b .le. ",indexb.show(),"b) THEN"],"")
+         elif (self.language == "Fortran90"):
+            newline = string.join(["IF (",indexa.show(),"b <= ",indexb.show(),"b) THEN"],"")
          self.statements.insert(self.pointer,newline)
          self.pointer = self.pointer + 1
          newline = "END IF"
@@ -6664,7 +8275,7 @@ class ListofCodes:
       if (self.list[0].language == "Fortran77"):
          file = open(filename+".F","w")
       elif (self.list[0].language == "Fortran90"):
-         file = open(filename+".f90","w")
+         file = open(filename+".F90","w")
       for code in self.list:
          for n in code.wrap():
             file.write(n)
