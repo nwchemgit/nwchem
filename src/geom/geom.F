@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.85 1999-05-31 23:23:55 d3g681 Exp $
+C$Id: geom.F,v 1.86 1999-06-01 19:45:23 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2364,6 +2364,7 @@ c
 c
 c computes the angle (in degrees) between 3 atoms in order given
 c
+#include "stdio.fh"
 c::-functions
       logical geom_calc_distance
       external geom_calc_distance
@@ -2375,6 +2376,13 @@ c::-passed
 c::-local
       double precision ab, bc, ac, xcosine
       double precision pi
+      double precision thresh
+      parameter (thresh=1.0d-6)
+c::-statement function
+      logical is_it_close_to  
+      double precision value,test
+*---          is value close to test?
+      is_it_close_to(value,test) = (abs(value-test).lt.thresh)
 c
       pi = 2.0d00*acos(0.0d00)
       geom_calc_angle = geom_calc_distance(a,b,ab)
@@ -2384,6 +2392,18 @@ c
      &    ('geom_calc_angle:error computing a distance',911)
       
       xcosine = ab*ab + bc*bc - ac*ac
+      if (is_it_close_to(ab,0.0d00).or.
+     &    is_it_close_to(bc,0.0d00)) then
+        write(luout,*)' fatal error in geom_calc_angle '
+        write(luout,*)' distance ab ',ab
+        write(luout,*)' distance ac ',ac
+        write(luout,*)' distance bc ',bc
+        write(luout,*)' please report this data to:'
+        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        geom_calc_angle = .false.
+        angle = -565.6589d00
+        return
+      endif
       xcosine = xcosine/(2.0d00*ab*bc)
    
       if( abs(xcosine) .gt. 1.00d00 ) xcosine = sign(1.0d00,xcosine)
@@ -2437,8 +2457,17 @@ c
      &    geom_calc_angle(ain,bin,din,abd)
       geom_calc_dihedral = geom_calc_dihedral.and.
      &    geom_calc_angle(ain,cin,din,acd)
-      if (.not.geom_calc_dihedral) call errquit
+      if (.not.geom_calc_dihedral) then
+        write(luout,*)' angle   abc ',abc
+        write(luout,*)' angle   bcd ',bcd
+        write(luout,*)' angle   abd ',abd
+        write(luout,*)' angle   acd ',acd
+        write(luout,*)' please report this data to:'
+        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        call util_flush(luout)
+        call errquit
      &    ('geom_calc_dihedral: fatal angle error',1)
+      endif
 *
 * check special cases  a,b,c or b,c,d are linear
       linear1 =            is_it_close_to(abc,0.0d00)
@@ -2501,10 +2530,16 @@ c
       if (is_it_close_to(mbaxbc,0.0d00).or.
      &    is_it_close_to(mcbxcd,0.0d00)) then
         write(luout,*)' fatal error in geom_calc_dihedral '
+        write(luout,*)' mbaxbc      ',mbaxbc
+        write(luout,*)' mcbxcd      ',mcbxcd
         write(luout,*)'a coordinates',ain
         write(luout,*)'b coordinates',bin
         write(luout,*)'c coordinates',cin
         write(luout,*)'d coordinates',din
+        write(luout,*)' angle   abc ',abc
+        write(luout,*)' angle   bcd ',bcd
+        write(luout,*)' angle   abd ',abd
+        write(luout,*)' angle   acd ',acd
         write(luout,*)' please report this data to:'
         write(luout,*)'         nwchem-support@emsl.pnl.gov'
         call util_flush(luout)
