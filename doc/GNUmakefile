@@ -38,6 +38,7 @@ dvi:		$(DVI)
 
 clean:		
 		@rm -f $(DVI)  *.toc *.aux *.log *.bbl *.blg
+
 realclean:	clean
 		@rm -f $(PSFILE)
 
