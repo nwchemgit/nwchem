@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.24 1996-10-06 20:12:38 d3g681 Exp $
+C$Id: vectors.F,v 1.25 1996-12-23 12:50:27 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -322,10 +322,10 @@ c
 c
 c     Check that read routines are both consistent with this
 c
-         lentit = inp_strlen(title)
+         lentit = max(1,inp_strlen(title)) ! 0 length record confuses f2c
          write(unitno, err=1001) lentit
          write(unitno, err=1001) title(1:lentit)
-         lenbas = inp_strlen(basis_name)
+         lenbas = max(1,inp_strlen(basis_name))
          write(unitno, err=1001) lenbas
          write(unitno, err=1001) basis_name(1:lenbas)
          write(unitno, err=1001) nsets
