@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.8 1997-12-08 18:34:03 d3g681 Exp $
+* $Id: util_legal.F,v 1.9 1997-12-09 02:09:37 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -127,13 +127,22 @@ c
       center_pt = 40
 c
       write(luout,'(/,/)')
-      call util_print_centered(luout, 'CITATION', center_pt, FT)
+      call util_print_centered(luout, 'ACKNOWLEDGEMENT', center_pt, FT)
       write(luout,10000)
+      call util_print_centered(luout, 'CITATION', center_pt, FT)
+      write(luout,10001)
+      call util_print_centered(luout, 'REFERENCES', center_pt, FT)
+      write(luout,10002)
+      write(luout,10101) 1
+      write(luout,10102) 2
+      write(luout,10103) 3
+      write(luout,10104) 4
+      write(luout,10105) 5
 10000 format(
      &    /,12x,
-     &    'Please use the following citation when publishing results',
+     &    'Please use the following acknowledgement where appropriate ',
      &    /,12x,
-     &    'obtained with NWChem:'
+     &    'for results obtained with NWChem:',
      &    /,/,12x,
      &    'High Performance Computational Chemistry Group, "NWChem, A',
      &    /,12x,
@@ -142,6 +151,101 @@ c
      &    'Version 3.1" (1997), Pacific Northwest National Laboratory,',
      &    /,12x,
      &    'Richland, Washington 99352-0999, USA.'
+     &    /,/)
+10001 format(
+     &    /,12x,
+     &    'Please use the following citation when publishing results',
+     &    /,12x,
+     &    'obtained with NWChem:'
+     &    /,/,12x,
+     &    'Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; ',
+     &    'Clark, T.; ',
+     &    /,12x,'Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;',
+     &    'Dyall, K.; ',
+     &    /,12x,'Fann, G.; Fruchtl, H.; Gutowski, M.; ',
+     &    'Harrison, R.; Hess, A.;',
+     &    /,12x,'Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, ',
+     &    'R.; Lin, Z.; ',
+     &    /,12x,
+     &    'Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; ',
+     &    'Nieplocha, J.; ',
+     &    /,12x,
+     &    'Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; ',
+     &    'Thomas, G.; ',
+     &    /,12x,
+     &    'Wolinski, K.; Wong, A.; "NWChem, A Computational ',
+     &    'Chemistry ',
+     &    /,12x,
+     &    'Package for Parallel Computers, Version 3.1" (1997),',
+     &    /,22x,'Pacific Northwest National Laboratory,',
+     &    /,22x,'Richland, Washington 99352-0999, USA.'
+     &    /,/)
+10002 format(
+     &    /,12x,
+     &    'Where appropriate, please cite the following references ',
+     &    /,12x,
+     &    'when publishing results obtained with NWChem:'
+     &    /,/,12x)
+10101 format(1x,i5,'.',1x,
+     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
+     &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
+     &    'J. B. Nicholas, J. A. Nichols, M. S. Stave,',
+     &    /,8x,'A. T. Wong, R. J. Littlefield and J. Nieplocha, ',
+     &    '"High Performance ',/,8x,'Computational Chemistry: ',
+     &    'Towards Fully Distributed Parallel Algorithms",',
+     &    /,8x,'in High Performance Computing: Symposium 1995, ',
+     &    'Grand Challenges in ',/,8x,'Computer Simulation, ',
+     &    'Adrian M. Tentner, Editor, Proceedings of the 1995 ',/,8x,
+     &    'Simulation Multiconference, April 9-13, 1995, Phoenix, ',
+     &    'Arizona, ',/,8x,'Simulation Councils, Inc., The Society',
+     &    ' for Computer Simulation, ',/,8x,
+     &    'San Diego, CA, 1995. pp. 511-521.',
+     &    /,/)
+10102 format(1x,i5,'.',1x,
+     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
+     &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
+     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
+     &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield',
+     &    ' and J. Nieplocha,',/,8x,'"High Performance Computatio',
+     &    'nal Chemistry: NWChem and Fully Distributed',/,8x,
+     &    'Parallel Applications", in Advances in Parallel Comput',
+     &    'ing, 10, High',/,8x,'Performance Computing: Technology,',
+     &    ' Methods, and Applications, Eds. ',/,8x,'J. Dongarra, ',
+     &    'L. Gradinetti, G. Joubert, and J. Kowalik, ',/,8x,
+     &    '(Elsevier Science B. V. pp. 395-427, 1995).'
+     &    /,/)
+10103 format(1x,i5,'.',1x,
+     &    'D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, ',
+     &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
+     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
+     &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefi',
+     &    'eld and J. Nieplocha,',/,8x,'"Parallel Computational ',
+     &    'Chemistry Made Easier: The Development of NWChem,"',/,8x,
+     &    'Int. J. Quantum Chem. Symposium  29, 475-483 ',
+     &    '(1995).'
+     &    /,/)
+10104 format(1x,i5,'.',1x,
+     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
+     &    'R. J. Harrison,',/,8x,'R. A. Kendall, R. A. Kutteh, ',
+     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,'H. L. ',
+     &    'Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and ',
+     &    'J. Nieplocha,',/,8x,'"Advances in Parallel Distributed',
+     &    ' Data Software; Computational Chemistry ',/,8x,
+     &    'and NWChem", in Applied Parallel Computing.  Computati',
+     &    'ons in Physics,',/,8x,'Chemistry, and Engineering ',
+     &    'Science, Eds. J. Wasnieski, J. Dongarra, and ',/,8x,
+     &    'K. Madsen, Lecture Notes in Computer Science, 1041,',/,8x,
+     &    '(Springer-Verlag, Berlin, 278-294, 1996).'
+     &    /,/)
+10105 format(1x,i5,'.',1x,
+     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
+     &    'R. J. Harrison,',/,8x,'R. A. Kendall, R. A. Kutteh, ',
+     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
+     &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield',
+     &    ' and J. Nieplocha, ',/,8x,
+     &    '"High-Performance Computing in Chemistry; NWChem", ',
+     &    'Future ',/,8x,
+     &    'Generations Computer Systems  12(4), 273, (1996).'
      &    /,/)
 c
       end
