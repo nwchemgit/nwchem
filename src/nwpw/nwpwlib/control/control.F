@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.31 2002-10-09 19:43:13 bylaska Exp $
+* $Id: control.F,v 1.32 2002-10-09 23:45:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -155,13 +155,11 @@
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei)) then
-        fei = .false.
-      end if
+      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
+     >  fei = .false.
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench)) then
-        fei_quench = .false.
-      end if
+      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
+     >  fei_quench = .false.
 
 
 c     do i=1,npsp
