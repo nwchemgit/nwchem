@@ -220,3 +220,269 @@ c
        status = ga_destroy(g_x)
        return
        end
+
+
+
+
+
+
+
+
+       subroutine mcscf_hdiag_scale( nbf, nclosed, nact, lshift, dm1,
+     $                               g_ifock, g_afock, g_gfock,
+     $                               g_hdiag, g_x )
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+c
+       integer nbf, nclosed, nact
+       double precision lshift
+       double precision dm1(nact,nact)
+       integer g_ifock, g_afock, g_gfock
+       integer g_hdiag
+       integer g_x
+c
+c ********** NOT correct for MCSCF, based on ROHF equivalent **********
+c Scale the vector x by the ROHF 1e-Hessian diagonal
+c
+c             x                    x
+c              pq                   ia
+c   x   =  --------           = ---------    [ closed-virtual ]
+c    pq      (1e)                 cv    cv
+c           H                   4F  - 4F
+c            pq,pq                aa    ii
+c
+c                                  x
+c                                   pa
+c                             = ---------    [ partial-virtual ]
+c                                 pv    pv
+c                               2F  - 2F
+c                                 aa   pp
+c
+c                                  x
+c                                   ip
+c                             = ---------    [ closed-partial ]
+c                                 cp    cp
+c                               2F  - 2F
+c                                 pp    ii
+c
+c
+c
+c
+       integer nvir, voff, ooff, xoff, vlen
+       integer i, j, ii, jj, ij
+       double precision xxi, xx, denom, yy
+       integer l_di, k_di
+       integer l_da, k_da
+       integer l_dg, k_dg
+       integer l_v, k_v
+       integer numnodes, myid
+c
+       double precision di, da, dg
+       di(i) = dbl_mb(k_di + i - 1)
+       da(i) = dbl_mb(k_da + i - 1)
+       dg(i) = dbl_mb(k_dg + i - 1)
+c
+c
+       nvir = nbf - nclosed - nact
+       voff = nclosed + nact + 1
+       ooff = nclosed + 1
+       vlen = (nclosed+nact)*nvir + nclosed*nact
+       myid = ga_nodeid()
+       numnodes = ga_nnodes()
+c
+c
+c
+       do i=myid+1,vlen,numnodes
+         call ga_get(g_x,i,i,1,1,xx,1)
+         call ga_get(g_hdiag,i,i,1,1,yy,1)
+C         if (abs(yy).lt.1.d-8) yy=1.d-8
+         xx = xx/(yy + lshift)
+         call ga_put(g_x,i,i,1,1,xx,1)
+       enddo
+       goto 1000                !  Hessian diag is stored
+c
+c
+c
+       if (.not.ma_push_get(MT_DBL,nbf,'Fi diag',l_di,k_di))
+     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+       if (.not.ma_push_get(MT_DBL,nbf,'Fa diag',l_da,k_da))
+     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+       if (.not.ma_push_get(MT_DBL,nbf,'Fg diag',l_dg,k_dg))
+     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+       if (.not.ma_push_get(MT_DBL,vlen,'Fg diag',l_v,k_v))
+     $      call errquit('mcscf_hdiag_scale: cannot allocate',0)
+c
+c
+c
+       do i=1,nbf
+         call ga_get(g_ifock,i,i,i,i,dbl_mb(k_di+i-1),1)
+         call ga_get(g_afock,i,i,i,i,dbl_mb(k_da+i-1),1)
+         call ga_get(g_gfock,i,i,i,i,dbl_mb(k_dg+i-1),1)
+       enddo
+c
+c
+c
+       do i=1,nclosed
+         xxi = di(i) + da(i)
+         do j=1,nvir
+           jj = voff + j - 1
+           ij = (i-1)*nvir + j
+           call ga_get(g_x,ij,ij,1,1,xx,1)
+           dbl_mb(k_v+ij-1) = 4.d0*(di(jj)+da(jj)-xxi)
+           xx = xx/(4.d0*(di(jj)+da(jj)-xxi)+lshift)
+           call ga_put(g_x,ij,ij,1,1,xx,1)
+         enddo
+       enddo
+
+       write(6,901) (di(voff+j-1),j=1,nvir)
+       xoff = nclosed*nvir
+       do i=1,nact
+         ii = ooff + i - 1
+         do j=1,nvir
+           jj = voff + j - 1
+           ij = xoff + (i-1)*nvir + j
+           call ga_get(g_x,ij,ij,1,1,xx,1)
+           dbl_mb(k_v+ij-1) = 2.d0*(dm1(i,i)*di(jj)-dg(ii))
+           xx = xx/(2.d0*(dm1(i,i)*di(jj)-dg(ii)) + lshift)
+           call ga_put(g_x,ij,ij,1,1,xx,1)
+         enddo
+       enddo
+
+       xoff = xoff + nact*nvir
+       do i=1,nclosed
+         xxi = di(i) + da(i)
+         do j=1,nact
+           jj = ooff + j - 1
+           ij = xoff + (i-1)*nact + j
+           call ga_get(g_x,ij,ij,1,1,xx,1)
+           dbl_mb(k_v+ij-1) = 2.d0*(dm1(j,j)*di(i) - dg(jj) +
+     $                        2.d0*(di(jj)+da(jj)) - 2.d0*xxi)
+           xx = xx/(2.d0*(dm1(j,j)*di(i) - dg(jj) +
+     $             2.d0*(di(jj)+da(jj)) - 2.d0*xxi) + lshift)
+           call ga_put(g_x,ij,ij,1,1,xx,1)
+         enddo
+       enddo
+
+       WRITE(6,900)
+ 900   FORMAT('1E HESSIAN DIAGONAL')
+       WRITE(6,901) (DBL_MB(K_V+I-1),I=1,VLEN)
+ 901   FORMAT(10F12.6)
+c
+c
+c
+10000  continue
+       if (.not.ma_pop_stack(l_v))
+     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+       if (.not.ma_pop_stack(l_dg))
+     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+       if (.not.ma_pop_stack(l_da))
+     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+       if (.not.ma_pop_stack(l_di))
+     $    call errquit('mcscf_hdiag_scale: cannot pop stack',0)
+
+ 1000  continue
+c
+
+       return
+       end
+
+
+
+
+
+
+
+       subroutine mcscf_hdiag_scale00( nbf, nclosed, nact, lshift, dm1,
+     $                               g_ifock, g_afock, g_gfock,
+     $                               g_hdiag, g_x )
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+c
+       integer nbf, nclosed, nact
+       double precision lshift
+       double precision dm1(nact,nact)
+       integer g_ifock, g_afock, g_gfock
+       integer g_hdiag
+       integer g_x
+c
+c ********** NOT correct for MCSCF, based on ROHF equivalent **********
+c Scale the vector x by the ROHF 1e-Hessian diagonal
+c
+c             x                    x
+c              pq                   ia
+c   x   =  --------           = ---------    [ closed-virtual ]
+c    pq      (1e)                 cv    cv
+c           H                   4F  - 4F
+c            pq,pq                aa    ii
+c
+c                                  x
+c                                   pa
+c                             = ---------    [ partial-virtual ]
+c                                 pv    pv
+c                               2F  - 2F
+c                                 aa   pp
+c
+c                                  x
+c                                   ip
+c                             = ---------    [ closed-partial ]
+c                                 cp    cp
+c                               2F  - 2F
+c                                 pp    ii
+c
+c
+c
+c
+       integer nvir, voff, ooff, xoff, vlen, xend
+       integer i, j, ii, jj, ij
+       double precision xxi, xx, denom, yy
+       integer l_di, k_di
+       integer l_da, k_da
+       integer l_dg, k_dg
+       integer l_v, k_v
+c
+       double precision di, da, dg
+       di(i) = dbl_mb(k_di + i - 1)
+       da(i) = dbl_mb(k_da + i - 1)
+       dg(i) = dbl_mb(k_dg + i - 1)
+c
+c
+       nvir = nbf - nclosed - nact
+       voff = nclosed + nact + 1
+       ooff = nclosed + 1
+       vlen = (nclosed+nact)*nvir + nclosed*nact
+c
+c  CV bit
+c
+       xend = nvir*nclosed
+       do i=1,xend
+         call ga_get(g_x,i,i,1,1,xx,1)
+         call ga_get(g_hdiag,i,i,1,1,yy,1)
+         xx = xx/(yy + lshift)
+         call ga_put(g_x,i,i,1,1,xx,1)
+       enddo
+c
+c  AV bit
+c     
+       xoff = nvir*nclosed+1
+       xend = nvir*(nclosed+nact)
+       do i=xoff,xend
+         call ga_get(g_x,i,i,1,1,xx,1)
+         call ga_get(g_hdiag,i,i,1,1,yy,1)
+         xx = xx/(yy + lshift + 0.5d0)
+         call ga_put(g_x,i,i,1,1,xx,1)
+       enddo
+c
+c  CA bit
+c
+       xoff = nvir*(nclosed+nact) + 1
+       do i=xoff,vlen
+         call ga_get(g_x,i,i,1,1,xx,1)
+         call ga_get(g_hdiag,i,i,1,1,yy,1)
+         xx = xx/(yy + lshift)
+         call ga_put(g_x,i,i,1,1,xx,1)
+       enddo
+       return
+       end
+

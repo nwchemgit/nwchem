@@ -136,7 +136,7 @@ c
 c
        subroutine mcscf_fdiff_hess( geom, basis, nbf, nclosed, nact,
      $                              oskel, tol2e, dm1, dm2, g_movecs,
-     $                              g_coul, g_k1, hess )
+     $                              g_coul, g_k1 )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -154,7 +154,6 @@ c
        integer g_movecs                               ! [input] MO coefficients
        integer g_coul                                 ! [input] Coulomb integrals
        integer g_k1                                   ! [output] KVec
-       double precision hess(*)                        ! [output] Hessian
 c
 c
 c
@@ -165,6 +164,7 @@ c
        integer vlen, nvir, voff, mo_lo, mo_hi
        integer i, j, ij, ji, ipt, jpt
        integer vlo, vhi
+       integer l_v, k_v
        double precision eone, e2ii, e2ia, e2aa, h
        double precision del(4), ee(4,4)
        double precision ee2ii(4,4), ee2ia(4,4), ee2aa(4,4)
@@ -187,14 +187,18 @@ c
        g_exch = 0
        vlo = 1
        vhi = vlen
+       if (.not.ma_push_get(MT_DBL, vlen, 'h', l_v, k_v))
+     $      call errquit('mcscf_fdiff: cannot allocate',0)
 c
-c
+       open(unit=90,file='hessFF',form='unformatted',status='unknown')
+       write(90) nclosed,nact,nvir
+       write(90) (nclosed*nvir),((nclosed+nact)*nvir),vlen
 c
        PRINT*,' Finite difference Hessian start '
-       call dfill((vlen*vlen),0.d0,hess,1)
-       do i=vlo,vhi
-         PRINT*,'I ',I
-         do j=1,i-1
+       do i=1,vlen
+         write(6,711) i
+ 711     format('Row:',i4)
+         do j=1,i
            ij = (i-1)*vlen + j
            ji = (j-1)*vlen + i
            do ipt=1,npt
@@ -222,10 +226,11 @@ c
              enddo
            enddo
            h = (ee(1,1)-ee(1,2)-ee(2,1)+ee(2,2))/(4.d0*del(1)*del(1))
-           hess(ij) = h
-           hess(ji) = h
+           dbl_mb(k_v+j-1) = h
          enddo
+         call hv_writev(90,i,dbl_mb(k_v))
        enddo
+       close(90)
 c
 c  Restore old MO integrals
 c
@@ -234,17 +239,10 @@ c
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .false., 16 )
 c
-c  Write Hessian to file
-c
-       open(unit=90,file='hessFF',form='unformatted',status='unknown')
-       do i=1,vlen
-         ij = (i-1)*vlen
-         write(90) (hess(ij+j),j=1,vlen)
-       enddo
-       close(90)
 c
 c
-c
+       if (.not.ma_pop_stack(l_v))
+     $      call errquit('mcscf_fdiff: cannot pop stack?',0)
        if (.not. ga_destroy(g_tmp1))
      $   call errquit('mcscf: cannot destroy ga')
        if (.not. ga_destroy(g_tmp2))
@@ -253,7 +251,6 @@ c
      $   call errquit('mcscf: cannot destroy ga')
        return
        end
-
 
 
 

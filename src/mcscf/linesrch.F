@@ -114,7 +114,7 @@ c
       integer n
       double precision x(n),f(n)
       integer ia,ib,ic
-      double precision xmin, ymin, del, prec
+      double precision xmin, ymin, del
       integer i
 
       ia = 0
@@ -170,13 +170,10 @@ c
       else
         if (n.gt.2) then
           err = max(abs((f(n)-e1)/f(n)),abs((f(n)-e2)/f(n)))
-          if (ga_nodeid().eq.0) then
-            write(6,901) x(n),e1,e2,f(n)
- 901        format(//,'Predictions @ ',f12.6,5x,2f20.10,
-     $              /,'Obs.',f20.10)
-            write(6,902) err
- 902        format('Relative error:',e12.2)
-          endif
+C          if (ga_nodeid().eq.0) write(6,901) x(n),e1,e2,f(n),err
+ 901      format(//,'Predictions @ ',f12.6,5x,2f20.10,
+     $           /,'Obs.',f20.10,
+     $           /,'Relative error:',e12.2)
         endif
         a = (g(n)-g(n-1))/(2.d0*(x(n)-x(n-1)))
         b1 = g(n-1) - 4.d0*a*x(n-1)
@@ -185,8 +182,8 @@ c
         c2 = f(n) - a*x(n)**2 - b2*x(n)
         f1 = a*x(n-1)**2 + b1*x(n-1) + c1
         f2 = a*x(n)**2 + b2*x(n) + c2
-        if (ga_nodeid().eq.0)
-     $    write(6,900) a,b1,b2,c1,c2,f1,f(n-1),f2,f(n)
+C        if (ga_nodeid().eq.0)
+C    $     write(6,900) a,b1,b2,c1,c2,f1,f(n-1),f2,f(n)
  900    format('A:   ',5x,f20.10,/,
      $         'B(1):',5x,f20.10,/,
      $         'B(2):',5x,f20.10,/,
