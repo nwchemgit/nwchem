@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.12 1999-01-07 20:24:36 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.13 1999-04-10 00:14:50 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "basP.fh"
@@ -101,6 +101,11 @@ c
 #include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
+c::functions
+      logical cando_hnd_1e
+      logical cando_nw
+      external cando_hnd_1e
+      external cando_nw
 c::passed
       integer i_basis   ! [input] ish basis set handle
       integer ish       ! [input] ``i'' contraction index
@@ -170,7 +175,27 @@ c
         doT = .true.
       endif
         
-      call hf1d(
+       if (cando_nw(i_basis,ish,0).and.
+     &          cando_nw(j_basis,jsh,0)) then
+        call hf1d(
+     &         coords(1,iatom,igeom),
+     &         dbl_mb(mb_exndcf(iexp,ibas)),
+     &         dbl_mb(mb_exndcf(icf,ibas)),
+     &         inp,igen,itype,iatom,
+c
+     &         coords(1,jatom,jgeom),
+     &         dbl_mb(mb_exndcf(jexp,jbas)),
+     &         dbl_mb(mb_exndcf(jcf,jbas)),
+     &         jnp,jgen,jtype,jatom,
+c
+     &         coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
+     &         scr,Ta,H1a,nint,
+c..............overlap, k-e,  pot-e,  canab,   dryrun
+     &         .false., doT, .true., .false., .false.,
+     &         scr,lscr)
+      elseif (cando_hnd_1e(i_basis,ish,0).and.
+     &  cando_hnd_1e(j_basis,jsh,0)) then
+        call hnd_stvintd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
      &       dbl_mb(mb_exndcf(icf,ibas)),
@@ -183,11 +208,13 @@ c
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
      &       scr,Ta,H1a,nint,
-c............overlap, k-e,  pot-e,  canab,   dryrun
-     &       .false., doT, .true., .false., .false.,
+c............overlap, k-e,     pot-e,
+     &       .false.,  doT, .true.,
      &       scr,lscr)
+      endif
 c
 c if needed add in Ta derivative integrals
+c
       if (doT) then
         call daxpy(nint*3,1.0d00,Ta(1,1,1),1,H1a(1,1,iatom),1)
         call daxpy(nint*3,1.0d00,Ta(1,1,2),1,H1a(1,1,jatom),1)

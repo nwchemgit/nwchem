@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.18 1998-12-10 23:48:21 d3e129 Exp $
+c $Id: intd_init.F,v 1.19 1999-04-10 00:14:51 windus Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -90,9 +90,11 @@ c
       user_cando_sp   = .false.
       user_cando_nw   = .false.
       user_cando_txs  = .false.
+      user_cando_hnd  = .false.
       def_cando_sp    = .false.
       def_cando_nw    = .false.
       def_cando_txs   = .false.
+      def_cando_hnd   = .false.
 c
       if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
         user_cando_sp = .true.
@@ -123,6 +125,16 @@ c
           call util_flush(6)
         endif
       endif
+c
+      if (rtdb_get(rtdb,'int:cando_hnd',MT_LOG,1,status)) then
+        user_cando_hnd = .true.
+        def_cando_hnd  = status
+        if (ga_nodeid().eq.0 .and. oprint) then
+          write(luout,*)
+     &        ' intd_init: cando_hnd set to always be ',def_cando_hnd
+          call util_flush(6)
+        endif
+      endif
 *
       if (.not.user_cando_txs) then
         if (.not.texas_check_basis_ok(nbas,bases)) then
@@ -139,12 +151,14 @@ c
 * sanity checking: e.g., you only want to turn off a particular integral
 * code never always turn it on.
 *
-      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
+     &    def_cando_hnd) then
         if (ga_nodeid().eq.0) then
           write(luout,*)' you are trying to turn an integral code on?? '
           write(luout,*)' sp  ', def_cando_sp
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs
+          write(luout,*)' hnd ', def_cando_hnd
           call util_flush(6)
         endif
         call errquit
@@ -213,6 +227,7 @@ c
          call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
      &        'der1_int')
       endif
+      call hnd_initd()
 c
 c See if any basis has an attached ECP
 c

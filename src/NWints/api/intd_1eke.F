@@ -1,6 +1,9 @@
-      subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.10 1999-04-10 00:14:51 windus Exp $
+      subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       lTa,Ta,idatom)
+c $Id: intd_1eke.F,v 1.1 1999-04-10 00:14:50 windus Exp $
+c
+c This routine has NOT been extensively tested. - TLW
+c
       implicit none
 #include "stdio.fh"
 c::functions
@@ -12,7 +15,7 @@ c::passed
       integer j_basis   ! [input] jsh basis set handle
       integer jsh       ! [input] "j" contraction index
       integer lscr      ! [input] length of scratch space "scr"
-      integer lOva      ! [input] number of overlap integral derivatives in shells ish and jsh
+      integer lTa       ! [input] number of kinetic integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       integer idatom(*) ! [output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
@@ -45,25 +48,25 @@ c                       nint,d <ij>         |
 c                            -------------- |
 c                            d[idatom(2),z]/
       double precision scr(lscr)
-      double precision Ova(lOva)
+      double precision Ta(lTa)
 *
       integer nint
 *
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
-      if (nint*3*2.gt.lOva) then
+      if (nint*3*2.gt.lTa) then
         write(luout,*) 'nint*3*2 = ',nint*3*2
-        write(luout,*) 'lOva     = ',lOva
-        call errquit('intd_1eov: nint>lOva error',911)
+        write(luout,*) 'lTa     = ',lTa
+        call errquit('intd_1eke: nint>lTa error',911)
       endif
-      call intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
-     &    OVa,idatom)
+      call intd_1ekeP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
+     &    Ta,idatom)
       end
       
-      subroutine intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,Ova,idatom)
+      subroutine intd_1ekeP(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       nint,Ta,idatom)
       implicit none
 c
-c returns 1e overlap derivative integrals for shells/contractions ish,jsh
+c returns 1e kinetic derivative integrals for shells/contractions ish,jsh
 c
 #include "stdio.fh"
 #include "basP.fh"
@@ -87,7 +90,7 @@ c::passed
       integer j_basis   ! [input] jsh basis set handle
       integer jsh       ! [input] "j" contraction index
       integer lscr      ! [input] length of scratch space "scr"
-      integer nint      ! [input] number of overlap integral derivatives in shells ish and jsh
+      integer nint      ! [input] number of kinetic integral derivatives in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       integer idatom(*) ! [output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
@@ -121,7 +124,7 @@ c                            -------------- |
 c                            d[idatom(2),z]/
 c
       double precision scr(lscr)     ! [input] scratch array
-      double precision Ova(nint,3,2) ! [output] derivative integrals
+      double precision Ta(nint,3,2) ! [output] derivative integrals
 c::local
       integer ucont
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
@@ -132,16 +135,20 @@ c::local
       integer nint_x, nint_s
       integer zatom, zyx
 c
+c  Temporary variable that needs to be taken out after testing!
+c
+      integer itemp
+c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
 c
 c  check if gencont, or spshell
 c
-      call int_nogencont_check(i_basis,'intd_1eovP:i_basis')
-      call int_nogencont_check(j_basis,'intd_1eovP:j_basis')
-      call int_nospshell_check(i_basis,'intd_1eovP:i_basis')
-      call int_nospshell_check(j_basis,'intd_1eovP:j_basis')
+      call int_nogencont_check(i_basis,'intd_1eke:i_basis')
+      call int_nogencont_check(j_basis,'intd_1eke:j_basis')
+      call int_nospshell_check(i_basis,'intd_1eke:i_basis')
+      call int_nospshell_check(j_basis,'intd_1eke:j_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -174,9 +181,9 @@ c
       jgeom = ibs_geom(jbas)
 c
       if (igeom.ne.jgeom) then
-        write(luout,*)'intd_1eovP: two different geometries for',
+        write(luout,*)'intd_1eke: two different geometries for',
      &         ' derivatives?'
-        call errquit('intd_1eovP: geom error ',911)
+        call errquit('intd_1eke: geom error ',911)
       endif
 c
       if (cando_nw(i_basis,ish,0).and.
@@ -193,10 +200,19 @@ c
      &       jnp,jgen,jtype,jatom,
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
-     &       Ova,scr,scr,nint,
+     &       scr,Ta,scr,nint,
 c............overlap, k-e,     pot-e,    canab,  dryrun
-     &       .true.,  .false., .false., .false., .false.,
+     &       .false.,  .true., .false., .false., .false.,
      &       scr,lscr)
+      write(luout,*) 'K 1e- derivative integrals from nwchem'
+      do itemp = 1,nint
+        write(luout,*) itemp,' 1,1,',Ta(itemp,1,1)
+        write(luout,*) itemp,' 2,1,',Ta(itemp,2,1)
+        write(luout,*) itemp,' 3,1,',Ta(itemp,3,1)
+        write(luout,*) itemp,' 1,2,',Ta(itemp,1,2)
+        write(luout,*) itemp,' 2,2,',Ta(itemp,2,2)
+        write(luout,*) itemp,' 3,2,',Ta(itemp,3,2)
+      enddo
       elseif (cando_hnd_1e(i_basis,ish,0).and.
      &  cando_hnd_1e(j_basis,jsh,0)) then
         call hnd_stvintd(
@@ -211,13 +227,22 @@ c
      &       jnp,jgen,jtype,jatom,
 c
      &       coords(1,1,igeom),charge(1,igeom),ncenter(igeom),
-     &       Ova,scr,scr,nint,
+     &       scr,Ta,scr,nint,
 c............overlap, k-e,     pot-e,
-     &       .true.,  .false., .false., 
+     &       .false.,  .true., .false., 
      &       scr,lscr)
+      write(luout,*) 'K 1e- derivative integrals from hondo'
+      do itemp = 1,nint
+        write(luout,*) itemp,' 1,1,',Ta(itemp,1,1)
+        write(luout,*) itemp,' 2,1,',Ta(itemp,2,1)
+        write(luout,*) itemp,' 3,1,',Ta(itemp,3,1)
+        write(luout,*) itemp,' 1,2,',Ta(itemp,1,2)
+        write(luout,*) itemp,' 2,2,',Ta(itemp,2,2)
+        write(luout,*) itemp,' 3,2,',Ta(itemp,3,2)
+      enddo
       endif
 c
-*     Ova now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)
+*     Ta now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)
 *      
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
       if (.not.any_spherical) return
@@ -237,7 +262,7 @@ c
 c        
         do zatom = 1,2
           do zyx = 1,3
-            call spcart_tran1e(Ova(1,zyx,zatom),scr,
+            call spcart_tran1e(Ta(1,zyx,zatom),scr,
      &          j_nbf_x,i_nbf_x,Jtype,jgen,
      &          j_nbf_s,i_nbf_s,Itype,igen,
      &          .false.)
@@ -251,7 +276,7 @@ c
         j_nbf_s = j_nbf_x
         do zatom = 1,2
           do zyx = 1,3
-            call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
+            call spcart_tran1e(Ta(1,Zyx,Zatom),scr,
      &          j_nbf_x,i_nbf_x,0,jgen,
      &          j_nbf_s,i_nbf_s,Itype,igen,
      &          .false.)
@@ -265,7 +290,7 @@ c
         j_nbf_s = int_nbf_s(Jtype)
         do zatom = 1,2
           do zyx = 1,3
-            call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
+            call spcart_tran1e(Ta(1,Zyx,Zatom),scr,
      &          j_nbf_x,i_nbf_x,Jtype,jgen,
      &          j_nbf_s,i_nbf_s,0,igen,
      &          .false.)
@@ -273,7 +298,7 @@ c
         enddo
       else
         call errquit(
-     &        'intd_1eovP: should never reach transform blocked else',
+     &        'intd_1eke: should never reach transform blocked else',
      &        911)
       endif
 c
@@ -283,12 +308,12 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('intd_1eov: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intd_1eke: nint_s >.nint_x diff=',(nint_s-nint_x))
       elseif (nint_s.eq.nint_x) then
         return
       else
         call int_c2s_mv
-     &      (Ova,nint_x,nint_s,(3*2),scr,lscr,'intd_1eov')
+     &      (Ta,nint_x,nint_s,(3*2),scr,lscr,'intd_1eke')
       endif
 c
       end

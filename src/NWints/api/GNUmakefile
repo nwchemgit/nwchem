@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.68 1998-10-04 23:50:10 gutowski Exp $
+# $Id: GNUmakefile,v 1.69 1999-04-10 00:14:52 windus Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -17,7 +17,8 @@ endif
           int_lgen1e.o   int_mem.o      int_mpolel.o \
           int_mpole.o    int_nint.o     int_pgen1e.o \
           int_projpole.o int_term.o \
-          intd_1eh1.o    intd_1eov.o    intd_2e2c.o \
+          intd_1eh1.o    intd_1eov.o    intd_1eke.o \
+          intd_2e2c.o \
           intd_2e3c.o    intd_2e4c.o    intd_init.o \
           intd_1e3ov.o   intbd_init4c.o intbd_2e4c.o \
           intd_mpolel.o \

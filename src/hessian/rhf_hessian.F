@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.22 1999-01-07 23:13:52 windus Exp $
+c $Id: rhf_hessian.F,v 1.23 1999-04-10 00:15:35 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -1890,40 +1890,6 @@ C
       return
       end
 C
-      SUBROUTINE HND_DDTXYZ(XT,YT,ZT,XS,YS,ZS,NI,NJ,AJ)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DIMENSION XT(7,*),YT(7,*),ZT(7,*)
-      DIMENSION XS(7,*),YS(7,*),ZS(7,*)
-C
-      DO 10 I=1,NI
-      XT(I,1)=(XS(I,1  )            -XS(I,3  )*(AJ+AJ))*AJ
-      YT(I,1)=(YS(I,1  )            -YS(I,3  )*(AJ+AJ))*AJ
-      ZT(I,1)=(ZS(I,1  )            -ZS(I,3  )*(AJ+AJ))*AJ
-   10 CONTINUE
-C
-      IF(NJ.EQ.1) RETURN
-C
-      DO 20 I=1,NI
-      XT(I,2)=(XS(I,2  )*DBLE(2+2-1)-XS(I,4  )*(AJ+AJ))*AJ
-      YT(I,2)=(YS(I,2  )*DBLE(2+2-1)-YS(I,4  )*(AJ+AJ))*AJ
-      ZT(I,2)=(ZS(I,2  )*DBLE(2+2-1)-ZS(I,4  )*(AJ+AJ))*AJ
-   20 CONTINUE
-C
-      IF(NJ.EQ.2) RETURN
-C
-      DO 30 J=3,NJ
-      DO 30 I=1,NI
-      XT(I,J)=(XS(I,J  )*DBLE(J+J-1)-XS(I,J+2)*(AJ+AJ))*AJ
-     1        -XS(I,J-2)*DBLE(((J-1)*(J-2))/2)
-      YT(I,J)=(YS(I,J  )*DBLE(J+J-1)-YS(I,J+2)*(AJ+AJ))*AJ
-     1        -YS(I,J-2)*DBLE(((J-1)*(J-2))/2)
-      ZT(I,J)=(ZS(I,J  )*DBLE(J+J-1)-ZS(I,J+2)*(AJ+AJ))*AJ
-     1        -ZS(I,J-2)*DBLE(((J-1)*(J-2))/2)
-   30 CONTINUE
-C
-      RETURN
-      END
-
       SUBROUTINE HND_DDERIJ(DDXDII,DDYDII,DDZDII,DDXDIJ,DDYDIJ,DDZDIJ,
      1                  DXDI  ,DYDI  ,DZDI  ,DXDJ  ,DYDJ  ,DZDJ  ,
      2                  X,Y,Z,LIT,LJT,AI,AJ)
