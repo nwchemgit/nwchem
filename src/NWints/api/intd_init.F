@@ -1,5 +1,5 @@
       subroutine intd_init(nbas,bases)
-c $Id: intd_init.F,v 1.2 1994-06-29 05:50:20 d3e129 Exp $
+c $Id: intd_init.F,v 1.3 1994-08-17 08:40:54 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -45,6 +45,7 @@ c... generate memory requirements and store in structures in apiP.fh
 c
       call exactd_mem(bases,nbas)
       call sp_der_init(nbas,bases)
+      call int_acc_std()
       init_intd = 1
       end
       subroutine sp_der_init(nbas,bases)

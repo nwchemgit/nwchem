@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.10 1994-08-12 00:35:45 d3e129 Exp $
+c $Id: int_init.F,v 1.11 1994-08-17 08:40:52 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -47,6 +47,7 @@ c
 #endif
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
+      call int_acc_std()
       init_int = 1
       end
       block data api_data
