@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.11 1995-05-24 16:12:03 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.12 1995-06-26 00:21:33 gg502 Exp $
 c
 #include "cfock.fh"
       data task_chunks/-1/
@@ -19,7 +19,7 @@ c     see scf_init for input of task_chunks etc.
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.11 1995-05-24 16:12:03 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.12 1995-06-26 00:21:33 gg502 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -59,8 +59,7 @@ c
       logical otest, otestij
 c     
       integer nxtask
-      double precision dabsmax
-      external dabsmax, nxtask
+      external nxtask
 c
 c     How many atoms are there?
 c     
