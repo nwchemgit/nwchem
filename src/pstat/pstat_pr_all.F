@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.1 1995-12-13 01:36:30 d3g681 Exp $
+C$Id: pstat_pr_all.F,v 1.2 2003-07-03 22:37:30 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -36,16 +36,16 @@ C
 8999      format(/' Timer overhead = ',1p,d9.2,' seconds/call'/)
          Write (StdOut, 9000)
       EndIf
- 9000 Format(1X, 21X,
-     $   '             Nr. of calls          ',1X,
-     $   '      CPU time (s)  ',1X, '           Wall time (s)  ',/
-     $   1X, 21X,
-     $   '       -------------------------      ---------------------',
-     $     '      ---------------------'/
-     $   1X, 'Name', 17X, '       Min', 1X, '       Avg', 1X,
-     $                     '       Max',1X,
-     $  '     Min',1X, '     Avg',1X, '     Max',1X,
-     $  '     Min',1X, '     Avg',1X, '     Max')
+ 9000 Format(10X,
+     $   '     Nr. of calls    ',1X,
+     $   '    CPU time (s)  ',1X, '              Wall time (s)  ',/
+     $   10X,
+     $   '   ---------------    -------------------  ',
+     $     '   ------------------------------'/,
+     $   'Name', 6X, '   Min', 1X, '  Avg', 1X,
+     $                     '  Max',1X,
+     $  '   Min',1X, '    Avg',1X, '    Max',1X,
+     $  '    Min',1X, '    Avg',1X, '    Max',1X, '  Mx/calls')
 C
       Do I = 1, PStat_max_items
          if (pstat_active(i)) then
@@ -85,7 +85,8 @@ C
               icalls = iMAM(1) + iMAM(2) + iMAM(3)
               total_calls = total_calls + iMAM(2)
               if (icalls.gt.0)
-     &            Write (StdOut, 9010) PStat_Name(I), iMAM, dMAM
+     &            Write (StdOut, 9010) PStat_Name(I), iMAM, dMAM,
+     ,             dmam(3,2)/imam(3)
             endif
          endif
       EndDo
@@ -96,9 +97,9 @@ c
          call util_flush(stdout)
       endif
 C
- 9010 Format(1X, A20, 1X, 3(I10,1X), 1P, 3(G8.2, 1X), 2X, 3(G8.2, 1X))
- 9011 Format(/1p,' The average no. of pstat calls per process was',d9.2,
-     $     ' with a timing overhead of',d9.2,'s'/)
+ 9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1XG7.2E1), 1X, 4(1X,G7.2E1))
+ 9011 Format(/1p,' The average no. of pstat calls per process was',
+     $     d9.2,/' with a timing overhead of',d9.2,'s'/)
 C
       Return
       End
