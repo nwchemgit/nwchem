@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.13 1996-07-25 00:06:53 rg240 Exp $
+c  $Id: moints_6x.F,v 1.14 1996-09-26 19:24:32 d3j191 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -848,12 +848,12 @@ c
       integer ii, jj, kk, ll
       double precision beffect, q4
       logical use_q4, more
-      data use_q4/.false./
-      data q4/1.d0/
 c
       logical intb_2e4c, intb_init4c
       external intb_2e4c, intb_init4c
 c
+      data use_q4/.false./
+      data q4/1.d0/
 c
 c
       neritotal = 0
@@ -1215,12 +1215,12 @@ c
       integer ii, jj, kk, ll, ksh, lsh
       double precision beffect, q4
       logical use_q4, more
-      data use_q4/.false./
-      data q4/1.d0/
 c
       logical intb_2e4c, intb_init4c
       external intb_2e4c, intb_init4c
 c
+      data use_q4/.false./
+      data q4/1.d0/
 c
 c
       neritotal = 0
