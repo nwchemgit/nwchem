@@ -1,6 +1,20 @@
 c
-c $Id: sp_common.fh,v 1.14 1999-12-15 07:31:23 d3j191 Exp $
+c $Id: sp_common.fh,v 1.15 2000-01-05 03:47:40 d3j191 Exp $
 c
+c     conversion factors
+c
+c     cau2kj : from hartree to kJ/mol
+c     cau2nm : from bohr to nm
+c     cau2N  : from hartree/bohr to N
+c     cnm2au : from nm to bohr
+c
+      real*8 cau2kj,cau2nm,cau2N
+      real*8 cnm2au
+c
+      parameter(cau2kj=2.625499962d+03)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2N=4.961475508d+04)
+      parameter(cnm2au=1.88972598786d+01)
 c
       real*8 zero,half,one
       parameter(zero=0.0d0)
@@ -60,12 +74,14 @@ c
       integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
       integer i_rng,l_rng,i_pack,l_pack,i_packw,l_packw
       integer i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+      integer irtdb,igeom
       common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
      + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
      + i_pack,l_pack,i_packw,l_packw,
      + ga_iwz,ga_isz,
      + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,i_rng,l_rng,
-     + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+     + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n,
+     + irtdb,igeom
 c
       real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
