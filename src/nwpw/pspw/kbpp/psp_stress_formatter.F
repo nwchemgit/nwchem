@@ -1,5 +1,5 @@
 c
-c $Id: psp_stress_formatter.F,v 1.4 2003-10-17 22:57:16 carlfahl Exp $
+c $Id: psp_stress_formatter.F,v 1.5 2004-10-14 00:28:42 bylaska Exp $
 c
 
       logical function psp_stress_formatter(rtdb)
@@ -188,7 +188,7 @@ c
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
-         call psp_generator_auto(atom,lmax,locp,rlocal)
+         call psp_generator_auto(1,atom,lmax,locp,rlocal)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else

@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.8 2003-12-02 19:17:10 bylaska Exp $
+c $Id: psp_formatter.F,v 1.9 2004-10-14 00:28:42 bylaska Exp $
 c
 
 *     ***************************************
@@ -176,7 +176,7 @@ c
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
-         call psp_generator_auto(atom,lmax,locp,rlocal)
+         call psp_generator_auto(1,atom,lmax,locp,rlocal)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
