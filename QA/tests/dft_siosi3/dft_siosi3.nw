@@ -1,7 +1,7 @@
 title; siosi3
 
-permanent_dir /piofs/d3h449/siosi3/n64
-scratch_dir /scratch
+#permanent_dir /piofs/d3h449/siosi3/n64
+#scratch_dir /scratch
 
 start siosi3_64
 
