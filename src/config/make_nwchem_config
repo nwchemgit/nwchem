@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.127 2000-08-04 19:24:00 windus Exp $
+# $Id: make_nwchem_config,v 1.128 2000-08-14 23:22:59 windus Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -67,7 +67,7 @@ EXP_all = $(filter-out uccsdt python develop gapss oimp2 ideaz scfaux plane_wave
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
-EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 \
+EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
 EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
