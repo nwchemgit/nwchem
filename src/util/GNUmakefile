@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.87 1998-04-26 18:59:38 bernhold Exp $
+# $Id: GNUmakefile,v 1.88 1998-05-07 18:27:15 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -23,6 +23,12 @@ ifeq ($(TARGET),SUN)
 endif
 
 ifeq ($(TARGET),SP1)
+  EXTRA_OBJ = ibm_cputime.o
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+  LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
+endif
+
+ifeq ($(TARGET),LAPI)
   EXTRA_OBJ = ibm_cputime.o
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
   LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
@@ -140,6 +146,13 @@ testecce:      testecce.o $(LIBRARY_PATH)
 
 
 ifeq ($(TARGET),SP1)
+$(BINDIR)/jobtime:	jobtime
+	/bin/cp $^ $@
+
+$(BINDIR)/jobtime.pl:	jobtime.pl
+	/bin/cp $^ $@
+endif
+ifeq ($(TARGET),LAPI)
 $(BINDIR)/jobtime:	jobtime
 	/bin/cp $^ $@
 

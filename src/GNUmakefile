@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.68 1998-04-29 07:33:11 d3e129 Exp $
+# $Id: GNUmakefile,v 1.69 1998-05-07 18:26:44 d3e129 Exp $
 
 include config/makefile.h
 
@@ -12,6 +12,11 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'"
 endif
 
+ifeq ($(TARGET),LAPI)
+   NWBINNAME = nwchem.lapi
+else
+   NWBINNAME = nwchem
+endif
 #
 # This should be the first target so that a simple make builds
 # the entire world
@@ -19,14 +24,14 @@ endif
 
 .PHONY:	nwchem_config
 
-.PRECIOUS:	$(BINDIR)/nwchem nwchem
-all $(BINDIR)/nwchem nwchem:	directories libraries
+.PRECIOUS:	$(BINDIR)/$(NWBINNAME) $(NWBINNAME)
+all $(BINDIR)/$(NWBINNAME) $(NWBINNAME):	directories libraries
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
-	/bin/rm -f $(BINDIR)/nwchem
+	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
+	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -37,9 +42,9 @@ link nwchem_link:
 	@/bin/rm -f nwchem.o stubs.o
 	$(MAKE) nwchem.o stubs.o
 ifeq ($(TARGET),SOLARIS)
-	/bin/rm -f $(BINDIR)/nwchem
+	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
+	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -ltask $(LIBS)
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
@@ -47,11 +52,21 @@ endif
 #
 ifeq ($(TARGET),SP1)
 lapi_link:
-	@/bin/rm -f nwchem.o stubs.o
-	$(MAKE) nwchem.o stubs.o
-	mpcc_r -lc_r -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g \
-		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
-		-L../lib/LAPI -L../lib/SP1 $(LIBS)
+	@echo "Lapi_link is dead; use NWCHEM_TARGET LAPI and make or make link"
+#	@/bin/rm -f nwchem.o stubs.o
+#	$(MAKE) nwchem.o stubs.o
+#	mpcc_r -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g \
+#		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
+#		-L../lib/LAPI -L../lib/SP1 $(LIBS)
+endif
+ifeq ($(TARGET),LAPI)
+lapi_link:
+	@echo "Lapi_link is dead; use NWCHEM_TARGET LAPI and make or make link"
+#	@/bin/rm -f nwchem.o stubs.o
+#	$(MAKE) nwchem.o stubs.o
+#	mpcc_r -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g \
+#		-o $(BINDIR)/nwchem.lapi nwchem.o stubs.o -ltask \
+#		-L../lib/LAPI -L../lib/SP1 $(LIBS) -bloadmap:nwmap
 endif
         
 #
@@ -93,17 +108,17 @@ showdir:
 
 clean:	
 	@$(MAKE) directories
-	-$(RM) nwchem core *.o *.a *.trace
-	@for dir in $(SUBDIRS) config ../tests; do \
+	-$(RM) core *.o *.a *.trace
+	@for dir in $(SUBDIRS) config ; do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
 realclean:	
 	@$(MAKE) directories
-	-$(RM) nwchem nwchem_test core *.o *.a *.trace makefile.bak
+	-$(RM) nwchem nwchem_prof nwchem_test core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
-	@for dir in $(SUBDIRS) config ../tests; do \
+	@for dir in $(SUBDIRS) config ; do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
@@ -112,7 +127,7 @@ realclean:
 
 .PHONY:	cleanF
 cleanF:
-	@for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) ; do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir cleanF || exit 1 ;  \
 	done

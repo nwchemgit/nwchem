@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.25 1998-01-28 00:08:26 d3h449 Exp $
+#$Id: GNUmakefile,v 1.26 1998-05-07 18:30:44 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -10,24 +10,8 @@ include ../config/makefile.h
 
      VPATH = double:single
 
-ifeq ($(TARGET),SGITFP)
        PRECISION = double
-endif
-ifeq ($(TARGET),SGI)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SUN)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SOLARIS)
-       PRECISION = double
-endif
-ifeq ($(TARGET),IBM)
-       PRECISION = double
-endif
-ifeq ($(TARGET),SP1)
-       PRECISION = double
-endif
+  
 ifeq ($(TARGET),KSR)
        PRECISION = single   
 endif
@@ -36,18 +20,6 @@ ifeq ($(TARGET),CRAY-T3D)
 endif
 ifeq ($(TARGET),CRAY-T3E)
        PRECISION = single
-endif
-ifeq ($(TARGET),HPUX)
-       PRECISION = double
-endif
-ifeq ($(TARGET),DELTA)
-       PRECISION = double
-endif
-ifeq ($(TARGET),DECOSF)
-       PRECISION = double
-endif
-ifeq ($(TARGET),LINUX)
-	PRECISION = double
 endif
 
 
@@ -106,6 +78,11 @@ OBJ_OPTIMIZE = idamax.o
 endif
 
 ifeq ($(TARGET),SP1)
+ifdef USE_ESSL
+OBJ_OPTIMIZE = lsame.o xerbla.o
+endif
+endif
+ifeq ($(TARGET),LAPI)
 ifdef USE_ESSL
 OBJ_OPTIMIZE = lsame.o xerbla.o
 endif
