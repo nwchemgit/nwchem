@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.7 2003-03-17 23:13:18 marat Exp $
+* $Id: paw_force.F,v 1.8 2003-03-19 00:11:47 marat Exp $
 *
 
 !**************************************************
@@ -80,6 +80,7 @@
       value = value.and.my_alloc(mt_dbl,nion*3,
      >                           "paw_force_f_mult",paw_force_f_mult)
 
+      write(*,*) "paw_force init",paw_force_f_mult(3)
 
       if (.not.value) call errquit('paw_force_init: alloc heap',1)
 
@@ -370,7 +371,14 @@ c           !*** this loop is not computed when ispin=1 ***
       end do
 
       call paw_force_atom(fion)
-c      call paw_force_mult( dbl_mb(paw_force_f_mult(1)))
+      call paw_force_mult( dbl_mb(paw_force_f_mult(1)))
+
+      write(*,*) "paw multipole force",paw_force_f_mult(3)
+      do ii=1,paw_force_f_mult(3)
+
+        write(*,*) dbl_mb(paw_force_f_mult(1)+ii-1)
+      
+      end do
       
       
 
@@ -524,15 +532,15 @@ c      end do
       end do
 
 
-c     write(*,*) "atomic force"
-c     do in=1,nion
-c
-c       write(*,*) in, 
-c    >             dbl_mb(paw_force_fx_atom(1)+in-1),
-c    >             dbl_mb(paw_force_fy_atom(1)+in-1),
-c    >             dbl_mb(paw_force_fz_atom(1)+in-1)
-c     end do
-
+       write(*,*) "atomic force"
+       do in=1,nion
+  
+         write(*,*) in, 
+     >             dbl_mb(paw_force_fx_atom(1)+in-1),
+     >             dbl_mb(paw_force_fy_atom(1)+in-1),
+     >             dbl_mb(paw_force_fz_atom(1)+in-1)
+       end do
+  
       return
       end
 
@@ -596,7 +604,7 @@ c     end do
       i_qlm = int_mb(i_paw_qlm(1) + in - 1)
 
       do jn=1,nion
-        i_qlmp = int_mb(i_paw_qlm(1) + in - 1)
+        i_qlmp = int_mb(i_paw_qlm(1) + jn - 1)
         ja = ion_katm(jn)
         sigma_a_prime = paw_basis_sigma(ja)
         mult_l_prime  = paw_basis_mult_l(ja)
