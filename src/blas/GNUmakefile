@@ -24,7 +24,7 @@ endif
 ifeq ($(TARGET),KSR)
        PRECISION = single   
 endif
-ifeq ($(TARGET),CRAY)
+ifeq ($(TARGET),CRAY-T3D)
        PRECISION = single
 endif
 ifeq ($(TARGET),DELTA)
@@ -58,6 +58,11 @@ OBJ_OPTIMIZE =  sdot.o    snrm2.o    sspr.o    isamax.o \
                 saxpy.o   sgemv.o    sscal.o   strmm.o    xerbla.o \
                 scopy.o   sger.o     sspmv.o   strmv.o    strsm.o ssyrk.o
 endif
+ifeq ($(TARGET),CRAY-T3D)
+OBJ_OPTIMIZE = idamax.o
+endif
 
 
 include ../config/makelib.h
+
+
