@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.97 1999-12-08 21:20:36 mg201 Exp $
+C$Id: geom.F,v 1.98 1999-12-09 21:24:42 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -4578,6 +4578,7 @@ c
       logical function geom_nucexps_set(geom, ncent, invnucexp)
       implicit none
 #include "nwc_const.fh"
+#include "stdio.fh"
 #include "geomP.fh"
 c
       integer geom                      ! [input] geometry handle
@@ -4593,8 +4594,9 @@ c
       if (.not. geom_nucexps_set) return
 c
       if (ncent.le.0 .or. ncent.gt.max_cent) then
-         write(6,*) ' geom_nucexps_set: too many centers ',ncent,
+         write(luout,*) ' geom_nucexps_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_nucexps_set = .false.
          return
       end if
 c
@@ -4632,9 +4634,10 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
       integer geom                 ! [input] geometry handle
-      integer icent                ! [input] number of center for invnucexp
+      integer icent                ! [input] index of center for invnucexp
       double precision invnucexp   ! [input] inverse nuclear exponent on center icent
 c
       logical geom_check_handle
@@ -4644,23 +4647,24 @@ c
       if (.not. geom_nucexp_set) return
 c
       if (icent.le.0 .or. icent.gt.ncenter(geom)) then
-         write(6,*) ' geom_nucexp_set: icent out of range',icent,
-     &        ncenter(geom),
-     $        names(geom)(1:lenn(geom))
-         return
+         write(luout,*) ' geom_nucexp_set: icent out of range',icent,
+     &        ncenter(geom),names(geom)(1:lenn(geom))
+         geom_nucexp_set = .false.
+      else
+         geom_invnucexp(icent,geom) = invnucexp
       end if
 c
-      geom_invnucexp(icent,geom) = invnucexp
-c
+      return
       end      
 ************************************************************************
       logical function geom_nucexp_get(geom, icent, invnucexp)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "stdio.fh"
 c
       integer geom            ! [input] geometry handle
-      integer icent           ! [input] number of center for invnucexp
+      integer icent           ! [input] index of center for invnucexp
       double precision invnucexp   ! [output] inverse nuclear exponent on center icent
 c
       logical geom_check_handle
@@ -4670,14 +4674,14 @@ c
       if (.not. geom_nucexp_get) return
 c
       if (icent.le.0 .or. icent.gt.ncenter(geom)) then
-         write(6,*) ' geom_nucexp_get: icent out of range',icent,
-     &        ncenter(geom),
-     $        names(geom)(1:lenn(geom))
-         return
+         write(luout,*) ' geom_nucexp_get: icent out of range',icent,
+     &        ncenter(geom),names(geom)(1:lenn(geom))
+         geom_nucexp_get = .false.
+      else
+         invnucexp = geom_invnucexp(icent,geom)
       end if
 c
-      invnucexp = geom_invnucexp(icent,geom)
-c
+      return
       end      
 ************************************************************************
       logical function geom_mass_to_invnucexp (mass, invnucexp)
@@ -4697,7 +4701,7 @@ c
         athird = massno**(1.0d0/3.0d0)
         if (angstrom_to_au .eq. 0.0d0) call errquit(
      &      'geom_mass_to_invnucexp:zero conversion factor',911)
-        invnucexp = ((0.836*athird+0.570d0)*angstrom_to_au)**2/1.5d10
+        invnucexp = ((0.836d0*athird+0.570d0)*angstrom_to_au)**2/1.5d10
       end if
 c
       end      
