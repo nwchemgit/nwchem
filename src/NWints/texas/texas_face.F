@@ -1,17 +1,18 @@
       subroutine texas_set_accy(pnl_thresh1)
       implicit none
-c
       double precision pnl_thresh1 ! [input] accy threshold 1 for texas
 c
       call setup_thresh(pnl_thresh1)
+c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.65 2002-01-02 18:11:32 edo Exp $
+c $Id: texas_face.F,v 1.66 2002-10-09 18:54:54 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
       logical cent2,cent3,cent4
       common /what_was_calc/ cent2,cent3,cent4
+      common /neglect/ eps,eps1,epsr
 c----------------------------------------------------------------
       integer h_txs_basnuc, k_txs_basnuc
       integer h_txs_mapp1 , k_txs_mapp1 
@@ -93,6 +94,8 @@ c----------------------------------------------------------------
       write(8,*)'- - - - - - - - - - - - - - - - - - - - - - - - - - - '
       write(8,*)'number of primitive quartets requested    ',nrimtot
       write(8,*)'reduced by the screening procedure to     ',nrimret
+      write(8,*)'------------------------------------------------------'
+      write(8,*)'screening has been done with threshold  = ',eps     
       write(8,*)'------------------------------------------------------'
 c----------------------------------------------------------------
 c CPU timing :
@@ -283,6 +286,10 @@ c----------------------------------------------------------------------
 c----------------------------------------------------------------------
       integer txs_static, txs_dynam
 c----------------------------------------------------------------------
+c2002
+      integer ntotal,noijkl,nopres,nospec,nrimtot,nrimret
+      common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
+c----------------------------------------------------------------------
 c
       texas_max_ang_val = -565  ! ensure it is reset
       rtdb_copy = rtdb
@@ -421,6 +428,10 @@ c
          npshells = npshells + npsh
   200 continue
 c----------------------------------------------------------------------
+c2002
+         ntotal=ncshells*(ncshells+1)/2
+         ntotal=ntotal*(ntotal+1)/2
+c----------------------------------------------------------------------
 c test only : print INX,DATNUC,DATBAS arrays :
 c
 c     call print_inx_nuc_bas(nbas,dbl_mb(inuc),dbl_mb(ibas))
@@ -432,13 +443,15 @@ c integrals .
 c
 *:rak always add the zero s function
 *:rak      if(nbas.gt.1) call add_s_zero( dbl_mb(ibas))
-      call add_s_zero( dbl_mb(ibas))
+c2002 call add_s_zero( dbl_mb(ibas))
 c
+           if(nbas.gt.1) call add_s_zero( dbl_mb(ibas))
 c----------------------------------------------------------------------
 c Re-arrange a basis set according to the Texas convention
 c 1) normalize and 2) re-order
 c
-      call txsarrag(rtdb, nq_init, l_blsize)
+c2002 call txsarrag(rtdb, nq_init, l_blsize)
+      call txsarrag(rtdb, nq_init, l_blsize,int_type)
 c
 c----------------------------------------------------------------------
 c print out basis sets info (in fort.8 if iprint is >0)
@@ -812,11 +825,13 @@ c
 c
       end
 c=================================================================
-      subroutine txsarrag(rtdb, nq_init, l_blsize)
+c2002 subroutine txsarrag(rtdb, nq_init, l_blsize)
+      subroutine txsarrag(rtdb, nq_init, l_blsize,int_type)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
       integer rtdb
+      character*8 int_type
       character*11 scftype
       character*4 where
 c----------------------------------------------------------------
@@ -1000,7 +1015,8 @@ c common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
 c common /route/ iroute
 c
 c
-      call texas_input
+c2002 call texas_input
+      call texas_input(int_type)
 c------------------------------------
 c make setup like in Twoint :
 c common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
@@ -1265,16 +1281,17 @@ c-----------------------------
 c
       end
 c=================================================================
-      subroutine texas_input
+c2002 subroutine texas_input
+      subroutine texas_input(int_type)
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
+      character*8 int_type
       logical firstd
       common /intgop/ ncache,maxprice,iprint,iblock
       common /intlim/ limxmem,limblks,limpair
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /mem_max_min/ ispblx,maxmem1,max_111,iforwhat
       common /route/ iroute
-cccc  common /limit_lost/ lost_limit
       common /allow_lost/ lost_allow   
 c----------------------------------------------------------------------
 c:added:rak:fix linxmem size to basis set
@@ -1301,7 +1318,6 @@ c
 c
 c
 c
-
 c:: read parameters from run time database use
 c:: defaults if they are not set on the rtdb
 c
@@ -1392,6 +1408,10 @@ c                   ! option name is LIMI (3 numbers)
 c...
 c note: texas_max_ang_val is the PNL type for the maximum angular momentum in 
 c       a basis set.
+c----------------------------------------------------------------------
+c                   ! option name is LIMI (3 numbers)
+c default setup for limxmem,limblks,limpair :
+c
       limxmem=4 000 000 ! limit for memory/block
       if (texas_max_ang_val.eq.5) then
         limxmem = 6 000 000     ! limit for memory/block (h functions)
@@ -1410,13 +1430,32 @@ c       a basis set.
      &      'texas_input: guess for limxmem failed:using:',limxmem
       endif
       if (iforwhat.eq.4) limxmem=10 000 000
-*debug:s
-*      write(6,*)'texas_input: texas_max_ang_val :',texas_max_ang_val
-*      write(6,*)'texas_input: guess for limxmem :',limxmem
-*debug:e
-      limblks=    5 000 ! limit for quartet-block-size
-      limpair=    1 000 ! limit for pair-block-size
+c.....................................................................
+c2002 limblks=    5 000 ! limit for quartet-block-size
+c2002 limpair=    1 000 ! limit for pair-block-size
 c
+c make these two dependent on a task and more like in pqs :
+c
+      if(int_type.eq.'scfd_int') then 
+        limblks=0  !   limblks=750
+        limpair=150
+      endif
+      if(int_type.eq.'giao_int') then
+        limblks=0  !   limblks=500
+        limpair=150
+      endif
+      if(int_type.eq.'der1_int') then 
+        limblks=0  !   limblks=300
+        limpair=100
+      endif
+      if(int_type.eq.'der2_int') then 
+        limblks=0  !   limblks=150
+        limpair= 50
+      endif
+c
+c2002 NOTE : for limblks=0 max block size will be determined 
+c            automatically in the get_limit routine (spec_block.F)
+c----------------------------------------------------------------------
       if (rtdb_get(rtdb,'int:txs:limi',MT_INT,3,rtdblim)) then
         if (rtdblim(1).gt.0) then
           limxmem = rtdblim(1)
@@ -2058,7 +2097,11 @@ c
       write(8,*)' Maximum sizes of blocks upon restrictions :'
       write(8,*)'         cache memory < ',icache
       write(8,*)'         pairs limit  < ',limpair
-      write(8,*)'         quart limit  < ',limblks
+      if(limblks.eq.0) then
+         write(8,*)'         quart limit adjusted'
+      else
+         write(8,*)'         quart limit  < ',limblks
+      endif
       write(8,*)'         memory limit < ',limxmem
       write(8,*)' -------------------------------------------'
 c

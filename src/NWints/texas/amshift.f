@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.7 2000-07-26 23:24:49 windus Exp $
+c $Id: amshift.f,v 1.8 2002-10-09 18:54:54 pg481 Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -81,6 +81,7 @@ c
       if(intsize.ne.1) mindxx=lnijkl/intsize+1
 c
       call getmem(mindxx,indxx)
+      call make_indxx(bl(indxx),lni,lnj,lnk,lnl)
 c
 c------------------------------------------------
 c for odinary integrals :
@@ -407,21 +408,20 @@ c-----------------------------------
 c
        ijb1=ijbeg-1
        klb1=klbeg-1
-c
-         ijkl=0
-         do 5031 i=1,lni
-         ii=(i-1)*lnj
-         do 5031 j=1,lnj
-         ij=ii+j
-         do 5031 k=1,lnk
-         kk=(k-1)*lnl
-         do 5031 l=1,lnl
-         kl=kk+l
-         ijkl=ijkl+1
-ccccccc  indxx(ij+ijb1,kl+klb1)=ijkl
-         indxx(ij     ,kl     )=ijkl
- 5031    continue
-c
+c2002
+c        ijkl=0
+c        do 5031 i=1,lni
+c        ii=(i-1)*lnj
+c        do 5031 j=1,lnj
+c        ij=ii+j
+c        do 5031 k=1,lnk
+c        kk=(k-1)*lnl
+c        do 5031 l=1,lnl
+c        kl=kk+l
+c        ijkl=ijkl+1
+c        indxx(ij     ,kl     )=ijkl
+c5031    continue
+c2002
          do 5034 ij=ijbeg,lnij
          do 5034 kl=klbeg,lnkl
          ijkl=indxx(ij-ijb1,kl-klb1)
@@ -516,17 +516,6 @@ c
 c------------------------------------
 c this part shifts angular momentum
 c   from position 3 to position 4
-c----                         -------
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c------------------------------------
 c
       ixyz=0
@@ -704,17 +693,6 @@ c
 c***********************************************************
 c*    this part    shifts the angular momentum
 c*         from position 3 to position 4
-c****                                                   ****
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c***********************************************************
 c
       ixyz=0
@@ -967,17 +945,6 @@ c
 c***********************************************************
 c*    this part    shifts the angular momentum
 c*         from position 3 to position 4
-c****                                                   ****
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c***********************************************************
 c
       ixyz=0
@@ -1320,17 +1287,6 @@ c
 c***********************************************************
 c*    this part    shifts the angular momentum
 c*         from position 3 to position 4
-c****                                                   ****
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c***********************************************************
 c
       ixyz=0
@@ -1626,17 +1582,6 @@ c*    this part    shifts the angular momentum
 c*         from position 3 to position 4
 c*                         or
 c*         from position 4 to position 3
-c****                                                   ****
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c***********************************************************
 c
       ixyz=0
@@ -1809,17 +1754,6 @@ c
 c------------------------------------
 c this part shifts angular momentum
 c   from position 3 to position 4
-c----                         -------
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c------------------------------------
 c
       ixyz=0
@@ -2071,17 +2005,6 @@ c
 c------------------------------------
 c this part shifts angular momentum
 c   from position 3 to position 4
-c----                         -------
-c
-      ncount=0
-      do 20 i=1,lni
-      do 20 j=1,lnj
-      do 20 k=1,lnk
-      do 20 l=1,lnl
-         ncount=ncount+1
-      indxx(i,j,k,l)=ncount
-   20 continue
-c
 c------------------------------------
 c
       ixyz=0
@@ -2356,3 +2279,18 @@ c block cc:
   110     continue
 c
       end
+c=======================================================================
+      subroutine make_indxx(indxx,lni,lnj,lnk,lnl)
+      dimension indxx(lni,lnj,lnk,lnl)
+c
+      ncount=0
+      do 20 i=1,lni
+      do 20 j=1,lnj
+      do 20 k=1,lnk
+      do 20 l=1,lnl
+         ncount=ncount+1
+      indxx(i,j,k,l)=ncount
+   20 continue
+c
+      end
+c=======================================================================

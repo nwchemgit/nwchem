@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.28 2002-08-15 16:08:34 edo Exp $
+* $Id: spec_block.F,v 1.29 2002-10-09 18:54:54 pg481 Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -293,38 +293,40 @@ c
 c-------------------------------------------------
 c maximum pairs allowed by the input limit for pairs/pair-block
 c
-            ijpar_inp=limpair
-            klpar_inp=limpair
-c
-c>>>>>      ijpar_lim=min(ijpar_all,ijpar_inp)
-c>>>>>      klpar_lim=min(klpar_all,klpar_inp)
-c
             npairs_all=max(ijpar_all,klpar_all)
-c
-c>>>>>      maxpair=max(ijpar_lim,klpar_lim)
-c
             maxpair=limpair
 c-------------------------------------------------
 c maximum block-size (number of quartets) allowed by the cache size
 c
-            nquart_cache= icache /nfijkl
-            if(nquart_cache.eq.0) nquart_cache=1
+c           nquart_cache= icache /nfijkl
+c           if(nquart_cache.eq.0) nquart_cache=1
 c
 c maximum block-size allowed by the input limit 
 c
-            nquart_inp=limblks
+c           nquart_inp=limblks
 c
 c maximum block-size according to the current task
 c i.e. to the number of quartets of the same type
 c
-            nquart_all=dble(ijpar_all)*dble(klpar_all)
-            if(ibl.eq.kbl) nquart_all=
-     $           dble(ijpar_all)*dble(ijpar_all+1)/2
+c           nquart_all=dble(ijpar_all)*dble(klpar_all)
+c           if(ibl.eq.kbl) nquart_all=
+c    $           dble(ijpar_all)*dble(ijpar_all+1)/2
 c
 c>>>>>>     maxsize=min(nquart_all,nquart_cache,nquart_inp)
 c
-            maxsize=min(           nquart_cache,nquart_inp)
+c           maxsize=min(           nquart_cache,nquart_inp)
 c
+c-------------------------------------------------
+      nquart_all=dble(ijpar_all)*dble(klpar_all)
+      if(ibl.eq.kbl) nquart_all=dble(ijpar_all)*dble(ijpar_all+1)/2
+c---------------------------------------------------
+c2002 limits according to integral's type, cache size & task
+c
+      call get_max_am(itype1,jtype1,ktype1,ltype1,mmax,nsij,nskl,nqmax)
+      call get_limit(mmax,icache,nfijkl,iforwhat,ibl,kbl,
+     *               itype1,jtype1,ktype1,ltype1, nqrt_limit)
+c
+      maxsize=nqrt_limit
 c-------------------------------------------------
 c for average texas-block-size :
 c
@@ -348,9 +350,6 @@ c
      *                lci,lcj,lck,lcl, ngci,ngcj,ngck,ngcl,
      *                memor_const,memor2ij,memor2kl,memor4,iforwhat)
             ENDIF
-ctest
-c     write(6,*)'block=',nbl12,'  memorC,memor2ij,memor2kl,memor4 =',
-c    *                       memor_const,memor2ij,memor2kl,memor4
 c-------------------------------------------------
 c total memory can be now expressed as:
 c
@@ -374,12 +373,6 @@ c memory for 1 ij-pair, 1 kl-pair and 1 quartet in this quartet-block
 c
       memory_111= memor_const +memor2ij +memor2kl +memor4 
 c-------------------------------------------------
-c test
-c       write(6,*)'block=',nbl12,'types=',itype,jtype,ktype,ltype
-c       write(6,*)'memor2ij,kl, memor4=',memor2ij,memor2kl,memor4,
-c    *  ' memory_111=',memory_111
-c test
-c
       if(memory_111.gt.max_111) max_111=memory_111
       if(memory_111.gt.limxmem_here) go to 100
 c-------------------------------------------------
@@ -402,11 +395,6 @@ c
       ijpar_s=ijpar
       klpar_s=klpar
       nquart_s=nquart
-ctest
-c     memory_scf=memor_const+ijpar*memor2ij+klpar*memor2kl+nquart*memor4
-c     write(6,*)' scf scenario: ij,kl,nq=',ijpar,klpar,nquart,
-c    *                        ' memory  =',memory_scf
-ctest
 c-------------------------------------------------
 c assume nnn scenario : ij=kl=nquart=x 
 c
@@ -418,11 +406,6 @@ c
       ijpar=int(x)
       klpar=ijpar
       nquart=klpar
-ctest
-c     memory_nnn=memor_const+ijpar*memor2ij+klpar*memor2kl+nquart*memor4
-c     write(6,*)' nnn scenario: ij,kl,nq=',ijpar,klpar,nquart,
-c    *                        ' memory  =',memory_nnn
-ctest
 c
       ijpar_n=ijpar
       klpar_n=klpar
@@ -453,39 +436,6 @@ c
       memory_mem=memory_ave
 c
 c-------------------------------------------------
-c there is another setup arising from cache size and input's
-c given limits (limblks & limpair) which are as follows :
-c
-c     maxpair ( limpair )            for pairs number
-c and 
-c     maxsize (min of cache,limblks) for quartets number
-c
-c if above maxsize is smaller than nquart_mem then
-c number of pairs/block can be increased what is important
-c for selection of maximum pairs allowed used latter on
-c in supblks_split to divide a given block into smaller parts
-c-------------------------------------------------
-c recalculate nquart and npairs if overruled by input :
-c 
-C      if(maxsize.lt.nquart_mem) then
-Cc        in this case increase number of pairs/block 
-Cc        recalculate number of pairs that will fit in memory
-Cc        with number of quartets equal to maxsize
-Cc
-C         x=dble(limxmem_here-memor_const- maxsize  *memor4)
-C         x=x/dble(memor2ij+memor2kl)
-C         if(x.le.0.d0) x=1.d0
-Cc
-C         ijpar_mem=int(x)
-C         klpar_mem=ijpar_mem
-C         npairs_mem=ijpar_mem
-C         nquart_mem=maxsize
-C         memory_mem= memor_const + ijpar_mem*memor2ij
-C     *                           + klpar_mem*memor2kl
-C     *                           + nquart_mem*memor4
-C      endif
-c-------------------------------------------------
-c
       if(maxpair.lt.npairs_mem) then
 c        in this case INCREASE number of quart/block 
 c        recalculate number of quarts that will fit in memory
@@ -505,7 +455,6 @@ c    *                           + nquart_mem*memor4
       endif
 C
 c-------------------------------------------------
-c
 c final setup for maximum quartets/block & paris/block 
 c as used in splitting procedure (request_split routine)
 c
@@ -522,15 +471,6 @@ c
 c
       memory_mem=memor_const + npairs_4_mem*(memor2ij + memor2kl)
      *                   + nquart_4_mem*memor4
-c
-ctest if(nbl12.eq.902) then
-ctest    write(8,*)'block=902 ; pairs: all,mem & 4_mem=',
-ctest*              npairs_all,npairs,npairs_4_mem
-ctest    write(8,*)'block=902 ; quart: all,mem & 4_mem=',
-ctest*              nquart_all,nquart,nquart_4_mem
-ctest    write(8,*)'block=902 ; memor: mem & 4_mem=',
-ctest*              memory_mem,memory_xxx
-ctest endif
 c-------------------------------------------------
       memory=memory_mem
 c-------------------------------------------------
@@ -540,10 +480,6 @@ c-------------------------------------------------
          call errquit('texas:blksizer line=',507 )
       endif
 c-------------------------------------------------
-c
-c>>>  if(mxpair(nbl12).gt.maxpar) maxpar=mxpair(nbl12)
-c>>>  if(mxsize(nbl12).gt.maxqrt) maxqrt=mxsize(nbl12)
-c
 c max & min for splitting :
 c
       if(npairs      .gt.maxpar      ) maxpar      =npairs       
@@ -569,7 +505,6 @@ c
 c-------------------------------------------------
   100 continue
 c-------------------------------------------------
-c
       if(max_111 .gt. limxmem_here) then
         write(6,*)
      &      'A block with only 1 ij-pair, 1 kl-pair and 1 quartet'
@@ -2168,3 +2103,231 @@ c
 c
       end
 c===============================================================
+      subroutine get_max_am(itype1,jtype1,ktype1,ltype1,mmax,
+     *                      nsij,nskl,nqmax)
+      common /logic1/ ndege(1)
+c
+c returns total angular momentum for (ij,kl) quartet
+c-
+         nqi=ndege(itype1)
+         nqj=ndege(jtype1)
+         nsij=nqi+nqj-1
+c
+         nqk=ndege(ktype1)
+         nql=ndege(ltype1)
+         nskl=nqk+nql-1
+c
+         mmax=nsij+nskl-1
+c
+         nqmax= max(nqi,nqj,nqk,nql)
+c
+      end
+c=======================================================================
+      subroutine get_limit(mmax,icache,nfijkl,ifor,ibl,kbl,
+     *                     itype1,jtype1,ktype1,ltype1,
+     *                     nqrt_limit)
+      implicit real*8 (a-h,o-z)
+      common /intlim/ limxmem,limblks,limpair
+      dimension limitqp(14)    ! limits for a given tot.ang.mom.
+      dimension limitql(14)    ! limits for a given tot.ang.mom.
+c maximum number of functions for a given total angular momentum
+      dimension limitfp(14)    ! if there is no l-shells
+      dimension limitfl(14)    ! if there are l-shells
+c----------------------------------------------------------------------
+c Input :
+c
+c   mmax  - total angular momentum (+1) for (ij|kl)
+c  icache - current cache memory size
+c  nfijkl - number of functions (integrals) in (ij|kl)
+c    ifor - type of task (scf,giao,force,hess=1,2,3,4)
+c ibl,kbl - pair blocks
+c    itype1,jtype1,ktype1,ltype1 - type of shells
+c
+c Output :
+c nqrt_limit - block size limit
+c----------------------------------------------------------------------
+c     ang.mom.+1    1   2   3   4   5   6   7   8   9  10 11 12 13 14
+c optimized for p-shell:
+ccc   data limitqp /1000,500,250, 75, 50, 50, 25, 25, 12, 7, 4, 3, 2, 1/
+      data limitqp /1000,500,250,100, 75, 50, 40, 30, 12, 7, 4, 3, 2, 1/
+c                 ssss psss ppss ppps pppp dppp ddpp
+c----------------------------------------------------------------------
+      data limitql /1000,350,200, 75, 55, 40, 30, 25, 12, 7, 4, 3, 2, 1/
+c                 ssss lsss llss llls llll dlll ddll
+c----------------------------------------------------------------------
+c number of functions :
+c                   ssss psss ppss ppps pppp dppp ddpp
+      data limitfp /   1,   3,   9,  27,  81, 162, 324,
+     *               648,1296,2160,3600,6000,10000,15000/
+c                   dddp dddd fddd ffdd fffd ffff  gfff
+c----------------------------------------------------------------------
+c                   ssss lsss llss llls llll dlll ddll
+      data limitfl /   1,   4,  16,  64, 256, 384, 576,
+     *               864,1296,2160,3600,6000,10000,15000/
+c                   dddl dddd fddd ffdd fffd ffff  gfff
+c------------------------------------------------------------------
+      data min_cache /16384/
+c------------------------------------------------------------------
+c from tests on aspirin/6-31g (l shells segmented into s,p)
+c 1. limits for (ss|ss) do not change scf or force integral timings
+c------------------------------------------------------------------
+c 1) for ordinary two-el.integrals (ifor=1)
+c 2) for GIAO two-el. derivatives  (ifor=2)
+c 3) for gradient derivatives      (ifor=3)
+c 4) for second derivatives        (ifor=4)
+c 5) for mp2/lmp2 integrals        (ifor=5)
+c------------------------------------------------------------------
+c        N E W    B L O C K    S I Z E    L I M I T S
+c------------------------------------------------------------------
+c  maximum number of quartets as a function of integral's type
+c     fitted to the minimum cache size = 16K = 16384 bytes
+c                    min_cache= 16384
+c        limit in        integral  angular    no of    limits from
+c      no of quartes       type    mom. +1  integrals  icache/nfunc
+c------------------------------------------------------------------
+c     limitq( 1)=1000   !  ssss      1           1       16384
+c     limitq( 2)= 500   !  psss      2           3        5461
+c
+c     limitq( 3)= 250   !  ppss      3           9        1820
+c                          dsss                  6        2731
+c
+c     limitq( 4)=  75   !  ppps      4          27         606
+c                          dpss                 18         910
+c                          fsss                 10        1638
+c
+c     limitq( 5)=  50   !  pppp      5          81         202
+c                          dpps                 54         303
+c                          ddss                 36         455
+c                          fpss                 30         546
+c                          gsss                 15        1092
+c
+c     limitq( 6)=  50   !  dppp      6         162         101
+c                          ddps                108         152
+c                          fdss                 60         273
+c                          gpss                 45         364
+c                          hsss                 21         780
+c
+c     limitq( 7)=  25   !  ddpp      7         324          50
+c                          ddds                216          76
+c                          fdps                180          91
+c                          ffss                100         164
+c                          gdss                 90         182
+c                          hpss                 63         260
+c                          isss                 28         585
+c
+c     limitq( 8)= 25    !  dddp      8         648          25
+c                          fdds                360          46
+c                          ffps                300          55
+c                          gfss                150         110
+c                          hdss                126         130
+c                          ipss                 84         195
+c
+c     limitq( 9)= 12    !  dddd      9        1296          12
+c                          fddp               1080          15
+c                          ffds                600          27
+c                          gfps                450          36
+c                          ggss                225          73
+c                          hfss                210          78
+c                          idss                168          98
+c                          jpss                108         152
+c                          ksss                 45         364
+c
+c     limitq(10)=  7    !  fddd     10        2160           7
+c                          ffdp               1800           9
+c                          fffs               1000          16
+c                          gfds                900          18
+c                          ggps                675          24
+c                          hgss                315          52
+c
+c     limitq(11)=  4    !  ffdd     11        3600           4
+c                          fffp               3000           5
+c                          gffs               1500          11
+c                          hfds               1260          13
+c                          hgps                945          17
+c                          hhss                441          37
+c                          igss                420          39
+c                          jfss                280          59
+c                          kdss                270          61
+c                          lpss                165          99
+c                          msss                 66         248
+c
+c     limitq(12)=  3    !  fffd     12        6000           3
+c     limitq(13)=  2    !  ffff     13       10000           2
+c     limitq(14)=  1    !  gfff     14       15000           1
+c
+c  all blocks with mmax over 13 have block szie = 1
+c
+c     limitq(15)=  1    !  ggff     15       22500           1
+c     limitq(16)=  1    !  gggf     16       33750           1
+c     limitq(17)=  1    !  gggg     17       50625           1
+c     limitq(18)=  1    !  hggg     18       70875           1
+c     limitq(19)=  1    !  hhgg     19       99225           1
+c     limitq(20)=  1    !  hhhg     20      138915           1
+c     limitq(21)=  1    !  hhhh     21      194481           1
+c------------------------------------------------------------------
+      if(limblks.NE.0) then
+         nqrt_limit=limblks
+         return
+      endif
+c------------------------------------------------------------------
+      itask=ifor
+c
+      if(mmax.ge.14) then
+         nqrt_limit=1
+         return
+      endif
+c------------------------------------------------------------------
+c check for p- and l-shells
+c
+      ip=0
+      if(itype1.eq.2.or.jtype1.eq.2.or.ktype1.eq.2.or.ltype1.eq.2) ip=1
+      il=0
+      if(itype1.eq.3.or.jtype1.eq.3.or.ktype1.eq.3.or.ltype1.eq.3) il=1
+c
+      if(ip.eq.0 .and. il.eq.0) then
+c        no l-, no p-shells
+         nqrt_limit=limitqp(mmax)
+         nfunct=    limitfp(mmax)
+      endif
+      if(ip.eq.1 .and. il.eq.0) then
+         nqrt_limit=limitqp(mmax)
+         nfunct=    limitfp(mmax)
+      endif
+      if(ip.eq.0 .and. il.eq.1) then
+         nqrt_limit=limitql(mmax)
+         nfunct=    limitfl(mmax)
+      endif
+      if(ip.eq.1 .and. il.eq.1) then
+         nqrt_limit=( limitqp(mmax)+limitql(mmax) )/2
+         nfunct=    ( limitfp(mmax)+limitfl(mmax) )/2
+      endif
+c------------------------------------------------------------------
+c cache factor
+c
+      cachef=dble(icache)/dble(min_cache)
+      if(cachef.lt.1.d0) cachef=1.d0
+      xqrt_limit=cachef*dble(nqrt_limit)
+c------------------------------------------------------------------
+c number of functions factor : e.g. bigger blocks for fsss than for ppps
+c
+      functf=dble(nfunct)/dble(nfijkl)
+      if(functf.lt.1.d0) functf=1.d0
+      xqrt_limit=functf*xqrt_limit
+c------------------------------------------------------------------
+c task factor : make smaller blocks for more demending tasks
+c
+      taskf=1.d0
+cgiao if(itask.eq.2) taskf=0.85d0
+c     if(itask.eq.3) taskf=0.2500d0
+c     if(itask.eq.4) taskf=0.3333d0
+cgiao if(itask.eq.2) taskf=0.85d0
+      if(itask.eq.3) taskf=0.2500d0
+      if(itask.eq.4) taskf=0.1000d0
+c.....................................
+      xqrt_limit=taskf*xqrt_limit
+c------------------------------------------------------------------
+      nqrt_limit=int(xqrt_limit)
+      if(nqrt_limit.lt.1) nqrt_limit=1
+c
+      end
+c=======================================================================

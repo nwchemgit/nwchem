@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.29 2002-07-13 21:16:54 edo Exp $
+* $Id: precalc2.F,v 1.30 2002-10-09 18:54:54 pg481 Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -741,11 +741,9 @@ cccccccc     do 190 klpar=1,npkl
 c
       end
 c====================================================================
-      subroutine prec4neg_1(isbl_size,isbl_point,isbl_q,ndiag,
-     *                      ij,kl,lc12,lc34,
+      subroutine prec4neg_1(nbls_n0 , map_n0, ij,kl,lc12,lc34,
      *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq, 
-     *                      map_ij, map_kl,
-     *                      nij_uniqe,nkl_uniqe,
+     *                      map_ij, map_kl, nij_uniqe,nkl_uniqe,
 coutput
      *                      rppq,rhoapb,rhocpd,rys,const,nbls1,index)
 c--------------------------------------------------------------------
@@ -753,8 +751,9 @@ c--------------------------------------------------------------------
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c-------
-      dimension map_ij(isbl_size),map_kl(isbl_size)
-      dimension isbl_q(*)
+      dimension map_n0(*)
+c2002 dimension map_ij(isbl_size),map_kl(isbl_size)
+      dimension map_ij(  *      ),map_kl(  *      )
       dimension index(*)
 c-------
       dimension apb(nij_uniqe,lc12),cpd(nkl_uniqe,lc34)
@@ -766,40 +765,28 @@ c----output
 c
       data zero,one /0.d0 , 1.d0/
 c---------------------------------------------------------------
-c not par268=eps1*8.d0
-      par268=     8.d0
-c---------------------------------------------------------------
       sqrpold=one
       rpold=one
       abpcd1r=zero
       abpcdr=zero
 c-----------------------------------------------------------------
+c     ijkl1=0
+c     ijklp=0
+c     do 100 iqp=1,isbl_size
+c     iq=isbl_q(isbl_point+iqp)
+c     if(iq.eq.0) go to 100
+c
+c        ijklp=ijklp+1
+c2002 
+c
       ijkl1=0
-      ijklp=0
-      do 100 iqp=1,isbl_size
-      iq=isbl_q(isbl_point+iqp)
-      if(iq.eq.0) go to 100
-c
-         ijklp=ijklp+1
-c
-c-----------old-------------
-c        ijcsq=ijpres2(iq)
-c        klcsq=klpres2(iq)
-c        ijpar=map_ij(ijcsq)
-c        klpar=map_kl(klcsq)
-c-----------old-------------
-cnew: map to uniqe pairs 
-c
-         ijpar=map_ij(iqp)
+      do 100 ijklp=1,nbls_n0
+         iqp=map_n0(ijklp)
+         ijpar=map_ij(iqp)    ! map to uniqe pairs 
          klpar=map_kl(iqp)
 c
          apb1=apb(ijpar,ij)
-         coef1=coefij(ijpar,ij)
-         esti1=estab (ijpar,ij)
-c
          cpd1=cpd(klpar,kl)
-         coef2=coefkl(klpar,kl)
-         esti2=estcd (klpar,kl)
 c
          abpcd1=apb1+cpd1
          if(abpcd1.ne.abpcd1r) then
@@ -807,10 +794,8 @@ c
             abpcdr=one/abpcd1r
          endif
 c
-         estim=esti1*esti2*abpcdr
+         estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
          if(estim.gt.epsr) then
-            coef12=coef1*coef2
-c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -827,15 +812,12 @@ c
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
 c
-              if(abpcdr.ne.rpold) then
-                rpold=abpcdr
-                sqrpold=sqrt(rpold)
-              endif
+            if(abpcdr.ne.rpold) then
+               rpold=abpcdr
+               sqrpold=sqrt(rpold)
+            endif
 c
-            const(ijkl1)=coef12*sqrpold
-cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
-cpnl           const(ijkl1)=const(ijkl1)*0.5d0
-cpnl        endif
+            const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
          endif
  100  continue
 c
@@ -843,8 +825,8 @@ c
 c
       end
 c====================================================================
-      subroutine precspec_1(isbl_size,isbl_point, isbl_q, ndiag,
-     *                      ij,kl,lc12,lc34, indxij,indxkl,
+      subroutine precspec_1(nbls_n0 , map_n0, ij,kl,lc12,lc34,
+     *                      indxij,indxkl,
      *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
      *                      rapb,rcpd,txab,txcd,
      *                      map_ij,map_kl,
@@ -856,8 +838,9 @@ c-------------------------------------------------------------------
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c---------------
-      dimension map_ij(isbl_size),map_kl(isbl_size)
-      dimension isbl_q(*)
+      dimension map_n0(*)
+c2002 dimension map_ij(isbl_size),map_kl(isbl_size)
+      dimension map_ij(  *      ),map_kl(  *      )
       dimension indxij(*),indxkl(*),index(*)
 c---------------
       dimension apb(nij_uniqe,lc12),cpd(nkl_uniqe,lc34)
@@ -872,40 +855,30 @@ c
 c
       data zero,one /0.d0 , 1.d0/
 c---------------------------------------------------------------
-      par268=     8.d0
-c---------------------------------------------------------------
       sqrpold=one
       rpold=one
 c
       abpcd1r=zero
       abpcdr=zero
-c-----
+c-----------------------------
+c2002 ijkl1=0
+c     ijklp=0
+c     do 100 iqp=1,isbl_size
+c     iq=isbl_q(isbl_point+iqp)
+c     if(iq.eq.0) go to 100
+c        ijklp=ijklp+1
+c-----------------------------
+c
+c
       ijkl1=0
-      ijklp=0
-      do 100 iqp=1,isbl_size
-      iq=isbl_q(isbl_point+iqp)
-      if(iq.eq.0) go to 100
+      do 100 ijklp=1,nbls_n0
+         iqp=map_n0(ijklp)
 c
-         ijklp=ijklp+1
-c
-c-----------------old-------------
-c        ijcsq=ijpres2(iq)
-c        klcsq=klpres2(iq)
-c        ijpar=map_ij(ijcsq)
-c        klpar=map_kl(klcsq)
-c-----------------old-------------
-cnew : map to uniqe pairs
-c
-         ijpar=map_ij(iqp)
+         ijpar=map_ij(iqp)       ! map to uniqe pairs
          klpar=map_kl(iqp)
 c
          apb1=apb(ijpar,ij)
-         coef1=coefij(ijpar,ij)
-         esti1=estab (ijpar,ij)
-c
          cpd1=cpd(klpar,kl)
-         coef2=coefkl(klpar,kl)
-         esti2=estcd (klpar,kl)
 c
          abpcd1=apb1+cpd1
          if(abpcd1.ne.abpcd1r) then
@@ -913,10 +886,8 @@ c
             abpcdr=one/abpcd1r
          endif
 c
-         estim=esti1*esti2*abpcdr
+         estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
          if(estim.gt.epsr) then
-            coef12=coef1*coef2
-c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -934,15 +905,12 @@ c
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
 c
-              if(abpcdr.ne.rpold) then
-                rpold=abpcdr
-                sqrpold=sqrt(rpold)
-              endif
+            if(abpcdr.ne.rpold) then
+               rpold=abpcdr
+               sqrpold=sqrt(rpold)
+            endif
 c
-            const(ijkl1)=coef12*sqrpold
-cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
-cpnl           const(ijkl1)=const(ijkl1)*0.5d0
-cpnl        endif
+            const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
 c
          endif
  100  continue
@@ -1978,7 +1946,8 @@ c
 c
       end
 c====================================================================
-      subroutine prec4neg_2(isbl_size,isbl_point,isbl_q,ndiag,
+c2002 subroutine prec4neg_2(isbl_size,isbl_point,isbl_q,ndiag,
+      subroutine prec4neg_2(nbls_n0 , map_n0,
      *                      ij,kl, lc12, lc34,
      *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq, 
      *                      map_ij,map_kl,
@@ -1989,8 +1958,9 @@ c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /neglect/ eps,eps1,epsr
 c-------
-      dimension map_ij(isbl_size),map_kl(isbl_size)
-      dimension isbl_q(*)
+      dimension map_n0(*)
+c2002 dimension map_ij(isbl_size),map_kl(isbl_size)
+      dimension map_ij(  *      ),map_kl(  *      )
       dimension index(*)
 c-------
       dimension apb(lc12),cpd(lc34)
@@ -2003,9 +1973,6 @@ c now scalars:  rppq,rhoapb,rhocpd
       dimension rys(*),const(*)
 c
       data one /1.d0/
-c---------------------------------------------------------------
-c not par268=eps1*8.d0
-      par268=     8.d0
 c---------------------------------------------------------------
 c NEWER
          apb1=apb(ij)
@@ -2022,35 +1989,25 @@ c
          rhoapb=abpcdr*cpd1
          rhocpd=abpcdr*apb1
 c-----------------------------------------------------------------
+c     ijkl1=0
+c     ijklp=0
+c     do 100 iqp=1,isbl_size
+c     iq=isbl_q(isbl_point+iqp)
+c     if(iq.eq.0) go to 100
+c
+c        ijklp=ijklp+1
+c
+c2002 
+c
       ijkl1=0
-      ijklp=0
-      do 100 iqp=1,isbl_size
-      iq=isbl_q(isbl_point+iqp)
-      if(iq.eq.0) go to 100
+      do 100 ijklp=1,nbls_n0
+         iqp=map_n0(ijklp)
 c
-         ijklp=ijklp+1
-c
-c-----------old--------------
-c        ijcsq=ijpres2(iq)
-c        klcsq=klpres2(iq)
-c        ijpar=map_ij(ijcsq)
-c        klpar=map_kl(klcsq)
-c-----------old--------------
-cnew : map to uniqe pairs 
-c
-         ijpar=map_ij(iqp)
+         ijpar=map_ij(iqp)    !  map to uniqe pairs 
          klpar=map_kl(iqp)
 c
-         coef1=coefij(ijpar,ij)
-         esti1=estab (ijpar,ij)
-c
-         coef2=coefkl(klpar,kl)
-         esti2=estcd (klpar,kl)
-c
-         estim=esti1*esti2*abpcdr
+         estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
          if(estim.gt.epsr) then
-            coef12=coef1*coef2
-c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c
@@ -2060,11 +2017,8 @@ c
             rr2=x1*x1 + x2*x2 + x3*x3
 c
             rys(ijkl1)=rr2*rho1
+            const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
 c
-            const(ijkl1)=coef12*sqrpold
-cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
-cpnl           const(ijkl1)=const(ijkl1)*0.5d0
-cpnl        endif
          endif
  100  continue
 c
@@ -2072,12 +2026,12 @@ c
 c
       end
 c====================================================================
-      subroutine precspec_2(isbl_size,isbl_point, isbl_q,ndiag,
+c2002 subroutine precspec_2(isbl_size,isbl_point, isbl_q,ndiag,
+      subroutine precspec_2(nbls_n0 , map_n0,
      *                      ij,kl, lc12, lc34, indxij,indxkl,
      *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
      *                      rapb,rcpd,txab,txcd,
-     *                      map_ij,map_kl,
-     *                      nij_uniqe,nkl_uniqe,
+     *                      map_ij,map_kl, nij_uniqe,nkl_uniqe,
 c     output
      *                      rys,const,xpqr,txxr,nbls1,index)
 c-------------------------------------------------------------------
@@ -2085,8 +2039,9 @@ c-------------------------------------------------------------------
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c---------------
-      dimension map_ij(isbl_size),map_kl(isbl_size)
-      dimension isbl_q(*)
+      dimension map_n0(*)
+c2002 dimension map_ij(isbl_size),map_kl(isbl_size)
+      dimension map_ij(  *      ),map_kl(  *      )
       dimension indxij(*),indxkl(*),index(*)
 c---------------
       dimension apb(lc12),cpd(lc34)
@@ -2101,8 +2056,6 @@ c
 c     
       data one /1.d0/
 c---------------------------------------------------------------
-      par268=     8.d0
-c---------------------------------------------------------------
       apb1=apb(ij)
       cpd1=cpd(kl)
 c     
@@ -2114,35 +2067,25 @@ c
 c     
       sqrpold=sqrt(abpcdr)
 c------------
+c     ijkl1=0
+c     ijklp=0
+c     do 100 iqp=1,isbl_size
+c        iq=isbl_q(isbl_point+iqp)
+c        if(iq.eq.0) go to 100
+c     
+c        ijklp=ijklp+1
+c2002
+c
       ijkl1=0
-      ijklp=0
-      do 100 iqp=1,isbl_size
-         iq=isbl_q(isbl_point+iqp)
-         if(iq.eq.0) go to 100
-c     
-         ijklp=ijklp+1
+      do 100 ijklp=1,nbls_n0
+         iqp=map_n0(ijklp)
 c
-c----------------old-------------
-c        ijcsq=ijpres2(iq)
-c        klcsq=klpres2(iq)
-c        ijpar=map_ij(ijcsq)
-c        klpar=map_kl(klcsq)
-c----------------old-------------
-cnew : map to uniqe pairs
-c
-         ijpar=map_ij(iqp)
+         ijpar=map_ij(iqp)    !  map to uniqe pairs 
+         ijpar=map_ij(iqp)      ! map to uniqe pairs
          klpar=map_kl(iqp)
-c     
-         coef1=coefij(ijpar,ij)
-         esti1=estab (ijpar,ij)
-c     
-         coef2=coefkl(klpar,kl)
-         esti2=estcd (klpar,kl)
-c     
-         estim=esti1*esti2*abpcdr
+c
+         estim=estab(ijpar,ij)*estcd(klpar,kl)*abpcdr
          if(estim.gt.epsr) then
-            coef12=coef1*coef2
-c10         if(ndiag.eq.0) coef12=coef12*par268
             ijkl1=ijkl1+1
             index(ijkl1)=ijklp
 c     
@@ -2157,11 +2100,7 @@ c
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
 c     
-            const(ijkl1)=coef12*sqrpold
-c     pnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
-c     pnl           const(ijkl1)=const(ijkl1)*0.5d0
-c     pnl        endif
-c     
+            const(ijkl1)=coefij(ijpar,ij)*coefkl(klpar,kl)*sqrpold
          endif
  100  continue
 c     
