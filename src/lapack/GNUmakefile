@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.14 1995-06-02 04:41:56 gg502 Exp $
+#$Id: GNUmakefile,v 1.15 1995-06-15 21:17:25 gg502 Exp $
 
 include ../config/makefile.h
 
@@ -83,7 +83,7 @@ OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
 endif
 
 ifeq ($(TARGET),CRAY-T3D)
-OBJ_OPTIMIZE = slagtf.o   slagts.o   lsamen.o
+OBJ_OPTIMIZE = slagtf.o   slagts.o   lsamen.o slaset.o
 endif
 
 
