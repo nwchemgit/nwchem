@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.23 2003-01-10 19:55:18 edo Exp $
+* $Id: dplot.F,v 1.24 2003-01-11 05:29:33 edo Exp $
 *
       Implicit None
 *     
@@ -39,7 +39,7 @@
       Integer Lth_Vec,Lth_Out
       Integer nOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),Scale,Volume
-      Double Precision STD,Tot_Charge
+      Double Precision STD,Tot_Charge,maxelt
       Character Coord(3)
       Character*8 Units,What,Spin,Where
       Character*80 File_Out
@@ -398,6 +398,8 @@ c
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
      &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
      &                       What,Spin,Int_mb(k_Orb))
+      call ga_maxelt(g_vls,maxelt)
+      if(iproc.eq.0) write(luout,*) ' max element ',maxelt
       Else
          LResult = MA_Push_Get(MT_Dbl,(nAtom+1)**2,'AMt',l_AMt,k_AMt)
          Call ErrMem(LResult,'C_C: Failed to allocate AMt',0)

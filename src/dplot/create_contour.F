@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.22 2003-01-11 03:05:00 edo Exp $
+* $Id: create_contour.F,v 1.23 2003-01-11 05:29:33 edo Exp $
 *
       Implicit None
 *
@@ -41,7 +41,7 @@
       Integer lth1
       Integer l_Scr1,k_Scr1
 *---- Used by xc_rhogen
-      Double Precision TOLL,maxelt
+      Double Precision TOLL
       Integer   lthB
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,
      &        l_MOVec,k_MOVec
@@ -55,7 +55,8 @@
       integer lbas_cent_info, ibas_cent_info,
      &     lbas_cset_info, ibas_cset_info,
      &     ldocset, idocset,i
-      integer avail,nstep,ii,ioffg_s,ngrpp_s,needed,jj
+      integer avail,nstep,ii,ioffg_s,ngrpp_s,needed,jj,
+     .     ngrpp_end
 
             
 
@@ -81,6 +82,7 @@
          nGrPP = lthPP
       End If
       iOffG = iProc*lthPP+1
+      ngrpp_end=ioffg+ngrpp
       If (nGrPP.eq.0) GoTo 9999
 *
       If (DeBug . and . iProc.eq.0) Then
@@ -148,7 +150,6 @@ c
       Call ErrMem(LResult,'C_C: Failed to allocate ifin',0)
 *
       Acc_AO_Gauss = 20d0
-      if(what.eq.'VIEW') acc_ao_gauss=1d200
       mBF = nBF
       if (.not.MA_Push_Get(mt_log, nshells_ao, 'docset',
      &     ldocset, idocset))
@@ -200,45 +201,44 @@ c
          if (.not.MA_Push_Get(MT_Dbl,natom,'rchi_atom',
      &        lrchi_atom,irchi_atom))
      &        call errquit('cre_cont: cannot allocate rchi_atom',0)
-      endif
+         else
+            if(.not.MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec))
+     M           call errquit('C_C: Failed to allocate MOVec',0)
+         endif
       LResult = MA_Push_Get(MT_Dbl,      nAtom,'rq0',l_rq0,k_rq0)
       Call ErrMem(LResult,'C_C: Failed to allocate rq0',0)
 c
 c     make it in pieces that use 60% of  MA
 c
-      avail = MA_inquire_avail(mt_dbl)*60/100
-      needed=ngrpp*(nbf+2*natom+nbf_ao_mxnbf_ce)
+      avail = MA_inquire_avail(mt_dbl)*50/100
+      needed=ngrpp*(nbf*10/9+natom*10/9+nbf_ao_mxnbf_ce)
       nstep=int(dble(needed)/dble(avail))
       nstep=max(nstep,1)
 #ifdef DEBUG
 !      nstep=5
 #endif
       ngrpp_s=nint(dble(ngrpp)/(nstep))
-      lth1=ngrpp_s*nbf
+      lth1=ngrpp_s*nbf*10/9
       if(debug.and.iproc.eq.0) then
          write(luout,*) ' no. doubles avail ',avail,' nstep ',nstep
          write(luout,*) ' length ',lth1
       endif
-      LResult = MA_Push_Get(MT_Dbl,ngrpp_s*2*natom,'rq', l_rq, k_rq)
+      LResult = MA_Push_Get(MT_Dbl,ngrpp_s*natom*10/9,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
       if(.not.MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1))
      .   Call errquit('C_C: Failed to allocate Scr1',lth1)
       lthB = nbf_ao_mxnbf_ce*ngrpp_s
       LResult = MA_Push_Get(MT_dbl,lthB,'BMat',l_BMat,k_BMat)
       Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
-*
-*
-*---- Allocate an extra scratch space
-*
-*
-
-      do ii=1,nstep
+C
+      do 123 ii=1,nstep
          ioffg_s=ioffg+(ii-1)*ngrpp_s
-         if(ii.eq.nstep) ngrpp_s = ngrpp - ioffg_s
-         If (DeBug . and . iProc.eq.0) Then
-            write(luout,*)  ' step # ',ii,
-     ,           ' ioffg_s ',ioffg_s,' ngrpp_s ',ngrpp_s,
-     ,           ' ngrpp ',ngrpp
+         if(ii.eq.nstep) ngrpp_s = ngrpp_end - ioffg_s
+         If (DeBug ) Then
+            write(luout,14)  iproc,ii,
+     ,           ioffg_s,ngrpp_s,ngrpp_end
+ 14         format(' me= ',i3,' step# ',i3,' offset: ',i7,
+     .           ' stride ',i7,' total  ',i7)
          endif
          Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),
      .        Grid(1,ioffg_s),Dbl_mb(k_xyz),
@@ -249,13 +249,8 @@ c
      .        int_mb(k_ibf),
      &        Dbl_mb(k_Expo),nbf_ao_mxprim,
      .        log_mb(idocset),Acc_AO_Gauss)
-      If (What.eq.'VIEW' . and . nBF.ne.mBF) then
-         write(0,*) ' mbf ',mbf,' nbf ',nbf,
-     .        ' acc ',acc_ao_gauss
-        Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
-      endif
+         if(mbf.eq.0) goto 123
 #ifdef DEBUG
-         write(0,*) ' call xcbas '
          do jj=1,ngrpp_s
          write(0,2) ioffg_s+jj-1,grid(1,ioffg_s+jj-1),
      .           dbl_mb(k_rq+jj-1)
@@ -268,7 +263,6 @@ c
      ,        ngrpp_s, natom, int_mb(k_iniz), log_mb(idocset), 
      .        int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 #ifdef DEBUG
-         write(0,*) ' done xcbas '
          do jj=1,ngrpp_s
          write(0,3) ioffg_s+jj-1,
      .           dbl_mb(k_scr1+jj-1),
@@ -291,12 +285,10 @@ c
 *        from the NWDFT module)
          TOLL=1.D-15
 *
-         call dfill(nbf_ao_mxnbf_ce2, 0.0d0, dbl_mb(k_Fmat), 1)
-         call dfill(nbf_ao_mxnbf_ce2, 0.0d0,dbl_mb(k_Pmat), 1)
-         call dfill(nbf_ao_mxnbf_ce*ngrpp_s, 0.0d0,dbl_mb(k_Bmat), 1)
-         
-*
-         call dfill(natom, 0.0d0, dbl_mb(irchi_atom), 1)
+         call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
+         call dcopy(nbf_ao_mxnbf_ce2,0.0d0,0,dbl_mb(k_Pmat), 1)
+         call dcopy(nbf_ao_mxnbf_ce*ngrpp_s,0.0d0,0,dbl_mb(k_Bmat),1)
+         call dcopy(natom, 0.0d0, 0,dbl_mb(irchi_atom), 1)
 c
          call util_rmsatbf(ngrpp_s, natom,
      .        int_mb(k_iniz),int_mb(k_ifin),
@@ -315,26 +307,12 @@ c
 *------- Deallocate Scratch memory needed by xc_rhogen
       Else
 *------- Get the values of the orbital at the grid points
-         LResult = MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec)
-         Call ErrMem(LResult,'C_C: Failed to allocate MOVec',0)
 *
          Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffg_s),
-     &               ngrpp_s,mBF,g_Vec(1),nSet,Spin,Orb_No)
-#ifdef DEBUG
-         do jj=1,ngrpp_s
-         write(0,1) ioffg_s+jj-1,values(ioffg_s+jj-1),
-     .           dbl_mb(k_scr1+jj-1)
- 1       format(I3,' value ',2E20.12)
-         enddo
-*
-         write(0,*) ' called phig '
-         if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
-         write(0,*) ' bot loop '
-#endif
-         LResult = MA_Pop_Stack(l_MOVec)
-         Call ErrMem(LResult,'C_C: Failed to deallocate MOVec',0)
+     &               ngrpp_s,nBF,g_Vec(1),nSet,Spin,Orb_No,
+     &        mbf,int_mb(k_ibf))
       End If
-      enddo
+ 123  continue
 *
   111 Continue
       if(.not.MA_chop_Stack(l_xyz))
@@ -347,8 +325,6 @@ c
          call Ma_summarize_allocated_blocks()
          call errquit(' cc: heap',0)
       endif
-      call ga_maxelt(g_vls,maxelt)
-      if(iproc.eq.0) write(luout,*) ' max element ',maxelt
       Call GA_Sync
 *
 *---- Normal termination
@@ -361,7 +337,8 @@ c
 *-----------------------------------------------------------------------
 *
       SubRoutine PhiGen(Chi,Vector,Values,
-     &                  nPoint,nBF,g_Vec,nSet,Spin,Orb_No)
+     &                  nPoint,nBF,g_Vec,nSet,Spin,Orb_No,
+     ,     mbf,ibf)
       Implicit None
 *     
 ************************************************************************
@@ -377,6 +354,7 @@ c
       Integer g_Vec(nSet)
       Character*8 Spin
       Double Precision Chi(nPoint,nBF),Vector(nBF),Values(nPoint)
+      integer mbf,ibf(*)
 *---- Local variables
       Integer jFrom,g_From,iPoint
       Logical DeBug
@@ -392,10 +370,16 @@ c
       g_From = g_Vec(1)
       If (nSet.eq.2 . and . Spin.eq.'BETA') g_From = g_Vec(2)
       Call GA_Get(g_From,1,nBF,jFrom,jFrom,Vector,nBF)
+c
+c     compress vectors
+c
+      do ipoint=1,mbf
+         vector(ipoint)=vector(ibf(ipoint))
+      enddo
 *
 *---- Loop over the grid points to get the orbital values
       Do iPoint = 1, nPoint
-         Values(iPoint) = ddot(nBF,Chi(iPoint,1),nPoint,Vector,1)
+         Values(iPoint) = ddot(mBF,Chi(iPoint,1),nPoint,Vector,1)
 *        Write(*,'(d10.4)')Values(iPoint)
       End Do
 *
