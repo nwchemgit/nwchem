@@ -1,7 +1,7 @@
       subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,
      $     inttyp, moints)
 *
-* $Id: rdhint.F,v 1.5 1997-10-31 23:42:23 d3e129 Exp $
+* $Id: rdhint.F,v 1.6 2000-10-23 16:23:53 windus Exp $
 *
 #include "implicit.fh"
 c
@@ -16,7 +16,6 @@ c
 c
       character*80 dtitle(*)
       character *(*) moints
-      dimension nbpsy(8)
       real*8 repnuc
 c
 c     read header from integral/dump file

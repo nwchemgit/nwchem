@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.11 1999-06-29 20:01:15 d3g681 Exp $
+C$Id: ga_it_lsolve.F,v 1.12 2000-10-23 16:24:09 windus Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -77,7 +77,8 @@ c
       double precision mone, one, zero
       parameter (mone = -1.0d0, one = 1.0d0, zero = 0.0d0)
       integer temp(maxdim), info ! For dgesv
-      integer i, j, nsub
+      integer i, nsub
+c     integer j
       logical odebug
       logical owarn
 c

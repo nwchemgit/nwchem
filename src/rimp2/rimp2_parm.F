@@ -1,13 +1,13 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2_parm.F,v 1.5 1998-03-17 17:23:04 bernhold Exp $
+C$Id: rimp2_parm.F,v 1.6 2000-10-23 16:23:48 windus Exp $
       Implicit NONE
       Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
       Character*(*) Approx
       Character*(*) Mem_Opt
 C
-      Integer Type, I, Junk
+      Integer Type, Junk
       Character*(26) Date
       Logical Fail
 C

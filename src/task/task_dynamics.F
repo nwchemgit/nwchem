@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.4 2000-01-05 00:25:53 windus Exp $
+* $Id: task_dynamics.F,v 1.5 2000-10-23 16:24:05 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,7 +30,7 @@ c
 c
       logical status
       double precision cpu,wall
-      character*80 key, prefix
+      character*80 prefix
       character*32 theory
 c
       call ecce_print_module_entry('task dynamics')

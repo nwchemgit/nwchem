@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.25 1997-04-01 03:43:34 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.26 2000-10-23 16:23:49 windus Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
@@ -99,14 +99,10 @@ C
 C
 C LOCAL VARIBLES
       Integer I, J, ISpin, JSpin, JTop, JTop2
-      Integer A, B, Alo, Ahi, Blo, BHi, H_B, LDB, AB
       Integer Proc
-      Double Precision DenIJ, Den, Fact, PairE, ESpin
-      Logical Status, PermSym, SinglePass
-      Integer Junk
+      Double Precision Fact, PairE
+      Logical Status, PermSym
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA, G_BigB
-      Integer IALo, IAHi, JBLo, JBHi, MyILo, MyIHi, MyJLo, MyJHi
-      Integer Offset, BBot, BTop, ABot, ATop
       Integer HH_PairE, IH_PairE
 c$$$      Double precision ChkSum, MxElem
       Character*255 String1

@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.6 1998-11-10 15:10:47 bernhold Exp $
+C     $Id: corr_mk_ref.F,v 1.7 2000-10-23 16:24:09 windus Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -135,7 +135,7 @@ C
       Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
      $     MxRefNMO
       Integer SpinMap(MyMxSpin)
-      Double Precision TotOcc(MyMxSpin), RealThresh, Delta
+      Double Precision TotOcc(MyMxSpin), Delta
       Integer H_Occ, I_Occ, H_EVal, I_EVal
 c$$$      Integer H_Occ0, I_Occ0, H_EVal0, I_EVal0
       Integer I_RefOcc, I_RefEVal

@@ -1,5 +1,5 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.5 1996-10-06 20:15:40 d3g681 Exp $
+C$Id: ga_it_orth.F,v 1.6 2000-10-23 16:24:09 windus Exp $
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -37,7 +37,6 @@ c     Two n*n scratch GAs are used.
 c     
 c     
       integer g_s, g_tmp, g_ms
-      integer l_buf, k_buf      ! MA handles for workspace
       integer iter, maxiter, nbf, nmo, type, i
       integer ilo, ihi, jlo, jhi
       double precision tol, zero, one, mone, mhalf, sii, err

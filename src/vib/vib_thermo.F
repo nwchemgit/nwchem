@@ -2,7 +2,7 @@
      &    eigvals,masses,coords,scr)
       implicit none
 *
-* $Id: vib_thermo.F,v 1.5 2000-02-25 00:36:04 windus Exp $
+* $Id: vib_thermo.F,v 1.6 2000-10-23 16:24:13 windus Exp $
 *
 * routine to compute the thermodynamic properties under the 
 * rigid rotor harmonic approximation:
@@ -44,8 +44,6 @@
       double precision H_total , G_total , S_total , Cp_total , Cv_total
       double precision Temp
       double precision R_gas
-      double precision Boltzman
-      double precision Plank
       double precision Pi
       double precision Sigma
       character*32 theory

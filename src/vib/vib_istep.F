@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.5 1999-07-26 22:27:17 d3e129 Exp $
+* $Id: vib_istep.F,v 1.6 2000-10-23 16:24:13 windus Exp $
 *
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
@@ -179,8 +179,9 @@ c
       integer imode, ivec, iatom, ixyz, istep
       integer geom
       character*255 mydir, filename
-      character*30 tag, element
-      double precision charge, atn, length_of_step, scale
+*      character*30 tag, element
+      double precision length_of_step, scale
+*      double precision charge, atn
 *
 c::-statement function
       double precision thresh

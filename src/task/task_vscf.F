@@ -1,5 +1,5 @@
 *
-* $Id: task_vscf.F,v 1.1 2000-02-25 00:40:53 windus Exp $
+* $Id: task_vscf.F,v 1.2 2000-10-23 16:24:06 windus Exp $
 *
       logical function task_vscf(rtdb)
 c     
@@ -32,7 +32,7 @@ c
 c     
       double precision cpu, wall
 c 
-      logical      ignore
+c     logical      ignore
 c
 c  set up a couple of variables that I will eventually let be user controlled
 c

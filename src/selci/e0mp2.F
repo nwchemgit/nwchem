@@ -1,6 +1,6 @@
       subroutine selci_brdeig
 *
-* $Id: e0mp2.F,v 1.4 1997-10-31 23:41:59 d3e129 Exp $
+* $Id: e0mp2.F,v 1.5 2000-10-23 16:23:52 windus Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
@@ -13,7 +13,7 @@
 #include "ciinfo.fh"
 #include "cmp2.fh"
       character*80 eigins
-      logical isitthere
+c$$$      logical isitthere
 c
 c subroutine to get orbital eigenvalues to be used in MP pt.
 c currently reads ascii eigenvalues from a file called 'eigins'

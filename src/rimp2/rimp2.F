@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.44 2000-02-04 20:13:28 mg201 Exp $
+C$Id: rimp2.F,v 1.45 2000-10-23 16:23:48 windus Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -46,23 +46,20 @@ C
       Parameter (My_Ctx = 'mp2')
 C
       Integer AOBas, FitBas, Bases(2), Geom
-      Integer NAOBF, TopSpin, RefSpin, NFit, RefNAO, NFrzOcc, NFrzVir
+      Integer NAOBF, TopSpin, NFit, RefNAO, NFrzOcc, NFrzVir
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
-      Integer RefALo(MaxSpin), RefAHi(MaxSpin), RefILo(MaxSpin),
-     $   RefIHi(MaxSpin)
-      Integer NMO(MaxSpin), RefNMO(MaxSpin),I, Me
+      Integer I, Me
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
-      Character*(80) Title, SCFBasNam, FNVec, FNInt, Approx
-      character*20 scftype
+      Character*(80) FNInt, Approx
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
       Character*(1) Mem_Opt
 C
 C     Handles and indices to for the "correlated" basis
 C
-      Integer H_Occ, H_EVal, H_CorMap
-      Integer I_Occ, I_EVal, I_CorMap
+      Integer H_Occ, H_EVal
+      Integer I_Occ, I_EVal
       Integer G_AOXF(MaxSpin)
       Integer NCorBF(MaxSpin), MxNCorBF
 C
@@ -73,9 +70,8 @@ C
 C
 C     Print controls
 C
-      Logical PrInfo, PrWarn, PrRef
+      Logical PrInfo
 C
-      Logical FullRef, FunnyRef
 #ifdef RIMP2_USE_DA
 C
       Integer MaxDASiz, TotDASiz, Size, SizeB

@@ -1,6 +1,6 @@
       logical function task_thermo(rtdb)
 *
-* $Id: task_thermo.F,v 1.2 2000-01-05 00:25:53 windus Exp $
+* $Id: task_thermo.F,v 1.3 2000-10-23 16:24:06 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,7 +30,7 @@ c
 c
       logical status
       double precision cpu,wall
-      character*80 key, prefix
+      character*80 prefix
       character*32 theory
 c
       call ecce_print_module_entry('task thermodynamics')

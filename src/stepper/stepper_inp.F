@@ -1,5 +1,5 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.4 1998-04-21 06:57:24 mdupuis Exp $
+C $Id: stepper_inp.F,v 1.5 2000-10-23 16:23:56 windus Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -52,7 +52,8 @@ c::local
       logical FF, FT
       parameter (FF = .false., FT = .true.)
       logical oselect, osetmass
-      integer hsel, ksel, hm, km, him, kim
+      integer hsel, ksel, hm, him
+*needs a fix via geom mass interface:rak:      integer km, kim
       integer nmode, nat, maxiter
       double precision rconvg, rstd, trustc, trustm, trust
       double precision convggm, convgg, convge

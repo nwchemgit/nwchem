@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.28 2000-06-17 15:46:45 edo Exp $
+* $Id: task_num_grad.F,v 1.29 2000-10-23 16:24:06 windus Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -446,7 +446,8 @@ c     3) orthogonal to translations
 c
 c     Return the vectors and the number of vectors.
 c
-      integer i3, i, j, k, info
+      integer i3, i, j, k 
+cedo  integer info
       integer maxat, nwork, maxat3
       parameter (maxat = 100, nwork=12) ! Nwork must be at least 6
       parameter (maxat3 = 3*maxat)

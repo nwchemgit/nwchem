@@ -14,10 +14,9 @@ c***********************************************************************
      $     group_name,max_gen,s_vec,oprint)
 c
 c--->Note: array "gens" in gensym.f = arrray "symops" in spgen.f
-C$Id: spgen.F,v 1.3 1996-08-06 22:40:37 gutowski Exp $
+C$Id: spgen.F,v 1.4 2000-10-23 16:24:01 windus Exp $
       implicit real*8 (a-h,o-z)
       character*10 spgnam(230),lyrnam(80),linenam(99),molname(46)
-      dimension gens(18,4)
       dimension tranv(46,3),roto(3,4,30)
       dimension igen(1:230,40)
       dimension ilgen(1:80,40)

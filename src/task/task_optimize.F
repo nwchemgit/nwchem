@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
+c     $Id: task_optimize.F,v 1.22 2000-10-23 16:24:06 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -122,7 +122,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
+c     $Id: task_optimize.F,v 1.22 2000-10-23 16:24:06 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -249,7 +249,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
+c     $Id: task_optimize.F,v 1.22 2000-10-23 16:24:06 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -277,11 +277,11 @@ c     task:cputime
 c     task:walltime
 c     geometry             - final geometry from optimization
 c
-      double precision cpu, wall
+c$$$      double precision cpu, wall
 c
-      logical status 
+c$$$      logical status 
 c
-      character*32 theory
+c$$$      character*32 theory
 c
       call errquit('lst broken by rjh ',0)
       task_lst = .false.
