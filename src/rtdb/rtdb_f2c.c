@@ -46,7 +46,12 @@ static int string_to_fortchar(char *f, int flen, const char *buf)
 
 logical rtdb_parallel_(const logical *mode)
 {
-  int new = (*mode == FORTRAN_TRUE);
+  /* This causes problems on machines where true != 1 (i.e. intel)
+   * so it is better just to pass what we are given
+   *
+   * int new = (*mode == FORTRAN_TRUE); 
+   */
+  int new = *mode;
   int old = rtdb_parallel(new);
 
   if (old)
