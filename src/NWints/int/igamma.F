@@ -1,9 +1,11 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.5 1996-10-18 22:05:09 d3e129 Exp $
+c $Id: igamma.F,v 1.6 2001-03-06 19:27:50 bjohnson Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       Parameter (EXPLIM=100.D0)
       Parameter (TMAX=30.D0,ACCY=1.D-14)
 *
@@ -19,7 +21,11 @@ c     Fj(T)  =  |   x  exp( - T x**2 ) dx
 c               /0
 c
 c******************************************************************************
-
+#ifdef BETTIS
+      if (bettis_screened_operator_enabled()) then
+         call errquit('Screened operator on in igamma',0)
+      endif
+#endif
       do 100 m = 1,N
 
       Tm = Fj(m,0)
