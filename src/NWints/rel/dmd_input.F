@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.2 1999-12-16 23:50:44 bert Exp $
+* $Id: dmd_input.F,v 1.3 1999-12-17 00:53:10 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -27,6 +27,8 @@ c
 c
 c     Read input data beyond Dyall-Modified-Dirac or Dyall-Mod-Dirac; store in rtdb.
 c     
+      dmd_run  = .true.
+c
   10  if (inp_a(test)) then
          if (inp_compare(.false., 'off', test)) then
             dmd_run = .false.
