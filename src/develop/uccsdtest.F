@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.13 2000-05-04 19:59:53 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.14 2000-05-08 05:53:36 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -527,6 +527,9 @@ c
       if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0)
 c
       uccsdtest = .true.
+c
+      if (.not. bas_destroy(basis)) call errquit('basis',0)
+      if (.not. geom_destroy(geom)) call errquit('geom',0)
 c
       end
       subroutine uccsdtest_product_pure(
