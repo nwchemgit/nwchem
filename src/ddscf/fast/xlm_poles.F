@@ -406,11 +406,11 @@ c
       q( 0,1) = z
       q( 1,1) = x
       if (lmax .eq. 1) return
-      q(-2,2) = 6*x*y
-      q(-1,2) = 3*y*z
+      q(-2,2) = 6.0d0*x*y
+      q(-1,2) = 3.0d0*y*z
       q( 0,2) = z*z - 0.5d0*(x*x+y*y)
-      q( 1,2) = 3*x*z
-      q( 2,2) = 3*(x*x-y*y)
+      q( 1,2) = 3.0d0*x*z
+      q( 2,2) = 3.0d0*(x*x-y*y)
       if (lmax .eq. 2) return
 c
       r2 = x*x + y*y + z*z

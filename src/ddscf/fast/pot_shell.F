@@ -3,6 +3,7 @@
       implicit none
 #include "bas.fh"
 #include "geom.fh"
+#include "canlfit.fh"
       integer basis, ish, jsh   ! [input] Basis and shell info
       integer ld
       double precision den(ld,*) ! [input] Density matrix
@@ -52,10 +53,12 @@ c
       logical iosph, josph
       double precision ri(3), rj(3), x, y, z, alpha, prefac, sqrta, ar,
      $     dmax, radial, factor, sum, ppot, r, charge, ralpha
-      double precision anls((lmax2+2)*(lmax2+3)/4)
+      double precision qm2, qm1, q0, qp1, qp2
+      double precision anls((lmax2+2)*(lmax2+3)/4), a00, a11, 
+     $     dd, dd2, dd3, rar
       character*16 tag
-      double precision anl_fit, vnlm
-      external anl_fit, vnlm
+      double precision anl_fit
+      external anl_fit
 c
 c     Get info on the shells
 c
@@ -168,7 +171,17 @@ c
                      z = xyz(3,ipt)-c
                      r = sqrt(x*x + y*y + z*z)
                      ar = sqrta * r
-                     pot(ipt) = pot(ipt) - factor*anl_fit(0,0,ar)
+                     if (ar .lt. anl_xcut(0)) then
+                        i = int(anl_scale*ar)
+                        dd = ar - anl_table(0,i,1)
+                        dd2 = dd*dd
+                        dd3 = dd2*dd
+                        a00 = anl_table(1,i,1)+dd*anl_table(2,i,1)+
+     $                       dd2*anl_table(3,i,1)+dd3*anl_table(4,i,1)
+                     else
+                        a00 = anl_fac(0,0)/ar
+                     endif
+                     pot(ipt) = pot(ipt) - factor*a00
                   enddo
                else if (ijtype .eq. 1) then
                   do ipt = 1, npts
@@ -177,13 +190,46 @@ c
                      z = xyz(3,ipt)-c
                      r = sqrt(x*x + y*y + z*z)
                      ar = sqrta * r
-                     call anl_fit_group(1, ar, anls)
-                     pot(ipt) = pot(ipt) - 
-     $                    prefac*ndens(1)*anls(1)
-                     pot(ipt) = pot(ipt) - prefac*anls(2)*
-     $                    (y*ndens(2) + z*ndens(3) + x*ndens(4))
+                     if (ar .lt. anl_xcut(1)) then
+                        i = int(anl_scale*ar)
+                        dd = ar - anl_table(0,i,1)
+                        dd2 = dd*dd
+                        dd3 = dd2*dd
+                        a00 = anl_table(1,i,1) + dd*anl_table(2,i,1) +
+     $                       dd2*anl_table(3,i,1) + dd3*anl_table(4,i,1)
+                        a11 = anl_table(1,i,2) + dd*anl_table(2,i,2) +
+     $                       dd2*anl_table(3,i,2) + dd3*anl_table(4,i,2)
+                     else
+                        rar = 1.0d0/ar
+                        a00 = anl_fac(0,0)*rar
+                        a11 = anl_fac(1,1)*rar*rar*rar
+                     endif
+                     pot(ipt) = pot(ipt) - prefac*(
+     $                    a00*ndens(1) + 
+     $                    a11*(y*ndens(2)+z*ndens(3)+x*ndens(4)))
                   enddo
-               else
+               else if (ijtype .eq. 2) then
+                  ralpha = 1.0d0 / alpha
+                  do ipt = 1, npts
+                     x = xyz(1,ipt)-a
+                     y = xyz(2,ipt)-b
+                     z = xyz(3,ipt)-c
+                     r = sqrt(x*x + y*y + z*z)
+                     ar = sqrta * r
+                     qm2 = 6.0d0*x*y
+                     qm1 = 3.0d0*y*z
+                     q0  = z*z - 0.5d0*(x*x+y*y)
+                     qp1 = 3.0d0*x*z
+                     qp2 = 3.0d0*(x*x-y*y)
+                     call anl_fit_group_2(ijtype, ar, anls)
+                     pot(ipt) = pot(ipt) - prefac*(
+     $                    anls(1)*ndens(1) + 
+     $                    anls(2)*(y*ndens(2)+z*ndens(3)+x*ndens(4)) +
+     $                    anls(3)*(qm2*ndens(5)+qm1*ndens(6)+
+     $                    q0*ndens(7)+qp1*ndens(8) + qp2*ndens(9)) +
+     $                    anls(4)*ndens(10)*ralpha)
+                  enddo
+               else 
                   ralpha = 1.0d0 / alpha
                   do ipt = 1, npts
                      x = xyz(1,ipt)-a

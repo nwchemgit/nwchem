@@ -7,38 +7,28 @@
       double precision x
 c
 c     Return the value of Anl(x) computed from the table
-c     or asymptotic formula.  See anl_fit_init.  This is a slow
-c     paranoid version of this routine. 
+c     or asymptotic formula.  See anl_fit_init.
 c
       integer nlcnt, i, k
       double precision d, value, rx, rx2
 c
-      if (n.lt.0 .or. n.gt.maxn) call errquit
-     $     ('anl_fit: invalid n ',n)
-      if (l.lt.0 .or. l.gt.n) call errquit
-     $     ('anl_fit: invalid l ',l)
-      if (mod(n+l,2).ne.0) call errquit
-     $     ('anl_fit: n+l is not even ', n+l)
-      if (x.lt.0.0d0) call errquit
-     $     ('anl_fit: x is negative ', 0)
-c
-      if (x .lt. xhi) then
-         nlcnt = mapnl(l,n)
-         i = int(scale*x)
-         d = x - table(0,i,nlcnt)
-         value = table(order+1,i,nlcnt)
-         do k = order,1,-1
-            value = table(k,i,nlcnt) + d*value
+      if (x .lt. anl_xcut(n)) then
+         nlcnt = anl_mapnl(l,n)
+         i = int(anl_scale*x)
+         d = x - anl_table(0,i,nlcnt)
+         value = anl_table(anl_order+1,i,nlcnt)
+         do k = anl_order,1,-1
+            value = anl_table(k,i,nlcnt) + d*value
          enddo
          anl_fit = value
       else
          rx = 1.0d0/x
-         value = prefac(l,n)*rx
+         value = anl_fac(l,n)*rx
          rx2 = rx*rx
          do i = 1, l
             value = value * rx2
          enddo
-         anl_fit = value        ! prefac(l,n)/x**(2*l+1)
+         anl_fit = value        ! anl_fac(l,n)/x**(2*l+1)
       endif
 c
       end
@@ -52,6 +42,71 @@ c
 c     Return the value of Anl(x) computed from the table
 c     or asymptotic formula for all n and l up to nmax.
 c
+c     No error checking is being performed for reasons of speed.
+c
+c     Several values are returned, as follows.
+c
+c     ind = 1
+c     do n = 0, nmax
+c     .  do l = n, 0, -2
+c     .     values(ind) = anl_fit(n, l, x)
+c     .     ind = ind + 1
+c     .  enddo
+c     end
+c
+      integer i, k, n, l, ind
+      double precision d, d2, d3, value, rx, rx2
+      double precision rx2l1(0:anl_maxn)
+c     
+      if (x .lt. anl_xcut(nmax)) then
+         i = int(anl_scale*x)
+         d = x - anl_table(0,i,1)
+         if (anl_order .eq. 3) then
+            d2 = d*d
+            d3 = d*d2
+            do ind = 1, anl_nlsum(nmax)
+               values(ind) = anl_table(1,i,ind) + d*anl_table(2,i,ind) +
+     $              + d2*anl_table(3,i,ind) + d3*anl_table(4,i,ind)
+            enddo
+         else
+            do ind = 1, anl_nlsum(nmax)
+               value = anl_table(anl_order+1,i,ind)
+               do k = anl_order,1,-1
+                  value = anl_table(k,i,ind) + d*value
+               enddo
+               values(ind) = value
+            enddo
+         endif
+      else
+         rx = 1.0d0/x
+         rx2 = rx*rx
+         rx2l1(0) = rx           ! x^-(2l+1)
+         do l = 1, nmax
+            rx2l1(l) = rx2l1(l-1)*rx2
+         enddo
+c
+         ind = 1
+         do n = 0, nmax
+            do l = n, 0, -2
+               values(ind) = anl_fac(l,n)*rx2l1(l)
+               ind = ind + 1
+            enddo
+         enddo
+      endif
+c
+      end
+      subroutine anl_fit_group_0(nmax, x, values)
+      implicit none
+#include "canlfit.fh"
+      integer nmax
+      double precision x
+      double precision values(*)
+c
+c     Return the value of Anl(x) computed from the table
+c     or asymptotic formula for all n and l up to nmax.
+c
+c     HARDWIRED FOR NMAX = 0
+c
 c     No error checking is being performed for reaons of speed.
 c
 c     Several values are returned, as follows.
@@ -64,42 +119,144 @@ c     .     ind = ind + 1
 c     .  enddo
 c     end
 c
-c     An upper bound on the dimension of values is ((nmax+2)*(nmax+3)/4)
+      integer i, k
+      double precision d, d2, d3
 c
-      integer nlcnt, i, k, n, l, ind
-      double precision d, value, rx, rx2
-      double precision rx2l1(0:maxn)
-c
-      if (x .lt. xhi) then
-         ind = 1
-         i = int(scale*x)
-         do n = 0, nmax
-            do l = n, 0, -2
-               nlcnt = mapnl(l,n)
-               d = x - table(0,i,nlcnt)
-               value = table(order+1,i,nlcnt)
-               do k = order,1,-1
-                  value = table(k,i,nlcnt) + d*value
-               enddo
-               values(ind) = value
-               ind = ind + 1
+      if (x .lt. anl_xcut(0)) then
+         i = int(anl_scale*x)
+         d = x - anl_table(0,i,1)
+         if (anl_order .eq. 3) then
+            d2 = d*d
+            d3 = d2*d
+            values(1) = anl_table(1,i,1) + d*anl_table(2,i,1) +
+     $           d2*anl_table(3,i,1) + d3*anl_table(4,i,1)
+         else
+            values(1) = anl_table(anl_order+1,i,1)
+            do k = anl_order,1,-1
+               values(1) = anl_table(k,i,1) + d*values(1)
             enddo
-         enddo
+         endif
+      else
+         values(1) = anl_fac(0,0)/x
+      endif
+c
+      end
+      subroutine anl_fit_group_1(nmax, x, values)
+      implicit none
+#include "canlfit.fh"
+      integer nmax
+      double precision x
+      double precision values(*)
+c
+c     Return the value of Anl(x) computed from the table
+c     or asymptotic formula for all n and l up to nmax.
+c
+c     HARDWIRED FOR NMAX = 1
+c
+c     No error checking is being performed for reaons of speed.
+c
+c     Several values are returned, as follows.
+c
+c     ind = 1
+c     do n = 0, nmax
+c     .  do l = n, 0, -2
+c     .     values(ind) = anl_fit(n, l, x)
+c     .     ind = ind + 1
+c     .  enddo
+c     end
+c
+      integer i, k
+      double precision d, d2, d3, rx, rx2, rx3
+c
+      if (x .lt. anl_xcut(1)) then
+         i = int(anl_scale*x)
+         d = x - anl_table(0,i,1)
+         if (anl_order .eq. 3) then
+            d2 = d*d
+            d3 = d2*d
+            values(1) = anl_table(1,i,1) + d*anl_table(2,i,1) +
+     $           d2*anl_table(3,i,1) + d3*anl_table(4,i,1)
+            values(2) = anl_table(1,i,2) + d*anl_table(2,i,2) +
+     $           d2*anl_table(3,i,2) + d3*anl_table(4,i,2)
+         else
+            values(1) = anl_table(anl_order+1,i,1)
+            values(2) = anl_table(anl_order+1,i,2)
+            do k = anl_order,1,-1
+               values(1) = anl_table(k,i,1) + d*values(1)
+               values(2) = anl_table(k,i,2) + d*values(2)
+            enddo
+         endif
       else
          rx = 1.0d0/x
          rx2 = rx*rx
-         rx2l1(0) = rx           ! x^-(2l+1)
-         do l = 1, nmax
-            rx2l1(l) = rx2l1(l-1)*rx2
-         enddo
+         rx3 = rx2*rx
+         values(1) = anl_fac(0,0)*rx
+         values(2) = anl_fac(1,1)*rx3
+      endif
 c
+      end
+      subroutine anl_fit_group_2(nmax, x, values)
+      implicit none
+#include "canlfit.fh"
+      integer nmax
+      double precision x
+      double precision values(*)
+c
+c     Return the value of Anl(x) computed from the table
+c     or asymptotic formula for all n and l up to nmax.
+c
+c     HARDWIRED FOR NMAX = 2
+c
+c     No error checking is being performed for reaons of speed.
+c
+c     Several values are returned, as follows.
+c
+c     ind = 1
+c     do n = 0, nmax
+c     .  do l = n, 0, -2
+c     .     values(ind) = anl_fit(n, l, x)
+c     .     ind = ind + 1
+c     .  enddo
+c     end
+c
+      integer i, k, ind
+      double precision d, d2, d3, rx, rx2, rx3
+c
+      if (x .lt. anl_xcut(2)) then
          ind = 1
-         do n = 0, nmax
-            do l = n, 0, -2
-               values(ind) = prefac(l,n)*rx2l1(l)
-               ind = ind + 1
+         i = int(anl_scale*x)
+         d = x - anl_table(0,i,1)
+         if (anl_order .eq. 3) then
+            d2 = d*d
+            d3 = d2*d
+            values(1) = anl_table(1,i,1) + d*anl_table(2,i,1) +
+     $           d2*anl_table(3,i,1) + d3*anl_table(4,i,1)
+            values(2) = anl_table(1,i,2) + d*anl_table(2,i,2) +
+     $           d2*anl_table(3,i,2) + d3*anl_table(4,i,2)
+            values(3) = anl_table(1,i,3) + d*anl_table(2,i,3) +
+     $           d2*anl_table(3,i,3) + d3*anl_table(4,i,3)
+            values(4) = anl_table(1,i,4) + d*anl_table(2,i,4) +
+     $           d2*anl_table(3,i,4) + d3*anl_table(4,i,4)
+         else
+            values(1) = anl_table(anl_order+1,i,1)
+            values(2) = anl_table(anl_order+1,i,2)
+            values(3) = anl_table(anl_order+1,i,3)
+            values(4) = anl_table(anl_order+1,i,4)
+            do k = anl_order,1,-1
+               values(1) = anl_table(k,i,1) + d*values(1)
+               values(2) = anl_table(k,i,2) + d*values(2)
+               values(3) = anl_table(k,i,3) + d*values(3)
+               values(4) = anl_table(k,i,4) + d*values(4)
             enddo
-         enddo
+         endif
+      else
+         rx = 1.0d0/x
+         rx2 = rx*rx
+         rx3 = rx2*rx
+         values(1) = anl_fac(0,0)*rx
+         values(2) = anl_fac(1,1)*rx3
+         values(3) = anl_fac(2,2)*rx3*rx2
+         values(4) = anl_fac(0,2)*rx
       endif
 c
       end
@@ -108,48 +265,51 @@ c
 #include "canlfit.fh"
 c
       integer n, l, i, nlcnt, k
-      double precision f(0:npt), h, x, value, anl, pi, dfac, anl_fit
+      double precision f(0:anl_npt), h, x, value, anl, pi, dfac, 
+     $     anl_fit
       external anl, anl_fit
 c
 c     Initialize interpolation tables used for 0..xhi
 c
-      h = xhi/dble(npt)
-      scale = 1.0d0/h
+      h = anl_xhi/dble(anl_npt)
+      anl_scale = 1.0d0/h
 c
-      do n = 0, maxn
-         do l = 0, maxn
-            mapnl(l,n) = 999999999 ! Make invalid access disastrous
-            prefac(l,n) = 1d+300
+      do n = 0, anl_maxn
+         anl_xcut(n) = anl_xhi          ! Initial value - reset below
+         do l = 0, anl_maxn
+            anl_mapnl(l,n) = 999999999 ! Make invalid access disastrous
+            anl_fac(l,n) = 1d+300
          enddo
       enddo
 c
       nlcnt = 0
-      do n = 0,maxn
+      do n = 0,anl_maxn
          do l = n,0,-2
             nlcnt = nlcnt + 1
-            if (nlcnt .gt. maxnl) call errquit
+            if (nlcnt .gt. anl_maxnl) call errquit
      $           (' anlfit: too many functions?', nlcnt)
-            mapnl(l,n) = nlcnt
-            do i = 0,npt
+            anl_mapnl(l,n) = nlcnt
+            do i = 0,anl_npt
                f(i) = anl(n,l,dble(i)*h)
             enddo
-            call interp_table_make(npt, order, 0.0d0, xhi, f, 
-     $           table(0,0,mapnl(l,n)))
+            call interp_table_make(anl_npt, anl_order, 0.0d0, 
+     $           anl_xhi, f, 
+     $           anl_table(0,0,anl_mapnl(l,n)))
 c
 c     Verify accuracy of interpolation at midpoints of regions
-c     ... make sure we have either 13 sig. fig. or an absolute
-c     accuracy of 13dp.
+c     ... make sure we have either ANL_ACC sig. fig. or an absolute
+c     accuracy of ANL_ACC
 c
-            do i = 0,npt-1
+            do i = 0,anl_npt-1
                x = h*(0.5d0+dble(i)) 
-c$$$               d = x - table(0,i,nlcnt)
-c$$$               value = table(order+1,i,nlcnt)
-c$$$               do k = order,1,-1
-c$$$                  value = table(k,i,nlcnt) + d*value
+c$$$               d = x - anl_table(0,i,nlcnt)
+c$$$               value = anl_table(anl_order+1,i,nlcnt)
+c$$$               do k = anl_order,1,-1
+c$$$                  value = anl_table(k,i,nlcnt) + d*value
 c$$$               enddo
                value = anl_fit(n,l,x)
                if (abs(value-anl(n,l,x)) .gt. 
-     $              max(1d-13,1d-13*value)) then
+     $              max(anl_acc,anl_acc*value)) then
                   write(6,1) n, l, x, value, anl(n,l,x),
      $                 value-anl(n,l,x)
  1                format(' fit error ', 2i5, 3f20.14, 1p, d9.1)
@@ -157,34 +317,48 @@ c$$$               enddo
                endif
             enddo
          enddo
+         anl_nlsum(n) = nlcnt
       enddo
-**      write(6,*) ' used ', nlcnt, ' tables out of ', maxnl
+**      write(6,*) ' used ', nlcnt, ' tables out of ', anl_maxnl
 c      
 c     Initialize prefactors for asymptotic form used beyond xhi
 c
 c     (n+l+1)!! * sqrt(Pi) / [2^((n+l)/2+2) * (2*l+1) * x^(2*l+1)]
 c
       pi = 4.0d0*atan(1.0d0)
-      do n = 0, maxn
+      do n = 0, anl_maxn
          do l = n, 0, -2
             dfac = 1.0d0
             do k = (n+l+1),1,-2
                dfac = dfac * dble(k)
             enddo
-            prefac(l,n) = dfac * sqrt(pi) / 
+            anl_fac(l,n) = dfac * sqrt(pi) / 
      $           ((2.0d0*dble(l)+1.0d0)*2.0d0**((n+l)/2+2))
 c
-c     Verify asymptotic form
+c     Verify asymptotic form at xhi
 c
-            value = anl(n,l,xhi)
-            if (abs(value-anl_fit(n,l,xhi)).gt.1d-13) then
-               write(6,2) n, l, dfac, value, prefac(l,n), 
-     $              anl_fit(n,l,xhi), 
-     $              anl_fit(n,l,xhi)-value
+            value = anl(n,l,anl_xhi)
+            if (abs(value-anl_fit(n,l,anl_xhi)).gt.anl_acc) then
+               write(6,2) n, l, dfac, value, anl_fac(l,n), 
+     $              anl_fit(n,l,anl_xhi), 
+     $              anl_fit(n,l,anl_xhi)-value
  2             format(' prefac err ', 2i5, 4f20.14,1p,d12.4)
                call errquit('anlfit: bad asymptote ', n*1000+l)
             endif
          enddo
+c
+c     Find where asymptotic form becomes accurate.  Worst case
+c     is always l=0/2.
+c      
+         l = mod(n,2)
+         do x = 3.0d0, anl_xhi, 0.1d0
+            if (abs(anl_fac(l,n)/x**(2*l+1)-anl(n,l,x)).le.anl_acc)then
+               anl_xcut(n) = x
+               goto 333
+            endif
+         enddo
+         call errquit('aln_fit_init: failed to find asymptote?',n)
+ 333     continue
       enddo
 c
       end
