@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.1 2003-02-11 21:50:52 marat Exp $
+* $Id: paw_energy_core_atom.F,v 1.2 2003-02-21 18:38:45 marat Exp $
 *
 
 
@@ -56,4 +56,131 @@
 
       end
 
+!**************************************************
+!
+!       Name: paw_energy_core_ion_atom
+!
+!       Purpose: calculates core ion interac. energy
+!
+!       Created: Mon Feb 10 13:46:23 PST 2003       
+!**************************************************
+      function paw_energy_core_ion_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_ma.fh"
+#include "paw_matrix_core_data.fh"
+#include "paw_basis.fh"
+#include "integrate.fh"
+#include "paw_params.fh"
+
+      double precision  paw_energy_core_ion_atom
+      integer k
+      integer in,ia
+      integer i_w,i_mtr,i_mtr0
+      integer i,j,li,lj,mi,mj
+      integer nb
+      integer i_r
+      integer ic,max_ic
+      integer i_core_ae
+      integer  i_f1,l_f1
+      logical ok
+      double precision log_amesh
+      double precision ecore
+
+      write(*,*) " in core ion energy"
+      !*** temporary array for calculations ***
+      max_ic = paw_basis_max_i_cut()
+      write(*,*) "max_ic",max_ic
+      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
+      ecore = 0.D0
+      i_w = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        nb = paw_basis_nbasis(ia)
+        ic = paw_basis_i_cut(ia)
+        i_core_ae = paw_basis_i_core_density(ia)
+        i_r = paw_basis_i_rgrid(ia)
+        log_amesh = paw_basis_log_amesh(ia)
+        do k=1,ic
+
+          dbl_mb(i_f1+k-1)=-paw_basis_ion_charge(in)*
+     >                      dbl_mb(i_core_ae+k-1)/
+     >                      dbl_mb(i_r+k-1)       
+
+        end do
+        ecore = ecore + def_integr(-1,dbl_mb(i_f1),2,dbl_mb(i_r),
+     >                       log_amesh,ic)
+
+      end do
  
+      ok = ma_chop_stack(l_f1)
+      paw_energy_core_ion_atom = ecore*fourpi
+ 
+      end
+
+!**************************************************
+!
+!       Name: paw_energy_core_self_atom
+!
+!       Purpose: calculates core self energy
+!
+!       Created: Mon Feb 10 13:46:23 PST 2003       
+!**************************************************
+      function paw_energy_core_self_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_ma.fh"
+#include "paw_matrix_core_data.fh"
+#include "paw_basis.fh"
+#include "integrate.fh"
+#include "paw_params.fh"
+#include "paw_utils.fh"
+
+      double precision  paw_energy_core_self_atom
+      integer k
+      integer in,ia
+      integer i_w,i_mtr,i_mtr0
+      integer i,j,li,lj,mi,mj
+      integer nb
+      integer i_r
+      integer ic,max_ic
+      integer i_core_ae
+      integer  i_f1,l_f1
+      logical ok
+      double precision log_amesh
+      double precision ecore
+
+      write(*,*) " in core self energy"
+      !*** temporary array for calculations ***
+      max_ic = paw_basis_max_i_cut()
+      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
+      ecore = 0.D0
+      i_w = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        nb = paw_basis_nbasis(ia)
+        ic = paw_basis_i_cut(ia)
+        i_core_ae = paw_basis_i_core_density(ia)
+        i_r = paw_basis_i_rgrid(ia)
+        log_amesh = paw_basis_log_amesh(ia)
+        do k=1,ic
+
+          dbl_mb(i_f1+k-1)= dbl_mb(i_core_ae+k-1)*
+     >                      dbl_mb(i_r+k-1)**2       
+
+        end do
+        ecore = ecore + find_multipole_energy(0,ic,dbl_mb(i_r),2,
+     >                                  dbl_mb(i_f1),2,
+     >                                  dbl_mb(i_f1),log_amesh)
+                  
+
+      end do
+ 
+      ok = ma_chop_stack(l_f1)
+      paw_energy_core_self_atom = 0.5d0*ecore*fourpi
+ 
+      end      

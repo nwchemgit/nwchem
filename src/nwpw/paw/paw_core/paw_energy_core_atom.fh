@@ -1,6 +1,12 @@
-!$Id: paw_energy_core_atom.fh,v 1.1 2003-02-11 21:50:52 marat Exp $
+!$Id: paw_energy_core_atom.fh,v 1.2 2003-02-21 18:38:45 marat Exp $
 !
 !
 !
+      double precision paw_energy_core_self_atom
+      external paw_energy_core_self_atom
+
+      double precision paw_energy_core_ion_atom
+      external paw_energy_core_ion_atom
+
       double precision paw_energy_core_atom
       external paw_energy_core_atom
