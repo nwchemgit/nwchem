@@ -6,7 +6,7 @@ c
 c
        integer function moints_numoper( basis, algo, nbf, nocc,
      $                                  nvir, blen, oprint )
-C$Id: moints_mem.F,v 1.6 2003-10-17 22:55:26 carlfahl Exp $
+C$Id: moints_mem.F,v 1.7 2003-11-15 00:25:14 bert Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -70,7 +70,7 @@ c
        else
          gmem_max = ga_memory_avail()
          if (gmem_max.gt.0) then
-           moints_numoper = gmem_max/(8*nbf*nbf)
+           moints_numoper = gmem_max/(nbf*nbf)
            noper_node = moints_numoper/ga_nnodes()
          else
            call errquit('cannot determine transformation GA',0,
