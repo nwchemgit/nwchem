@@ -52,7 +52,7 @@ c
      $     ('moints_screen: allocating mos?',nbf*nmo)
       if (ga_nodeid() .eq. 0) call ga_get
      $     (g_mos, 1, nbf, 1, nmo, dbl_mb(k_mos), nbf)
-      call ga_brdcst(2, dbl_mb(k_mos), nmo*nbf, 0)
+      call ga_brdcst(2, dbl_mb(k_mos), 8*nmo*nbf, 0)
 c     
 c     Allocate temporary for accumulating the result
 c     
@@ -225,6 +225,7 @@ c
             count = count + 1
          end do
       end do
+      call ga_dgop(55,nabic,1,'+')
       call ga_dgop(5,bins,19,'+')
       if (ga_nodeid() .eq. 0) then
          write(6,12) 
@@ -251,6 +252,7 @@ c
       subroutine moints_scr2(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
      $     ints, mos, nbf, nmo, tmp1, tmp2, tmp3)
       implicit none
+#include "global.fh"
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi, nbf, nmo
       double precision ints(llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
       double precision mos(nbf,nmo)
@@ -265,21 +267,25 @@ c
 c
 c     (lk|ji) -> (lq|ji)
 c
-c$$$            write(6,*) ' i, j, ', i, j
-c$$$            write(6,*) ' ints '
-c$$$            call output(ints(llo,klo,j,i),1,ldim,1,kdim,ldim,kdim,1)
-c$$$            write(6,*) ' mos '
-c$$$            call output(mos,1,nbf,1,nmo,nbf,nmo,1)
+c$$$            if (ga_nodeid() .eq. 1) then
+c$$$               write(6,*) ' i, j, ', i, j
+c$$$               write(6,*) ' ints '
+c$$$               call output(ints(llo,klo,j,i),1,ldim,1,kdim,ldim,kdim,1)
+c$$$               write(6,*) ' mos '
+c$$$               call output(mos,1,nbf,1,nmo,nbf,nmo,1)
+c$$$            endif
             call dgemm('n', 'n', ldim, nmo, kdim, 1.0d0,
      $           ints(llo,klo,j,i), ldim, mos(klo,1), nbf, 0.0d0,
      $           tmp1(llo,1), ldim)
 c
 c     (lq|ji) -> (pq|ji)  (will be symmetrized at very end)
 c
-c$$$            write(6,*) ' tmp1 '
-c$$$            call output(tmp1,1,ldim,1,nmo,ldim,nmo,1)
-c$$$            write(6,*) ' tmp2 '
-c$$$            call output(tmp2,1,nmo,1,nmo,nmo,nmo,1)
+c$$$            if (ga_nodeid() .eq. 1) then
+c$$$               write(6,*) ' tmp1 '
+c$$$               call output(tmp1,1,ldim,1,nmo,ldim,nmo,1)
+c$$$               write(6,*) ' tmp2 '
+c$$$               call output(tmp2,1,nmo,1,nmo,nmo,nmo,1)
+c$$$            endif
             call dgemm('t', 'n', nmo, nmo, ldim, 1.0d0,
      $           mos(llo,1), nbf, tmp1(llo,1), ldim,  0.0d0, 
      $           tmp2(1,1), nmo)
