@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.110 1995-05-28 19:56:16 gg502 Exp $
+# $Id: makefile.h,v 1.111 1995-06-02 04:52:06 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -212,10 +212,9 @@ endif
 
 ifeq ($(TARGET),CRAY-T3D)
 #
-# Requires single-precision BLAS
 # CRAY-T3D cross-compiled on YMP (atw)
 #
-   CORE_SUBDIRS_EXTRA =	
+   CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
                RANLIB = @echo
             MAKEFLAGS = -j 2
               INSTALL = @echo $@ is built
@@ -229,7 +228,7 @@ ifeq ($(TARGET),CRAY-T3D)
             COPTIMIZE = -O
             LDOPTIONS = -Drdahead=on
 
-              DEFINES = -DCRAY_T3D
+              DEFINES = -DCRAY_T3D -DPARALLEL_DIAG
 
                LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
 			-Dbin=NWints/api/int_init.o \
