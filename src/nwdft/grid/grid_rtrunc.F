@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.23 2000-02-23 23:12:40 edo Exp $
+c$Id: grid_rtrunc.F,v 1.24 2000-02-24 22:47:40 edo Exp $
 c
       implicit none
 c      
@@ -112,6 +112,7 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
             xb(1)=dbl_mb(k_coord+3*(iat_diff-1))
             xb(2)=dbl_mb(k_coord+3*(iat_diff-1)+1)
             xb(3)=dbl_mb(k_coord+3*(iat_diff-1)+2)
+            
             call grid_checks(job_grid_acc,iat,alphaa,lla,xa,
      .           iat_diff,alphab,llb,xb)
          enddo
@@ -264,7 +265,7 @@ c
       external dabsmax
       parameter(ov_trunc=1d-5)
       external grid_rnegl
-      double precision grid_rnegl,shift_2g
+      double precision grid_rnegl,shift_2g,rrr
 c
       range_max=0d0
       shiftm_2g=0d0
@@ -285,13 +286,18 @@ c
 c
 c     bit to add from gaussian product formula
 c               
-               shift_2g=sqrt(
-     .              (coord(1,iat)-coord(1,jat))**2+
+              rrr=   sqrt((coord(1,iat)-coord(1,jat))**2+
      .              (coord(2,iat)-coord(2,jat))**2+
-     .              (coord(3,iat)-coord(3,jat))**2)*exp_iat/
+     .              (coord(3,iat)-coord(3,jat))**2)
+               shift_2g=rrr*exp_iat/
      /              (exp_iat+expo(jat))
-               if(shift_2g.gt.1e-12) shift_2g=shift_2g*2d0
+c               if(shift_2g.gt.1e-12) shift_2g=shift_2g*2d0
                range=range+shift_2g
+c
+c     this hack gets <a|a> for nearest neighbors
+c
+c               if(iat.ne.jat) range=range+6d0/rrr
+               if(iat.ne.jat) range=range+rrr
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g
                   range_max =  range
@@ -360,7 +366,6 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
                cs(iat)=icset
                mexp(iat)=min_exp
                ldiff(iat)=l
-cedo               write(0,*) ' min exp l',min_exp,l
             endif
          enddo
       endif

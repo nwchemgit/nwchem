@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.9 2000-02-23 23:12:39 edo Exp $
+c$Id: grid_checks.F,v 1.10 2000-02-24 22:47:40 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -30,6 +30,10 @@ c
      ,     k_iscr,l_iscr,k_rq,l_rq,iag_old
       double precision reqacc
 c
+      itype=iatype(iat)
+      jtype=iatype(ibt)
+      same_ctr=iat.eq.ibt
+      if(nrad(itype).eq.0.or.nrad(jtype).eq.0) return
       do_interp=.false.
       rij=sqrt((xa(1)-xb(1))**2+
      .     (xa(2)-xb(2))**2+
@@ -42,13 +46,13 @@ c
       if (.not.MA_Push_Get(MT_Dbl,mxrad,'pts',l_pts,k_pts))
      &     call errquit('grchk: cannot allocate pts',0)
       if (.not.MA_Push_Get(MT_Dbl,mxrad,'wgts',l_wgt,k_wgt))
-     &     call errquit('grchk: cannot allocate wgt',0)
+     &     call errquit('grchk: cannot allocate wgt',1)
       if (.not.MA_Push_Get(MT_Dbl,4*nptstot,'xyzw',l_xyzw,k_xyzw))
-     &     call errquit('grchk: cannot allocate xyzw',0)
+     &     call errquit('grchk: cannot allocate xyzw',2)
       if (.not.MA_Push_Get(MT_Dbl,nptstot*2,'rq',l_rq,k_rq))
-     &     call errquit('grchk: cannot allocate rq',0)
+     &     call errquit('grchk: cannot allocate rq',3)
       if (.not.MA_Push_Get(MT_int,nptstot,'iscr',l_iscr,k_iscr))
-     &     call errquit('grchk: cannot allocate iscr',0)
+     &     call errquit('grchk: cannot allocate iscr',4)
 c
 c     preliminary call to lebedev
 c      
@@ -59,9 +63,6 @@ c
       
 
 
-      itype=iatype(iat)
-      jtype=iatype(ibt)
-      same_ctr=iat.eq.ibt
 c
 c     radial
 c
