@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole,coord)
-C$Id: dft_genspm.F,v 1.5 1995-11-03 00:05:26 og845 Exp $
+C$Id: dft_genspm.F,v 1.6 1996-07-03 20:58:58 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -54,12 +54,11 @@ c
       nproc  = ga_nnodes()
 
       if(.not.MA_Push_Get(mt_dbl,lmpint,' multipole ints',lMP,iMP))
-     &     call errquit(' exiting in dft_gensmp: insuff stack',1)
+     &  call errquit('dft_genspm: cannot allocate multipole ints',0)
 
       call int_mem_2e3c(maxg, max_scratch)
-      if(.not.MA_Push_Get(mt_dbl,max_scratch,' scratch',
-     &     lscr,iscr))
-     &     call errquit(' exiting in dft_gensmp: insuff stack',2)
+      if(.not.MA_Push_Get(mt_dbl,max_scratch,' scratch',lscr,iscr))
+     &  call errquit('dft_genspm: cannot allocate scratch',0)
 
 
       call dfill(natoms,0.d0,charge,1)
@@ -148,8 +147,10 @@ c
 
       n1 = nxtask(-nproc,icount)
 
-      status = ma_pop_stack(lscr)
-      status = ma_pop_stack(lMP)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_genspm: cannot pop stack',0)
+      if(.not.ma_pop_stack(lMP))
+     &  call errquit('dft_genspm: cannot pop stack',0)
 
       write(LuOut,*) 
       write(LuOut,*) ' SPM '

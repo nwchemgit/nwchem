@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.7 1995-11-03 18:51:48 og845 Exp $
+C$Id: dft_getspm.F,v 1.8 1996-07-03 20:58:59 d3h449 Exp $
       implicit none
       integer lmax               ! max value of ang momentum
       integer iga_dens           ! GA handle for DM
@@ -27,106 +27,107 @@ C
 #include "stdio.fh"
 
 
-        if (.not. geom_ncent(geom, natoms))
-     &       call errquit('dft_scf: geom_ncent failed',73)      
+      if(.not. geom_ncent(geom, natoms))
+     &  call errquit('dft_scf: geom_ncent failed',0)
 
-        if(.not.Ma_Alloc_Get(MT_Dbl,natoms*3,'coordinates',lcoord,
-     &       icoord))
-     &       call errquit('dft_scf: push_get failed',74)
-        if(.not.Ma_Push_Get(MT_Dbl,natoms,'charges',lcharge,
-     &       icharge))
-     &       call errquit('dft_scf: push_get failed',74)
-        if(.not.Ma_Push_Get(MT_Byte, natoms*16, 'center tags',
-     &       ltags, itags))
-     &       call errquit('dft_scf: push_get failed',74)
+      if(.not.Ma_Alloc_Get(MT_Dbl,natoms*3,'coordinates',lcoord,icoord))
+     &  call errquit('dft_getspm: cannot allocate coordinates',0)
+      if(.not.Ma_Push_Get(MT_Dbl,natoms,'charges',lcharge,icharge))
+     &  call errquit('dft_getspm: cannot allocate charges',0)
+      if(.not.Ma_Push_Get(MT_Byte,natoms*16,'center tags',ltags,itags))
+     &  call errquit('dft_getspm: cannot allocate center tags',0)
 
-        if (.not. geom_cart_get(geom, natoms, Byte_MB(itags),
-     &       Dbl_MB(icoord), Dbl_MB(icharge)))
-     &       call errquit('dft_scf: geom_cart_get failed',74)
+      if(.not. geom_cart_get(geom, natoms, Byte_MB(itags),
+     &  Dbl_MB(icoord), Dbl_MB(icharge)))
+     &  call errquit('dft_getspm: geom_cart_get failed',1)
 
 c**** 
 c**** compute center of charge
 c**** 
 
-        centerl(1) = 0.d0
-        centerl(2) = 0.d0
-        centerl(3) = 0.d0
+      centerl(1) = 0.d0
+      centerl(2) = 0.d0
+      centerl(3) = 0.d0
 
       do icent = 0,natoms-1
-
         q =dbl_mb(icharge+icent)
-          centerl(1) = centerl(1) + q*dbl_mb(icoord+3*icent  )
-          centerl(2) = centerl(2) + q*dbl_mb(icoord+3*icent+1)
-          centerl(3) = centerl(3) + q*dbl_mb(icoord+3*icent+2)
+        centerl(1) = centerl(1) + q*dbl_mb(icoord+3*icent  )
+        centerl(2) = centerl(2) + q*dbl_mb(icoord+3*icent+1)
+        centerl(3) = centerl(3) + q*dbl_mb(icoord+3*icent+2)
       enddo 
-      if (.not. geom_nuc_charge(geom,total_nuc_charge)) call errquit(
-     &     'dft_mpole:dft_nuc_mpole: geom_nuc_charge failed',20)
+      if(.not. geom_nuc_charge(geom,total_nuc_charge)) call errquit
+     &  ('dft_mpole:dft_nuc_mpole: geom_nuc_charge failed',20)
 
-        centerl(1) = centerl(1)/total_nuc_charge
-        centerl(2) = centerl(2)/total_nuc_charge
-        centerl(3) = centerl(3)/total_nuc_charge
+      centerl(1) = centerl(1)/total_nuc_charge
+      centerl(2) = centerl(2)/total_nuc_charge
+      centerl(3) = centerl(3)/total_nuc_charge
 
-        LResult = MA_Pop_Stack(ltags)
+      if(.not.ma_pop_stack(ltags))
+     &  call errquit('dft_getspm: cannot pop stack',0)
 
-        if(lmax.gt.0) then
-          if(.not.Ma_Push_Get(MT_Dbl,3*natoms,'dipole',ldipole,
-     &         idipole))
-     &         call errquit('dft_scf: push_get failed',74)
-        endif
+      if(lmax.gt.0) then
+        if(.not.Ma_Push_Get(MT_Dbl,3*natoms,'dipole',ldipole,
+     &    idipole))
+     &    call errquit('dft_getspm: cannot allocate dipole',0)
+      endif
 
-        max_at_bf = 0
-        do iatom = 1, natoms
-          if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
-     $         call errquit('quadvxc0: bas_ce2bfr failed', iatom)
-          max_at_bf = max(max_at_bf, ihi-ilo+1)
-        enddo
-        max_at_bf2=max_at_bf*max_at_bf
+      max_at_bf = 0
+      do iatom = 1, natoms
+        if(.not. bas_ce2bfr(basis, iatom, ilo, ihi))
+     $    call errquit('quadvxc0: bas_ce2bfr failed', iatom)
+        max_at_bf = max(max_at_bf, ihi-ilo+1)
+      enddo
+      max_at_bf2=max_at_bf*max_at_bf
 
-        if(.not.Ma_Push_Get(MT_Dbl,max_at_bf2,'local DM',lPmat,
-     &       iPmat))
-     &       call errquit('dft_scf: push_get failed',74)
+      if(.not.Ma_Push_Get(MT_Dbl,max_at_bf2,'local DM',lPmat,iPmat))
+     &  call errquit('dft_getspm: cannot allocate local DM',0)
 
-        call dft_genspm(lmax,iga_dens,basis,
-     &       natoms,centerl,dbl_MB(iPmat),max_at_bf,
-     &       DBL_MB(icharge),DBL_MB(idipole),dbl_mb(icoord))
+      call dft_genspm(lmax,iga_dens,basis,
+     &  natoms,centerl,dbl_MB(iPmat),max_at_bf,
+     &  DBL_MB(icharge),DBL_MB(idipole),dbl_mb(icoord))
 c
-c       move the coordinates form coord(3,nat) to x y z arrays
+c     move the coordinates form coord(3,nat) to x y z arrays
 c
-        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lxcrd,ixcrd))
-     &       call errquit('dft_scf: push_get failed',74)
-        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lycrd,iycrd))
-     &       call errquit('dft_scf: push_get failed',74)
-        if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lzcrd,izcrd))
-     &       call errquit('dft_scf: push_get failed',74)
-        istart=0
-        do i=0,natoms-1
-          dbl_mb(ixcrd+i)=dbl_mb(icoord+istart)
-          dbl_mb(iycrd+i)=dbl_mb(icoord+istart+1)
-          dbl_mb(izcrd+i)=dbl_mb(icoord+istart+2)
-          istart=istart+3
-        enddo
+      if(.not.Ma_Push_Get(MT_Dbl,natoms,'x coord',lxcrd,ixcrd))
+     &  call errquit('dft_getspm: cannot allocate x coord',0)
+      if(.not.Ma_Push_Get(MT_Dbl,natoms,'y coord',lycrd,iycrd))
+     &  call errquit('dft_getspm: cannot allocate y coord',0)
+      if(.not.Ma_Push_Get(MT_Dbl,natoms,'z coord',lzcrd,izcrd))
+     &  call errquit('dft_getspm: cannot allocate z coord',0)
+      istart=0
+      do i=0,natoms-1
+        dbl_mb(ixcrd+i)=dbl_mb(icoord+istart)
+        dbl_mb(iycrd+i)=dbl_mb(icoord+istart+1)
+        dbl_mb(izcrd+i)=dbl_mb(icoord+istart+2)
+        istart=istart+3
+      enddo
 
-        LResult = MA_Free_Heap(lcoord)
+      if(.not.ma_free_heap(lcoord))
+     &  call errquit('dft_getspm: cannot free heap',0)
 c
-c       re-center using geometrical center
+c     re-center using geometrical center
 c
-        call dft_geocent(natoms,
-     &       dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd))
+      call dft_geocent(natoms,
+     &  dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd))
 c
-c       call to CMM code
+c     call to CMM code
 c
-C        call cmm_cmm(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
-C     &       dbl_mb(icharge),finest)
+C      call cmm_cmm(natoms,dbl_mb(ixcrd),dbl_mb(iycrd),dbl_mb(izcrd),
+C     &  dbl_mb(icharge),finest)
 
-        LResult = MA_Pop_Stack(lzcrd)
-        LResult = MA_Pop_Stack(lycrd)
-        LResult = MA_Pop_Stack(lxcrd)
-        LResult = MA_Pop_Stack(lPmat)
-        if(lmax.gt.0) then
-          LResult = Lresult.and.MA_Pop_Stack(ldipole)
-        endif
-        LResult = Lresult.and.MA_Pop_Stack(lcharge)
-        if(.not.Lresult) call errquit('dft_scf: pop_stack failed',74)
+      if(.not.ma_pop_stack(lzcrd))
+     &  call errquit('dft_getspm: cannot pop stack',0)
+      if(.not.ma_pop_stack(lycrd))
+     &  call errquit('dft_getspm: cannot pop stack',0)
+      if(.not.ma_pop_stack(lxcrd))
+     &  call errquit('dft_getspm: cannot pop stack',0)
+      if(.not.ma_pop_stack(lPmat))
+     &  call errquit('dft_getspm: cannot pop stack',0)
+      if(lmax.gt.0) then
+        LResult = Lresult.and.MA_Pop_Stack(ldipole)
+      endif
+      LResult = Lresult.and.MA_Pop_Stack(lcharge)
+      if(.not.Lresult) call errquit('dft_getspm: cannot pop stack',0)
 
 c
 c       compute geometrical center for CMM

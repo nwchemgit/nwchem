@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han,g_2ceri,geom)
 
-C$Id: dft_get2eri.F,v 1.3 1995-12-20 03:10:18 og845 Exp $
+C$Id: dft_get2eri.F,v 1.4 1996-07-03 20:58:59 d3h449 Exp $
       implicit none
       integer CD_bas_han, geom
       integer g_2ceri
@@ -48,9 +48,12 @@ c     niter  = (nshells_cd*(nshells_cd+1))/2
 
       MXint=MXnshbf_cd*MXnshbf_cd
 
-      LResult = MA_Push_Get(MT_Dbl,MXint,'buf',lbuf,ibuf)
-      LResult = MA_Push_Get(MT_Dbl,MXint,'buf',lvec,ivec)
-      LResult = MA_Push_Get(MT_Dbl,mscratch_2e2c,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,MXint,'buf',lbuf,ibuf))
+     &  call errquit('dft_get2eri: cannot allocate buf',0)
+      if(.not.MA_Push_Get(MT_Dbl,MXint,'vec',lvec,ivec))
+     &  call errquit('dft_get2eri: cannot allocate buf',0)
+      if(.not.MA_Push_Get(MT_Dbl,mscratch_2e2c,'scr',lscr,iscr))
+     &  call errquit('dft_get2eri: cannot allocate scr',0)
 
       n1 = nxtask(nproc,icount)
       n2 = 0
@@ -90,9 +93,12 @@ c           Re-order.
    10   continue
    20 continue
 
-      LResult = MA_Pop_Stack(lscr)
-      LResult = MA_Pop_Stack(lvec)
-      LResult = MA_Pop_Stack(lbuf)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_get2eri: cannot pop stack',0)
+      if(.not.ma_pop_stack(lvec))
+     &  call errquit('dft_get2eri: cannot pop stack',0)
+      if(.not.ma_pop_stack(lbuf))
+     &  call errquit('dft_get2eri: cannot pop stack',0)
 
       n1 = nxtask(-nproc,icount)
 

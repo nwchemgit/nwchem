@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C     $Id: dft_fitvc.F,v 1.7 1996-05-04 21:07:16 og845 Exp $
+C     $Id: dft_fitvc.F,v 1.8 1996-07-03 20:58:58 d3h449 Exp $
       implicit none
       
 c**** 
@@ -93,10 +93,12 @@ c     Compute the fitted Vcoul.
 c      
 c     Allocate scratch space.
 c      
-      LResult = MA_Push_Get(MT_Dbl,nshells_cd,'CD shell max',
-     &     lcd_shell,icd_shell)
-      
-      LResult = MA_Push_Get(MT_Dbl,MXshbf_cd,'gvec',lgvec,igvec)
+      if(.not.MA_Push_Get(MT_Dbl,nshells_cd,'CD shell max',
+     &  lcd_shell,icd_shell))
+     &  call errquit('dft_fitvc: cannot allocate CD shell max',0)
+c      
+      if(.not.MA_Push_Get(MT_Dbl,MXshbf_cd,'gvec',lgvec,igvec))
+     &  call errquit('dft_fitvc: cannot allocate gvec',0)
 c      
 c     Determine the largest magnitude of the CD expansion coefficients in
 c     each shell.
@@ -135,14 +137,18 @@ c
       if(nproc.eq.1)icount = 1
 c      
       Nao2 = MXshbf_ao**2
-      LResult = MA_Push_Get(MT_Dbl,Nao2,'isvec',lsvec,isvec)
-      LResult = MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2)
+      if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec',lsvec,isvec))
+     &  call errquit('dft_fitvc: cannot allocate isvec',0)
+      if(.not.MA_Push_Get(MT_Dbl,Nao2,'isvec2',lsvec2,isvec2))
+     &  call errquit('dft_fitvc: cannot allocate isvec2',0)
       nERI    = Nao2*MXshbf_cd
-      LResult = MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI)
-
+      if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
+     &  call errquit('dft_fitvc: cannot allocate ERI',0)
+c
       call int_mem_2e3c(maxg, mscratch_2e3c)
       nscr    = mscratch_2e3c
-      LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &  call errquit('dft_fitvc: cannot allocate scr',0)
 
       call ga_zero(g_vc)
       if(.not.incore) n1 = nxtask(nproc,icount)
@@ -257,10 +263,14 @@ c
   240 continue
  9999 continue
       
-      LResult = MA_Pop_Stack(lscr)
-      LResult = MA_Pop_Stack(lERI)
-      LResult = MA_Pop_Stack(lsvec2)
-      LResult = MA_Pop_Stack(lsvec)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
+      if(.not.ma_pop_stack(lERI))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
+      if(.not.ma_pop_stack(lsvec2))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
+      if(.not.ma_pop_stack(lsvec))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -271,14 +281,17 @@ c
 c
       n1 = nxtask(-nproc,icount)
 c      
-      LResult = MA_Pop_Stack(lgvec)
-      LResult = MA_Pop_Stack(lcd_shell)
+      if(.not.ma_pop_stack(lgvec))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
+      if(.not.ma_pop_stack(lcd_shell))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
 c      
 c     Compute the Coulombic self-energy of the fitted charge density.
 c      
 c     Obtain the matrix of 2-ctr ERIs.
 c      
-      LResult = MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
+     &  call errquit('dft_fitvc: cannot allocate scr',0)
       Ecoul2=0.D0
       next=nxtval(nproc)+1
       do i=1,nbf_cd
@@ -295,7 +308,8 @@ c
       Ecoul2=Ecoul2*0.5D0
       if(IOLGC) call gadest(g_2ceri)
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
-      LResult = MA_Pop_Stack(lscr)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_fitvc: cannot pop stack',0)
 c      
 #if defined(DFT_TIMER)
       call dft_second(ts2)

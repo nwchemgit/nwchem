@@ -106,7 +106,8 @@ c     Project the Coulomb potential onto each of the CD fitting functions.
 c
 c     Allocate scratch space.
       
-      LResult = MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec)
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec))
+     &  call errquit('dft_fitcd: cannot allocate Tvec',0)
       call ga_sync
       
 c     Initialize the T vector.
@@ -121,12 +122,15 @@ C      call ga_sync
       icount = max(1,icount)
       
       Nao2 = MXnshbf_ao*MXnshbf_ao
-      LResult = MA_Push_Get(MT_Dbl,Nao2,'gather vector',lgvec,igvec)
+      if(.not.MA_Push_Get(MT_Dbl,Nao2,'gather vector',lgvec,igvec))
+     &  call errquit('dft_fitcd: cannot allocate gather vector',0)
 
       call int_mem_2e3c(maxg, mscratch_2e3c)
-      LResult = MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI)
+      if(.not.MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI))
+     &  call errquit('dft_fitcd: cannot allocate ERI',0)
       nscr =  mscratch_2e3c 
-      LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &  call errquit('dft_fitcd: cannot allocate scr',0)
       if(.not.incore) n1 = nxtask(nproc,icount)
       n2 = 0
       ndone=1
@@ -223,9 +227,12 @@ c
       call dft_second(ts1)
 #endif
 c
-      LResult = MA_Pop_Stack(lscr)
-      LResult = MA_Pop_Stack(lERI)
-      LResult = MA_Pop_Stack(lgvec)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
+      if(.not.ma_pop_stack(lERI))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
+      if(.not.ma_pop_stack(lgvec))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
       
       n1 = nxtask(-nproc,icount)
       call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd,'+')
@@ -241,11 +248,13 @@ c
 c     Allocate scratch space.
 c      
 
-      LResult = MA_Push_Get(MT_Dbl,nbf_cd,'cgtf',lcgtf,icgtf)
+      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cgtf',lcgtf,icgtf))
+     &  call errquit('dft_fitcd: cannot allocate cgtf',0)
       call int_mem_1e(max1e,nscr1e) 
       nscr = max(nscr1e, nbf_cd)
 
-      LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &  call errquit('dft_fitcd: cannot allocate scr',0)
       
 c      
 c     Integrate CD fitting functions in each shell
@@ -351,9 +360,12 @@ c
 c     Compute the integrated electron density from the fit.
 c      
       rho_int = ddot(nbf_cd,CD_coef,1,Dbl_MB(icgtf),1)
-      LResult = MA_Pop_Stack(lscr)
-      LResult = MA_Pop_Stack(lcgtf)
-      LResult = MA_Pop_Stack(lTvec)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
+      if(.not.ma_pop_stack(lcgtf))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
+      if(.not.ma_pop_stack(lTvec))
+     &  call errquit('dft_fitcd: cannot pop stack',0)
       
 #if defined(DFT_TIMER)
       call dft_second(ts2)

@@ -1,6 +1,6 @@
       Subroutine dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
      &      nbf_cd, itol2e,n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C$Id: dft_3cincor.F,v 1.1 1996-05-01 23:37:02 og845 Exp $
+C$Id: dft_3cincor.F,v 1.2 1996-07-03 20:58:56 d3h449 Exp $
       implicit none
             
 c****
@@ -82,7 +82,8 @@ c
       nERI    = Nao2*MXshbf_cd
       call int_mem_2e3c(maxg, mscratch_2e3c)
       nscr    = mscratch_2e3c
-      LResult = MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr)
+      if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
+     &  call errquit('dft_3cincor: cannot allocate scr',0)
       call ga_sync
       n1 = nxtask(nproc,icount)
       n2 = 0
@@ -155,7 +156,8 @@ C             iwhat(n_batch)=n2
   230   continue
   240 continue
       
-      lresult = ma_pop_stack(lscr)
+      if(.not.ma_pop_stack(lscr))
+     &  call errquit('dft_3cincor: cannot pop stack',0)
 c
 c
       n1 = nxtask(-nproc,icount)
