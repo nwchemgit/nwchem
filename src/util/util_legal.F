@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.5 1996-11-03 19:13:12 d3g681 Exp $
+* $Id: util_legal.F,v 1.6 1997-04-02 22:46:39 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -126,19 +126,22 @@ c
       FT = .true.
       center_pt = 40
 c
-      write(luout,1)
- 1    format(//
-     $     1x,
-     $     'If you wish to cite NWChem in the references section of a'/
-     &     1x, 
-     &     'publication, please use the following citation:'//
-     &     1x, 
-     &    '   High Performance Computational Chemistry Group, "NWChem,'/
-     &     1x, 
-     &     '   A Computational Chemistry Package for Parallel'/
-     &     1x, 
-     &     '   Computers, Version 2.1," (1996), Pacific Northwest'/
-     &     1x, 
-     &     '   National Laboratory, Richland, Washington 99352, USA.'//)
+      write(luout,'(/,/)')
+      call util_print_centered(luout, 'CITATION', center_pt, FT)
+      write(luout,10000)
+10000 format(
+     &    /,12x,
+     &    'Please use the following citation when publishing results',
+     &    /,12x,
+     &    'obtained with NWChem:'
+     &    /,/,12x,
+     &    'High Performance Computational Chemistry Group, "NWChem, A',
+     &    /,12x,
+     &    'Computational Chemistry Package for Parallel Computers, ',
+     &    /,12x,
+     &    'Version 2.1" (1997), Pacific Northwest National Laboratory,',
+     &    /,12x,
+     &    'Richland, Washington 99352-0999, USA.'
+     &    /,/)
 c
       end
