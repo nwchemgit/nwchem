@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.20 1997-03-26 20:19:08 rg240 Exp $
+C     $Id: moints_full.F,v 1.21 1997-05-21 22:05:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -123,7 +123,7 @@ c
      $     then
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
      $        call util_file_name('movecs',.false.,.false.,movecs_in)
-      endif
+      end if
       if (.not. movecs_read_header(movecs_in, title_vecs,
      $     basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
      $     call errquit('moints: cannot read MO vectors header',0)
@@ -187,7 +187,7 @@ c
          osymblock = .true.
       else
          call errquit('moints: bad intfmt',0)
-      endif
+      end if
 c
 c     Set index ranges
 c     
@@ -243,7 +243,7 @@ c
          else
             write(6,976) 
  976        format(10x,'Twofold algorithm used')
-         endif
+         end if
          write(6,966) nbf,nsh,nmo(1),nact,lo,hi,blen,noper,npass,
      $        osym, osymblock,intfmt,
      $        moints_file(1:inp_strlen(moints_file))
@@ -266,7 +266,7 @@ c
          call util_flush(6)
 c
          call moints_open(moints_unit, moints_file, intfmt)
-      endif
+      end if
 c
 c     Symmetrize the MOs and reblock as requested
 c
@@ -285,7 +285,7 @@ c     repeat projection to be sure
      $                 '          repeating projection',
      $              ' and orthogonalization'/)
                call util_flush(6)
-            endif
+            end if
             call ga_orthog_mos(basis, g_vecs)
             call sym_movecs_adapt(basis,tol_sym,g_vecs,int_mb(k_irs),
      $           nmixed)
@@ -295,8 +295,8 @@ c     repeat projection to be sure
      $              ' vectors ... cannot proceed')
                call util_flush(6)
                call errquit('moints: symmetry contamination',0)
-            endif
-         endif
+            end if
+         end if
          if (oprint) then
             write(6,*) '          Symmetry of input active orbitals '
             write(6,*)
@@ -304,19 +304,19 @@ c     repeat projection to be sure
  222        format(40i2)
             write(6,*)
             call util_flush(6)
-         endif
+         end if
          do i = 1, nmo(1)
             int_mb(k_irs+i-1) = int_mb(k_irs+i-1) - 1
-         enddo
+         end do
       else
          call ifill(nmo(1),0,int_mb(k_irs),1)
-      endif
+      end if
 c
 c     Keep track of where the MOs will end up
 c
       do i = 1,nmo(1)
          int_mb(k_map+i-1) = i
-      enddo
+      end do
       if (osymblock) then
          call moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
      $        int_mb(k_irs), int_mb(k_map), dbl_mb(k_work),
@@ -325,8 +325,8 @@ c
             write(6,31) nsym
  31         format(/10x, 'Output MOs are blocked by symmetry: ', 8i3)
             call util_flush(6)
-         endif
-      endif
+         end if
+      end if
 c
 c     Offset so active MOs are counted from one and form the inverse map
 c     which is actually what we want.
@@ -334,7 +334,7 @@ c
       do i = lo,hi              ! Offset to be in the active range
          int_mb(k_map+i-1) = int_mb(k_map+i-1) - lo + 1
          dbl_mb(k_work-1+int_mb(k_map+i-1)) = i
-      enddo
+      end do
       if (oprint) then
          write(6,*)
          write(6,*) '          Map from input to output MO order'
@@ -345,11 +345,11 @@ c
          else
             write(6,224) (i,int_mb(k_map+i-1),i=lo,hi)
  224        format(9(i3,'->',i3,2x))
-         endif
-      endif
+         end if
+      end if
       do i = 1, nact
          int_mb(k_map+i-1) = nint(dbl_mb(k_work+i-1))
-      enddo
+      end do
       if (oprint) then
          write(6,*)
          write(6,*) '          Map from output to input MO order'
@@ -358,9 +358,9 @@ c
             write(6,223) (i,int_mb(k_map+i-1),i=1,nact)
          else
             write(6,224) (i,int_mb(k_map+i-1),i=1,nact)
-         endif
+         end if
          call util_flush(6)
-      endif
+      end if
 c
 c     Reorder the occupation, eigenvalues to match the active orbitals
 c
@@ -402,7 +402,7 @@ c
      $        ('moints: ga_destroy failed', 0)
          if (.not. ga_destroy(g_aofock)) call errquit
      $        ('moints: ga_destroy failed', 0)
-      endif
+      end if
       tpass = tpass + tcgtime()
 c
       if (ga_nodeid() .eq. 0) then
@@ -410,7 +410,7 @@ c
  712     format(/10x,'Time for two-index transform:',5x,f8.1,'s'/
      $           10x,'Effective frozen-core energy:',3x,f19.10/)
          call util_flush(6)
-      endif
+      end if
 c
       if (osym) call sym_symmetrize(geom, basis, .false., g_hcore)
       if (util_print('AO FZC fock',print_debug)) 
@@ -432,7 +432,7 @@ c
      $        dbl_mb(k_evals), dbl_mb(k_occ), efzc, intfmt)
          call moints_one_output(moints_unit,
      $     g_mofock, lo, hi, tol_out,osym, int_mb(k_irs), intfmt)
-      endif
+      end if
 c
       if (.not. ga_destroy(g_tmp)) call errquit
      $     ('moints: ga_destroy failed', 0)
@@ -467,7 +467,7 @@ c
      $        oseg_lo, oseg_hi,
      $        lo, hi, g_vecs,
      $        g_coul, .true., -1, .false., blen, oblk )
-      endif
+      end if
 c     
 c     Write the MO integrals to disk
 c     
@@ -560,7 +560,7 @@ c
          itype = 3
       else
          call errquit('moints_two: bad intfmt',0)
-      endif
+      end if
 c
       ij = 1
       do i = oseg_lo, oseg_hi
@@ -580,8 +580,8 @@ c
                            write(6,*) g(l,k)
                            call errquit
      $                          ('moints: integral zero by symmetry',0)
-                        endif
-                     endif
+                        end if
+                     end if
                      if (itype .eq. 1) then
                         write(moints_unit,1) g(l,k), 
      $                       i-lo1, j-lo1, k-lo1, l-lo1
@@ -597,16 +597,16 @@ c
                            call moints_wrt_buf(moints_unit,
      $                          n_in_buf, buf, labels)
                            n_in_buf = 0
-                        endif
+                        end if
                      else
                         call errquit('moints: bad itype', itype)
-                     endif
-                  endif
-               enddo
-            enddo
+                     end if
+                  end if
+               end do
+            end do
             ij = ij + 1
-         enddo
-      enddo
+         end do
+      end do
 c
       if (itype.eq.2 .and. n_in_buf.gt.0) 
      $     call moints_wrt_buf(moints_unit, n_in_buf, buf, labels)
@@ -641,12 +641,12 @@ c
                      call errquit('moints: integral zero by sym',0)
                   else
                      buf(j) = 0.0d0
-                  endif
-               endif
-            enddo
+                  end if
+               end if
+            end do
             call ga_put(g_mofock, 1, hi, i, i, buf, 1)
-         enddo
-      endif
+         end do
+      end if
 c
       if (intfmt .eq. 'ascii') then
          lo1 = lo - 1
@@ -656,9 +656,9 @@ c
                if (abs(buf(j)) .gt. tol_out) then
                   write(moints_unit,1) buf(j), i-lo1, j-lo1, 0, 0
  1                format(f18.12,4i4)
-               endif
-            enddo
-         enddo
+               end if
+            end do
+         end do
       else if (intfmt .eq. 'nwchem') then
 c
 c     Get triangle local and write out
@@ -671,7 +671,7 @@ c
          do i = lo, hi
             call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
             lo1 = lo1 + i - lo + 1
-         enddo
+         end do
          write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
          if (.not. ma_pop_stack(l_buf))
      $        call errquit('moints: ma corrupt',0)
@@ -687,14 +687,14 @@ c
          do i = lo, hi
             call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
             lo1 = lo1 + i - lo + 1
-         enddo
+         end do
          write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
          if (.not. ma_pop_stack(l_buf))
      $        call errquit('moints: ma corrupt',0)
       else
          call errquit('moints_one: bad integral format',0)
 
-      endif
+      end if
 c
       end
       subroutine moints_close(moints_unit, intfmt)
@@ -715,7 +715,7 @@ c
          close(moints_unit, status='keep', err=1000)
       else
          call errquit('moints: unknown integral format',0)
-      endif
+      end if
 c
       return
 c
@@ -742,7 +742,7 @@ c
      $        err=1000)
       else
          call errquit('moints: unknown file format',0)
-      endif
+      end if
 c
       return
 c
@@ -793,14 +793,14 @@ c
                nsym(isym) = nsym(isym) + 1
                map(i) = n
                work(map(i)) = irs(i) ! Reorder the actual symmetries
-            endif
-         enddo
+            end if
+         end do
          sym_hi(isym)=sym_lo(isym)+nsym(isym)-1
-      enddo
+      end do
       if (n .ne. hi) call errquit('moints: bad map?',0)
       do i = lo, hi
          irs(i) = work(i)
-      enddo
+      end do
 c
 c     Sort the vectors
 c
@@ -811,7 +811,7 @@ c
       do i = lo+ga_nodeid(), hi, ga_nnodes()
          call ga_get(g_tmp, 1, nbf, i, i, work, 1)
          call ga_put(g_vecs,1, nbf, map(i), map(i), work, 1)
-      enddo
+      end do
 c
       if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0)
 c
@@ -893,7 +893,7 @@ c
          numsym = 0             ! Figure out no. of symmetry types
          do i = 1, 8
             if (nsym(i).ne.0) numsym = i
-         enddo
+         end do
          if (numsym .le. 2) then
             continue
          else if (numsym .le. 4) then
@@ -902,14 +902,14 @@ c
             numsym = 8
          else
             call errquit('moints_columbus symmetry nonsense',numsym)
-         endif
+         end if
 c     
          do i = 1,numsym
             write(slabel(i),'(a3,i1)')'sym',i
-         enddo
+         end do
          do i = 1,nact
             write(bfnlab(i),'(a4,i4.4)')'MO  ',i
-         enddo
+         end do
 c     
          call sifwh(moints_unit, 1, numsym, nact,
      &        5, 1, 0, title,
@@ -918,7 +918,7 @@ c
          if( ierr.ne.0 ) call errquit('moints: sifwh failed', ierr)
       else
          call errquit('moints header: unknown intfmt',0)
-      endif
+      end if
       end
       subroutine moints_wrt_buf(moints_unit, n, buf, labels)
       implicit none
