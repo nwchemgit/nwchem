@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.39 2000-03-29 17:46:57 d3j191 Exp $
+c $Id: pre_input.F,v 1.40 2000-03-29 18:38:19 d3j191 Exp $
 c
       implicit none
 c
@@ -643,7 +643,7 @@ c
       if(type(1:5).eq.'align') then
       write(68,6844) igroup,forcon,forc2
  6844 format('pmf line',i5,15x,24x,2e12.5)
-      elseif(type(1:5).eq.'planar') then
+      elseif(type(1:6).eq.'planar') then
       write(68,6845) igroup,forcon,forc2
  6845 format('pmf plan',i5,15x,24x,2e12.5)
       elseif(type(1:8).eq.'distance') then
