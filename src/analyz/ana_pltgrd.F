@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.13 2000-09-07 15:31:45 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.14 2000-09-07 15:47:01 d3j191 Exp $
 c
       implicit none
 c
@@ -286,7 +286,7 @@ c
       value=value+g(ix,iy,iz)
    10 continue
     9 continue
-      write(lfnepz,1005) xmin(3)+dble(iz)*spac(3),value
+      write(lfnepz,1005) xmin(3)+dble(iz)*spac(3),value/dble(ngx*ngy)
  1005 format(2f12.6)
     8 continue
       close(unit=lfnepz)
