@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.196 2004-10-09 01:10:56 marat Exp $
+c $Id: md_main.F,v 1.197 2004-12-22 20:03:58 marat Exp $
 c
       implicit none
 c
@@ -2773,7 +2773,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.196 2004-10-09 01:10:56 marat Exp $
+c $Id: md_main.F,v 1.197 2004-12-22 20:03:58 marat Exp $
 c
       implicit none
 c
@@ -2842,13 +2842,16 @@ c
  1000 format(//,' FINITE DIFFERENCE SOLUTE FORCES',//,
      + '  Atom',
      + '                 Analytic forces       ',
-     + '             Finite difference forces  ',/,
+     + '             Finite difference forces  ',
+     + '             Deviation                 ',/,
      + '      ',
      + '             fx          fy          fz',
-     + '             fx          fy          fz',/)
+     + '             fx          fy          fz',
+     + '            dfx         dfy         dfz',/)
 c
       lpair=.false.
       xdv=0.000001
+c      xdv=dx0sd
 c
       do 1 i=1,nsaloc
       fst(i,1)=fs(i,1)
@@ -2881,9 +2884,9 @@ c
       xsk(1)=xs(j,1)
       xsk(2)=xs(j,2)
       xsk(3)=xs(j,3)
-      ft(1,1)=fs(j,1)
-      ft(2,1)=fs(j,2)
-      ft(3,1)=fs(j,3)
+      ft(1,1)=fst(j,1)
+      ft(2,1)=fst(j,2)
+      ft(3,1)=fst(j,3)
       goto 6
       endif
     5 continue
@@ -2922,8 +2925,9 @@ c
       if(np.gt.1) call ga_dgop(mrg_d14,ft,6,'+')
 c
       if(me.eq.0) write(lfnout,1001) i,(ft(j,1),j=1,3),
-     + ((ft(j,3)-ft(j,2))/(two*xdv),j=1,3)
- 1001 format(i7,5x,3f12.3,3x,3f12.3)
+     + ((ft(j,3)-ft(j,2))/(two*xdv),j=1,3),
+     + (ft(j,1)-(ft(j,3)-ft(j,2))/(two*xdv),j=1,3)
+ 1001 format(i7,5x,3f12.3,3x,3f12.3,3x,3E12.3)
 c
     4 continue
 c
