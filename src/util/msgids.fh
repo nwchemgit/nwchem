@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.132 2003-06-24 21:37:34 edo Exp $
+c     $Id: msgids.fh,v 1.133 2003-07-17 20:09:21 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2
@@ -358,6 +358,33 @@ c
       integer msp_48
       integer msp_49
       integer msp_50
+c
+      integer hop_00
+      integer hop_01
+      integer hop_02
+      integer hop_03
+      integer hop_04
+      integer hop_05
+      integer hop_06
+      integer hop_07
+      integer hop_08
+      integer hop_09
+      integer hop_10
+      integer hop_11
+      integer hop_12
+      integer hop_13
+      integer hop_14
+      integer hop_15
+      integer hop_16
+      integer hop_17
+      integer hop_18
+      integer hop_19
+      integer hop_20
+      integer hop_21
+      integer hop_22
+      integer hop_23
+      integer hop_24
+      integer hop_25
 c
       integer msg_hessmin
       integer msg_hessmax
@@ -1067,3 +1094,31 @@ c
 c
       parameter(msg_et_adens = msg_ftn_base - 806) ! et_2e max alpha density
       parameter(msg_et_bdens = msg_ftn_base - 807) ! et_2e max beta density
+c
+      parameter(hop_00=msg_ftn_base-808)
+      parameter(hop_01=msg_ftn_base-809)
+      parameter(hop_02=msg_ftn_base-810)
+      parameter(hop_03=msg_ftn_base-811)
+      parameter(hop_04=msg_ftn_base-812)
+      parameter(hop_05=msg_ftn_base-813)
+      parameter(hop_06=msg_ftn_base-814)
+      parameter(hop_07=msg_ftn_base-815)
+      parameter(hop_08=msg_ftn_base-816)
+      parameter(hop_09=msg_ftn_base-817)
+      parameter(hop_10=msg_ftn_base-818)
+      parameter(hop_11=msg_ftn_base-819)
+      parameter(hop_12=msg_ftn_base-820)
+      parameter(hop_13=msg_ftn_base-821)
+      parameter(hop_14=msg_ftn_base-822)
+      parameter(hop_15=msg_ftn_base-823)
+      parameter(hop_16=msg_ftn_base-824)
+      parameter(hop_17=msg_ftn_base-825)
+      parameter(hop_18=msg_ftn_base-826)
+      parameter(hop_19=msg_ftn_base-827)
+      parameter(hop_20=msg_ftn_base-828)
+      parameter(hop_21=msg_ftn_base-829)
+      parameter(hop_22=msg_ftn_base-830)
+      parameter(hop_23=msg_ftn_base-831)
+      parameter(hop_24=msg_ftn_base-832)
+      parameter(hop_25=msg_ftn_base-833)
+c
