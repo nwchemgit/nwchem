@@ -25,6 +25,7 @@ c
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
 #include "qmmm.fh"
+#include "qmmm_params.fh"
 #include "global.fh"
       logical link
       integer i,k
@@ -33,8 +34,10 @@ c
 
       call qmmm_bq_data_dealloc()
 c
+      if(bq_exclude.eq.qmmm_all_atoms) return
+
       call mm_prune_bqzone()
-c 
+
       call mm_get_tot_nbqs(nbqs,link)
       call mm_get_tot_nbqw(nbqw)
       nbq=nbqs+nbqw
@@ -79,6 +82,59 @@ c     -------------------------------------------
      >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
         end do
       end if
+    
+      end
+
+      subroutine qmmm_bq_update()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "global.fh"
+      logical link
+      integer i,k
+c
+      link = .true.
+      if(qmmm_print_debug()) then
+         write(*,*) "Total number of Bq charges",nbq
+         write(*,*) "Number of solute Bq charges",nbqs
+         write(*,*) "Number of solvent Bq charges",nbqw
+      end if
+
+      if(nbq.eq.0) return
+
+      if(nbqs.ne.0) then
+        call mm_get_solute_geom_bq(nbqs,link,
+     >                       int_mb(i_ibq),
+     >                       dbl_mb(i_cbq),
+     >                       dbl_mb(i_qbq))
+
+      end if
+
+c
+c     append solvent bq coord and charges from MM
+c     -------------------------------------------    
+      if(nbqw.ne.0) then
+        call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
+        call mm_get_solvent_geom(nbqw,int_mb(i_ibq+nbqs),
+     >                       dbl_mb(i_cbq+3*nbqs),
+     >                       dbl_mb(i_qbq+nbqs))
+      end if
+
+      if(qmmm_print_debug()) then
+        call util_print_centered(6,"Bq information",
+     >              36, .true.)
+        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
+        do i=1,nbqs+nbqw
+         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
+     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
+        end do
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finshed updating up bq charges"
     
       end
 
