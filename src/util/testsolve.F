@@ -9,7 +9,7 @@ c
       integer iter_solve
       common /info/ n, g_a
       integer nroot, heap
-      parameter (dim = 100, nroot=3)
+      parameter (dim = 10, nroot=3)
       double precision col(dim), acc(nroot), tol, scale, sum
       double precision eval(nroot), used, junk
       double precision evals(dim)

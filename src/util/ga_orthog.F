@@ -18,6 +18,7 @@ c     ni = no. of vectors
 c
 c     overlap should be (nu,nu)
 c
+      
       call ga_inquire(g_vecs, type, nu, ni)
       uchunk = max(8, (nu-1)/ga_nnodes()+1)
       ulo  = ga_nodeid()*uchunk + 1
@@ -43,7 +44,7 @@ c
          if (.not. ma_push_get(mt_dbl, ld*nu, 'ga_orthog: over', 
      $        l_over, k_over)) call errquit('ga_orthog: ma get failed', 
      $        ld*ni)
-      endif
+      end if
       if (.not. ma_push_get(mt_dbl, ni, 'ga_orthog: sji', 
      $     l_s, k_s)) call errquit('ga_orthog: ma get failed', ni)
       if (.not. ma_push_get(mt_dbl, nu, 'ga_orthog: w', 
@@ -54,7 +55,7 @@ c
          call ga_get(g_vecs, ulo, uhi, 1, ni, dbl_mb(k_tmp), ld)
          if (ometric) 
      $        call ga_get(g_over, 1, nu, ulo, uhi, dbl_mb(k_over), nu)
-      endif
+      end if
 c
 c     Do the deed
 c
@@ -81,7 +82,7 @@ c
       if (ometric) then
          if (.not. ma_pop_stack(l_over)) call errquit
      $        ('ga_orthog: ma error popping over', 0)
-      endif
+      end if
       if (.not. ma_pop_stack(l_tmp)) call errquit
      $     ('ga_orthog: ma error popping tmp', 0)
 c
@@ -101,7 +102,7 @@ c
      $     w(nu)                ! [scratch] workspace for making overlap
       logical ometric
 c     
-      integer i, j, u, v, npass
+      integer i, j, u, npass
       double precision si, scale
 c     
 c     Orthogonalize columns of a matrix distributed so that
@@ -117,13 +118,14 @@ c
             call dfill(nu, 0.0d0, w, 1)
  	    if ((uhi-ulo+1) .gt. 0) 
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
-     $             vecs(ulo,i), 1, 0.0d0, w, 1)
+     $           vecs(ulo,i), 1, 0.0d0, w, 1)
+
             call dgop(msg_orthog_1, w, nu, '+') ! Actually only need ulo:hi local
          else
             do u = ulo, uhi
                w(u) = vecs(u,i)
-            enddo
-         endif
+            end do
+         end if
 c     
 c     Now form overlap between vector i and vectors 1...i
 c     
@@ -133,39 +135,42 @@ c
      $        vecs(ulo,1), ld, w(ulo), 1, 0.0d0, s(1), 1)
 
          call ga_dgop(msg_orthog_2, s, i, '+')
+
 c
 c     Apply the rotation
 c     
          if ((uhi-ulo+1).gt.0 .and. i.gt.1) then
             call dgemv('n', (uhi-ulo+1), i-1, -1.0d0,
      $           vecs(ulo,1), ld, s(1), 1, 1.0d0, vecs(ulo,i), 1)
-         endif
+         end if
 c     
 c     Renormalize vector i
 c     
          si = s(i)
          do j = 1, i-1
             si = si - s(j)*s(j)
-         enddo
-         if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i)
-         scale = 1.0d0/sqrt(si)
-         do u = ulo, uhi
-            vecs(u,i) = vecs(u,i) * scale
-         enddo
+         end do
 c     
 c     If the vector norm changed a lot then repeat
 c     
          if (i .gt. 1) then
-            scale = abs(si/s(i))
-            if (scale.lt.0.8d0 .or. scale.gt.1.2d0) then
+            scale = si/s(i)
+            if (scale .lt. 0.9d0) then
                if (npass .lt. 3) then
                   goto 10
                else
                   call errquit('ga_orthog: failed to orthog vector', i)
-               endif
-            endif
-         endif
+               end if
+            end if
+         end if
+c
+         if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i)
+         if (si .lt. 0.0d0) call errquit('ga_orthog: negative', i)
+         scale = 1.0d0/sqrt(si)
+         do u = ulo, uhi
+            vecs(u,i) = vecs(u,i) * scale
+         end do
 c     
-      enddo
+      end do
 c
       end

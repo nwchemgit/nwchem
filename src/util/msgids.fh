@@ -34,7 +34,7 @@ C
       Integer Msg_iconst,Msg_gop_Tvec,Msg_Lagrange,Msg_CD_coef
       Integer Msg_schw1,Msg_XC_coef,Msg_tmat,Msg_Excrho
       Integer Msg_rms_dens,Msg_Ecoul2
-      Integer Msg_tot_min,Msg_tot_max,Msg_nqtot
+      Integer Msg_tot_max,Msg_nqtot
       Integer Msg_t_min,Msg_t_max
       integer msg_orthog_1, msg_orthog_2
 
