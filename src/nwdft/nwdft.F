@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.40 1999-02-14 04:46:24 d3g681 Exp $
+C$Id: nwdft.F,v 1.41 1999-06-15 16:26:25 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -75,6 +75,15 @@ c     Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
+c
+c     Build the grid.
+c
+      call grid_setquad(rtdb)
+c
+c     Analyze set parameters for consistency
+c
+      call dft_inpana(rtdb)
+c
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 1'
 c
 c     Can we check here to see if system if already converged?
@@ -155,6 +164,10 @@ c
 c     Go here if already converged
 c
  1101 continue
+c
+c     cleanup any grid parameters
+c
+      call grid_cleanup(rtdb)
 c     
 c     destroy BS handles and geom object
 c
