@@ -6,12 +6,12 @@
      &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
      &                         rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
-     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
+     .     drhonuc,ddelrhonuc,d2scr,nscr,
      ,     force, hess, g_rhs, do_force,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.23 2003-10-23 19:48:38 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.24 2004-03-25 00:39:44 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -68,8 +68,7 @@ c      double precision tau(n_per_rec,3,ipol)
       double precision ccoef(ncoef_max), expo(NXprim)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
-      double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
-     ,     iscr(*)
+      double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
       integer nscr ! [in]
 c     external
 c
@@ -201,7 +200,7 @@ c
      ,          rad,istep)
          if(nqpts.eq.0) goto 110
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
-     &                         ncoef_max, NXprim, max_at_bf,
+     &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
@@ -209,7 +208,7 @@ c
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
-     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,iscr,nscr,
+     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,nscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,

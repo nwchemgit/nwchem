@@ -293,16 +293,13 @@ c
 c
 c     old grid schem
 c
-      if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,.false.))
-     &   call errquit('grid_inp: rtdb_put failed', 1400, RTDB_ERR)
+      call errquit(' old grid scheme no longer available',0,0)
 c
       goto 10
  1500 continue
 c
 c     new grid schem
 c
-      if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,.true.))
-     &   call errquit('grid_inp: rtdb_put failed', 1400, RTDB_ERR)
 c
       goto 10
  1600 continue

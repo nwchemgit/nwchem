@@ -1,4 +1,5 @@
-      subroutine grid_loop(nops,
+      subroutine grid_loop(dogradient,
+     ,     nops,
      ,     oprint,grad,g_dens,
      ,     dosympts,sub4,largenode,grid_written,
      , ncoef_max,natoms,
@@ -14,13 +15,21 @@
      ,                    l3d,triplet,
      &                    tau, kske,Mmat,
      ,     iqat,
-     ,     qsh,aqbuf,rij,rho_int)
+     ,     qsh,aqbuf,rij,rho_int,
+     D     func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
+     D     drhonuc,ddelrhonuc,d2scr,force,
+     D     acc_ao_gauss,
+     L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
+     I     iandex,max_at_bf,curatoms,g_rhs,
+     I     nbf_ao_mxnbf_ce2,nactive)
+     
       implicit none
 #include "global.fh"
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+      logical dogradient
       integer nops
       logical dosympts,sub4,oprint,largenode
       logical grid_written
@@ -42,7 +51,15 @@
      ,     Ex, Ec, amat(*),cmat(*),
      ,     Amat2(*), Cmat2(*),bp(*),
      ,     tmat(*), tau(*), Mmat(*)
-
+CA
+      double precision func(*),d_qwght(*),dmat(*),
+     D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
+      double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
+     ,     acc_ao_gauss
+      integer iandex(*),max_at_bf,curatoms(*),g_rhs(*)
+      logical do_force,do_hess,ldew,gradchi,hesschi,der3chi,
+     ,     oactive(*)
+      integer nbf_ao_mxnbf_ce2,nactive
 c
       integer k_symops(2),l_symops(2),
      k     k_gridscr,l_gridscr,k_iscr,l_iscr
@@ -118,6 +135,38 @@ c
 c     check if radius between rmin and rmax
 c     
                   if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
+                     if(dogradient) then
+                        call dftg_loop(
+     ,     ncu,nq_out,iqsh,irsh,rad_sh,
+     ,                    dosympts,
+     ,                    fnxyz,nxyz,nops,grad,
+     ,                    nq_cube,nqtotc,symfact,
+     ,                    iang_done,nwrbuf,
+     ,                    dbl_mb(k_gridscr),
+     .                    int_mb(k_iscr),dbl_mb(k_symops(1)),
+     .                    dbl_mb(k_symops(2)),
+     ,                   qsh, aqbuf,rij, 
+     ,                    g_dens, ncoef_max, natoms, 
+     &                    rho_int, nqtot, 
+     &                    iniz, ifin, rho, delrho, 
+     &                    hess, qwght, qxyz, xyz,iscr,nscr,
+     &                    expo, ccoef, Bmat, Fmat, 
+     &                    Pmat, rq,  rdens_atom, cetobfr, 
+     ,                    ibf_ao,bp,rchi_atom,rdelchi_atom,
+     ,                    Ex, Ec, amat,cmat,g_vxc,
+     ,                    Amat2, Cmat2,
+     ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,                    l3d,triplet,
+     &                    tau, kske,Mmat,
+     D                       func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
+     D                       drhonuc,ddelrhonuc,d2scr,force,
+     D                       acc_ao_gauss,
+     L                       do_force,do_hess,ldew,gradchi,hesschi,
+     L                       der3chi,oactive,
+     I                       iandex,max_at_bf,curatoms,g_rhs,
+     I                       nbf_ao_mxnbf_ce2,nactive)
+                        nqtot=nqtotc
+                     else
                      call grid_quadvw1(ncu,nq_out,iqsh,irsh,rad_sh,
      ,                    dosympts,
      ,                    fnxyz,nxyz,nops,grad,
@@ -139,12 +188,15 @@ c
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,                    l3d,triplet,
      &                    tau, kske,Mmat)
+                    endif
 
                   endif
                enddo            ! end loop over angular shells
                if(nq_cube.ne.0) then
                   cube_done=.true.
                   ictr = qsh(2,iqsh)
+                   if(dogradient) then
+                   else
                    call grid_quadvc(cube_done,nwrbuf,
      ,                 aqbuf,nq,nq_out,
      ,                 ntot_cube,ictr,qxyz, qwght, 
@@ -160,6 +212,7 @@ c
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,l3d,
      ,     triplet,
      &      tau, kske,Mmat )
+                  endif
                   ncubenz=ncubenz+1
                endif
                n1 = n1 + 1

@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
+c     $Id: xc_nucder_gen.F,v 1.17 2004-03-25 00:39:44 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
+c     $Id: xc_nucder_gen.F,v 1.17 2004-03-25 00:39:44 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
+c     $Id: xc_nucder_gen.F,v 1.17 2004-03-25 00:39:44 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -97,7 +97,7 @@ c
 c
 c     Local declarations
 c
-      logical do_hess, do_cpks_r,grid_on_file,grid_written,grid_reopen
+      logical do_hess, do_cpks_r,grid_written,grid_reopen
       external grid_reopen
       integer natoms
       integer l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
@@ -113,10 +113,6 @@ c
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('xc_hessian',print_debug)
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &     grid_on_file))then
-         grid_on_file = .false.
-      endif
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
@@ -168,18 +164,10 @@ c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
-      if(grid_on_file.and.grid_written) then
          call dftgh_gridv0(rtdb,geom,basis, ipol,nbf,
      .        g_dens, 0d0, hess, g_rhs, calc_type,
      &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
      &        int_mb(k_cetobfr))
-      else
-         call errquit('xc_deriv_gen: no gridfile',0, DISK_ERR)
-!         call dftgh_quadv0(rtdb,geom,basis, ipol,
-!     .        g_dens, 0d0, hess, g_rhs, calc_type,
-!     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
-!     &        int_mb(k_cetobfr))
-      endif
 c
 c     Clean up indexing arrays
 c

@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(rtdb,okeep)
 c
-c$Id: grid_cleanup.F,v 1.9 2003-12-20 00:29:34 edo Exp $
+c$Id: grid_cleanup.F,v 1.10 2004-03-25 00:39:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -12,7 +12,7 @@ c
 #include "cgridfile.fh"
 c
       integer rtdb
-      logical grid_on_file,grid_file_close
+      logical grid_file_close
       logical okeep
       logical xc_gotxc
       external xc_gotxc
@@ -21,21 +21,18 @@ c     case of pure HF X
 c
       if(.not.xc_gotxc()) return
 c
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &   grid_on_file))then
-         grid_on_file = .false.
-      endif
-      if (grid_on_file)then
 c
-         call grid_closecache
+      call grid_closecache
+      if(.not.largenode) then
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0, DISK_ERR)
          if(.not.okeep) then
             open(unit=gr_unit,file=grinfo)
             close(unit=gr_unit,status='delete')
          endif
-c
       endif
+
+c
       return
       end
       subroutine grid_closecache()
@@ -45,8 +42,8 @@ c
 #include "errquit.fh"
       if (l_cache .ne. -1) then
          if (.not. ma_free_heap(l_cache)) then
-             call MA_summarize_allocated_blocks()
-             call errquit('grid_file_close: free heap?',0, MA_ERR)
+            call MA_summarize_allocated_blocks()
+            call errquit('grid_file_close: free heap?',0, MA_ERR)
           endif
       end if
       l_cache=-1

@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.39 2004-03-19 03:26:25 edo Exp $
+c$Id: grid_quadvw.F,v 1.40 2004-03-25 00:39:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -54,7 +54,11 @@ c
       logical triplet
 
       double precision tau(*), Mmat(*)
-C      
+C
+      double precision ddum1
+      integer idum1
+      logical ldum1
+c
       nproc=ga_nnodes()
       me=ga_nodeid()
       oprint = util_print('quadrature', print_high)
@@ -72,7 +76,7 @@ c
      ,     ncenters,
      ,     oskel,leb,dosympts,qsh)
 c
-      call grid_loop(nops,
+      call grid_loop(.false.,nops,
      ,     oprint,grad,g_dens,
      ,     dosympts,sub4,largenode,grid_written,
      , ncoef_max,natoms,
@@ -88,7 +92,13 @@ c
      ,                    l3d,triplet,
      &                    tau, kske,Mmat,
      ,     iqat,
-     ,     qsh, aqbuf,rij,rho_int)
+     ,     qsh, aqbuf,rij,rho_int,
+     D     ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,
+     D     ddum1,ddum1,ddum1,ddum1,
+     D     ddum1,
+     L     ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,
+     I     idum1,idum1,idum1,idum1,
+     I     idum1,idum1)
 
 c
       return

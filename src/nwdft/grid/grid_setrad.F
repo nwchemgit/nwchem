@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.34 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_setrad.F,v 1.35 2004-03-25 00:39:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,26 +27,19 @@ c
      .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
       double precision braggmult
       double precision midpoint,range_max,range_mk
-      logical  grid_on_file
       me=ga_nodeid()
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &   grid_on_file))then
-         grid_on_file = .false.
-      endif
 c
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
          tol_reset = .true.
       endif
 c
-c     need exps for grid_on_file
-c
-      if(grid_on_file) tol_reset=.true.
+      tol_reset=.true.
       llind=.false.
       if (.not. rtdb_get(rtdb, 'dft:check_s', mt_log, 1,
      &   check_s))then

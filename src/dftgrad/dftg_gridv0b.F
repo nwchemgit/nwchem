@@ -1,5 +1,5 @@
       Subroutine dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
-     &                         ncoef_max, NXprim, max_at_bf,
+     &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
@@ -7,7 +7,7 @@
      &                         rq0, hh, 
      .     ibf_ao,bas_cent_info,bas_cset_info,docset,
      .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
-     .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
+     .     drhonuc,ddelrhonuc,d2scr,nscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.24 2003-10-17 22:54:42 carlfahl Exp $
+c     $Id: dftg_gridv0b.F,v 1.25 2004-03-25 00:39:44 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -36,7 +36,7 @@ c !!! temporary !!!
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
       integer natoms
-      integer ncoef_max, NXprim, max_at_bf
+      integer max_at_bf
       integer nqtot
       integer nactive
       logical oactive(natoms)
@@ -64,7 +64,7 @@ c      double precision tau(n_per_rec,3,ipol)
      &                 Fmat(max_at_bf*max_at_bf)
       double precision func(n_per_rec)
       double precision d_qwght(3,n_per_rec,*)
-      double precision qwght(nqpts), qxyz(3,nqpts)
+      double precision qwght(*), qxyz(3,*)
       double precision xyz(3,natoms),xyzm(3,natoms)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
@@ -73,17 +73,16 @@ c      double precision tau(n_per_rec,3,ipol)
       logical docset(*)
       double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
       double precision ppp(*),ff(*),zzz(*)
-      double precision ccoef(ncoef_max), expo(NXprim)
+      double precision ccoef(*), expo(*)
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
-      double precision drhonuc(*),ddelrhonuc(*),d2scr(*),iscr(*)
+      double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
       integer nscr ! [in]
 c     
 c     external
 c
       double precision ddot
-      integer nxtask
-      External ddot, nxtask
+      External ddot
 c
 c---> Matrix Elements of the XC Potential & Energy
 c
@@ -205,7 +204,6 @@ c
                   if (grad)
      &               call dfill(ipol*3*nqpts*3*nactive,0.D0,
      &                          ddelrhonuc,1)
-c                  write(*,*)'calling xc_rhogen_nucder'
 #if 1
                   call xc_rhogen_nucder(tol_rho, AO_bas_han, iga_dens,
      &                 max_at_bf, natoms, curatoms, ncuratoms, 
@@ -223,9 +221,9 @@ c
 c              Evaluate the integrated charge density.
 c         
                nqtot = nqtot + nqpts
-
                rho_int = rho_int + 
      &                   ddot(nqpts, qwght, 1, rho, 1)
+
 
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
@@ -238,7 +236,6 @@ c
                if (do_force) then
 c 
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
-!                 call dftg_quadv0_b(ictr_buf, .false., AO_bas_han, ipol,
      &                            grad, nbf_ao, mbf_ao, natoms, nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                            dbl_mb(iheschi_ao), Amat, Cmat,

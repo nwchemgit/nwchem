@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.37 2003-10-23 19:48:38 edo Exp $
+* $Id: dftg_getxc.F,v 1.38 2004-03-25 00:39:44 edo Exp $
 *
       implicit none
 c      
@@ -38,7 +38,7 @@ c
       double precision rdens_atom(ipol*natom*natom)    
       double precision zero, one, onem
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
-      logical status,grid_on_file,xc_gotxc
+      logical status,xc_gotxc
       external xc_gotxc
 c
       character*4 scftype
@@ -61,29 +61,19 @@ c
       if (xc_gotxc())then
 c     
 c        Compute via direct numerical quadrature.
-c     
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &     grid_on_file))then
-         grid_on_file = .false.
-      endif
       if(.not.grid_written) then
 c
 c     check if we can get the grid from a file
 c         
          grid_written=grid_reopen(rtdb,geom)
       endif
-      if(grid_on_file.and.grid_written) then
+      if(grid_written) then
          call grid_setquad(rtdb)
          call grid_packing_info
-         call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
-     .        iga_dens, force, natom, oactive, 
-     &                    nactive, rdens_atom,  cetobfr)
-      else
-         call errquit(' no grid file available ',0,0)
-!         call dftg_quadv0(rtdb, geom,ao_bas_han,ipol,
-!     .        iga_dens, force, natom, oactive, 
-!     &                    nactive, rdens_atom, cetobfr)
       endif
+      call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
+     .     iga_dens, force, natom, oactive, 
+     &     nactive, rdens_atom,  cetobfr)
       oreopen=.false.
 
 c!!! BGJ test !!!

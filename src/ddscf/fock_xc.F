@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.23 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id: fock_xc.F,v 1.24 2004-03-25 00:39:39 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -260,14 +260,10 @@ c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
-      if(grid_written) then
          call grid_quadv0_gen(rtdb, 
      &      g_dens_xc,g_xc,nexc_dum,
      &      rho_n_dum, Exc_dum,
      &      nfock_xc, calc_type, tdum, .true., triplet)
-      else
-         call errquit('fxc: old grid broken ',0, UNKNOWN_ERR)
-      endif
 c
 c     Clean up
 c

@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms, g_oep)   ! Qin
 c
-C$Id: xc_getv.F,v 1.53 2004-01-16 00:49:41 edo Exp $
+C$Id: xc_getv.F,v 1.54 2004-03-25 00:39:44 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -69,7 +69,7 @@ c
       integer me,nTrows,nTcols
       integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
-      logical oprint_intermediate_xc, oprint_time, grid_on_file,
+      logical oprint_intermediate_xc, oprint_time, 
      ,     oprint_oep
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e
@@ -258,11 +258,6 @@ c
          endif
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &     grid_on_file))then
-         grid_on_file = .false.
       endif
 c
       if (xc_gotxc() .or. xcfit) then  ! Qin add xcfit for pure OEP or ZMP

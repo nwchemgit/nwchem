@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.19 2003-10-23 19:48:38 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.20 2004-03-25 00:39:44 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.19 2003-10-23 19:48:38 edo Exp $
+c $Id: dftg_gridv0.F,v 1.20 2004-03-25 00:39:44 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -94,14 +94,15 @@ c
       integer lrchi_atom, irchi_atom,
      &        lrdelchi_atom, irdelchi_atom
       integer  l_drhonuc, k_drhonuc,l_ddelrhonuc, k_ddelrhonuc,
-     ,     l_d2scr, k_d2scr,lscr,iscr
+     ,     l_d2scr, k_d2scr
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
       integer lgthpmat,nelem_tau
+      integer lscr,iscr
       integer nxtask
       external nxtask
-c     
+c
       do_force = calc_type .eq. 1
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
@@ -438,13 +439,11 @@ c                 Allocate scratch space.
 c     
       endif 
 c     
-      if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
-     &     call errquit
-     &     (' exiting in dftg_gridv0: insuff stack',12, MA_ERR)
       call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,
      &     nbf_ao,ipol,do_force,.true.)
       
 c
+      if(grid_written) then
       call dftg_gridv0a(iga_dens,ldew,
      &                   ncoef_max, NXprim, max_at_bf,
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
@@ -461,11 +460,39 @@ c
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
      ,     dbl_mb(iff),dbl_mb(izzz),
      .     dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
+     .     nscr,
+     &                   force, hess, g_rhs, do_force, do_hess,
+     &                   do_cpks_r, natoms, oactive, nactive,
+     &                   rdens_atom,  cetobfr,
+     &                    dbl_mb(itau), dbl_mb(immat) )
+      else
+       if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
+     &     call errquit
+     &     (' dftg_gridv0: insuff stack',12, MA_ERR)
+      call dftg_griddo(rtdb,
+     &     iga_dens,ldew,
+     &                         ncoef_max, max_at_bf,
+     &        rho_int, nqtot, int_mb(iniz), int_mb(ifin),
+     &                   dbl_mb(irho), dbl_mb(idelrho), 
+     &        dbl_mb(ifunc), dbl_mb(id_qwght), dbl_mb(iqwght),
+     &                   dbl_mb(iqxyz), dbl_mb(ixyz),dbl_mb(k_xyzm), 
+     &        int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
+     &          dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
+     &        dbl_mb(k_Cmat2), dbl_mb(iBmat), dbl_mb(iDmat),
+     &                   dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(irq0), dbl_mb(ihh),
+     ,        int_mb(iibf_ao),int_mb(k_curatoms),dbl_mb(irchi_atom),
+     ,           dbl_mb(irdelchi_atom),dbl_mb(ippp),
+     ,           dbl_mb(iff),dbl_mb(izzz),
+     .        dbl_mb(k_drhonuc),dbl_mb(k_ddelrhonuc),dbl_mb(k_d2scr),
      .     dbl_mb(iscr),nscr,
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr,
      &                    dbl_mb(itau), dbl_mb(immat) )
+      if (.not.ma_pop_stack(lscr))
+     &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
+      endif
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
      .     errquit(' dftggridv0: xcrepclose failed ',0, 0)
       if (.not.ma_chop_stack(lhh))
