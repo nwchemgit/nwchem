@@ -108,7 +108,6 @@ c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 400) 
 c
-      write(*,*) ' in GRID_INP: gridtype set to lebedev'
       if (.not. inp_i(nradpts)) then
          write(6,*)' grid_inp: nradpts value not found; ',
      &             ' defaulting to 50 '

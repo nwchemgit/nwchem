@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.34 1997-02-26 19:47:07 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.35 1997-03-01 06:30:07 gutowski Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -480,7 +480,6 @@ c
 c
 c     lebedev grid;
 c
-      write(*,*) ' in DFT_RDINPUT : gridtype recognized as lebedev'
       if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))then
          iangquad = 4
       else
