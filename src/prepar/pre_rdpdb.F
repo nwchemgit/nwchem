@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model)
 c
-c $Id: pre_rdpdb.F,v 1.13 1999-01-05 23:45:22 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.14 1999-01-29 21:12:45 d3j191 Exp $
 c
       implicit none
 c
@@ -124,6 +124,17 @@ c
       if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
+      if(chain.eq.'*') then
+      if(achain.eq.'B') num=num+1000
+      if(achain.eq.'C') num=num+2000
+      if(achain.eq.'D') num=num+3000
+      if(achain.eq.'E') num=num+4000
+      if(achain.eq.'F') num=num+5000
+      if(achain.eq.'G') num=num+6000
+      if(achain.eq.'H') num=num+7000
+      if(achain.eq.'I') num=num+8000
+      if(achain.eq.'J') num=num+9000
+      endif
       if(card(18:20).eq.namslv) lsolut=.false.
 c
       if(.not.lsolut.or.num.gt.last.or.num.lt.nprv) then

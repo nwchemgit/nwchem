@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.24 1999-01-05 16:27:22 d3j191 Exp $
+c $Id: pre_input.F,v 1.25 1999-01-29 21:12:42 d3j191 Exp $
 c
       implicit none
 c
@@ -20,13 +20,14 @@ c
       integer newtop,newseq,newrst,icount,multip
 c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
-      integer isgm,icyren,model
+      integer isgm,icyren,model,nxlnk
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon
       character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
       character*1 altloc,chain
+      integer ires,jres,i
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -65,6 +66,7 @@ c
       icount=0
       icyren=0
       model=0
+      nxlnk=0
 c
       touch=0.25
       xpndw=0.20
@@ -503,10 +505,42 @@ c
       call errquit('pre_input: plane',9999)
       endif
 c
+      elseif(inp_compare(.false.,'sequence',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: sequence',9999)
+ 3318 continue
+      write(67,6716) item
+ 6716 format('sequence ',a)
+      nummod=nummod+1
+      if(inp_a(item)) goto 3318
+      goto 1
+c
       else
       call errquit('pre_input: modify',9999)
       endif
       goto 2
+      endif
+c
+c     topology link commands
+c     ----------------------
+c
+      if(inp_compare(.false.,'link',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: link atom 1',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: link atom 2',9999)
+      i=index(atomi,':')
+      if(i.le.1) call errquit('pre_input: link atom 1',9999)
+      read(atomi(1:i-1),*) ires
+      atomi=atomi(i+1:80)
+      i=index(atomj,':')
+      if(i.le.1) call errquit('pre_input: link atom 2',9999)
+      read(atomj(1:i-1),*) jres
+      atomj=atomj(i+1:80)
+      if(atomi(1:1).eq.'_') atomi(1:1)=' '
+      if(atomj(1:1).eq.'_') atomj(1:1)=' '
+      write(67,6715) ires,atomi(1:4),jres,atomj(1:4)
+ 6715 format('link ',i5,a4,i5,a4)
+      nummod=nummod+1
+      nxlnk=nxlnk+1
+      goto 1
       endif
 c
 c     update
@@ -844,6 +878,9 @@ c
       if(.not.rtdb_put(irtdb,'prep:qscale',mt_dbl,1,qscale))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
+c
+      if(.not.rtdb_put(irtdb,'prep:nxlnk',mt_int,1,nxlnk))
+     + call errquit('pre_input: rtdb_put failed',0)
 c
       if(nummod.gt.0) then
       close(unit=67)

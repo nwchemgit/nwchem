@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.17 1999-01-05 16:27:24 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.18 1999-01-29 21:12:45 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -152,6 +152,17 @@ c
       if(mdl.eq.model) then
       read(card(23:26),1003) i
  1003 format(i4)
+      if(chain.eq.'*') then
+      if(card(22:22).eq.'B') i=i+1000
+      if(card(22:22).eq.'C') i=i+2000
+      if(card(22:22).eq.'D') i=i+3000
+      if(card(22:22).eq.'E') i=i+4000
+      if(card(22:22).eq.'F') i=i+5000
+      if(card(22:22).eq.'G') i=i+6000
+      if(card(22:22).eq.'H') i=i+7000
+      if(card(22:22).eq.'I') i=i+8000
+      if(card(22:22).eq.'J') i=i+9000
+      endif
       if(card(18:20).eq.namslv) goto 99
       if(i.ne.isgm) then
       isgm=i
@@ -187,6 +198,17 @@ c
       if(mdl.eq.model) then
       read(card(23:26),1004) i
  1004 format(i4)
+      if(chain.eq.'*') then
+      if(card(22:22).eq.'B') i=i+1000
+      if(card(22:22).eq.'C') i=i+2000
+      if(card(22:22).eq.'D') i=i+3000
+      if(card(22:22).eq.'E') i=i+4000
+      if(card(22:22).eq.'F') i=i+5000
+      if(card(22:22).eq.'G') i=i+6000
+      if(card(22:22).eq.'H') i=i+7000
+      if(card(22:22).eq.'I') i=i+8000
+      if(card(22:22).eq.'J') i=i+9000
+      endif
       if(card(18:20).eq.namslv) goto 99
       if(i.ne.isgm) then
       isgm=i

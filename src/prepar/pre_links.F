@@ -1,8 +1,8 @@
-      logical function pre_links(lfnout,ffield,xatm,catm,latm,matm,
-     + lseq,cseq,mseq,nseq,
+      logical function pre_links(lfnout,ffield,lfnmod,filmod,
+     + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.9 1998-09-18 22:59:43 d3j191 Exp $
+c $Id: pre_links.F,v 1.10 1999-01-29 21:12:42 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -19,7 +19,9 @@ c
       logical pre_short,pre_protein
       external pre_short,pre_protein
 c
-      integer lfnout,matm,mseq,nseq,mlnk,nlnk,nlnkf
+      integer lfnout,matm,mseq,nseq,mlnk,nlnk,nlnkf,lfnmod
+      character*255 filmod
+      character*80 card
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -37,6 +39,29 @@ c
       write(lfnout,2000)
  2000 format(/,'pre_links ')
       endif
+c
+c     get explicit links from input
+c     -----------------------------
+      open(unit=lfnmod,file=filmod(1:index(filmod,' ')-1),
+     + form='formatted',status='old',err=999)
+      rewind(unit=lfnmod)
+   26 continue
+      read(lfnmod,1000,end=99) card
+ 1000 format(a)
+c
+      if(card(1:4).eq.'link') then
+      nlnk=nlnk+1
+      read(card(6:80),1001)
+     + llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
+ 1001 format(i5,a4,i5,a4)
+      write(lfnout,1002)
+     +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
+ 1002 format(' Input link  ',i5,':',a4,'    - ',i5,':',a4)
+      endif
+      goto 26
+   99 continue
+      close(unit=lfnmod)
+  999 continue
 c
 c     get atom index for links input from pdb
 c     ---------------------------------------

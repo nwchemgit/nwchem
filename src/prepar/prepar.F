@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.23 1999-01-05 16:27:25 d3j191 Exp $
+c $Id: prepar.F,v 1.24 1999-01-29 21:12:47 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -48,7 +48,7 @@ c
       character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod
+      integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
       real*8 gdist,qscale
       logical lstate
@@ -104,7 +104,7 @@ c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model))
+     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -211,12 +211,12 @@ c     ---------------------------------------------
 c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale,altloc,chain,icyren,model))
+     + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
+     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)
- 2009 format(' Created sequence',t40,a,/)
+ 2009 format(/,' Created sequence',t40,a,/)
       endif
 c
     3 continue
@@ -230,7 +230,7 @@ c
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)
- 2010 format(' Created topology',t40,a,/)
+ 2010 format(/,' Created topology',t40,a,/)
       endif
       newrst=1
 c

@@ -1,8 +1,8 @@
-      logical function pre_rename(lfnout,ffield,
+      logical function pre_rename(lfnout,ffield,lfnmod,filmod,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.6 1998-09-15 00:01:29 d3j191 Exp $
+c $Id: pre_rename.F,v 1.7 1999-01-29 21:12:46 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -10,8 +10,9 @@ c
 c
 #include "util.fh"
 c
-      integer lfnout
-      character*80 ffield
+      integer lfnout,lfnmod
+      character*255 filmod
+      character*80 ffield,card
       integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
       integer lseq(4,mseq),latm(5,matm)
       character*5 cseq(2,mseq)
@@ -89,9 +90,36 @@ c
     4 continue
       endif
 c
+c     get modifications
+c
+      open(unit=lfnmod,file=filmod(1:index(filmod,' ')-1),
+     + form='formatted',status='old',err=999)
+      rewind(unit=lfnmod)
+    5 continue
+      read(lfnmod,1000,end=99) card
+ 1000 format(a)
+c
+      if(card(1:8).eq.'sequence') then
+      card=card(9:80)
+      i=index(card,':')
+      if(i.le.1) call errquit('modify sequence error',0)
+      read(card(1:i-1),*) j
+      do 6 k=1,nseq
+      if(lseq(1,k).eq.j) then
+      write(lfnout,1004) j,cseq(2,k),card(i+1:i+5)
+ 1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
+      cseq(2,k)=card(i+1:i+5)
+      endif
+    6 continue
+      endif
+      goto 5
+   99 continue
+      close(unit=lfnmod)
+  999 continue
+c
       if(util_print('connectivity',print_high)) then
-      write(lfnout,1000)
- 1000 format(
+      write(lfnout,1001)
+ 1001 format(
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link   ',
      + '    Atom Sgmnt Sgmnt Sgmnt   Atom   Atom Link',/,
      + '  number number name  name   name   name        ',
@@ -100,7 +128,7 @@ c
      + '                 PDB   top    PDB    top     ',/)
       k=natm/2
       if(natm.gt.2*k) k=k+1
-      do 6 i=1,k
+      do 7 i=1,k
       l=i+k
       if(l.le.natm) then
       write(lfnout,1001) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
@@ -108,13 +136,13 @@ c
      + l,latm(1,l),(cseq(j,latm(1,l)),j=1,2),
      + (catm(j,l),j=1,2),latm(5,l)
       else
-      write(lfnout,1001) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
+      write(lfnout,1002) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
      + (catm(j,i),j=1,2),latm(5,i)
       endif
- 1001 format(2(i8,i6,2(1x,a5),2(1x,a6),i5,3x))
-    6 continue
-      write(lfnout,1002)
- 1002 format(' ')
+ 1002 format(2(i8,i6,2(1x,a5),2(1x,a6),i5,3x))
+    7 continue
+      write(lfnout,1003)
+ 1003 format(' ')
       endif
 c
       pre_rename=.true.

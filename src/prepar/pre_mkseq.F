@@ -1,9 +1,9 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
-     + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale,altloc,chain,icyren,model)
+     + lfntmp,filtmp,lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,
+     + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk)
 c
-c $Id: pre_mkseq.F,v 1.23 1999-01-05 16:27:23 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.24 1999-01-29 21:12:44 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -34,7 +34,7 @@ c
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
-      integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model
+      integer natm,nseq,nssb,nsgm,nlnk,maxscf,icyren,model,nxlnk
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -43,7 +43,7 @@ c
 c
       real*8 qscale
 c
-      character*255 filpdb,filpar,filseq,filtmp
+      character*255 filpdb,filpar,filseq,filtmp,filmod
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       character*3 slvnam
@@ -51,7 +51,7 @@ c
       character*10 slvmdl
       character*1 altloc,chain
 c
-      integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
+      integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp,lfnmod
       integer igeom,numslv,nlnkf
 c
       if(util_print('sequence',print_high)) then
@@ -215,7 +215,7 @@ c
 c     check segment links
 c     -------------------
 c
-      if(.not.pre_links(lfnout,ffield,
+      if(.not.pre_links(lfnout,ffield,lfnmod,filmod,
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk,nlnkf))
@@ -224,7 +224,7 @@ c
 c     comply with force field segment names
 c     -------------------------------------
 c
-      if(.not.pre_rename(lfnout,ffield,
+      if(.not.pre_rename(lfnout,ffield,lfnmod,filmod,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk,icyren))

@@ -114,3 +114,6 @@ Dec 23 1998	 Allow comment lines in seqence file
 Jan 04 1999	 Fix bug in variable types
 Jan 05 1999	 Add model option
 Jan 14 1999	 Add zeros for nsp,npmf,npmfi
+Jan 29 1999	 Add MODEL option
+		 Add input LINK command
+		 Add CHAIN option

@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.19 1998-09-18 16:29:42 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.20 1999-01-29 21:12:43 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -210,8 +210,9 @@ c
  3104 format(i5,'-',i5)
       endif
   117 continue
-      write(lfnout,3006) csgm(i)(1:length)
-      goto 9999
+      write(lfnout,3009) csgm(i)(1:length)
+ 3009 format(a)
+      call errquit('Unable to determine atom types',0)
       endif
 c
 c     memory deallocation
@@ -309,7 +310,7 @@ c
       if(.not.found.and.util_print('sequence',print_none)) then
       write(lfnout,3008) csgm(i)(1:length)
  3008 format(' Unresolved atom types in fragment',a,/)
-      goto 9999
+      call errquit('Unresolved atom types',0)
       endif
 c
       lsgm(2,i)=-4
