@@ -15514,7 +15514,7 @@ ar f
 ar g
  0.33400000 1.00000000
 end
-basis h_CD-demon
+basis h_cd-demon
 h s
  0.45000000e+02 1.0000000 
 h s
@@ -15524,7 +15524,7 @@ h s
 h l
  0.15000000e+01 1.0000000 1.00000000
 end
-basis he_CD-demon
+basis he_cd-demon
 he s
  0.54000000e+02 1.0000000
 he s
@@ -15534,7 +15534,7 @@ he s
 he l
  0.18000000e+01 1.0000000 1.00000000
 end
-basis li_CD-demon
+basis li_cd-demon
 li s
       256.00000000 1.0000000
 li s
@@ -15556,7 +15556,7 @@ li d
 li d
         0.05100000 1.0000000
 end
-basis be_CD-demon
+basis be_cd-demon
 be s
  0.51200000e+03 1.00000000
 be s
@@ -15574,7 +15574,7 @@ be l
 be d
  0.40000000e+00 1.00000000
 end
-basis b_CD-demon
+basis b_cd-demon
 b s
       716.80000000 1.0000000
 b s
@@ -15596,7 +15596,7 @@ b d
 b d
         0.14000000 1.0000000
 end
-basis c_CD-demon
+basis c_cd-demon
 c s
      1114.00000000 1.00000000
 c s
@@ -15618,7 +15618,7 @@ c d
 c d
         0.22000000 1.00000000
 end
-basis n_CD-demon
+basis n_cd-demon
 n s
      1640.00000000 1.00000000
 n s
@@ -15640,7 +15640,7 @@ n d
 n d
         0.32000000 1.00000000
 end
-basis o_CD-demon
+basis o_cd-demon
 o s
      2000.00000000 1.00000000
 o s
@@ -15662,7 +15662,7 @@ o d
 o d
         0.39000000 1.00000000
 end
-basis f_CD-demon
+basis f_cd-demon
 f s
      2458.00000000 1.00000000
 f s
@@ -15684,7 +15684,7 @@ f d
 f d
         0.48000000 1.00000000
 end
-basis ne_CD-demon
+basis ne_cd-demon
 ne s
  0.30720000e+04 1.00000000
 ne s
@@ -15706,7 +15706,7 @@ ne d
 ne d
  0.60000000e+00 1.00000000
 end
-basis na_CD-demon
+basis na_cd-demon
 na s
  0.37000000e+04 1.00000000
 na s
@@ -15732,7 +15732,7 @@ na d
 na d
  0.18000000e+00 1.00000000
 end
-basis mg_CD-demon
+basis mg_cd-demon
 mg s
  0.61400000e+04 1.00000000
 mg s
@@ -15758,7 +15758,7 @@ mg d
 mg d
  0.30000000e+00 1.00000000
 end
-basis al_CD-demon
+basis al_cd-demon
 al s
  0.68610000e+04 1.00000000
 al s
@@ -15786,7 +15786,7 @@ al d
 al d
  0.08400000e+00 1.00000000
 end
-basis si_CD-demon
+basis si_cd-demon
 si s
  0.98300000e+04 1.00000000
 si s
@@ -15814,7 +15814,7 @@ si d
 si d
  0.12000000e+00 1.00000000
 end
-basis p_CD-demon
+basis p_cd-demon
 p s
  0.13107000e+05 1.00000000
 p s
@@ -15842,7 +15842,7 @@ p d
 p d
  0.16000000e+00 1.00000000
 end
-basis s_CD-demon
+basis s_cd-demon
 s s
  0.16384000e+05 1.00000000
 s s
@@ -15870,7 +15870,7 @@ s d
 s d
  0.20000000e+00 1.00000000
 end
-basis cl_CD-demon
+basis cl_cd-demon
 cl s
  0.20480000e+05 1.00000000
 cl s
@@ -15898,7 +15898,7 @@ cl d
 cl d
  0.25000000e+00 1.00000000
 end
-basis ar_CD-demon
+basis ar_cd-demon
 ar s
  0.24576000e+05 1.00000000
 ar s
@@ -15926,7 +15926,7 @@ ar d
 ar d
  0.30000000e+00 1.00000000
 end
-basis k_CD-demon
+basis k_cd-demon
 k s
  0.10000000e+05 1.00000000
 k s
@@ -15956,7 +15956,7 @@ k d
 k d
  0.12000000e+00 1.00000000
 end
-basis ca_CD-demon
+basis ca_cd-demon
 ca s
  0.13900000e+05 1.00000000
 ca s
@@ -15986,7 +15986,7 @@ ca d
 ca d
  0.17000000e+00 1.00000000
 end
-basis sc_CD-demon
+basis sc_cd-demon
 sc s
  0.21000000e+05 1.00000000
 sc s
@@ -16018,7 +16018,7 @@ sc d
 sc d
  0.06400000e+00 1.00000000
 end
-basis ti_CD-demon
+basis ti_cd-demon
 ti s
  0.28000000e+05 1.00000000
 ti s
@@ -16050,7 +16050,7 @@ ti d
 ti d
  0.08400000e+00 1.00000000
 end
-basis v_CD-demon
+basis v_cd-demon
 v s
  0.33100000e+05 1.00000000
 v s
@@ -16082,7 +16082,7 @@ v d
 v d
  0.10100000e+00 1.00000000
 end
-basis cr_CD-demon
+basis cr_cd-demon
 cr s
  0.37000000e+05 1.00000000
 cr s
@@ -16114,7 +16114,7 @@ cr d
 cr d
  0.11500000e+00 1.00000000
 end
-basis mn_CD-demon
+basis mn_cd-demon
 mn s
  0.41000000e+05 1.00000000
 mn s
@@ -16146,7 +16146,7 @@ mn d
 mn d
  0.12500000e+00 1.00000000
 end
-basis fe_CD-demon
+basis fe_cd-demon
 fe s
  0.44000000e+05 1.00000000
 fe s
@@ -16178,7 +16178,7 @@ fe d
 fe d
  0.13500000e+00 1.00000000
 end
-basis co_CD-demon
+basis co_cd-demon
 co s
  0.47000000e+05 1.00000000
 co s
@@ -16210,7 +16210,7 @@ co d
 co d
  0.14400000e+00 1.00000000
 end
-basis ni_CD-demon
+basis ni_cd-demon
 ni s
  0.50000000e+05 1.00000000
 ni s
@@ -16242,7 +16242,7 @@ ni d
 ni d
  0.15200000e+00 1.00000000
 end
-basis cu_CD-demon
+basis cu_cd-demon
 cu s
  0.53000000e+05 1.00000000
 cu s
@@ -16274,7 +16274,7 @@ cu d
 cu d
  0.16000000e+00 1.00000000
 end
-basis zn_CD-demon
+basis zn_cd-demon
 zn s
  0.75500000e+05 1.00000000
 zn s
@@ -16306,7 +16306,7 @@ zn d
 zn d
  0.23000000e+00 1.00000000
 end
-basis ga_CD-demon
+basis ga_cd-demon
 ga s
  0.26880000e+05 1.00000000
 ga s
@@ -16338,7 +16338,7 @@ ga d
 ga d
  0.08200000e+00 1.00000000
 end
-basis ge_CD-demon
+basis ge_cd-demon
 ge s
  0.36032000e+05 1.00000000
 ge s
@@ -16370,7 +16370,7 @@ ge d
 ge d
  0.11000000e+00 1.00000000
 end
-basis as_CD-demon
+basis as_cd-demon
 as s
  0.45760000e+05 1.00000000
 as s
@@ -16402,7 +16402,7 @@ as d
 as d
  0.14000000e+00 1.00000000
 end
-basis selenium_CD-demon
+basis selenium_cd-demon
 se s
  0.52160000e+05 1.00000000
 se s
@@ -16434,7 +16434,7 @@ se d
 se d
  0.16000000e+00 1.00000000
 end
-basis br_CD-demon
+basis br_cd-demon
 br s
  0.62480000e+05 1.00000000
 br s
@@ -16466,7 +16466,7 @@ br d
 br d
  0.19000000e+00 1.00000000
 end
-basis kr_CD-demon
+basis kr_cd-demon
 kr s
  0.72320000e+05 1.00000000
 kr s
@@ -16498,7 +16498,7 @@ kr d
 kr d
  0.22000000e+00 1.00000000
 end
-basis rb_CD-demon
+basis rb_cd-demon
 rb s
  0.40000000e+05 1.00000000
 rb s
@@ -16532,7 +16532,7 @@ rb d
 rb d
  0.12800000e+00 1.00000000
 end
-basis sr_CD-demon
+basis sr_cd-demon
 sr s
  0.60000000e+05 1.00000000
 sr s
@@ -16566,7 +16566,7 @@ sr d
 sr d
  0.18800000e+00 1.00000000
 end
-basis y_CD-demon
+basis y_cd-demon
 y s
  0.12187500e+06 1.00000000
 y s
@@ -16598,7 +16598,7 @@ y d
 y d
  0.05200000e+00 1.00000000 
 end
-basis zr_CD-demon
+basis zr_cd-demon
 zr s
  0.13837500e+06 1.00000000
 zr s
@@ -16630,7 +16630,7 @@ zr d
 zr d
  0.05900000e+00 1.00000000
 end
-basis nb_CD-demon
+basis nb_cd-demon
 nb s
  0.15093800e+06 1.00000000
 nb s
@@ -16662,7 +16662,7 @@ nb d
 nb d
  0.06400000e+00 1.00000000
 end
-basis mo_CD-demon
+basis mo_cd-demon
 mo s
  0.16406200e+06 1.00000000
 mo s
@@ -16694,7 +16694,7 @@ mo d
 mo d
  0.07000000e+00 1.00000000
 end
-basis tc_CD-demon
+basis tc_cd-demon
 tc s
  0.17437500e+06 1.00000000
 tc s
@@ -16726,7 +16726,7 @@ tc d
 tc d
  0.07400000e+00 1.00000000
 end
-basis ru_CD-demon
+basis ru_cd-demon
 ru s
  0.18037500e+06 1.00000000
 ru s
@@ -16758,7 +16758,7 @@ ru d
 ru d
  0.07700000e+00 1.00000000
 end
-basis rh_CD-demon
+basis rh_cd-demon
 rh s
  0.18525000e+06 1.00000000
 rh s
@@ -16789,7 +16789,7 @@ rh d
  0.39500000e+00 1.00000000
 rh d
  0.07900000e+00 1.00000000
-basis pd_CD-demon
+basis pd_cd-demon
 pd s
  0.18750000e+06 1.00000000
 pd s
@@ -16821,7 +16821,7 @@ pd d
 pd d
  0.08000000e+00 1.00000000
 end
-basis ag_CD-demon
+basis ag_cd-demon
 ag s
  0.18937500e+06 1.00000000
 ag s
@@ -16853,7 +16853,7 @@ ag d
 ag d
  0.08100000e+00 1.00000000
 end
-basis cd_CD-demon
+basis cd_cd-demon
 cd s
  0.22875000e+06 1.00000000
 cd s
@@ -16885,7 +16885,7 @@ cd d
 cd d
  0.09800000e+00 1.00000000
 end
-basis in_CD-demon
+basis in_cd-demon
 in s
  0.16406200e+06 1.00000000
 in s
@@ -16917,7 +16917,7 @@ in d
 in d
  0.07000000e+00 1.00000000
 end
-basis sn_CD-demon
+basis sn_cd-demon
 sn s
  0.20437500e+06 1.00000000
 sn s
@@ -16949,7 +16949,7 @@ sn d
 sn d
  0.08700000e+00 1.00000000
 end
-basis sb_CD-demon
+basis sb_cd-demon
 sb s
  0.25312500e+06 1.00000000
 sb s
@@ -16981,7 +16981,7 @@ sb d
 sb d
  0.10800000e+00 1.00000000
 end
-basis te_CD-demon
+basis te_cd-demon
 te s
  0.29062500e+06 1.00000000
 te s
@@ -17013,7 +17013,7 @@ te d
 te d
  0.12400000e+00 1.00000000
 end
-basis i_CD-demon
+basis i_cd-demon
 i s
  0.33562500e+06 1.00000000
 i s
@@ -17045,7 +17045,7 @@ i d
 i d
  0.14300000e+00 1.00000000
 end
-basis xe_CD-demon
+basis xe_cd-demon
 xe s
  0.38437500e+06 1.00000000
 xe s
