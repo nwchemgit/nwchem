@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.386 2002-05-10 20:04:43 edo Exp $
+# $Id: makefile.h,v 1.387 2002-08-06 16:25:29 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -923,7 +923,7 @@ ifeq ($(TARGET),IBM64)
          CC = xlc
     ARFLAGS = -X 64 urs 
      RANLIB = echo
-  MAKEFLAGS = -j 24 --no-print-directory
+  MAKEFLAGS = -j 11 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -933,7 +933,7 @@ ifeq ($(TARGET),IBM64)
   FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
    COPTIMIZE = -O -qmaxmem=8192
 
-    DEFINES = -DIBM -DAIX -DEXTNAME 
+    DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
        LIBPATH += -L/usr/lib -L/lib 
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
@@ -963,7 +963,7 @@ ifeq ($(TARGET),LAPI)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 15 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
      MPILIB = 
@@ -1283,6 +1283,7 @@ ifeq ($(LINUXCPU),x86)
     endif
   endif
 endif
+EXTRA_LIBS +=#-lefence
 ifeq ($(LINUXCPU),ppc)
   EXTRA_LIBS += -lm
 endif
