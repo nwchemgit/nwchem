@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.92 2003-07-23 16:29:54 d3j191 Exp $
+c $Id: prp_main.F,v 1.93 2003-07-23 18:34:12 d3j191 Exp $
 c
       implicit none
 c
@@ -54,6 +54,8 @@ c
       real*8 xsm(msm,3),dx(3),upmf(100)
 c
       integer i,j,k,it
+c
+      call timer_start(63)
 c
       if(ltwin) then
       do 1 i=1,mpe
@@ -332,6 +334,8 @@ c
       p(it)=upmf(i)
   356 continue
       endif
+c
+      call timer_stop(63)
 c
       if(iprof.eq.1) then
       do 56 i=1,55

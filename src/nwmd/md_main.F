@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.162 2003-07-17 19:39:19 d3j191 Exp $
+c $Id: md_main.F,v 1.163 2003-07-23 18:34:12 d3j191 Exp $
 c
       implicit none
 c
@@ -1058,7 +1058,8 @@ c
 #include "global.fh"
 c
       logical frequency
-      external frequency
+      real*8 timer_wall_total
+      external frequency,timer_wall_total
 c
       character*1 mdt
       logical ltmp
@@ -1103,24 +1104,6 @@ c
 c
       call md_newton()
 c
-      call timer_start(63)
-      call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
-      call md_server
-      call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
-c
-      lxw=frequency(mdstep,nfcoor)
-      lvw=frequency(mdstep,nfvelo)
-      lfw=frequency(mdstep,nfforc)
-      lxs=frequency(mdstep,nfscoo)
-      lvs=frequency(mdstep,nfsvel)
-      lfs=frequency(mdstep,nfsfor)
-      lesp=frequency(mdstep,nfesp)
-c
-      call timer_stop(63)
 c
       call timer_start(15)
 c
@@ -1150,8 +1133,25 @@ c
      + filnam(1:38)
  4000 format(i2,' md',a1,i7,' + ',i7,' @',f7.2,e9.2,' ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
-      call timer_stop(64)
       if(frequency(mdstep,nftime)) call md_wrtime
+c
+      call timer_stop(64)
+c
+      call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsmp))
+      call md_server
+      call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
+      lesp=frequency(mdstep,nfesp)
 c
       call timer_stop(1)
     2 continue
@@ -1678,12 +1678,12 @@ c
 c
 c     self-guided forces
 c
-      call timer_start(57)
       if(iguide.gt.0) then
+      call timer_start(57)
       call md_guided(dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_gw),dbl_mb(i_gs))
-      endif
       call timer_stop(57)
+      endif
 c
 c     time step
 c
@@ -2593,7 +2593,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.162 2003-07-17 19:39:19 d3j191 Exp $
+c $Id: md_main.F,v 1.163 2003-07-23 18:34:12 d3j191 Exp $
 c
       implicit none
 c

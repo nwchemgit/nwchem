@@ -3,9 +3,9 @@
      + lcf,lsp,ltwn,lpol,lpmei,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
-     + nodpme,nipmf)
+     + nodpme,nipmf,lguide,lqmmm,lqmd)
 c
-c $Id: prp_init.F,v 1.61 2003-07-23 16:29:54 d3j191 Exp $
+c $Id: prp_init.F,v 1.62 2003-07-23 18:34:12 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
       character*255 fil
 c
       integer i,j,it
-      logical lpert2,lpert3
+      logical lpert2,lpert3,lguide,lqmmm,lqmd
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -471,7 +471,7 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: QMD Forces Evaluation                      s'
-      lp(it)=.true.
+      lp(it)=lqmd
       it=it+1
       pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.
@@ -519,31 +519,31 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Initialization                         s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Charge Grid Evaluation                 s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Charge Grid Communication              s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Charge Grid Retrieval                  s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Reverse 3D-pFFT                        s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Energy Evaluation                      s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Synchronization                        s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Forward 3D-pFFT                        s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Synchronization                        s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: Local Coordinates Retrieval                s'
       lp(it)=.true.
@@ -564,19 +564,19 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: PME Wait                                   s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Forces Evaluation                      s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Forces Communication                   s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: Node Synchronization                       s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: PME Flag                                   s'
-      lp(it)=.true.
+      lp(it)=lpme
       it=it+1
       pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.
@@ -585,13 +585,13 @@ c
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: QM/MM Forces Evaluation                    s'
-      lp(it)=.true.
+      lp(it)=lqmmm
       it=it+1
       pronam(it)='Prof: Forces Normalization                       s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: Guided MD Forces                           s'
-      lp(it)=.true.
+      lp(it)=lguide
       it=it+1
       pronam(it)='Prof: MD Time Step                               s'
       lp(it)=.true.
@@ -611,7 +611,7 @@ c
       pronam(it)='Prof: Property Evaluation                        s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: Property Recording                         s'
+      pronam(it)='Prof: Restart File Update                        s'
       lp(it)=.true.
       endif
 c

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.143 2003-07-17 19:39:20 d3j191 Exp $
+c $Id: md_start.F,v 1.144 2003-07-23 18:34:12 d3j191 Exp $
 c
       implicit none
 c
@@ -69,7 +69,8 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi)
+     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias,nodpme,npmfi,
+     + iguide.ne.0,iqmmm.ne.0,lqmd)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -1387,7 +1388,7 @@ c
  1252 format(' 52 : Center of Mass Motion Removal')
  1253 format(' 53 : SPACE Update')
  1254 format(' 54 : Property Evaluation')
- 1255 format(' 55 : Property Recording')
+ 1255 format(' 55 : Restart File Update')
  1256 format(' 56 : TOTAL TIME PER STEP')
 c          
       endif
