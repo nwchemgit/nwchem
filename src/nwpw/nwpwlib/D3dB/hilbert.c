@@ -1,5 +1,5 @@
 /* hilbert.c -
-$Id: hilbert.c,v 1.2 2004-04-20 22:02:35 edo Exp $
+$Id: hilbert.c,v 1.3 2004-04-26 00:07:53 bylaska Exp $
    Author - Eric Bylaska
 
    This file contains 2d hilbert mapping routines
@@ -53,7 +53,7 @@ Integer     map[];
       count = count*2;
    }
 
-   printf("Hilbert Level = %d, nx = %d,ny = %d\n",level,sizex,sizey);
+   //printf("Hilbert Level = %d, nx = %d,ny = %d\n",level,sizex,sizey);
 
    create_olist(&olist,size*size);
    for (j=0; j<sizey; ++j)

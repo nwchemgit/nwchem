@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.29 2004-04-24 21:07:10 bylaska Exp $
+* $Id: D3dB-new.F,v 1.30 2004-04-26 00:07:53 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -145,8 +145,10 @@ c           k_map(q_map(k)) = k
          end if
       end do
 
-      nfft3d(nb) = (nx(nb)/2+1)*ny(nb)*nq(nb)
-      n2ft3d(nb) = 2*nfft3d(nb)
+      nfft3d(nb)     = (nx(nb)/2+1)*ny(nb)*nq(nb)
+      n2ft3d(nb)     = 2*nfft3d(nb)
+      nfft3d_map(nb) = nfft3d(nb)
+      n2ft3d_map(nb) = n2ft3d(nb)
 
 
 *     ******************************
@@ -184,57 +186,53 @@ c           k_map(q_map(k)) = k
       if (.not. value)
      > call errquit('Mapping_init:out of heap memory',1, MA_ERR)
 
-      call hilbert2d_map(ny(nb),nz(nb),      int_mb(p_map1(1,nb)))
+
+      !**** double grid map1 defined wrt to single grid         ****
+      !**** makes expand and contract routines trivial parallel ****
+      if (nb.eq.1) then
+        call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
+      end if
+
       call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
       call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
 
-c      !***** DEBUG *****
-c      !*** processor map ***
-c      write(*,*) "hilbert map:"
-c      do j=1,ny(nb)
-c        write(*,'(8I5)') 
-c     >    (int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
-c      end do
-c      !***** DEBUG *****
 
+
+      !**** double grid map1 defined wrt to single grid         ****
+      !**** makes expand and contract routines trivial parallel ****
+      if (nb.eq.1) then
       call generate_map_indexes(taskid,np,
      >                          ny(nb),nz(nb),
      >                          int_mb(p_map1(1,nb)),
      >                          int_mb(q_map1(1,nb)),nq1(nb))
-      write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
+      else
+        nq1(2) = 4*nq1(1)
+        call expand_hilbert2d(np,ny(1),nz(1),
+     >                        int_mb(p_map1(1,1)),int_mb(q_map1(1,1)),
+     >                        int_mb(p_map1(1,2)),int_mb(q_map1(1,2)))
+      end if
       call generate_map_indexes(taskid,np,
      >                          nz(nb),nx(nb)/2+1,
      >                          int_mb(p_map2(1,nb)),
      >                          int_mb(q_map2(1,nb)),nq2(nb))
-      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
       call generate_map_indexes(taskid,np,
      >                          nx(nb)/2+1,ny(nb),
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
-      write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
+
+c     write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
+c     write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
+c     write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
 
       nfft3d(nb) = (nx(nb)/2+1)*nq1(nb)
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)
       if ((nz(nb)*nq3(nb)).gt.nfft3d(nb)) nfft3d(nb) = nz(nb)*nq3(nb)
       n2ft3d(nb) = 2*nfft3d(nb)
 
+      nfft3d_map(nb) = nz(nb)*nq3(nb)
+      n2ft3d_map(nb) = (nx(nb)+2)*nq1(nb)
 
-c      !***** DEBUG *****
-c      !*** processor map ***
-c      write(*,*) "processor map:"
-c      do j=1,ny(nb)
-c        write(*,'(8I5)') 
-c     >   (int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
-c      end do
-c      write(*,*) 
-c      write(*,*) 
-c      write(*,*) "q map:"
-c      do j=1,ny(nb)
-c        write(*,'(8I5)') 
-c     >    (int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb)),k=1,nz(nb))
-c      end do
-c
-c      !***** DEBUG *****
+
       
       end if
 
@@ -704,7 +702,7 @@ c     msglen = 8
 #include "D3dB.fh"
 
 
-      call dcopy(n2ft3d(nb),0.0d0,0,A,1)
+      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       return
       end
 
@@ -716,7 +714,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy(n2ft3d(nb),0.0d0,0,A,1)
+      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       return
       end
 
@@ -736,7 +734,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy((nx(nb)+2)*ny(nb)*nq(nb),A,1,B,1)
+      call dcopy(2*nfft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -748,7 +746,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy(n2ft3d(nb),A,1,B,1)
+      call dcopy(n2ft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -760,7 +758,7 @@ c     msglen = 8
 
 #include "D3dB.fh"
 
-      call dcopy(nfft3d(nb),A,1,B,1)
+      call dcopy(nfft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -2391,7 +2389,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -2409,7 +2407,7 @@ c      end
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -2427,7 +2425,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -2445,7 +2443,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
       end do
       return
@@ -2471,7 +2469,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = dble(A(i))**2 + dimag(A(i))**2
       end do
       return
@@ -2494,7 +2492,7 @@ c      end
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i)**2
       end do
       return
@@ -2516,7 +2514,7 @@ c      end
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = dsqrt(A(i))
       end do
       return
@@ -2539,7 +2537,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i)**2
       end do
       return
@@ -3807,7 +3805,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       else
       call Parallel_taskid(taskid)
 *     ***** kx!=0 plane, so double count *****
-      do index=1,nfft3d(nb)
+      do index=1,nfft3d_map(nb)
             sum = sum + dble(A(index))  * dble(B(index))
      >                + dimag(A(index)) * dimag(B(index))
       end do
@@ -3900,7 +3898,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       else
       call Parallel_taskid(taskid)
 *     ***** kx!=0 plane, so double count *****
-      do index=1,nfft3d(nb)
+      do index=1,nfft3d_map(nb)
             sum = sum + dble(A(index))  * dble(B(index))
      >                + dimag(A(index)) * dimag(B(index))
       end do
@@ -3984,7 +3982,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       else
       call Parallel_taskid(taskid)
 *     ***** kx!=0 plane, so double count *****
-      do index=1,nfft3d(nb)
+      do index=1,nfft3d_map(nb)
             sum = sum + A(index)*B(index)
       end do
       sum = sum*2.0d0
@@ -4073,7 +4071,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       else
       call Parallel_taskid(taskid)
 *     ***** kx!=0 plane, so double count *****
-      do index=1,nfft3d(nb)
+      do index=1,nfft3d_map(nb)
             sum = sum + A(index)*B(index)
       end do
       sum = sum*2.0d0
@@ -4128,7 +4126,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          sum = sum + A(i)*B(i)
       end do
 
@@ -4163,7 +4161,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          sum = sum + A(i)*B(i)
       end do
 
@@ -4195,7 +4193,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
             C(i) = dconjg(A(i)) * B(i)
          end do
 
@@ -4218,7 +4216,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
       return
@@ -4240,7 +4238,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          if (masker(i)) A(i) = 0.0d0
       end do
       return
@@ -4264,7 +4262,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
             C(i) = A(i) * B(i)
       end do
 
@@ -4288,7 +4286,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
          end do
 
@@ -4314,7 +4312,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -4339,7 +4337,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
 
@@ -4363,7 +4361,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -4388,7 +4386,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -4415,7 +4413,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
+      do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
 
@@ -4441,7 +4439,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
          B(i) = B(i) + alpha*A(i)
       end do
 
@@ -4465,7 +4463,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          B(i) = B(i) + alpha* B(i)
       end do
 
@@ -4495,7 +4493,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !do q=1,nq(nb)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
-      do index = 1,n2ft3d(nb)
+      do index = 1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(B(index)) .le. eta) then
            C(index) = 0.0d0
@@ -4532,7 +4530,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !do q=1,nq(nb)
       !do j=1,ny(nb)
       !do i=1,nx(nb)
-      do index=1,n2ft3d(nb)
+      do index=1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          C(index) = dabs(A(index))
       end do
@@ -4558,7 +4556,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          if (A(i).lt.0.0d0) A(i) = 0.0d0
       end do
 
@@ -4581,7 +4579,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       integer i
 
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
 
@@ -4658,7 +4656,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
-      do i=1,n2ft3d(nb)
+      do i=1,n2ft3d_map(nb)
          sum = sum + A(i)
       end do
 
@@ -4725,7 +4723,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       else
       call Parallel_taskid(taskid)
 *     ***** kx!=0 plane, so double count *****
-      do index=1,nfft3d(nb)
+      do index=1,nfft3d_map(nb)
             sum = sum + A(index)
       end do
       sum = sum*2.0d0
@@ -4844,7 +4842,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
         sum    = 0.0d0
 
 *       ***** kx!=0 plane, so double count *****
-        do index=1,nfft3d(nb)
+        do index=1,nfft3d_map(nb)
             index1 = index+shift1
             index2 = index+shift2
             sum = sum + dble(A(index1))  * dble(B(index2))
@@ -4969,7 +4967,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
         sum    = 0.0d0
 
 *       ***** kx!=0 plane, so double count *****
-        do index=1,nfft3d(nb)
+        do index=1,nfft3d_map(nb)
             index1 = index+shift1
             index2 = index+shift2
             sum = sum + dble(A(index1))  * dble(B(index2))
@@ -5151,7 +5149,7 @@ c      end
 
       integer i
 
-      do i=1,nfft3d(nb)
+      do i=1,nfft3d_map(nb)
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
 
@@ -5188,7 +5186,14 @@ c      end
       end do
 
       else
-        call errquit('D3dB_r_Expand: mapping 2 not implemented',0,0)
+      call dcopy(n2ft3d(nb2),0.0d0,0,B,1)
+      do q=1,nq1(nb1)
+      do i=1,nx(nb1)
+         index1 = i + (q-1)*(nx(nb1)+2)
+         index2 = i + (q-1)*(nx(nb2)+2)
+         B(index2) = A(index1)
+      end do
+      end do
       end if
       return
       end
@@ -5223,7 +5228,14 @@ c      end
       end do
 
       else
-        call errquit('D3dB_r_Contract: mapping 2 not implemented',0,0)
+      call dcopy(n2ft3d(nb1),0.0d0,0,A,1)
+      do q=1,nq1(nb1)
+      do i=1,nx(nb1)
+         index1 = i + (q-1)*(nx(nb1)+2)
+         index2 = i + (q-1)*(nx(nb2)+2)
+         A(index1) = B(index2)
+      end do
+      end do
       end if
 
       return

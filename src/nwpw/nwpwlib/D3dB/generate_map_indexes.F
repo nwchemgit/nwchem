@@ -1,6 +1,6 @@
 
 *
-* $Id: generate_map_indexes.F,v 1.3 2004-04-24 21:07:11 bylaska Exp $
+* $Id: generate_map_indexes.F,v 1.4 2004-04-26 00:07:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -76,3 +76,63 @@
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *        expand_hilbert2d         *
+*     *                                 *
+*     ***********************************
+
+      subroutine expand_hilbert2d(np,ny,nz, 
+     >                            pmap_in, qmap_in,
+     >                            pmap_out,qmap_out)
+      implicit none
+      integer np,ny,nz
+      integer pmap_in(ny,nz)
+      integer qmap_in(ny,nz)
+      integer pmap_out(2*ny,2*nz) 
+      integer qmap_out(2*ny,2*nz)
+
+      !**** local variables ****
+      integer j,k,p,nqp
+
+
+      !*** set pmap_out ***
+      do k=1,nz
+      do j=1,ny
+         pmap_out(j,k)       = pmap_in(j,k)
+         pmap_out(j+ny,k)    = pmap_in(j,k)
+         pmap_out(j,k+nz)    = pmap_in(j,k)
+         pmap_out(j+ny,k+nz) = pmap_in(j,k)
+      end do
+      end do
+
+
+      !*** set qmap_out ***
+      do p=0,np-1
+
+         nqp=0
+         do k=1,nz
+         do j=1,ny
+           if (pmap_in(j,k).eq.p) then
+              if (qmap_in(j,k).gt.nqp) nqp = qmap_in(j,k)
+           end if
+         end do
+         end do
+
+         do k=1,nz
+         do j=1,ny
+           if (pmap_in(j,k).eq.p) then
+              qmap_out(j,k)       = qmap_in(j,k)
+              qmap_out(j+ny,k)    = qmap_in(j,k) + nqp
+              qmap_out(j,k+nz)    = qmap_in(j,k) + 2*nqp
+              qmap_out(j+ny,k+nz) = qmap_in(j,k) + 3*nqp
+           end if
+         end do
+         end do
+
+      end do
+
+      return
+      end
+         

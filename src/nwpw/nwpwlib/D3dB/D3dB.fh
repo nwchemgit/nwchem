@@ -1,5 +1,5 @@
 *
-* $Id: D3dB.fh,v 1.3 2004-04-24 21:07:11 bylaska Exp $
+* $Id: D3dB.fh,v 1.4 2004-04-26 00:07:53 bylaska Exp $
 *
 
 
@@ -8,9 +8,12 @@
 
 
       integer nfft3d(NBLOCKS),n2ft3d(NBLOCKS)
+      integer nfft3d_map(NBLOCKS),n2ft3d_map(NBLOCKS)
       integer zplane_size(NBLOCKS)
       integer mapping
-      common    / D3dB_kdfj / nfft3d,n2ft3d,zplane_size,mapping
+      common    / D3dB_kdfj / nfft3d,n2ft3d,
+     >                        nfft3d_map,n2ft3d_map,
+     >                        zplane_size,mapping
 
 
       !**** slab mapping ****
