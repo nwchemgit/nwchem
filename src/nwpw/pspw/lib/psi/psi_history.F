@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.3 2002-01-01 01:20:39 bylaska Exp $
+* $Id: psi_history.F,v 1.4 2002-01-01 01:28:55 bylaska Exp $
 *
 
 *     *******************************
@@ -257,12 +257,18 @@
       logical function psi_history_check_last()
       implicit none 
 
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
+      integer MASTER
+      parameter(MASTER=0)
+
       logical check,value
       integer ptr,nion,rion(2),ii,size
+      integer icheck,msglen
       real*8  diff
       character*30 tag2
 
@@ -304,6 +310,14 @@
 
       value = MA_pop_stack(rion(2))
       if (.not. value) call errquit('psi_history_check_last',2)
+
+      icheck = 0
+      if (check) icheck=1
+      msglen = 1
+      call BRDCST(9+MSGINT,icheck,mitob(msglen),MASTER)
+      check = .false.
+      if (icheck.eq.1) check=.true.
+     
 
       psi_history_check_last = check
       return
