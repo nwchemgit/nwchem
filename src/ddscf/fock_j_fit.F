@@ -1,6 +1,6 @@
       subroutine fock_j_fit(nmat, g_dens, g_j)
 c
-c     $Id: fock_j_fit.F,v 1.1 1999-05-08 13:08:09 bjohnson Exp $
+c     $Id: fock_j_fit.F,v 1.2 1999-05-10 23:08:05 edo Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -23,7 +23,7 @@ c
       subroutine fock_j_fit_gen(nmat, g_dens, g_j, Tvec, have_Tvec,
      &     do_init)
 c
-c     $Id: fock_j_fit.F,v 1.1 1999-05-08 13:08:09 bjohnson Exp $
+c     $Id: fock_j_fit.F,v 1.2 1999-05-10 23:08:05 edo Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -55,7 +55,7 @@ c
       integer rtdb
       integer noc(2), ntotel, n_batch, n3c_int, n3c_dbl, iwhat_max, 
      &     n_semi_bufs, fd
-      integer l_cd_coef, k_cd_coef, g_cdinv, g_2ceri
+      integer l_cd_coef, k_cd_coef
       integer idum
       double precision Ecoul
       double precision ddum
@@ -101,6 +101,7 @@ c
       ddum = -1d0
 c!!! Set up for cdinv to be allocated in dft_cdfit
       IOLGC = .true.
+      if (noio.eq.1)IOLGC = .FALSE.
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
      &     call errquit('fock_j_fit: rtdb_get of noc failed', 0)
       if (ipol.eq.1)then
@@ -123,16 +124,16 @@ c!!! after things are working
 c
 c     Determine the fitting coefficients
 c
-      call dft_fitcd(dbl_mb(k_cd_coef), idum, Ecoul, rtdb,
-     &     g_cdinv, g_dens, nTotEl, n_batch, n3c_int,
+      call dft_fitcd(nmat,dbl_mb(k_cd_coef), idum, Ecoul, rtdb,
+     &     g_dens, nTotEl, n_batch, n3c_int,
      &     idum, n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC, 
-     &     ddum, idum, idum, idum, idum, derfit, nmat, Tvec,
+     &     ddum, idum, idum, idum, idum, derfit,  Tvec,
      &     have_Tvec)
 c
 c     Compute the J matrices using the fitting coefficients
 c
       call dft_fitvc(dbl_mb(k_cd_coef), idum, Ecoul, rtdb, g_j,
-     &     g_2ceri, n_batch, n3c_int, idum, n3c_dbl,
+     &     n_batch, n3c_int, idum, n3c_dbl,
      &     iwhat_max, n_semi_bufs, fd, IOLGC, ddum,
      &     idum, idum, idum, idum, derfit, nmat, do_init)
 c
