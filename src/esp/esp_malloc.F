@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.4 1998-12-23 19:41:23 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.5 1998-12-28 21:54:37 d3j191 Exp $
 c
       implicit none
 c
@@ -121,7 +121,7 @@ c
       m=m-(max1e+mem1)*ma_sizeof(mt_dbl,1,mt_byte)
       n=max(2*nbf,256)
       m=m-(3*n+1)*n*ma_sizeof(mt_dbl,1,mt_byte)
-      if(newgrd.ne.0) mxgrid=(m/(4*ma_sizeof(mt_dbl,1,mt_byte)))-1
+      if(newgrd.ne.0) call esp_grdcnt(dbl_mb(ixptr),dbl_mb(iqptr))
 c
 c     allocate memory for the grid and potential
 c

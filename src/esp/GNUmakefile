@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 1998-12-23 19:41:24 d3j191 Exp $
+# $Id: GNUmakefile,v 1.6 1998-12-28 21:54:38 d3j191 Exp $
 #
 
  OBJ_OPTIMIZE =  esp.o\
@@ -11,6 +11,7 @@
 		 esp_getden.o\
 		 esp_getg.o\
                  esp_getx.o\
+                 esp_grdcnt.o\
                  esp_grid.o\
                  esp_input.o\
                  esp_jacobi.o\

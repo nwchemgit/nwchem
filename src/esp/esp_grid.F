@@ -1,6 +1,6 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.3 1998-12-23 19:41:22 d3j191 Exp $
+c $Id: esp_grid.F,v 1.4 1998-12-28 21:54:37 d3j191 Exp $
 c
       implicit none
 c
@@ -82,16 +82,3 @@ c
 c
       return
       end
-
-
-
-
-
-
-
-
-
-
-
-
-

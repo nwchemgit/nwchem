@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.5 1998-12-23 19:41:21 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.6 1998-12-28 21:54:36 d3j191 Exp $
 c
       implicit none
 c
@@ -75,7 +75,7 @@ cx      write(*,'(a,i5,f12.6)') 'Scale ',icol,scale
 cx
       call dscal(lthi,scale,dbl_mb(k_scr),1)
       call ga_put(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
-      call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+cx      call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
 cx
 cx      write(*,6667) (dbl_mb(k_scr+i),i=0,nbf-1)
 cx 6667 format(10f10.6)

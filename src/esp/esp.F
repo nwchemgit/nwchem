@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.7 1998-12-23 19:41:20 d3j191 Exp $
+c $Id: esp.F,v 1.8 1998-12-28 21:54:35 d3j191 Exp $
 c
       implicit none
 c
@@ -24,6 +24,7 @@ c
       np=ga_nnodes()
       irtdb=irtdb0
       lfnout=6
+      lfngrd=24
 c
 c     read input from rtdb
 c
