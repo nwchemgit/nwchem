@@ -289,7 +289,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.7 1997-03-05 23:10:59 d3g681 Exp $
+C$Id: util_file_name.F,v 1.8 1997-04-10 02:06:21 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -372,8 +372,10 @@ c
          else if (inp_compare(.false.,'echo',field)) then
             echo = .true.
          else if (inp_compare(.false.,'ecce_print', field)) then
-            if (inp_a(ecce_file_name))
-     $           call ecce_print_file_open(ecce_file_name)
+            if (inp_a(ecce_file_name)) then
+               call ecce_print_file_open(ecce_file_name)
+               call ecce_print_echo_input(input_filename)
+            endif
          else
             call errquit('input_start_opt: wierd error',0)
          endif

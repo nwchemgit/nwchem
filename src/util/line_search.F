@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.9 1997-04-04 21:27:27 d3g681 Exp $
+C$Id: line_search.F,v 1.10 1997-04-10 02:06:21 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -37,7 +37,7 @@ c
      $           '       step       energy         lsg     num-lsg ',
      $           '  num-lsh   lsrat    time'/1x,
      $           '     ------- ---------------- --------- ---------',
-     $           ' --------- ------- -------')
+     $           ' --------- ------- --------')
             write(6,3) steps(1), energies(1), gradients(1), 
      $           0.0, 0.0, 0.0, util_cpusec()
             call util_flush(6)

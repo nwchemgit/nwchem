@@ -220,6 +220,30 @@ void ecce_print_file_close(void)
     ecce_print_enabled = 0;
 }
 
+void ecce_print_echo_input(const char *filename)
+/*
+  Echo the contents of the named file into the ECCE file
+  */
+{
+    char buf[256];
+    int nread;
+
+    FILE *file = fopen(filename, "r");
+
+    if (!file) {
+	fprintf(stderr,"!! ecce_echo_input: failed to open %s\n", filename);
+	return;
+    }
+
+    print_info("begin", "input file", "char", 1, 0);
+    while ((nread = fread(buf, 1, sizeof(buf), file)))
+	(void) fwrite(buf, 1, nread, ecce_file);
+    print_info("end", "input file", "char", 1, 0);
+    fflush(ecce_file);
+
+    (void) fclose(file);
+}
+
 
 /*****************************************************************
   Following stuff is FORTRAN wrapping for the above
@@ -277,6 +301,26 @@ void ecce_print_file_open_(const char *filename, int flen)
 void ecce_print_file_close_(void)
 {
     ecce_print_file_close();
+}
+
+#if defined(CRAY) || defined(CRAY_T3D)
+void ecce_print_echo_input_(_fcd f) 
+{
+    const char *filename = _fcdtocp(f);
+    int flen = _fcdlen(f);
+#else
+void ecce_print_echo_input_(const char *filename, int flen)
+{
+#endif
+    char buf[1024];
+
+    if (!fortchar_to_string(filename, flen, buf, sizeof(buf))) {
+	fprintf(stderr,"!! ecce_print_echo_input: name too long? (%d %d)\n",
+		flen, sizeof(buf));
+	return;
+    }
+
+    ecce_print_echo_input(buf);
 }
 
 void ecce_print_control_(Integer *pnew, Integer *pold)
