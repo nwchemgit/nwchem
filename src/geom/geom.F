@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.52 1996-08-27 23:00:25 d3g681 Exp $
+C$Id: geom.F,v 1.53 1996-08-29 17:17:44 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -692,8 +692,40 @@ c
       status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':tags'
       status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':lattice vectors'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':lattice angles'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':system type'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':no. unique centers'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':group number'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':group name'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':user units'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':setting number'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':recip vectors'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':recip angles'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':direct volume'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':unique centers'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':include_bqbq'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':num_operators'
+      status = status .and. rtdb_delete(rtdb, tmp)
+      tmp(k:) = ':operators'
+      if (sym_num_ops(geom) .gt. 0) then
+         tmp(k:) = ':map_atoms'
+      endif
 c
-c     check status of all rtdb stores
+c     check status of all rtdb operations
 c
       if (.not. status) then
          write(6,*) ' geom_rtdb_delete: rtdb corrupt ',translation(1:lt)
