@@ -217,11 +217,13 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
     if ( i >= c1 )
       break;
   }
-
-/*
-  printf(" before me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
-*/
   
+  /*
+    printf(" before me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+    */
+  
+  return 0;
+
   if ( ii == -1 )
     return 0;
 
