@@ -6,10 +6,10 @@
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl,nseqi,
-     + i_lseqi)
+     + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.118 2003-08-06 02:52:12 d3j191 Exp $
+c $Id: sp_init.F,v 1.119 2003-08-07 20:14:34 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer itemp(2)
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset,nseqi,i_lseqi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl
+      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl,ndumsi
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -249,6 +249,8 @@ c
 c
       nseqi=nseq
       i_lseqi=i_lseq
+c
+      ndumsi=ndums
 c
       if(.not.ma_verify_allocator_stuff()) then
       call errquit('ERROR IN MEMORY USE AT EXIT SP_START',0)
@@ -592,6 +594,7 @@ c
       nsmr=0
       icount=0
       lasts=0
+      ndums=0
 c
       if(me.eq.0) then
 c
@@ -887,6 +890,7 @@ c
       read(lfnrst,1011,end=9997,err=9998)
      + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
  1011 format(i1,1x,6f13.8,i5)
+      if(ibs(k,12).lt.0) ndums=ndums+1
 cx
 cx      write(*,1011)
 cx     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
@@ -1103,6 +1107,7 @@ c
       if(nseq.gt.0) then
       call ga_brdcst(msp_22,lseq,nseq*ma_sizeof(mt_int,1,mt_byte),0)
       endif
+      call ga_brdcst(msp_28,ndums,ma_sizeof(mt_int,1,mt_byte),0)
 c
       if(.not.ma_verify_allocator_stuff()) then
       call errquit('ERROR IN MEMORY USE EXITING SP_RDRST',0)

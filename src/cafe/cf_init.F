@@ -5,8 +5,9 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
-     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,lfnhop,filhop)
-c $Id: cf_init.F,v 1.89 2003-07-17 19:44:24 d3j191 Exp $
+     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,lfnhop,filhop,
+     + ndumsi)
+c $Id: cf_init.F,v 1.90 2003-08-07 20:14:25 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -23,7 +24,7 @@ c
       integer nfhopi
       real*8 rcs,rcl,rqm,compr,delta,fpmf
       integer iitmps,iiprss,iislow,iipopt,nseqi,i_lseqi
-      integer nodpme,ntyp,idset,ipset1,ipset2
+      integer nodpme,ntyp,idset,ipset1,ipset2,ndumsi
       integer issscl,npenrg,nbiasi,mropti
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
       logical logqmd,lpbc,ltwn
@@ -126,6 +127,8 @@ c
       issscl=0
       nrwrec=0
       isolvo=0
+c
+      ndums=ndumsi
 c
       lpww=1
       lpsw=1

@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.23 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_shake.F,v 1.24 2003-08-07 20:14:26 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -17,7 +17,7 @@ c
 c
       return
       end
-      subroutine cf_shakes(lhandl,xs,ys,igan,isat,isdt,isfr,isto)
+      subroutine cf_shakes(lhandl,xs,ys,igan,isat,isdt,ishp,isfr,isto)
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
 c
       integer lhandl,isfr,isto
       real*8 xs(msa,3),ys(msa,3)
-      integer igan(msa),isat(msa),isdt(msa)
+      integer igan(msa),isat(msa),isdt(msa),ishp(msa)
 c
       integer lptr,nbonds
 c
@@ -35,12 +35,12 @@ c
       if(nbonds.gt.0) then
       call cf_shks(nbonds,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
-     + isto,msa,igan,isat,isdt,xs,ys,dbl_mb(i_mas))
+     + isto,msa,igan,isat,isdt,ishp,xs,ys,dbl_mb(i_mas))
       endif
 c
       return
       end
-      logical function cf_shakep(xs,ys,igan,isat,isdt,nums)
+      logical function cf_shakep(xs,ys,igan,isat,isdt,ishp,nums)
 c
       implicit none
 c
@@ -51,13 +51,14 @@ c
 c
       integer nums
       real*8 xs(msa,3),ys(msa,3)
-      integer igan(msa),isat(msa),isdt(msa)
+      integer igan(msa),isat(msa),isdt(msa),ishp(msa)
       integer nitall
 c
       cf_shakep=.true.
 c
       if(lpmf) then
-      call cf_shkp(nums,xs,ys,igan,isat,int_mb(i_ipmf),int_mb(i_jpmf),
+      call cf_shkp(nums,xs,ys,igan,isat,ishp,
+     + int_mb(i_ipmf),int_mb(i_jpmf),
      + dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_ypmf),dbl_mb(i_mas))
       nitall=niters-1
       call ga_igop(mcf_64,nitall,1,'+')
@@ -66,7 +67,7 @@ c
 c
       return
       end
-      subroutine cf_shkp(nums,xs,ys,isgan,isat,
+      subroutine cf_shkp(nums,xs,ys,isgan,isat,ishp,
      + ipmf,jpmf,rpmf,xpmf,ypmf,wgt)
 c
       implicit none
@@ -78,11 +79,11 @@ c
 c
       integer nums
       real*8 xs(msa,3),ys(msa,3)
-      integer isgan(msa),isat(msa)
+      integer isgan(msa),isat(msa),ishp(msa)
       integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
       real*8 wgt(mat,mset),ft(4,3),rv(2),w(4)
-      integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
+      integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4),ihp(4)
 c
       integer i,j,k,l,m
       logical skip
@@ -155,6 +156,7 @@ c
       ign(j)=j
       iml(j)=j
       idt(j)=0
+      ihp(i)=0
       ich(j)=1
       do 8 k=1,3
       ft(j,k)=zero
@@ -164,7 +166,7 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=1
-      call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,
+      call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,ihp,
      + xpmf(1,1,i),ypmf(1,1,i),w)
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
@@ -389,7 +391,7 @@ c
       return
       end
       subroutine cf_shks(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,matoms,igan,isat,isdt,xs,ys,wgt)
+     + natoms,matoms,igan,isat,isdt,ishp,xs,ys,wgt)
 c
       implicit none
 c
@@ -401,7 +403,7 @@ c
       integer nbonds
       integer indexl(nbonds)
       integer matoms,natoms
-      integer igan(matoms),isat(matoms),isdt(matoms)
+      integer igan(matoms),isat(matoms),isdt(matoms),ishp(matoms)
       real*8 xs(matoms,3),ys(matoms,3)
       real*8 wgt(mat,mset)
 c
@@ -476,17 +478,21 @@ c
       ff1=rsi6*rsx1
       ff2=rsi6*rsx2
       ff3=rsi6*rsx3
+      if(iand(ishp(jsa),1).ne.1) then
       if(iand(isdt(isa),mdynam).eq.ldynam.or.
      + iand(isdt(isa),mrestr).eq.lrestr) then
       xs(isa,1)=xs(isa,1)+ff1*wsai
       xs(isa,2)=xs(isa,2)+ff2*wsai
       xs(isa,3)=xs(isa,3)+ff3*wsai
       endif
+      endif
+      if(iand(ishp(isa),1).ne.1) then
       if(iand(isdt(jsa),mdynam).eq.ldynam.or.
      + iand(isdt(jsa),mrestr).eq.lrestr) then
       xs(jsa,1)=xs(jsa,1)-ff1*wsaj
       xs(jsa,2)=xs(jsa,2)-ff2*wsaj
       xs(jsa,3)=xs(jsa,3)-ff3*wsaj
+      endif
       endif
       if(ithint) then
       deriv(19,1)=deriv(19,1)+tstepi*tstepi*

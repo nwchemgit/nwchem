@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.144 2003-07-23 18:34:12 d3j191 Exp $
+c $Id: md_start.F,v 1.145 2003-08-07 20:14:32 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
-     + nseq,i_lseq)
+     + nseq,i_lseq,ndums)
       endif
 c
 c     start the analysis API
@@ -47,7 +47,7 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop)
+     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop,ndums)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,

@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.28 2003-08-06 02:52:39 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.29 2003-08-07 20:14:26 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -21,7 +21,7 @@ c
       integer i,ia,iq,j,k,l,m,m2,m3,m4,itemp(24),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
-      integer numbl,numbi,numbd,iqfr,iqto
+      integer numbl,numbi,numbd,iqfr,iqto,nsad
       character*10 string
 c
       real*8 cf_charge
@@ -396,12 +396,13 @@ c
       factmw=zero
       factms=zero
       factmp=zero
+      nsad=nsa-ndums
       if(nwm*(3*nwa-nwc)-3*islow.gt.0)
      + factmw=two/(rgas*dble(nwm*(3*nwa-nwc)-3*islow))
-      if(3*nsa-nsc-3*islow.gt.0)
-     + factms=two/(rgas*dble(3*nsa-nsc-3*islow))
-      if(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow.gt.0)
-     + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsa-nsc-3*islow))
+      if(3*nsad-nsc-3*islow.gt.0)
+     + factms=two/(rgas*dble(3*nsad-nsc-3*islow))
+      if(nwm*(3*nwa-nwc)+3*nsad-nsc-3*islow.gt.0)
+     + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsad-nsc-3*islow))
 c
       if(.not.ma_verify_allocator_stuff()) then
       call errquit('ERROR IN MEMORY USE AFTER RDTOP',0)

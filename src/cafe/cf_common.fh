@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.42 2003-07-17 19:44:23 d3j191 Exp $
+c $Id: cf_common.fh,v 1.43 2003-08-07 20:14:25 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -44,11 +44,12 @@ c
      + mbt(mbs),mbp(mbs),mht(mbs),mhp(mbs),mdt(mbs),mdp(mbs),
      + mit(mbs),mip(mbs),mtt(mbs),mtp(mbs),mxt(mbs),mxp(mbs),
      + mscr,ndxp,maxl,mgl,mgc,mgr,numb(mbs),numh(mbs),numd(mbs),
-     + numi(mbs),numt(mbs),numx(mbs),mmult,nmul,nmult(4),mmuli
+     + numi(mbs),numt(mbs),numx(mbs),mmult,nmul,nmult(4),mmuli,
+     + ndums
       logical lscr,llst,lqmd,lpress
       common/cf_dim/me,np,irtdb,nparms,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
      + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
-     + numb,numh,numd,numi,numt,numx,mmult,nmul,nmult,mmuli,
+     + numb,numh,numd,numi,numt,numx,mmult,nmul,nmult,mmuli,ndums,
      + mbt,mbp,mht,mhp,mdt,mdp,mit,mip,mtt,mtp,mxt,mxp,
      + mscr,ndxp,maxl,mgl,mgc,mgr,lscr,llst,lqmd,lpress
 c

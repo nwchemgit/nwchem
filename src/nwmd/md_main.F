@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.165 2003-08-07 00:24:45 d3j191 Exp $
+c $Id: md_main.F,v 1.166 2003-08-07 20:14:32 d3j191 Exp $
 c
       implicit none
 c
@@ -1726,7 +1726,8 @@ c
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
-     + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
+     + int_mb(i_is+(lsfrc-1)*msa),int_mb(i_is+(lshop-1)*msa),
+     + dbl_mb(i_zs),
      + dbl_mb(i_esk),nsaloc,box,vlat,pres,temp,tempw,temps)
       call timer_stop(51)
 c
@@ -1853,7 +1854,7 @@ c
       do 4 ibbl=1,nbbl
       call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
       if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
-     + isl(1,lsdyn),isfr,isto)
+     + isl(1,lsdyn),isl(1,lshop),isfr,isto)
     4 continue
       do 5 i=1,nsaloc
       dmax=max(dmax,(xs(i,1)-ys(i,1))**2+(xs(i,2)-ys(i,2))**2+
@@ -1862,7 +1863,7 @@ c
       endif
       if(npmf.eq.1.or.lpmfc) then
       if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
-     + nsaloc)) goto 3
+     + isl(1,lshop),nsaloc)) goto 3
       endif
 c
       dmax=sqrt(dmax)
@@ -2596,7 +2597,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.165 2003-08-07 00:24:45 d3j191 Exp $
+c $Id: md_main.F,v 1.166 2003-08-07 20:14:32 d3j191 Exp $
 c
       implicit none
 c
