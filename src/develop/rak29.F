@@ -1,6 +1,6 @@
       logical function raktask_fullsc(rtdb)
 *
-* $Id: rak29.F,v 1.4 1999-06-18 20:33:38 d3e129 Exp $
+* $Id: rak29.F,v 1.5 1999-06-19 00:58:16 d3e129 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -27,6 +27,7 @@ c
       integer ga_hp
 c
       raktask_fullsc = .false.
+      call rak_hondomapnwchem()
 c
       if (.not.geom_create(geom,'geometry')) call errquit
      &    ('geom create failed',911)
@@ -199,4 +200,79 @@ c::-statement function
           endif
         enddo
       enddo
+      end
+      subroutine rak_hondomapnwchem()
+      implicit none
+      integer map_hton(35)
+      integer map_ntoh(35)
+      double precision n2h_s(1,1)
+      double precision n2h_p(3,3)
+      double precision n2h_sp(4,4)
+      double precision n2h_d(6,6)
+      double precision n2h_f(10,10)
+      double precision n2h_g(15,15)
+      integer i,j,ang, shell_off
+      integer l2ang
+c
+c     ----- mapping of shell components from nwchem to hondo -----
+c
+*0 1 2  3  4
+*s p d  f  g
+*1,3,6,10,15
+      data map_hton /1,     2,     3,     4,
+     1               5,     8,    10,     6,     7,    9,
+     2              11,    17,    20,    12,    13,
+     3              14,    18,    16,    19,    15,
+     4              21,    31,    35,    22,    23,
+     5              27,    32,    30,    34,    24,
+     6              26,    33,    25,    28,    29 /
+*
+      do i = 1,35
+        write(6,10000)i,map_hton(i)
+      enddo
+      do i = 1,35
+        map_ntoh(map_hton(i)) = i
+      enddo
+      do i = 1,35
+        write(6,10001)i,map_ntoh(i)
+      enddo
+* zero fill matrices 
+      call dfill(3*3,0.0d00,n2h_p,1)
+      call dfill(4*4,0.0d00,n2h_sp,1)
+      call dfill(6*6,0.0d00,n2h_d,1)
+      call dfill(10*10,0.0d00,n2h_f,1)
+      call dfill(15*15,0.0d00,n2h_g,1)
+* fill matrices as nwchem 2 hondo order e.g., unit matrix with map
+      n2h_s(1,map_ntoh(1)) = 1.0d00
+      do i=1,3
+        n2h_p(i,map_ntoh(i+1)-1)  = 1.0d00
+      enddo
+      do i=1,4
+        n2h_sp(i,map_ntoh(i)) = 1.0d00
+      enddo
+      do i=1,6
+        n2h_d(i,map_ntoh(i+4)-4)  = 1.0d00
+      enddo
+      do i=1,10
+        n2h_f(i,map_ntoh(i+10)-10)  = 1.0d00
+      enddo
+      do i=1,15
+        n2h_g(i,map_ntoh(i+20)-20)  = 1.0d00
+      enddo
+      write(6,*)' n2h_s '
+      call output(n2h_s,1,1,1,1,1,1,1)
+      write(6,*)' n2h_p '
+      call output(n2h_p,1,3,1,3,3,3,1)
+      write(6,*)' n2h_sp '
+      call output(n2h_sp,1,4,1,4,4,4,1)
+      write(6,*)' n2h_d '
+      call output(n2h_d,1,6,1,6,6,6,1)
+      write(6,*)' n2h_f '
+      call output(n2h_f,1,10,1,10,10,10,1)
+      write(6,*)' n2h_g '
+      call output(n2h_g,1,15,1,15,15,15,1)
+
+10000 format(1x,'hondo  component ',i5,' maps to nwchem component ',i5)
+10001 format(1x,'nwchem component ',i5,' maps to hondo  component ',i5)
+*
       end
