@@ -11310,9 +11310,9 @@ c
       dimension    x(1)
       equivalence (x(1),dbl_mb(1))
 c
+      logical          debug
       data zero   /0.0d+00/
 c
-      logical          debug
       debug=.false.
 c
       num3=num*num
