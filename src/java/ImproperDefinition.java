@@ -11,7 +11,7 @@ public class ImproperDefinition{
 	atomi=Integer.parseInt(card1.substring(5,10).trim());
 	atomj=Integer.parseInt(card1.substring(10,15).trim());
 	atomk=Integer.parseInt(card1.substring(15,20).trim());
-	atomk=Integer.parseInt(card1.substring(20,25).trim());
+	atoml=Integer.parseInt(card1.substring(20,25).trim());
 	type=Integer.parseInt(card1.substring(25,30).trim());
 	source=Integer.parseInt(card1.substring(30,35).trim());
 	multi1=Integer.parseInt(card2.substring(0,3).trim());

@@ -22,14 +22,14 @@ public class Segment{
 	    card1=br.readLine();
 	    while(card1.startsWith("$") || card1.startsWith("#")){card1=br.readLine();};
 	    System.out.println(card1);
-	    numAtoms=Integer.parseInt(card1.substring(1,5).trim());
-	    numBonds=Integer.parseInt(card1.substring(6,10).trim());
-	    numAngles=Integer.parseInt(card1.substring(11,15).trim());
-	    numTorsions=Integer.parseInt(card1.substring(16,20).trim());
-	    numImpropers=Integer.parseInt(card1.substring(21,25).trim());
+	    numAtoms=Integer.parseInt(card1.substring(0,5).trim());
+	    numBonds=Integer.parseInt(card1.substring(5,10).trim());
+	    numAngles=Integer.parseInt(card1.substring(10,15).trim());
+	    numTorsions=Integer.parseInt(card1.substring(15,20).trim());
+	    numImpropers=Integer.parseInt(card1.substring(20,25).trim());
 	    System.out.println("DIMS "+numAtoms+" "+numBonds+" "+numAngles+" "+numTorsions+" "+numImpropers);
 	    try{
-		numZmatrix=Integer.parseInt(card1.substring(61,65).trim());
+		numZmatrix=Integer.parseInt(card1.substring(61,66).trim());
 	    } catch(Exception ez) {numZmatrix=0;};
 	    System.out.println("Number of atoms is "+numAtoms);
 	    atom = new AtomDefinition[numAtoms];

@@ -387,23 +387,23 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    };
 		    if(!found) number++;
 		};
-		sgmFile.printf("%25d",number);
+		sgmFile.printf("%41d",number);
 		sgmFile.println();
 		for(int k=0; k<atmNumber; k++){
 		    sgmFile.printf("%5d",k+1);
 		    if(id[k][0]>=0){
-			sgmFile.print(FrSgm.atom[id[k][0]].Name+"  ");
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1+"  ");
-			sgmFile.print(FrSgm.atom[id[k][0]].Type1+"  ");
+			sgmFile.print(FrSgm.atom[id[k][0]].Name+" ");
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
 			if(id[k][1]>=0){
-			    sgmFile.print(ToSgm.atom[id[k][1]].Type1+"  ");
+			    sgmFile.print(ToSgm.atom[id[k][1]].Type1+" ");
 			} else {
-			    sgmFile.print(FrSgm.atom[id[k][0]].Type1+"D ");
+			    sgmFile.print(FrSgm.atom[id[k][0]].Type1+"D");
 			};
-			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].cgroup);
-			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].pgroup);
-			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].link);
-			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].type);
+			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].cgroup);
+			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].pgroup);
+			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].link);
+			sgmFile.printf("%4d",FrSgm.atom[id[k][0]].type);
 			sgmFile.println();
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
@@ -418,14 +418,14 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			};
 			sgmFile.println();
 		    } else {
-			sgmFile.print(ToSgm.atom[id[k][1]].Name+"  ");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D ");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D ");
-			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"  ");
-			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].cgroup);
-			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].pgroup);
-			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].link);
-			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].type);
+			sgmFile.print(ToSgm.atom[id[k][1]].Name+" ");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+" ");
+			sgmFile.printf("%4d",ToSgm.atom[id[k][0]].cgroup);
+			sgmFile.printf("%4d",ToSgm.atom[id[k][0]].pgroup);
+			sgmFile.printf("%4d",ToSgm.atom[id[k][0]].link);
+			sgmFile.printf("%4d",ToSgm.atom[id[k][0]].type);
 			sgmFile.println();
 			sgmFile.printf("%12.6f",0.0);
 			sgmFile.printf("%12.5E",0.0);
@@ -453,9 +453,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][1]+1);
 			sgmFile.printf("%5d",FrSgm.bond[i].type);
 			sgmFile.printf("%5d",FrSgm.bond[i].source); sgmFile.println();
-			sgmFile.printf("%10.5f",FrSgm.bond[i].bond1);
+			sgmFile.printf("%12.6f",FrSgm.bond[i].bond1);
 			sgmFile.printf("%12.5E",FrSgm.bond[i].force1);
-			sgmFile.printf("%10.5f",FrSgm.bond[i].bond2);
+			sgmFile.printf("%12.6f",FrSgm.bond[i].bond2);
 			sgmFile.printf("%12.5E",FrSgm.bond[i].force2);
 			jfound=-1;
 			for(int j=0; j<ToSgm.numBonds; j++){
@@ -463,10 +463,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			    if(idt[ToSgm.bond[j].atomj]==ida[number][0] && idt[ToSgm.bond[j].atomi]==ida[number][1]) jfound=j;
 			};
 			if(jfound>=0) {
-			    sgmFile.printf("%10.5f",ToSgm.bond[jfound].bond1);
+			    sgmFile.printf("%12.6f",ToSgm.bond[jfound].bond1);
 			    sgmFile.printf("%12.5E",ToSgm.bond[jfound].force1);
 			} else {
-			    sgmFile.printf("%10.5f",FrSgm.bond[i].bond3);
+			    sgmFile.printf("%12.6f",FrSgm.bond[i].bond3);
 			    sgmFile.printf("%12.5E",FrSgm.bond[i].force3);
 			};
 			sgmFile.println();
@@ -486,11 +486,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][1]+1);
 			sgmFile.printf("%5d",ToSgm.bond[i].type);
 			sgmFile.printf("%5d",ToSgm.bond[i].source); sgmFile.println();
-			sgmFile.printf("%10.5f",ToSgm.bond[i].bond1);
+			sgmFile.printf("%12.6f",ToSgm.bond[i].bond1);
 			sgmFile.printf("%12.5E",ToSgm.bond[i].force1);
-			sgmFile.printf("%10.5f",ToSgm.bond[i].bond2);
+			sgmFile.printf("%12.6f",ToSgm.bond[i].bond2);
 			sgmFile.printf("%12.5E",ToSgm.bond[i].force2);
-			sgmFile.printf("%10.5f",ToSgm.bond[i].bond3);
+			sgmFile.printf("%12.6f",ToSgm.bond[i].bond3);
 			sgmFile.printf("%12.5E",ToSgm.bond[i].force3);
 			sgmFile.println();
 			number++;
@@ -515,9 +515,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][2]+1);
 			sgmFile.printf("%5d",FrSgm.angle[i].type);
 			sgmFile.printf("%5d",FrSgm.angle[i].source); sgmFile.println();
-			sgmFile.printf("%10.5f",FrSgm.angle[i].angle1);
+			sgmFile.printf("%10.6f",FrSgm.angle[i].angle1);
 			sgmFile.printf("%12.5E",FrSgm.angle[i].force1);
-			sgmFile.printf("%10.5f",FrSgm.angle[i].angle2);
+			sgmFile.printf("%10.6f",FrSgm.angle[i].angle2);
 			sgmFile.printf("%12.5E",FrSgm.angle[i].force2);
 			jfound=-1;
 			for(int j=0; j<ToSgm.numAngles; j++){
@@ -527,10 +527,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			       && idt[ToSgm.angle[j].atomi]==ida[number][2]) jfound=j;
 			};
 			if(jfound>=0) {
-			    sgmFile.printf("%10.5f",ToSgm.angle[jfound].angle1);
+			    sgmFile.printf("%10.6f",ToSgm.angle[jfound].angle1);
 			    sgmFile.printf("%12.5E",ToSgm.angle[jfound].force1);
 			} else {
-			    sgmFile.printf("%10.5f",FrSgm.angle[i].angle3);
+			    sgmFile.printf("%10.6f",FrSgm.angle[i].angle3);
 			    sgmFile.printf("%12.5E",FrSgm.angle[i].force3);
 			};
 			sgmFile.println();
@@ -552,11 +552,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][2]+1);
 			sgmFile.printf("%5d",ToSgm.angle[i].type);
 			sgmFile.printf("%5d",ToSgm.angle[i].source); sgmFile.println();
-			sgmFile.printf("%10.5f",ToSgm.angle[i].angle1);
+			sgmFile.printf("%10.6f",ToSgm.angle[i].angle1);
 			sgmFile.printf("%12.5E",ToSgm.angle[i].force1);
-			sgmFile.printf("%10.5f",ToSgm.angle[i].angle2);
+			sgmFile.printf("%10.6f",ToSgm.angle[i].angle2);
 			sgmFile.printf("%12.5E",ToSgm.angle[i].force2);
-			sgmFile.printf("%10.5f",ToSgm.angle[i].angle3);
+			sgmFile.printf("%10.6f",ToSgm.angle[i].angle3);
 			sgmFile.printf("%12.5E",ToSgm.angle[i].force3);
 			sgmFile.println();
 			number++;
@@ -584,10 +584,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",FrSgm.torsion[i].type);
 			sgmFile.printf("%5d",FrSgm.torsion[i].source); sgmFile.println();
 			sgmFile.printf("%3d",FrSgm.torsion[i].multi1);
-			sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion1);
+			sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion1);
 			sgmFile.printf("%12.5E",FrSgm.torsion[i].force1);
 			sgmFile.printf("%3d",FrSgm.torsion[i].multi2);
-			sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion2);
+			sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion2);
 			sgmFile.printf("%12.5E",FrSgm.torsion[i].force2);
 			jfound=-1;
 			for(int j=0; j<ToSgm.numTorsions; j++){
@@ -598,11 +598,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			};
 			if(jfound>=0) {
 			    sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
-			    sgmFile.printf("%10.5f",ToSgm.torsion[jfound].torsion1);
+			    sgmFile.printf("%10.6f",ToSgm.torsion[jfound].torsion1);
 			    sgmFile.printf("%12.5E",ToSgm.torsion[jfound].force1);
 			} else {
 			    sgmFile.printf("%3d",FrSgm.torsion[i].multi3);
-			    sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion3);
+			    sgmFile.printf("%10.6f",FrSgm.torsion[i].torsion3);
 			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force3);
 			};
 			sgmFile.println();
@@ -627,13 +627,13 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ToSgm.torsion[i].type);
 			sgmFile.printf("%5d",ToSgm.torsion[i].source); sgmFile.println();
 			sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
-			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion1);
+			sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion1);
 			sgmFile.printf("%12.5E",ToSgm.torsion[i].force1);
 			sgmFile.printf("%3d",ToSgm.torsion[i].multi2);
-			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion2);
+			sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion2);
 			sgmFile.printf("%12.5E",ToSgm.torsion[i].force2);
 			sgmFile.printf("%3d",ToSgm.torsion[i].multi3);
-			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion3);
+			sgmFile.printf("%10.6f",ToSgm.torsion[i].torsion3);
 			sgmFile.printf("%12.5E",ToSgm.torsion[i].force3);
 			sgmFile.println();
 			number++;
@@ -660,10 +660,10 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",FrSgm.improper[i].type);
 			sgmFile.printf("%5d",FrSgm.improper[i].source); sgmFile.println();
 			sgmFile.printf("%3d",FrSgm.improper[i].multi1);
-			sgmFile.printf("%10.5f",FrSgm.improper[i].improper1);
+			sgmFile.printf("%10.6f",FrSgm.improper[i].improper1);
 			sgmFile.printf("%12.5E",FrSgm.improper[i].force1);
 			sgmFile.printf("%3d",FrSgm.improper[i].multi2);
-			sgmFile.printf("%10.5f",FrSgm.improper[i].improper2);
+			sgmFile.printf("%10.6f",FrSgm.improper[i].improper2);
 			sgmFile.printf("%12.5E",FrSgm.improper[i].force2);
 			jfound=-1;
 			for(int j=0; j<ToSgm.numImpropers; j++){
@@ -672,11 +672,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			};
 			if(jfound>=0) {
 			    sgmFile.printf("%3d",ToSgm.improper[i].multi1);
-			    sgmFile.printf("%10.5f",ToSgm.improper[jfound].improper1);
+			    sgmFile.printf("%10.6f",ToSgm.improper[jfound].improper1);
 			    sgmFile.printf("%12.5E",ToSgm.improper[jfound].force1);
 			} else {
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi3);
-			    sgmFile.printf("%10.5f",FrSgm.improper[i].improper3);
+			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper3);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force3);
 			};
 			sgmFile.println();
@@ -701,13 +701,13 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ToSgm.improper[i].type);
 			sgmFile.printf("%5d",ToSgm.improper[i].source); sgmFile.println();
 			sgmFile.printf("%3d",ToSgm.improper[i].multi1);
-			sgmFile.printf("%10.5f",ToSgm.improper[i].improper1);
+			sgmFile.printf("%10.6f",ToSgm.improper[i].improper1);
 			sgmFile.printf("%12.5E",ToSgm.improper[i].force1);
 			sgmFile.printf("%3d",ToSgm.improper[i].multi2);
-			sgmFile.printf("%10.5f",ToSgm.improper[i].improper2);
+			sgmFile.printf("%10.6f",ToSgm.improper[i].improper2);
 			sgmFile.printf("%12.5E",ToSgm.improper[i].force2);
 			sgmFile.printf("%3d",ToSgm.improper[i].multi3);
-			sgmFile.printf("%10.5f",ToSgm.improper[i].improper3);
+			sgmFile.printf("%10.6f",ToSgm.improper[i].improper3);
 			sgmFile.printf("%12.5E",ToSgm.improper[i].force3);
 			sgmFile.println();
 			number++;
@@ -732,9 +732,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][1]+1);
 			sgmFile.printf("%5d",ida[number][2]+1);
 			sgmFile.printf("%5d",ida[number][3]+1);
-			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].bond);
-			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].angle);
-			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].torsion);
+			sgmFile.printf("%12.6f",FrSgm.zmatrix[i].bond);
+			sgmFile.printf("%12.6f",FrSgm.zmatrix[i].angle);
+			sgmFile.printf("%12.6f",FrSgm.zmatrix[i].torsion);
 			sgmFile.println();
 			number++;
 		    };
@@ -756,9 +756,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.printf("%5d",ida[number][1]+1);
 			sgmFile.printf("%5d",ida[number][2]+1);
 			sgmFile.printf("%5d",ida[number][3]+1);
-			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].bond);
-			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].angle);
-			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].torsion);
+			sgmFile.printf("%12.6f",ToSgm.zmatrix[i].bond);
+			sgmFile.printf("%12.6f",ToSgm.zmatrix[i].angle);
+			sgmFile.printf("%12.6f",ToSgm.zmatrix[i].torsion);
 			sgmFile.println();
 			number++;
 		    };
