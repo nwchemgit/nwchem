@@ -10,8 +10,9 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.15 1999-10-26 22:26:29 mg201 Exp $
+c $Id: int_term.F,v 1.16 1999-12-09 01:31:34 bert Exp $
       implicit none
+#include "bas.fh"
 #include "apiP.fh"
 #include "candoP.fh"
 #include "stdio.fh"
@@ -47,6 +48,14 @@ c   because the call to int_rel_init is also unconditional, and the
 c   flag init_rel_int must be set to .false.
 c
       if (any_rel) call int_rel_term
+c
+c   Terminate Douglas-Kroll integrals. The fitting basis set will
+c   be destroyed and the handle put to -1.
+c
+      if (.not. bas_destroy(dk_fitbas)) call errquit(
+     &   'int_terminate: failed to destroy Douglas-Kroll fitting basis'
+     &   ,0)
+      dk_fitbas = -1
 c
       end
 c:tex-
