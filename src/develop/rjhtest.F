@@ -1,6 +1,6 @@
       logical function rjhtest(rtdb)
 *     
-*     $Id: rjhtest.F,v 1.16 1998-10-26 18:26:14 d3g681 Exp $
+*     $Id: rjhtest.F,v 1.17 1998-11-04 08:50:58 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -49,7 +49,7 @@ c
       call util_file_name('movecs',.false.,.false.,movecs)
       if (.not. movecs_read_header(movecs, title, name_of_basis,
      $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
-     $     ('rjhtest: failed to read movecs header',)
+     $     ('rjhtest: failed to read movecs header',0)
       if (nsets.ne.2) call errquit('UHF ONLY!',0)
       write(6,*) ' Read movecs header from ', movecs
       write(6,*) ' Job title :                ', 
