@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.59 1995-11-03 20:40:59 d3g681 Exp $
+c     $Id: nwchem.F,v 1.60 1996-01-12 01:54:15 d3g681 Exp $
 c
       character*255 input_filename
       double precision total_wall, total_cpu
@@ -31,6 +31,7 @@ c
 c
 c     Initialize timers so they are relative to job start
 c
+**      call ieeetrap()
       total_wall = -util_wallsec()
       total_cpu  = -util_cpusec()
 c
