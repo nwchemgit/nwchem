@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.6 2001-11-21 02:06:24 edo Exp $
+C $Id: hess_restart.F,v 1.7 2002-03-06 19:50:58 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -25,7 +25,6 @@ c
                                 ! 1 = 1 e-; 2 = 2 e-
 c
       logical oprint
-      integer i
 c
       call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+')
 c
@@ -63,6 +62,77 @@ c
       if (.not. rtdb_put(rtdb, 'hessian:restart',mt_int,1,restr))
      $  call errquit('hess_restart: could not save restr to rtdb',
      $  555)
+c
+      return
+      end
+C
+      subroutine hess_getrestart(irestart)
+c
+c     Get hessian and fock derivatives from disk.  After getting the
+c     hessian from disk, we will divide the hessian by the number of
+c     processors to prepare for the next contribution.
+c
+      implicit none
+c
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "hess_info.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "stdio.fh"
+#include "util.fh"
+c
+      integer irestart              ! [input] restart index
+c
+      integer i
+      logical oprint
+c
+c  Read hessian and dipole derivative from disk and broadcast
+c
+      if(ga_nodeid().eq.0) then
+         call hess_read()
+      endif
+      call ga_brdcst(msg_hess_exy+MSGDBL, dbl_mb(k_exy), 
+     &               mdtob(n3xyz2), 0)
+      call ga_brdcst(msg_hess_ddip+MSGDBL, dbl_mb(k_dder),
+     &               mdtob(3*n3xyz),0)
+c
+c  Read Fock derivatives from disk
+c
+      call sx_read(g_rhs,n3xyz*ndens,nbf,fx_dra_handle)
+c
+c  Print out if requested
+c
+      oprint = util_print('hess_follow',print_high)
+      if (oprint.and.(ga_nodeid().eq.0)) then
+        write(LuOut,*)
+        call util_flush(LuOut)
+        write(LuOut,*) 'The Hessian at restart:'
+        call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
+        write(LuOut,*)
+        write(LuOut,*) 'The Fock derivatives :'
+      endif
+      if (oprint) then
+        call ga_print(g_rhs)
+      endif
+c
+c  Scale for next step
+c
+      call dscal(n3xyz2,1.0d+00/ga_nnodes(),dbl_mb(k_exy),1)
+      call dscal(n3xyz*3,1.0d+00/ga_nnodes(),dbl_mb(k_dder),1)
+c
+c  Get rid of density allocation if we are done with the 2e- contribution
+c
+      if (irestart.ge.2) then
+        do i = 1, ndens
+          if (.not.ga_destroy(g_dens(i)))
+     &     call errquit('hess_getrestart: failed to delete density',i)
+        enddo
+        if (.not.ga_destroy(g_rhs_xc))
+     &    call errquit('hess_getrestart: failed to delete g_rhs_xc',
+     &                  555)
+      endif
 c
       return
       end

@@ -1,5 +1,5 @@
       subroutine hess_wrt
-*     $Id: hess_wrt.F,v 1.2 2002-02-06 01:11:16 windus Exp $
+*     $Id: hess_wrt.F,v 1.3 2002-03-06 19:50:58 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "hess_info.fh"
@@ -17,4 +17,73 @@ c
          call util_file_unlink(fileddipole)
       endif
       return
+      end
+c
+      subroutine hess_read
+      implicit none
+#include "mafdecls.fh"
+#include "hess_info.fh"
+#include "stdio.fh"
+c
+      integer l_exyt, k_exyt, nhesst, iii
+      double precision dbl_tmp
+      character*255 filehess,fileddipole
+      logical dipole_file_exists
+c
+c This routine reads the hessian and dipole derivative terms
+c from disk.  This was essentially taken from stepper/vib_vib.F.
+c
+      if (.not.ma_push_get(MT_DBL,n3xyz2,'hessian: triangle exy',
+     &     l_exyt,k_exyt))
+     &     call errquit('hess_read: cannot allocate',555)
+      nhesst = n3xyz*(n3xyz+1)/2
+      call util_file_name('hess', .false., .false.,filehess)
+      open(unit=69,file=filehess,form='formatted',status='old',
+     &    err=99900,access='sequential')
+      do iii = 0,(nhesst-1)
+        read(69,*,err=99901,end=99902) dbl_tmp
+        dbl_mb(k_exyt+iii) = dbl_tmp
+      enddo
+      close(unit=69,status='keep')
+      call vib_dsquar(dbl_mb(k_exyt),dbl_mb(k_exy),n3xyz,n3xyz)
+      if (.not.ma_pop_stack(l_exyt))
+     *   call errquit('hess_read: cannot deallocate Exyt',555)
+c
+      call util_file_name('fd_ddipole',.false., .false.,fileddipole)
+      dipole_file_exists = .false.
+      inquire(file=fileddipole,exist=dipole_file_exists)
+      if (dipole_file_exists) then
+        open(unit=70,file=fileddipole,form='formatted',status='old',
+     &      err=89900,access='sequential')
+        do iii = 0,((3*n3xyz)-1)
+          read(70,*,err=89901,end=89902) dbl_tmp
+          dbl_mb(k_dder+iii) = dbl_tmp
+        enddo
+        close(unit=70,status='keep')
+      endif
+c
+      return
+c
+89900 continue
+      write(luout,*)'dipole_file => ',fileddipole
+      call errquit('hess_read: error opening file: "fileddipole"',811)
+89901 continue
+      write(luout,*)'dipole_file => ',fileddipole
+      call errquit('hess_read: error reading file: "fileddipole"',811)
+89902 continue
+      write(luout,*)'dipole_file => ',fileddipole
+      call errquit
+     & ('hess_read: unexpected EOF when reading file: "fileddipole"',
+     &   811)
+99900 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('hess_read: error opening file: "filehess"',911)
+99901 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('hess_read: error reading file: "filehess"',911)
+99902 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit
+     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+c
       end

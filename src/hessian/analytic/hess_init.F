@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.34 2002-02-23 02:12:50 edo Exp $
+C $Id: hess_init.F,v 1.35 2002-03-06 19:50:58 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -27,19 +27,22 @@ c     integer rtdb, mult, g_vecs(2)
       integer dftnoc(2), numfunc, nbsize
       parameter(numfunc = 30) ! took this from gradient code, may need to be
                               ! changed in the future
-      logical oprint
+      logical oprint, omp2
+      logical cdfit, frac_occ
+      integer nbf_cd, nbf2, mxnocc
+      integer g_eigen_diag
+      integer l_evals, k_evals, l_occ, k_occ, k_pdm2, k_coeff
+      integer dims(3), chunk(3)
       character*256 sx_name
       character*256 fx_name
+      character*255 movecs_in
       double precision zero, one, onem
       double precision xfac(numfunc)
-      integer dims(3), chunk(3)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical int_normalize,int_norm_2c
       external int_normalize,int_norm_2c
-      logical cdfit
-      integer nbf_cd
 c
 c  print out follow information
 c
@@ -225,7 +228,8 @@ c
      &   call errquit('grad: could not allocate l_act',1)
       call grad_active_atoms(rtdb, ncent, log_mb(k_act), nactive)
 c
-c  Get the density and global fock derivative matrices (Qs or RHS).
+c  Get the density and weighted density.  Need to set up some
+c  temporary memory to go into grad_dens.
 c
       if (oprint) write(LuOut,*) 'HESS: getting ga_memory'
       if (scftype .eq. 'UHF') then
@@ -239,7 +243,60 @@ c
      *            (geom, basis, 'hessian:dens')
         ndens = 1
       endif
-c     
+      g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
+      nbf2 = nbf
+      if (scftype .eq. 'UHF') nbf2 = nbf + nbf
+      mxnocc = nopen + nclosed
+c
+c     eigenvalue diagonal matrix for forming energy weighted density
+c
+      if (.not. ga_create(MT_DBL, mxnocc, mxnocc,'eigen_diag', 0,
+     $  mxnocc, g_eigen_diag)) call errquit('onedd_cont: ga diags?',
+     $  mxnocc*mxnocc)
+      call ga_zero(g_eigen_diag)
+C     eigenvalues
+      if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
+     $     call errquit('onedd_cont: could not allocate l_evals',nbf2)
+C     occupation numbers
+      if (.not. ma_push_get(mt_dbl, nbf2,'occ. numbers', l_occ, k_occ))
+     $     call errquit('onedd_cont: could not allocate l_occ',nbf2)
+c
+c     check if smearing is on
+c
+      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
+     & frac_occ  )) frac_occ=.false.
+      omp2 = .false.
+      k_pdm2 = 1  ! dummy variables to pass to grad_dens
+      k_coeff = 1
+c
+c get MO vectors
+c
+      if (theory.eq.'dft') then
+        if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+     *    call errquit('onedd_cont: DFT MO vectors not defined',555)
+      else
+        if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $    call errquit('onedd_cont: SCF MO vectors not defined',0)
+      endif
+c
+c get density and weighted density
+c
+      if (oprint) write(LuOut,*) 'HESS: getting densities'
+      call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag,
+     $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2,
+     $     nopen, nclosed, scftype, movecs_in, omp2,
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.true.)
+c
+c     free temporary arrays
+c
+      if (.not. ga_destroy(g_eigen_diag))
+     $  call errquit('onedd_cont: could not destroy g_eigen_diag',1)
+ 
+      if (.not.ma_pop_stack(l_occ))
+     $     call errquit('onedd_cont:ma free occ',1)
+      if (.not.ma_pop_stack(l_evals))
+     $     call errquit('onedd_cont:ma free eval',1)
+c
 c Get the Fock derivative matrices (rhs), note that we get a seperate
 c one for the DFT code so that we can debug for the moment
 c

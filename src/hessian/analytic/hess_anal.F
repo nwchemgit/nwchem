@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.14 2002-02-05 00:33:57 windus Exp $
+C $Id: hess_anal.F,v 1.15 2002-03-06 19:50:58 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -53,11 +53,6 @@ c
         return
       endif
 c
-c     find out if this is a restart
-c
-      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
-     *  restr = 0
-c
 c  Set up the print mechanism (push down the stack and loads the print
 c  information for hess)
 c
@@ -96,11 +91,18 @@ c  not sufficient for the Hessian calculation.
 c
       call hess_energyinit(rtdb)
 c
+c     find out if this is a restart
+c
+      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
+     *  restr = 0
+c
 c  Check to make sure that the energy and wavefunction are calculated
 c
-      if(.not.task_energy(rtdb)) call errquit 
-     *  ('hess_anal: energy failure', 555)
-      if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
+      if (restr.lt.1) then
+        if(.not.task_energy(rtdb)) call errquit 
+     *    ('hess_anal: energy failure', 555)
+        if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
+      endif
 c
 c     initialize hessian variables
 c
@@ -109,30 +111,36 @@ c
 c
 c  Get the one-electron second derivative contributions
 c
-      if (oprint) write(LuOut,*) 'HESS: before the onedd_cont call'
-      if (ohessprof) call pstat_on(ps_onedd)
-      call onedd_cont(rtdb)
-      if (ohessprof) call pstat_off(ps_onedd)
+      if (restr.lt.1) then
+        if (oprint) write(LuOut,*) 'HESS: before the onedd_cont call'
+        if (ohessprof) call pstat_on(ps_onedd)
+        call onedd_cont(rtdb)
+        if (ohessprof) call pstat_off(ps_onedd)
 c
 c  Get the nuclear contribution to the hessian
 c
-      if (oprint) write(LuOut,*) 'HESS: before the nucdd_cont call'
-      if (ohessprof) call pstat_on(ps_nucdd)
-      call nucdd_cont(rtdb)
-      if (ohessprof) call pstat_off(ps_nucdd)
-      call hess_restart(rtdb,1)
-      if (oprintsome) write(LuOut,*) 'HESSIAN: the one electron ',
-     $  'contributions are done'
+        if (oprint) write(LuOut,*) 'HESS: before the nucdd_cont call'
+        if (ohessprof) call pstat_on(ps_nucdd)
+        call nucdd_cont(rtdb)
+        if (ohessprof) call pstat_off(ps_nucdd)
+        call hess_restart(rtdb,1)
+        if (oprintsome) write(LuOut,*) 'HESSIAN: the one electron ',
+     $    'contributions are done'
+      else 
+        call hess_getrestart(restr)
+      endif
 c
 c  Get the two-electron second derivative contributions
 c
-      if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
-      if (ohessprof) call pstat_on(ps_twodd)
-      call twodd_cont(rtdb)
-      if (ohessprof) call pstat_off(ps_twodd)
-      call hess_restart(rtdb,2)
-      if (oprintsome) write(LuOut,*) 'HESSIAN: the two electron ',
-     $  'contributions are done'
+      if (restr.lt.2) then
+        if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
+        if (ohessprof) call pstat_on(ps_twodd)
+        call twodd_cont(rtdb)
+        if (ohessprof) call pstat_off(ps_twodd)
+        call hess_restart(rtdb,2)
+        if (oprintsome) write(LuOut,*) 'HESSIAN: the two electron ',
+     $    'contributions are done'
+      endif
 c
 c  solve the CPSCF problem
 c

@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.25 2002-01-19 01:05:02 windus Exp $
+C $Id: onedd_cont.F,v 1.26 2002-03-06 19:50:58 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -19,21 +19,15 @@ c
 c
       integer rtdb  ! [input] RTDB handle
 c
-      integer i
-      integer g_eigen_diag
       integer max1e, max2e, mscratch_1e, mscratch_2e
       integer l_buf, k_buf, l_scr, k_scr
       integer matb, lsqatom, l_dens, k_dens, l_wdens, k_wdens
-      integer l_evals, k_evals, l_occ, k_occ
-      integer k_pdm2, k_coeff
-      integer nbf2, mxnocc
       integer alo(3), ahi(3), blo(3), bhi(3)
       double precision one
       data one /1.0D+00/
-      logical doS, doT, doV, frac_occ, omp2
+      logical doS, doT, doV
       logical oprint, oneprint
 c
-      character*255 movecs_in
       character*255 tmpname
 c
       integer ga_create_atom_blocked
@@ -54,61 +48,6 @@ c
       if (.not. ma_push_get(mt_dbl,mscratch_1e,'intdd scratch',
      *  l_scr, k_scr))call errquit('onedd_cont: scratch alloc failed',
      *  mscratch_1e)
-c
-c Need to form the weighted density matrix to multiply by the S 
-c second derivative integrals.  Need set up some memory to go into
-c grad_dens.
-c
-      g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
-      nbf2 = nbf
-      if (scftype .eq. 'UHF') nbf2 = nbf + nbf
-      mxnocc = nopen + nclosed
-c     eigenvalue diagonal matrix for forming energy weighted density
-      if (.not. ga_create(MT_DBL, mxnocc, mxnocc,'eigen_diag', 0, 
-     $  mxnocc, g_eigen_diag)) call errquit('onedd_cont: ga diags?',
-     $  mxnocc*mxnocc)
-      call ga_zero(g_eigen_diag)                                                
-C     eigenvalues
-      if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
-     $     call errquit('onedd_cont: could not allocate l_evals',nbf2)
-C     occupation numbers
-      if (.not. ma_push_get(mt_dbl, nbf2,'occ. numbers', l_occ, k_occ))
-     $     call errquit('onedd_cont: could not allocate l_occ',nbf2)
-c
-c     check if smearing is on
-c
-      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
-     & frac_occ  )) frac_occ=.false.
-      omp2 = .false.
-      k_pdm2 = 1  ! dummy variables to pass to grad_dens
-      k_coeff = 1
-c
-c get MO vectors
-c
-      if (theory.eq.'dft') then
-        if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     *    call errquit('onedd_cont: DFT MO vectors not defined',555)
-      else
-        if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $    call errquit('onedd_cont: SCF MO vectors not defined',0)           
-      endif
-c
-c get density and weighted density
-c
-      if (oprint) write(LuOut,*) 'HESS: getting densities'
-      call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag,
-     $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2,
-     $     nopen, nclosed, scftype, movecs_in, omp2,
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.true.)
-c
-C     free temporary arrays
-      if (.not. ga_destroy(g_eigen_diag))
-     $  call errquit('onedd_cont: could not destroy g_eigen_diag',1)
- 
-      if (.not.ma_pop_stack(l_occ))
-     $     call errquit('onedd_cont:ma free occ',1)
-      if (.not.ma_pop_stack(l_evals))
-     $     call errquit('onedd_cont:ma free eval',1)                                  
 c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -243,6 +182,7 @@ c
      *  call errquit('onedd_cont: failed to pop l_buf',555)
 c
 c  Get the dipole derivatives contribution
+c  Reuse g_wdens for the total density
 c
       if (ndens.gt.1) then ! want total density
         call ga_dadd (one, g_dens(1), one, g_dens(2), g_wdens)
