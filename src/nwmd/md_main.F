@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.75 2000-04-21 19:46:04 d3j191 Exp $
+c $Id: md_main.F,v 1.76 2000-04-21 21:55:39 d3j191 Exp $
 c
       implicit none
 c
@@ -1219,7 +1219,7 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
-      call timer_start(16)
+      call timer_start(17)
 c
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
@@ -1234,7 +1234,7 @@ c
       endif
       endif
 c
-      call timer_stop(16)
+      call timer_stop(17)
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
@@ -1611,9 +1611,9 @@ c
       integer itcom1,itforc,itcom2
 c
       locali=.true.
-      itcom1=17
-      itforc=18
-      itcom2=19
+      itcom1=18
+      itforc=19
+      itcom2=20
 c
       call sp_nbbl(nbbl)
 c
@@ -1626,9 +1626,9 @@ c
       call timer_stop(itcom1)
 c
       if(locali.and..not.local) then
-      itcom1=20
-      itforc=21
-      itcom2=22
+      itcom1=21
+      itforc=22
+      itcom2=23
       locali=.false.
       endif
 c
@@ -1942,7 +1942,7 @@ c
 c
       integer i
 c
-      do 1 i=10,24
+      do 1 i=10,25
       call timer_reset(i)
     1 continue
 c
@@ -1960,29 +1960,30 @@ c
       real*8 timer_wall,timer_wall_total
 c
       integer i,j
-      real*8 tim(17,1024)
+      real*8 tim(18,1024)
 c
       do 1 i=1,np
-      do 2 j=1,17
+      do 2 j=1,18
       tim(j,i)=zero
     2 continue
     1 continue
 c
 c     10 : replicated data multiple processor interactions
 c     11 : PME charge grid calculation
-c     12 : 3D-FFT
-c     13 : PME energy and potential grid calculation
-c     14 : PME synchronization
-c     15 : 3D-FFT
-c     16 : recording
-c     17 : local coordinate retrieval
-c     18 : local forces calculation
-c     19 : local force accumulation
-c     20 : non-local coordinate retrieval
-c     21 : non-local forces calculation
-c     22 : non-local force accumulation
-c     23 : PME wait
-c     24 : PME forces calculation
+c     12 : PME subset synchronization
+c     13 : 3D-FFT
+c     14 : PME energy and potential grid calculation
+c     15 : PME subset synchronization
+c     16 : 3D-FFT
+c     17 : recording
+c     18 : local coordinate retrieval
+c     19 : local forces calculation
+c     20 : local force accumulation
+c     21 : non-local coordinate retrieval
+c     22 : non-local forces calculation
+c     23 : non-local force accumulation
+c     24 : PME wait
+c     25 : PME forces calculation
 c      2 : synchronization
 c
       tim(1,me+1)=timer_wall_total(10)
@@ -2000,25 +2001,26 @@ c
       tim(13,me+1)=timer_wall_total(22)
       tim(14,me+1)=timer_wall_total(23)
       tim(15,me+1)=timer_wall_total(24)
-      tim(16,me+1)=timer_wall(2)
-      do 3 i=1,16
-      tim(17,me+1)=tim(17,me+1)+tim(i,me+1)
+      tim(16,me+1)=timer_wall_total(25)
+      tim(17,me+1)=timer_wall(2)
+      do 3 i=1,17
+      tim(18,me+1)=tim(18,me+1)+tim(i,me+1)
     3 continue
 c
-      call ga_dgop(mrg_d04,tim,17*np,'+')
+      call ga_dgop(mrg_d04,tim,18*np,'+')
 c
       if(me.eq.0) then
       write(lfntim,1000) stime
  1000 format('timings',/,f12.6)
-      write(lfntim,1001) ((tim(i,j),i=1,17),j=1,np)
- 1001 format(17f7.3)
+      write(lfntim,1001) ((tim(i,j),i=1,18),j=1,np)
+ 1001 format(18f7.3)
       endif
 c
       return
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.75 2000-04-21 19:46:04 d3j191 Exp $
+c $Id: md_main.F,v 1.76 2000-04-21 21:55:39 d3j191 Exp $
 c
       implicit none
 c
