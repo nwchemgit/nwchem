@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-11-22 23:42:07 og845 Exp $
+# $Id: GNUmakefile,v 1.7 1994-11-27 10:49:19 og845 Exp $
 
    OBJ = nwdft.o
 
@@ -7,7 +7,6 @@
 
    HEADERS = \
       include/atoms.fh  \
-      include/handles.fh \
       include/timer.fh   \
       include/io.fh    \
       include/types.fh \
@@ -27,7 +26,6 @@ include ../config/makelib.h
 
 nwdft.o:  \
       include/atoms.fh  \
-      include/handles.fh \
       include/timer.fh   \
       include/io.fh    \
       include/types.fh \
