@@ -1,0 +1,31 @@
+echo
+title h2o
+
+geometry units au nocenter 
+o       .00000000      .00000000      .11786656
+h       .00000000     1.84118838     -.93531364
+h       .00000000    -1.84118838     -.93531364
+end
+
+basis noprint
+  H library sto-3g
+  O library sto-3g
+end
+ charge 0
+
+property
+  spinspin
+end
+
+scf
+ uhf
+end
+
+task scf property
+
+dft
+ xc b3lyp
+ odft
+end
+
+task dft property
