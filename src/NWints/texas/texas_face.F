@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.51 1998-11-04 08:52:30 d3e129 Exp $
+c $Id: texas_face.F,v 1.52 1998-12-02 21:12:15 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1355,7 +1355,7 @@ c-----------------------------------------------------
       iblock=0      ! option name is IBLO  not used
 c                   ! option name is LIMI (3 numbers)
 c...
-      limxmem=2 000 000 ! limit for memory/block
+      limxmem=4 000 000 ! limit for memory/block
       limblks=    5 000 ! limit for quartet-block-size
       limpair=    1 000 ! limit for pair-block-size
 c
