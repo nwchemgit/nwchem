@@ -1,5 +1,9 @@
 #define NBLOCKS 2
 
+*
+* $Id: trans.F,v 1.2 2004-05-05 18:37:59 bylaska Exp $
+*
+
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_ijk_init	*
