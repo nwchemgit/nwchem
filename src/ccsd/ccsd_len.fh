@@ -1,0 +1,2 @@
+      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
+      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv

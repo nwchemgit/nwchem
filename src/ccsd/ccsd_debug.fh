@@ -1,0 +1,6 @@
+C
+      Integer LenDbg
+      Parameter (LenDbg = 15)
+      integer doa, dob, dog, doh, dojk, dos, dod
+      common/debug/doa(LenDbg),dob(LenDbg),dog(LenDbg),doh(LenDbg),
+     $   dojk(LenDbg), dos(LenDbg),dod(LenDbg)
