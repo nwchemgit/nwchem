@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.3 1994-12-29 07:21:03 og845 Exp $
+# $Id: make_nwchem_config,v 1.4 1995-01-12 18:44:48 pg511 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -27,7 +27,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmd
 
-EXP_all = $(filter-out ideaz,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out ideaz dftgrad,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 riscf \
 	stepper symmetry
 EXP_md  = ideaz
@@ -61,7 +61,9 @@ endif
 MODULES := $(patsubst develop,develop rimp2,$(MODULES) )
 
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
+MODULES := $(patsubst graddft,graddft gradients ddscf,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
+
 
 MODULES := $(patsubst moints,moints NWints,$(MODULES) )
 
@@ -86,6 +88,7 @@ MOD_LIBS = $(MODULES)
 MOD_LIBS := $(patsubst NWints,-lnwints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst atomscf,-lguess,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst dftgrad,-ldftgrad,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst develop,-ltest,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gradients,-lgradients,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
@@ -104,6 +107,7 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad,dft_grad_top,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest,$(STUBROUTINES) )
