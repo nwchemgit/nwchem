@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.119 1999-06-15 00:36:42 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.120 1999-06-16 01:00:34 edo Exp $
 c     
       implicit none
 c
@@ -75,8 +75,8 @@ c
       double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
-      double precision anoca, anocb, onempp
-      double precision etnew, tol2e, tol2e_sleazy
+      double precision nocab(2), onempp
+      double precision etnew, tol2e, tol2e_sleazy,tdots
 c     convergence declarations
       double precision rlshift_input, rlshift_def
       integer ndamp_input, ndamp_def
@@ -87,7 +87,7 @@ c     iteration.  The alternative logicals nodamping,
 c     nolevelshifting, and nodiis are specified and held
 c     for the entire convergence sequence.
 c     
-      logical diising, damping, levelshifting
+      logical diising, damping, levelshifting,ldmix
       logical keep_damp_on,keep_levl_on, keep_diis_on
       Logical LResult, IOLGC, mulliken, lSPM
       logical converged, wght_GA
@@ -113,13 +113,15 @@ c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
+      double precision ssmear
       integer l_ir, k_ir
       logical last_time_energy
       logical check_shift, lmaxov_sv
       character*7 name
       character*4 scftype
+      character*7 vecs_or_dens
       character*255 basis_name, basis_trans
-      integer nopen, nclosed
+      integer nopen, nclosed, g_denso(2),k_tmp,l_tmp
 c !!! BGJ
       logical cphf_poliz, do_poliz
       external cphf_poliz
@@ -156,6 +158,14 @@ c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0)
 c !!! BGJ
+c
+c     check if smearing is on
+c
+      ssmear=0.d0
+      if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
+     &   ssmear))then
+        if(me.eq.0) write(0,*) ' SMEAR = ',ssmear
+      endif
 c
 c     see if levelshifting monitoring is desired
 c
@@ -219,8 +229,7 @@ c
          nmo(1) = nbf_ao
          nmo(2) = nbf_ao
       endif
-      anoca = noc(1)
-      anocb = noc(2)
+
       if (ipol .eq. 1)then
 c
 c        RHF occupations
@@ -376,6 +385,9 @@ c
          if (incore)then
             if (me.eq.0 .and. oprint_3c2e)
      &         write(LuOut,3229)n3c_dbl*1.d-6
+c            if(me.eq.0) call MA_summarize_allocated_blocks()
+      if (.not.ma_verify_allocator_stuff()) call
+     * errquit('scf: bad ',1111)
             call dft_3cincor(rtdb, n_batch, n3c_int, int_mb(k_3cwhat), 
      &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
      &                       n_semi_bufs, fd, int_mb(icntoce), 
@@ -495,17 +507,32 @@ c     Force sleazy SCF into "direct" mode.
 c
       call fock_force_direct(rtdb)
 c
+	vecs_or_dens='density'
+	ldmix=.false.
+C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
+	if(movecs_in.ne.'atomic'.and.
+     *movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore' ) then
+           vecs_or_dens='vectors'
+           ldmix=.true.
+         endif
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
      &                       nbf, nbf, noc(1), noc(2),  k_eval, k_occ, 
-     &                       k_ir, g_movecs, g_dens, 'density', 
+     &                       k_ir, g_movecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
       if(oskel) then
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
       endif
+      if(ldmix) then
+         tdots=0.d0
+         call dft_densm(g_dens, g_movecs, 
+     &        nbf_ao, ipol, 
+     &        geom, AO_bas_han,noc,ntotel,
+     &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
+     &        ssmear,tdots,iter,.false.,mult)
 c
 c     compute the integrated density (numerical)
 c
@@ -516,6 +543,45 @@ c
       if (grid_on_file)then
          call grid_den(rtdb, g_dens, rho_n)
       endif
+
+      if (me .eq. 0.and.oprint_eval)then
+         if (util_print('intermediate evals', print_default))then
+            call util_print_centered(LuOut,'alpha eigenvalues',
+     &                               20,.true.)
+            call output(dbl_mb(k_eval(1)), 1, min(noc(1)+10,nbf_ao),
+     &                  1, 1, nbf_ao, 1, 1)
+            call util_print_centered(LuOut,'alpha foccs',
+     &                               20,.true.)
+            call output(dbl_mb(k_occ), 1, min(noc(1)+10,nbf_ao),
+     &                  1, 1, nbf_ao, 1, 1)
+            if (ipol.eq.2)then
+               write(LuOut,*)
+               call util_print_centered(LuOut,'beta eigenvalues',
+     &                                  20,.true.)
+               call output(dbl_mb(k_eval(2)), 1, min(noc(2)+10,nbf_ao),
+     &                     1, 1, nbf_ao, 1, 1)
+            call util_print_centered(LuOut,'beta foccs',
+     &                               20,.true.)
+            call output(dbl_mb(k_occ+nbf_ao),1,min(noc(1)+10,nbf_ao),
+     &                  1, 1, nbf_ao, 1, 1)
+            endif
+            call util_flush(6)
+         endif
+      endif
+
+C         if(.not.MA_verify_allocator_stuff())
+C     $     call errquit('dft_scf: VVV', 1)
+         endif
+C	elseif(movecs_in.eq.'atomic') then
+C           if(ipol.eq.2) then
+C              ffac=noc(2)/dble(noc(1)+noc(2))
+C              if(me.eq.0) write(0,*) ' ffac ',ffac
+C            call ga_copy(g_dens(1),g_dens(2))
+C            call ga_dscal(g_dens(2),ffac)
+C              ffac=noc(1)/dble(noc(1)+noc(2))
+C            call ga_dscal(g_dens(1),ffac)
+C            endif
+C       endif
 c
 c     Tidy up SCF
 c
@@ -611,6 +677,11 @@ c
 c
       last_time_energy = .false.
 c
+      g_denso(1) = 
+     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
+      if(ipol.eq.2)
+     +     g_denso(2) = 
+     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
  1000 continue
       if (me.eq.0 .and. oprint_conv_details)
      &   write(LuOut,124)damping, levelshifting, diising
@@ -772,6 +843,7 @@ c      write(6,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2): ',
 c     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2)
 c     
       if (last_time_energy)then
+         etnew=etnew+tdots
 c     
 c        If open shell put the total density matrix back in 
 c        g_dens(1) and quit.
@@ -781,9 +853,6 @@ c
          endif
          goto 2000
       endif
-c
-      delta = abs(etold-etnew)
-c
       call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
@@ -977,7 +1046,7 @@ c
 c     
 c        Save previous density for convergence check.
 c     
-         call ga_copy(g_dens(ispin), g_tmp)
+         call ga_copy(g_dens(ispin), g_denso(ispin))
 c
 c        symmetry adapt vectors?
 c
@@ -997,33 +1066,63 @@ c
          iter_ck = iter - 5*iter_by_5
          if (iter_ck.eq.0)
      &      call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
+
+      enddo                     ! end big loop over ispin
+
+      call ga_sync
 c     
-c        Form a new density matrix.
+c     Form a new density matrix.
+c     
+      tdots=0.d0
+      call dft_densm(g_dens, g_movecs, 
+     &     nbf_ao, ipol, 
+     &     geom, AO_bas_han,noc,ntotel,
+     &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
+     &     ssmear,tdots,iter,.true.,mult)
+      
+      if(ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
-         call ga_sync
+c     swap alpha and beta
+c
+      if (.not.MA_Push_Get(MT_Dbl,nbf_ao,'ssccrr',l_tmp,k_tmp))
+     &     call errquit('dft_scf: cannot allocate ktmp',0)
+         call dft_swapab(g_dens, g_movecs,nbf_ao,noc,
+     ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
+      if (.not.ma_pop_stack(l_tmp))
+     &   call errquit('dft_scf: cannot pop stack',33)
+            if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
+            icall(1) = -1
+            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+     &                       diising, nodiis)
+            icall(1) = 0
+            icall(2) = 0
+      endif
+         etnew=etnew+tdots
+c
+      delta = abs(etold-etnew)
+c
+
+      do ispin = 1, ipol
 c     
-         call dft_densm(g_dens(ispin), g_movecs(ispin), 
-     &                  nbf_ao, ipol, noc(ispin))
 c     
-         call ga_sync
+c     Check convergence on Density.
 c     
-c        Check convergence on Density.
-c     
-         rms(ispin) = dft_dencvg(g_dens(ispin), g_tmp, nbf_ao)
-         call ga_sync
+         rms(ispin) = dft_dencvg(g_dens(ispin), g_denso(ispin), nbf_ao)
 c     
 c        Damping implemented here.
 c     
          if (damping)then
             pp = dble(ndamp)*1.d-2
             onempp = 1.0d0 - pp
-            call ga_dadd(pp, g_tmp, onempp, g_dens(ispin), 
+            call ga_dadd(pp, g_denso(ispin),onempp, g_dens(ispin), 
      &                   g_dens(ispin))
          else
             ndamp = 0
          endif
-         call ga_sync
       enddo                     ! end loop over ispin
+      call ga_sync
 c     
       if (oprint_conv.and.iter.eq.1.and.me.eq.0)then
          nheap = MA_Inquire_Heap(MT_Dbl)
@@ -1089,12 +1188,20 @@ c
      &                               20,.true.)
             call output(dbl_mb(k_eval(1)), 1, min(noc(1)+10,nbf_ao),
      &                  1, 1, nbf_ao, 1, 1)
+            call util_print_centered(LuOut,'alpha foccs',
+     &                               20,.true.)
+            call output(dbl_mb(k_occ), 1, min(noc(1)+10,nbf_ao),
+     &                  1, 1, nbf_ao, 1, 1)
             if (ipol.eq.2)then
                write(LuOut,*)
                call util_print_centered(LuOut,'beta eigenvalues',
      &                                  20,.true.)
                call output(dbl_mb(k_eval(2)), 1, min(noc(1)+10,nbf_ao),
      &                     1, 1, nbf_ao, 1, 1)
+            call util_print_centered(LuOut,'beta foccs',
+     &                               20,.true.)
+            call output(dbl_mb(k_occ+nbf_ao),1,min(noc(1)+10,nbf_ao),
+     &                  1, 1, nbf_ao, 1, 1)
             endif
             call util_flush(6)
          endif
@@ -1142,7 +1249,7 @@ c
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)
-      if (delta.lt.1.d-3)then
+      if (abs(delta).lt.1.d-3)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
 c        (note, may also require re-initializing DIIS)
@@ -1154,18 +1261,31 @@ c
 c     
 c        Re-initialize DIIS
 c     
-c         if (icall(1).gt.0)then
-c            icall(1) = -1
-c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
-c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
-c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-c     &                       diising, nodiis)
-c            icall(1) = 0
-c            icall(2) = 0
-c         endif
+         if (iswitc.eq.1.and.icall(1).gt.0.and.
+     .        ssmear.gt.1d-9)then
+c         if (icall(1).gt.0.and.iswitc.eq.1)then
+            if(me.eq.0) write(LuOut,*) ' resetting Diis'
+            icall(1) = -1
+            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+     &                       diising, nodiis)
+            icall(1) = 0
+            icall(2) = 0
+         endif
       endif
 c     
       iter = iter + 1
+      if(ssmear.gt.1d-9.and.mod(iter,25).eq.0) then
+            if(me.eq.0) write(LuOut,*) ' resetting Diis'
+            icall(1) = -1
+            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+     &                       diising, nodiis)
+            icall(1) = 0
+            icall(2) = 0
+         endif
 c     
 c     Check convergence parameters.
 c     
@@ -1537,6 +1657,12 @@ c
       endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
+      if (.not. ga_destroy(g_denso(1))) call errquit
+     &   ('dft_scf: could not destroy g_denso', 0)
+      if(ipol.eq.2) then
+      if (.not. ga_destroy(g_denso(2))) call errquit
+     &   ('dft_scf: could not destroy g_denso', 0)
+      endif
 c
       call fock_2e_tidy(rtdb)
 c     
@@ -1580,6 +1706,7 @@ c !!! BGJ
      $        call errquit(' cphf_poliz: failed from dft_scf !',0)
       endif
 c !!! BGJ
+
       return
 c     
  1111 format(15x,'Core Energy:              ',f20.10)

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.36 1997-07-21 20:23:20 d3h449 Exp $
+# $Id: GNUmakefile,v 1.37 1999-06-16 01:00:36 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -18,7 +18,6 @@
 	dft_mxovl.o \
 	dft_mxspin_ovlp.o \
 	dft_s2_value.o \
-	dft_scf.o \
 	dft_scfcvg.o \
 	diis_bld12.o \
 	diis_bsolve.o \
@@ -26,7 +25,10 @@
 	diis_driver.o \
 	diis_hamwgt.o \
 	diis_refvec.o
-
+	OBJ=\
+	dft_hermite.o \
+	dft_swapab.o \
+	dft_scf.o \
 
 
      LIBRARY = libnwdft.a
