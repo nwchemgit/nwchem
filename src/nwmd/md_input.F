@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.68 2002-08-16 16:37:10 d3j191 Exp $
+c $Id: md_input.F,v 1.69 2002-08-21 14:55:15 d3j191 Exp $
 c
       implicit none
 c
@@ -569,7 +569,11 @@ c
       if(inp_compare(.false.,'z',item)) then
       ipopt=3
       goto 250
-      endif
+      endi
+      if(inp_compare(.false.,'xy-z',item)) then
+      ipopt=123
+      goto 250
+      endiff
       goto 3
       endif
 c

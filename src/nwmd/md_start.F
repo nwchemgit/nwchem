@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.137 2002-08-16 16:37:10 d3j191 Exp $
+c $Id: md_start.F,v 1.138 2002-08-21 14:55:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1536,6 +1536,8 @@ c
  2023 format(' Pressure scaling in x and y only')
       if(ipopt.eq.3) write(lfnout,3023)
  3023 format(' Pressure scaling in z only')
+      if(ipopt.eq.123) write(lfnout,3024)
+ 3024 format(' Pressure scaling in x and y separate from z')
       endif
       if(iguide.gt.0) then
       write(lfnout,1038) fguide,tguide

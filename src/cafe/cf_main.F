@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.149 2002-08-13 19:00:24 d3j191 Exp $
+c $Id: cf_main.F,v 1.150 2002-08-21 14:55:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -847,6 +847,10 @@ c
       pscx(2)=one
       endif
       if(ipopt.eq.12) pscx(3)=one
+      if(ipopt.eq.123) then
+      pscx(1)=half*(pscx(1)+pscx(2))
+      pscx(2)=pscx(1)
+      endif
       pscale=pscx(1)*pscx(2)*pscx(3)
 c
       if(np.gt.1) then
