@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.81 1996-09-27 16:13:35 d3g681 Exp $
+# $Id: GNUmakefile,v 1.82 1996-09-27 22:46:28 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -101,6 +101,7 @@ $(LIBRARY_PATH)(fock_2e_a.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sy
 $(LIBRARY_PATH)(schwarz_max.o):	./cschwarz.fh 
 $(LIBRARY_PATH)(schwarz_init.o):	$(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cschwarz.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(schwarz_atom.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh ./cschwarz.fh 
+$(LIBRARY_PATH)(fock_2e_task.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(scf_pstat.o):	$(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh ./cscfps.fh ./cscf.fh 
 $(LIBRARY_PATH)(scf_movecs.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(scf_lindep.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
@@ -125,7 +126,6 @@ $(LIBRARY_PATH)(rohf_canon.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDI
 $(LIBRARY_PATH)(riscf_trans.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_tidy.o):	$(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_square.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(fock_2e_task.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_init.o):	$(INCDIR)/stdio.fh ./schwarz.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_fock.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_dovecs.o):	./cfock.fh 
@@ -154,5 +154,5 @@ $(LIBRARY_PATH)(do_riscf.o):	./cfock.fh
 $(LIBRARY_PATH)(comp4_insert.o):	$(INCDIR)/bitops.fh 
 $(LIBRARY_PATH)(comp4_ext.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
 $(LIBRARY_PATH)(comp4_bins.o):	$(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
-$(LIBRARY_PATH)(int2e_file.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cint2esave.fh ./cint2efile.fh ./cfock.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(int2e_file.o):	$(INCDIR)/util.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/eaf.fh ./cint2esave.fh ./cint2efile.fh ./cfock.fh $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(fock_2e_et.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cfock.fh $(INCDIR)/bas.fh 

@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.24 1996-09-19 01:09:22 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.25 1996-09-27 22:46:26 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -207,7 +207,6 @@ c
       integer kllist(2,max_sh*max_sh), kl
       integer ijinfo(2,max_pair_t), nt_ij
       integer klinfo(2,max_pair_t), nt_kl
-      integer itemp (max_sh*max_sh)
 c
       integer max_q, max_p
       parameter (max_q = 10000)
@@ -300,9 +299,9 @@ c
       max_p = sqrt(dble(max_p))
 c      
       call fock_pairs(basis, max_p, oij, iatlo, iathi, jatlo, jathi, 
-     $     dentol, ijlist, sij, ijinfo, max_pair_t, nt_ij, itemp)
+     $     dentol, ijlist, sij, ijinfo, max_pair_t, nt_ij)
       call fock_pairs(basis, max_p, okl, katlo, kathi, latlo, lathi, 
-     $     dentol, kllist, skl, klinfo, max_pair_t, nt_kl, itemp)
+     $     dentol, kllist, skl, klinfo, max_pair_t, nt_kl)
 c
 c     Loop over pairs of pairs (have i>=j and k>=l already)
 c

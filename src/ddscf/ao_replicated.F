@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.11 1996-09-27 16:13:30 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.12 1996-09-27 22:46:24 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -245,8 +245,6 @@ c
       double precision dentol, integ_acc
       character*80 buff
 c
-      integer l_ijtype, k_ijtype
-c
       integer nq                ! No. of quartets generated
 c
       integer ntreq
@@ -372,12 +370,8 @@ c
       if (oreadfile .and. incmax.ne.-1) 
      $     dentol_pairs = semi_direct_tol2e/dnops
 c
-      if (.not. ma_push_get(mt_int, nsh*(nsh+1)/2, 'fock2e_rep',
-     $     l_ijtype, k_ijtype)) call errquit
-     $     ('fock_2e_rep: ma failed', nsh*(nsh+1)/2)
  10   call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
-     $     dentol_pairs, plist, ps, pinfo, tdim, ntype,
-     $     int_mb(k_ijtype))
+     $     dentol_pairs, plist, ps, pinfo, tdim, ntype)
 c
 c     Figure out no. of tasks to do on each request to the
 c     shared counter.  Memory permitting we want this to be 
@@ -398,8 +392,6 @@ c
      $     ' task_bf ',task_bf
          call util_flush(6)
       end if
-      if (.not. ma_pop_stack(l_ijtype))
-     $     call errquit('fock_2e_rep: ma?',0)
 c     
 c     loop over pair blocks and compute integrals ... want most expensive
 c     integrals first, hence outer loop over ijklt ... assume that
@@ -735,7 +727,7 @@ c
       end
       subroutine fock_pairs(basis, max_p, oij, 
      $     iatlo, iathi, jatlo, jathi, 
-     $     tol2e, ijlist, sij, ijinfo, max_ij, nt_ij, ijtype)
+     $     tol2e, ijlist, sij, ijinfo, max_ij, nt_ij)
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -747,27 +739,53 @@ c
       integer iatlo, iathi, jatlo, jathi
       integer ijlist(2,*), ijinfo(2,max_ij), nt_ij
       double precision sij(*)
-      integer ijtype(*)
 c     
       integer junk, iat, jat, iatsh, jatsh, shlo, shhi
-      integer nij, ij, ijt, i, j, jtop, prev, spch
-      integer jlo, jhi, jnprim, jngen, jt, jtype
-      integer ilo, ihi, inprim, ingen, it, itype
+      integer nij, ij, ijt, i, j, jtop, spch
+      integer jlo, jhi, jnprim, jngen, jtype
+      integer ilo, ihi, inprim, ingen, itype
       double precision smax, test, tol2e
       integer n_in_b, old_nt
       integer iuat, juat        ! Unique atom numbers
 c
-*      double precision price
-      integer thetype
+      double precision price
+      double precision int_2e4c_price
+      external int_2e4c_price
+      double precision thetype, it, jt, maxtype, prev
+      integer iprice
 #include "itri.fh"
-c     Below relies on #shperat<20, #uatoms<20, angmax<20, ngen<20.
-      thetype(iuat,iatsh,itype,inprim,ingen) = 
-     $     iuat + 20*(iatsh + 20*(itype+1 + 20*(ingen + 20*inprim)))
 c
-c     It would suffice to sort on different types of shells (iatsh) on
-c     unique atoms (iuat), however, we want to arrange for the
-c     most expensive integrals to be computed first so we need
-c     to worry about nprim, ngen and type
+      iprice(i,j) = nint(100.0d0*int_2e4c_price(basis,i,j,basis,i,j))
+      thetype(iuat,iatsh,itype,inprim,ingen) = 
+     $     iuat-1 + 32.0d0*(iatsh-1 + 32.0d0*(inprim-1 + 32.0d0*(
+     $     ingen-1 + 32.0d0*(itype+1))))
+c
+c     Max value of the above function will be about 10*32**4 = 1.05d+07
+c
+      maxtype = 1.05d7
+c
+c     We want to block pairs of shells so that within each block
+c     all pairs are of the same type (contraction level, angular
+c     momentum, general contraction, and for Texas 95 the exponents
+c     and coeffs need to be the same also).  Blocks need to be
+c     less than a certain size and also if blocks are too small 
+c     join them together since this further reduces precomputation cost.
+c
+c     Furthermore, for good load balance, we want the most expensive
+c     shell-quartets computed first.  These will probably be very
+c     high-angular momentum shells, or deep general contractions.
+c     But, for best gain from semidirect we want the most expensive
+c     single integrals computed first, but these will probably be
+c     just the heavily contracted S and P shells.
+c
+c     Resolve this by constructing the price per integral between 0 and 1.
+c     This typically has a range between 1e-4 and 1.0d0.
+c     Scaling by 100 to make an integer, 0 - 100.  Use this
+c     as the leading value in the sort criterion.  The most expensive 
+c     single integrals will have a non-zero cost and will be done first,
+c     but most others will have a zero integer cost and will be sorted
+c     by other criteria. And we'll make these in the order of angular
+c     momentum.
 c
 c     Fun and games here to handle centers with no functions
 c
@@ -807,7 +825,7 @@ c
          if (.not. bas_ce2cnr(basis,iat,shlo,shhi))
      $        call errquit('fock_pairs: basis corrupt ',0)
          iatsh = i-shlo+1
-c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
+c     reorder L,s,p (-1,0,1) into order by complexity s,p,L (-1,0,1)
          if (itype.eq.-1) then
             itype = 1
          else if (itype.eq.0) then
@@ -842,28 +860,31 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                nij           = nij + 1
                ijlist(1,nij) = i
                ijlist(2,nij) = j
-               ijtype(nij)   = itri(it,jt)
+*               write(6,910) nij, it, jt, iprice(i,j)
+* 910           format(1x,i8,1p,2d9.2,0p,i8)
+               sij(nij) =  min(it,jt) +
+     $              maxtype*(max(it,jt) + maxtype*dfloat(iprice(i,j)))
             end if
          end do
       end do
       if (nij .eq. 0) return
 c     
-      call fock_pair_sort(nij,ijlist,ijtype)
+      call fock_pair_sort(nij,ijlist,sij)
 c     
 c     Split pair blocks on type boundaries with regard to size
 c     (first do type only then combine)
 c     
       nt_ij = 0
-      prev = -99999999
+      prev = -1.0d0
       n_in_b = 0
       do ij = 1, nij
-         if (ijtype(ij).ne.prev .or. n_in_b.ge.max_p) then
+         if (sij(ij).ne.prev .or. n_in_b.ge.max_p) then
             if (nt_ij .ne. 0) ijinfo(2,nt_ij) = ij-1
             nt_ij = nt_ij + 1
             if (nt_ij .gt. max_ij) call errquit
      $           ('fock_pairs: dimension failure', nt_ij)
             ijinfo(1,nt_ij) = ij
-            prev = ijtype(ij)
+            prev = sij(ij)
             n_in_b = 0
          end if
          n_in_b = n_in_b + 1
@@ -914,8 +935,8 @@ c
             do ij = ijinfo(1,ijt),ijinfo(2,ijt)
                i = ijlist(1,ij)
                j = ijlist(2,ij)
-*               call get_int_price(i,j,i,j,price)
-               if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
+               price = int_2e4c_price(basis, i, j, basis, i, j)
+              if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
      $              call errquit('fock_pairs: basis bad ',0)
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
      $              call errquit('fock_pairs: basis bad ',0)
@@ -924,9 +945,9 @@ c
                if (.not. bas_cn2uce(basis,j,juat))
      $              call errquit('fock_pairs: basis corrupt ',0)
                write(6,11) ij,i,j,itype,jtype,inprim,jnprim,
-     $              ingen,jngen, iuat, juat! , price
- 11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x)
-*     $              1p,d9.2)
+     $              ingen,jngen, iuat, juat , price, iprice(i,j)
+ 11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,
+     $              1p,d9.2,2x,i4)
             end do
          end do
       end if
@@ -934,7 +955,9 @@ c
       end
       subroutine fock_pair_sort(n,ijlist,ijtype)
       implicit integer (a-z)
-      dimension ijlist(2,n), ijtype(n)
+      dimension ijlist(2,n)
+      double precision ijtype(n)
+      double precision rra
 c     
       if (n .eq. 1) return
 c     
@@ -1064,3 +1087,24 @@ c
       end do
 c
       end
+      double precision function int_2e4c_price(
+     $     bra, ish, jsh, ket, ksh, lsh)
+      implicit none
+c
+      integer bra, ish, jsh, ket, ksh, lsh
+c
+      double precision price
+c
+      logical cando_txs
+      external cando_txs
+c
+      if (cando_txs(bra, ish, jsh) .and. 
+     $    cando_txs(ket, ksh, lsh)) then
+         call get_int_price(ish,jsh,ksh,lsh,price)
+         int_2e4c_price = price
+      else
+         int_2e4c_price = 0.0d0
+      endif
+c
+      end
+
