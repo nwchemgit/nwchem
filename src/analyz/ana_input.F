@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.48 2001-05-16 15:56:20 d3j191 Exp $
+c $Id: ana_input.F,v 1.49 2001-05-16 22:44:19 d3j191 Exp $
 c
       implicit none
 c
@@ -731,6 +731,20 @@ c
       if(.not.inp_i(indx)) indx=1
       write(lfncmd,1019) indx
  1019 format('index ',i10)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     make report
+c     -----------
+c
+      if(inp_compare(.false.,'report',item)) then
+      if(.not.inp_a(item)) call errquit('No report file',0)
+      if(.not.inp_a(tag)) tag=' '
+      option='        '
+      if(inp_compare(.false.,'local',tag)) option='local   '
+      write(lfncmd,1031) tag,item(1:index(item,' ')-1)
+ 1031 format('report ',a8,a)
       numcmd=numcmd+1
       goto 2
       endif

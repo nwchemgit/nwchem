@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.65 2001-05-16 15:56:20 d3j191 Exp $
+c $Id: ana_task.F,v 1.66 2001-05-16 22:44:19 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,7 @@ c
       external ana_bond,ana_angle,ana_torsion
       integer idpdb
       logical lsuper,lsaver
+      character*8 option
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -1214,6 +1215,15 @@ c
       lesd=.false.
 c
       goto 1
+      endif
+c
+c     make report from file
+c     ---------------------
+c
+      if(card(1:6).eq.'report') then
+      option=card(8:15)
+      fil=card(16:80)
+      call ana_report_file(option,fil,lfnloc)
       endif
 c
 c     generate esp grid from an xyzq file
