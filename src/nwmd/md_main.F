@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.114 2001-12-15 01:51:30 d3j191 Exp $
+c $Id: md_main.F,v 1.115 2001-12-15 04:11:32 d3j191 Exp $
 c
       implicit none
 c
@@ -1502,8 +1502,10 @@ c
      + (xs(i,3)-ys(i,3))**2)
     5 continue
       endif
+      if(npmf.eq.1.or.(npmf.eq.2.and..not.lequi)) then
       if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
      + nsaloc)) goto 3
+      endif
 c
       dmax=sqrt(dmax)
       call ga_dgop(mrg_d45,dmax,1,'max')
@@ -1572,7 +1574,8 @@ c
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
-     + dbl_mb(i_ess),lfnpmf,.not.lequi)
+     + dbl_mb(i_ess),lfnpmf,.not.lequi,
+     + npmf.eq.1.or.(npmf.eq.2.and..not.lequi))
       call timer_stop(10)
 c
       if(ipolt.gt.0) then
@@ -2193,7 +2196,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.114 2001-12-15 01:51:30 d3j191 Exp $
+c $Id: md_main.F,v 1.115 2001-12-15 04:11:32 d3j191 Exp $
 c
       implicit none
 c

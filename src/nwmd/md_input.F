@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.49 2001-11-21 03:42:33 d3j191 Exp $
+c $Id: md_input.F,v 1.50 2001-12-15 04:11:32 d3j191 Exp $
 c
       implicit none
 c
@@ -622,7 +622,7 @@ c
       if(inp_compare(.false.,'pmf',item)) then
       npmf=1
       if(.not.inp_a(item)) goto 1
-      if(inp_compare(.false.,'constraint',item)) then
+      if(inp_compare(.false.,'equilharm',item)) then
       npmf=2
       if(.not.inp_a(item)) goto 1
       endif

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.121 2001-12-15 01:19:36 d3j191 Exp $
+c $Id: cf_main.F,v 1.122 2001-12-15 04:10:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1374,7 +1374,7 @@ c
       return
       end
       subroutine cf_multi(nums,xs,fs,isgan,isatt,isfrc,isdyn,isct1,ess,
-     + lfnpmf,lrec)
+     + lfnpmf,lrec,lpmfci)
 c
       implicit none
 c
@@ -1384,8 +1384,9 @@ c
       integer nums,lfnpmf
       real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
       integer isgan(msa),isatt(msa),isfrc(msa),isdyn(msa),isct1(msa)
-      logical lrec
+      logical lrec,lpmfci
 c
+      lpmfc=lpmfci
       edrs=zero
       epmf=zero
 c
@@ -1449,7 +1450,7 @@ c
       xpmf(j,3,i)=zero
       wpmf(j,i)=zero
     2 continue
-      if(ipmf(i,6).eq.2) goto 1
+      if(ipmf(i,6).eq.2.and.lpmfc) goto 1
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
@@ -1480,11 +1481,10 @@ c
       call ga_dgop(mcf_73,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
-      if(ipmf(i,6).eq.2) goto 6
+      if(ipmf(i,6).eq.2.and.lpmfc) goto 6
 c
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
-      if(m.eq.2.and.lpmfc) goto 6
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
@@ -1521,7 +1521,7 @@ c
       if(lrec.and.lfnpmf.lt.0) write(-lfnpmf,1000) i,rv
  1000 format(i3,f12.6,e12.5)
       if(me.eq.0) then
-      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
+      if(ipmf(i,7).eq.1) ubias=ubias+rv(2)
       epmf=epmf+rv(2)
       endif
       endif
@@ -1559,7 +1559,7 @@ c
 c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Angle:',rv,(ft(3,j),j=1,3)
       if(me.eq.0) then
       epmf=epmf+rv(2)
-      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
+      if(ipmf(i,7).eq.1) ubias=ubias+rv(2)
       endif
       do 14 j=1,3
       do 15 k=1,ipmf(i,j+1)
@@ -1603,7 +1603,7 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
       endif
       if(me.eq.0) then
       epmf=epmf+rv(2)
-      if(ipmf(i,6).eq.1) ubias=ubias+rv(2)
+      if(ipmf(i,7).eq.1) ubias=ubias+rv(2)
       endif
       do 19 j=1,4
       do 20 k=1,ipmf(i,j+1)

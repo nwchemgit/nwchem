@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi)
-c $Id: cf_init.F,v 1.69 2001-12-11 19:26:00 d3j191 Exp $
+c $Id: cf_init.F,v 1.70 2001-12-15 04:10:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -58,7 +58,6 @@ c
       lpair=.true.
       llist=.false.
       lpmf=npmf.gt.0
-      lpmfc=npmf.eq.2
       ndxp=0
       maxl=0
       lanal=nfanal.gt.0
