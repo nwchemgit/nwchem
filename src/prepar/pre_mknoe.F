@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.10 2000-04-24 14:42:48 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.11 2000-04-24 14:44:12 d3j191 Exp $
 c
       implicit none
 c
@@ -210,7 +210,7 @@ c
      + call errquit('Memory deallocation failed for idsb',9999)
       if(.not.ma_pop_stack(l_qsa))
      + call errquit('Memory deallocation failed for qsa',9999)
-      if(.not.ma_pop_stack(l_ssl))
+      if(.not.ma_pop_stack(l_sml))
      + call errquit('Memory deallocation failed for sml',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
