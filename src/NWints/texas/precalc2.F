@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.12 1996-07-26 17:03:13 pg481 Exp $
+c $Id: precalc2.F,v 1.13 1997-03-20 16:46:48 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -298,7 +298,7 @@ c>>*a-3/4          abprim(ijpar,ij,3)=     sqrt(bb)             !Sbb
                 endif
                 if(aa.gt.zero .and. bb.le.zero) then
 c>>>>>>>>>         write(8,*)' exp_b=zero ; jcs=',jcs
-c>>>>>>>>>         apb=aa+bb
+                   apb=aa+bb
                    apb1=one/apb
                    abprim(ijpar,ij,1)=apb
                    abprim(ijpar,ij,2)=apb1
