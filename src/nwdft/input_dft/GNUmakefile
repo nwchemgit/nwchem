@@ -1,9 +1,8 @@
-# $Id: GNUmakefile,v 1.5 1994-11-27 10:15:14 og845 Exp $
+# $Id: GNUmakefile,v 1.6 1994-11-27 10:25:37 og845 Exp $
 
       OBJ = \
 	inpana.o \
 	rdinput.o			   \
-	rdquad.o			   \
 	setquad.o
 
      LIBRARY = libnwdft.a
