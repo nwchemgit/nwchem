@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.29 1997-06-12 22:53:21 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -519,6 +519,9 @@ c
           kk = rbfmap(klab(ieri))
           ll = rbfmap(llab(ieri))
           ssbb(ll,kk,jj,ii) = eri(ieri)
+*          write(6,7) ilab(ieri),jlab(ieri),klab(ieri),llab(ieri),
+*     $         eri(ieri)
+* 7        format(4i5,f12.6)
         enddo
         if (more) goto 100
       endif
@@ -556,7 +559,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.29 1997-06-12 22:53:21 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1126,7 +1129,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.29 1997-06-12 22:53:21 rg240 Exp $
+C$Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1170,7 +1173,7 @@ C$Id: moints_aux2.F,v 1.29 1997-06-12 22:53:21 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.29 1997-06-12 22:53:21 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

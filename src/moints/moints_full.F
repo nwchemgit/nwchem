@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.22 1997-06-29 03:04:58 d3g681 Exp $
+C     $Id: moints_full.F,v 1.23 1997-07-30 02:06:24 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -271,7 +271,7 @@ c
 c     Symmetrize the MOs and reblock as requested
 c
       if (osym .or. osymblock) then
-         call ga_summarize(0)
+*         call ga_summarize(0)
          call sym_movecs_adapt(basis,tol_sym,g_vecs,int_mb(k_irs),
      $        nmixed)
          if (nmixed .ne. 0) then
