@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.26 2004-03-08 22:51:27 bylaska Exp $
+* $Id: pspw_sic.F,v 1.27 2004-05-12 20:19:02 edo Exp $
 *
 
 *     *************************
@@ -99,7 +99,7 @@
                call D3dB_nx(1,n1)
                call D3dB_ny(1,n2)
                call D3dB_nz(1,n3)
-               call D3dB_Init(2,2*n1,2*n2,2*n3)
+               call D3dB_Init(2,2*n1,2*n2,2*n3,1)
                call coulomb2_init()
             end if
 
