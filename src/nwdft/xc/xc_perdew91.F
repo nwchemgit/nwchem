@@ -1,9 +1,18 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.5 1995-05-19 00:22:29 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C     $Id: xc_perdew91.F,v 1.6 1995-10-29 02:53:52 og845 Exp $
+      Implicit none
+
+      double precision TOLL,EXPTOL
+      double precision alpha,beta,pgamma,delta,beta10
+      double precision zzz,fff,CINF
+      double precision CX37,akf_par,aa
+
+      double precision ONE,ONE3,THREE
+      double precision FOURTHIRDS,SEV6
+      double precision FIVE3,TWO3,FIVE6
+      double precision pi
 
       Parameter (TOLL=1.E-40,EXPTOL=80.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
@@ -24,31 +33,59 @@ C     $Id: xc_perdew91.F,v 1.5 1995-05-19 00:22:29 og845 Exp $
 c
 c     logical grad_corr true if only GCA part needed
 c
+c
+      double precision fac,tol_rho
+
+c     Correlation energy
+      double precision Ec
+
 c--   > Charge Density 
 
-      Dimension rho(ipol*(ipol+1)/2,nq)
+      double precision rho(ipol*(ipol+1)/2,nq)
 
 c--   > Charge Density Gradient
 
-      Dimension delrho(ipol,3,nq)
+      double precision delrho(ipol,3,nq)
 
 c--   > Charge Density Gradient Dot Products
 
-      Dimension gamma(ipol*(ipol+1)/2,nq)
+      double precision gamma(ipol*(ipol+1)/2,nq)
 
 c--   > Quadrature Weights
 
-      Dimension qwght(nq)
+      double precision qwght(nq)
 
 c--   > Sampling Matrices for the XC Potential & Energy
 
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
 
-      dimension dp81drho(2)
+      double precision dp81drho(2)
+      
+      integer ipol
 c     
 c     J.P.Perdew, J.A.Chevary, S.H.Vosko, K.A.Jackson, M.R.Pederson, 
 c     D.J.~Singh and C.~Fiolhais,  Phys. Rev. B  46, 6671 (1992).     
 c     
+C
+      integer nq,n
+      double precision expo1,expo2,dexpo1,dexpo2
+      double precision TPP,nu,bb,twoab,twoab2,atwob2
+      double precision rsfact,rhoval,rho13,rs,rs2,rs3,
+     *     drsdrho,arho,drho
+      double precision gammaval,dsqgamma
+      double precision anum,aden,CC,CCPRIME
+      double precision egas,degasda,degasdb
+      double precision g,g2,g3
+      double precision gzeta,gzprime,x
+      double precision dgzetadag,dgzetadbg,gggr,ggg
+      double precision akf,aks,dksdrho,dkfdrho
+      double precision t,t2,t3,t4,dtdrhoa,dtdrhob,dtdgamma
+      double precision A,A1p2At2,aden1,alognd,dAdrhoa,dAdrhob
+      double precision func,H0,H1,dH1drhoa,dH0drhoa,
+     *     dH1drhob,dH0drhob
+      double precision dH1dgamma,dH0dgamma
+      double precision gaa,gbb
+      double precision zeta
 c***************************************************************************
       gzeta(x)=0.5d0*((ONE+x)**TWO3+(ONE-x)**TWO3)
       gzprime(x)=0.5d0*TWO3*((ONE+x)**(-ONE3)-(ONE-x)**(-ONE3))
@@ -142,6 +179,8 @@ c
      *         2.d0*dexpo2*(
      *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
 
+C          dAdrhoa = A/(expo1-ONE)*expo1*
+C     *         twoab2*degasda
           dAdrhoa = A/(expo1-ONE)*
      *         twoab2*degasda
           dH0drhoa = 
