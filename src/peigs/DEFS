@@ -336,9 +336,9 @@ peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 \
 -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128
 
-# peigs_FC  += -I$(peigs_HDIR) -DIBM -Pv -Wp,-eaj -O3 -qstrict
-peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict -qarch=pwr2 \
--WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000 \
+# peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict -qarch=pwr2 \
+peigs_FC  += -I$(peigs_HDIR) -DIBM -Pv -Wp,-eaj -O3 -qstrict
+-WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000 -qarch=pwr2 \
 -qfloat=rsqrt:fltint:hssngl -qinline -NQ40000 -NT80000 
 -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 -qcache=type=i:level=1:size=32:line=128
@@ -350,9 +350,9 @@ ifeq ($(peigs_TARGET),DECOSF)
 #alpha with /tcgmsg
 peigs_CPU  = ALPHA
 peigs_COMM = TCGMSG
-peigs_CPP += -D${CPU} -DSTD_DBL -D_fastmath -O3 -P
+peigs_CPP = /usr/bin/cpp -D${CPU} -DSTD_DBL -P -DDECOSF
 peigs_CODEOBJ = DBLE
-peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3
+peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3 -DDECOSF
 peigs_F77 += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3
 endif
 
