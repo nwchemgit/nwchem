@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.12 2002-01-30 01:11:56 windus Exp $
+C$Id: movecs_proj.F,v 1.13 2002-02-02 00:13:38 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -86,6 +86,12 @@ c
      $     call errquit('movecs project: bas_numbf?', 0)
       if (.not. (bas_numbf(old_basis, old_nbf))) 
      $     call errquit('movecs project: bas_numbf?', 0)
+c
+      if (nbf .lt. old_nbf) then
+          write(6,1) 'The current basis is smaller than the basis',
+     $               ' you are projecting from !!!'
+          call errquit
+     $     ('movecs_project: new bas smaller than old bas',0) 
 c
       if (file_nbf .ne. old_nbf) call errquit
      $     ('movecs_project: nbf on file inconsistent with basis', 0)
