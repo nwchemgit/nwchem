@@ -21,5 +21,15 @@ public class AtomDefinition{
 	p2=Double.valueOf(card2.substring(36,48)).doubleValue();
 	p3=Double.valueOf(card2.substring(60,72)).doubleValue();
     }
+    public AtomDefinition(String card){
+	Name=card.substring(5,10);
+	Type1=card.substring(11,16);
+	link=Integer.parseInt(card.substring(17,22).trim());
+	type=Integer.parseInt(card.substring(22,27).trim());
+	cgroup=Integer.parseInt(card.substring(27,32).trim());
+	pgroup=Integer.parseInt(card.substring(32,37).trim());
+	q1=Double.valueOf(card.substring(37,49)).doubleValue();
+	p1=Double.valueOf(card.substring(49,61)).doubleValue();
+    };
 
 }

@@ -17,6 +17,11 @@ public class BondDefinition{
 	force1=Double.valueOf(card2.substring(12,24)).doubleValue();
 	force2=Double.valueOf(card2.substring(36,48)).doubleValue();
 	force3=Double.valueOf(card2.substring(60,72)).doubleValue();
-    }
+    };
+
+    public BondDefinition(String card){
+	atomi=Integer.parseInt(card.substring(0,5).trim());
+	atomj=Integer.parseInt(card.substring(5,10).trim());
+    };
 
 }

@@ -184,7 +184,7 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
     if(file_x!=" ") { param_Read(file_x,2);};
     if(file_u!=" ") { param_Read(file_u,3);};
     if(file_t!=" ") { param_Read(file_t,4);};
-    System.out.println(nAtoms+" "+nCross+" "+nBonds+" "+nAngles+" "+nTorsions+" "+nImpropers+" "+nRules);
+    //System.out.println(nAtoms+" "+nCross+" "+nBonds+" "+nAngles+" "+nTorsions+" "+nImpropers+" "+nRules);
     checkRedefinitions();
     displayEntries();
 
@@ -243,8 +243,13 @@ class nwchem_Param extends JFrame implements ActionListener, ChangeListener, Win
 			Impropers[nImpropers] = new Improper(card,ftype); nImpropers++;
 			if(nImpropers>=mImpropers) { System.out.println("Increase mImpropers"); setVisible(false); };
 		    } else if(dataType==7){
-			card2=br.readLine(); card3=br.readLine(); Rules[nRules] = new Rule(card,card2,card3,ftype); nRules++;
-			if(nRules>=mRules) { System.out.println("Increase mRules"); setVisible(false); };
+			if(card.length()>0){
+			    if(card.charAt(0)!=' '){
+				card2=br.readLine(); card3=br.readLine();
+				Rules[nRules] = new Rule(card,card2,card3,ftype); nRules++;
+				if(nRules>=mRules) { System.out.println("Increase mRules"); setVisible(false); };
+			    };
+			};
 		    } else {
 		    };
 		};
