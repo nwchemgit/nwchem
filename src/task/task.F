@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.17 1997-10-06 23:01:02 d3j191 Exp $
+* $Id: task.F,v 1.18 1997-10-15 20:01:05 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -27,6 +27,8 @@ c
       character*20 theory, operation
       logical status, ignore
       character*80 errmsg
+      double precision task_cpu, task_wall
+      logical oprint_task_times
 c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
@@ -43,6 +45,11 @@ c
       external task_version
       external esp
 c
+      oprint_task_times = util_print('task times',print_high)
+      if (oprint_task_times) then
+        task_wall = -util_wallsec()
+        task_cpu  = -util_cpusec()
+      endif
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c      
@@ -75,7 +82,7 @@ c
           endif
         endif
         call ga_sync()
-        return
+        goto 99999
       endif
 c
 c Look for speciallized routine tasks here 
@@ -130,7 +137,7 @@ c
             endif
          endif
          call ga_sync()
-         return
+         goto 99999
       endif
 c
  100  if (inp_compare(.false., 'energy', operation)) then
@@ -166,6 +173,20 @@ c
             endif
          endif
       endif
+99999 continue
+c
+      if (oprint_task_times) then
+        task_wall = task_wall + util_wallsec()
+        task_cpu  = task_cpu  + util_cpusec()
+        if (ga_nodeid().eq.0) then
+          write(6,00001) task_cpu, task_wall
+00001     format(/' Task  times  cpu:',f11.1,'s     wall:',f11.1,'s')
+          call util_flush(6)
+        endif
+      endif
+      call ga_sync()
+c
+      return
 c
       end
       logical function task_version(rtdb)
