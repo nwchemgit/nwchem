@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.44 2001-08-19 21:23:26 bjohnson Exp $
+# $Id: GNUmakefile,v 1.45 2002-01-29 20:47:49 windus Exp $
  
 include ../../config/makefile.h
 
@@ -53,7 +53,7 @@ endif
 
       USES_BLAS = amshift.f \
                   big_service.f \
-                  trobsa.f 
+                  trobsa.F 
 
        LIBRARY = libnwints.a
        HEADERS = screened_op.fh
