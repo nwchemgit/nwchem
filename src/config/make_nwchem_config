@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.175 2004-01-28 17:56:11 marat Exp $
+# $Id: make_nwchem_config,v 1.176 2004-01-28 17:59:46 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -272,7 +272,7 @@ STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input task_paw task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst cons, cons_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst cons, cons_input cons_add_egrad cons_add_energy,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 
