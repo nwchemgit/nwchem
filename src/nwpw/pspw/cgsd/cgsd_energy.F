@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.5 2001-11-27 00:05:03 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -10,11 +10,12 @@ c     $Id: cgsd_energy.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $
       integer MASTER
       parameter (MASTER=0)
 
+      logical stalled
       integer taskid
       integer i,k,neall,NN
       integer it_in,it_out,icount
       real*8  EV,virial
-      real*8  tole,tolc,deltae,deltac
+      real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2)
@@ -53,6 +54,8 @@ c     $Id: cgsd_energy.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $
          call util_flush(6)
       end if
 
+      stalled = .false.
+      deltae  = -1.0d-03
       icount=0
       it_in  = control_it_in()
       it_out = control_it_out()
@@ -63,7 +66,17 @@ c     $Id: cgsd_energy.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $
       if (taskid.eq.MASTER) call util_flush(6)
    2  continue
          icount = icount + 1
+         if (stalled) call sdminimize()
+
+         deltae_old = deltae
          call cgminimize(E,deltae,deltac)
+
+         if ((dabs(deltae).gt.dabs(deltae_old)).or.
+     >       (dabs(deltae).gt.1.0d-3)) then
+            stalled = .true.
+         else
+            stalled = .false.
+         end if
 
          if (taskid.eq.MASTER) then 
            write(6,1310) icount*it_in,E(1),deltae,deltac

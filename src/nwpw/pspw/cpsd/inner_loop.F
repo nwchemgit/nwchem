@@ -1,3 +1,7 @@
+*
+* $Id: inner_loop.F,v 1.7 2001-11-27 00:05:03 bylaska Exp $
+*
+
 *  ************************************************************
 *  *                MPI cpsd routine                          *
 *  *                                                          *
@@ -18,9 +22,6 @@
      >                      it_in,E,deltae,deltac,deltar,
      >                      hml,lmd,
      >                      psi_r,Hpsi)
-*
-* $Id: inner_loop.F,v 1.6 2001-10-26 02:28:26 bylaska Exp $
-*
       implicit none
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax

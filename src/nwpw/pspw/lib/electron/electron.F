@@ -149,9 +149,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *		electron_run		*
-*     *					*
+*     *									*
+*     *		electron_run				*
+*     *									*
 *     ***********************************
       subroutine electron_run(psi_k,dn,dng,dnall)
       implicit none
@@ -175,6 +175,59 @@
       end
 
 
+*     ***********************************
+*     *									*
+*     *		electron_sd_update  		*
+*     *									*
+*     ***********************************
+      subroutine electron_sd_update(psi1,psi2,dte)
+      implicit none
+      complex*16 psi1(*),psi2(*)
+      real*8     dte
+
+#include "mafdecls.fh"
+
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer Hpsi_k(2)
+      integer psi_r(2)
+      integer vl(2)
+      integer vl_lr(2)
+      integer vc(2)
+      integer xcp(2)
+      integer xce(2)
+      common / electron_block / Hpsi_k,psi_r,
+     >                          vl,vl_lr,vc,xcp,xce,
+     >                          ne,ispin,nfft3d,npack1,npack0
+
+      call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
+     >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
+     >                           dte)
+
+      return
+      end
+
+
+      subroutine electron_sd_subupdate(npack1,nn,
+     >                                 psi1,psi2,Hpsi,dte)
+      implicit none
+      integer    npack1,nn
+      complex*16 psi1(npack1,nn)
+      complex*16 psi2(npack1,nn)
+      complex*16 Hpsi(npack1,nn)
+      real*8     dte
+
+      integer n
+
+*     ************************************
+*     **** do a steepest descent step ****
+*     ************************************
+      do n=1,nn
+        call Pack_c_SMul(1,(-dte),Hpsi(1,n),psi2(1,n))
+        call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+      end do
+
+      return
+      end
 
 *     ***********************************
 *     *					*

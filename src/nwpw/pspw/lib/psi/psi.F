@@ -950,6 +950,73 @@ c      end if
       return
       end
 
+*     ***********************************
+*     *									*
+*     *			psito2_sd_update	 	*
+*     *									*
+*     ***********************************
+      subroutine psi1to2_sd_update(dte)
+      implicit none
+      real*8 dte
+
+#include "mafdecls.fh"
+
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      logical value
+      integer nemax,ierr
+      integer lmd(2),tmp_L(2)
+
+      call electron_run(dcpl_mb(psi1(1)),
+     >                  dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)),
+     >                  dbl_mb(rho1_all(1)))
+
+*     **** do a steepest descent step ****
+      call electron_sd_update(dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi2(1)),
+     >						  dte)
+
+*     **** lagrange multiplier corrections ****
+      nemax = ne(1)+ne(2)
+
+*     **** allocate MA local variables ****
+      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+     >                    'tmp_L',tmp_L(2),tmp_L(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(2*nemax*nemax),
+     >                    'lmd',lmd(2),lmd(1))
+
+      call psi_lmbda(ispin,ne,nemax,npack1,
+     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
+     >                 dbl_mb(lmd(1)),
+     >                 dbl_mb(tmp_L(1)),ierr)
+
+      value = value.and.MA_pop_stack(lmd(2))
+      value = value.and.MA_pop_stack(tmp_L(2))
+      if (.not. value)
+     >     call errquit(
+     >          'psi1to2_sd_update: stack failure', 0)
+      return
+      end
+
 
 *     ***********************************
 *     *					*

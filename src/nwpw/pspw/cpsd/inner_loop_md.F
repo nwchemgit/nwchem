@@ -1,3 +1,6 @@
+*
+* $Id: inner_loop_md.F,v 1.4 2001-11-27 00:05:03 bylaska Exp $
+*
 *  ************************************************************
 *  *                MPI cpmd routine                          *
 *  *                                                          *
@@ -19,9 +22,6 @@
      >                      it_in,E,
      >                      hml,lmd,
      >                      Hpsi,psi_r)
-*
-* $Id: inner_loop_md.F,v 1.3 2001-10-26 02:28:26 bylaska Exp $
-*
       implicit none
       logical    verlet
       integer    ispin,ne(2)
