@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.8 1997-04-25 00:41:00 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.9 1997-05-22 21:02:07 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -68,7 +68,7 @@ c
 c::local
       integer nint, offset, scrsize, nat
 c
-      nat = ncenter(ibs_geom((i_basis + BASIS_HANDLE_OFFSET)))
+      nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*nat.gt.lH1a) then
