@@ -1,6 +1,6 @@
       subroutine ga_chol(g_a, g_s,info)
 c
-C$Id: ga_chol.F,v 1.10 2003-04-19 22:01:44 edo Exp $
+C$Id: ga_chol.F,v 1.11 2003-06-06 23:31:19 edo Exp $
 c
       implicit none
 c
@@ -62,14 +62,7 @@ c
 c
       n = dimA1
       call ga_sync()
-      proc = ga_nnodes()
-      if (n .lt. 350) then
-         proc = min(8, ga_nnodes())
-      else if (n .lt. 700) then
-         proc = min(48, ga_nnodes())
-      else
-         proc = min(256, ga_nnodes())
-      endif
+      proc = min(n/15, ga_nnodes())
 c
       oactive = myproc .lt. proc
       if (oactive) then
