@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.17 2000-05-11 15:37:55 edo Exp $
+ $Id: blas_lapack.h,v 1.18 2000-05-18 02:07:02 edo Exp $
   c defines */
 #define NO_EVEC 0
 
@@ -87,11 +87,18 @@
    dsafeulp      2.2250738585072014-308
  slamch(u)       2.2250738585072014-308
 */
+#define DLAMCHE        (DoublePrecision ) 2.22044604925031308E-16
+#define DLAMCHP        (DoublePrecision ) 2.22044604925031308E-16
+#define DLAMCHB        (DoublePrecision ) 2.E0
+#define DLAMCHS        (DoublePrecision ) 2.22507385850720138E-308
+#define DLAMCHU        (DoublePrecision ) 2.22507385850720138E-308
+/* this values were OK for WS 5.0, break for WS 6.0
 #define DLAMCHE        (DoublePrecision ) 1.1102230246251565E-16
 #define DLAMCHP        (DoublePrecision ) 1.1102230246251565E-16
 #define DLAMCHB        (DoublePrecision ) 2.E0
 #define DLAMCHS        (DoublePrecision ) 2.2250738585072014-308
 #define DLAMCHU        (DoublePrecision ) 2.2250738585072014-308
+*/
 
 #endif
 #ifdef PENTIUM
