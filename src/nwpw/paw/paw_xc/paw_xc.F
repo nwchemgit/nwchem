@@ -1,6 +1,22 @@
-!$Id: paw_xc.F,v 1.16 2003-10-21 02:05:18 marat Exp $
+!$Id: paw_xc.F,v 1.17 2003-10-28 01:52:30 edo Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.16  2003/10/21 02:05:18  marat
+!switched to new errquit by running global replace operation
+!see the script below (note it will not work on multiline errquit calls)
+!*********************************************************
+!#!/bin/sh
+!
+!e=`find . -name "*F" -print`
+!
+!for f in $e
+!do
+!cp $f $f.bak
+!sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+!#rm $f.bak
+!done
+!**********************************************************
+!
 !Revision 1.15  2003/03/07 20:51:10  bylaska
 !Code cleanup...0.0 changed to 0.0d0 in paw_xc.F
 !Tangent vector now used for SD with Gram-schmidt.
@@ -140,7 +156,7 @@
      >                               paw_xc_matr_d) 
       if (.not.ok)
      > call errquit("init_paw_vxc: error allocating paw_xc_matr",
-     >   mtr_size)
+     >   mtr_size,0)
  
 *     *** xc potential arrays ***
       ok = ok .and. my_alloc(mt_int,nion,"i_paw_xc_pot",
@@ -162,7 +178,7 @@
      >                               paw_xc_pot_d) 
       if (.not.ok)
      > call errquit("init_paw_vxc: error allocating paw_xc_pot",
-     >   mtr_size)
+     >   mtr_size,0)
  
 *     *** multipole density arrays ***
       ok = ok .and. my_alloc(mt_int,nion,"i_paw_vxc",

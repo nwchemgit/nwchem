@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.47 2003-10-21 15:15:36 edo Exp $
+* $Id: paw_ovlp.F,v 1.48 2003-10-28 01:52:29 edo Exp $
 *
 
 !**************************************************
@@ -381,7 +381,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       ok = MA_pop_stack(ct(2))
       if (.not.ok)
      > call errquit(
-     >  'paw_ovlp_calc_coeff: error freeing stack memory',1)
+     >  'paw_ovlp_calc_coeff: error freeing stack memory',1,0)
 
       return
       end
