@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.173 2000-12-19 02:06:38 edo Exp $
+c     $Id: dft_scf.F,v 1.174 2001-01-11 20:40:01 edo Exp $
 c     
       implicit none
 c
@@ -323,11 +323,6 @@ c     SCF energy convergence criterion.
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
       g_focks(1)=g_fock
-      if (ipol.gt.1)then
-         g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
-        if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
-     .       call errquit(' dftscf:failed duplicate ',g_fock)
-      endif
 c     
 c     Set up local convergence parameters
 c     
@@ -626,7 +621,14 @@ c
 c
       iter = 1
 c
+      if (ipol.gt.1)then
+         g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
+      endif
  3000 continue
+      if (ipol.gt.1)then
+         if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
+     .       call errquit(' dftscf:failed duplicate ',g_fock)
+      endif
 c
 c     ----- dft scf proper -----
 c
@@ -1263,7 +1265,7 @@ c
          ogas_phase=.false.
          osol_phase=.false.
          if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $       call errquit('rohf_diis_solve: rtdb_put failed',0)
+     $       call errquit('dft_scf: rtdb_put failed',0)
          if(odbug) then
             write(LuOut,*) 'gas_phase done, do sol-phase now ...'
          endif
