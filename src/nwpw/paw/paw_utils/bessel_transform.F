@@ -1,5 +1,5 @@
 *
-* $Id: bessel_transform.F,v 1.2 2002-09-12 01:01:45 marat Exp $
+* $Id: bessel_transform.F,v 1.3 2003-02-21 19:47:59 windus Exp $
 *
 
 !*************************************************
@@ -118,17 +118,17 @@
       return
       end
 
-  !*************************************************
-  !
-  !   Name    : find_spher_J_v
-  !
-  !
-  !   Purpose :
-  !
-  !
-  !   Created :
-  !
-  !*************************************************
+!*************************************************
+!
+!   Name    : find_spher_J_v
+!
+!
+!   Purpose :
+!
+!
+!   Created :
+!
+!*************************************************
       subroutine find_spher_J_v(order,ngrid,x,my_cos,my_sin,J) 
       implicit none
       integer order,ngrid
