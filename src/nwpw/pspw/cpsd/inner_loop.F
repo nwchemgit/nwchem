@@ -19,7 +19,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
 *
-* $Id: inner_loop.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
+* $Id: inner_loop.F,v 1.3 2001-10-01 16:57:02 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -544,7 +544,7 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then
-         call pspw_energy_SIC(exc,pxc)
+         call pspw_energy_SIC(ispin,psi_r,exc,pxc)
          E(1) = E(1) + exc
          E(14) = exc
          E(15) = 0.0d0

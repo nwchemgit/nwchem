@@ -16,6 +16,9 @@
       integer ma_type
 
       norbs = 0
+      e_sic = 0.0d0
+      p_sic = 0.0d0
+
 *     **** get the number of SIC orbitals ****
       if (rtdb_ma_get(rtdb, 'pspw:SIC_orbitals', ma_type,
      >                norbs, orbital_list(2))) then
@@ -244,12 +247,108 @@
 *     *     pspw_energy_SIC   *
 *     *                       *
 *     *************************
-      subroutine pspw_energy_SIC(esic,psic)
+      subroutine pspw_energy_SIC(ispin,psi_r,esic,psic)
       implicit none
+      integer ispin
+      real*8  psi_r(*)
       real*8 esic,psic
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,n2ft3d,n1,n2,n3,npack
+      integer dn(2),xcp(2),xce(2),tmp1(2),index,index2
+      real*8  scal1,scal2,dv,exc,pxc,eh,ph
+
+*     **** external functions ****
+      integer  control_gga
+      real*8   lattice_omega,coulomb_screened_e
+      external control_gga
+      external lattice_omega,coulomb_screened_e
+
+      if ((norbs.ne.0).and.(.not.relaxed)) then
+        e_sic = 0.0d0
+        p_sic = 0.0d0
+        call Pack_npack(1,npack)
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+        if (.not. value) call errquit('out of stack memory',0)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+        do i=1,norbs
+
+           index  = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
+           index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
+
+*          **** generate dn ****
+           call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
+           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+
+*          **** generate exchange-correlation potential ****
+           if (control_gga().eq.0) then
+             call vxc(n2ft3d,ispin,dbl_mb(dn(1)),
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(tmp1(1)))
+           else
+             call v_bwexc(n2ft3d,ispin,dbl_mb(dn(1)),
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
+           end if
+
+*          **** get exchange-correlation energy ****
+           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
+           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xcp(1)),pxc)
+           if (ispin.eq.1) exc= exc + exc
+           if (ispin.eq.1) pxc= pxc + pxc
+           exc = exc*dv
+           pxc = pxc*dv
+
+           e_sic = e_sic - exc
+           p_sic = p_sic - pxc
+
+
+*          **** generate dng ****
+           if (ispin.eq.1)
+     >       call D3dB_rr_Sum(1,dbl_mb(dn(1)),
+     >                        dbl_mb(dn(1)),
+     >                        dbl_mb(dn(1)))
+           call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                              dbl_mb(dn(1)))
+           call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+           call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*          **** get Ecoul energy ****
+           eh = coulomb_screened_e(dbl_mb(dn(1)))
+           ph = 2.0d0*eh
+           e_sic = e_sic + eh
+           p_sic = p_sic + ph
+
+          end do
+
+        value = MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(xce(2))
+        value = value.and.MA_pop_stack(xcp(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) call errquit('popping stack memory',0)
+
+      end if
 
       esic = e_sic
       psic = p_sic
