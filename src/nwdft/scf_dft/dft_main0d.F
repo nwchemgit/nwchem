@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.36 2000-04-10 21:15:15 zzhang Exp $
+c     $Id: dft_main0d.F,v 1.37 2000-04-10 21:21:55 windus Exp $
 c     
       implicit none
 c
@@ -400,7 +400,7 @@ c
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_evecs, g_vxc, g_fock,
-     &        g_svecs, isvals, g_xcinv, gs)
+     &        g_svecs, isvals, g_xcinv, g_s)
       else if (theory .eq. 'sodft') then
          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
