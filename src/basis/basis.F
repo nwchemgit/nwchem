@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.63 1997-04-10 23:07:20 d3g681 Exp $
+c $Id: basis.F,v 1.64 1997-04-18 03:56:00 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1300,7 +1300,9 @@ c
      &          ('bas_geobas_build: basis/geometry mismatch', 0)
           else
             tag12 = tags(i,geom)(1:2)
-            is_bq = inp_compare(.false.,'bq',tag12)
+            is_bq = inp_compare(.false.,'bq',tag12) .or.
+     $           (inp_compare(.false.,'X',tags(i,geom)(1:1)) .and. 
+     $           (.not. inp_compare(.false.,'e',tags(i,geom)(2:2))))
             if (ga_nodeid().eq.0 .and.(.not.is_bq))
      &          write(6,11) i,
      &          tags(i,geom)(1:inp_strlen(tags(i,geom))),
