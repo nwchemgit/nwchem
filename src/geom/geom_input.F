@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.126 1999-10-26 21:25:19 mg201 Exp $
+C     $Id: geom_input.F,v 1.127 1999-12-08 23:26:29 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -23,6 +23,7 @@ c
       logical oautoz
       logical oautosym
       logical ocenter
+      logical ofinite, oatomfinite
       logical include_bqbq
       logical oprint_sym
       integer max_center        ! parameter for local array dimension
@@ -42,7 +43,7 @@ c     .                           and for forcing symmetry
       logical found_au2ang_conv
       double precision ang2au, au2ang
       integer atn, isys
-      character*16 format
+      character*16 format, nucmodel
       logical geom_zmtmak
       external geom_zmtmak
       logical geom_mass_to_invnucexp
@@ -67,7 +68,7 @@ c
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq] \
 c     [angstrom_to_au <real>] [au_to_angstrom <real>] \
-c     [(no)autoz]
+c     [(no)autoz] [nucleus <model>]
 c     
 c     subdirectives
 c     
@@ -94,6 +95,7 @@ c
       include_bqbq = .false.
       oadjust = .false.
       ocenter = .true.
+      ofinite = .false.
       threquiv = 1d-2
 c     
       found_ang2au_conv = .false.
@@ -156,6 +158,18 @@ c
          else if (inp_compare(.false.,'units', field)) then
             if (.not. inp_a(units)) call errquit
      $           ('geom_input: geometry [<name>] [units <units>]', 0)
+         else if (inp_compare(.false.,'nucleus',field) .or.
+     &          inp_compare(.false.,'nucl',field) .or.
+     &          inp_compare(.false.,'nuc',field)) then
+            if (.not. inp_a(nucmodel)) call errquit
+     $           ('geom_input: geometry [<name>] [nucleus <model>]', 0)
+            if (inp_compare(.false.,'finite', nucmodel) .or.
+     &          inp_compare(.false.,'fi', nucmodel)) then
+              ofinite = .true.
+            else if (inp_compare(.false.,'point', nucmodel) .or.
+     &          inp_compare(.false.,'pt', nucmodel)) then
+              ofinite = .false.  
+            end if
          else
             if (name .ne. ' ') call errquit
      $           ('geom_input: geometry [<name>] [units <units>]', 0)
@@ -218,7 +232,7 @@ c
 c     system ...
 c     symmetry ...
 c     tag charge x y z  !! old format rak 9/96 removed
-c     tag x y z [charge q] [mass m]
+c     tag x y z [charge q] [mass m] [nuc(leus) finite | point]
 c     
       ncenter = 0
  20   if (inp_read()) then
@@ -270,7 +284,7 @@ c
      &           call errquit(' geom_input: default mass failed',
      &           911)
 c     
-c     New style input ... <tag> <x> <y> <z> [vx vvy vz] \
+c     New style input ... <tag> <x> <y> <z> [vx vy vz] \
 c                         [charge <q>] [mass <m>] [finite]
 c     
             call inp_set_field(1)
@@ -284,6 +298,7 @@ c
             endif
             charge(ncenter+1) = atn
 c
+            oatomfinite = ofinite
  111        if (inp_a(field)) then
                if (inp_compare(.false., 'mass', field)) then
                   status = status .and. inp_f(mass(ncenter+1))
@@ -291,9 +306,20 @@ c
                else if (inp_compare(.false., 'charge', field)) then
                   status = status .and. inp_f(charge(ncenter+1))
                   goto 111
-               else if (inp_compare(.false., 'finite', field)) then
-                  status = status .and. geom_mass_to_invnucexp 
-     &                (mass(ncenter+1), invnucexp(ncenter+1))
+               else if (inp_compare(.false., 'nuc', field) .or.
+     &                  inp_compare(.false., 'nucl', field) .or.
+     &                  inp_compare(.false., 'nucleus', field)) then
+                  status = status .and. inp_a(nucmodel)
+                  if (inp_compare(.false., 'finite', nucmodel)
+     &                .or. inp_compare(.false., 'fi', nucmodel)) then
+                     oatomfinite = .true.
+                  else if (inp_compare(.false., 'point', nucmodel)
+     &                .or. inp_compare(.false., 'pt', nucmodel)) then
+                     oatomfinite = .false.
+                  else
+                     call errquit ('geom_input: invalid nuclear model',
+     &                  911)
+                  end if
                   goto 111
                else
                   status = .false.
@@ -301,9 +327,15 @@ c
             endif
             if (.not. status) call errquit
      $           ('geom_input: <tag> <x> <y> <z> '//
-     $           ' [charge <q>] [mass <m>] [finite]', ncenter+1)
+     $           ' [charge <q>] [mass <m>] [finite <model>]', ncenter+1)
             ncenter = ncenter + 1
-c     
+            if (oatomfinite) then
+              if (.not. geom_mass_to_invnucexp (mass(ncenter), 
+     &            invnucexp(ncenter))) write (luout,*) 
+     &            '***** WARNING *****',
+     &            'Nuclear exponent failure for center ',ncenter
+            end if
+c
          end if
          goto 20
       else
