@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.13 1998-04-29 07:27:40 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.14 1998-10-02 22:16:24 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -204,6 +204,11 @@ ckw
         status_txs = status_txs .and. .true.
         status_nw = .false.
       endif
+*************************************************************************
+* texas one at a time is broke for now:  temporary fix
+*************************************************************************
+      status_txs = .false.
+*************************************************************************
 c
       if (status_txs) then
         call dfill(3,0.0d00,roff,1)
@@ -239,7 +244,6 @@ c
         call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
       else if (status_nw) then
-ckw--------
         call hf2d(
      &      coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &      dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
