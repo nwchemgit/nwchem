@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.21 2001-06-28 05:20:20 windus Exp $
+C $Id: twodd_cont.F,v 1.22 2001-06-28 05:33:02 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -305,7 +305,7 @@ c
       max1e = max1e/12
 c     max2e = max(max2e,1296*100)          ! 100 D quartets
       lbuf = max(max1e, max2e)
-      lscratch = 4*max(mscratch_1e, mscratch_2e)
+      lscratch = max(mscratch_1e, mscratch_2e)
 c
 c probably need the 12 to be 78  CHECK
 c     if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
