@@ -1,9 +1,4 @@
       program nwchem
-#ifdef CRAY_T3D
-#ifdef __F90__
-      use cri_ieee_definitions
-#endif
-#endif
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -19,11 +14,14 @@
       integer global
       logical status
       logical overify, ohardfail
+#ifdef CRAY_T3D
+      integer oldact, fsigctl
+#endif
 #ifdef PARALLEL_DIAG
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.121 1999-07-19 18:38:01 d3e129 Exp $
+c     $Id: nwchem.F,v 1.122 1999-07-29 00:57:23 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -89,15 +87,6 @@ c
 c
 c     Initialize timers so they are relative to job start
 c
-#ifdef DECOSF
-      call dec_fpe  ! To avoid underflow problems on Alpha in Texas
-#endif
-#ifdef CRAY_T3D
-#ifdef __F90__
-**      call set_d_stream(0)         ! disable memory to cache streaming
-      call disable_ieee_interrupt(IEEE_NTPT_ALL)
-#endif
-#endif
       total_wall = -util_wallsec()
       total_cpu  = -util_cpusec()
 c
@@ -168,6 +157,14 @@ c
 c     Trap SIGFPE after GA to override handler
 c
 *****      call ieeetrap()
+#ifdef DECOSF
+      call dec_fpe  ! To avoid underflow problems on Alpha in Texas
+#endif
+#ifdef CRAY_T3D
+*     This as a temporary fix for SIGFPE in Texas that does not seem
+*     to affect the final results
+      oldact = fsigctl('IGNORE','SIGFPE',0)
+#endif
 C
 c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
