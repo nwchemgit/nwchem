@@ -1,0 +1,22 @@
+c UNKNOWN_ERR - Not yet assigned to a catagory
+c MEM_ERR - Generic Memory error
+c RTDB_ERR - Error in the Runtime Database
+c INPUT_ERR - Error resulting from inproper user input
+c CAPMIS_ERR - Features that have not been implemented yet
+c BASIS_ERR - Error related to basis sets
+c GEOM_ERR - Error related to geometry
+c MA_ERR - local memory error
+c GA_ERR - global memory error
+c INT_ERR - error related to integrals
+c DISK_ERR - error in reading or writing from disk
+c CALC_ERR - calcutation fails to converge
+c FMM_ERR - 
+c STACK_ERR - error in MA stack
+c HEAP_ERR - error in MA heap
+      integer UNKNOWN_ERR, MEM_ERR, RTDB_ERR, INPUT_ERR, CAPMIS_ERR
+      integer BASIS_ERR, GEOM_ERR, GA_ERR, MA_ERR, INT_ERR, DISK_ERR
+      integer CALC_ERR, FMM_ERR, STACK_ERR, HEAP_ERR
+      parameter (UNKNOWN_ERR=0, MEM_ERR=10, RTDB_ERR=20, INPUT_ERR=30)
+      parameter (CAPMIS_ERR=40, BASIS_ERR=50, GEOM_ERR=60, GA_ERR=70)
+      parameter (MA_ERR=80, INT_ERR=90, DISK_ERR=100, CALC_ERR=110)
+      parameter (FMM_ERR=120, STACK_ERR=11, HEAP_ERR=12)
