@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.19 1998-09-15 00:01:27 d3j191 Exp $
+c $Id: pre_input.F,v 1.20 1998-09-17 16:38:42 d3j191 Exp $
 c
       implicit none
 c
@@ -10,19 +10,19 @@ c
 #include "mafdecls.fh"
 c
       integer irtdb
-      character*255 item,atom,type
+      character*255 item,atom,type,atomi,atomj,atomk,atoml
 c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
       character*80 ffield,sysnam
       character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
-      integer newtop,newseq,newrst,icount
+      integer newtop,newseq,newrst,icount,multip
 c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
       integer isgm,icyren
       real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
-      real*8 polar
+      real*8 polar,value,forcon
       character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
@@ -298,6 +298,7 @@ c     ------------------------------
 c
       if(inp_compare(.false.,'modify',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: modify',9999)
+c
       if(inp_compare(.false.,'atom',item)) then
       if(.not.inp_a(atom)) call errquit('pre_input: modify',9999)
       mset=0
@@ -305,6 +306,7 @@ c
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
       if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
       goto 3312
       endif
       if(inp_compare(.false.,'charge',item)) then
@@ -346,7 +348,10 @@ c
  6706 format('atom ',a,t19,i1,' qtm ')
       nummod=nummod+1
       goto 3312
+      else
+      call errquit('pre_input: atom',9999)
       endif
+c
       else if(inp_compare(.false.,'segment',item)) then
       if(.not.inp_i(isgm)) call errquit('pre_input: modify',9999)
       mset=0
@@ -354,6 +359,7 @@ c
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'set',item)) then
       if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
       goto 3313
       endif
       if(inp_compare(.false.,'dummy',item)) then
@@ -373,7 +379,108 @@ c
  6709 format('segment ',i5,t19,i1,' qtm ')
       nummod=nummod+1
       goto 3313
+      else
+      call errquit('pre_input: segment',9999)
       endif
+c
+      else if(inp_compare(.false.,'bond',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
+      mset=0
+ 3314 continue
+      if(inp_f(value)) then
+      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      write(67,6710) mset,value,forcon,atomi(1:index(atomi,' ')-1),
+     + atomj(1:index(atomj,' ')-1)
+ 6710 format('bond ',i1,1x,f12.6,e12.5,1x,a,1x,a)
+      nummod=nummod+1
+      endif
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      goto 3314
+      else
+      call errquit('pre_input: bond',9999)
+      endif
+c
+      else if(inp_compare(.false.,'angle',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
+      mset=0
+ 3315 continue
+      if(inp_f(value)) then
+      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      write(67,6711) mset,value,forcon,atomi(1:index(atomi,' ')-1),
+     + atomj(1:index(atomj,' ')-1),atomk(1:index(atomk,' ')-1)
+ 6711 format('angle ',i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a)
+      nummod=nummod+1
+      endif
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      goto 3315
+      else
+      call errquit('pre_input: angle',9999)
+      endif
+c
+      else if(inp_compare(.false.,'torsion',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
+      mset=0
+      multip=0
+ 3316 continue
+      if(inp_f(value)) then
+      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      write(67,6712) mset,multip,value,forcon,
+     + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
+     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1)
+ 6712 format('torsion ',i1,1x,i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a,1x,a)
+      nummod=nummod+1
+      endif
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      goto 3316
+      endif
+      if(inp_compare(.false.,'multiplicity',item)) then
+      if(.not.inp_i(multip)) call errquit('pre_input: multip',9999)
+      if(multip.lt.0.or.multip.gt.3)
+     + call errquit('pre_input: multip',9999)
+      goto 3316
+      else
+      call errquit('pre_input: torsion',9999)
+      endif
+c
+      else if(inp_compare(.false.,'plane',item)) then
+      if(.not.inp_a(atomi)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomj)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atomk)) call errquit('pre_input: modify',9999)
+      if(.not.inp_a(atoml)) call errquit('pre_input: modify',9999)
+      mset=0
+ 3317 continue
+      if(inp_f(value)) then
+      if(.not.inp_f(forcon)) call errquit('pre_input: modify',9999)
+      write(67,6713) mset,value,forcon,
+     + atomi(1:index(atomi,' ')-1),atomj(1:index(atomj,' ')-1),
+     + atomk(1:index(atomk,' ')-1),atoml(1:index(atoml,' ')-1)
+ 6713 format('plane ',i1,1x,f12.6,e12.5,1x,a,1x,a,1x,a,1x,a)
+      nummod=nummod+1
+      endif
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'set',item)) then
+      if(.not.inp_i(mset)) call errquit('pre_input: mset',9999)
+      if(mset.lt.0.or.mset.gt.3) call errquit('pre_input: mset',9999)
+      goto 3317
+      else
+      call errquit('pre_input: plane',9999)
+      endif
+c
       else
       call errquit('pre_input: modify',9999)
       endif

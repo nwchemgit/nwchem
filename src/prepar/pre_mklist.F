@@ -6,10 +6,10 @@
      + lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp,lmat,
+     + limp,rimp,mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.17 1998-09-17 06:45:50 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.18 1998-09-17 16:38:43 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       character*80 ffield
       character*255 dir_s,dir_x,dir_u,dir_t
       integer mseq,nseq
-      integer lseq(4,mseq),lmat(10,mseq)
+      integer lseq(4,mseq)
       character*10 cseq(mseq)
       integer mlnk,nlnk
       integer llnk(3,mlnk)

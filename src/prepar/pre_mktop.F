@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.13 1998-09-15 00:01:28 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.14 1998-09-17 16:38:43 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -34,7 +34,7 @@ c
       character*255 dir_s,dir_x,dir_u,dir_t
 c
       integer mseq,nseq
-      integer l_lseq,i_lseq,l_cseq,i_cseq,i_lmat,l_lmat
+      integer l_lseq,i_lseq,l_cseq,i_cseq
 c
       integer mlnk,nlnk
       integer l_llnk,i_llnk,l_clnk,i_clnk
@@ -292,12 +292,6 @@ c
       ndih=0
       nimp=0
 c
-c     allocate memory for link matrix
-c     -------------------------------
-c
-      if(.not.ma_push_get(mt_int,10*mseq,'lmat',l_lmat,i_lmat))
-     + call errquit('Memory allocation failed for lmat',9999)
-c
       if(.not.pre_mklist(lfnout,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
@@ -306,7 +300,7 @@ c
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_lmat),
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr))
      + call errquit('pre_mklist failed',9999)
 c
@@ -315,17 +309,15 @@ c
  1005 format('lists are generated')
       endif
 c
-c     deallocate memory for link matrix
-c     ---------------------------------
+c     apply topology modifications to atom types
+c     ------------------------------------------
 c
-      if(.not.ma_pop_stack(l_lmat))
-     + call errquit('Memory deallocation failed for lmat',9999)
-c
-c     apply topology modifications
-c     ----------------------------
-c
-      if(.not.pre_modify(lfnout,lfnmod,filmod,int_mb(i_latm),
-     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm))
+      if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
+     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
+     + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
+     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt))
      + call errquit('pre_modify failed',9999)
 c
 c     get number of atom types
@@ -441,6 +433,17 @@ c
       write(lfnout,1010) nnon
  1010 format('solvent non-bonded list length is',i10)
       endif
+c
+c     apply topology modifications to bonded parameters
+c     -------------------------------------------------
+c
+      if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
+     + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
+     + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
+     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt))
+     + call errquit('pre_modify failed',9999)
 c
 c     write the topology file
 c     -----------------------

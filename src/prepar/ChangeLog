@@ -92,3 +92,4 @@ Sep 14 1998	 Option to limit CYS -> CYX to SS-bridges
 Sep 16 1998	 Count LINK's to get dimension mlnk in seqsiz
 		 Recode pre_mklist to allow and identify multiple node
 		 bonded interactions
+Sep 17 1998	 Add modify commands for bonded interaction parameters
