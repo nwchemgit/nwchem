@@ -1,6 +1,6 @@
-c $Id: paw_gauss_weights.F,v 1.1 2003-02-06 06:15:06 marat Exp $
+c $Id: paw_gauss_weights.F,v 1.2 2003-02-06 06:15:44 marat Exp $
 c
-c $log$
+c $Log: not supported by cvs2svn $
 c
 
 !*************************************************
