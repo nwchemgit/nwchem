@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.119 2000-05-31 23:29:12 edo Exp $
+# $Id: make_nwchem_config,v 1.120 2000-06-01 14:07:23 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad oimp2 \
         property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space \
-        drdy vscf
+        drdy vscf uccsdt
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -63,7 +63,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmm argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) nbo python 
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -137,7 +137,8 @@ MODULES := $(patsubst esp,esp NWints dplot,$(MODULES) )
 
 MODULES := $(patsubst nwmd,nwmd cafe space fft ddscf,$(MODULES) )
 
-MODULES := $(patsubst develop,develop ddscf,$(MODULES) )
+MODULES := $(patsubst develop,develop ddscf uccsdt,$(MODULES) )
+MODULES := $(patsubst uccsdt,uccsdt ddscf ccsd,$(MODULES) )
 MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
@@ -169,6 +170,7 @@ MOD_LIBS := $(patsubst atomscf,-lguess,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst ddscf,-lddscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dftgrad,-ldftgrad,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst develop,-ltest,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst uccsdt,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst drdy,-ldrdy,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gradients,-lgradients,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst hessian,-lhessian,$(MOD_LIBS) )
