@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.107 2001-12-15 05:04:49 d3j191 Exp $
+c $Id: md_start.F,v 1.108 2002-01-17 18:47:15 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl,nbias)
+     + npener,icntrl,nbias,mropt)
 c
 c     print topology information
 c     --------------------------

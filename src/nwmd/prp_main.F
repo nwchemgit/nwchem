@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.64 2002-01-16 06:37:12 d3j191 Exp $
+c $Id: prp_main.F,v 1.65 2002-01-17 18:47:15 d3j191 Exp $
 c
       implicit none
 c
@@ -794,7 +794,7 @@ c
      + dfree,ddrft,dsterr,dcerr,ratio)
 c
       freeti=freeti+dfree*dlambd
-      freeb=freeb+dfree*dfbias
+      freeb=freeb+dfbias*dlambd
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
