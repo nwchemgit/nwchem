@@ -1,0 +1,13 @@
+*
+* $Id: geodesic2.fh,v 1.1 2002-06-25 20:12:44 bylaska Exp $
+*
+
+*     **** geodesic2 common block ***
+      integer Hold(2) ! npack1*ne(1) matrix and npack1*ne(2) matrix
+      integer Q(2)    ! npack1xne(1) matrix and npack1*ne(2) matrix
+      integer R(2)  ! (ne(1)*ne(1)) matrix and (ne(2)*ne(2)) matrix
+      integer A(2)  ! (ne(1)*ne(1)) matrix and (ne(2)*ne(2)) matrix
+      integer V(2)  ! (2*ne(1))*(2*ne(1)) matrix and (2*ne(2))*(2*ne(2)) matrix
+      integer W(2)  ! (2*ne(1))*(2*ne(1)) matrix and (2*ne(2))*(2*ne(2)) matrix
+      integer S(2)  ! diagonal matrices of skew matrix decomposition 
+      common / geodesic2_block / Hold,Q,R,A,V,W,S
