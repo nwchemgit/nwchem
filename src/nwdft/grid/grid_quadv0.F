@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.30 2002-05-15 16:43:05 edo Exp $
+C$Id: grid_quadv0.F,v 1.31 2002-06-26 20:17:47 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -44,9 +44,6 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 #include "dft2drv.fh"
-c !!! BGJ test
-#include "bgj.fh"
-c !!! BGJ test
 c
       integer me, nproc, nxyz, nctrs, 
      &        nbf_ao_mxnbf_ce2, nqtot, 
@@ -105,9 +102,6 @@ c
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r)) then
          call errquit('grid_quadv0_gen: illegal calculation type',1)
       endif
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'*** grid_quadv0: nmat logicals', nmat, 
-     &     do_scf, do_cpks_l, do_cpks_r
       if (do_scf) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
