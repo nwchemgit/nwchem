@@ -2,7 +2,6 @@ cc    Jorge Garza/Begin
 c
 cc    Variables used in the Optimized Effective Potential
 c
-      integer i_vect1, l_vect1, ldelrho_sig, idelrho_sig, len_delrho_sig 
-      double precision occup_i, tol
+      integer i_vect1, l_vect1, ldelrho_sig, idelrho_sig
 c
 cc    Jorge Garza/End
