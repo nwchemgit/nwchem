@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.83 2003-05-27 22:35:13 pollack Exp $
+# $Id: GNUmakefile,v 1.84 2003-08-13 20:06:40 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 	OBJ_OPTIMIZE = \
@@ -41,6 +41,9 @@
 # LIB_DEFINES = -DQUADV0_REVERT
 
 LIB_INCLUDES = -I../include
+ifeq ($(TARGET),cray-sv2)
+    EXPLICITF=TRUE
+endif
 
 
    USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_ssw.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
