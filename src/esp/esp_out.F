@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.6 1998-04-22 22:26:35 d3e129 Exp $
+c $Id: esp_out.F,v 1.7 1998-04-24 08:02:34 d3e129 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       real*8 g(3,mxgrid),v(mxgrid)
 c
       integer i,j,k
-      character*16 tag
+      character*16 Atag
       character*80 name
       real*8 coord(3)
 c
@@ -85,10 +85,10 @@ c
       if(k.eq.3) name='resp:geometry'
       if(k.eq.4) name='cresp:geometry'
       do 4 j=1,natoms
-      if(.not.geom_cent_get(igeom,j,tag,coord,charge))
+      if(.not.geom_cent_get(igeom,j,Atag,coord,charge))
      + call errquit('esp_out: geom_cent_get failed',9999)
       charge=qf(j,i)
-      if(.not.geom_cent_set(igeom,j,tag,coord,charge))
+      if(.not.geom_cent_set(igeom,j,Atag,coord,charge))
      + call errquit('esp_out: geom_cent_set failed',9999)
     4 continue
       if(k.gt.0) then
