@@ -9,6 +9,11 @@ C
       real*4 etime, tarray(2)
       external etime
 #endif
+#if defined(IBM_USELESS)
+c     This timer has too large a granularity to be useful
+      double precision ibm_cputime
+      external ibm_cputime
+#endif
 C
       Double precision Zero
       Parameter (Zero = 0.0d0)
@@ -30,6 +35,9 @@ C
 #if defined(ETIME)
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
      $      + dble(etime(tarray)) - PStat_Start_Times( Handle, 1)
+#elseif defined(IBM_USELESS)
+         PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
+     $      + ibm_cputime() - PStat_Start_Times( Handle, 1)
 #else
          PStat_Times( Handle, 1 ) = PStat_Times( Handle, 1 )
      $      + Zero - PStat_Start_Times( Handle, 1)
