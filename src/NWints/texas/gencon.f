@@ -9,7 +9,7 @@ c     subroutine gcpairs(nbls,
 c     subroutine gcquart(nbls,nbls1, index,
 c     subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
 c     subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,
-c     subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
+c     subroutine asselg(firstc,xt1,lt1,lt2,nbls,indx,nbls1,
 c===================================================================
 c          FOR GENERAL CONTRACTED SHELLS
 c
@@ -318,8 +318,11 @@ c
       end
 c====================================================================
 C
-C     Assembling for gen. contr.
-C    
+C     Assembling of primitive integrals for general contraction
+C     
+C      It uses the transposed gen.cont. coefficient matrix :
+C      gcoef(ngcd,nbls) --transpose into--> gcoef(nbls,ngcd)
+C....................................................................
       subroutine assemblg(bl,firstc,nbls,nbls1,l01,l02,ngcd,igcoet)
       implicit real*8 (a-h,o-z)
       character*11 scftype
@@ -346,7 +349,7 @@ c--------------------------------------------------------
 c for ordinary scf integrals:
 c
       if(where.eq.'buff' .or. where.eq.'shif') then
-           call asselg_n(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
+           call asselg(firstc,bl(iwt0),l01,l02,nbls,bl(ibuf2),
      *                   bl(indx),nbls1, ngcd,bl(igcoet) )
       endif
 c
@@ -355,15 +358,28 @@ c for gradient integral derivatives:
 c
       if(where.eq.'forc') then
          ibut2=ibuf
-           call asselg_n_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
-     *                   bl(indx),nbls1, ngcd,bl(igcoet) ,
-     *                   bl(iaax),bl(ibbx),bl(iccx))
-      endif
 c
+         call getmem(ngcd*nbls,igc_ax)
+         call getmem(ngcd*nbls,igc_bx)
+         call getmem(ngcd*nbls,igc_cx)
+         call coef_x_exp(nbls,nbls1,bl(indx),ngcd,
+     *                   bl(igcoet),bl(iaax),bl(ibbx),bl(iccx),
+     *                   bl(igc_ax),bl(igc_bx),bl(igc_cx) )
+c
+         call asselg_der1(firstc,bl(iwt0),l01,l02,nbls, bl(ibut2),
+     *                    bl(indx),nbls1, ngcd,bl(igcoet),
+     *                    bl(igc_ax),bl(igc_bx),bl(igc_cx) )
+         call retmem(3)
+cold
+cold     call asselg_der(firstc,bl(iwt0),l01,l02,nbls,bl(ibut2),
+cold *                   bl(indx),nbls1, ngcd,bl(igcoet) ,
+cold *                   bl(iaax),bl(ibbx),bl(iccx))
+cold
+      endif
 c--------------------------------------------------------
       end
 c===============================================================
-      subroutine asselg_n(firstc,xt1,lt1,lt2,nbls,buf2,
+      subroutine asselg(firstc,xt1,lt1,lt2,nbls,buf2,
      *                    indx,nbls1,ngcd,gcoef)
       implicit real*8 (a-h,o-z)
       logical firstc
@@ -375,14 +391,11 @@ c===============================================================
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension buf2(nbls,lt1,lt2,ngcd)
-ccc   dimension but2(ngcd,nbls,lt1,lt2)
       dimension gcoef(nbls,ngcd)
-ccc   dimension gcoef(ngcd,nbls)
 c-------------------------------------------------------------
       ijs=nfu(nqij)+1
       kls=nfu(nqkl)+1
 c-------------------------------------------------------------
-c--non diagonal block : gen.con. loop goes to ngcd (always)---
 c
       IF (FIRSTC) THEN
         do 501 iqu=1,ngcd
@@ -391,7 +404,6 @@ c
         do 501 i=1,nbls1
         ijkl=indx(i)
         xint=xt1(i,ij,kl)
-ccccc     but2(iqu,ijkl,ij,kl)=xint*gcoef(iqu,ijkl)
           buf2(ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
   501   continue
         firstc=.false.
@@ -402,17 +414,161 @@ ccccc     but2(iqu,ijkl,ij,kl)=xint*gcoef(iqu,ijkl)
         do 601 i=1,nbls1
         ijkl=indx(i)
         xint=xt1(i,ij,kl)
-ccccc     but2(iqu,ijkl,ij,kl)=but2(iqu,ijkl,ij,kl)+xint*gcoef(iqu,ijkl)
           buf2(ijkl,ij,kl,iqu)=buf2(ijkl,ij,kl,iqu)+xint*gcoef(ijkl,iqu)
   601   continue
       ENDIF
 c-------------------------------------------------------------
       end
-c===============================================================
+c=======================================================================
+      subroutine coef_x_exp(nbls,nbls1,indx,ngcd,
+     *                      gcoef,aax,bbx,ccx,
+     *                      gc_ax,gc_bx,gc_cx )
+      implicit real*8 (a-h,o-z)
+      common /route/ iroute
+      dimension indx(*)
+      dimension gcoef(nbls,ngcd)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+      dimension gc_ax(nbls,ngcd),gc_bx(nbls,ngcd),gc_cx(nbls,ngcd)
 c
-c subroutines for gradient integral derivatives
+      if(iroute.eq.1) then
+         do iqu=1,ngcd
+            do i=1,nbls1
+               ijkl=indx(i)
+               gc_ax(ijkl,iqu)=gcoef(ijkl,iqu)*aax(i)
+               gc_bx(ijkl,iqu)=gcoef(ijkl,iqu)*bbx(i)
+               gc_cx(ijkl,iqu)=gcoef(ijkl,iqu)*ccx(i)
+            enddo
+         enddo
+      else
+         aaxi=aax(1)
+         bbxi=bbx(1)
+         ccxi=ccx(1)
+         do iqu=1,ngcd
+            do i=1,nbls1
+               ijkl=indx(i)
+               gc_ax(ijkl,iqu)=gcoef(ijkl,iqu)*aaxi
+               gc_bx(ijkl,iqu)=gcoef(ijkl,iqu)*bbxi
+               gc_cx(ijkl,iqu)=gcoef(ijkl,iqu)*ccxi
+            enddo
+         enddo
+      endif 
 c
-      subroutine asselg_n_der(firstc,xt1,lt1,lt2,nbls,buf2,
+      end
+c=======================================================================
+      subroutine asselg_der1(firstc,xt1,lt1,lt2,nbls,buf2,indx,nbls1,
+     *                       ngcd,gcoef,gc_ax,gc_bx,gc_cx)
+      implicit real*8 (a-h,o-z)
+      logical firstc
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+c
+      common /logic4/ nfu(1)
+c
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension buf2(4,nbls,lt1,lt2,ngcd)
+      dimension gcoef(nbls,ngcd)
+      dimension gc_ax(nbls,ngcd),gc_bx(nbls,ngcd),gc_cx(nbls,ngcd)
+      data zero /0.d0/
+c-----------------------------------------------------------------------
+c               buf2(1,nbls,lt1,lt2) - ordinary contraction
+c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
+c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
+c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
+c-----------------------------------------------------------------------
+c
+      ijs=nfu(nqij)+1
+      kls=nfu(nqkl)+1
+c
+      IF(FIRSTC) THEN
+        do iqu=1,ngcd
+           do kl=kls,lnkl
+              do ij=ijs,lnij
+                 do i=1,nbls1
+                    ijkl=indx(i)
+                    xint=xt1(i,ij,kl)
+                    if(abs(xint).gt.zero) then
+                       buf2(1,ijkl,ij,kl,iqu)=xint*gcoef(ijkl,iqu)
+                       buf2(2,ijkl,ij,kl,iqu)=xint*gc_ax(ijkl,iqu)
+                       buf2(3,ijkl,ij,kl,iqu)=xint*gc_bx(ijkl,iqu)
+                       buf2(4,ijkl,ij,kl,iqu)=xint*gc_cx(ijkl,iqu)
+                    else
+                       buf2(1,ijkl,ij,kl,iqu)=zero
+                       buf2(2,ijkl,ij,kl,iqu)=zero
+                       buf2(3,ijkl,ij,kl,iqu)=zero
+                       buf2(4,ijkl,ij,kl,iqu)=zero
+                    endif
+                 enddo
+              enddo
+           enddo
+        enddo
+        FIRSTC=.FALSE.
+      ELSE
+c...... region I
+        do iqu=1,ngcd
+           do kl=kls,nfu(nskl)
+              do ij=ijs,nfu(nsij)
+                 do i=1,nbls1
+                    ijkl=indx(i)
+                    xint=xt1(i,ij,kl)
+                    if(abs(xint).gt.zero) then
+                       buf2(1,ijkl,ij,kl,iqu)=buf2(1,ijkl,ij,kl,iqu)
+     *                                        + xint*gcoef(ijkl,iqu)
+                       buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_ax(ijkl,iqu)
+                       buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_bx(ijkl,iqu)
+                       buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_cx(ijkl,iqu)
+                    endif
+                 enddo
+              enddo
+           enddo
+        enddo
+c...... region II
+        do iqu=1,ngcd
+           do kl=nfu(nskl)+1,nfu(nskl+1)
+              do ij=ijs,nfu(nsij)
+                 do i=1,nbls1
+                    ijkl=indx(i)
+                    xint=xt1(i,ij,kl)
+                    if(abs(xint).gt.zero) then
+                       buf2(4,ijkl,ij,kl,iqu)=buf2(4,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_cx(ijkl,iqu)
+                    endif
+                 enddo
+              enddo
+           enddo
+        enddo
+c...... region III
+        do iqu=1,ngcd
+           do kl=kls,nfu(nskl)
+              do ij=nfu(nsij)+1,nfu(nsij+1)
+                 do i=1,nbls1
+                    ijkl=indx(i)
+                    xint=xt1(i,ij,kl)
+                    if(abs(xint).gt.zero) then
+                       buf2(2,ijkl,ij,kl,iqu)=buf2(2,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_ax(ijkl,iqu)
+                       buf2(3,ijkl,ij,kl,iqu)=buf2(3,ijkl,ij,kl,iqu)
+     *                                        + xint*gc_bx(ijkl,iqu)
+                    endif
+                 enddo
+              enddo
+           enddo
+        enddo
+      ENDIF
+c
+      end
+c=======================================================================
+c old routine used until 1998 :
+c
+c  for the gradient integral derivatives
+c
+      subroutine asselg_der(firstc,xt1,lt1,lt2,nbls,buf2,
      *                        indx,nbls1,ngcd,gcoef,
      *                        aax,bbx,ccx)
       implicit real*8 (a-h,o-z)
@@ -425,7 +581,6 @@ c
       dimension indx(*)
       dimension xt1(nbls1,lt1,lt2)
       dimension gcoef(nbls,ngcd)
-ccc   dimension gcoef(ngcd,nbls)
       dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
 C
       dimension buf2(4,nbls,lt1,lt2,ngcd)
@@ -437,7 +592,6 @@ c-------------------------------------------------------------
       ijs=nfu(nqij)+1
       kls=nfu(nqkl)+1
 c-------------------------------------------------------------
-c--non diagonal block : gen.con. loop goes to ngcd (always)---
 c
       IF (FIRSTC) THEN
         do 501 iqu=1,ngcd
@@ -471,4 +625,3 @@ c
       ENDIF
 c-------------------------------------------------------------
       end
-c===============================================================

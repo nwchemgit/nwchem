@@ -140,7 +140,7 @@ CCC  *                     nqrt,q4,use_q4,
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
 c
-ccc     call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
+ccccc   call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
                      if(more_int) go to 451
@@ -161,7 +161,7 @@ CCC  *                     nqrt,q4,use_q4,
      *                     more_int,blscr,l_blscr,0.0d0,'scfd_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der1_int')
 ccc  *                     more_int,blscr,l_blscr,0.0d0,'der2_int')
-cccccc  call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
+ccccc   call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                      call check_sums(integ_n0,icf,jcf,kcf,lcf,eri,stsum)
                      integrals=integrals+integ_n0
                      if(more_int) go to 452
@@ -298,7 +298,7 @@ c=====================================================================
       dimension eri(leri) 
       dimension icf(leri),jcf(leri),kcf(leri),lcf(leri)
 c
-        write(6,*)'call no=',ncall,' ; ',integ_n0,' non-zero integ.'
+ccc     write(6,*)'call no=',ncall,' ; ',integ_n0,' non-zero integ.'
 c
         do ii=1,integ_n0
         i1=icf(ii)

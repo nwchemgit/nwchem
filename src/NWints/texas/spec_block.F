@@ -1861,6 +1861,7 @@ c
 c
       end
 c======================================================================
+c old routine to determine blocking (93 or 95)
       subroutine whichblk(datnuc,natoms,inx,ncs,iroute)
       implicit real*8 (a-h,o-z)
       dimension datnuc(5,*)
@@ -1928,7 +1929,97 @@ c
 c     NEW routines 1997
 c
 c
-c===============================================================
+c=======================================================================
+c23456789.c23456789.c23456789.c23456789.c23456789.c23456789.c23456789.c2
+      subroutine whichblx(natoms,ncs,inx,iroute,datnuc,datbas,
+     *                    ishell_blk)
+      implicit real*8 (a-h,o-z)
+      common /cpu/ intsize,iacc,icache,memreal
+      dimension datbas(13,*),datnuc(5,*)
+      dimension inx(12,*)
+      dimension ishell_blk(0:ncs)   ! blocks of shells 
+cccc  dimension mem_blk(2),ive_blk(2)
+c--------------------------------------------------------------------
+c This routine determines the blocking strategy for integral calculations.
+c There are two ways of blocking integrals ( pairs & quartets of shells)
+c--------------------------------------------------------------------
+c I general, the iroute=2 (tx95) blocking is superior to iroute=1 one
+c in both efficiency and memory demand. However, for small systems
+c with just few atoms of the same type the IROUTE=1 blocking can be
+c the better way to go (faster). In same case it can be the ONLY way
+c because of HUGE memory requested by IROUTE=2 blocking (resulting
+c from huge number of quartet blocks (very small ones) ).
+c--------------------------------------------------------------------
+c memory requiments :
+c
+c scratch1 : see txs_scratch_siz1 & get_memory2
+c
+c     memory2=(ncs+1) + nbl2 +nbl4 +nbl4 +ncs  
+c     memory2= memory2/intsize + 5      
+c
+c scratch2 : see txs_scratch_siz2 for txs_setup:
+c
+c     maxme2=4*nquarts + 2*nbl2 + 4*nbl4 + nolab4  
+c     maxme2= maxme2/intsize + 11   ! 11 allocations
+c--------------------------------------------------------------------
+c calculate blocks & memory demand for        tx95
+c (maxme2 is only a part of mamory needed for txs_setup)
+c
+      ncspairs=ncs*(ncs+1)/2
+      xcspairs=dble(ncspairs)
+      xcsquart=0.5d0*xcspairs*(xcspairs+1)
+c
+         iroute=2
+         call blk_shells(ncs,inx,iroute,datnuc,datbas,
+     *                   ishell_blk,nbl1,nbl2,nbl4)
+c
+         memory2=(ncs+1) + nbl2 +nbl4 +nbl4 +ncs  
+         memory2= memory2/intsize + 5      
+c
+         maxme2=            2*nbl2 + 4*nbl4 
+         maxme2= maxme2/intsize + 11   ! 11 allocations
+c
+         memor_blk=memory2 + maxme2
+         isize_blk=int( xcsquart/dble(nbl4) )
+c
+c Thus, try to go along iroute=2 (tx95) :
+c
+      iroute=2
+      if(memor_blk.gt.500000 .or. isize_blk.lt.50) iroute=1
+c
+c--------------------------------------------------------------------
+c calculate blocks & memory demand for tx93 & tx95
+c (maxme2 is only a part of mamory needed for txs_setup)
+c
+c     do iroute=1,2
+c        call blk_shells(ncs,inx,iroute,datnuc,datbas,
+c    *                   ishell_blk,nbl1,nbl2,nbl4)
+c
+c        memory2=(ncs+1) + nbl2 +nbl4 +nbl4 +ncs  
+c        memory2= memory2/intsize + 5      
+c
+c        maxme2=4*nquarts + 2*nbl2 + 4*nbl4 + nolab4  
+c        maxme2=            2*nbl2 + 4*nbl4 
+c        maxme2= maxme2/intsize + 11   ! 11 allocations
+c
+c        mem_blk(iroute)=memory2 + maxme2
+c        ive_blk(iroute)=int( xcsquart/dble(nbl4) )
+c
+c     write(6,*)'route=',iroute,' : nbl1,nbl2,nbl4=',nbl1,nbl2,nbl4
+c     write(6,*)'  mem_scr1=',memory2,' mem_scr2(txs_setup)=',maxme2
+c     write(6,*)'  memory=',mem_blk(iroute),' ive_blk=',ive_blk(iroute)
+c     enddo
+c
+c Thus, try to go along iroute=2 (tx95) :
+c     iroute=2
+c     if(mem_blk(2).gt. 1000000) iroute=1
+c     if(ive_blk(2).lt. 50)      iroute=1
+c
+c     write(6,*)' Decision : go by iroute=',iroute
+c
+c--------------------------------------------------------------------
+      end
+c======================================================================
       subroutine blk_shells(ncs,inx,iroute,datnuc,datbas,
      *                      nblock1,nbl1,nbl2,nbl4)
       implicit real*8 (a-h,o-z)

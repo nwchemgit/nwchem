@@ -46,53 +46,41 @@ c new for grad. derivatives:
 c
       dimension bl(*)
 c----------------------------------------------------------------
-c test only
-CCCC  common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
-c     common /contr/ IIIIIII(4),         lxi,lxj,lxk,lxl,LLLL(2)  
-c
-c     data nbls_ne /0/
-c     data nbls_eq /0/
-c     data nbls1_e1 /0/
-c     save nbls_ne
-c     save nbls_eq
-c     save nbls1_e1
-c----------------------------------------------------------------
 c-                  --- for buf2  ---
 c
         firstx=firstc
-ccccc   if(where.ne.'forc') then
         if(where.eq.'buff' .or. where.eq.'shif') then
            call conbuf2(firstx,nbls,nbls1,bl(iwt0),l01,l02,
      *                  bl(ibuf2),bl(indx))
         endif
         if(where.eq.'forc') then
            ibut2=ibuf
-           if(nbls1.eq.1) then
-ccccccc       nbls1_e1=nbls1_e1+1
-              call conbuf2_der_e1(firstx,nbls,nbls1,bl(iwt0),l01,l02,
-     *                            bl(ibut2),bl(indx),
-     *                            bl(iaax),bl(ibbx),bl(iccx))
-           else if(nbls.eq.nbls1) then
-ccccccc       nbls_eq=nbls_eq+1
-              call conbuf2_der_eq(firstx,nbls,nbls1,bl(iwt0),l01,l02,
-     *                            bl(ibut2),bl(indx),
-     *                            bl(iaax),bl(ibbx),bl(iccx))
+           if( iroute.eq.1 ) then
+              if(nbls.eq.nbls1) then
+                 call conbuf2_der_eq_1(firstx,nbls,nbls1,
+     *                                 bl(iwt0),l01,l02,
+     *                                 bl(ibut2),bl(indx),
+     *                                 bl(iaax),bl(ibbx),bl(iccx))
+              else
+                 call conbuf2_der_ne_1(firstx,nbls,nbls1,
+     *                                 bl(iwt0),l01,l02,
+     *                                 bl(ibut2),bl(indx),
+     *                                 bl(iaax),bl(ibbx),bl(iccx))
+              endif
            else
-ccccccc       nbls_ne=nbls_ne+1
-              call conbuf2_der_ne(firstx,nbls,nbls1,bl(iwt0),l01,l02,
-     *                            bl(ibut2),bl(indx),
-     *                            bl(iaax),bl(ibbx),bl(iccx))
-           endif
-cTEST
-c
-c     IF(lci.eq.lxi.and.lcj.eq.lxj.and.lck.eq.lxk.and.lcl.eq.lxl)then
-c        write(6,*)' nbls.EQ.nbls1 ',nbls_eq,' times'
-c        write(6,*)' nbls.NE.nbls1 ',nbls_ne,' times'
-c        write(6,*)' nbls1.EQ.1    ',nbls1_e1,' times'
-c     ENDIF
-c
-cTEST
-        endif
+              if(nbls.eq.nbls1) then
+                 call conbuf2_der_eq_2(firstx,nbls,nbls1,
+     *                                 bl(iwt0),l01,l02,
+     *                                 bl(ibut2),bl(indx),
+     *                                 bl(iaax),bl(ibbx),bl(iccx))
+              else
+                 call conbuf2_der_ne_2(firstx,nbls,nbls1,
+     *                                 bl(iwt0),l01,l02,
+     *                                 bl(ibut2),bl(indx),
+     *                                 bl(iaax),bl(ibbx),bl(iccx))
+              endif
+           endif         !    if ( iroute.eq.1 ) then
+        endif            !    if(where.eq.'forc') then
         if(where.eq.'hess') then
            call getmem(6*nbls1,iexpo)
            ibut2=ibuf
@@ -154,11 +142,6 @@ c
            do 501 i=1,nbls1
            ijkl=indx(i)
            BUF2(ijkl,IJ,KL)=XT1(i,IJ,KL)
-c........... abs_x=abs(xt1(i,ij,kl))
-c            if(abs_x.gt.1.0d-08) then
-c               write(6,66) ij,kl,xt1(i,ij,kl)
-c 66         format(' xt1 : ij,kl=',2i4,2x,f12.8 )
-c........... endif
   501      CONTINUE
 C
            FIRSTC=.FALSE.
@@ -220,28 +203,47 @@ c
       ENDIF
 c
       end
-c=====
-      subroutine conbuf2_der_e1(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,indx,
-     *                          aax,bbx,ccx)
+c=======================================================================
+      subroutine conbuf2_der_ne_1(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,
+     *                            indx,aax,bbx,ccx)
 c
-cccc  this is called only for where.eq.'forc' and when NBLS1=1
-c
+c-----------------------------------------------------------------------
+c     this is called only for where.eq.'forc'
+c-----------------------------------------------------------------------
+c three regions should be distinguished here :
+c 1:
+c    do kl=nfu(nqkl)+1,nfu(nskl)
+c    do ij=nfu(nqij)+1,nfu(nsij)
+c       buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)        <-- ordinary integrals
+c       buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i) <---int.rescaled by 2*a_exp
+c       buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i) <---int.rescaled by 2*b_exp
+c       buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i) <---integ.rescaled by 2*c_exp
+c    enddo
+c    enddo
+c 2:
+c    do kl=nfu(nskl)+1,nfu(nskl+1)
+c    do ij=nfu(nqij)+1,nfu(nsij)
+c       buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i) <---integ.rescaled by 2*c_exp
+c    enddo
+c    enddo
+c 3:
+c    do kl=nfu(nqkl)+1,nfu(nskl)
+c    do ij=nfu(nsij)+1,nfu(nsij+1)
+c       buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i) <---int.rescaled by 2*a_exp
+c       buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i) <---int.rescaled by 2*b_exp
+c    enddo
+c    enddo
+c-----------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       logical firstc
-c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
      * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
      * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
-C
       common /logic4/ nfu(1)
-c
       dimension indx(*)
-c111  dimension xt1(nbls1,lt1,lt2)
-      dimension xt1(      lt1,lt2)
-c
-c1111 dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
-C
+      dimension xt1(nbls1,lt1,lt2)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
       dimension buf2(4,nbls,lt1,lt2)
 c-----------------------------------------------------------
 c               buf2(1,nbls,lt1,lt2) - ordinary contraction
@@ -249,44 +251,150 @@ c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
 c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
 c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
 c-----------------------------------------------------------
-        ijkl=indx(1)
 c
-        IF (FIRSTC) THEN
-           DO 551 KL=nfu(nqkl)+1,nfu(nskl+1)
-           DO 551 ij=nfu(nqij)+1,nfu(nsij)
-           buf2(1,ijkl,IJ,KL)=XT1(IJ,KL)
-           buf2(2,ijkl,IJ,KL)=XT1(IJ,KL)*aax
-           buf2(3,ijkl,IJ,KL)=XT1(IJ,KL)*bbx
-           buf2(4,ijkl,IJ,KL)=XT1(IJ,KL)*ccx
-  551      CONTINUE
-           DO 553 KL=nfu(nqkl)+1,nfu(nskl)
-           DO 553 ij=nfu(nsij)+1,nfu(nsij+1)
-           buf2(1,ijkl,IJ,KL)=XT1(IJ,KL)
-           buf2(2,ijkl,IJ,KL)=XT1(IJ,KL)*aax
-           buf2(3,ijkl,IJ,KL)=XT1(IJ,KL)*bbx
-           buf2(4,ijkl,IJ,KL)=XT1(IJ,KL)*ccx
-  553      CONTINUE
-           FIRSTC=.FALSE.
-        ELSE
-           DO 651 KL=nfu(nqkl)+1,nfu(nskl+1)
-           DO 651 ij=nfu(nqij)+1,nfu(nsij)
-           buf2(1,ijkl,IJ,KL)=buf2(1,ijkl,ij,kl)+XT1(IJ,KL)
-           buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,ij,kl)+XT1(IJ,KL)*aax
-           buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,ij,kl)+XT1(IJ,KL)*bbx
-           buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,ij,kl)+XT1(IJ,KL)*ccx
-  651      CONTINUE
-           DO 653 KL=nfu(nqkl)+1,nfu(nskl)
-           DO 653 ij=nfu(nsij)+1,nfu(nsij+1)
-           buf2(1,ijkl,IJ,KL)=buf2(1,ijkl,ij,kl)+XT1(IJ,KL)
-           buf2(2,ijkl,IJ,KL)=buf2(2,ijkl,ij,kl)+XT1(IJ,KL)*aax
-           buf2(3,ijkl,IJ,KL)=buf2(3,ijkl,ij,kl)+XT1(IJ,KL)*bbx
-           buf2(4,ijkl,IJ,KL)=buf2(4,ijkl,ij,kl)+XT1(IJ,KL)*ccx
-  653      CONTINUE
-        ENDIF
+      IF (FIRSTC) THEN
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)
+               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i)
+               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i)
+               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               enddo
+            enddo
+         enddo
+         FIRSTC=.FALSE.
+      ELSE
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(1,ijkl,ij,kl)=buf2(1,ijkl,ij,kl)+xt1(i,ij,kl)
+               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aax(i)
+               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aax(i)
+               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               enddo
+            enddo
+         enddo
+      ENDIF
 c
       end
-c=====
-c===============================================================
+c=======================================================================
+      subroutine conbuf2_der_eq_1(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,
+     *                            indx,aax,bbx,ccx)
+c
+c-----------------------------------------------------------------------
+c     this is called only for where.eq.'forc' and NBLS=NBLS1
+c-----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      logical firstc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+      common /logic4/ nfu(1)
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+      dimension buf2(4,nbls,lt1,lt2)
+c-----------------------------------------------------------
+c               buf2(1,nbls,lt1,lt2) - ordinary contraction
+c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
+c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
+c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
+c-----------------------------------------------------------
+c
+      IF (FIRSTC) THEN
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(1,i,ij,kl)=xt1(i,ij,kl)
+               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aax(i)
+               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aax(i)
+               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbx(i)
+               enddo
+            enddo
+         enddo
+         FIRSTC=.FALSE.
+      ELSE
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(1,i,ij,kl)=buf2(1,i,ij,kl)+xt1(i,ij,kl)
+               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aax(i)
+               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccx(i)
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aax(i)
+               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbx(i)
+               enddo
+            enddo
+         enddo
+      ENDIF
+      end
+c=======================================================================
       subroutine conbuf2_der2(firstc,nbls,nbls1,xt1,lt1,lt2, buf2,indx,
      *                      aax,bbx,ccx,expo)
 c
@@ -1848,3 +1956,203 @@ c------------------------------------------------
 c
       end
 c===============================================================
+c=======================================================================
+      subroutine conbuf2_der_ne_2(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,
+     *                            indx,aax,bbx,ccx)
+c
+c-----------------------------------------------------------------------
+c     this is called only for where.eq.'forc'
+c-----------------------------------------------------------------------
+c three regions should be distinguished here :
+c 1:
+c    do kl=nfu(nqkl)+1,nfu(nskl)
+c    do ij=nfu(nqij)+1,nfu(nsij)
+c       buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)        <-- ordinary integrals
+c       buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i) <---int.rescaled by 2*a_exp
+c       buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i) <---int.rescaled by 2*b_exp
+c       buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i) <---integ.rescaled by 2*c_exp
+c    enddo
+c    enddo
+c 2:
+c    do kl=nfu(nskl)+1,nfu(nskl+1)
+c    do ij=nfu(nqij)+1,nfu(nsij)
+c       buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccx(i) <---integ.rescaled by 2*c_exp
+c    enddo
+c    enddo
+c 3:
+c    do kl=nfu(nqkl)+1,nfu(nskl)
+c    do ij=nfu(nsij)+1,nfu(nsij+1)
+c       buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aax(i) <---int.rescaled by 2*a_exp
+c       buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbx(i) <---int.rescaled by 2*b_exp
+c    enddo
+c    enddo
+c-----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      logical firstc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+      common /logic4/ nfu(1)
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+      dimension buf2(4,nbls,lt1,lt2)
+c-----------------------------------------------------------
+c               buf2(1,nbls,lt1,lt2) - ordinary contraction
+c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
+c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
+c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
+c-----------------------------------------------------------
+      aaxi=aax(1)
+      bbxi=bbx(1)
+      ccxi=ccx(1)
+c-----------------------------------------------------------
+c
+      IF (FIRSTC) THEN
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(1,ijkl,ij,kl)=xt1(i,ij,kl)
+               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aaxi
+               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbxi
+               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(4,ijkl,ij,kl)=xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(2,ijkl,ij,kl)=xt1(i,ij,kl)*aaxi
+               buf2(3,ijkl,ij,kl)=xt1(i,ij,kl)*bbxi
+               enddo
+            enddo
+         enddo
+         FIRSTC=.FALSE.
+      ELSE
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(1,ijkl,ij,kl)=buf2(1,ijkl,ij,kl)+xt1(i,ij,kl)
+               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aaxi
+               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbxi
+               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(4,ijkl,ij,kl)=buf2(4,ijkl,ij,kl)+xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               ijkl=indx(i)
+               buf2(2,ijkl,ij,kl)=buf2(2,ijkl,ij,kl)+xt1(i,ij,kl)*aaxi
+               buf2(3,ijkl,ij,kl)=buf2(3,ijkl,ij,kl)+xt1(i,ij,kl)*bbxi
+               enddo
+            enddo
+         enddo
+      ENDIF
+c
+      end
+c=======================================================================
+      subroutine conbuf2_der_eq_2(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,
+     *                            indx,aax,bbx,ccx)
+c
+c-----------------------------------------------------------------------
+c     this is called only for where.eq.'forc' and NBLS=NBLS1
+c-----------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      logical firstc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+      common /logic4/ nfu(1)
+      dimension indx(*)
+      dimension xt1(nbls1,lt1,lt2)
+      dimension aax(nbls1),bbx(nbls1),ccx(nbls1)
+      dimension buf2(4,nbls,lt1,lt2)
+c-----------------------------------------------------------
+c               buf2(1,nbls,lt1,lt2) - ordinary contraction
+c               buf2(2,nbls,lt1,lt2) - rescaled with 2*a_exp
+c               buf2(3,nbls,lt1,lt2) - rescaled with 2*b_exp
+c               buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
+c-----------------------------------------------------------
+      aaxi=aax(1)
+      bbxi=bbx(1)
+      ccxi=ccx(1)
+c-----------------------------------------------------------
+c
+      IF (FIRSTC) THEN
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(1,i,ij,kl)=xt1(i,ij,kl)
+               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aaxi
+               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbxi
+               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(4,i,ij,kl)=xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               buf2(2,i,ij,kl)=xt1(i,ij,kl)*aaxi
+               buf2(3,i,ij,kl)=xt1(i,ij,kl)*bbxi
+               enddo
+            enddo
+         enddo
+         FIRSTC=.FALSE.
+      ELSE
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(1,i,ij,kl)=buf2(1,i,ij,kl)+xt1(i,ij,kl)
+               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aaxi
+               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbxi
+               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nskl)+1,nfu(nskl+1)
+            do ij=nfu(nqij)+1,nfu(nsij)
+               do i=1,nbls1
+               buf2(4,i,ij,kl)=buf2(4,i,ij,kl)+xt1(i,ij,kl)*ccxi
+               enddo
+            enddo
+         enddo
+         do kl=nfu(nqkl)+1,nfu(nskl)
+            do ij=nfu(nsij)+1,nfu(nsij+1)
+               do i=1,nbls1
+               buf2(2,i,ij,kl)=buf2(2,i,ij,kl)+xt1(i,ij,kl)*aaxi
+               buf2(3,i,ij,kl)=buf2(3,i,ij,kl)+xt1(i,ij,kl)*bbxi
+               enddo
+            enddo
+         enddo
+      ENDIF
+      end
+c=======================================================================

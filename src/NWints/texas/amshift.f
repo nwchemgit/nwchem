@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.3 1997-09-17 23:10:43 d3g681 Exp $
+c $Id: amshift.f,v 1.4 1998-07-17 16:14:55 d3g681 Exp $
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM
@@ -347,53 +347,11 @@ c-
 c----------------------
       return
       end
-c=====================================================
-      subroutine convr3(bl,m,nbls,npij,npkl,idx1,idx2,
-     *                   xab,xcd, ixabn,ixcdn)
-      implicit real*8 (a-h,o-z)
-cccc  common /big/ bl(1)
-      dimension bl(*)
-      dimension idx1(*),idx2(*)
-      dimension xab(npij,3),xcd(npkl,3)
-c
-      nbls1=nbls
-      nbls2=nbls*2
-      nbls3=nbls*3
-      nbls1=nbls1*m
-      nbls2=nbls2*m
-      nbls3=nbls3*m
-      call getmem(nbls3,ixabn)
-      call getmem(nbls3,ixcdn)
-c
-       ixab1=ixabn-1
-       ixcd1=ixcdn-1
-c
-      ijklnmr=0
-      do 100 ijkl=1,nbls
-      ijpar=idx1(ijkl)
-      klpar=idx2(ijkl)
-c
-      xab1=xab(ijpar,1)
-      xab2=xab(ijpar,2)
-      xab3=xab(ijpar,3)
-      xcd1=xcd(klpar,1)
-      xcd2=xcd(klpar,2)
-      xcd3=xcd(klpar,3)
-c
-        do 100 nmr=1,m
-        ijklnmr=ijklnmr+1
-        bl(ixab1+ijklnmr)      =xab1
-        bl(ixab1+ijklnmr+nbls1)=xab2
-        bl(ixab1+ijklnmr+nbls2)=xab3
-c
-        bl(ixcd1+ijklnmr)      =xcd1
-        bl(ixcd1+ijklnmr+nbls1)=xcd2
-        bl(ixcd1+ijklnmr+nbls2)=xcd3
-c
-  100 continue
-      return
-      end
-c=====================================================
+c=======================================================
+c moved into the convert.f file 
+c     subroutine convr3(bl,m,nbls,npij,npkl,idx1,idx2,
+c    *                   xab,xcd, ixabn,ixcdn)
+c=======================================================
       subroutine daxpy3(n,a,z1,z2,z3,y1,y2,y3,x)
 c------------------------------------------------
 c* performs the vector operations with a stride=1

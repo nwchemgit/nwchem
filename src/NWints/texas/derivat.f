@@ -276,43 +276,13 @@ c...................
       call retmem(4)
       end
 c=================================================================
-      subroutine conv24x(nbls,npij,npkl,idx1,idx2 ,
-     *                  xab ,xcd, xyab, xycd ,
-     *                  xabq,xcdq,xyabq,xycdq )
-      implicit real*8 (a-h,o-z)
-c
-      dimension idx1(nbls),idx2(nbls)
-      dimension xab(npij,3) ,xcd(npkl,3) ,xyab(npij,3) ,xycd(npkl,3)
-      dimension xabq(nbls,3),xcdq(nbls,3),xyabq(nbls,3),xycdq(nbls,3)
-c
-      do 100 ijkl=1,nbls
-      ijpar=idx1(ijkl)
-      klpar=idx2(ijkl)
-        do 150 i=1,3
-        xabq(ijkl,i)=xab(ijpar,i)
-        xcdq(ijkl,i)=xcd(klpar,i)
-        xyabq(ijkl,i)=xyab(ijpar,i)
-        xycdq(ijkl,i)=xycd(klpar,i)
-  150   continue
-  100 continue
-c
-      end
+c moved into the convert.f file (1998)
+c     subroutine conv24x(nbls,npij,npkl,idx1,idx2 ,
+c    *                  xab ,xcd, xyab, xycd ,
+c    *                  xabq,xcdq,xyabq,xycdq )
 c=================================================================
-      subroutine conv24r(nbls,npij,idx1,xab,xabq)
-      implicit real*8 (a-h,o-z)
-c
-      dimension idx1(nbls)
-      dimension xab(npij,3),xabq(nbls,3)
-c
-      do 100 ijkl=1,nbls
-      ijpar=idx1(ijkl)
-c     klpar=idx2(ijkl)
-        do 150 i=1,3
-        xabq(ijkl,i)=xab(ijpar,i)
-c       xcdq(ijkl,i)=xcd(klpar,i)
-  150   continue
-  100 continue
-      end
+c moved into the convert.f file (1998)
+c     subroutine conv24r(nbls,npij,idx1,xab,xabq)
 c=================================================================
       subroutine giao_der(ngcd,nbls,buf2,lnijr,lnklr,lnij,lnkl,
      *                    nqij,nqkl, deriv,  xab,xcd, xyab,xycd)

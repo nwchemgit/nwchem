@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.47 1998-07-05 19:08:28 pg481 Exp $
+c $Id: texas_face.F,v 1.48 1998-07-17 16:15:07 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -35,8 +35,10 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
 c 1998 (numerical instability in Tracy's recursive)
 c
-c     common /count_primitive/ x_prim_all,
-c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+      common /count_primitive/ x_prim_all,
+     *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+      common /lobsa_times/ xlobsa2,xlobsa4
+C-----------------------------------------------------------------------
 c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
 c    *                         xobsa4,xobsa4_ineff,xobsa4_more
 c----------------------------------------------------------------
@@ -143,11 +145,14 @@ c------------------------------------
 c 1998 (numerical instability in Tracy's recursive)
 c print out info about numerical instability in Tracy's recursive:
 c
-c     write(8,9871) x_prim_all,x_prim_wr1,x_prim_wr2,x_prim_wr3
-c9871 format(' total number of primitive blocks  =',f15.0/
-c    *       ' number of unstable blocks after 1 =',f15.0/
-c    *       ' number of unstable blocks after 2 =',f15.0/
-c    *       ' number of unstable blocks after 3 =',f15.0)
+      write(8,9871) x_prim_all,x_prim_wr1,x_prim_wr2,x_prim_wr3
+ 9871 format(' total number of primitive quartets  =',f15.0/
+     *       ' number of unstable quartets after 1 =',f15.0/
+     *       ' number of unstable quartets after 2 =',f15.0/
+     *       ' number of unstable quartets after 3 =',f15.0)
+      write(8,9872) xlobsa2,xlobsa4
+ 9872 format(' number of shift cases: cent1 > cent3=',f15.0/
+     *       ' number of shift cases: cent3 > cent1=',f15.0)
 c------------------------------------
 c     write(8,9872) xobsa2,xobsa2_ineff,xobsa2_more,
 c    *              xobsa4,xobsa4_ineff,xobsa4_more
@@ -163,6 +168,8 @@ c------------------------------------
       write(8,*)' -------------------------------------------'
       write(8,*)' TEXAS INTEGRAL PROGRAM HAS BEEN TERMINATED'
       write(8,*)' -------------------------------------------'
+c
+c     call util_flush(8)
 c------------------------------------
       ENDIF     !! end of iprint 
 c----------------------------------------------------------------
@@ -828,8 +835,10 @@ c------------------------------------
 c------------------------------------
 c 1998 (numerical instability in Tracy's recursive)
 c
-c     common /count_primitive/ x_prim_all,
-c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+      common /count_primitive/ x_prim_all,
+     *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+      common /lobsa_times/ xlobsa2,xlobsa4
+C-----------------------------------------------------------------------
 c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
 c    *                         xobsa4,xobsa4_ineff,xobsa4_more
 c------------------------------------
@@ -843,10 +852,13 @@ c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
 c 1998 (numerical instability in Tracy's recursive)
 c
 c
-c     x_prim_all=0.d0
-c     x_prim_wr1=0.d0
-c     x_prim_wr2=0.d0
-c     x_prim_wr3=0.d0
+      x_prim_all=0.d0
+      x_prim_wr1=0.d0
+      x_prim_wr2=0.d0
+      x_prim_wr3=0.d0
+c
+      xlobsa2=0.d0
+      xlobsa4=0.d0
 c
 c     xobsa2=0.d0
 c     xobsa2_ineff=0.d0 
@@ -1239,6 +1251,7 @@ cccc  common /limit_lost/ lost_limit
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "global.fh"
 c-----------------------------------------------------
 c default values for options in two-el. integ. program 
 c change these if needed by reading in new values from 
@@ -1387,9 +1400,8 @@ c
 c-----------------------------------------------------
 c default for iroute is 2 because of numerical stability
 c
-c     iroute=0      ! option name is ROUT
+      iroute=0      ! option name is ROUT
 c
-      iroute=2  
       if (rtdb_get(rtdb,'int:txs:iroute',MT_INT,1,int_tmp)) then
         iroute = int_tmp
         if (ga_nodeid().eq.0)
@@ -1439,21 +1451,13 @@ c
 c--------------------------------------------------------
 c find out what blocking strategy will be used (txs93 or 95)
 c
-      if(iroute.eq.0) call whichblk(datnuc,na,inx,ncs,iroute)
-ctest
-ccc    write(6,*)' iroute=',iroute
-ctest
+cold  if(iroute.eq.0) call whichblk(datnuc,na,inx,ncs,iroute)
+c
+      if(iroute.eq.0) then
+         call whichblx(na,ncs,inx,iroute,datnuc,datbas,ishell_blk)
+      endif
 c
 c output : iroute
-c
-c     if(iroute.eq.1) then
-c        write(6,*)'**************************************'
-c        write(6,*)'            WARRNING                  '
-c        write(6,*)'  results maybe numerically unstable  '
-c        write(6,*)'   to ensure stability use iroute=2   '
-c        write(6,*)'**************************************'
-c     endif
-c
 c--------------------------------------------------------
 c make blocks of shells and calculate number of bl1,bl2,bl4
 c output :
@@ -1587,10 +1591,10 @@ c
         write(8,*)' PREDICTIONS FOR TEXAS MEMORY SCRATCH SIZE :'
         write(8,*)'           (in txs_scratch_siz2)            '
         write(8,*)' -------------------------------------------'
-        write(8,*)' memory perdicted for blockin4 :',maxme1
-        write(8,*)' memory perdicted for txs_setup:',maxme2
-        write(8,*)' memory perdicted for uniq_pair:',maxme3
-        write(8,*)' memory perdicted for map2uniq :',maxme4
+        write(8,*)' memory predicted for blockin4 :',maxme1
+        write(8,*)' memory predicted for txs_setup:',maxme2
+        write(8,*)' memory predicted for uniq_pair:',maxme3
+        write(8,*)' memory predicted for map2uniq :',maxme4
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH2:',maxmem_scr
         write(8,*)' '
         write(8,*)' -------------------------------------------'

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.38 1998-07-05 19:08:18 pg481 Exp $
+# $Id: GNUmakefile,v 1.39 1998-07-17 16:14:59 d3g681 Exp $
  
 include ../../config/makefile.h
 
@@ -26,7 +26,6 @@ endif
                  spec_calcint.o\
                  spec_destiny.o\
                  memoha.o\
-                 pak.o\
                  precalc2.o\
                  prepint.o\
                  lab_reorder.o\
@@ -41,8 +40,8 @@ endif
                  transfor.o\
                  gencon.o\
                  derivat.o\
-                 test_calc2.o \
-                 conbuf2_der.o destdul.o
+                 convert.o\
+                 test_calc2.o 
 else
       OBJ = texas_stubs.o 
       OBJ_OPTIMIZE = 

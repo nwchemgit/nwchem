@@ -354,6 +354,11 @@ c
      *               nij_uniqe,bl(ij_uniqe_p),nkl_uniqe,bl(kl_uniqe_p))
       endif
 c---------------------------------------------------------------
+c check for numerical stablility :
+c
+      call num_stability_1(dbl_mb(ibas),inx,
+     *               nij_uniqe,bl(ij_uniqe_p),nkl_uniqe,bl(kl_uniqe_p))
+c---------------------------------------------------------------
       end
 c====================================================================
       subroutine precal2a_1(datbas,datnuc,inx, ibl,nbl2, abprim,lcij,
@@ -644,6 +649,19 @@ c
   153      continue
          endif
       endif
+c------------------------------------------------------------------
+c for gradient derivative integrals rescale exponents by 2 :
+c
+         do is1=1,lcii
+            do ijpar=1,nij_uniqe
+               aaa(ijpar,is1)= aaa(ijpar,is1)+aaa(ijpar,is1)
+            enddo
+         enddo
+         do js1=1,lcjj
+            do ijpar=1,nij_uniqe
+               bbb(ijpar,js1)= bbb(ijpar,js1)+bbb(ijpar,js1)
+            enddo
+         enddo
 c------------------------------------------------------------------
 c
       end
@@ -967,17 +985,16 @@ c
 c
       end
 c====================================================================
-      subroutine xwpq_1(nbls1,xwp,xwq,p1234,lc12,lc34, lcij,lckl,
+      subroutine xwpq_1(nbls1,xwp,xwq,p1234, lcij,lckl,
      *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
      *                  rppq,xp,xq,xpp,xqq,
-     *                  txab,txcd,abcd,apb,rcpd,cpd,rapb)
+     *                  txab,txcd,apb,rcpd,cpd,rapb)
 c-----------------------------------------------
 c  OUTPUT
 c
 c  XWP(ijkl1) - coordinates of W-P,  where W=(XPP+XQQ)/(a+b+c+d)
 c  XWQ(ijkl1) - coordinates of W-Q
 c  P1234(ijkl1)=(txab+txcd)*(rcpd OR rapb)
-c  ABCD(ijkl1)= apb*rcpd   OR  cpd*rapb
 c-----------------------------------------------
 c
       implicit real*8 (a-h,o-z)
@@ -997,10 +1014,6 @@ c
       dimension cpd(nkl_uniqe,*),rcpd(nkl_uniqe,*)
       dimension txab(nij_uniqe,3,*),txcd(nkl_uniqe,3,*)
       dimension rppq(*)
-      dimension abcd(nbls1)
-c
-      logical stable 
-      common /tracy_stability/ stable(1)
 c---------------------------------------------------------------
          do 100 i=1,nbls1
 c
@@ -1031,36 +1044,123 @@ c
             p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
 c
   100    continue
-c
 c---------------------------------------------------------------
+c
+      end
+c====================================================================
+      subroutine abcd_1(nbls1,lci,lcj, lcij,lckl,
+     *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
+     *                  abcd,apb,rcpd,cpd,rapb,
+     *                  aaa,bbb,const,gcoef,ngcd)
+c--------------------------------------------------------------------
+c  OUTPUT
+c  ABCD(ijkl)= apb*rcpd   OR  cpd*rapb abd logical stable(ijkl)
+c--------------------------------------------------------------------
 c because of possible numerical instablity in Tracy's recursive 
-c it is needed to check it out (see xwpq_2) 
-c
-c FOR now IT IS NOT DONE yet for route=1 . It will go as stable
-c if nsij.GE.nskl and as unstable for nsij.LT.nskl 
-c (just like it used to be) 
+c it is needed to check it out (see abcd_2) 
 c---------------------------------------------------------------
-c old fashion way regardless of stability or instability (to be changed)
+      implicit real*8 (a-h,o-z)
 c
-         if(nsij.ge.nskl) then
-            stable(1)=.true.
-            do i=1,nbls1
-               ijkl=index(i)
-               ijpar=indxij(ijkl)      
-               klpar=indxkl(ijkl)     
+c numerical stability :
+      logical stable_2
+      common /stability_2/ stable_2      
+      logical stable 
+      common /tracy_stability/ stable(5000) ! this is limit limblks
+c
+      common /allow_lost/ lost_allow
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+c
+      dimension indxij(*),indxkl(*),index(*)
+c
+      dimension apb(nij_uniqe,*),rapb(nij_uniqe,*)
+      dimension cpd(nkl_uniqe,*),rcpd(nkl_uniqe,*)
+      dimension aaa(nkl_uniqe,*),bbb(nij_uniqe,*)
+      dimension const(nbls1),gcoef(ngcd,*)
+      dimension abcd(nbls1)
+c---------------------------------------------------------------
+c For test only : 
+c counter of all & unstable blocks of primitive quartets
+c used here and in texas_face (init & terminate)
+c
+      common /count_primitive/ x_prim_all,
+     *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c---------------------------------------------------------------
+      x_prim_all=x_prim_all + nbls1
+c---------------------------------------------------------------
+      if(stable_2) then
+ctest
+c       write(6,*)'abcd_1: stable_2=',stable_2
+ctest
+         do i=1,nbls1
+            ijkl=index(i)
+            ijpar=indxij(ijkl)      
+            klpar=indxkl(ijkl)     
+            abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
+            stable(i)=.true.
+         enddo
+      else
+c       write(6,*)'abcd_1: stable_2=',stable_2
+         x_prim_wr1=x_prim_wr1 + nbls1              ! test 
+c
+         do i=1,nbls1
+            ijkl=index(i)
+            ijpar=indxij(ijkl)      
+            klpar=indxkl(ijkl)     
+c
+            a_exp=aaa(ijpar,lci)
+            b_exp=bbb(ijpar,lcj)
+            boa=2.d0*b_exp/max(2.d0,a_exp) ! exp. are already *2 .
+ctest
+c      write(6,*)'contr=',lci,lcj,lcij,' a,b=',a_exp,b_exp,' boa=',boa
+ctest
+c
+            if(boa .ge. 10.d0) then
+               x_prim_wr2=x_prim_wr2 + 1.d0         !   test
+c
+               xost_digit_1= log10(boa*rcpd(klpar,lckl))
+               xost_digit  = (nskl-1)*xost_digit_1 
+c
+               if(ngcd.gt.1) then
+                  call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
+                  lost_const  =int( log10( gc_max*abs( const(i) ) ) )
+               else
+                  lost_const  =int( log10( abs( const(i) ) ) )
+               endif
+c
+               lost_const  =max( -14, lost_const )
+c
+               lost_digit= int( xost_digit ) + lost_const
+c
+               if(lost_digit.gt.lost_allow) then
+                  x_prim_wr3=x_prim_wr3 + 1.d0                !   test
+                  stable(i)=.false.
+                  abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
+ctest..................................................................
+c                 write(6,*)'Quartet no=',i
+c                 write(6,*)'const=',const(i) ,
+c    *            ' a+b=',apb(ijpar,lcij),' c+d=',cpd(klpar,lckl)
+c                 write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *               int( xost_digit ),
+c    *            '; due to const=',lost_const,
+c    *            '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c                 write(6,*)'==> stable=',stable(i),
+c    *            ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+ctest..................................................................
+               else
+                  stable(i)=.true.
+                  abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
+               endif
+            else
                abcd(i)=apb(ijpar,lcij)*rcpd(klpar,lckl)
-            enddo
-         else
-            stable(1)=.false.
-            do i=1,nbls1
-               ijkl=index(i)
-               ijpar=indxij(ijkl)    
-               klpar=indxkl(ijkl)   
-               abcd(i)=rapb(ijpar,lcij)*cpd(klpar,lckl)
-            enddo
-         endif
+               stable(i)=.true.
+            endif
+         enddo
+      endif
 c---------------------------------------------------------------
-c
       end
 c====================================================================
       subroutine specase_1(bl,first,nbls,nbls1, index,indxij,indxkl,
@@ -1571,8 +1671,8 @@ c
             is1=is1+1
             aa=datbas(1,is)
             aexp(is1)=aa
-            if(where.eq.'forc') aaa(ijpar,is1)=aa
-            if(where.eq.'hess') aaa(ijpar,is1)=aa
+cmoved down if(where.eq.'forc') aaa(ijpar,is1)=aa
+cmoved down if(where.eq.'hess') aaa(ijpar,is1)=aa
                if(ngctot.eq.0) then
                   csi=datbas(2,is)
                   cpi=datbas(3,is)
@@ -1596,8 +1696,8 @@ c
             ji=ji+1
             bb=datbas(1,js)
             bexp(js1)=bb
-            if(where.eq.'forc' .and. which.eq.'left ') bbb(ijpar,js1)=bb
-            if(where.eq.'hess' .and. which.eq.'left ') bbb(ijpar,js1)=bb
+cmoved down if(where.eq.'forc' .and. which.eq.'left ') bbb(ijpar,js1)=bb
+cmoved down if(where.eq.'hess' .and. which.eq.'left ') bbb(ijpar,js1)=bb
                if(ngctot.eq.0) then
                   csj=datbas(2,js)
                   cpj=datbas(3,js)
@@ -1745,6 +1845,19 @@ cold       do 153 ijpar=1,npij
               txab(ijpar,2,ijs1)=txab(ijpar,2,ijs1)*rapb1
               txab(ijpar,3,ijs1)=txab(ijpar,3,ijs1)*rapb1
   153      continue
+         endif
+      endif
+c------------------------------------------------------------------
+c for gradient derivative integrals save exponents rescaled by 2 :
+c
+      if(where.eq.'forc' .or. where.eq.'hess') then
+         do is1=1,lcii
+            aaa(1,is1)=aexp(is1)+aexp(is1)
+         enddo
+         if(which.eq.'left ') then
+            do js1=1,lcjj
+               bbb(1,js1)=bexp(js1)+bexp(js1)
+            enddo
          endif
       endif
 c------------------------------------------------------------------
@@ -2021,12 +2134,11 @@ c====================================================================
       subroutine xwpq_2(nbls1,xwp,xwq,p1234,lc12, lc34,lcij,lckl,
      *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
      *                  rppq,xp,xq,xpp,xqq,
+     *                  txab,txcd,     apb,rcpd,cpd,rapb)
 c98  *                  txab,txcd,abcd,apb,rcpd,cpd,rapb)
-     *                  txab,txcd,abcd,apb,rcpd,cpd,rapb,
-     *                  const_max)
 c---------------------------------------------------------------
 c const_max is maximum of abs values of const(nbls1) 
-c OUTPUT :  xwp(nbls1,3),xwq(nbls1,3),p1234(nbls1,3), abcd
+c OUTPUT :  xwp(nbls1,3),xwq(nbls1,3),p1234(nbls1,3)
 c---------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /flops/ iflop(20)
@@ -2044,28 +2156,6 @@ c
 c
       dimension apb(lc12),rapb(lc12)
       dimension cpd(lc34),rcpd(lc34)
-c---------------------------------------------------------------
-c accuracy :
-      logical stable_2
-      common /stability_2/ stable_2      
-      common /stability_3/ b_over_a(1000) 
-c
-c used only here and in trobsa.f :
-c
-      logical stable 
-      common /tracy_stability/ stable(1)
-c
-c set up in set_lost_allowed() in texas_hf 
-c
-      common /allow_lost/ lost_allow
-c---------------------------------------------------------------
-c For test only : counter of all & unstable blocks of primitive quartets
-c used here and in raktest.F
-c
-c     common /count_primitive/ x_prim_all,
-c    *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
-c     common /count_efficient/ xobsa2,xobsa2_ineff,xobsa2_more,
-c    *                         xobsa4,xobsa4_ineff,xobsa4_more
 c---------------------------------------------------------------
       rppq1=rppq
       rcpd1=rcpd(lckl)
@@ -2096,89 +2186,109 @@ c
   100 continue
 c
 c---------------------------------------------------------------
+      end
+c====================================================================
+      subroutine abcd_2(nbls1, lcij,lckl,index,
+     *                  abcd,apb,rcpd,cpd,rapb,
+     *                  const,gcoef,ngcd)
+c---------------------------------------------------------------
+c const_max is maximum of abs values of const(nbls1) 
+c OUTPUT : abcd & numerical stability info stable(1)
+c---------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+c
+      dimension index(*)
+c
+      dimension apb(*),rapb(*)       ! apb(lc12),rapb(lc12)
+      dimension cpd(*),rcpd(*)       ! cpd(lc34),rcpd(lc34)
+      dimension const(nbls1), gcoef(ngcd,*)
+c---------------------------------------------------------------
+c accuracy :
+      logical stable_2
+      common /stability_2/ stable_2      
+      common /stability_3/ b_over_a(1000) 
+c
+c used only here and in trobsa.f :
+c
+      logical stable 
+      common /tracy_stability/ stable(5000) ! this is limit limblks
+      common /allow_lost/ lost_allow
+c---------------------------------------------------------------
+c For test only : counter of all & unstable blocks of primitive quartets
+c used here and in texas_face (init & terminate)
+c
+      common /count_primitive/ x_prim_all,
+     *                         x_prim_wr1, x_prim_wr2, x_prim_wr3
+c---------------------------------------------------------------
 c for accuracy in Tracy's recursive : 
 c
       stable(1)=.true.
-      abcd=apb(lcij)*rcpd1
+      abcd=apb(lcij)*rcpd(lckl)
 c
-      x_prim_all=x_prim_all + 1.d0
+      x_prim_all=x_prim_all + nbls1         ! test only
 c
-        lost_digit_1=0
-        lost_digit=0
         if( .not.stable_2 ) then
-ctest      x_prim_wr1=x_prim_wr1 + 1.d0
+           x_prim_wr1=x_prim_wr1 + nbls1    ! test only
            boa=b_over_a(lcij)
            if( boa .gt. 0.d0 ) then
-ctest         x_prim_wr2=x_prim_wr2 + 1.d0
-c
 c............ boa=0.d0 means that it was ok ......
 c
-              lost_const=int( log10(const_max) )
+              x_prim_wr2=x_prim_wr2 + nbls1     ! test only
 c 
-              xost_digit_1= log10(boa*rcpd(lckl))
-              lost_digit_1= int( xost_digit_1 )
-              lost_digit  = (nskl-1)*lost_digit_1 + lost_const
+c calculate number of lost digit in all (nskl-) recursive steps :
+c
+              xost_digit= (nskl-1)*log10(boa*rcpd(lckl))
+c
+c final integrals are obtained by multiplying pruducts from Tracy's rec.
+c by the CONST factor (involving contr.coeff.) which can be very small.
+c In such cases the final integrals are also very small and we may
+c allow ourselves to loose some digit. In the other words, small value 
+c of const may let us "get back" some lost digit. However, we can not 
+c get back more than 14 digit ( double precission limit ). Thus :
+c
+c first find maximum value of const()*gcoef() :
+c
+              call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
+c
+              lost_const=int( log10(const_max) )
+              lost_const=max( -14, lost_const )
+c 
+              lost_digit= int( xost_digit ) + lost_const
 c
               if(lost_digit.gt.lost_allow) then
                  stable(1)=.false.
                  abcd=rapb(lcij)*cpd(lckl)
-ctest
-ctest            x_prim_wr3 =x_prim_wr3 + 1.d0
-ctest
-c                write(6,*)'const()=',(const(ii),ii=1,nbls1)
-c                write(6,*)'a+b=',apb(lcij),' c+d=',cpd(lckl)
-c                write(6,*)'Lost : 1 step=',lost_digit_1,
-c    *              ' const=',lost_const,
-c    *              ' total=',lost_digit,'(allowed=',lost_allow,')',
-c    *              '=> stable=',stable(1),
-c    *              ' an.mom. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+                 x_prim_wr3 =x_prim_wr3 + nbls1     ! test only
               endif
            endif
         endif
-ctest
-c
 c---------------------------------------------------------------
-c calculate how many times the program goes according to :
-c (1) lobsa=2 (when it is stable)
-c
-c     if(stable(1)) then
-c        xobsa2=xobsa2+1.0
-c        if(nsij.LT.nskl) then
-c           xobsa2_ineff=xobsa2_ineff + 1.0
-c           xobsa2_more =xobsa2_more + dble(nskl-nsij)
-c        endif
-c     else
-c        xobsa4=xobsa4+1.0
-c        if(nsij.GT.nskl) then
-c           xobsa4_ineff=xobsa4_ineff + 1.0
-c           xobsa4_more =xobsa4_more + dble(nsij-nskl)
-c        endif
-c     endif
+ctest
+c       if( .not.stable(1) ) then
+c           write(6,*)'const_max=',const_max,
+c    *                ' a+b=',apb(lcij),' c+d=',cpd(lckl)
+c           write(6,*)'Lost : in ',nskl-1,' steps =',
+c    *            int( xost_digit ),
+c    *         '; due to const=',lost_const,
+c    *         '; TOTAL=',lost_digit,'(allowed=',lost_allow,')'
+c           write(6,*)'==> stable=',stable(1),
+c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
+c       endif
+ctest
 c---------------------------------------------------------------
 c old fashion way :
 c
 c     if(nsij.ge.nskl) then
 c        stable(1)=.true.
-c        abcd=apb(lcij)*rcpd1
+c        abcd=apb(lcij)*rcpd(lckl)
 c     else
 c        stable(1)=.false.
 c        abcd=rapb(lcij)*cpd(lckl)
 c     endif
-c---------------------------------------------------------------
-c     write(6,*)' nsij,nskl=',nsij,nskl,
-c    *              ' an.mom. (',nqi,nqj,'|',nqk,nql,')',
-c    *                                  ' stable=',stable(1)
-c
-c for tests :
-c
-c     write(6,*) ' forced to go by lobsa=2'
-c        stable(1)=.true.
-c        abcd=apb(lcij)*rcpd1
-c
-c     write(6,*) ' forced to go by lobsa=4'
-c        stable(1)=.false.
-c        abcd=rapb(lcij)*cpd(lckl)
-c
 c---------------------------------------------------------------
 c
       end
@@ -2354,28 +2464,6 @@ c     isab =iabprim   + ijdim*2
 c--------------
       end
 c====================================================================
-      subroutine get_min_exp(datbas,inx,nij_uniqe,ij_uniqe,
-     *                       a_exp_min, b_exp_min )
-c---------------------------------------------------------------
-c Because of numerical instability in Tracy's recursive :
-c select the minimum a_ & b_exponent
-c this routine is called for right side pairs ONLY
-c---------------------------------------------------------------
-      implicit real*8 (a-h,o-z)
-      dimension datbas(13,*)
-      dimension inx(12,*)
-      dimension ij_uniqe(nij_uniqe)
-c---------------------------------------------------------------
-c
-              ijcs=ij_uniqe(1)    
-              call get_ij_half(ijcs,ics,jcs)
-              ie=inx(5,ics)
-              je=inx(5,jcs)
-              a_exp_min=datbas(1,ie)
-              b_exp_min=datbas(1,je)
-c---------------------------------------------------------------
-      end
-c====================================================================
       subroutine num_stability_2(datbas,inx,ij_uniqe,kl_uniqe)
       implicit real*8 (a-h,o-z)
       logical stable_2
@@ -2466,6 +2554,7 @@ c two b over max(1,a)  :
 c
                  boa_max=2.d0*b_exp_max/a_1_max
 c
+c
               if(boa_max .lt. 10.d0) return  ! stable_2=.true. 
 c
 c right side pairs:
@@ -2486,19 +2575,18 @@ c
 c Lost commited :
 c
               xost_digit_1= log10( boa_max*cpd_max )
-              lost_digit_1= int( xost_digit_1 )
-c
-              lost_digit  = (nskl-1)*lost_digit_1
+              xost_digit  = (nskl-1)*xost_digit_1
+              lost_digit  = int( xost_digit )
 c
 c this is very conservative because the contraction coeff. are
 c not taken into account. It is done later in XWPQ_2 .
 c
-c     write(6,*)' lost_digits: in 1 step=',lost_digit_1,
-c    *          ' ; in all steps=',lost_digit
-c
               if(lost_digit.gt.lost_allow) stable_2=.false.
 c
-c     write(6,*)'num_stability_2 : stable_2=',stable_2
+c     write(6,*)'num_stability_2: Max lost in digits :',
+c    * ' in 1 step =',int(xost_digit_1),
+c    * ' ; in ',nskl-1,' steps =',lost_digit,
+c    *              ' ==> stable_2=',stable_2 
 c-------------------------------------------------------------
               if(stable_2) return
 c-------------------------------------------------------------
@@ -2518,8 +2606,8 @@ c
                     boa_max_cpd=boa*cpd_max
                     if(boa_max_cpd .ge. 10.d0) then
                        xost_digit_1= log10( boa_max_cpd )
-                       lost_digit_1= int( xost_digit_1 ) 
-                       lost_digit  = (nskl-1)*lost_digit_1
+                       xost_digit  = (nskl-1)*xost_digit_1 
+                       lost_digit  = int( xost_digit )
                        if(lost_digit.gt.lost_allow) then
                           b_over_a(ij)=boa
                        endif
@@ -2531,3 +2619,193 @@ c-------------------------------------------------------------
 c
       end
 c===================================================================
+      subroutine num_stability_1(datbas,inx,
+     *                        nij_uniqe,ij_uniqe,nkl_uniqe,kl_uniqe)
+      implicit real*8 (a-h,o-z)
+      logical stable_2
+      common /stability_2/ stable_2       ! use here and in xwpq_
+      common /stability_3/ b_over_a(1000) ! use here and in xwpq_
+c 1000 above is enough for contractions as long as 31 (31*31=961)
+c
+      character*11 scftype
+      character*4 where
+      common /runtype/ scftype,where
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+c number of digit allowed to loose 
+      common /allow_lost/ lost_allow
+c
+      dimension datbas(13,*)
+      dimension inx(12,*)
+      dimension ij_uniqe(nij_uniqe)
+      dimension kl_uniqe(nkl_uniqe)
+c-------------------------------------------------------------
+c for description see num_stability_2()
+c-------------------------------------------------------------
+c calculate maximum of 2*b/max(1,a) and maximum of 1/(c+d)
+c these two above will determine numerical stability in
+c Tracy's recursive 
+c-------------------------------------------------------------
+c
+      stable_2=.true.
+c
+      if(mmax.gt.2 .and. nskl.gt.1) then
+c
+c left side pairs:
+c
+c        write(6,*)'num_stability_1:'
+c
+         a_exp_min=1.0d+10
+         b_exp_max=0.0d0  
+         do ijpar=1,nij_uniqe
+            ijcs=ij_uniqe(ijpar)
+            call get_ij_half(ijcs,ics,jcs)
+c
+            ia=inx(1,ics)+1    !  starting contr
+            ja=inx(1,jcs)+1
+            ie=inx(5,ics)      !      last contr
+            je=inx(5,jcs)
+c
+            do is=ia,ie
+               aa=datbas(1,is)
+               if(aa.lt.a_exp_min) a_exp_min=aa
+            enddo
+            do js=ja,je
+               bb=datbas(1,js)
+               if(bb.gt.b_exp_max) b_exp_max=bb
+            enddo
+         enddo
+c
+         a_1_max=max(1.d0,a_exp_min)
+c
+c two b over max(1,a)  :
+c
+         boa_max=2.d0*b_exp_max/a_1_max
+c
+         if(boa_max .lt. 10.d0) return  ! stable_2=.true. 
+       
+c
+c right side pairs:
+c
+         c_exp_min=1.0d+10
+         d_exp_min=1.0d+10
+         do klpar=1,nkl_uniqe
+            klcs=kl_uniqe(klpar)
+            call get_ij_half(klcs,kcs,lcs)
+c
+            ka=inx(1,kcs)+1    !  starting contr
+            la=inx(1,lcs)+1
+            ke=inx(5,kcs)      !      last contr
+            le=inx(5,lcs)
+c
+            do ks=ka,ke
+               cc=datbas(1,ks)
+               if(cc.lt.c_exp_min) c_exp_min=cc
+            enddo
+            do ls=la,le
+               dd=datbas(1,ls)
+               if(dd.lt.d_exp_min) d_exp_min=dd
+            enddo
+         enddo 
+c
+         cpd_min=c_exp_min+d_exp_min
+         cpd_max=1.d0/cpd_min
+c
+         xost_digit_1= log10( boa_max*cpd_max )
+         xost_digit  = (nskl-1)*xost_digit_1
+         lost_digit  = int( xost_digit )
+         if(lost_digit.gt.lost_allow) stable_2=.false.
+c
+c     write(6,*)'num_stability_1: Max lost in digits :',
+c    * ' in 1 step =',int(xost_digit_1),
+c    * ' ; in ',nskl-1,' steps =',lost_digit,
+c    *              ' ==> stable_2=',stable_2 
+c-------------------------------------------------------------
+c        if(stable_2) return
+c-------------------------------------------------------------
+c calculate and save 2*b/max(1,a) for each left side contraction 
+c
+c        do ijpar=1,nij_uniqe
+c           ijcs=ij_uniqe(ijpar)
+c           call get_ij_half(ijcs,ics,jcs)
+c           ia=inx(1,ics)+1  
+c           ja=inx(1,jcs)+1
+c           ie=inx(5,ics)   
+c           je=inx(5,jcs)
+c           ij=0
+c           do is=ia,ie
+c              aa=datbas(1,is)
+c              a_1_max=max(1.d0,aa)
+c              a2=2.d0/a_1_max
+c              do js=ja,je
+c                 bb=datbas(1,js)
+c                 ij=ij+1
+c
+c                 b_over_a(ij)=0.d0
+c                 boa=bb*a2
+c                 boa_max_cpd=boa*cpd_max
+c                 if(boa_max_cpd .ge. 10.d0) then
+c                    xost_digit_1= log10( boa_max_cpd )
+c                    xost_digit  = (nskl-1)*xost_digit_1
+c                    lost_digit  = int( xost_digit )
+c                    if(lost_digit.gt.lost_allow) then
+c                       b_over_a(ijpar,ij)=boa
+c                    endif
+c                 endif
+c              enddo ! js=ja,je
+c           enddo    ! is=ia,ie
+c        enddo       ! ijpar=1,nij_uniqe
+c-------------------------------------------------------------
+      endif   !  if(mmax.gt.2 .and. nskl.gt.1) then
+c
+      end
+c===================================================================
+      subroutine get_max_const(nbls1,const,ngcd,indx,gcoef,const_max)
+c
+c  called from abcd_2() only
+c
+      implicit real*8 (a-h,o-z)
+      dimension const(nbls1),gcoef(ngcd,*)  ! gcoef(ngcd,nbls)
+      dimension indx(*)
+c
+      if(ngcd.EQ.1) then
+         const_max=0.d0
+         do i=1,nbls1
+            c_abs=abs(const(i))
+            if(c_abs.gt.const_max) const_max=c_abs
+         enddo
+      else
+         const_max=0.d0
+         do i=1,nbls1
+            const_i=const(i)
+            ijkl=indx(i)
+            gcoef_i=0.d0
+               do ijklg=1,ngcd
+                  gc_abs=abs( gcoef(ijklg,ijkl) )
+                  if(gc_abs.gt.gcoef_i) gcoef_i=gc_abs
+               enddo
+            c_abs=abs( const_i * gcoef_i )
+            if(c_abs.gt.const_max) const_max=c_abs
+         enddo
+      endif
+c
+      end
+c===============================================================
+      subroutine get_max_gcoef(gcoef,ngcd,gc_max)
+c
+c  called from abcd_1() only
+c
+      implicit real*8 (a-h,o-z)
+      dimension gcoef(ngcd)
+c
+      gc_max=0.d0
+      do iqu=1,ngcd
+         gc_abs=abs(gcoef(iqu))
+         if(gc_abs.gt.gc_max) gc_max=gc_abs
+      enddo
+c
+      end
+c====================================================================

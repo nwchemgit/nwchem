@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.13 1998-07-05 19:08:21 pg481 Exp $
+c $Id: prepint.f,v 1.14 1998-07-17 16:15:01 d3g681 Exp $
 cccc  subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
       subroutine prepint2(bl,    inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,maxprice,scftype)
@@ -151,6 +151,7 @@ c
      *                             tuniq2,tmap4u,tcheck,tdesti,
      *               tuniq2+tmap4u+tcheck+tdesti,      ! interface
      *       tblock+tprec2+terint+tspeci + tuniq2+tmap4u+tcheck+tdesti 
+c     call util_flush(8)
   120 format(
      *       '========================================================'/
      *       '                                                        '/
