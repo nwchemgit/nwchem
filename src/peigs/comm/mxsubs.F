@@ -45,7 +45,7 @@ C
 C     Rik Littlefield, 1/16/91.
 C
 #ifdef ALOG
-      include 'alogevents.h'
+#include "alogevents.h"
 #endif
       subroutine mxtime( job, xtime )
       double precision xtime
@@ -85,10 +85,10 @@ c            used by the diagonalizer is 'ialnod', meaning "all nodes".)
 c
 
       common /xpress/ nocare, norder, nonode, ihost, ialnod, ialprc
-      include 'mxsubs.h'
+#include "mxsubs.h"
       integer ienv(4)
 #ifdef ALOG
-      include 'alogf.h'
+#include "alogf.h"
 #endif
       integer ifirst
       integer nocare, norder, ihost, ialnod, ialprc, nonode
@@ -183,7 +183,7 @@ c
       integer nodeid, nnodes, mynodes, numnodes
 #include "mxsubs.h"
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR
 #endif
 #ifdef iPSC_NATIVE
@@ -236,7 +236,7 @@ c
       integer function mxtick ()
 c     mxtick -- return cpu time in arbitrary increments.
 c
-      include 'mxsubs.h'
+#include "mxsubs.h"
       
 #ifdef MPI
       double precision mxclock
@@ -271,14 +271,14 @@ c     call etime (et)
       return
       end
       
-      integer function mxread (data,isize,iproc,itype)
+	integer function mxread (data,isize,iproc,itype)
 c     mxread -- read data from another processor.
 c               As used by the Jacobi diagonalizer, iproc and itype
 c               are always specified exactly.  This routine does not
 c               need to handle promiscuous types, iproc=ialnod, or
 c               other such complexities.
 c
-      integer data(*), isize, iproc, itype
+	integer data(*), isize, iproc, itype
 	integer icopy
 #ifdef TIMING
       double precision t1, t2, time
@@ -290,10 +290,10 @@ c
 	external rcv
 #endif
 #ifdef ALOG
-        include 'alogf.h'
+#include "alogf.h"
 #endif
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR, STATUS(MPI_STATUS_SIZE)
 #endif
 #ifdef TIMING
@@ -312,10 +312,12 @@ c      stop 999
       mxread = kxread (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
-        icopy = mxmynd() + 100*iproc
-	icopy = mod(icopy, 32767) + 1
-c      write(*,*) ' me ', mxmynd(), ' rcv ', iproc, ' isize ',
-c     $     isize, ' itype ', itype
+      integer icopy
+c     icopy = mxmynd() + 100*iproc
+c     icopy = mod(icopy, 32767) + 1
+c     
+      icopy = mod(itype, 500) + 25001
+c     
       call rcv(icopy, data, isize, len, iproc, ifrom, 1)
       mxread = len
 #endif
@@ -327,8 +329,8 @@ c     -- of not allowing crecv to specify node number
 c	      write(*,*) 'node ', me, ' rcving type ', 
 c     $	me +10000*iproc, 'from ', iproc              		
 c
-c      call crecv (mod(itype, 512)+10000*iproc,data,isize)
-c
+c     call crecv (mod(itype, 512)+10000*iproc,data,isize)
+c     
 	call crecv (10000*iproc+me,data,isize)
 #endif
 #ifdef MPI
@@ -381,12 +383,12 @@ c
       double precision mxclock
       external         mxclock
 #endif
-      include 'mxsubs.h'
+#include "mxsubs.h"
 #ifdef ALOG
-      include 'alogf.h'
+#include "alogf.h"
 #endif
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR
 #endif
 #ifdef TIMING
@@ -401,12 +403,11 @@ c      stop 999
       mxwrit = kxwrit (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
-      icopy = iproc + 100*mxmynd()
-c
-c	write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
+c     icopy = iproc + 100*mxmynd()
+c     
+c     write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
 c     $ 	    isize, ' itype ', itype
-c
-	icopy = mod(icopy, 32767) + 1
+      icopy = mod(itype, 500) + 25001
 c
 c to get within range of tcgmsg message types
 c
@@ -453,12 +454,12 @@ c        -- Note corruption of type.  See mxread for rationale.
       integer function mxsync ()
 c     mxsync -- synchronize all processors.
 c
-      include 'mxsubs.h'
+#include "mxsubs.h"
 #ifdef ALOG
-      include 'alogf.h'
+#include "alogf.h"
 #endif
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR
 #endif
 #ifdef UNIPROC
@@ -490,7 +491,7 @@ c     binary-tree based version that runs in log(P) time and queues
 c     no more than two messages at any node.  (Replaces old mxbrod/mxcomb
 c     hack.)
 c
-      include 'xpress.com'
+#include "xpress.com"
       integer parent, child1, child2, itype
 
       parent = (me-1)/2
@@ -549,7 +550,7 @@ c               but reliable approach -- sending processor
 c               explicitly sends to each of the receiving ones.
 c
       integer data(*)
-      include 'mxsubs.h'
+#include "mxsubs.h"
 c.	write (*,*) 'mxbcst: me,iproc,isize,itype=',me,iproc,isize,itype
       if (me.eq.iproc) then
          do 10 ito = 0,nproc-1
@@ -572,10 +573,10 @@ c.      call mxsync ()
 	external pend
 #endif
 #ifdef ALOG
-        include 'alogf.h'
+#include "alogf.h"
 #endif
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR
 #endif
 #ifdef PICL
@@ -628,7 +629,7 @@ c
 c	The obvious "mynode" function, for those tired of using the
 c	'env' vector all the time.
 c
-        include 'mxsubs.h'
+#include "mxsubs.h"
         mxmynd = me
         return
         end
@@ -638,7 +639,7 @@ c
 c	The obvious "numprocs" function, for those tired of using the
 c	'env' vector all the time.
 c
-        include 'mxsubs.h'
+#include "mxsubs.h"
         mxnprc = nproc
         return
         end
@@ -672,7 +673,7 @@ c	external clock
 
 	subroutine mxend
 #ifdef MPI
-	include 'mpif.h'
+#include "mpif.h"
       INTEGER IERROR
       CALL MPI_FINALIZE( IERROR )
 

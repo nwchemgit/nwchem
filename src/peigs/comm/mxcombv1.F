@@ -139,9 +139,9 @@ c
       integer istep
       integer iretrn
       integer istat
-      integer env(4)
-	include 'cmbbfr1.h'
-      integer datbuf(*)
+	integer env(4)
+#include "cmbbfr1.h"
+	integer datbuf(*)
 c
 c     EXPRESS-environment common block that contains certain variables
 c     and constants.  In this routine, we need -ialnod-.

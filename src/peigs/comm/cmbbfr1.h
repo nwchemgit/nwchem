@@ -2,12 +2,12 @@ c
 c     Communications buffer.  bufsiz is in bytes.  As with 'data',
 c     (see mxcomb.cpp) 'bufdat' really ought to be integer*4.
 c
-      integer bufsiz
+         integer bufsiz
 #ifndef NCUBE_NODE
-      parameter (bufsiz=10000)
+         parameter (bufsiz=10000)
 #else
-c      parameter (bufsiz=512)
-      parameter (bufsiz=8*1024)
+c        parameter (bufsiz=512)
+         parameter (bufsiz=8*1024)
 #endif
 c     Place datbuf in common to force alignment.  The djunk variable
 c     is left over from experiments on how alignment changes
