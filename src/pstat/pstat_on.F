@@ -4,8 +4,9 @@
 C
 #include "pstatP.fh"
 #include "tcgmsg.fh"
-#if defined(SUN)
-      real etime, tarray(2)
+#if defined(SUN) || defined(SGI) || defined(SGITFP)
+#define ETIME
+      real*4 etime, tarray(2)
       external etime
 #endif
 C
@@ -25,7 +26,7 @@ c
       EndIf
 C
       If ( PStat_Functions( Handle, PStat_QStat) ) then
-#if defined(SUN)
+#if defined(ETIME)
          PStat_Start_Times( Handle, 1 ) = dble(etime(tarray))
 #else
          PStat_Start_Times( Handle, 1 ) = Zero
