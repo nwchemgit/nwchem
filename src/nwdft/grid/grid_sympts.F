@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.10 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_sympts.F,v 1.11 2001-06-14 15:45:26 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -131,9 +131,9 @@ cedo            write(6,'("  h0",i3,4(F12.6))') h,x1,y1,z1
                      z1=z1-xyz(3) 
                      do k1=k+1,nq_left
                         if(k.ne.k1) then
-                           ddd=(x1-gridscr(1,k1))**2+
-     +                          (y1-gridscr(2,k1))**2+
-     +                          (z1-gridscr(3,k1))**2
+                           ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
+     +                         (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
+     +                         (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
                            if(ddd.lt.1d-10) then
                               if(gridscr(4,k1).ne.0d0) then
                                  if(abs(gridscr(4,k1)-gridscr(4,k)).
