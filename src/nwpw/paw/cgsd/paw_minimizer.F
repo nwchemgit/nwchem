@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.4 2004-08-13 01:16:42 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.5 2004-09-04 17:56:20 bylaska Exp $
 *
 
 ***********************************************************************
@@ -206,7 +206,10 @@
       call Pack_init()
 
 *     **** initialize Gaunt array ****
+c     call current_second(t1)
       call paw_gaunt_init()
+c     call current_second(t2)
+c     write(*,*) "time1:",t2-t1
 
 
 *     **** read ions ****
@@ -216,10 +219,14 @@
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
+c     call current_second(t1)
       value = MA_set_auto_verify(.true.)
       call init_paw_basis()
+c     call current_second(t2)
+c     write(*,*) "time2:",t2-t1
 
 *     *** initialize paw matrices ***
+c     call current_second(t1)
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
       call init_paw_vloc_matrix()
@@ -228,21 +235,45 @@
       call init_paw_overlap_matrix()
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
+c     call current_second(t2)
+c     write(*,*) "time3:",t2-t1
 
 *     *** initialize paw projectors ***
+c     call current_second(t1)
       call paw_proj_init()
+c     call current_second(t2)
+c     write(*,*) "time4:",t2-t1
 
 *     *** initialize compensation charge ***
+c     call current_second(t1)
       call paw_comp_charge_init()
+c     call current_second(t2)
+c     write(*,*) "time5:",t2-t1
 
-*     *** initialize paw atomc potentials ***
-      call paw_vloc_init()
+c*     *** initialize paw atomic potentials ***
+c      call current_second(t1)
+c      call paw_vloc_init()
+c      call current_second(t2)
+c      write(*,*) "time6:",t2-t1
+
+c     call current_second(t1)
       call init_paw_pot_hartree()
+c     call current_second(t2)
+c     write(*,*) "time7:",t2-t1
+
+c     call current_second(t1)
       call init_paw_pot_comp()
+c     call current_second(t2)
+c     write(*,*) "time8:",t2-t1
+
+c     call current_second(t1)
       call paw_mult_init()
+c     call current_second(t2)
+c     write(*,*) "time9:",t2-t1
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
+c     call current_second(t1)
       call ke_init()
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
@@ -281,6 +312,8 @@
 *     **** initialize linesearching ****
       call linesearch_init()
 
+c     call current_second(t2)
+c     write(*,*) "time10:",t2-t1
 
 
 
@@ -500,7 +533,7 @@ c     end if
       call paw_nonlocal_end()
       call paw_comp_charge_end()
       call paw_mult_end()
-      call paw_vloc_end()
+c      call paw_vloc_end()
       call end_paw_kin_matrix()
       call end_paw_vloc_matrix()
       call end_paw_ion_matrix()

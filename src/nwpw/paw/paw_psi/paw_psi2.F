@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.3 2004-08-13 04:20:08 bylaska Exp $
+* $Id: paw_psi2.F,v 1.4 2004-09-04 17:56:21 bylaska Exp $
 *
 
 
@@ -1499,11 +1499,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *					*
 *     ***********************************
 
-*     T = R - Y*Y^t*S*R ! used by Grassman minimizers
+*     T = T - Y*Y^t*S*T ! used by Grassman minimizers
 *
-      subroutine paw_psi_1gen_Tangent(R,T)
+      subroutine paw_psi_1gen_Tangent(T)
       implicit none
-      complex*16 R(*)
       complex*16 T(*)
 
 #include "mafdecls.fh"
@@ -1519,9 +1518,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       if (.not. value) 
      >call errquit('paw_psi_1gen_Tangent:out of stack memory',0,MA_ERR)
 
-      call dcopy(2*npack1*(ne(1)+ne(2)),R,1,T,1)
       call paw_electron_gen_psiTangenthml_S(dcpl_mb(psi1(1)),
-     >                                R,
+     >                                T,
      >                                dbl_mb(tmp1(1)))
       call paw_electron_gen_Tangent(dcpl_mb(psi1(1)),
      >                          dbl_mb(tmp1(1)),

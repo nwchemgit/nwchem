@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.72 2004-08-01 02:02:45 bylaska Exp $
+* $Id: paw_sd.F,v 1.73 2004-09-04 17:56:21 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2004/08/01 02:02:45  bylaska
+* updates...EJB
+*
 * Revision 1.71  2004/07/29 15:55:36  bylaska
 * Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
 *
@@ -378,12 +381,12 @@
 
 *     *** initialize paw projectors ***      
       call paw_proj_init()
+c      call paw_vloc_init()
       
 *     *** initialize compensation charge ***
       call paw_comp_charge_init()
       
 *     *** initialize paw atomc potentials ***      
-      call paw_vloc_init()
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
       call paw_mult_init()
@@ -939,7 +942,7 @@ c         write(6,1498) virial
       call paw_nonlocal_end()
       call paw_comp_charge_end()
       call paw_mult_end()
-      call paw_vloc_end()
+c      call paw_vloc_end()
       call end_paw_kin_matrix()
       call end_paw_vloc_matrix()
       call end_paw_ion_matrix()

@@ -1,5 +1,5 @@
 *
-* $Id: paw_vloc.F,v 1.4 2004-08-13 01:16:43 bylaska Exp $
+* $Id: paw_vloc.F,v 1.5 2004-09-04 17:56:21 bylaska Exp $
 *
 
 
@@ -16,26 +16,13 @@
 
 #include "mafdecls.fh"
 #include "paw_ma.fh"
-#include "bessel_transform.fh"
 #include "paw_basis.fh"
 #include "paw_geom.fh"
 #include "paw_vloc_data.fh"
 
-      !**** local variables ****
-      real*8 small
-      parameter (small=1.0d-9)
-
       logical ok
-      integer i,ia,npack0,nfft3d,nr,nkatm
-      integer ps_ptr,i_rgrid
-      integer Gx(2),Gy(2),Gz(2),f(2)
-      real*8 log_amesh,gg,fourpi
+      integer npack0,nfft3d,nkatm
 
-      !*** external functions ****
-      integer  G_indx
-      external G_indx
-
-      fourpi = 16.0d0*datan(1.0d0)
 
       !*** allocate storage for local pseudopotential ***
       nkatm = ion_nkatm()
@@ -45,73 +32,6 @@
       if (.not.ok) 
      > call errquit('paw_vloc_init:out of heap memory',0,1)
 
-      !*** allocate temporary space ***
-      ok = MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
-      ok = ok.and.
-     >        MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
-      ok = ok.and.
-     >        MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not.ok)
-     > call errquit('paw_vloc_init: out of stack memory',0,0)
-
-      call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))
-      call D3dB_t_Copy(1,dbl_mb(G_indx(2)),dbl_mb(Gy(1)))
-      call D3dB_t_Copy(1,dbl_mb(G_indx(3)),dbl_mb(Gz(1)))
-      call Pack_t_pack(0,dbl_mb(Gx(1)))
-      call Pack_t_pack(0,dbl_mb(Gy(1)))
-      call Pack_t_pack(0,dbl_mb(Gz(1)))  
-
-
-      !*** format the pseudopotentials onto the reciprocal space ***
-      do ia=1,nkatm
-        ps_ptr          = paw_basis_i_v_ps(ia)
-        i_rgrid         = paw_basis_i_rgrid(ia)
-        nr              = int_mb(paw_basis_i_ngrid(ia))
-        log_amesh       = dbl_mb(paw_basis_i_log_amesh(ia))
-
-        ok = MA_push_get(mt_dbl,nr,'f',f(2),f(1))
-        if (.not.ok)
-     >  call errquit('paw_vloc_init: out of stack memory',0,1)
-        do i=1,nr
-          dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
-     >                      *dbl_mb(ps_ptr+i-1)
-        end do
-
-        do i=1,npack0
-          gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
-     >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
-     >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )
-
-
-          if (gg.gt.small) then
-          dbl_mb(vl(1)+(ia-1)*npack0 + i-1)
-     >       = fourpi
-     >        *spher_bessel_transform(0,nr,log_amesh,
-     >                                dbl_mb(i_rgrid),
-     >                                dbl_mb(f(1)),
-     >                                gg)
-          else
-          dbl_mb(vl(1)+(ia-1)*npack0 + i-1)
-     >       = fourpi
-     >        *spher_bessel0_transform(0,nr,log_amesh,
-     >                                dbl_mb(i_rgrid),
-     >                                dbl_mb(f(1)))
-
-          end if
-        end do !*i*
-       
-        ok = MA_pop_stack(f(2))
-        if (.not.ok)
-     >  call errquit('paw_vloc_init: error popping stack',0,2)
-
-      end do !*ia*
-
-      !*** deallocate temporary space ***
-      ok =        MA_pop_stack(Gz(2))
-      ok = ok.and.MA_pop_stack(Gy(2))
-      ok = ok.and.MA_pop_stack(Gx(2))
-      if (.not.ok)
-     >  call errquit('paw_vloc_init: error popping stack',0,3)
 
       return
       end
@@ -354,3 +274,11 @@
       end
 
 
+      subroutine paw_vloc_ptr(ptr)
+      implicit none
+      integer ptr
+#include "paw_vloc_data.fh"
+
+      ptr = vl(1)
+      return
+      end

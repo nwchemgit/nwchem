@@ -1,5 +1,5 @@
 c
-c     $Id: paw_cgminimize.F,v 1.2 2004-08-13 01:16:42 bylaska Exp $                       
+c     $Id: paw_cgminimize.F,v 1.3 2004-09-04 17:56:20 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -118,8 +118,9 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     ***** get the initial gradient and direction ****
       call paw_psi_1get_residual(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
-c      call ke_Precondition(npack1,neall,dcpl_mb(G1(1)),dcpl_mb(R1(1)))
-      call paw_psi_1gen_Tangent(dcpl_mb(R1(1)),dcpl_mb(G1(1)))
+c      call ke_Precondition2(npack1,neall,dcpl_mb(R1(1)),dcpl_mb(G1(1)))
+      call dcopy(2*neall*npack1,dcpl_mb(R1(1)),1,dcpl_mb(G1(1)),1)
+      call paw_psi_1gen_Tangent(dcpl_mb(G1(1)))
 
 
       call Grsm_gg_trace(npack1,neall,
@@ -174,8 +175,12 @@ c      call ke_Precondition(npack1,neall,dcpl_mb(G1(1)),dcpl_mb(R1(1)))
 
 *        **** get the new gradient - also updates densities****
          call paw_psi_1get_residual(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
-c        call ke_Precondition(npack1,neall,dcpl_mb(G1(1)),dcpl_mb(R1(1)))
-         call paw_psi_1gen_Tangent(dcpl_mb(R1(1)),dcpl_mb(G1(1)))
+c         call ke_Precondition2(npack1,neall,
+c     >                         dcpl_mb(R1(1)),
+c     >                         dcpl_mb(G1(1)))
+         call dcopy(2*neall*npack1,dcpl_mb(R1(1)),1,dcpl_mb(G1(1)),1)
+         call paw_psi_1gen_Tangent(dcpl_mb(G1(1)))
+      
       
 
          sum0  = sum1

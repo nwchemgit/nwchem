@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.29 2003-10-28 19:50:51 edo Exp $
+* $Id: paw_proj.F,v 1.30 2004-09-04 17:56:21 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.29  2003/10/28 19:50:51  edo
+* errquizzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+*
 * Revision 1.28  2003/10/21 02:05:17  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -60,9 +63,10 @@
 
 *     **** local variables ****
       logical value,found
-      integer ia,npack1
+      integer ia,npack0,npack1
       character*4 element
       character*20 fname
+      integer vl_ptr
 
 
 *     *** get number of diff atom types ***
@@ -111,6 +115,7 @@ c      write(*,*) "paw_proj:prj_ntot",prj_ntot
       end do
 
 c     *** allocate kspace arrays***
+      call Pack_npack(0,npack0)
       call Pack_npack(1,npack1)
       value = MA_alloc_get(mt_dcpl,(prj_ntot*npack1),
      >                     'prj',prj(2),prj(1))
@@ -123,13 +128,20 @@ c     *** allocate kspace arrays***
      >                            + int_mb(prj_nbasis(1)  +ia-2)*npack1
       end do
 
+*     **** allocate vloc potential space ***
+      call paw_vloc_init()
+      call paw_vloc_ptr(vl_ptr)
+
 *     *** read in formatted prj's to prj common block ***
       do ia=1,prj_nkatm
          call paw_proj_read(ia,
      >            int_mb(int_mb(i_prj_l(1)+2*(ia-1))),
      >            int_mb(int_mb(i_prj_m(1)+2*(ia-1))),
      >            npack1,
-     >            dcpl_mb(prj(1)+int_mb(prj_indx(1)+ia-1)))
+     >            dcpl_mb(prj(1)+int_mb(prj_indx(1)+ia-1)),
+     >            npack0,
+     >            dbl_mb(vl_ptr+(ia-1)*npack0))
+     >           
       end do
 
      
@@ -434,12 +446,14 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 !
 !	Created:	8/06/2002
 !**************************************************
-      subroutine paw_proj_read(ia,proj_l,proj_m,npack1,prj)
+      subroutine paw_proj_read(ia,proj_l,proj_m,npack1,prj,npack0,vloc)
       implicit none
       integer ia
       integer proj_l(*),proj_m(*)
       integer    npack1
       complex*16 prj(npack1,*)
+      integer    npack0
+      real*8     vloc(npack0)
 
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -486,6 +500,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
      >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not.value) call errquit('paw_proj_read: push stack',0,0)
 
+*     **** read in projectors ****
       do ii=1,nbasis
          if (taskid.eq.MASTER) then
             call iread(5,proj_l(ii),1)
@@ -497,6 +512,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          call Pack_c_pack(1,dcpl_mb(tmp1(1)))
          call Pack_c_Copy(1,dcpl_mb(tmp1(1)),prj(1,ii))
       end do
+
+*     **** read in local potential ****
+      call D3dB_t_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
+      call Pack_t_pack(0,dcpl_mb(tmp1(1)))
+      call Pack_t_Copy(0,dcpl_mb(tmp1(1)),vloc)
+
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not.value) call errquit('paw_proj_read: pop stack',0,1)
@@ -590,9 +611,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
       logical value
       integer ii,i,npack1,nfft3d,nr,basis_nbasis,l,m,nbasis,ngrid(3),jj
-      integer i_rgrid,i_prj
+      integer i_rgrid,i_prj,ps_ptr
       real*8  unita(3,3),gg,log_amesh
-      integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2)
+      integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2),f(2)
 
       character*20 jppname,atomname
       character*255 full_filename
@@ -611,6 +632,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       !*** read in projectors from _basis file ***
       i_rgrid   = paw_basis_i_rgrid(ia)
       i_prj     = paw_basis_i_prj_ps(ia)
+      ps_ptr    = paw_basis_i_v_ps(ia)
       basis_nbasis    = int_mb(paw_basis_i_nbasis(ia))
       nr        = int_mb(paw_basis_i_ngrid(ia))
       log_amesh = dbl_mb(paw_basis_i_log_amesh(ia))
@@ -653,7 +675,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 *     **** compute bessel transforms ****
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dbl,npack1,
+      value = MA_push_get(mt_dbl,nfft3d,
      >                    'rayleigh',rayleigh(2),rayleigh(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,
@@ -661,29 +683,22 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,
      >                    'tmp',tmp(2),tmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
+      value  = value.and.
+     >         MA_push_get(mt_dbl,nr,'f',f(2),f(1))
       if (.not.value) 
      > call errquit('paw_proj_formatter_auto, push stack',0,0)
 
-      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(Gy(1)),1)
-      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(Gz(1)),1)
-      call Pack_t_pack(1,dbl_mb(Gx(1)))
-      call Pack_t_pack(1,dbl_mb(Gy(1)))
-      call Pack_t_pack(1,dbl_mb(Gz(1)))
+      Gx(1) = G_indx(1)
+      Gy(1) = G_indx(2)
+      Gz(1) = G_indx(3)
 
+
+
+*     ***** format projectors *****
       do ii=1,basis_nbasis
         l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
-        !write(*,*) "formatting prj ",ii," l:",l
-        !write(*,*) "nr=",nr
-        !write(*,*) "log_amesh=",log_amesh
 
-        do i=1,npack1
+        do i=1,nfft3d
           gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
      >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
      >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )             
@@ -700,47 +715,75 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
      >                                dbl_mb(i_rgrid),
      >                                dbl_mb(i_prj+(ii-1)*nr))
           end if
-c        write(*,*) "gg=",gg
-c        write(*,*) "bess=",dbl_mb(rayleigh(1)+i-1)
 
         end do
+
         do m=-l,l
 *          *** generate Ylm ***
-           call spher_harmonics_generate(l,m,npack1,
+           call spher_harmonics_generate(l,m,nfft3d,
      >                      dbl_mb(Gx(1)),
      >                      dbl_mb(Gy(1)),
      >                      dbl_mb(Gz(1)),
      >                      dcpl_mb(prj(1)))
 
-c           write(*,*) "ylm(1)=",dcpl_mb(prj(1))
-c           write(*,*) "bess(1)=",dbl_mb(rayleigh(1))
-
 *          *** multiply Ylm and spherical besse
-           call Pack_tc_Mul(1,dbl_mb(rayleigh(1)),
+           call D3dB_tc_Mul(1,dbl_mb(rayleigh(1)),
      >                     dcpl_mb(prj(1)),
      >                     dcpl_mb(prj(1)))
-c           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
-           call rayleigh_itol_scaling(l,npack1,
+
+           call rayleigh_itol_scaling(l,nfft3d,
      >                                dcpl_mb(prj(1)))
-c           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
-c           pause 
+
            if (taskid.eq.MASTER) then
              call iwrite(6,l,1)
              call iwrite(6,m,1)
            end if
-           call Pack_c_unpack(1,dcpl_mb(prj(1)))
+           !call Pack_c_unpack(1,dcpl_mb(prj(1)))
            call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)))
         end do ! m loop
       end do ! basis_nbasis loop
+
+
+
+*     ***** format local potential *****
+      do i=1,nr
+        dbl_mb(f(1)+i-1) = dbl_mb(i_rgrid+i-1)
+     >                    *dbl_mb(ps_ptr+i-1)
+      end do
+
+      do i=1,nfft3d
+        gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
+     >             + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
+     >             + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )
+
+          if (gg.gt.small) then
+          dbl_mb(rayleigh(1)+i-1) 
+     >       = fourpi
+     >        *spher_bessel_transform(0,nr,log_amesh,
+     >                                dbl_mb(i_rgrid),
+     >                                dbl_mb(f(1)),
+     >                                gg)
+          else
+          dbl_mb(rayleigh(1)+i-1) 
+     >       = fourpi
+     >        *spher_bessel0_transform(0,nr,log_amesh,
+     >                                dbl_mb(i_rgrid),
+     >                                dbl_mb(f(1)))
+          end if
+
+      end do
+      call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)))
+
+
+
       if (taskid.eq.MASTER) then 
          call closefile(6)
          write(6,*)
          write(6,*) " Generated formatted filename:"
          write(6,*) full_filename
       end if
-      value =           MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
+
+      value =           MA_pop_stack(f(2))
       value = value.and.MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(prj(2))
       value = value.and.MA_pop_stack(rayleigh(2))
@@ -823,6 +866,11 @@ c           pause
       value = value.and.MA_free_heap(prj_nbasis(2))
       value = value.and.MA_free_heap(prj(2))
       if (.not.value) call errquit('paw_proj_end: dealloc heap',0,0)
+
+
+      !*** deallocate local potential ***
+      call paw_vloc_end()
+
       return
       end
 
