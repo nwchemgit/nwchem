@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.28 2001-11-16 02:12:39 edo Exp $
+C$Id: dft_3cincor.F,v 1.29 2002-08-16 00:39:51 edo Exp $
 c
       implicit none
 c    
@@ -52,7 +52,7 @@ c
       oprint_semi_file = util_print('semi-direct info', print_high)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
       me = ga_nodeid()
-      call dzero(i3c_eri, n3c_dbl)
+      call dcopy(n3c_dbl,0d0,0,i3c_eri, 1)
 c
 c     Check whether of not to enable semi-direct; check direct & noio
 c
@@ -187,7 +187,7 @@ c
      &                ishd,nscr,dbl_mb(iscr),ninteg_api,i3c_ERI(ndone))
                       call dscal(nintegrals, q1, i3c_ERI(ndone), 1)
                     else
-                      call dzero(i3c_ERI(ndone),Nintegrals)
+                      call dcopy(nintegrals,0d0,0,i3c_ERI(ndone), 1)
                    endif
                 else
                    call int_2e3c(cd_bas_han,ishp,ao_bas_han,ishc,
@@ -246,7 +246,7 @@ c
 c                
 c               now clear buffer and continue
 c
-                call dzero(i3c_eri, n3c_dbl)
+                call dcopy(n3c_dbl,0d0,0,i3c_eri, 1)
                 nxtbuf = batch_max
                 ndone = 1
                 n_batch_buf = 0
@@ -314,7 +314,7 @@ c
 c                
 c        now clear buffer and continue
 c
-         call dzero(i3c_eri, n3c_dbl)
+         call dcopy(n3c_dbl,0d0,0,i3c_eri, 1)
       endif
 c
   242 continue

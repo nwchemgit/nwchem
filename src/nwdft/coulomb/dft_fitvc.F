@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.34 2002-02-15 21:10:07 edo Exp $
+c     $Id: dft_fitvc.F,v 1.35 2002-08-16 00:39:51 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -393,7 +393,7 @@ c
      &                          nbf_cd,1.D0,Dbl_MB(isvec),Nao2)
                         endif
                      else
-                        call dzero(Dbl_MB(iERI),Nintegrals)
+                        call dcopy(nintegrals,0d0,0,Dbl_MB(ieri), 1)
                      endif
                   else
                      call int_2e3c(CD_bas_han,ishp,AO_bas_han,

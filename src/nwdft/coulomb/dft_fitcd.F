@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.35 2002-02-15 21:10:07 edo Exp $
+* $Id: dft_fitcd.F,v 1.36 2002-08-16 00:39:51 edo Exp $
 *
       implicit none
 c
@@ -360,7 +360,7 @@ c
      &                ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
                       call dscal(Nintegrals, q1, Dbl_MB(istart), 1)
                    else
-                      call dzero(Dbl_MB(istart),Nintegrals)
+                      call dcopy(nintegrals,0d0,0,Dbl_MB(istart), 1)
                    endif
                 else
                    call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
