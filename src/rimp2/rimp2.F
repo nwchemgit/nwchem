@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.39 1998-03-17 00:14:32 bernhold Exp $
+C$Id: rimp2.F,v 1.40 1998-11-02 15:49:09 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -25,8 +25,8 @@ C
       Integer LNBlnk
       External LNBlnk
 C
-      Logical RIMP2_XF_Driver, RIMP2_V_E2
-      External RIMP2_XF_Driver, RIMP2_V_E2
+      Logical RIMP2_XF_Driver, RIMP2_V_E2, SCF
+      External RIMP2_XF_Driver, RIMP2_V_E2, SCF
 C
       Integer MaxSpin
       Parameter (MaxSpin = 2)
@@ -81,6 +81,10 @@ C
       Integer MaxDASiz, TotDASiz, Size, SizeB
 #endif
 C
+C     Stuff for SCF reference
+C
+      Double precision ThreshSCF
+C
 C     Initialize this module
 C
       Status = .TRUE.
@@ -105,7 +109,29 @@ C
       Call Util_Print_RTDB_Load(RTDB, My_Ctx)
       PrInfo = Util_Print('information', Print_Low)
 C
+      call ecce_print_module_entry('mp2')
+C
       If (.NOT. RTDB_CGet(RTDB, 'title', 1, JobTitle)) JobTitle = ' '
+C
+C     ************************************
+C     * Check for adequate SCF reference *
+C     ************************************
+c
+      if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $     threshscf = 1.0d-4
+      if (threshscf .gt. 1.0d-6) then
+         threshscf = 1.0d-6
+         if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
+     $        call errquit('mp2_grad: failed setting scf:thresh',0)
+         status = rtdb_delete(rtdb,'scf:converged')
+      endif
+c
+      if (.not. scf(rtdb)) then
+         rimp2 = .false.
+         call ecce_print_module_exit('mp2', 'failed')
+         Call Util_Print_pop
+         return
+      endif
 C
 C     *****************
 C     * Module header *
@@ -377,6 +403,9 @@ C
       Status = Status .AND. Bas_Destroy( AOBas)
       If (.NOT. Status) Call ErrQuit(
      $   'RIMP2: Failed to destroy geometry and  basis sets', 0)
+C
+      Call Util_Print_Pop
+      call ecce_print_module_exit('mp2', 'ok')
 C
       Call PStat_Off( PS_Overall)
       Call RIMP2_PStat_Print
