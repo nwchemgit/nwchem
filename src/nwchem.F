@@ -138,7 +138,7 @@ c
 c     
 c     scf ... eventually there will be no such task name
 c     
- 40      write(6,*) ' SCF not working yet'
+ 40      call scf(rtdb)
          goto 1000
 c
       else
