@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.9 1999-11-10 21:44:54 edo Exp $
+* $Id: create_contour.F,v 1.10 2000-02-29 02:43:42 edo Exp $
 *
       Implicit None
 *
@@ -303,6 +303,10 @@ c
      .           int_mb(k_iniz),int_mb(k_ifin),
      ,           dbl_mb(k_scr1),dbl_mb(irchi_atom))
 *
+            if (.not.MA_Push_Get(MT_Dbl,ngrpp,'rscr',
+     &         lrscr,irscr))call errquit
+     &         ('dft_scf: cannot allocate rdelchi_atom',0)
+
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
      &                  nbf_ao_mxnbf_ce,nAtom,1,nGrPP,nBF,mBF,
      &                  .false.,GRAD,
@@ -315,6 +319,8 @@ c
      &              dbl_mb(irchi_atom), dbl_mb(irdelchi_atom),
      &              dbl_mb(k_rdat), int_mb(k_cetobfr))
 *------- Deallocate Scratch memory needed by xc_rhogen
+         if(.not.MA_Pop_Stack(lrscr))
+     .        call Errquit('C_C: Failed to deallocate rdelc',110)
          if(.not.MA_Pop_Stack(lrdelchi_atom))
      .        call Errquit('C_C: Failed to deallocate rdelc',111)
          if(.not.MA_Pop_Stack(lrchi_atom))
@@ -441,7 +447,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.9 1999-11-10 21:44:54 edo Exp $
+C$Id: create_contour.F,v 1.10 2000-02-29 02:43:42 edo Exp $
 c
       implicit none
 c      
