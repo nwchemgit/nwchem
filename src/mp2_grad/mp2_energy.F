@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.41 1997-05-20 00:15:21 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.42 1997-07-29 17:19:37 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -97,8 +97,10 @@ c
      $     call errquit('mp2_energy ma problem: derivatives',1)
       call dfill ( 3*natoms, 0.D0, dbl_mb(k_grad), 1 )
 c     
-      if(.not.rtdb_get(rtdb,'fourindex:aoblock',mt_log,oblk,1))
-     $     oblk=.false.
+*     only blocking currently works
+*      if(.not.rtdb_get(rtdb,'fourindex:aoblock',mt_log,oblk,1))
+*     $     oblk=.false.
+      oblk = .true.
 c     
 c     Get no. of MOs ... nmo != nbf if linear dependence present
 c     

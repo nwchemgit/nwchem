@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.18 1997-06-05 17:45:38 gg502 Exp $
+C     $Id: ccsd_driver.F,v 2.19 1997-07-29 17:19:01 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -171,8 +171,9 @@ c
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
      $    1,blen)) blen = 16
        blen = max(blen,maxbfsh)
-       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
-     $    1,oblk)) oblk = .false.
+*       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
+*     $    1,oblk)) oblk = .false.
+       oblk = .true.            ! non-blocked 4-index currently broken
 c
 c Disk caching disabled
 c
