@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.8 2000-08-25 20:10:15 edo Exp $
+C $Id: hess_anal.F,v 1.9 2000-08-31 05:13:52 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -50,8 +50,8 @@ c
 c
 c  Check to make sure that the energy and wavefunction are calculated
 c
-cedo      if(.not.task_energy(rtdb)) call errquit 
-cedo     *  ('hess_anal: energy failure', 555)
+      if(.not.task_energy(rtdb)) call errquit 
+     *  ('hess_anal: energy failure', 555)
       write(6,*) 'after the energy call'
       call flush(6)
 c
