@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Logical Function Geom_Num_Core(Geom, NCore)
 *
-* $Id: geom_numcore.F,v 1.4 1999-07-14 00:28:59 d3e129 Exp $
+* $Id: geom_numcore.F,v 1.5 1999-10-26 21:25:54 mg201 Exp $
 *
       Implicit NONE
       Integer Geom     ! [in]  Geometry handle
@@ -54,7 +54,7 @@ C
      $   18* 9,             ! K-Kr,       +3s3p
      $   18*18,             ! Rb-Xe,          +4s3d4p 
      $   32*27,             ! Cs-Rn,                +5s4d5p
-     $   17*43/             ! Fr-Lr,                      +6s4f5d6p
+     $   23*43/             ! Fr-Mt,                      +6s4f5d6p
 C
       Geom_Num_Core = Geom_Check_Handle(Geom, 'Geom_Num_Core') 
       If ( .NOT. Geom_Num_Core) Return
