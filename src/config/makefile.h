@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.163 1996-07-31 23:05:39 d3h325 Exp $
+# $Id: makefile.h,v 1.164 1996-08-06 05:27:52 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -535,7 +535,7 @@ ifeq ($(TARGET),IBM)
 # -qstrict -qhot
   COPTIMIZE = -O
 
-    DEFINES = -DIBM -DAIX -DEXTNAM
+    DEFINES = -DIBM -DAIX -DEXTNAME
 ifdef USE_ESSL
    DEFINES += -DESSL
 endif
@@ -623,7 +623,7 @@ ifeq ($(TARGET),SP1)
   FOPTIMIZE = -O
   COPTIMIZE = -O
 
-    DEFINES = -DSP1 -DAIX -DEXTNAM -DPARALLEL_DIAG
+    DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
@@ -692,7 +692,10 @@ ifeq ($(TARGET),DECOSF)
                INSTALL = @echo nwchem is built
              MAKEFLAGS = -j 1 --no-print-directory
 
-              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2
+# -fpe2 and call to util/dec_fpe.f from nwchem.F necessary to avoid
+# braindead alpha undflows inside texas (c6h6 6-31g)
+
+              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2 -check nounderflow
               COPTIONS = 
              FOPTIMIZE = -O 
              COPTIMIZE = -O
