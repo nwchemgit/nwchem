@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.20 2000-06-13 22:29:52 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.21 2000-06-13 22:31:01 d3j191 Exp $
 c
       implicit none
 c
@@ -122,7 +122,6 @@ c
       do 6 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
 c
-      write(*,'(i5,a1)') icharr,char(icharr)
       do 111 k=1,nsb
       i=idsb(1,k)
       j=idsb(2,k)
