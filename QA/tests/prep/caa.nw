@@ -1,0 +1,7 @@
+memory heap 1 mb stack 36 mb global 12 mb
+start caa
+prepare
+system caa_em
+new_top new_seq
+end
+task prepare

@@ -48,7 +48,7 @@ foreach argument ($argv)
         @ NPROC = $argument
         @ argv_set_nproc++
         @ get_nproc = 0
-    else if ($argument == "-procs") then
+    else if ($argument == "procs") then
         @ get_nproc = 1       
     else
         set args_2_use = ($args_2_use $argument)
@@ -166,9 +166,13 @@ foreach TEST ($args_2_use)
   set RDFINPUTFILE = $STUB.rdi
   set MRINPUTFILE  = $STUB.mri
   set TOPOLOGYFILE = (`echo $STUB.top | sed 's/_.*\././'`)
+  set PDBFILE      = (`echo $STUB.pdb | sed 's/_.*\././'`)
 #
   set md_test_run = 0
   if( -f $TESTDIR/$TOPOLOGYFILE) then
+    set md_test_run = 1
+  endif
+  if( -f $TESTDIR/$PDBFILE) then
     set md_test_run = 1
   endif
 #
@@ -178,24 +182,31 @@ foreach TEST ($args_2_use)
     set overall_status = 1
     continue
   endif
+  if(! $md_test_run) then
   if (! -f $TESTDIR/$OUTPUTFILE) then
     echo Could not find verified output file $TESTDIR/$OUTPUTFILE
     set overall_status  = 1
     continue
   endif
+  endif
 
   cp $TESTDIR/$INPUTFILE $SCRATCHDIR
   if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
+  if($md_test_run) then
+  if(-f $TESTDIR/$OUTPUTFILE) cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+  else
   cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+  endif
 
 #
 # copy the MD files
 #
   if($md_test_run) then
-    cp $TESTDIR/$TOPOLOGYFILE $SCRATCHDIR
-    cp $TESTDIR/$RESTARTFILE $SCRATCHDIR
     cp $TESTDIR/$TESTFILE $TESTOUTPUTS/$STUB.ok.tst
+    if(-f $TESTDIR/$TOPOLOGYFILE) cp $TESTDIR/$TOPOLOGYFILE $SCRATCHDIR
+    if(-f $TESTDIR/$RESTARTFILE) cp $TESTDIR/$RESTARTFILE $SCRATCHDIR
     if(-f $TESTDIR/$RDFINPUTFILE) cp $TESTDIR/$RDFINPUTFILE $SCRATCHDIR
+    if(-f $TESTDIR/$PDBFILE) cp $TESTDIR/$PDBFILE $SCRATCHDIR
     if(-f $TESTDIR/$MRINPUTFILE) cp $TESTDIR/$MRINPUTFILE $SCRATCHDIR
   endif
 #
@@ -225,8 +236,12 @@ foreach TEST ($args_2_use)
        $NWCHEM $INPUTFILE >& $STUB.nwout
        @ runstatus = $status
     endif
-    cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
-    cp $TESTFILE $TESTOUTPUTS/$TESTFILE
+    if(-f $OUTPUTFILE) cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
+    if(-f $TESTFILE) then 
+     cp $TESTFILE $TESTOUTPUTS/$TESTFILE
+    else 
+     cp $TOPOLOGYFILE $TESTOUTPUTS/$TOPOLOGYFILE
+    endif
   else
 #
     if ($NPROC) then
@@ -253,7 +268,7 @@ foreach TEST ($args_2_use)
 
 #
   if($md_test_run) then
-    echo -n "     verifying nwout ... "
+    echo -n "     verifying nwout ...... "
 # verify $STUB.nwout here for QMD & QM/MM
     echo "skipped"
 set diff1status=0
@@ -293,15 +308,28 @@ set diff1status=0
     if(!($md_test_run)) then   # Now verify the output
       echo "OK"
     else
-      echo -n "     verifying test ... "
-      diff -w $STUB.ok.tst $STUB.tst >& /dev/null
-
-      if($status) then
+      echo -n "     verifying test ....... "
+#
+      if(-f $STUB.tst) then
+       diff -w $STUB.ok.tst $STUB.tst >& /dev/null
+       if($status) then
+         echo "failed"
+         set overall_status = 1
+         continue 
+       else
+         echo "completed"
+       endif
+      else
+       echo "skipped"
+       echo -n "     verifying topology ... "
+       set ttt = (`diff -w $STUB.ok.tst $TOPOLOGYFILE | wc -l`)
+       if($ttt == 4) then
+        echo "completed "
+       else
         echo "failed"
         set overall_status = 1
         continue 
-      else
-        echo "completed"
+       endif
       endif
     endif
   endif

@@ -1,0 +1,16 @@
+memory heap 1 mb stack 36 mb global 12 mb
+start fsc
+
+prepare
+ system fsc_em
+ new_top new_seq
+end
+
+task prepare
+
+prepare
+ read rst fsc_em.rst
+ write pdb fsc_em.pdb
+end
+
+task prepare

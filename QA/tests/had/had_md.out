@@ -1,0 +1,575 @@
+
+ N W C h e m   Molecular Dynamics Simulation Module   n w A R G O S                                          98/12/29  14:28:20  
+
+ Author  T.P.Straatsma                                     Copyright 1995, 1996, 1997, 1998
+         High Performance Computational Chemistry                    Pacific Northwest National Laboratory
+         Environmental Molecular Sciences Laboratory                 Battelle Memorial Institute
+         Pacific Northwest National Laboratory
+                                                                     Parallel version of molecular simulation package ARGOS
+                                                                     Copyright 1989-1995 T.P.Straatsma
+
+ MOLECULAR DYNAMICS SIMULATION                                                                               98/12/29  14:28:20  
+
+ Title input       NWChem:nwARGOS input                                                                  Creation date 98/12/29  
+                                                                                                         Creation time 14:28:20  
+                                                                                                   
+ Title topology    TOPOLOGY FILE had.top                                                                 Creation date 98/12/29  
+                   GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE                                        Creation time 14:24:35  
+                                                                                                   
+ Title coordinates NWChem:nwARGOS input                                                                  Creation date 97/11/20  
+                                                                                                         Creation time  09:43:58 
+                                                                                                   
+ Force field       amber 
+
+ ATOMIC DATA                                                                                                 98/12/29  14:28:31  
+
+ Number                                Type        Mass              Type        Mass              Type        Mass
+                                                  a.m.u.                        a.m.u.                        a.m.u.
+
+      1                                N3        14.01000            N3        14.01000            N3        14.01000
+      2                                H          1.00800            H          1.00800            H          1.00800
+      3                                CT        12.01000            CT        12.01000            CT        12.01000
+      4                                HP         1.00800            HP         1.00800            HP         1.00800
+      5                                HC         1.00800            HC         1.00800            HC         1.00800
+      6                                H1         1.00800            H1         1.00800            H1         1.00800
+      7                                S         32.06000            S         32.06000            S         32.06000
+      8                                C         12.01000            C         12.01000            C         12.01000
+      9                                O         16.00000            O         16.00000            O         16.00000
+     10                                N         14.01000            N         14.01000            N         14.01000
+     11                                N2        14.01000            N2        14.01000            N2        14.01000
+     12                                CA        12.01000            CA        12.01000            CA        12.01000
+     13                                OH        16.00000            OH        16.00000            OH        16.00000
+     14                                HO         1.00800            HO         1.00800            HO         1.00800
+     15                                O2        16.00000            O2        16.00000            O2        16.00000
+     16                                HA         1.00800            HA         1.00800            HA         1.00800
+     17                                CC        12.01000            CC        12.01000            CC        12.01000
+     18                                NB        14.01000            NB        14.01000            NB        14.01000
+     19                                CR        12.01000            CR        12.01000            CR        12.01000
+     20                                H5         1.00800            H5         1.00800            H5         1.00800
+     21                                NA        14.01000            NA        14.01000            NA        14.01000
+     22                                CW        12.01000            CW        12.01000            CW        12.01000
+     23                                H4         1.00800            H4         1.00800            H4         1.00800
+     24                                SH        32.06000            SH        32.06000            SH        32.06000
+     25                                HS         1.00800            HS         1.00800            HS         1.00800
+     26                                C*        12.01000            C*        12.01000            C*        12.01000
+     27                                CN        12.01000            CN        12.01000            CN        12.01000
+     28                                CB        12.01000            CB        12.01000            CB        12.01000
+     29                                Na        22.98977            Na        22.98977            Na        22.98977
+     30                                OWS  w    15.99940            OWS  w    15.99940            OWS  w    15.99940
+     31                                HWS  w     1.00800            HWS  w     1.00800            HWS  w     1.00800
+
+ GENERAL SYSTEM INFORMATION                                                                                  98/12/29  14:28:31  
+
+                                                                Solvent                Solute                 Total
+
+ Number of atoms                                                  36384                  4875                 41259
+ Number of centers                                                36384                  4875                 41259
+ Number of molecules                                              12128                    18                 12146
+ Number of dynamical atoms                                        36384                  4875                 41259
+ Number of non dynamical atoms                                        0                     0                     0
+ Number of bonds                                                      3                  4931                  4934
+ Number of constraints                                                3                  2379                  2382
+ Number of angles                                                     0                  8901                  8901
+ Number of proper dihedral angles                                     0                 15427                 15427
+ Number of improper dihedral angles                                   0                     0                     0
+ Number of third neighbor atom pairs                                  0                 12816                 12816
+ Number of atoms in multinode bonded interactions                                           0
+ Number of non-bonded intramolecular atom pairs                       0              11880375              11880375
+ Number of excluded atom pairs                                                          26648                 26648
+ Number of degrees of freedom                                     72768.000             12246.000             85014
+
+
+ Special solute bonded interactions
+
+                                         Constr    
+
+ Number of bonds                           2379
+ Number of angles                             0
+ Number of proper dihedrals                   0
+ Number of improper dihedrals                 0
+
+ Dimension of the box:    7.353729    7.353729    7.353729 nm
+ Tolerance SHAKE solvent:    0.001000 nm, solute:    0.001000 nm
+ Cut-off radius  short range:              1.000000 nm, long range:    1.000000 nm
+                 QM/MM boundary zone:      0.900000 nm
+ Third neighbor scaling factor electrostatic interactions                     0.833333
+ Relative dielectric constant                                                 1.000000
+ Solute - solute pairlist based on group distance
+ Periodic boundary conditions applied
+ Rectangular box
+ Leap frog integration
+
+ MOLECULAR DYNAMICS PARAMETERS                                                                               98/12/29  14:28:31  
+
+ Sequence number                                          0     Time                                                 0.00000 ps
+ Calculation type                                         1     Time step                                            0.00200 ps
+                                                                External pressure                               1.025000E+05 Pa
+ Number of equilibration steps                            0     Compressibility                                 4.530000E-10 m**2/N
+ Number of data gathering steps                          10     Pressure relaxation time                        4.000000E-01 ps
+                                                                External temperature                               298.15000 K
+                                                                Temperature relaxation time solvent                  0.10000 ps
+                                                                Temperature relaxation time solute                   0.10000 ps
+
+ Frequency output statistics                             10
+ Frequency updating restart file                          0
+ Frequency step output                                    1
+ Frequency recording coordinates                          0
+ Frequency recording solute coordinates                   0
+ Frequency recording properties                           0
+ Frequency recording velocities                           0
+ Frequency recording solute velocities                    0
+ Frequency centering box                                  0
+ Frequency box center of mass motion removal              0
+ Frequency update pairlists                              10
+ Frequency update long range forces                       1
+ No switching function used
+ Isothermal isobaric (NpT) ensemble
+
+
+
+ CALCULATION TYPE
+
+ This is an initial job with          0 equilibration and         10 data gathering steps
+
+
+ DIMENSIONS AT INITIALIZATION                                                                                98/12/29  14:28:31  
+
+ MAT   : max number of atom types                        31     MAXW  : max length of work arrays                      15427
+ MWM   : max number of solvent molecules              14209     MSM   : max number of solute molecules                    25
+ MWA   : max number of solvent atoms                      3     MSA   : max number of solute atoms                      9751
+ MWB   : max number of solvent bonds                      3     MSB   : max number of solute bonds                      4931
+ MWH   : max number of solvent angles                     1     MSH   : max number of solute angles                     8901
+ MWD   : max number of solvent proper dihedrals           1     MSD   : max number of solute proper dihedrals          30854
+ MWO   : max number of solvent improper dihedrals         1     MSO   : max number of solute improper dihedrals            1
+                                                                MSG   : max number of solute groups                      929
+                                                                MSS   : max number of solute segments                    366
+ MPN   : max length of property arrays                  272
+ MGC   : max number RDF contributions                     1     SMALL : small real number                           1.00E-12
+ MGR   : max number RDF's                                 1     TINY  : tiny real number                            1.00E-14
+ MGL   : max length RDF's                                 1     SIL   : sin(dihedral) algorithm change                0.001000
+ MSHITW: max number solvent SHAKE iterations            100     MSHITS: max number solute SHAKE iterations               100
+
+
+ PARTICLE MESH EWALD INFORMATION                                                                             98/12/29  14:28:31  
+
+
+ Alpha                                            3.12535
+ Cardinal B-spline order                          4
+ Mesh size                                    32768  (   32 x   32 x   32)
+ The     1 nodes involved in 3D-FFT:              0
+
+
+ SPACIAL DECOMPOSITION INFORMATION                                                                           98/12/29  14:28:31  
+
+ Largest number of sub-boxes in one dimension     6
+ Largest number of sub-boxes per node           216
+ Number of additional sub-boxes per node          6
+ Load balancing through sub-box resizing
+         load balance factor             0.750000
+         minimum box size allowed is     1.000000 x    1.000000 x    1.000000 nm
+ Load balancing through box-pair redistribution
+         with resizing after     5 redistributions failed to improve load balance
+ Load balancing based on average synchronization times of last        10 steps
+
+ Number of nodes     1 divided      1 x    1 x    1
+ Number of boxes   216 divided      6 x    6 x    6
+ Initial distribution of box-box pairs
+ Node  Pairs   
+    0   3024
+ Initial number of solvent molecules
+ Node    nwm   
+    0  12128
+ Initial number of solute atoms
+ Node    nsa   
+    0   4875
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    98/12/29  14:29:09  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(Cou)    U(L-J)      U(pot)     U(kin)     U(tot) 
+    ps         K      Pa        nm**3                 kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+                         U(bnd)     U(ang)     U(dih)     Ui(Cou)    Ui(L-J)    Uw(Cou)    Uw(L-J)    U(kin)     U(pot)     U(tot)
+                         kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol  
+
+    0.00200  297.20 7.88E+07   397.741 1.0000 1.0000 1.0001-6.5666E+05 1.0449E+05-5.5048E+05 1.0504E+05-4.4544E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.661      9.068      7.403    -41.434    -34.032
+          Solute  1    3651.274   9605.243   7711.539 -11957.541  -4926.591 -30288.754   -551.759  15257.801 -47964.247 -32706.446
+    0.00400  297.12 7.38E+07   397.807 1.0000 0.9999 1.0001-6.5651E+05 1.0432E+05-5.5039E+05 1.0501E+05-4.4538E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.648      9.056      7.404    -41.435    -34.030
+          Solute  1    3790.612   9644.561   7654.423 -11957.663  -4942.318 -30283.000   -565.151  15212.060 -47866.524 -32654.464
+    0.00600  296.89 6.89E+07   397.869 1.0000 1.0000 1.0001-6.5640E+05 1.0416E+05-5.5032E+05 1.0493E+05-4.4540E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.639      9.044      7.409    -41.438    -34.029
+          Solute  1    3922.302   9735.767   7567.431 -11964.009  -4954.837 -30283.683   -578.519  15073.400 -47760.766 -32687.366
+    0.00800  296.94 6.42E+07   397.927 1.0000 1.0001 1.0000-6.5631E+05 1.0400E+05-5.5043E+05 1.0494E+05-4.4549E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.631      9.032      7.414    -41.443    -34.029
+          Solute  1    3924.844   9789.577   7480.550 -11967.348  -4954.683 -30289.418   -590.576  15025.514 -47805.776 -32780.261
+    0.01000  297.44 5.98E+07   397.981 1.0000 1.0001 1.0000-6.5618E+05 1.0386E+05-5.5067E+05 1.0512E+05-4.4555E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.621      9.020      7.417    -41.447    -34.030
+          Solute  1    3838.074   9729.759   7414.085 -11958.768  -4935.866 -30293.176   -600.884  15166.055 -47997.553 -32831.499
+    0.01200  297.99 5.60E+07   398.031 1.0000 1.0000 1.0000-6.5597E+05 1.0372E+05-5.5082E+05 1.0532E+05-4.4551E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.606      9.007      7.414    -41.445    -34.031
+          Solute  1    3794.482   9574.357   7372.388 -11934.285  -4907.320 -30284.262   -609.925  15399.422 -48180.846 -32781.423
+    0.01400  298.07 5.30E+07   398.079 1.0000 0.9999 1.0000-6.5566E+05 1.0358E+05-5.5075E+05 1.0534E+05-4.4540E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.586      8.994      7.404    -41.436    -34.031
+          Solute  1    3837.687   9434.336   7352.941 -11897.104  -4879.941 -30255.333   -617.527  15545.863 -48214.819 -32668.956
+    0.01600  297.54 5.07E+07   398.124 1.0000 0.9998 1.0000-6.5529E+05 1.0343E+05-5.5048E+05 1.0516E+05-4.4532E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.563      8.980      7.391    -41.423    -34.032
+          Solute  1    3882.731   9404.036   7354.066 -11855.458  -4853.851 -30209.319   -621.463  15520.647 -48101.849 -32581.202
+    0.01800  296.82 4.87E+07   398.168 1.0001 0.9998 1.0000-6.5495E+05 1.0329E+05-5.5019E+05 1.0490E+05-4.4529E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.542      8.966      7.381    -41.412    -34.031
+          Solute  1    3860.328   9467.773   7373.066 -11817.942  -4827.141 -30159.815   -619.200  15388.766 -47943.491 -32554.725
+    0.02000  296.37 4.67E+07   398.210 1.0001 0.9999 1.0000-6.5472E+05 1.0315E+05-5.5002E+05 1.0474E+05-4.4528E+05    0      0
+          Solvent         0.000      0.000      0.000      0.000      0.000    -50.528      8.952      7.379    -41.409    -34.030
+          Solute  1    3818.239   9539.125   7403.846 -11790.406  -4808.971 -30124.667   -609.376  15249.706 -47809.700 -32559.994
+ 
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  98/12/29  14:33:07  
+
+                                           Statistics over last       10 steps     Statistics over last       10 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Number solvent-solvent interactions     8.28412E+05  0.00000E+00  4.40967E-08   8.28412E+05  0.00000E+00  4.40967E-08             
+ Number solvent-solute interactions      6.28350E+04  0.00000E+00  2.75604E-09   6.28350E+04  0.00000E+00  2.75604E-09             
+ Number solute-solute interactions       1.32774E+06  0.00000E+00  8.81934E-08   1.32774E+06  0.00000E+00  8.81934E-08             
+ Number solvent-solvent cycles           1.00000E+00  0.00000E+00  0.00000E+00   1.00000E+00  0.00000E+00  0.00000E+00             
+ Number solvent-solute cycles            1.00000E+00  0.00000E+00  0.00000E+00   1.00000E+00  0.00000E+00  0.00000E+00             
+ Number solute-solute cycles             1.00000E+00  0.00000E+00  0.00000E+00   1.00000E+00  0.00000E+00  0.00000E+00             
+ Number of available solvent molecules   1.92700E+03  0.00000E+00  8.61264E-11   1.92700E+03  0.00000E+00  8.61264E-11             
+ Number of available solute atoms        4.73900E+03  0.00000E+00  0.00000E+00   4.73900E+03  0.00000E+00  0.00000E+00             
+ Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00  2.69145E-12   2.60000E+01  0.00000E+00  2.69145E-12             
+ Number of solute SHAKE iterations       4.00000E+00  0.00000E+00  0.00000E+00   4.00000E+00  0.00000E+00  0.00000E+00             
+ Box length X                            7.35572E+00  9.17825E-04  1.59325E-01   7.35572E+00  9.17825E-04  1.59325E-01           nm
+ Box length Y                            7.35572E+00  9.17825E-04  1.59325E-01   7.35572E+00  9.17825E-04  1.59325E-01           nm
+ Box length Z                            7.35572E+00  9.17825E-04  1.59325E-01   7.35572E+00  9.17825E-04  1.59325E-01           nm
+ Volume                                  3.97994E+02  1.48978E-01  2.58612E+01   3.97994E+02  1.48978E-01  2.58612E+01        nm**3
+ Mass density                            1.05981E+03  3.96739E-01 -6.88686E+01   1.05981E+03  3.96739E-01 -6.88686E+01      kg/m**3
+ Pressure                                6.00532E+07  1.04730E+07 -1.79685E+09   6.00532E+07  1.04730E+07 -1.79685E+09           Pa
+ Pressure scaling                        1.00005E+00  7.90637E-06 -1.35650E-03   1.00005E+00  7.90637E-06 -1.35650E-03             
+ Temperature                             2.99053E+02  6.76438E-01 -2.99101E+01   2.99053E+02  6.76438E-01 -2.99101E+01            K
+ Temperature (corrected)                 2.97238E+02  5.05701E-01 -7.43445E+00   2.97238E+02  5.05701E-01 -7.43445E+00            K
+ Temperature solvent                     2.98896E+02  5.55310E-01 -7.11308E+01   2.98896E+02  5.55310E-01 -7.11308E+01            K
+ Temperature solvent (corrected)         2.96736E+02  5.19707E-01 -6.07220E+01   2.96736E+02  5.19707E-01 -6.07220E+01            K
+ Temperature solute                      2.99988E+02  3.40008E+00  2.15031E+02   2.99988E+02  3.40008E+00  2.15031E+02            K
+ Temperature solute (corrected)          3.00220E+02  3.29267E+00  3.09210E+02   3.00220E+02  3.29267E+00  3.09210E+02            K
+ Temperature translations                1.27388E+02  1.95367E-01 -3.06987E+01   1.27388E+02  1.95367E-01 -3.06987E+01            K
+ Temperature rotations                   1.69850E+02  5.80678E-01  2.32643E+01   1.69850E+02  5.80678E-01  2.32643E+01            K
+ Temperature scaling solvent             1.00004E+00  1.95499E-05  2.33810E-03   1.00004E+00  1.95499E-05  2.33810E-03             
+ Temperature scaling solute              9.99937E-01  1.10613E-04 -1.27682E-02   9.99937E-01  1.10613E-04 -1.27682E-02             
+ Energy Coulombic                       -6.55866E+05  6.43148E+02  1.08990E+05  -6.55866E+05  6.43148E+02  1.08990E+05       kJ/mol
+ Energy Lennard-Jones                    1.03800E+05  4.24367E+02 -7.38274E+04   1.03800E+05  4.24367E+02 -7.38274E+04       kJ/mol
+ Energy potential                       -5.50454E+05  2.34075E+02  1.10130E+04  -5.50454E+05  2.34075E+02  1.10130E+04       kJ/mol
+ Energy kinetic                          1.05050E+05  1.78725E+02 -2.62749E+03   1.05050E+05  1.78725E+02 -2.62749E+03       kJ/mol
+ Energy kinetic translations             4.50217E+04  6.90469E+01 -1.08496E+04   4.50217E+04  6.90469E+01 -1.08496E+04       kJ/mol
+ Energy kinetic rotations                6.00284E+04  2.05224E+02  8.22207E+03   6.00284E+04  2.05224E+02  8.22207E+03       kJ/mol
+ Energy kinetic translations * virial    2.10098E+09  3.27593E+08  5.62530E+10   2.10098E+09  3.27593E+08  5.62530E+10  (kJ/mol)**2
+ Energy kinetic rotations * virial       2.80246E+09  4.43228E+08  7.58552E+10   2.80246E+09  4.43228E+08  7.58552E+10  (kJ/mol)**2
+ Energy total                           -4.45404E+05  8.74163E+01  8.38554E+03  -4.45404E+05  8.74163E+01  8.38554E+03       kJ/mol
+ Virial total                            4.66768E+04  7.33822E+03  1.25974E+06   4.66768E+04  7.33822E+03  1.25974E+06       kJ/mol
+ pV total                                1.43922E+04  2.50441E+03 -4.29688E+05   1.43922E+04  2.50441E+03 -4.29688E+05       kJ/mol
+ Enthalpy                               -4.31012E+05  2.46799E+03 -4.21303E+05  -4.31012E+05  2.46799E+03 -4.21303E+05       kJ/mol
+ System dipole moment                    1.17651E+03  3.17137E+01 -5.24211E+03   1.17651E+03  3.17137E+01 -5.24211E+03      e30 C m
+ Displacement by pressure scaling        7.00817E+01  3.34337E+01 -1.35346E+03   7.00817E+01  3.34337E+01 -1.35346E+03           nm
+ Energy solvent inter Coulombic         -6.13709E+05  5.27992E+02  9.05592E+04  -6.13709E+05  5.27992E+02  9.05592E+04       kJ/mol
+ Energy solvent inter Lennard-Jones      1.09295E+05  4.49152E+02 -7.81335E+04   1.09295E+05  4.49152E+02 -7.81335E+04       kJ/mol
+ Energy solvent kinetic translations     4.48930E+04  6.83260E+01 -1.06776E+04   4.48930E+04  6.83260E+01 -1.06776E+04       kJ/mol
+ Energy solvent kinetic                  8.97662E+04  1.57217E+02 -1.83691E+04   8.97662E+04  1.57217E+02 -1.83691E+04       kJ/mol
+ Energy solvent potential               -5.02489E+05  1.52685E+02  1.78727E+04  -5.02489E+05  1.52685E+02  1.78727E+04       kJ/mol
+ Energy solvent total                   -4.12723E+05  1.00340E+01 -4.96440E+02  -4.12723E+05  1.00340E+01 -4.96440E+02       kJ/mol
+ Virial solvent                          2.31237E+04  5.74801E+03  9.89453E+05   2.31237E+04  5.74801E+03  9.89453E+05       kJ/mol
+ Energy solvent kinetic uncorrected      9.04195E+04  1.67988E+02 -2.15179E+04   9.04195E+04  1.67988E+02 -2.15179E+04       kJ/mol
+ Energy solute kinetic uncorrected       1.52721E+04  1.73095E+02  1.09471E+04   1.52721E+04  1.73095E+02  1.09471E+04       kJ/mol
+ Energy kinetic uncorrected              1.05692E+05  2.39067E+02 -1.05708E+04   1.05692E+05  2.39067E+02 -1.05708E+04       kJ/mol
+ Mean square displacement solvent /6     1.04799E-05  8.68538E-06  1.47760E-03   1.04799E-05  8.68538E-06  1.47760E-03        nm**2
+ Diffusion constant solvent * e9         7.53168E-01  3.82198E-01  6.65165E+01   7.53168E-01  3.82198E-01  6.65165E+01       m**2/s
+ Dipole moment solvent                   7.83722E+00  1.46001E-07 -5.76425E-07   7.83722E+00  1.46001E-07 -5.76425E-07      e30 C m
+ Particle mesh Ewald reciprocal energy   3.59345E+03  2.97001E+01  3.39209E+03   3.59345E+03  2.97001E+01  3.39209E+03       kJ/mol
+ Particle mesh Ewald correction energy  -8.61819E+04  7.87706E+00  1.10838E+03  -8.61819E+04  7.87706E+00  1.10838E+03       kJ/mol
+ Virial tensor element (1,1)             1.85700E+04  2.22122E+03  3.80784E+05   1.85700E+04  2.22122E+03  3.80784E+05       kJ/mol
+ Virial tensor element (2,2)             1.41503E+04  1.99613E+03  3.43856E+05   1.41503E+04  1.99613E+03  3.43856E+05       kJ/mol
+ Virial tensor element (3,3)             1.39565E+04  3.14585E+03  5.35099E+05   1.39565E+04  3.14585E+03  5.35099E+05       kJ/mol
+ Pressure tensor element (1,1)           3.38260E+07  3.13660E+07  1.68659E+09   3.38260E+07  3.13660E+07  1.68659E+09           Pa
+ Pressure tensor element (2,2)           5.40858E+07  3.33693E+07  1.87499E+09   5.40858E+07  3.33693E+07  1.87499E+09           Pa
+ Pressure tensor element (3,3)           5.51563E+07  3.13612E+07  1.16373E+09   5.51563E+07  3.13612E+07  1.16373E+09           Pa
+ Kinetic energy element (1,1)            1.47938E+04  3.38238E+01 -4.13756E+03   1.47938E+04  3.38238E+01 -4.13756E+03       kJ/mol
+ Kinetic energy element (2,2)            1.50309E+04  5.67266E+01 -9.79745E+03   1.50309E+04  5.67266E+01 -9.79745E+03       kJ/mol
+ Kinetic energy element (3,3)            1.50754E+04  1.87046E+01  3.24788E+03   1.50754E+04  1.87046E+01  3.24788E+03       kJ/mol
+ Energy solute   1 intra-Coulombic      -1.19101E+04  6.29479E+01  9.87950E+03  -1.19101E+04  6.29479E+01  9.87950E+03       kJ/mol
+ Energy solute   1 intra-Lennard-Jones  -4.89915E+03  5.09458E+01  7.94704E+03  -4.89915E+03  5.09458E+01  7.94704E+03       kJ/mol
+ Energy solute   1-solvent Coulombic    -3.02471E+04  5.81039E+01  8.55170E+03  -3.02471E+04  5.81039E+01  8.55170E+03       kJ/mol
+ Energy solute   1-solvent Lennard-Jones-5.96438E+02  2.29972E+01 -3.64094E+03  -5.96438E+02  2.29972E+01 -3.64094E+03       kJ/mol
+ Energy solute   1 bonds                 3.83206E+03  7.49611E+01  4.50839E+03   3.83206E+03  7.49611E+01  4.50839E+03       kJ/mol
+ Energy solute   1 angles                9.59245E+03  1.26628E+02 -1.42799E+04   9.59245E+03  1.26628E+02 -1.42799E+04       kJ/mol
+ Energy solute   1 proper dihedrals      7.46843E+03  1.24701E+02 -1.88790E+04   7.46843E+03  1.24701E+02 -1.88790E+04       kJ/mol
+ Energy solute   1 Coulombic            -1.19101E+04  6.29479E+01  9.87950E+03  -1.19101E+04  6.29479E+01  9.87950E+03       kJ/mol
+ Energy solute   1 Lennard-Jones        -4.89915E+03  5.09458E+01  7.94704E+03  -4.89915E+03  5.09458E+01  7.94704E+03       kJ/mol
+ Energy solute   1 kinetic translations  7.15368E+00  6.26319E-02 -9.55497E+00   7.15368E+00  6.26319E-02 -9.55497E+00       kJ/mol
+ Energy solute   1 kinetic               1.52839E+04  1.67627E+02  1.57416E+04   1.52839E+04  1.67627E+02  1.57416E+04       kJ/mol
+ Energy solute   1 potential            -4.79646E+04  1.51699E+02 -6.85965E+03  -4.79646E+04  1.51699E+02 -6.85965E+03       kJ/mol
+ Energy solute   1 total                -3.26806E+04  9.20167E+01  8.88198E+03  -3.26806E+04  9.20167E+01  8.88198E+03       kJ/mol
+ Virial solute   1                       1.58071E+04  1.58259E+03  2.67042E+05   1.58071E+04  1.58259E+03  2.67042E+05       kJ/mol
+ Mean square displacement solute   1 /6  2.70203E-08  2.12138E-08  3.63524E-06   2.70203E-08  2.12138E-08  3.63524E-06        nm**2
+ Diffusion coefficient solute   1        1.98879E-03  8.98773E-04  1.55869E-01   1.98879E-03  8.98773E-04  1.55869E-01       m**2/s
+
+ TIMING ANALYSIS                                                                                             98/12/29  14:33:07  
+
+ Timing analysis for node     0
+                                                    Number          Total         CPUtime        Percent        Percent
+                                                      of           CPUtime          per          process         total 
+                                                     calls                          call         CPUtime        CPUtime
+
+ total                                                    1        285.619         28.562        103.987        100.000
+  arg_setup (Setup phase)                                 1         10.950          1.095          3.987          3.834
+   arg_setlfn (Logical file assignment)                   1          0.001          0.000          0.000          0.000
+   arg_nrnode (Node distribution)                         1          0.000          0.000          0.000          0.000
+   memor1                                                 1          3.462          0.346          1.260          1.212
+   setup1                                                 1          6.773          0.677          2.466          2.371
+   memor2                                                 1          0.034          0.003          0.012          0.012
+   setup2                                                 1          0.679          0.068          0.247          0.238
+   param1 (Parameters pass 1)                             1          0.035          0.003          0.013          0.012
+   param2 (Parameters pass 2)                             1          0.002          0.000          0.001          0.001
+   param3 (Parameters pass 3)                             1          0.236          0.024          0.086          0.083
+  task (Task phase)                                       1        274.668         27.467        100.000         96.166
+   driver (Task driver)                                   1        274.650         27.465         99.993         96.159
+   newton (Newtonian time step)                          10        274.631         27.463         99.986         96.153
+    init   (Time step initialization)                    10          0.184          0.018          0.067          0.064
+    owner  (Determine ownership)                          2          0.043          0.004          0.016          0.015
+    travel (Redistribution)                               2          0.818          0.082          0.298          0.286
+     travel (comm)                                        2          0.948          0.095          0.345          0.332
+    export (Export global arrays)                         2          0.087          0.009          0.032          0.031
+    pairlist/force loop                                  10        246.329         24.633         89.683         86.244
+      listww (Pairlist solvent-solvent)                2971          3.891          0.389          1.417          1.362
+      listsw (Pairlist solute-solvent)                 1122          0.403          0.040          0.147          0.141
+      listsw (Pairlist solvent-solute)                 1147          0.732          0.073          0.267          0.256
+      listss (Pairlist solute-solute)                   781          2.350          0.235          0.856          0.823
+      listsb (Pairlist solute bonds)                    781          0.405          0.041          0.147          0.142
+      listsh (Pairlist solute angles)                   781          0.647          0.065          0.236          0.227
+      listsd (Pairlist solute dihedrals)                781          1.229          0.123          0.447          0.430
+      listso (Pairlist solute impropers)                781          0.073          0.007          0.027          0.026
+      listst (Pairlist solute third neighbors)          781          0.576          0.058          0.210          0.202
+    forces (Forces)                                      10        260.142         26.014         94.711         91.080
+     forcec (pair potential forces)                      10        251.960         25.196         91.733         88.215
+     forpme (particle-mesh Ewald forces)                 10          8.172          0.817          2.975          2.861
+      fft3d (3D-FFT)                                     20          1.099          0.110          0.400          0.385
+       pmeset (pme initialization)                       10          1.223          0.122          0.445          0.428
+       scafra (pme scaled fractional x)                  10          0.135          0.014          0.049          0.047
+       splico (pme spline coefficients)                  10          1.087          0.109          0.396          0.381
+      pmecor (pme correction energy)                      1          0.001          0.000          0.000          0.000
+      chgrid (charge grid setup)                         10          5.382          0.538          1.959          1.884
+       chgrid (comm slf charge grid zero)               320          0.030          0.003          0.011          0.011
+       chgrid (comm charge grid accum)                  320          0.113          0.011          0.041          0.040
+       chgrid (comm slf charge grid retr)               320          0.025          0.003          0.009          0.009
+      pmenrg (pme energy calculation)                    10          0.286          0.029          0.104          0.100
+      pmefor (pme forces calculation)                    10          5.415          0.542          1.972          1.896
+       pmefor (comm self charge grid)                   320          0.050          0.005          0.018          0.018
+       pmefor (comm charge grid retr 1)                 320          0.056          0.006          0.020          0.020
+      forw (Solvent intramolecular forces)               10          0.558          0.056          0.203          0.195
+      forww  (Forces solvent intermolecular)          27910        107.575         10.758         39.165         37.664
+      forsw  (Forces solute-solvent)                   7790         11.478          1.148          4.179          4.019
+      forsw  (Forces solvent-solute)                   8590         15.491          1.549          5.640          5.424
+      fors   (Forces solutes intramolecular)           6850         98.162          9.816         35.739         34.368
+     accumulation non-local forces                     2160          0.508          0.051          0.185          0.178
+     accumulation local forces                           10          0.130          0.013          0.047          0.046
+     summation long range forces                         10          0.080          0.008          0.029          0.028
+     global sum virial                                   10          0.001          0.000          0.000          0.000
+    shakew (SHAKE solvent)                               10         11.623          1.162          4.232          4.069
+    shakes (SHAKE solute)                                10          0.081          0.008          0.029          0.028
+    cenmas (Center of mass)                              12          0.100          0.010          0.037          0.035
+    pscale (Pressure scaling)                            10          0.273          0.027          0.099          0.095
+    fold   (Periodic boundaries)                          1          0.025          0.002          0.009          0.009
+    proper (Property calculation)                        10          0.615          0.062          0.224          0.215
+    collct (Property collection)                         10          0.002          0.000          0.001          0.001
+
+                                                    Number          Total        Wall time       Percent        Percent
+                                                      of          Wall time         per          process         total 
+                                                     calls                          call        Wall time      Wall time
+
+ total                                                    1        287.012         28.701        103.984        100.000
+  arg_setup (Setup phase)                                 1         10.995          1.100          3.984          3.831
+   arg_setlfn (Logical file assignment)                   1          0.001          0.000          0.000          0.000
+   arg_nrnode (Node distribution)                         1          0.000          0.000          0.000          0.000
+   memor1                                                 1          3.470          0.347          1.257          1.209
+   setup1                                                 1          6.791          0.679          2.460          2.366
+   memor2                                                 1          0.034          0.003          0.012          0.012
+   setup2                                                 1          0.697          0.070          0.253          0.243
+   param1 (Parameters pass 1)                             1          0.035          0.004          0.013          0.012
+   param2 (Parameters pass 2)                             1          0.002          0.000          0.001          0.001
+   param3 (Parameters pass 3)                             1          0.237          0.024          0.086          0.082
+  task (Task phase)                                       1        276.016         27.602        100.000         96.169
+   driver(Task driver)                                    1        275.998         27.600         99.993         96.162
+   newton (Newtonian time step)                          10        275.979         27.598         99.986         96.156
+    init   (Time step initialization)                    10          0.185          0.019          0.067          0.065
+     owner  (Determine ownership)                         2          0.043          0.004          0.016          0.015
+    travel (Redistribution)                               2          0.820          0.082          0.297          0.286
+     travel (comm)                                        2          0.952          0.095          0.345          0.332
+     export (Export global arrays)                        2          0.088          0.009          0.032          0.031
+     pairlist/force loop                                 10        247.515         24.752         89.674         86.239
+      listww (Pairlist solvent-solvent)                2971          3.909          0.391          1.416          1.362
+      listsw (Pairlist solute-solvent)                 1122          0.404          0.040          0.146          0.141
+      listsw (Pairlist solvent-solute)                 1147          0.736          0.074          0.267          0.256
+      listss (Pairlist solute-solute)                   781          2.360          0.236          0.855          0.822
+      listsb (Pairlist solute bonds)                    781          0.406          0.041          0.147          0.142
+      listsh (Pairlist solute angles)                   781          0.651          0.065          0.236          0.227
+      listsd (Pairlist solute dihedrals)                781          1.233          0.123          0.447          0.430
+      listso (Pairlist solute impropers)                781          0.073          0.007          0.026          0.025
+      listst (Pairlist solute third neighbors)          781          0.576          0.058          0.209          0.201
+    forces (Forces)                                      10        261.371         26.137         94.694         91.066
+     forcec (pair potential forces)                      10        253.162         25.316         91.720         88.206
+     forpme (particle-mesh Ewald forces)                 10          8.200          0.820          2.971          2.857
+      fft3d (3D-FFT)                                     20          1.105          0.110          0.400          0.385
+       pmeset (pme initialization)                       10          1.230          0.123          0.446          0.429
+       scafra (pme scaled fractional x)                  10          0.136          0.014          0.049          0.047
+       splico (pme spline coefficients)                  10          1.093          0.109          0.396          0.381
+      pmecor (pme correction energy)                      1          0.001          0.000          0.000          0.000
+      chgrid (charge grid setup)                         10          5.395          0.540          1.955          1.880
+       chgrid (comm slf charge grid zero)               320          0.030          0.003          0.011          0.011
+       chgrid (comm charge grid accum)                  320          0.113          0.011          0.041          0.039
+       chgrid (comm slf charge grid retr)               320          0.025          0.003          0.009          0.009
+      pmenrg (pme energy calculation)                    10          0.287          0.029          0.104          0.100
+      pmefor (pme forces calculation)                    10          5.430          0.543          1.967          1.892
+       pmefor (comm self charge grid)                   320          0.050          0.005          0.018          0.017
+       pmefor (comm charge grid retr 1)                 320          0.056          0.006          0.020          0.020
+      forw (Solvent intramolecular forces)               10          0.561          0.056          0.203          0.195
+      forww  (Forces solvent intermolecular)          27910        108.048         10.805         39.146         37.646
+      forsw  (Forces solute-solvent)                   7790         11.515          1.152          4.172          4.012
+      forsw  (Forces solvent-solute)                   8590         15.549          1.555          5.633          5.417
+      fors   (Forces solutes intramolecular)           6850         98.509          9.851         35.690         34.322
+     accumulation non-local forces                     2160          0.510          0.051          0.185          0.178
+     accumulation local forces                           10          0.131          0.013          0.048          0.046
+     summation long range forces                         10          0.080          0.008          0.029          0.028
+     global sum virial                                   10          0.001          0.000          0.000          0.000
+    shakew (SHAKE solvent)                               10         11.714          1.171          4.244          4.081
+    shakes (SHAKE solute)                                10          0.081          0.008          0.029          0.028
+    cenmas (Center of mass)                              12          0.101          0.010          0.037          0.035
+    pscale (Pressure scaling)                            10          0.274          0.027          0.099          0.095
+    fold   (Periodic boundaries)                          1          0.025          0.002          0.009          0.009
+    proper (Property calculation)                        10          0.617          0.062          0.224          0.215
+    collct (Property collection)                         10          0.002          0.000          0.001          0.001
+
+
+                                                    Number          Total         Comtime        Percent        Percent
+                                                      of           Comtime          per          process         total 
+                                                     calls                          call         Comtime        Comtime
+
+ forces                                                  10          0.957          0.096          0.347          0.334
+ pme                                                    320          0.275          0.028          0.100          0.096
+
+
+                                                    Number          Total         Syntime        Percent        Percent
+                                                      of           Syntime          per          process         total 
+                                                     calls                          call         Syntime        Syntime
+
+ travel                                                   3          0.000          0.000          0.000          0.000
+ forces                                                  10          0.000          0.000          0.000          0.000
+ pme chgrid 2                                            10          0.001          0.000          0.000          0.000
+ pme forces                                              10          0.001          0.000          0.000          0.000
+
+
+                                           Setup               Process             Per step            Total
+
+ Wall clock time in seconds               10.995830             276.016           27.601603             287.012
+ CPU time in seconds                      10.950945             274.668           27.466798             285.619
+
+
+ Global timing analysis
+
+
+
+ Communication time [s]
+
+ minimum per step                                      0.285871
+ maximum per step                                      0.285871
+ average per step                                      0.285871     0.285871
+
+
+ Synchronization time [s]                     node                accumulated
+
+ PME charge grid: minimum per step              0      0.000117
+ PME charge grid: maximum per step              0      0.000117
+ PME charge grid: average per step                     0.000117     0.000117
+
+ PME fft wait: minimum per step                 0      0.000062
+ PME fft wait: maximum per step                 0      0.000062
+ PME fft wait: average per step                        0.000062     0.000062
+
+ Forces: minimum per step                       0      0.000038
+ Forces: maximum per step                       0      0.000038
+ Forces: average per step                              0.000038     0.000038
+
+
+                                                                  accumulated
+
+ Wall clock time per MD step                          27.601603    27.601603
+ CPU time per MD step                                 27.466798    27.466798
+
+ MEMORY USAGE ANALYSIS                                                                                       98/12/29  14:33:07  
+ Number of allocated words of memory                                             13621158
+ Number of unused words of memory                                                 4216344
+ Maximum length solvent-solvent pairlist                                           828412
+ Maximum length solvent-solute pairlist                                             62835
+ Maximum length solute-solute pairlist                                            1327739
+
+ This run ended 98/12/29   at 14:33:07   with     0 informative messages and     0 warning messages
+
+ DAYFILE                                                                                                     98/12/29  14:33:07  
+
+ Date      Time           Elapsed         CPU Routine  Dayfile message
+
+ 98/12/29  14:28:20         0.002       0.002 nwARGOS Revision   1.000, prepared 21-sep-95  at 11:48:54          
+ 98/12/29  14:28:20         0.003       0.003 start  : File day opened formatted                                 
+ 98/12/29  14:28:20         0.030       0.030 alpha  : alpha     3.125347 for tolerance of 0.10000E-04           
+ 98/12/29  14:28:20         0.031       0.031 rddim  : file rst opened formatted                                 
+ 98/12/29  14:28:22         2.244       2.239 rddim  : file rst closed                                           
+ 98/12/29  14:28:22         2.245       2.240 rddim  : file top opened formatted                                 
+ 98/12/29  14:28:23         3.462       3.454 rddim  : file top closed                                           
+ 98/12/29  14:28:23         3.463       3.455 memor1 :          8 bytes per word                                 
+ 98/12/29  14:28:23         3.463       3.455 memor1 :          1 integer(s) per word                            
+ 98/12/29  14:28:23         3.463       3.455 memor1 :      14209 words for   12128 solvent molecules            
+ 98/12/29  14:28:23         3.463       3.456 memor1 :       9751 words for    4875 solute atoms                 
+ 98/12/29  14:28:23         3.464       3.456 memor1 :         13 kb for global array ip                         
+ 98/12/29  14:28:23         3.464       3.456 memor1 :        555 kb for global array iw                         
+ 98/12/29  14:28:23         3.465       3.457 memor1 :       4662 kb for global array w                          
+ 98/12/29  14:28:23         3.465       3.457 memor1 :       1066 kb for global array is                         
+ 98/12/29  14:28:23         3.466       3.458 memor1 :       2971 kb for global array s                          
+ 98/12/29  14:28:23         3.466       3.458 memor1 :       9267 kb total for global arrays                     
+ 98/12/29  14:28:23         3.472       3.464 memor1 :   10037464 words of ga-memory                             
+ 98/12/29  14:28:23         3.472       3.464 memor1 :   10934056 words of ga-memory unused                      
+ 98/12/29  14:28:23         3.473       3.465 malloc :   13621158 words of memory allocated                      
+ 98/12/29  14:28:23         3.506       3.498 memor2 :     833066 words of memory used for workarrays            
+ 98/12/29  14:28:23         3.506       3.499 memor2 :    5084262 words of memory assigned                       
+ 98/12/29  14:28:23         3.507       3.499 memor2 :    7703830 words of memory available                      
+ 98/12/29  14:28:23         3.507       3.500 rdstrt : File rst opened formatted                                 
+ 98/12/29  14:28:26         5.917       5.904 rdstrt : Box-box list read                                         
+ 98/12/29  14:28:26         5.918       5.904 rdstrt : Boxsizes from restart broadcasted to all nodes            
+ 98/12/29  14:28:26         5.918       5.904 rdstrt : File rst closed                                           
+ 98/12/29  14:28:26         5.946       5.932 rdtop  : File top opened formatted                                 
+ 98/12/29  14:28:29         8.946       8.924 rdtop  : File top closed                                           
+ 98/12/29  14:28:29         9.003       8.980 param1 : Parameter calculations pass 1                             
+ 98/12/29  14:28:29         9.003       8.981 param1 : emsl FFT routine                                          
+ 98/12/29  14:28:29         9.003       8.981 param1 : FFT integer worklength       102                          
+ 98/12/29  14:28:29         9.003       8.981 param1 : FFT real worklength        65557                          
+ 98/12/29  14:28:29         9.023       9.001 param1 : Reaction field setup completed                            
+ 98/12/29  14:28:29         9.026       9.004 param1 : Mass factors calculation completed                        
+ 98/12/29  14:28:29         9.037       9.015 param1 : Parameter calculations pass 1 completed                   
+ 98/12/29  14:28:29         9.570       9.546 param2 : Parameter calculations pass 2                             
+ 98/12/29  14:28:29         9.572       9.548 param2 : Parameter calculations pass 2 completed                   
+ 98/12/29  14:28:29         9.572       9.548 param3 : Parameter calculations pass 3                             
+ 98/12/29  14:28:29         9.806       9.782 param3 : Index array solute third neighbor list generated          
+ 98/12/29  14:28:29         9.808       9.783 param3 : Index array solute excluded pairlist generated            
+ 98/12/29  14:28:29         9.808       9.784 param3 : Parameter calculations pass 3 completed                   
+ 98/12/29  14:28:29         9.809       9.784 param4 : Parameter calculations pass 4                             
+ 98/12/29  14:28:29         9.809       9.785 param4 : Parameter calculations pass 4 completed                   
+ 98/12/29  14:28:29         9.810       9.785 param5 : Parameter calculations pass 5                             
+ 98/12/29  14:28:29         9.811       9.786 param5 : Parameter calculations pass 5 completed                   
+ 98/12/29  14:28:30         9.814       9.789 openf2 : File out opened formatted                                 
+ 98/12/29  14:28:30         9.814       9.789 openf2 : File tst opened formatted                                 
+ 98/12/29  14:28:30         9.814       9.789 openf2 : File initialization completed                             
+ 98/12/29  14:28:31        10.953      10.925 ordrbb : Box-box list ordered                                      
+ 98/12/29  14:28:31        10.995      10.950 wrtinp : Completed                                                 
+ 98/12/29  14:28:31        10.996      10.951 task   : calculation driver routine                                
+ 98/12/29  14:28:31        11.015      10.970 dynam  : Single run molecular dynamics simulation                  
+ 98/12/29  14:28:31        11.655      11.607 fftchk : forward fft emsl passed                                   
+ 98/12/29  14:28:31        11.713      11.665 fftchk : reverse fft emsl passed                                   
+ 98/12/29  14:33:07       287.012     285.619 dynam  : Single run molecular dynamics simulation completed        
+ 98/12/29  14:33:07       287.012     285.619 task   : Calculation completed                                     
+ 98/12/29  14:33:07       287.012     285.619 closef : File syn closed                                           
+ 98/12/29  14:33:07       287.013     285.620 closef : File tim closed                                           
+ 98/12/29  14:33:07       287.029     285.636 finish : Completed with     0 informative messages                 
+ 98/12/29  14:33:07       287.029     285.636 finish : Completed with     0 warning messages                     

@@ -32,7 +32,7 @@ Time             =     0.006
 Temperature      =   291.61
 Volume           =     6.50
 Pressure         =     3.98E+07
-Energy           =   -7.522E+03
+Energy           =   -7.521E+03
 
 Time             =     0.007
 Temperature      =   291.21
@@ -43,7 +43,7 @@ Energy           =   -7.520E+03
 Time             =     0.008
 Temperature      =   291.09
 Volume           =     6.50
-Pressure         =     4.95E+07
+Pressure         =     4.96E+07
 Energy           =   -7.521E+03
 
 Time             =     0.009

@@ -1,0 +1,19 @@
+memory heap 1 mb stack 36 mb global 12 mb
+start had
+
+prepare
+ system had_em
+ new_top new_seq
+ new_rst
+end
+
+task prepare
+
+md
+ system had_em
+ sd 10
+ boxes 6 6 6
+ test 10
+end
+
+task md optimize

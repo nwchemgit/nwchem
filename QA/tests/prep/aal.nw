@@ -1,0 +1,16 @@
+memory heap 1 mb stack 36 mb global 12 mb
+start aal
+
+prepare
+ system aal_em
+ new_top new_seq
+end
+
+task prepare
+
+prepare
+ read rst aal_em.rst
+ write pdb aal_em.pdb
+end
+
+task prepare

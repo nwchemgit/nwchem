@@ -13,13 +13,13 @@ Energy           =   -5.950E+04
 Time             =     0.003
 Temperature      =   294.84
 Volume           =    52.02
-Pressure         =    -5.75E+07
+Pressure         =    -5.74E+07
 Energy           =   -5.950E+04
 
 Time             =     0.004
 Temperature      =   295.83
 Volume           =    52.02
-Pressure         =    -5.70E+07
+Pressure         =    -5.69E+07
 Energy           =   -5.950E+04
 
 Time             =     0.005
@@ -43,7 +43,7 @@ Energy           =   -5.950E+04
 Time             =     0.008
 Temperature      =   300.31
 Volume           =    52.02
-Pressure         =    -5.67E+07
+Pressure         =    -5.66E+07
 Energy           =   -5.950E+04
 
 Time             =     0.009

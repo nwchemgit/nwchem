@@ -1,18 +1,43 @@
-title; NWChem molecular dynamics
-memory verify heap 1 mb stack 32 mb global 8 mb
-start crown_md
-md
-step 0.001 equil 0 data 10
-cutoff 1.8
-leapfrog
-print step 1 stat 10 topol extra
-update pairs 1 center 0 rdf 0 
-record rest 0 prop 0 
-record coord 0 scoor 0
-record veloc 0 svelo 0
-record ascii ecce
-record sync 1
-load pairs
-test 10    #This is for tests only, not to be used by users
+title; NWChem Molecular Dynamics Module nwARGOS
+memory noverify heap 1 mb stack 48 mb global 24 mb
+start crown_job
+
+prepare
+ system crown_em
 end
+
+task prepare
+
+md
+ sd 100
+end
+
+task md optimize
+
+prepare
+ system crown_md
+ read rst crown_em.qrs
+ solvate troct 3.2
+ write rst crown_md.rst
+end
+
+task prepare
+
+md
+ system crown_md
+ equil 0 data 20
+ print step 1 stat 5
+ record rest 0
+ isotherm 298.15
+ boxes 3 3 2
+ nodes 1 1 2
+ update analysis 1
+ test 1
+end
+
+analyze
+ rmsdev initial
+end
+
 task md dynamics
+
