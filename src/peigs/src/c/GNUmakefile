@@ -28,7 +28,7 @@ COBJ  = pscale.o \
          mdiff2.o \
          memreq.o \
          memreq_f.o \
-         mgs5.o \
+         mgs4.o \
          mxm25.o \
          mxm5x.o \
          mxm88.o \

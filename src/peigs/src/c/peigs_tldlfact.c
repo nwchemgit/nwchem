@@ -12,7 +12,7 @@ void peigs_tldlfact(Integer  *n, DoublePrecision *d, DoublePrecision *e, DoubleP
   j = 1;
   for (i = 0; i < msize; i++ ){
     if ( dplus[i] == 0.0e0 )
-      printf("error in dplus peigs_tldlfact %d \n",  i);
+      printf("error in dplus peigs_tldlfact %d division by zero \n",  i);
     lplus[i] = e[j]/dplus[i];
     dplus[j] = d[j] - lplus[i]*e[j];
     j++;
@@ -20,7 +20,4 @@ void peigs_tldlfact(Integer  *n, DoublePrecision *d, DoublePrecision *e, DoubleP
 
   return;
 }
-
-
-
 

@@ -255,7 +255,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
       rsize = mvecs * vec_len * sizeof(DoublePrecision);
 
       bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
-                nproc-1, &proclist[1] );    
+                nproc-1, proclist+1 );    
       
       /*
        * the buffer contains incoming orthonormal vectors

@@ -44,8 +44,7 @@
   */
 
 
-void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
-	       meigval, eval, iblock, nsplit, isplit,
+void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, isplit,
 	       mapZ, vecZ, ddwork, iiwork, ppiwork, info )
      
      Integer            *n, *meigval, *iblock, *nsplit, *isplit, *mapZ,
@@ -149,7 +148,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
                   *iscratch, *icsplit;
 
    char            msg[ 25 ];
-   char            msg2[ 30 ];
+   char            msg2[ 25 ];
 
    Integer           **piwork, max_sz, sync_proc;
 
@@ -183,7 +182,16 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
   me = mxmynd_();
   nproc = mxnprc_();
 
-  strcpy( msg,  "Error in pstein4." );
+  /*
+  peigs_timer = tcgtime_();
+  */
+  
+  strcpy( msg,  "Error in pstein." );
+  
+  
+#ifdef DEBUG1
+   fprintf(stderr, "me = %d In pstein \n", me );
+#endif
 
    /*
     *     Test the input parameters.
@@ -276,26 +284,26 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
 	*info = -9;
   
   if ( *info == 0 ) {
-    /*
-     * Count the number of columns of Z owned by this processor.
-     * Must own something.
+      /*
+       * Count the number of columns of Z owned by this processor.
+       * Must own something.
        */
-    
-    nvecsZ = count_list( me, mapZ, meigval );
-    if ( nvecsZ <= 0 )
-      return;
-    
-    for ( k = 0; k < nvecsZ; k++ )
-      if ( vecZ[ k ] == NULL )
-	*info = -10;
+      
+      nvecsZ = count_list( me, mapZ, meigval );
+      if ( nvecsZ <= 0 )
+	return;
+
+      for ( k = 0; k < nvecsZ; k++ )
+        if ( vecZ[ k ] == NULL )
+	  *info = -10;
   }
   
   if( *info != 0 ) {
-    linfo = *info;
-    fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-	     msg, me, -linfo);
-    xstop_( info );
-    return;
+     linfo = *info;
+     fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
+              msg, me, -linfo);
+     xstop_( info );
+     return;
   }
   
   /*
@@ -310,9 +318,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
   
   proclist = iiwork;
   reduce_maps( *meigval, mapZ, 0, mapZ, 0, mapZ, &nn_proc, proclist );
-  
+
   iscratch = iiwork + nn_proc;
-  
+
   /*
    *  Check scaler inputs.
    */
@@ -324,6 +332,8 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
   isize = 3 * sizeof( Integer );
   strcpy( msg2, "n,meigval,or nsplit " );
   pdiff( &isize, (char *) iscratch, proclist, &nn_proc, iscratch+3, msg, msg2, &linfo );
+  
+  pgexit( &linfo, msg, proclist, &nn_proc, ddwork);
   
   if ( linfo != 0 ) {
     *info = -51;
@@ -446,14 +456,12 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
   /*
    * syncronize processors
    */
-
-	i_scrat = iwork;
   
   for ( ii = 0; ii < nproc ; ii++ )
-    iwork[ii] = 0;
-  iwork[ me ] = isize;
+    i_scrat[ii] = 0;
+  i_scrat[ me ] = isize;
   
-  gsum01( (char *) d_scrat, nproc, 5, 111, mapZ[0], nn_proc, proclist, &d_scrat[nproc + nn_proc] );
+  gsum00( (char *) i_scrat, nproc, 5, 111, mapZ[0], nn_proc, proclist, d_scrat );
   
   max_sz = 0;
   for ( ii = 0; ii < nproc; ii++ )
@@ -470,8 +478,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
     }
   }
   
-  gsum01( (char *) d_scrat, nproc, 5, 1111, sync_proc, nn_proc, proclist, &d_scrat[nproc + nn_proc]);
-  
+  bbcast00( (char *) d_scrat, 1, 112, sync_proc, nn_proc, proclist);
   
   /*
    * Compute eigenvectors
@@ -494,10 +501,61 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld,
    * Get same value of ibad for all processors in proclist.
    */
   
-  gsum01( (char *) i_scrat, nproc, 5, 11111, proclist[0], nn_proc,
-	  proclist, d_scrat);
+  /*
+    if( ibad == 0 ) {
+    for ( iii = 0; iii < neigval; iii++)
+    eval[iii] += psgn*psigma;
+    
+    tresid( n, meigval, dd, ee, vecZ, mapZ, eval, iiwork, ddwork, &res, &linfo);
+    if( res > 1000.e0  && me == mapZ[0] ) {
+    
+    fprintf(stderr, "\n\n Warning from pstein.  Tridiagonal eigenproblem has \n");
+    fprintf(stderr, " max |T z_i-lamba_i z_i | /(eps |T|) = %13.3e \n \n", res );
+    
+    if( res > 1.e30 ) 
+    ibad = *n + 30;
+    else
+    ibad = *n + (Integer) log10( res );
+    }
+    
+    bbcast00( (char *) &ibad, sizeof(Integer), 11114, mapZ[0], nn_proc, proclist);
+    }
+    */
   
   
+  /*
+    ibad = -ibad;
+    if( ibad == 0 )
+    ibad = -(msize+10);
+    
+    dbad = (DoublePrecision) ibad;
+    
+    gmax00( (char *) &dbad, 1, 1, 1, proclist[0], nn_proc, proclist, dwork );
+    
+    ibad = (Integer) dbad;
+    ibad = -ibad;
+    
+    if( ibad == msize+10 )
+    ibad = 0;
+    */
+  
+  /*
+   * Check residual of tridiagonal eigenproblem.
+   */
+  
+  
+  *info = ibad;
+  
+  
+  for ( ii = 0; ii < nproc ; ii++ )
+    i_scrat[ii] = 0;
+  i_scrat[ me ] = isize;
+  
+  gsum00( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, d_scrat );
+  
+#ifdef DEBUG7
+  printf(" out pstein4 me = %d \n", me);
+#endif
   
   return;
 }
