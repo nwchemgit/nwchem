@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.32 1999-11-02 18:27:46 d3j191 Exp $
+c $Id: pre_input.F,v 1.33 1999-11-02 21:14:30 d3j191 Exp $
 c
       implicit none
 c
@@ -736,7 +736,7 @@ c
       write(68,7807) xpndw
       else
       if(.not.inp_f(edges(2))) edges(2)=edges(1)
-      if(.not.inp_f(edges(2))) edges(3)=edges(2)
+      if(.not.inp_f(edges(3))) edges(3)=edges(2)
       write(68,6814) edges
  6814 format('period',/,'solvat box',3f12.6)
       write(68,7807) xpndw
