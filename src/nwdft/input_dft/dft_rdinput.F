@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.35 1997-03-01 06:30:07 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.36 1997-03-05 01:42:56 d3e129 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -39,12 +39,14 @@ c
       Logical int_norm_2c
       integer num_gridtypes, ind 
       parameter (num_gridtypes = 6)
+
+      External int_normalize
+      External int_norm_2c
+
       character*15 gridtypes(num_gridtypes)
       data gridtypes /'coarse', 'medium', 'fine', 'xfine', 
      &                'gausleg', 'lebedev'/
 c     
-      External int_normalize
-      External int_norm_2c
 c
 c******************************************************************************
 c     
