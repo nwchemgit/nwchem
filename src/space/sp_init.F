@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.88 2001-10-31 16:56:22 d3j191 Exp $
+c $Id: sp_init.F,v 1.89 2001-11-05 15:42:39 d3j191 Exp $
 c
       implicit none
 c
@@ -2692,6 +2692,7 @@ c
       bvw(j,3,k)=vw(i,3,k)
     5 continue
       endif
+      ibw(j)=iwl(i,lwdyn)
       endif
     3 continue
       endif
@@ -2705,7 +2706,7 @@ c     begin test code 10/31/2001
 c     check if al atoms have been received
 c
       if(ibw(i).lt.0)
-     + call errquit('Missing solvent in wtrst',i)
+     + call errquit('Missing solvent in wttrj',i)
 c
 c     end test code
 c
