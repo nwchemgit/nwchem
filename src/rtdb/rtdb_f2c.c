@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.12 1997-02-27 18:54:18 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.13 1997-02-28 01:47:46 d3e129 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -343,9 +343,8 @@ logical rtdb_cput_(const integer *handle, const char *name,
   for (i=0, left=sizeof(abuf), next=abuf;
        i<*nelem;
        i++, array+=alen) {
-
 #ifdef CRAY
-      _fcd element = cptocfd(array, alen);
+      _fcd element = _cptofcd(array, alen);
 #else
       const char *element = array;
 #endif
@@ -432,9 +431,8 @@ logical rtdb_cget_(const integer *handle, const char *name,
   for (i=0, next=strtok(abuf, "\n");
        next;
        i++, array+=alen, next=strtok((char *) 0, "\n")) {
-
 #ifdef CRAY
-      _fcd element = cptocfd(array, alen);
+      _fcd element = _cptofcd(array, alen);
 #else
       char *element = array;
 #endif
