@@ -1,8 +1,8 @@
       subroutine dft_mxovl(basis, evals, 
      ,     g_evecs, g_oevecs, g_s,g_tmp,
-     ,     noc,ispin,oprint,homo,lumo)
+     ,     noc,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.9 2000-04-03 05:49:06 edo Exp $
+C$Id: dft_mxovl.F,v 1.10 2000-04-14 01:51:26 edo Exp $
       Implicit none
 #include "bas.fh"
 #include "cdft.fh"
@@ -17,8 +17,7 @@ C$Id: dft_mxovl.F,v 1.9 2000-04-03 05:49:06 edo Exp $
       integer g_oevecs         ! old eigenvecs [input]
       integer g_tmp            ! scratch space
       double precision evals(*)! eigenvalues  [input/output]
-      integer noc(*) ! [in]
-      integer ispin ! [in]
+      integer noc ! [in]
       logical oprint ! [in]
       double precision homo,lumo ! [in/out]
 c
@@ -110,11 +109,11 @@ c
 c
       homo = -1.0d8
       lumo =  1.0d8
-      if(noc(ispin).gt.0) then
-         do i = 1, noc(ispin)
+      if(noc.gt.0) then
+         do i = 1, noc
             homo = max(homo,evals(i))
          enddo
-         do i = noc(ispin)+1, nbf
+         do i = noc+1, nbf
             lumo = min(lumo,evals(i))
          enddo
       endif

@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.152 2000-04-11 20:49:46 edo Exp $
+c     $Id: dft_scf.F,v 1.153 2000-04-14 01:51:26 edo Exp $
 c     
       implicit none
 c
@@ -127,7 +127,8 @@ c
       character*7 name
       character*4 scftype
       character*7 vecs_or_dens
-      character*255 basis_name, basis_trans
+      character*255 basis_name, basis_trans,blob
+
       integer nopen, nclosed, g_denso(2),k_tmp,l_tmp,nstdis,
      .     mult_loc,l_gdiis,k_gdiis
       logical dft_mem3c
@@ -393,12 +394,7 @@ c
 c     Dump DFT parameters (if debugging) to see if they make sense
 c     
       if (me.eq.0.and.oprint_info)call dft_dump_info(me)
-c     
-c     Get initial density.
-c     
-      if (oprint_time)
-     &     call dft_tstamp(' Before call to DFT_INIT.')
-c      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
+
       if (ipol.eq.1)then
          scftype = 'RHF'
       elseif (ipol.eq.2)then
@@ -417,7 +413,6 @@ c
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
-cedo      tol2e_sleazy = 1.d-7
       tol2e_sleazy = 1.d-3
       call scf_get_fock_param(rtdb, tol2e_sleazy)
 c
@@ -425,17 +420,14 @@ c     Force sleazy SCF into "direct" mode.
 c
       call fock_force_direct(rtdb)
 c
-!        vecs_or_dens='vectors'
-!	ldmix=.true.
-	vecs_or_dens='density'
-	ldmix=.false.
-C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
-	if((movecs_in.ne.'atomic'.and.
-     *       movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
-     .       .or.check_deg) then
-           vecs_or_dens='vectors'
-           ldmix=.true.
-         endif
+      vecs_or_dens='density'
+      ldmix=.false.
+      if((movecs_in.ne.'atomic'.and.
+     *     movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
+     .     .or.check_deg) then
+         vecs_or_dens='vectors'
+         ldmix=.true.
+      endif
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -466,7 +458,7 @@ c
 c
 c Jorge Garza/End/Exact_pot
 
-      call dft_prevals(me,oprint_eval,oprint_vecs,noc,
+      call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 
          endif
@@ -557,7 +549,7 @@ c
      =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
 #if defined(DFT_TIMER)
       call dft_second(tp4)
-      pgmsect(5) = ' initial gu'
+      pgmsect(5) = ' initial guess'
       call tcllct(t_pgm(1,5),tp4,tp3)
 #endif
  1000 continue
@@ -587,18 +579,14 @@ c
 c
 c     Pre-compute reduced total density matrices over atoms
 c 
-      call dfill(ipol*natoms*natoms, 0.0d0, dbl_mb(irdens_atom), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('dft_scf: cannot allocate scr',0)
-         if (oprint_time)call dft_tstamp(' Before call to mat_red   ')
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dft_scf: cannot pop stack',0)
-         if (oprint_time)call dft_tstamp(' called mat_red   ')
-c
 #if defined(DFT_TIMER)
       call dft_second(tp3)
 #endif
@@ -750,7 +738,6 @@ c
          endif
          goto 2000
       endif
-cedo      call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
       homo_lumo_gap = 200.0d0
@@ -802,113 +789,18 @@ c
 #if defined(DFT_TIMER)
          call dft_second(tp3)
 #endif
-c
-c        Level shifting is implemented here (similarity 
-c        transformation before standard eigensolver).  Note,
-c        levelshifting is appropriate once a transformation
-c        is available which makes the resulting Fock matrix 
-c        diagonally dominant, e.g., in an approximate MO basis.  
-c     
-         if (levelshifting)then
-c
-c     product movecs * S
-c
-            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &           g_s, g_movecs(ispin), zero, g_tmp)
-            call ga_copy(g_tmp,  g_movecs(ispin))
-c      
-c           Build upper diagonal matrix. in MO basis
-c     
-            call ga_zero(g_tmp)
-            do j = noc(ispin)+1+me, nbf_ao, nproc
-               call ga_put(g_tmp, j, j, j, j, rlshift, 1)
-            enddo
-c     
-c           Transform back into "AO" basis and add to Fock matrix
-c     
-            g_scr = ga_create_atom_blocked(geom,AO_bas_han,'gscr')
-            call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                    g_movecs(ispin), g_tmp, zero, g_scr)
-            call ga_dgemm('N', 'T', nbf_ao, nbf_ao, nbf_ao, one, 
-     &                    g_scr, g_movecs(ispin), one, g_fock)
-            if (.not. ga_destroy(g_scr)) call errquit
-     &           ('dft_scf: could not destroy g_scr', 0)
-         else
-            rlshift = 0.0
-         endif
-c     
-c        Solve for the eigenvalues and eigenvectors of the Hamiltonian.
-c     
-         call ga_symmetrize(g_fock)
-         if (oprint_intermediate_fock)then     
-            call ga_print(g_fock)
-         endif
-#if defined(DFT_TIMER)
-         call dft_second(tp4)
-         pgmsect(10) = '   ga_dgemm   '
-         call tcllct(t_pgm(1,10),tp4,tp3)
-         call dft_second(tp3)
-#endif
-            if (oprint_time)
-     &           call dft_tstamp(' calling diag ')
-#if defined(PARALLEL_DIAG)
-        call ga_diag(
-     .           g_fock, g_s, g_tmp, Dbl_MB(k_eval(ispin)))
-#else 
-         call ga_diag_seq(g_fock, g_s,g_tmp, Dbl_MB(k_eval(ispin)))
-#endif
-            if (oprint_time)
-     &           call dft_tstamp(' called diag ')
-c     
-c        Check HOMO/LUMO gap.
-c     
-         if(noc(ispin).gt.0) then
-           homo = Dbl_MB(k_eval(ispin)+noc(ispin)-1)
-           lumo = Dbl_MB(k_eval(ispin)+noc(ispin))
-         else
-           homo=-100.0d0
-           lumo=100.0d0
-         endif
-c     
-c        Keep orbital ordering according to principle
-c        of maximum overlap with previous iteration.
-c     
-         if (lmaxov)then
-            if (levelshifting)then
-               g_scr = ga_create_atom_blocked(geom,AO_bas_han,'gscr')
-c
-c     get S-1
-c
-               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &              g_fock, 4)
-c     
-c           Put old-movecs back.   C = S-1 * C'
-c     
-               call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
-     &              g_scr, g_movecs(ispin), zero, g_fock)
-               call ga_copy(g_fock, g_movecs(ispin))
-               if (.not. ga_destroy(g_scr)) call errquit
-     &              ('dft_scf: could not destroy g_scr', 2)
-            endif
-
-            call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
-     &           g_tmp, g_movecs(ispin), g_s, g_fock,
-     ,           noc,ispin,oprint_conv_details,
-     ,           homo,lumo)
-        endif
-c
-c     put new movecs
-c
-        call ga_copy(g_tmp, g_movecs(ispin))
-
+         call dft_diag(levelshifting,
+     ,        g_fock,g_s,g_movecs(ispin),g_tmp,g_svecs,
+     ,        dbl_mb(k_eval(ispin)),dbl_mb(isvals),noc(ispin),
+     ,        homo,lumo,toll_s,
+     ,        oprint_intermediate_fock,oprint_time,
+     ,        oprint_conv_details)
 c        
 c        determine homo-lumo gap 
 c
          homo_lumo_gap = min(homo_lumo_gap, (lumo-homo-rlshift))
          if (me.eq.0 .and. oprint_conv_details)
      &      write(LuOut,4224)homo,lumo,rlshift, homo_lumo_gap
- 4224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 c     
          call ga_sync
 #if defined(DFT_TIMER)
@@ -1016,12 +908,6 @@ c
          call util_flush(LuOut)
          write(LuOut,1)
       endif
- 21   format(/,10x,' Memory utilization after 1st SCF pass: ')
-    1 format(/,
-     &     1x,'  convergence    iter        energy       DeltaE   ',
-     &     'RMS-Dens  Diis-err    time'/
-     &     1x,'---------------- ----- ----------------- --------- ',
-     &     '--------- ---------  ------')
       if (oprint_conv.and.me.eq.0)then
          current_cpu = util_cpusec()
          if (diising)then
@@ -1037,12 +923,6 @@ c
          endif
          call util_flush(LuOut)
       endif
-    2 format(1x,'d=',i2,',ls=',f3.1,',diis',1x,i5,f18.10,
-     &     1p,3d10.2,0p,f8.1)
-    3 format(51x,1p,2d10.2)
- 22   format(1x,'d=',i2,',ls=',f3.1,6x,i5,f18.10,
-     &     1p,2d10.2,10x,0p,f8.1)
- 23   format(51x,1p,1d10.2)
 c
 c     ecce ouput
 c
@@ -1060,8 +940,7 @@ c
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &   call errquit('dft_scf: movec_write failed', 0)
-
-      call dft_prevals(me,oprint_eval,oprint_vecs,noc,
+      call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
 c     If open shell compute overlap of alpha orbitals with beta 
@@ -1153,9 +1032,6 @@ c
          levelshifting = .false.
          rlshift = rlshift_def
       endif
- 2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
-     &     /,10x,'Unshifted LUMO is less than HOMO.',
-     &     /,10x,'Turning levelshifting OFF this iteration.')
 c     
       if ((delta.lt.diison.and.delta.gt.diisoff).or.
      &     iter.le.ncyds.or.keep_diis_on)then
@@ -1186,10 +1062,6 @@ c
          lmaxov = .false.
          if (me.eq.0 .and. oprint_conv_details)
      &      write(LuOut,224)homo, lumo
- 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &        /,10x,'Significant orbital reordering with',
-     &        ' maximum overlap',
-     &        /,10x,'turned ON.  Turning max_ovl OFF.')
       endif
 c     
       if (oprint_energy_step.and.me.eq.0)then         
@@ -1297,23 +1169,6 @@ c
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
          endif
- 222     format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '    Exchange-Corr. energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
- 223     format(//
-     &        '         Total DFT energy =', f20.12/
-     &        '      One electron energy =', f20.12/
-     &        '           Coulomb energy =', f20.12/
-     &        '          Exchange energy =', f20.12/
-     &        '       Correlation energy =', f20.12/
-     &        ' Nuclear repulsion energy =', f20.12//
-     &        ' Numeric. integr. density =', f20.12//
-     &        '     Total iterative time =', f9.1,'s'//)
          call util_flush(LuOut)
       endif
 c
@@ -1336,30 +1191,18 @@ c
                ihi = nbf_ao
             endif
             if (ipol.eq.1) then
-              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
-     &            g_movecs(ispin), 
-     &            'DFT Final Molecular Orbital Analysis', 
-     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &            int_mb(k_ir+(ispin-1)*nbf_ao),
-     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+               blob='DFT Final Molecular Orbital Analysis'
             else if(ipol.eq.2.and.ispin.eq.1) then
-              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
-     &            g_movecs(ispin), 
-     &            'DFT Final Alpha Molecular Orbital Analysis', 
-     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &            int_mb(k_ir+(ispin-1)*nbf_ao),
-     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
-            else if(ipol.eq.2.and.ispin.eq.2) then
-              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
-     &            g_movecs(ispin), 
-     &            'DFT Final Beta Molecular Orbital Analysis', 
-     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &            int_mb(k_ir+(ispin-1)*nbf_ao),
-     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
-            else 
-              call errquit
-     &            ('dft_scf: unknown case for movecs analysis',911)
+               blob='DFT Final Alpha Molecular Orbital Analysis' 
+            else
+               blob='DFT Final Beta Molecular Orbital Analysis' 
             endif
+            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+     &           g_movecs(ispin), 
+     &           blob, 
+     &           .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &           int_mb(k_ir+(ispin-1)*nbf_ao),
+     &           .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
          endif
       enddo
 c
@@ -1393,7 +1236,6 @@ c
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
      &                      0)
-cedo      call ga_sync()
 c     
 c     Shut down DIIS.
 c     
@@ -1456,39 +1298,8 @@ c
          call schwarz_print(natoms, nshells_ao)
       endif
 c     
-      if (me .eq. 0)then
-         if (util_print('final evals', print_high))then
-            call util_print_centered(LuOut,'Final alpha eigenvalues',
-     &           20,.false.)
-            call util_print_centered(LuOut,
-     &           '(all occupied plus 10 virtual)',20,.true.)
-            call output(dbl_mb(k_eval(1)),
-     &           1, min(noc(1)+10,nbf_ao),
-     &           1, 1, nbf_ao, 1, 1)
-            if (ipol.eq.2)then
-               write(LuOut,*)
-               call util_print_centered(LuOut,'Final beta eigenvalues',
-     &              20,.true.)
-               call util_print_centered(LuOut,
-     &              '(all occupied plus 10 virtual)',20,.true.)
-               call output(dbl_mb(k_eval(2)),
-     &              1, min(noc(1)+10,nbf_ao),
-     &              1, 1, nbf_ao, 1, 1)
-            endif
-            call util_flush(6)
-         endif
-         if (oprint_final_vecs)then
-            write(LuOut,*)
-            call util_print_centered(
-     &           LuOut,'Final MO vectors',40,.true.)
-            write(LuOut,*)
-            call util_flush(LuOut)
-         endif
-      endif
-      if (oprint_final_vecs)then
-         call ga_print(g_movecs)
-         if (ipol.eq.2)call ga_print(g_movecs(2))
-      endif
+      call dft_prevals('final',me,oprint_eval,oprint_vecs,noc,
+     ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
 c     ECCE printout
 c     
@@ -1552,7 +1363,45 @@ c !!! BGJ
 
       return
 c     
+ 21   format(/,10x,' Memory utilization after 1st SCF pass: ')
+    1 format(/,
+     &     1x,'  convergence    iter        energy       DeltaE   ',
+     &     'RMS-Dens  Diis-err    time'/
+     &     1x,'---------------- ----- ----------------- --------- ',
+     &     '--------- ---------  ------')
+    2 format(1x,'d=',i2,',ls=',f3.1,',diis',1x,i5,f18.10,
+     &     1p,3d10.2,0p,f8.1)
+    3 format(51x,1p,2d10.2)
+ 22   format(1x,'d=',i2,',ls=',f3.1,6x,i5,f18.10,
+     &     1p,2d10.2,10x,0p,f8.1)
+ 23   format(51x,1p,1d10.2)
  1111 format(15x,'Core Energy:              ',f20.10)
+ 222  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '    Exchange-Corr. energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12//
+     &     ' Numeric. integr. density =', f20.12//
+     &     '     Total iterative time =', f9.1,'s'//)
+ 223  format(//
+     &     '         Total DFT energy =', f20.12/
+     &     '      One electron energy =', f20.12/
+     &     '           Coulomb energy =', f20.12/
+     &     '          Exchange energy =', f20.12/
+     &     '       Correlation energy =', f20.12/
+     &     ' Nuclear repulsion energy =', f20.12//
+     &     ' Numeric. integr. density =', f20.12//
+     &     '     Total iterative time =', f9.1,'s'//)
+ 224  format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &     /,10x,'Significant orbital reordering with',
+     &     ' maximum overlap',
+     &     /,10x,'turned ON.  Turning max_ovl OFF.')
+ 2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
+     &     /,10x,'Unshifted LUMO is less than HOMO.',
+     &     /,10x,'Turning levelshifting OFF this iteration.')
+ 4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 c     
       end
 
