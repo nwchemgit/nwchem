@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.16 2003-01-28 02:03:40 marat Exp $
+* $Id: paw_proj.F,v 1.17 2003-01-30 06:17:21 marat Exp $
 *
 
 
@@ -36,7 +36,7 @@
 
 *     *** number of basis functions for each atom kind ***
       value = MA_alloc_get(mt_int,(nkatm),
-     >                     'nbasis',nbasis(2),nbasis(1))
+     >                     'prj_nbasis',prj_nbasis(2),prj_nbasis(1))
       value = value.and.
      >        MA_alloc_get(mt_int,(nkatm),
      >                     'prj_indx',prj_indx(2),prj_indx(1))
@@ -55,16 +55,16 @@
       call paw_proj_check_format()
 
 *     *** get the size of prj common block and allocate it ***
-      call paw_proj_paw_basis_nbasis(int_mb(nbasis(1)))
+      call paw_proj_paw_basis_nbasis(int_mb(prj_nbasis(1)))
       ntotal = 0
       do ia=1,nkatm
-        ntotal = ntotal + int_mb(nbasis(1)+ia-1)
-        value = MA_alloc_get(mt_int,(int_mb(nbasis(1)+ia-1)),
+        ntotal = ntotal + int_mb(prj_nbasis(1)+ia-1)
+        value = MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
      >                       'sub_i_prj_l',
      >                       int_mb(i_prj_l(1)+2*(ia-1)+1),
      >                       int_mb(i_prj_l(1)+2*(ia-1)))
         value = value.and.
-     >          MA_alloc_get(mt_int,(int_mb(nbasis(1)+ia-1)),
+     >          MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
      >                       'sub_i_prj_m',
      >                       int_mb(i_prj_m(1)+2*(ia-1)+1),
      >                       int_mb(i_prj_m(1)+2*(ia-1)))
@@ -80,7 +80,7 @@
       int_mb(prj_indx(1)) = 0
       do ia=2,nkatm
          int_mb(prj_indx(1)+ia-1) = int_mb(prj_indx(1)+ia-2) 
-     >                            + int_mb(nbasis(1)  +ia-2)*npack1
+     >                            + int_mb(prj_nbasis(1)  +ia-2)*npack1
       end do
 
 *     *** read in formatted prj's to prj common block ***
@@ -120,7 +120,7 @@
       value = value.and.MA_free_heap(i_prj_l(2))
       value = value.and.MA_free_heap(i_prj_m(2))
       value = value.and.MA_free_heap(prj_indx(2))
-      value = value.and.MA_free_heap(nbasis(2))
+      value = value.and.MA_free_heap(prj_nbasis(2))
       value = value.and.MA_free_heap(prj(2))
       if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
       return
@@ -182,7 +182,7 @@
 #include "mafdecls.fh"
 #include "paw_proj_data.fh"
 
-      paw_proj_nbasis = int_mb(nbasis(1)+ia-1)
+      paw_proj_nbasis = int_mb(prj_nbasis(1)+ia-1)
       return
       end
 

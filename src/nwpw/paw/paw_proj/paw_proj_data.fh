@@ -1,14 +1,14 @@
 ! 
-! $Id: paw_proj_data.fh,v 1.1 2003-01-30 05:50:13 marat Exp $
+! $Id: paw_proj_data.fh,v 1.2 2003-01-30 06:17:21 marat Exp $
 ! 
 
 !     **** paw_proj.fh common blocks ****
       integer    prj(2)     ! formatted projectors 
-      integer    nbasis(2)
+      integer    prj_nbasis(2)
       integer    prj_indx(2)
       integer    i_prj_l(2),i_prj_m(2)
       integer    nkatm,ntotal
-      common / paw_proj / prj,nbasis,prj_indx,
+      common / paw_proj / prj,prj_nbasis,prj_indx,
      >                    i_prj_l,i_prj_m,
      >                    nkatm,ntotal
 
