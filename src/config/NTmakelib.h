@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.4 2000-07-27 15:51:10 bjohnson Exp $
+#	$Id: NTmakelib.h,v 1.5 2000-08-02 01:16:37 bjohnson Exp $
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)
@@ -139,7 +139,7 @@ clean_subdir_MakeFiles:
 	@nmake -nologo LVL="$(LVL)\$(TARGET_DIR)" clean_MakeFiles
 
 #
-# Make Visual Studio wrapper project for a MakeFile
+# Make a Visual Studio project file
 #
-VS_wrapper:
-	@$(CNFDIR)\win32\wrapdsp.exe $(CNFDIR)\win32\wrap.dsp $(TARGET_DIR)
+VS_project:
+	@$(CNFDIR)\win32\convmake.exe $(TEMPLATE) $(TARGET_DIR)
