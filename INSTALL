@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.5 1996-04-22 21:34:21 gg502 Exp $
+        $Id: INSTALL,v 1.6 1996-06-05 21:10:25 ng716 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -57,6 +57,7 @@
         moints      4-index
         rimp2       RI-MP2
         ccsd        CCSD & CCSD(T)
+        property    Properties analysis
         -------------------------------------
 
     To configure to build everything use the command
