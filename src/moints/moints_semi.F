@@ -10,25 +10,27 @@ c
       implicit none
       integer unit, nblk, istat, ierr
       character*(*) fname
-#ifndef CRAY_T3D
-      integer len
       integer inp_strlen
       external inp_strlen
-
-      len = inp_strlen(fname)
-      call wopen( unit, fname, len, nblk, istat, ierr )
+      integer flen
+#ifndef CRAY_T3D
+      flen = inp_strlen(fname)
+      call wopen( unit, fname, flen, nblk, istat, ierr )
 #else
-      integer i
+      integer ii, i
       double precision fdummy
       character*8 aunit
       equivalence (fdummy,aunit)
-c
+
       double precision dunits
       common/crayunits/dunits(100)
-      
-      do i=1,8
-        aunit(i:i) = fname
+
+      flen = inp_strlen(fname)
+      do i=8,1,-1
+        ii = flen - 8 + i
+        aunit(i:i) = fname(ii:ii)
       enddo
+
       call wopen( fdummy, nblk, istat, ierr )
       dunits(unit) = fdummy
 #endif
@@ -46,6 +48,8 @@ c
       double precision dunits
       common/crayunits/dunits(100)
       double precision xu
+
+      xu = dunits(unit)
       call wclose(xu,ierr)
 #endif
       return
@@ -96,7 +100,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.24 1996-07-26 16:32:36 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.25 1996-08-14 19:50:11 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -303,8 +307,8 @@ c
 *       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         call util_file_name('khalf', .true.,.true.,fnamek)
-         call waopen( kunit, fnamek, 1, 0, ierr )
+         call util_file_name('khlf', .true.,.true., fnamek)
+         call waopen( kunit, fnamek, 10, 0, ierr )
          vtmp(3) = pvlo
          vtmp(4) = pvhi
          call putwa( kunit, vtmp, 1,
@@ -314,8 +318,8 @@ c
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         call util_file_name('jhalf', .true., .true.,fnamej)
-         call waopen(junit, fnameJ, 1, 0, ierr )
+         call util_file_name('jhlf', .true., .true.,fnamej)
+         call waopen(junit, fnameJ, 10, 0, ierr )
          vtmp(3) = polo
          vtmp(4) = pohi
          call putwa( junit, vtmp, 1,
@@ -845,8 +849,8 @@ c
       integer junit
       parameter(junit=10)
 
-      call util_file_name('jhalf', .true.,.true.,fname)
-      call waopen(junit, fname, 1, 0, itmp )
+      call util_file_name('jhlf', .true.,.true.,fname)
+      call waopen(junit, fname, 10, 0, itmp )
       nocc = ohi - olo + 1
       call moints_vrange( junit, polo, pohi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
@@ -928,8 +932,8 @@ c
       double precision moints_epair_eval
       external moints_epair_eval
       tmp2 = tcgtime()
-      call util_file_name('khalf',.true.,.true.,fname)
-      call waopen(kunit, fname, 1, 0, itmp )
+      call util_file_name('khlf',.true.,.true.,fname)
+      call waopen(kunit, fname, 10, 0, itmp )
       myid = ga_nodeid()
       e2 = 0.d0
       nocc = ohi - olo + 1
@@ -1078,8 +1082,8 @@ c
       external moints_epair_eval
       data sp1fact,sp2fact/4.d0,-2.d0/
       
-      call util_file_name('khalf', .true.,.true.,fname)
-      call waopen(kunit, fname, 1, 0, itmp )
+      call util_file_name('khlf', .true.,.true.,fname)
+      call waopen(kunit, fname, 10, 0, itmp )
       e2 = 0.d0
       nocc = oseghi - oseglo + 1
       nvir = vhi - vlo + 1

@@ -1,5 +1,5 @@
-       subroutine atwtest(rtdb)
-C$Id: atwtest.F,v 1.5 1996-07-25 00:06:50 rg240 Exp $
+       logical function atwtest(rtdb)
+C$Id: atwtest.F,v 1.6 1996-08-14 19:50:06 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -50,6 +50,11 @@ c
      $  call errquit('cannot destroy basis handle?',0)
       if (.not. context_pop('atwtest'))
      $   call errquit('context_pop failed',0)
+
+      atwtest = .true.
+      return
       end
+
+
 
 

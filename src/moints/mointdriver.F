@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.48 1996-07-26 16:32:33 d3g681 Exp $
+C$Id: mointdriver.F,v 1.49 1996-08-14 19:50:09 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -380,7 +380,7 @@ c
      $                          dbl_mb(k_evals) )
        status = ma_pop_stack(l_x)
        tpass = tcgtime() - tpass
-       write(6,332) ipass, oseg_lo, oseg_hi, tpass
+       if (ga_nodeid().eq.0) write(6,332) ipass,oseg_lo,oseg_hi,tpass
  332   format('Pass:',i3,5x,'Segment:',i3,'-',i3,5x,f12.2)
        if (oseg_hi.lt.occ_hi) goto 222
 c

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.51 1996-07-26 16:32:32 d3g681 Exp $
+#$Id: GNUmakefile,v 1.52 1996-08-14 19:50:08 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -59,3 +59,4 @@ $(LIBRARY_PATH)(moints_1e.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh
 $(LIBRARY_PATH)(mointdriver.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(atwtest.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(get_JKelt.o):	$(INCDIR)/global.fh 
+
