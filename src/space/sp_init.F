@@ -1474,7 +1474,6 @@ c
       endif
       endif
 c
-      print*,lpair,nwm,nsa,nsaloc
       if(lpair) then
       if(nwm.gt.0) then
       call ga_distribution(ga_iwz,me,il,ih,jl,jh)
@@ -1491,8 +1490,6 @@ c
       do 2 i=1,nsaloc
       isz(i)=min(1,isz(i))
     2 continue
-      write(*,8889) me,(isz(i),i=1,nsa)
- 8889 format(i1,';',25i3)
       endif
       endif
 c
