@@ -15,8 +15,8 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
     double lambda;
     double dlambda;
     double deriv[] = new double[24];
-    double free, freep, ep2, ep3, tmp;
-    double dfree, freeb, dfbias;
+    double free, freem, freep, freepm, ep2, ep3, tmp, ep2m, ep3m;
+    double dfree, freeb, dfbias, dfreem;
     Graph gibPlot = new Graph();
     Graph cnvPlot = new Graph();
     
@@ -91,7 +91,9 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 	    String card;
 	    free=0.0;
+	    freem=0.0;
             freep=0.0;
+	    freepm=0.0;
             freeb=0.0;
             lambda=0.0;
 	    boolean first=true;
@@ -99,6 +101,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
             double lam;
             double freem=0.0;
 	    double cnv[] = new double[10000];
+	    double cnvm[] = new double[10000];
             int mdata=10000;
             int numdat=0;
             int ndec=0;
@@ -109,7 +112,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
                 numdat=ndata;
                 if(numdat>mdata){numdat=mdata;};
 		if(first){ 
-		    for(int i=0; i<numdat; i++){cnv[i]=0.0;};
+		    for(int i=0; i<numdat; i++){cnv[i]=0.0;cnvm[i]=0.0;};
 		};
 		lam=Double.valueOf(card.substring(15,27)).doubleValue();
 		dlambda=Double.valueOf(card.substring(27,39)).doubleValue();
@@ -137,33 +140,52 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
                     if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(40,60)).doubleValue(); j++;};
                     if(j<numdat){cnv[j]=cnv[j]+dlambda*Double.valueOf(card.substring(60,80)).doubleValue(); j++;};
 		};
+                j=0;
+		for(int i=0; i<ndata; i=i+4){
+		    card=br.readLine();
+                    if(j<numdat){cnvm[j]=cnvm[j]+dlambda*Double.valueOf(card.substring(0,20)).doubleValue(); j++;};
+                    if(j<numdat){cnvm[j]=cnvm[j]+dlambda*Double.valueOf(card.substring(20,40)).doubleValue(); j++;};
+                    if(j<numdat){cnvm[j]=cnvm[j]+dlambda*Double.valueOf(card.substring(40,60)).doubleValue(); j++;};
+                    if(j<numdat){cnvm[j]=cnvm[j]+dlambda*Double.valueOf(card.substring(60,80)).doubleValue(); j++;};
+		};
 		dfree=0.0;
 		for(int i=0; i<24; i++){
 		    dfree=dfree+deriv[i];
 		};
+		dfreem=dfree-deriv[0]-deriv[12];
 		dfree=dfree/nderiv;
+		dfreem=dfreem/nderiv;
 		free=free+dfree*dlambda;
-                freem=(deriv[0]+deriv[12])*dlambda/nderiv;
+		freem=freem+dfreem*dlambda;
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
+		gibPlot.addData(1,lambda,freem,!first,false);
 		card=br.readLine();
 		card=br.readLine();
 		tmp=Double.valueOf(card.substring(0,20)).doubleValue();
 		ep2=Double.valueOf(card.substring(20,40)).doubleValue();
 		ep3=Double.valueOf(card.substring(40,60)).doubleValue();
 		dfbias=Double.valueOf(card.substring(60,80)).doubleValue();
+		card=br.readLine();
+		ep2m=Double.valueOf(card.substring(0,20)).doubleValue();
+		ep3m=Double.valueOf(card.substring(20,40)).doubleValue();
 		freeb=freeb+dfbias*dlambda;
-		gibPlot.addData(2,lambda,freeb,!first,false);
-		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3))+freem;
-		gibPlot.addData(1,lambda,freep,!first,false);
-		if(ndec>0) {for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };};
+		if(freeb!=0.0) gibPlot.addData(2,lambda,freeb,!first,false);
+		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3));
+		gibPlot.addData(3,lambda,freep,!first,false);
+		freepm=freepm+0.00831151*tmp*(Math.log(ep2m)-Math.log(ep3m));
+		gibPlot.addData(4,lambda,freepm,!first,false);
+		if(ndec>0) {for(int i=0; i<6*nsa; i=i+4){ card=br.readLine(); };};
 	    };
 	    gibPlot.fillPlot();
 	    br.close();
-	    for(int i=1; i<numdat; i++){ cnv[i]=cnv[i]+cnv[i-1]; };
-	    for(int i=1; i<numdat; i++){ cnv[i]=cnv[i]/(i+1); };
+	    for(int i=1; i<numdat; i++){ cnv[i]=cnv[i]+cnv[i-1];cnvm[i]=cnvm[i]+cnvm[i-1]; };
+	    for(int i=1; i<numdat; i++){ cnv[i]=cnv[i]/(i+1);cnvm[i]=cnvm[i]/(i+1); };
             first=true;
-            for(int i=0; i<numdat; i++){ cnvPlot.addData(0,i+1,cnv[i],!first,false); first=false;};
+            for(int i=0; i<numdat; i++){ 
+		cnvPlot.addData(0,i+1,cnv[i],!first,false);
+		cnvPlot.addData(1,i+1,cnvm[i],!first,false); first=false;
+	    };
 	    cnvPlot.fillPlot();
 	} catch(Exception e) {e.printStackTrace();};
     }	
