@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.29 2005-02-11 19:12:29 edo Exp $
+c     $Id: fock_xc.F,v 1.30 2005-02-15 02:05:03 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -55,9 +55,6 @@ c
       double precision Exc_dum(2), rho_n_dum,tdum
       integer dims(3),chunk(3)
 #ifdef NO3D
-cold      integer maxxcd
-cold      parameter(maxxcd=65536)
-cold      integer g_dens_xc(maxxcd)
       integer igxcd,lgxcd
 #else
       integer g_dens_xc(2)
@@ -154,11 +151,8 @@ c
             dims(1) = 2*nfock_xc+2
          endif
 #ifdef NO3D
-cold         if(dims(1).gt.maxxcd) call errquit(
-cold     E        ' EEEDO: increase maxxcd to ',dims(1),0)
       if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
      &   call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
-
 #else
          dims(2) = nbf_ao
          dims(3) = nbf_ao
@@ -178,7 +172,6 @@ c
          bhi(1) = nfock_xc
 #ifdef NO3D
          do i=1,nfock_xc
-cold            g_dens_xc(i)=dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
             int_mb(igxcd+i-1)=
      =           dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
          enddo
@@ -198,7 +191,6 @@ c
             bhi(1) = nfock_xc*2+1
 #ifdef NO3D
          do i=blo(1),bhi(1)
-cold            g_dens_xc(i)=dft_npatch(g_dens,i+(nfock_xc-1),
             int_mb(igxcd+i-1)=dft_npatch(g_dens,i+(nfock_xc-1),
      N           nbf_ao,geom,ao_bas_han)
          enddo
@@ -235,10 +227,8 @@ c
          blo(1) = nfock_xc+1
          bhi(1) = nfock_xc+1
 #ifdef NO3D
-cold         g_dens_xc(nfock_xc+1) =
          int_mb(igxcd+nfock_xc) =
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+1')
-cold         call ga_copy(g_dens_scf(1),g_dens_xc(nfock_xc+1))
          call ga_copy(g_dens_scf(1),int_mb(igxcd+nfock_xc))
 #else
          call nga_copy_patch('N',g_dens_scf(1),alo,ahi,
@@ -248,10 +238,8 @@ cold         call ga_copy(g_dens_scf(1),g_dens_xc(nfock_xc+1))
             blo(1) = 2*nfock_xc+1+1
             bhi(1) = 2*nfock_xc+1+1
 #ifdef NO3D
-cold         g_dens_xc(2*nfock_xc+1+1) =
          int_mb(igxcd+2*nfock_xc+1) =
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
-cold         call ga_copy(g_dens_scf(2),g_dens_xc(2*nfock_xc+2))
          call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
 #else
             call nga_copy_patch('N',g_dens_scf(2),alo,ahi,
@@ -305,7 +293,6 @@ c
                alo(1)=i
                ahi(1)=i
 #ifdef NO3D
-cold               call ga_print(g_dens_xc(i))
                call ga_print(int_mb(igxcd+i-1))
 #else
                call nga_print_patch(g_dens_xc,alo,ahi,0)
