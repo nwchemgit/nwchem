@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.1 2001-11-29 16:48:39 bylaska Exp $
+c $Id: nwpw_default.F,v 1.2 2001-11-29 20:24:15 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -20,6 +20,10 @@ c
       double precision tolerances(3),ecut,wcut
       logical frac_coord,mulliken,allow_translation
       integer ispin,multiplicity
+      character*30 rtdb_name
+      character*25 boundry
+      double precision unita(3,3)
+      integer ngrid(3)
 
        
 *     ***** initializations ****
@@ -44,6 +48,20 @@ c
       npsp = 0
       ispin        = 1
       multiplicity = 1
+      ngrid(1) = 32
+      ngrid(2) = 32
+      ngrid(3) = 32
+      unita(1,1) = 20.0d0
+      unita(2,1) =  0.0d0
+      unita(3,1) =  0.0d0
+      unita(1,2) =  0.0d0
+      unita(2,2) = 20.0d0
+      unita(3,2) =  0.0d0
+      unita(1,3) =  0.0d0
+      unita(2,3) =  0.0d0
+      unita(3,3) = 20.0d0
+      boundry = 'periodic'
+
 
  9999 continue
       if (cell_name.eq.' ') 
@@ -112,6 +130,25 @@ c
      >        rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
+
+
+*     **** unit cell stuff ****
+      ind = index(cell_name,' ') -1
+      rtdb_name = cell_name(1:ind)//':boundry'
+      ind = index(boundry,' ') - 1
+      value = value.and.
+     >        rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind))
+
+      ind = index(cell_name,' ') -1
+      rtdb_name = cell_name(1:ind)//':unita'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita)
+
+      ind = index(cell_name,' ') -1
+      rtdb_name = cell_name(1:ind)//':ngrid'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
+      
 
 *     ***** Error writing to RTDB *****
       if (.not.value)
