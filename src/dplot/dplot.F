@@ -1,0 +1,300 @@
+      SubRoutine DPlot(rtdb)
+      Implicit None
+*     
+************************************************************************
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "context.fh"
+************************************************************************
+*     
+*---- NWChem handles
+      Integer rtdb, Geom, AO_Bas_Han
+*---- Basis set variables
+      Integer nBF_AO
+*---- MO Vectors variables
+      Logical  movecs_read_header, movecs_read, Int_Normalize
+      External movecs_read_header, movecs_read, Int_Normalize
+      Character*80 File_Vec,File_Vec2
+      Character*255 Title_Vec, Title_Vec2, Basis_Name, Basis_Name2
+      Integer nBF,nBF2,iBF,nSet,nSet2,iSet,nSetTri,
+     &        nMO(2),nMO2(2)
+      Integer g_Vec(2),g_Dns(2),g_Dns2(2)
+*---- Local variables
+      Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit
+      Integer nGrid,k_Grid,l_Grid
+      Integer k_Vls,l_Vls,g_Vls
+      Integer Lth_Vec,Lth_Out
+      Integer nOrb,k_Orb,l_Orb
+      Double Precision Ext_From_To(3,2),Scale,Volume,Factor,Sum
+      Character Coord(3)
+      Character*8 Units,What,Spin
+      Character*80 File_Out
+      Character*255 Title
+      Logical LResult, DeBug
+      Integer Inp_StrLen
+      External Inp_StrLen
+*
+************************************************************************
+*     
+      iProc = ga_nodeid()
+      DeBug = .False.
+      Coord(1) = 'X'
+      Coord(2) = 'Y'
+      Coord(3) = 'Z'
+*
+*---- Push context down to DPlot
+      If (.not.context_push('dplot'))
+     &     Call ErrQuit('DPlot: context_push failed', 0)
+*
+***************************************
+*     Read the data from the rtdb     *
+***************************************
+      If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Units',0)
+      If (Debug . and . iProc.eq.0)
+     &   Write(LuOut,*)' Units                : ',Units
+*
+      If (.not.rtdb_get(rtdb,'dplot:Ext_From_To',mt_dbl,6,Ext_From_To))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Ext_From_To',0)
+      If (.not.rtdb_get(rtdb,'dplot:No_Of_Spacings',mt_int,
+     &   3,No_Of_Spacings))
+     &   Call ErrQuit('DPlot: rtdb_get failed - No_Of_Spacings',0)
+      If (iProc.eq.0) Then
+         Write(LuOut,*)
+         Write(LuOut,*)' Limits (a.u.) specified for the density plot:'
+         Write(LuOut,*)' ---------------------------------------------'
+         Write(LuOut,*)
+         Write(LuOut,*)'       From        To      # of spacings'
+      End If
+      Scale = 1.8897265d0
+      If (Units.eq.'ANGSTROM') Call DScal(6,Scale,Ext_From_To,1)
+      nGrid = 1
+      Do i = 1, 3
+         nGrid = nGrid*(No_Of_Spacings(i)+1)
+         If (iProc.eq.0) Write(LuOut,'(a,2(2x,f10.5),5x,i5)')Coord(i),
+     &      (Ext_From_To(i,j),j = 1, 2), No_Of_Spacings(i)
+      End Do
+      If (iProc.eq.0) Then
+         Write(LuOut,*)
+         Write(LuOut,*)' Total number of grid points = ',nGrid
+         Write(LuOut,*)
+      End If
+*
+      If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0)
+      Lth_Vec = Inp_StrLen(File_Vec)
+      If (iProc.eq.0) 
+     &   Write(LuOut,*)' 1-st set of MOs      : ',File_Vec(1:Lth_Vec)
+      File_Vec2 = ' '
+      If (.not.rtdb_cget(rtdb,'dplot:File_Vec2',1,File_Vec2))
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec2',0)
+      Lth_Vec = Inp_StrLen(File_Vec2)
+      If (iProc.eq.0 . and . File_Vec2.ne.' ') Then
+         Write(LuOut,*)' 2-nd set of MOs      : ',File_Vec2(1:Lth_Vec)
+         Write(*,*)' The density is formed as Rho = Rho(1) - Rho(2)'
+      End If
+*
+      If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,File_Out))
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Out',0)
+      Lth_Out = Inp_StrLen(File_Out)
+      If (iProc.eq.0) 
+     &   Write(LuOut,*)' Output is written to : ',File_Out(1:Lth_Out)
+*
+      If (.not.rtdb_cget(rtdb,'dplot:Title',1,Title))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Title',0)
+      Lth_Tit = Inp_StrLen(Title)
+      If (Debug . and . iProc.eq.0)
+     &   Write(LuOut,*)' Title                : ',Title(1:Lth_Tit)
+*
+      If (.not.rtdb_cget(rtdb,'dplot:What',1,What))
+     &   Call ErrQuit('DPlot: rtdb_get failed - What',0)
+      If (iProc.eq.0)
+     &   Write(LuOut,*)' Type of picture      : ',What
+      If (.not.rtdb_get(rtdb,'dplot:nOrb',mt_int,1,nOrb))
+     &   Call ErrQuit('DPlot: rtdb_get failed - nOrb',0)
+      If (DeBug . and . iProc.eq.0)
+     &   Write(LuOut,*)' nOrb                 = ', nOrb
+      If (nOrb.ne.999999) Then
+         LResult = MA_Push_Get(MT_Int,nOrb,'Orb',l_Orb,k_Orb)
+         Call ErrMem(LResult,'DPlot: Failed to allocate Orb.',0)
+         If (.not.rtdb_get(rtdb,'dplot:OrbNo',mt_int,
+     &      nOrb,Int_mb(k_Orb)))
+     &      Call ErrQuit('DPlot: rtdb_get failed - OrbNo',0)
+         If (iProc.eq.0) Then
+            Write(LuOut,*)' The density is computed using orbitals :'
+            Write(LuOut,'(1x,30i3)')(Int_mb(k_Orb-1+j),j=1,nOrb)
+         End If
+      Else
+         If (iProc.eq.0)
+     &      Write(LuOut,*)' The density is computed using all orbitals'
+      End If
+*
+      If (.not.rtdb_cget(rtdb,'dplot:Spin',1,Spin))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
+      If (iProc.eq.0)
+     &   Write(LuOut,*)' Spin                 : ',Spin
+*
+*---- Check for conflicts in the input
+      If (nOrb.gt.1 .and . What.eq.'VIEW')
+     &   Call ErrQuit('DPlot: VIEW can be combined with nOrb = 1',0)
+      If (File_Vec2.ne.' ' . and . What.eq.'VIEW')
+     &   Call ErrQuit('DPlot: VIEW is meningless for 2 orbitla sets',0)
+*
+*********************************
+*     Start the calculation     *
+*********************************
+*
+*---- Open the output file
+      If (iProc.eq.0) Then
+         Out_Unit=6
+         If (File_Out.ne.'OUTPUT' . and . iProc.eq.0) Then
+            Out_Unit=20
+            Open(unit=Out_Unit,
+     &           file=File_Out,
+     &           status='unknown',
+     &           access='sequential',
+     &           form='formatted',
+     &           err=111)
+         End If
+      End If
+*
+*---- Write the title and the format to the output file
+      If (iProc.eq.0) Then
+         Write(Out_Unit,*)Title(1:Lth_Tit)
+         Write(Out_Unit,*)'(1F15.10)'
+      End If
+*
+*---- Allocate memory for grid points and get the grid
+      LResult = MA_Push_Get(MT_Dbl,3*nGrid,'Grid',l_Grid,k_Grid)
+      Call ErrMem(LResult,'DPlot: Failed to allocate grid',0)
+      Call Get_Grid(Dbl_mb(k_Grid),nGrid,
+     &              Ext_From_To(1,1),Ext_From_To(1,2),
+     &              No_Of_Spacings,Volume,Out_Unit,iProc)
+      Call GA_Sync
+*
+*---- Get the geometry
+      If (.not.Geom_Create(Geom,'geometry'))
+     &     Call ErrQuit('DPlot: Geom_Create failed',0)
+      If (.not.Geom_RTDB_Load(rtdb,Geom,'geometry'))
+     &     Call ErrQuit('DPlot: Geom_RTDB_Load failed',0)
+*---- Get the basis set
+      If (.not.Bas_Create(AO_Bas_Han,'ao basis'))
+     &   Call ErrQuit('DPlot: Bas_Create failed',0)
+      If (.not.Bas_RTDB_Load(rtdb,Geom,AO_Bas_Han,'ao basis'))
+     &   Call ErrQuit('DPlot: Bas_RTDB_Load failed',0)
+      If (.not.Int_Normalize(AO_Bas_Han))
+     &   Call ErrQuit('DPlot: Int_Normalize failed',0)
+      If (.not.Bas_NumBF(AO_bas_han,nBF_AO))
+     &   Call ErrQuit('DPlot: Bas_NumBF failed',0)
+      If (Debug . and . iProc.eq.0)
+     &   Write(LuOut,*)' nBF_AO     = ',nBF_AO
+*
+*---- Read the info from the first MO file
+      If (.not.movecs_read_header(File_Vec,Title_Vec,Basis_Name, 
+     &   nBF,nSet,nMO,2))
+     &   Call ErrQuit('DPlot: movecs_read_header failed',1)
+      nSetTri = nSet*(nSet+1)/2
+*---- Check, if the MO Vectors correspond to the specified basis set
+      If (nBF.ne.nBF_AO)
+     &   Call ErrQuit('DPlot: Basis set is not consistent with MOVec',0)
+*
+      If (Debug . and . iProc.eq.0) Then
+         Write(LuOut,*)
+         Write(LuOut,*)' Title_Vec  = ',Title_Vec(1:60)
+         Write(LuOut,*)' Basis_Name = ',Basis_Name(1:60)
+         Write(LuOut,*)' nBF        = ',nBF
+         Write(LuOut,*)' nSet       = ',nSet
+         Write(LuOut,*)' nMO        = ',nMO(1),nMO(2)
+      End If
+*
+*---- Create global array for MOs and the density matrix
+      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
+      If (nSet.eq.2)
+     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
+      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
+      If (nSet.eq.2)
+     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
+*
+*---- Get the density matrix for the first orbital file
+      Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
+     &              Spin,What,File_Vec,nOrb,k_Orb,iProc)
+*
+*---- Compute the density matrix difference (if necessary)
+      If (File_Vec2.ne.' ') Then
+*------- Read the info from the second orbital file
+         If (.not.movecs_read_header(File_Vec2,Title_Vec2,Basis_Name2, 
+     &      nBF2,nSet2,nMO2,2))
+     &      Call ErrQuit('DPlot: movecs_read_header failed',2)
+*------- Check, if the the orbital files match
+         If (nBF2.ne.nBF . or . nSet2.ne.nSet)
+     &      Call ErrQuit('DPlot: Orbital files do not match',0)
+*------- Create global array for density matrix
+         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn1',g_Dns2(1),'atom')
+         If (nSet.eq.2)
+     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn2',g_Dns2(2),'atom')
+*------- Get the density matrix for the second orbital file
+         Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns2,
+     &                 Spin,What,File_Vec2,nOrb,k_Orb,iProc)
+*------- Form the final density
+         Call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
+*------- Deallocate memory
+         If (nSet.eq.2) Call GADest(g_Dns2(2))
+         Call GADest(g_Dns2(1))
+      End If
+*
+*---- Get the values of the density at the grid points
+      LResult = MA_Push_Get(MT_Dbl,nGrid,'Vls',l_Vls,k_Vls)
+      Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
+      Call GACrea(Geom,AO_Bas_Han,nGrid,1,'Vls',g_Vls,'column')
+      Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nGrid,
+     &                    nSet,nSetTri,g_Dns(1),
+     &                    Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls)
+*
+*---- Print out the values of the density matrix to the output
+      If (iProc.eq.0) Then
+         Call GA_Get(g_Vls,1,nGrid,1,1,Dbl_mb(k_Vls),nGrid)
+         Sum = 0.d0
+         Do i = 1, nGrid
+            Sum = Sum + Dbl_mb(k_Vls-1+i)
+            Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
+         End Do
+         Write(LuOut,*)
+         Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',Sum*Volume
+         Write(LuOut,*)
+      End If
+*
+*---- Deallocate memory
+      LResult = MA_Pop_Stack(l_Vls)
+      Call ErrMem(LResult,'DPlot: Failed to deallocate values',0)
+      LResult = MA_Pop_Stack(l_Grid)
+      Call ErrMem(LResult,'DPlot: Failed to deallocate grid',0)
+      If (nOrb.ne.999999) Then
+         LResult = MA_Pop_Stack(l_Orb)
+         Call ErrMem(LResult,'DPlot: Failed to deallocate Orb.',0)
+      End If
+*
+*---- Destroy global arrays
+      Call GADest(g_Vls)
+      If (nSet.eq.2) Call GADest(g_Dns(2))
+      Call GADest(g_Dns(1))
+      If (nSet.eq.2) Call GADest(g_Vec(2))
+      Call GADest(g_Vec(1))
+*
+*---- Close the output file
+      If (File_Out.ne.'OUTPUT' . and . iProc.eq.0) Close(Out_Unit)
+*
+*---- Pop context
+      If (.not.context_pop('dplot')) 
+     &     Call ErrQuit('DPlot: context_pop failed',0)
+*
+*---- Normal termination
+      Return
+*
+*---- Error exit
+  111 Continue
+      Call ErrQuit('Create_Contour: Failed to open output file',0)
+      End
