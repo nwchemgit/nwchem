@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.27 2005-02-11 07:27:24 edo Exp $
+c     $Id: fock_xc.F,v 1.28 2005-02-11 18:40:12 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -54,9 +54,15 @@ c
       logical wght_GA_dum,grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
       integer dims(3),chunk(3)
-      integer maxxcd
-      parameter(maxxcd=256)
-      integer g_dens_xc(maxxcd),xc_getipol
+#ifdef NO3D
+cold      integer maxxcd
+cold      parameter(maxxcd=65536)
+cold      integer g_dens_xc(maxxcd)
+      integer igxcd,lgxcd
+#else
+      integer g_dens_xc
+#endif
+      integer xc_getipol
       logical oprint
       integer alo(3), ahi(3), blo(3), bhi(3)
       integer nfock_xc,i
@@ -148,8 +154,11 @@ c
             dims(1) = 2*nfock_xc+2
          endif
 #ifdef NO3D
-         if(dims(1).gt.maxxcd) call errquit(
-     E        ' EEEDO: increase maxxcd to ',dims(1),0)
+cold         if(dims(1).gt.maxxcd) call errquit(
+cold     E        ' EEEDO: increase maxxcd to ',dims(1),0)
+      if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
+     &   call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+
 #else
          dims(2) = nbf_ao
          dims(3) = nbf_ao
@@ -169,7 +178,9 @@ c
          bhi(1) = nfock_xc
 #ifdef NO3D
          do i=1,nfock_xc
-            g_dens_xc(i)=dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
+cold            g_dens_xc(i)=dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
+            int_mb(igxcd+i-1)=
+     =           dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
          enddo
 #else
          call ga_zero(g_dens_xc)
@@ -187,7 +198,8 @@ c
             bhi(1) = nfock_xc*2+1
 #ifdef NO3D
          do i=blo(1),bhi(1)
-            g_dens_xc(i)=dft_npatch(g_dens,i+(nfock_xc-1),
+cold            g_dens_xc(i)=dft_npatch(g_dens,i+(nfock_xc-1),
+            int_mb(igxcd+i-1)=dft_npatch(g_dens,i+(nfock_xc-1),
      N           nbf_ao,geom,ao_bas_han)
          enddo
 #else
@@ -200,6 +212,10 @@ c
 c     -----------------------
 c     calc_type = 1 or 3 or 4
 c     -----------------------
+#ifdef NO3D
+         int_mb(igxcd)=g_dens(1)
+         if(ndens.eq.2) int_mb(igxcd+1)=g_dens(3)
+#else
          g_dens_xc(1)=g_dens(1)
 c
 c     pick 3rd
@@ -208,6 +224,7 @@ c
          if(oprint.and.ga_nodeid().eq.0) then
             write(luout,*) ' picked 3rd dens ',g_dens_xc
          endif
+#endif
       endif
       if (calc_type .eq. 2) then
          if (.not. bgj_get_scf_dens(g_dens_scf))
@@ -218,9 +235,11 @@ c
          blo(1) = nfock_xc+1
          bhi(1) = nfock_xc+1
 #ifdef NO3D
-         g_dens_xc(nfock_xc+1) =
+cold         g_dens_xc(nfock_xc+1) =
+         int_mb(igxcd+nfock_xc) =
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+1')
-         call ga_copy(g_dens_scf(1),g_dens_xc(nfock_xc+1))
+cold         call ga_copy(g_dens_scf(1),g_dens_xc(nfock_xc+1))
+         call ga_copy(g_dens_scf(1),int_mb(igxcd+nfock_xc))
 #else
          call nga_copy_patch('N',g_dens_scf(1),alo,ahi,
      .        g_dens_xc,blo,bhi)
@@ -229,17 +248,24 @@ c
             blo(1) = 2*nfock_xc+1+1
             bhi(1) = 2*nfock_xc+1+1
 #ifdef NO3D
-         g_dens_xc(2*nfock_xc+1+1) =
+cold         g_dens_xc(2*nfock_xc+1+1) =
+         int_mb(igxcd+2*nfock_xc+1) =
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
-         call ga_copy(g_dens_scf(2),g_dens_xc(2*nfock_xc+2))
+cold         call ga_copy(g_dens_scf(2),g_dens_xc(2*nfock_xc+2))
+         call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
 #else
             call nga_copy_patch('N',g_dens_scf(2),alo,ahi,
      .           g_dens_xc,blo,bhi)
 #endif
          endif
       else
+#ifdef NO3D
+         g_dens_scf(1) = int_mb(igxcd)
+         if (ndens.eq.2) g_dens_scf(2) = int_mb(igxcd+1)
+#else
          g_dens_scf(1) = g_dens_xc(1)
          if (ndens.eq.2) g_dens_scf(2) = g_dens_xc(2)
+#endif
       endif
 c
 c     Prepare to call xc_quadv0
@@ -267,7 +293,11 @@ c
             call ga_print(g_dens_scf(2))
          endif
          if(ga_nodeid().eq.0) then
+#ifdef NO3D
+            write(luout,*) 'g_dens_xc1',int_mb(igxcd)
+#else
             write(luout,*) 'g_dens_xc1',g_dens_xc(1)
+#endif
             call util_flush(luout)
          endif
          if(l3d) then
@@ -275,20 +305,33 @@ c
                alo(1)=i
                ahi(1)=i
 #ifdef NO3D
-               call ga_print(g_dens_xc(i))
+cold               call ga_print(g_dens_xc(i))
+               call ga_print(int_mb(igxcd+i-1))
 #else
                call nga_print_patch(g_dens_xc,alo,ahi,0)
 #endif
             enddo
          else
+#ifdef NO3D
+            call ga_print(int_mb(igxcd))
+#else
             call ga_print(g_dens_xc(1))
+#endif
          endif
          if(ndens.eq.2.and.(.not.l3d)) then
             if(ga_nodeid().eq.0) then
+#ifdef NO3D
+               write(luout,*) 'g_dens_xc2',int_mb(igxcd+1)
+#else
                write(luout,*) 'g_dens_xc2',g_dens_xc(2)
+#endif
                call util_flush(luout)
             endif
+#ifdef NO3D
+            call ga_print(int_mb(igxcd+1))
+#else
             call ga_print(g_dens_xc(2))
+#endif
          endif
       endif
       call xc_init_index(geom,ndens,nbf_ao,ao_bas_han,
@@ -300,7 +343,12 @@ c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(rtdb,geom)
          call grid_quadv0_gen(rtdb, 
-     &      g_dens_xc,g_xc,nexc_dum,
+#ifdef NO3D
+     &      int_mb(igxcd),
+#else
+     &      g_dens_xc,
+#endif
+     &      g_xc, nexc_dum,
      &      rho_n_dum, Exc_dum,
      &      nfock_xc, calc_type, tdum, .true., triplet)
 c
@@ -309,10 +357,13 @@ c
       if(l3d) then
 #ifdef NO3D
          do i=1,dims(1)
-         if (.not. ga_destroy(g_dens_xc(i)))
+cold         if (.not. ga_destroy(g_dens_xc(i)))
+         if (.not. ga_destroy(int_mb(igxcd+i-1)))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
      &       GA_ERR)
          enddo
+      if (.not.ma_free_heap(lgxcd))
+     &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
 #else
          if (.not. ga_destroy(g_dens_xc))
      &      call errquit('fock_xc: could not destroy g_dens_xc',0,
