@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.98 2001-11-21 17:27:44 d3j191 Exp $
+c $Id: sp_init.F,v 1.99 2001-11-21 17:30:37 d3j191 Exp $
 c
       implicit none
 c
@@ -547,12 +547,12 @@ c
 c
       character*1 cdum
       real*8 rdum,cgx,cgy,cgz
-      integer i,j,k,idum,jdum,kdum,number,ncyc,numw,nums
+      integer i,j,k,idum,jdum,kdum,number,ncyc,numw
       integer icyc,ibx,iby,ibz,ipx,ipy,ipz,node,new,nold
       integer ilw,ihw,jlw,jhw,ils,ihs,jls,jhs
       integer ili,ihi,jli,jhi,ilp,ihp,jlp,jhp
 c
-      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix,nsmr
+      integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,nsmr
       real*8 boxi(3)
       logical lforces
 c
