@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.30 1999-11-02 22:00:49 bert Exp $
+c $Id: exactd_mem.F,v 1.31 1999-11-02 22:54:35 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -38,7 +38,6 @@ c:: local
       integer ibas,jbas
       integer nbfmax, nbf
       logical o_do_full
-      logical doug_kroll ! Logical for setting/reading Douglas-Kroll integrals
 c
 c check to see if a full memory check is needed
 c
@@ -50,11 +49,6 @@ c:tex-memory requirements for the 2-electron integral derivatives.
 c:tex-
       if (.not.(rtdb_get(rtdb,'int:full_mem',Mt_Log,1,o_do_full)))
      &    o_do_full = .false.
-c
-c     Check if Douglas-Kroll is done or not
-c
-      if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
-     $    doug_kroll = .false.
 c
       call int_mem_zero()
 c
@@ -85,10 +79,11 @@ c.... 1e
               call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
               mem_1e = max(mem_1e, lmem_1e)
               isz_1e = max(isz_1e, lsz_1e)
-c.... p.Vp one-electron
+c.... p.Vp one-electron ints for Douglas-Kroll
               if (doug_kroll) call emem_d1e_pvp(bases(ibas), 
      $             bases(jbas), lsz_1e, lmem_1e)
-
+              mem_1e = max(mem_1e, lmem_1e)
+              isz_1e = max(isz_1e, lsz_1e)
 *debug:          write(luout,*)' ibas|jbas ', ibas, '|', jbas
 *debug:          write(luout,*)' mem_2e4c: ',mem_2e4c
 *debug:          write(luout,*)' mem_1e  : ',mem_1e
@@ -862,7 +857,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_1e_rel: bad basis info ',911)
+        call errquit('emem_d1e_pvp: bad basis info ',911)
       endif
 c
       do 00100 ibc = 1, bra_ucont
@@ -898,7 +893,7 @@ c
      &         dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &         dbl_mb(mb_exndcf(1,1)),1,
      &         dbl_mb(mb_exndcf(1,1)),1,.false.,.true.,
-     &         dbl_mb(mb_exndcf(1,1)),memdum,'emem_1e_pvp',
+     &         dbl_mb(mb_exndcf(1,1)),memdum,'emem_d1e_pvp',
      &         rel_dbg,rel_typ)
           memsize = max(memsize,memdum)
 00200   continue
@@ -915,8 +910,8 @@ c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
 c
 #if defined(API_DEBUG)
-      write(luout,'(a,i10)')'emem_1e_rel: memsize =',memsize
-      write(luout,'(a,i10)')'emem_1e_rel: max1e   =',max1e
+      write(luout,'(a,i10)')'emem_d1e_pvp: memsize =',memsize
+      write(luout,'(a,i10)')'emem_d1e_pvp: max1e   =',max1e
 #endif
 c
       end
