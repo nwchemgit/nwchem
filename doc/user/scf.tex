@@ -315,18 +315,18 @@ options, the \verb+REORDER+ keyword moves the MO coefficients between atoms
 listed in the integer list.  This keyword is particularly useful for calculating localized
 electron and hole states.
 
-This optional keyword requires a list of atom pairs whose MO's will be
-swapped.  It is not necessary to provide seperate lists for alpha and 
+This optional keyword requires a list containing the new atom ordering.
+It is not necessary to provide seperate lists for alpha and 
 beta orbitals. 
 
 An example of use of the \verb+REORDER+ directive:
 \begin{verbatim}
-  vectors input try1.movecs reorder 1 20 output try2.movecs
+  vectors input try1.movecs reorder 2 1 output try2.movecs
 \end{verbatim}
 This directive will cause the initial orbitals to be read from the
 file \verb+"try1.movecs"+.  The MO coefficients for the basis functions
-on atom 1 
-will be swapped with those on atom 20.
+on atom 2 
+will be swapped with those on atom 1.
 The final orbitals obtained in
 the calculation will be written to the file \verb+"try2.movecs"+.
 
