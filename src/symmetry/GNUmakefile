@@ -1,8 +1,9 @@
-#$Id: GNUmakefile,v 1.10 1995-10-10 06:17:36 d3g681 Exp $
+#$Id: GNUmakefile,v 1.11 1995-10-16 18:22:49 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
-USES_BLAS = sym_put_in_geom.F sym_print_all.F
+USES_BLAS = sym_put_in_geom.F sym_print_all.F sym_grad_symmetrize.F \
+            sym_movecs_adapt.F sym_geom_project.F sym_bas_irreps.F
 HEADERS = sym.fh
 
 OBJ_OPTIMIZE = sym_shell_pair.o sym_symmetrize.o \
@@ -38,6 +39,7 @@ OBJ =     dosymops.o \
           sym_print_char_table.o \
           sym_inv_op.o \
           sym_movecs_adapt.o \
+          sym_grad_symmetrize.o \
           wrcell.o
 
 
