@@ -1,6 +1,6 @@
       subroutine geom_fragment(rtdb,nfrags_return)
 c
-c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
+c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
 c
 c     Subroutines and functions in this file are to help
 c     perform almost automatically the fragment MO for 
@@ -25,8 +25,8 @@ c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
       integer ncent
-      integer iatom, jatom
-      logical done
+      integer iatom, jatom, katom
+      logical done, doneb
       integer nfrags_return
       integer ifrag
       logical nodezero
@@ -62,15 +62,22 @@ c
         done = .false.
         nfrags = nfrags + 1
         f_map(jatom) = nfrags
-        do iatom = 1, ncent
-          if ((f_map(iatom).eq.-1).and.
-     1       (dsqrt((coords(1,iatom)-coords(1,jatom))**2
-     2             +(coords(2,iatom)-coords(2,jatom))**2
-     3             +(coords(3,iatom)-coords(3,jatom))**2)
-     4       .le.thresh)) then
-            f_map(iatom) = nfrags
+   20   doneb = .true.
+        do katom = 1, ncent
+          if (f_map(katom).eq.nfrags) then
+            do iatom = 1, ncent
+              if ((f_map(iatom).eq.-1).and.
+     1           (dsqrt((coords(1,iatom)-coords(1,katom))**2
+     2                 +(coords(2,iatom)-coords(2,katom))**2
+     3                 +(coords(3,iatom)-coords(3,katom))**2)
+     4           .le.thresh)) then
+                f_map(iatom) = nfrags
+                doneb = .false.
+              endif
+            enddo
           endif
         enddo
+        if (.not.doneb) goto 20
       endif
       if (.not.done) goto 10
       if (.not.geom_destroy(geom))
@@ -100,7 +107,7 @@ c
 
       subroutine select_fragment(rtdb,ifrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
+c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment.
 c
@@ -201,9 +208,9 @@ c
  
  
  
-      subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole)
+      subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole,r)
 c
-c $Id: geom_fragment.F,v 1.2 2004-03-15 21:37:22 sohirata Exp $
+c $Id: geom_fragment.F,v 1.3 2004-03-17 23:22:54 sohirata Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment pair.
 c
@@ -228,6 +235,8 @@ c
       integer jatom
       integer f_geom
       integer ncent
+      double precision ax, ay, az, a
+      double precision bx, by, bz, b, r
       double precision cx, cy, cz, c, d
       double precision e
       logical nodezero
@@ -241,6 +250,37 @@ c
      1  call errquit('geom_fragment: no geometry found',0, RTDB_ERR)
       if (.not.geom_ncent(f_geom,ncent))
      1  call errquit('geom_fragment: no geometry found',0, RTDB_ERR)
+      ax = 0.0d0
+      ay = 0.0d0
+      az = 0.0d0
+      a  = 0.0d0
+      do iatom = 1, ncent
+        if (f_map(iatom).eq.ifrag) then
+          ax = ax + charges(iatom) * coords(1,iatom)
+          ay = ay + charges(iatom) * coords(2,iatom)
+          az = az + charges(iatom) * coords(3,iatom)
+          a  = a  + charges(iatom)
+        endif
+      enddo
+      ax = ax / a
+      ay = ay / a
+      az = az / a
+      bx = 0.0d0
+      by = 0.0d0
+      bz = 0.0d0
+      b  = 0.0d0
+      do iatom = 1, ncent
+        if (f_map(iatom).eq.jfrag) then
+          bx = bx + charges(iatom) * coords(1,iatom)
+          by = by + charges(iatom) * coords(2,iatom)
+          bz = bz + charges(iatom) * coords(3,iatom)
+          b  = b  + charges(iatom)
+        endif
+      enddo
+      bx = bx / b
+      by = by / b
+      bz = bz / b
+      r = dsqrt((ax-bx)**2+(ay-by)**2+(az-bz)**2)
       jatom = 0
       do kfrag = 1, nfrags
         if ((kfrag.eq.ifrag).or.(kfrag.eq.jfrag)) then
