@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.150 2002-11-08 17:23:48 d3j191 Exp $
+c $Id: md_main.F,v 1.151 2002-11-08 19:54:41 d3j191 Exp $
 c
       implicit none
 c
@@ -2091,9 +2091,9 @@ c
       integer itcom1,itforc,itcom2
 c
       local=.true.
-      itcom1=42
-      itforc=43
-      itcom2=44
+      itcom1=44
+      itforc=45
+      itcom2=46
 c
       call sp_nbbl(nbbl)
 c
@@ -2527,7 +2527,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.150 2002-11-08 17:23:48 d3j191 Exp $
+c $Id: md_main.F,v 1.151 2002-11-08 19:54:41 d3j191 Exp $
 c
       implicit none
 c
