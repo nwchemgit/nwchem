@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.5 1995-02-02 23:15:17 d3g681 Exp $
+C$Id: input_set.F,v 1.6 1995-03-31 01:41:16 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -121,5 +121,26 @@ c
  1000 call errquit
      $     ('input_set: set <name> [<type = string>] <list of values>',
      $     0)
+c
+      end
+      subroutine input_unset(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "inp.fh"
+      integer rtdb
+c
+      character*255 test
+c
+      if (.not. inp_a(test)) call errquit
+     $     ('input_unset: first inp_a failed?',0)
+      if (.not. inp_compare(.false.,'unset',test))
+     $     call errquit('input_unset: not unset directive',0)
+c
+      if (.not. inp_a(test)) call errquit
+     $     ('input_unset: name missing',0)
+      if (.not. rtdb_delete(rtdb,test)) then
+         write(6,*) ' warning: ',test(1:inp_strlen(test)),
+     $        ' is not in the database '
+      endif
 c
       end

@@ -1,5 +1,5 @@
       subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.16 1995-03-27 19:53:10 rg240 Exp $
+C     $Id: input_parse.F,v 1.17 1995-03-31 01:41:14 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -13,7 +13,7 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
@@ -21,7 +21,7 @@ c
      $     'task',     'time',     'set'     , 'enter',    'stop',
      $     'title',    'start',    'restart' , 'stepper',  'echo',
      $     'charge',   'dft',      'md',       'gradient',
-     $     'print',    'noprint'/
+     $     'print',    'noprint',  'unset'/
       data echo /.false./
 c     
 c     Only process 0 is involved here
@@ -52,7 +52,7 @@ c
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
      $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-     $        2000, 2100) ind
+     $        2000, 2100, 2200) ind
          call errquit('input_parse: unimplemented directive', ind)
 c     
 c     Memory ... already handled by input_mem_size() but will soon
@@ -151,6 +151,11 @@ c
  2000    continue
  2100    continue
          call util_print_input(rtdb,' ')
+         goto 10
+c
+c     unset <name>
+c
+ 2200    call input_unset(rtdb)
          goto 10
 c     
       endif
