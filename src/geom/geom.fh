@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.13 1995-04-16 20:21:05 gg502 Exp $
+C$Id: geom.fh,v 1.14 1995-11-13 06:42:35 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -33,6 +33,7 @@ cnew ones
       logical geom_latvec_get
       logical geom_include_bqbq
       logical geom_set_bqbq
+      logical geom_default_charge_with_ecp
 c
       logical geom_num_core
 c
@@ -73,3 +74,4 @@ c
       external geom_set_bqbq
 c
       external geom_num_core
+      external geom_default_charge_with_ecp

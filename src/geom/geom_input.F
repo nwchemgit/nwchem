@@ -1,12 +1,12 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.21 1995-11-03 20:42:18 d3g681 Exp $
+C     $Id: geom_input.F,v 1.22 1995-11-13 06:42:35 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
 #include "rtdb.fh"
       integer rtdb              ! [input]
-c
+c     
       character*255 field       ! for character input
       character*255 name        ! for name of geometry
       character*12 units        ! holds units of coordinates
@@ -21,26 +21,27 @@ c
       double precision scale    ! For unit conversion
       parameter (max_center = 500)
       double precision coords(3,max_center)
-      double precision charge(max_center)
+      double precision charge(max_center), mass(max_center)
       character*16 tags(max_center)
       character*2 symbol
       character*16 element
-      logical osymmetry
+      logical osymmetry, oecp(max_center)
+      logical old_format_input, is_atom
       integer atn, isys
       character*16 format
       external geom_data
-c
+c     
 c     read a geometry from the input deck and output it
 c     to the rtdb.
-c
+c     
 c     current input line should begin 'geometry ...'
-c
+c     
 c     Cartesians only for now
-c
+c     
       if (nodeid() .ne. 0) return
-c
+c     
 c     Check that this is indeed a geometry line
-c
+c     
       call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
      $     call errquit('geom_input: no input present', 0)
@@ -48,38 +49,39 @@ c
      $     call errquit('geom_input: not geometry input', 0)
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq]
-c
-c     subdirectives
-c
-c     system molecule||polymer||surface||crystal
-c       angles
-c       lengths
-c
-c     symmetry group_number setting_number
-c
-c     systype must precede symmetry
-c
 c     
+c     subdirectives
+c     
+c     system molecule||polymer||surface||crystal
+c     angles
+c     lengths
+c     
+c     symmetry group_number setting_number
+c     
+c     systype must precede symmetry
+c     
+c     
+      old_format_input = .false.
       units = 'atomic units'
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
-c
+c     
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'bqbq',field)) then
             include_bqbq = .true.
          else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
-c
+c     
 c     If the next field is a recognizable format for standard
 c     geometries then process as
-c
+c     
 c     print format
-c
+c     
 c     currently just know about xyz
-c
+c     
             if (inp_a(format)) then
                if (inp_compare(.false.,'xyz',format)) then
                   format = 'xyz'
@@ -94,24 +96,24 @@ c
             oprint = .false.
          else if (inp_compare(.false.,'units', field)) then
             if (.not. inp_a(units)) call errquit
-     $          ('geom_input: geometry [<name>] [units <units>]', 0)
+     $           ('geom_input: geometry [<name>] [units <units>]', 0)
 
-*            if (units(1:2).ne.'au' .and. units(1:2).ne.'bo')
+*     if (units(1:2).ne.'au' .and. units(1:2).ne.'bo')
 *     $           call errquit('geom_input: au only!', 0)
 
          else
             if (name .ne. ' ') call errquit
-     $          ('geom_input: geometry [<name>] [units <units>]', 0)
+     $           ('geom_input: geometry [<name>] [units <units>]', 0)
             name = field
          end if
          goto 10
       end if
-c
+c     
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
       if (include_bqbq) status = geom_set_bqbq(.true.)
-c
+c     
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      $     units(1:2) .eq. 'at') then
          scale = 1.0d0
@@ -122,11 +124,12 @@ c
       else
          call errquit('geom_input: unknown units', 0)
       end if
-c
+c     
 c     system ...
 c     symmetry ...
-c     tag charge x y z
-c
+c     tag charge x y z  !! old format
+c     tag x y z [ecp] [charge q] [mass m]
+c     
       ncenter = 0
  20   if (inp_read()) then
          status = inp_a(field)
@@ -144,43 +147,80 @@ c
             if ((ncenter+1) .eq. max_center) call errquit
      $           ('geom_input: too many centers?', ncenter)
             tags(ncenter+1) = field
+            oecp(ncenter+1) = .false.
+            mass(ncenter+1) = 0.0d0
+            charge(ncenter+1) = 0.0d0
+c     
+            is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
+     $           element, atn)
+c     
+c     Old style input  tag charge x y z
+c     
             status = status .and. inp_f(charge(ncenter+1))
             status = status .and. inp_f(coords(1,ncenter+1))
             status = status .and. inp_f(coords(2,ncenter+1))
             status = status .and. inp_f(coords(3,ncenter+1))
-
-            coords(1,ncenter+1) = coords(1,ncenter+1)
-            coords(2,ncenter+1) = coords(2,ncenter+1)
-            coords(3,ncenter+1) = coords(3,ncenter+1)
-
-            ncenter = ncenter + 1
-
-            if (.not. status) call errquit
-     $           ('geom_input: <tag> <charge> <x> <y> <z>', ncenter)
-c
-c     Check that charge of center is consistent with atom type
-c
-            if (geom_tag_to_element(tags(ncenter), symbol,
-     $           element, atn)) then
-               if (abs(charge(ncenter) - dble(atn)).gt.1e-8) then
-                  write(6,2) tags(ncenter), symbol, element, atn,
-     $                 charge(ncenter)
- 2                format('geom_input: ', a, '(',a,',',a,',',i3,') ',
-     $                 f6.2)
-                  call util_flush(6)
-                  call errquit
-     $                 ('geom_input: charge-atom type mismatch',atn)
+            if (status) then
+               old_format_input = .true.
+               if (is_atom) then
+                  if (abs(charge(ncenter+1)-dble(atn)).gt.1e-8) then
+                     write(6,2) tags(ncenter+1), symbol, element, atn,
+     $                 charge(ncenter+1)
+ 2                   format('geom_input: ', a, '(',a,',',a,',',i3,') ',
+     $                    f6.2)
+                     call util_flush(6)
+                     call errquit
+     $                    ('geom_input: charge-atom type mismatch',atn)
+                  end if
                end if
-            end if
+            else
+c     
+c     New style input ... <tag> <x> <y> <z> [ecp] [charge <q>] [mass <m>]
+c     
+               call inp_set_field(1)
+               status = .true.
+               status = status .and. inp_f(coords(1,ncenter+1))
+               status = status .and. inp_f(coords(2,ncenter+1))
+               status = status .and. inp_f(coords(3,ncenter+1))
+               charge(ncenter+1) = atn
+c     
+ 111           if (inp_a(field)) then
+                  if (inp_compare(.false.,'ecp', field)) then
+                     oecp(ncenter+1) = .true.
+c
+c     Do not use default ECP charge if user has already overridden it
+c
+		     if (charge(ncenter+1) .eq. 0.0d0) then
+                       if (.not. geom_default_charge_with_ecp
+     $                    (atn, charge(ncenter+1))) call errquit
+     $                    ('geom_input: no default charge with ecp?',0)
+		     endif
+                     goto 111
+                  else if (inp_compare(.false., 'mass', field)) then
+                     status = status .and. inp_f(mass(ncenter+1))
+                     goto 111
+                  else if (inp_compare(.false., 'charge', field)) then
+                     status = status .and. inp_f(charge(ncenter+1))
+                     goto 111
+                  else
+                     status = .false.
+                  endif
+               endif
+               if (.not. status) call errquit
+     $              ('geom_input: <tag> <x> <y> <z> [ecp]'//
+     $              ' [charge <q>] [mass <m>]', ncenter)
+            endif
+            ncenter = ncenter + 1
+c     
          end if
          goto 20
       else
          call errquit('geom_input: premature end of file', 0)
       end if
-c
+c     
 c     Apply requested conversion of units after we have
 c     all of the information
-c
+c     
  30   if (.not. geom_systype_get(geom, isys)) call errquit
      $     ('geom_input: systype?', 0)
       if (isys.eq.0) then
@@ -196,22 +236,26 @@ c
       else
          call errquit('geom_input: invalid system type', 0)
       end if
-c
+c     
       if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
-c
+c     
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
-c
-        nata=ncenter
-        call sym_nwc(geom,rtdb,nata,oprint_sym)
-c
+c     
+      nata=ncenter
+      call sym_nwc(geom,rtdb,nata,oprint_sym)
+c     
 c     Force exact symetry on the coordinates
-c
-        call sym_geom_project(geom, 1d-3)
-c
-        call geom_compute_values(geom)
-c
+c     
+      call sym_geom_project(geom, 1d-3)
+c     
+      call geom_compute_values(geom)
+c     
+      if (old_format_input) write(6,77)
+ 77   format(' !! You have used an archaic geometry format. Use',
+     $     ' instead:'/
+     $     ' !!     <tag> <x> <y> <z> [ecp] [charge <q>] [mass <m>]'/)
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
@@ -223,23 +267,23 @@ c
             write(6,*)
             call util_flush(6)
          endif
-*         call sym_print_all(geom, .true., .true., .true., .true.,.true.)
+*     call sym_print_all(geom, .true., .true., .true., .true.,.true.)
       end if
-c
+c     
       if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
-c
+c     
       if(.not. geom_verify_coords(geom))
-     &    call errquit
-     &    ('geom_input: geom_verify_coords failed',911)
-c
+     &     call errquit
+     &     ('geom_input: geom_verify_coords failed',911)
+c     
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
-c
+c     
 c     done
-c
+c     
 
-c      if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
+c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
       end
       subroutine geom_sys_input(geom)

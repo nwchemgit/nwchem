@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.38 1995-11-03 20:42:15 d3g681 Exp $
+C$Id: geom.F,v 1.39 1995-11-13 06:42:33 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1007,6 +1007,7 @@ c
       double precision scale, tmp(3)
       character*80 buf
       character*10 csys
+      logical oprint_uniq
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.
@@ -1129,10 +1130,34 @@ c
          write(6,*)
       end if
 c
-      call sym_print_all(geom, .true., .true., .false., .false.,
+      oprint_uniq = sym_num_ops(geom) .gt. 0
+      call sym_print_all(geom, .true., oprint_uniq, .false., .false.,
      $     .false.)
 c
       geom_print = .true.
+c
+      end
+      logical function geom_default_charge_with_ecp(atn, q)
+      implicit none
+c     
+      integer atn               ! [input] atomic number
+      double precision q        ! [output] charge
+c
+c     return a default for the effective nuclear charge
+c     if an ecp is placed on a atom with atomic number atn
+c
+c     This is just a first guess at this routine
+c
+      geom_default_charge_with_ecp = .true.
+      if (atn .le. 2) then
+         q = atn
+      else if (atn .le. 10) then
+         q = atn - 2
+      else if (atn .le. 18) then
+         q = atn - 10
+      else
+         geom_default_charge_with_ecp = .false.
+      endif
 c
       end
       logical function geom_tag_to_element(tag, symbol, element, atn)
