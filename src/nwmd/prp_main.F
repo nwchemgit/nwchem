@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.28 2000-01-28 22:01:47 d3j191 Exp $
+c $Id: prp_main.F,v 1.29 2000-02-01 00:55:48 d3j191 Exp $
 c
       implicit none
 c
@@ -96,7 +96,7 @@ c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
      + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3,
-     + edrs,epmf)
+     + edrs,epmf,virial)
       endif
 c
 c     if using space get properties from it
@@ -134,10 +134,12 @@ c
       p(8)=dble(nssl)
       p(9)=dble(nshitw)
       p(10)=dble(nshits)
+      p(33)=zero
+      p(34)=zero
       if(me.eq.0) then
       p(12)=volume
-      p(14)=pres
       p(13)=1.6605655d0*wbox/volume
+      p(14)=pres
       p(15)=prsscl
       p(16)=temp
       p(17)=tempw
@@ -146,6 +148,8 @@ c
       p(22)=tmsscl
       p(27)=ek
       p(32)=ek
+      p(33)=virial
+      p(34)=pres*volume
       p(64)=ewk
       p(67)=ewk
       endif
@@ -223,8 +227,10 @@ c
       p(39)=exp(-p(37)/(rgas*temp))
 c
       dwr=p(69)/dble(6*nwm)
+      if(nwm.gt.0) then
       p(69)=dwr
       p(70)=1.0d-6*dwr/stime
+      endif
 c
       epot=p(26) 
       epots=zero

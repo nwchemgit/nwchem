@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.14 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: prp_common.fh,v 1.15 2000-02-01 00:55:48 d3j191 Exp $
 c
 c
       real*8 zero,tiny,one
@@ -34,12 +34,12 @@ c
       real*8 p2sumt(maxpro),pslop(maxpro),pslopt(maxpro)
       real*8 tsum,t2sum,tsumt,t2sumt
       real*8 dfree,deriv(24)
-      real*8 tstep,wbox
+      real*8 tstep,wbox,virial
       integer ntype,nprop,isprop,ixp(maxpro),nsum,nsumt,nderiv
       integer iset,ipset1,ipset2
       logical lp(maxpro)
       common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
-     + tsum,t2sum,tsumt,t2sumt,tstep,wbox,
+     + tsum,t2sum,tsumt,t2sumt,tstep,wbox,virial,
      + dfree,deriv,
      + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,iset,ipset1,ipset2,
      + lp

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.27 2000-01-28 23:15:53 d3j191 Exp $
+c $Id: cf_main.F,v 1.28 2000-02-01 00:56:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -704,6 +704,8 @@ c
 c
       volume=box(1)*box(2)*box(3)
 c
+      virial=z
+c
       pres=0.0d0
       if(lpress) pres=(two*ekc-z)/(three*volume*avoga)
 c
@@ -999,14 +1001,14 @@ c
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
      + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
-     + edistr,epomef)
+     + edistr,epomef,vir)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
-      real*8 edistr,epomef
+      real*8 edistr,epomef,vir
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
       vol=volume
@@ -1017,6 +1019,7 @@ c
       tsw=scalew
       tss=scales
       psc=pscale
+      vir=virial
 c
       ewkin=ewk
 c

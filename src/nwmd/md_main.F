@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.56 2000-01-31 17:50:32 d3j191 Exp $
+c $Id: md_main.F,v 1.57 2000-02-01 00:55:48 d3j191 Exp $
 c
       implicit none
 c
@@ -308,8 +308,8 @@ c
 c
       cqrs=' '
       if(frequency(isdit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
-      write(projct,4000) isdit,0,filnam(1:56)
- 4000 format('em sd ',i7,' cg ',i7,a)
+      write(projct,4000) isdit,0,filnam(1:55)
+ 4000 format('em sd ',i7,' cg ',i7,' ',a)
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
       eqrs=epot
@@ -789,8 +789,8 @@ c
 c
       cqrs=' '
       if(frequency(icgit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
-      write(projct,4000) msdit,icgit,filnam(1:56)
- 4000 format('em sd ',i7,' cg ',i7,a)
+      write(projct,4000) msdit,icgit,filnam(1:55)
+ 4000 format('em sd ',i7,' cg ',i7,' ',a)
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
       eqrs=ecg1
@@ -868,8 +868,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
 c
-      write(projct,4000) mequi,idacq,filnam(1:61)
- 4000 format('md ',i7,'+ ',i7,a)
+      write(projct,4000) mequi,idacq,filnam(1:60)
+ 4000 format('md ',i7,'+ ',i7,' ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
       if(frequency(mdstep,nfanal)) call ana_data(stime,nsaloc,
@@ -981,8 +981,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
 c
-      write(projct,4000) irun,mrun,mequi,idacq,filnam(1:48)
- 4000 format('ti ',i5,'/',i5,' :'i7,'+ ',i7,a)
+      write(projct,4000) irun,mrun,mequi,idacq,filnam(1:47)
+ 4000 format('ti ',i5,'/',i5,' :'i7,'+ ',i7,' ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
