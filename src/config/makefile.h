@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.82 1994-11-17 01:27:17 gg502 Exp $
+# $Id: makefile.h,v 1.83 1994-12-09 20:37:05 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -67,8 +67,8 @@ endif
 # The core libraries are usually rather platform-dependent and are
 # specified below.
 
-NW_CORE_SUBDIRS = include basis blas db geom global inp input \
-	lapack ma pstat rtdb tcgmsg util $(CORE_SUBDIRS_EXTRA)
+NW_CORE_SUBDIRS = include basis db geom global inp input \
+	ma pstat rtdb tcgmsg util $(CORE_SUBDIRS_EXTRA)
 
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -222,7 +222,8 @@ ifeq ($(TARGET),KSR)
 
     DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+#     LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
+     LIBPATH += -L/home2/d3g270/peigs1.1 -L/home/d3g681/TCGMSG_DISTRIB
        CORE_LIBS = -lglobal -lutil -lpeigs \
               -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
 
