@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.76 2000-11-28 19:21:08 d3j191 Exp $
+c $Id: pre_input.F,v 1.77 2000-12-13 19:52:26 d3j191 Exp $
 c
       implicit none
 c
@@ -119,6 +119,7 @@ c
       rewind(unit=68)
       write(68,7801)
  7801 format('rdcoor ',/,'center',/,'boxsiz')
+      numcmd=numcmd+1
       lrdcoo=.true.
       numcmd=0
 c
@@ -780,6 +781,7 @@ c
       write(atomj,'(i5,a,a)')
      + k+j,atomi(index(atomi,':'):index(atomi,' ')),' ;'
       write(68,6831) igroup,atomj(1:index(atomj,';')-1)
+      numcmd=numcmd+1
  6832 continue
       endif
       endif
@@ -793,7 +795,7 @@ c
       if(inp_compare(.false.,'pmf',item)) then
       if(.not.inp_a(type)) call errquit('pre_input: pmf',9999)
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
-      if(type(1:8).eq.'distance') then
+      if(type(1:8).eq.'distance'.or.type(1:8).eq.'basepair') then
       if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:5).eq.'angle') then
@@ -801,34 +803,64 @@ c
       if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:7).eq.'torsion') then
+      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
+      if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
+      endif
+      if(type(1:8).eq.'improper') then
+      if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
       if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
       if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:6).ne.'zalign'.and.type(1:7).ne.'xyplane') then
+      if(type(1:8).eq.'basepair') then
+      if(.not.inp_f(value1)) value1=2.5d-1
+      if(.not.inp_f(value2)) value2=2.5d-1
+      else
       if(.not.inp_f(value1)) call errquit('pre_input: pmf',9999)
       if(.not.inp_f(value2)) call errquit('pre_input: pmf',9999)
+      endif
       else
       value1=0.0d0
       value2=0.0d0
       endif
+      if(type(1:8).eq.'basepair') then
+      if(.not.inp_f(forcon)) forcon=1.0d4
+      if(.not.inp_f(forc2)) forc2=1.0d4
+      else
       if(.not.inp_f(forcon)) call errquit('pre_input: pmf',9999)
       if(.not.inp_f(forc2)) call errquit('pre_input: pmf',9999)
+      endif
       if(type(1:6).eq.'zalign') then
       write(68,6844) igroup,forcon,forc2
  6844 format('pmf line',i5,15x,24x,2e12.5)
+      numcmd=numcmd+1
       elseif(type(1:7).eq.'xyplane') then
       write(68,6845) igroup,forcon,forc2
  6845 format('pmf plan',i5,15x,24x,2e12.5)
+      numcmd=numcmd+1
       elseif(type(1:8).eq.'distance') then
       write(68,6840) igroup,jgroup,value1,value2,forcon,forc2
  6840 format('pmf dist',2i5,10x,2f12.6,2e12.5)
+      numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
       write(68,6842) igroup,jgroup,kgroup,value1,value2,forcon,forc2
  6842 format('pmf angl',3i5,5x,2f12.6,2e12.5)
+      numcmd=numcmd+1
       elseif(type(1:7).eq.'torsion') then
       write(68,6843) igroup,jgroup,kgroup,lgroup,value1,value2,
      + forcon,forc2
  6843 format('pmf tors',4i5,2f12.6,2e12.5)
+      numcmd=numcmd+1
+      elseif(type(1:8).eq.'improper') then
+      write(68,6847) igroup,jgroup,kgroup,lgroup,value1,value2,
+     + forcon,forc2
+ 6847 format('pmf impr',4i5,2f12.6,2e12.5)
+      numcmd=numcmd+1
+      elseif(type(1:8).eq.'basepair') then
+      write(68,6858) igroup,jgroup,value1,value2,forcon,forc2
+ 6858 format('pmf base',2i5,10x,2f12.6,2e12.5)
+      numcmd=numcmd+1
       endif
       goto 2
       endif

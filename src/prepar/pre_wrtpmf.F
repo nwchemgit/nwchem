@@ -1,16 +1,22 @@
       subroutine pre_wrtpmf(lfntop,filtop,numpmf,maxpmf,ipmf,rpmf,
-     + maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,nsa)
+     + maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,nsarep,msa,nsa,isegm,csa)
 c
       implicit none
 c
       integer lfntop
       character*(*) filtop
 c
-      integer numpmf,maxpmf,maxgrp,maxatm,npmfr,ipmfr,nsa
+      integer pre_atom_index,pre_base
+      external pre_atom_index,pre_base
+c
+      integer numpmf,maxpmf,maxgrp,maxatm,npmfr,ipmfr,nsarep,msa,nsa
       integer ipmf(maxpmf,5),rpmf(maxpmf,4)
       integer igroup(maxgrp,maxatm),lgroup(maxgrp)
+      integer isegm(msa)
+      character*16 csa(msa)
+      character*80 target
 c
-      integer i,j,k,l,m,n,io
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
@@ -19,12 +25,18 @@ c
       m=0
       k=0
       do 5 i=1,numpmf
-      n=ipmf(i,1)
+      n=-1
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) n=0
+      if(ipmf(i,1).eq.1) n=1
+      if(ipmf(i,1).eq.2) n=2
+      if(ipmf(i,1).eq.3) n=3
+      if(ipmf(i,1).eq.4) n=3
+      if(n.ge.0) then
       do 6 j=2,n+2
       m=max(m,lgroup(ipmf(i,j)))
     6 continue
       if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) k=k+lgroup(ipmf(i,2))-1
+      endif
     5 continue
 c
 c     write pmf
@@ -44,7 +56,7 @@ c
       write(lfntop,1000) npmfr*(numpmf+k),m
  1000 format(2i5)
       do 12 l=1,npmfr
-      io=(l-1)*nsa
+      io=(l-1)*nsarep
       do 1 i=1,numpmf
       if(i.le.ipmfr.or.l.eq.1) then
       if(ipmf(i,1).eq.0) call errquit('Unknown pmf type',ipmf(i,1))
@@ -52,7 +64,7 @@ c
 c     distance pmf
 c
       if(ipmf(i,1).eq.1) then
-      write(lfntop,1001) 2,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3)
+      write(lfntop,1001) 1,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3)
  1001 format(i5,2f12.6,2e12.5,4i5)
       do 2 k=2,3
       if(lgroup(ipmf(i,k)).le.0)
@@ -65,7 +77,7 @@ c
 c     angle pmf
 c
       if(ipmf(i,1).eq.2) then
-      write(lfntop,1001) 3,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,4)
+      write(lfntop,1001) 2,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,4)
       do 3 k=2,4
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
@@ -76,12 +88,23 @@ c
 c     torsion pmf
 c
       if(ipmf(i,1).eq.3) then
-      write(lfntop,1001) 4,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5)
+      write(lfntop,1001) 3,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5)
       do 4 k=2,5
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
     4 continue
+      endif
+c
+c     torsion pmf
+c
+      if(ipmf(i,1).eq.4) then
+      write(lfntop,1001) 4,(rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5)
+      do 13 k=2,5
+      if(lgroup(ipmf(i,k)).le.0)
+     + call errquit('No atoms selected in group',ipmf(i,k))
+      write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
+   13 continue
       endif
 c
 c     alignment pmf
@@ -106,6 +129,95 @@ c
       write(lfntop,1002) igroup(ipmf(i,2),k)+io
       write(lfntop,1002) (igroup(ipmf(i,2),j)+io,j=1,lgroup(ipmf(i,2)))
     8 continue
+      endif
+c
+c     base pair pmf
+c
+      if(ipmf(i,1).eq.7) then
+      ibase=pre_base(ipmf(i,2),isegm,csa,msa,nsa)
+      jbase=pre_base(ipmf(i,3),isegm,csa,msa,nsa)
+      if(ibase.eq.0.or.jbase.eq.0)
+     + call errquit('Error in pmf basepair: not a base',0)
+      if((ibase.eq.1.and.jbase.eq.5).or.
+     + (ibase.eq.2.and.jbase.eq.3)) then
+c
+      write(lfntop,1001) 1,(rpmf(i,j),j=1,4),1,1
+      write(target,'(i5,a)') ipmf(i,2),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      write(lfntop,1001) 4,0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+      write(target,'(i5,a)') ipmf(i,2),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_C5 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      write(lfntop,1001) 4,0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+      write(target,'(i5,a)') ipmf(i,3),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_C5 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      endif
+      if((ibase.eq.5.and.jbase.eq.1).or.
+     + (ibase.eq.3.and.jbase.eq.2)) then
+      write(lfntop,1001) 1,(rpmf(i,j),j=1,4),1,1
+      write(target,'(i5,a)') ipmf(i,2),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      write(lfntop,1001) 4,0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+      write(target,'(i5,a)') ipmf(i,2),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_C5 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      write(lfntop,1001) 4,0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+      write(target,'(i5,a)') ipmf(i,3),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_C5 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,3),':_N1 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+      write(target,'(i5,a)') ipmf(i,2),':_N3 '
+      idatom=pre_atom_index(target,isegm,csa,msa,nsa)
+      write(lfntop,1002) idatom
+c
+      endif
+c
       endif
 c
       endif

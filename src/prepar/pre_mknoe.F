@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.18 2000-09-22 17:55:32 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.19 2000-12-13 19:52:26 d3j191 Exp $
 c
       implicit none
 c
@@ -192,8 +192,10 @@ c
       if(card(5:8).eq.'dist') ipmf(numpmf,1)=1
       if(card(5:8).eq.'angl') ipmf(numpmf,1)=2
       if(card(5:8).eq.'tors') ipmf(numpmf,1)=3
+      if(card(5:8).eq.'impr') ipmf(numpmf,1)=4
       if(card(5:8).eq.'line') ipmf(numpmf,1)=5
       if(card(5:8).eq.'plan') ipmf(numpmf,1)=6
+      if(card(5:8).eq.'base') ipmf(numpmf,1)=7
       read(card(9:76),'(4i5,2f12.6,2e12.5)')
      + (ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
       endif
@@ -212,7 +214,8 @@ c
 c
       if(numpmf.gt.0) then
       call pre_wrtpmf(lfntop,filtop,numpmf,
-     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,nsarep)
+     + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup,npmfr,ipmfr,
+     + nsarep,msa,nsa,int_mb(i_sgm),byte_mb(i_csa))
       write(lfnout,1005)
  1005 format(/,' Potential of mean force appended to topology')
       endif

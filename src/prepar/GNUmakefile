@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2000-07-06 18:48:56 d3j191 Exp $
+# $Id: GNUmakefile,v 1.26 2000-12-13 19:52:26 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -10,8 +10,10 @@ OBJ_OPTIMIZE=prepar.o\
              pre_atmscn.o\
              pre_atnam.o\
              pre_atnum.o\
+             pre_atom_index.o\
              pre_atrad.o\
              pre_atype.o\
+             pre_base.o\
              pre_bnd.o\
              pre_bonds.o\
              pre_boxsiz.o\
