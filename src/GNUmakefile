@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.37 1996-02-12 20:03:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.38 1996-02-13 18:51:58 pborowsk Exp $
 
 include config/makefile.h
 
@@ -19,7 +19,7 @@ include config/makefile.h
 all $(BINDIR)/nwchem nwchem:	directories libraries
 	$(MAKE) nwchem.o stubs.o
 	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
-	/bin/rm -f nwchem.o stubs.o
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
@@ -27,14 +27,14 @@ all $(BINDIR)/nwchem nwchem:	directories libraries
 
 link nwchem_link:    nwchem.o stubs.o
 	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
-	/bin/rm -f nwchem.o stubs.o
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 #
 # This for linking test version
 #
 test nwchem_test:	nwchem.o stubs.o
 	$(LINK.f) -o nwchem_test nwchem.o stubs.o $(LIBS)
-	/bin/rm -f nwchem.o stubs.o
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 
 #
@@ -42,7 +42,7 @@ test nwchem_test:	nwchem.o stubs.o
 #
 prof nwchem_prof:	nwchem.o stubs.o
 	$(LINK.f) -p -o nwchem_prof nwchem.o stubs.o $(LIBS)
-	/bin/rm -f nwchem.o  stubs.o
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
