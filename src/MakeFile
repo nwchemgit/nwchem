@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2000-08-02 01:10:28 bjohnson Exp $
+#	$Id: MakeFile,v 1.5 2000-08-08 23:38:58 bjohnson Exp $
 #
 
 !INCLUDE config\nwchem_config_win32.h
@@ -7,11 +7,7 @@
 
 SUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 
-all:
-	@nmake -nologo TARGET_DIR=config\win32 subdir_target
-	@nmake -nologo MakeFiles
-	@nmake -nologo TARGET_DIR=tools subdir_target
-	@nmake -nologo SUBDIR_TARGET=WIN32.stamp foreach_subdir
+all: pre_build
 	@nmake -nologo foreach_subdir
 	nmake -nologo link
 
@@ -32,25 +28,32 @@ realclean: clean
 	@if exist "$(LIBDIR)" rmdir "$(LIBDIR)"
 	@if exist "$(WIN32_EXE)" erase /q "$(WIN32_EXE)"
 	@nmake -nologo LVL=src clean_MakeFiles
+	@nmake -nologo TARGET_DIR=tools SUBDIR_TARGET=clean subdir_target
 	@nmake -nologo TARGET_DIR=config\win32 SUBDIR_TARGET=clean subdir_target
 
 !INCLUDE config\NTmakelib.h
+
+pre_build:
+	@nmake -nologo TARGET_DIR=config\win32 subdir_target
+	@nmake -nologo MakeFiles VS_wrappers VS_projects
+	@nmake -nologo TARGET_DIR=tools subdir_target
+	@nmake -nologo SUBDIR_TARGET=WIN32.stamp foreach_subdir
 
 link: $(OBJDIR) $(OBJ)
 	$(FC) /Fe$(WIN32_EXE) $(OBJ) /link /debug:full /debugtype:cv /pdb:none /libpath:"..\lib\win32" \
 	/libpath:".\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS)
 	@echo $(WIN32_EXE) is built
 
-#
-# For convenience
-#
-pg_file:
-	echo local 0 > $(SRCDIR)\$(WIN32_EXE_NAME).pg
-
 VS_wrappers:
 	@nmake -nologo TEMPLATE=$(CNFDIR)\win32\wrap.dsp \
 	SUBDIR_TARGET=VS_project foreach_subdir
 
 VS_projects:
-	@nmake -nologo TEMPLATE=$(CNFDIR)\win32\lib_template.dsp \
+	@nmake -nologo TEMPLATE=$(CNFDIR)\win32\lib.dsp \
 	SUBDIR_TARGET=VS_project foreach_subdir
+
+#
+# For convenience
+#
+$(WIN32_EXE_NAME).pg:
+	echo local 0 > $(SRCDIR)\$(WIN32_EXE_NAME).pg
