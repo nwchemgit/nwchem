@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.28 2000-07-27 22:24:18 edo Exp $
+* $Id: grid_file.F,v 1.29 2000-07-29 01:11:57 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -153,7 +153,7 @@ c
  99      format(I72) 
          read(gr_unit,99,err=199) max_cache_rec
          read(gr_unit,99,err=199) n_rec_in_file
-         read(gr_unit,99,err=199) file_opened
+         read(gr_unit,'(L1)',err=199) file_opened
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)
@@ -205,7 +205,7 @@ c
  99      format(I72)
          write(gr_unit,99,err=199) max_cache_rec
          write(gr_unit,99,err=199) n_rec_in_file
-         write(gr_unit,99,err=199) file_opened
+         write(gr_unit,'(L1)',err=199) file_opened
          rewind(gr_unit)
          close(gr_unit)
       endif
@@ -234,7 +234,10 @@ c
 c     
       grid_file_close = .true.
 c
- 199  return
+      return
+ 199  write(0,*) ' write failure on grinfo'
+      grid_file_close=.false.
+      return
       end
       logical function grid_file_rewind()
       implicit none
