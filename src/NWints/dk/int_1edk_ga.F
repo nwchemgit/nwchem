@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.11 1999-11-14 02:59:22 d3g681 Exp $
+c $Id: int_1edk_ga.F,v 1.12 1999-11-17 19:08:28 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -650,12 +650,11 @@ c
      $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
       if (.not. ga_create(MT_DBL,nbf_in,nbf,'GA temp',1,1,tempg_a))
      $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
-      call ga_zero(g_in)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf_in,nbf,nbf,1.0d0,Mixg_a,
      $              DKg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf_in,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
-     $              0.0d0,g_in)
+     $              1.0d0,g_in)
 c
 c     Destroy transformation matrices Mixg_a, tempg_a and DKg_a
 c
