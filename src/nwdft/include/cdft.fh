@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.24 1999-03-03 03:19:07 edo Exp $
+C$Id: cdft.fh,v 1.25 1999-04-23 16:39:17 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -93,6 +93,7 @@ c     IAC_MAX = Lebedev max accuracy
 c     MAX_CHUNK = max value for nquad_task
 c
       double precision 
+     &     bsrad_atom_type, znuc_atom_type, 
      &     rpts, rwghts, aratio, costheta, sintheta, cosphi, sinphi,
      &     awghts, qrot, wa_leb, za_leb
       logical 
@@ -101,7 +102,7 @@ c
      &     iqshell, nqshells, nqmax, nrad, nang, ntheta, nphi, 
      &     iatype, iqrot, ntypes,
      &     max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
-     &     rad_cutoff,red_iqsh
+     &     rad_cutoff,task_list,n_tot_tasks,red_iqsh
 c
       integer MX_l_ang, IAC_MAX, MAX_CHUNK
 c
@@ -118,6 +119,7 @@ c
 c
 c     Doubles
 c
+     & bsrad_atom_type(dft_ntags_bsmx), znuc_atom_type(dft_ntags_bsmx),
      & rpts(MXrad,dft_ntags_bsmx), rwghts(MXrad,dft_ntags_bsmx),
      & aratio(dft_ntags_bsmx,dft_ntags_bsmx), costheta(MXtheta,MXagrid),
      & sintheta(MXtheta,MXagrid), cosphi(MXphi,MXagrid),
@@ -134,4 +136,5 @@ c
      & nrad(dft_ntags_bsmx), nang(dft_ntags_bsmx), 
      & ntheta(MXagrid), nphi(MXagrid), iatype(dft_max_cent), iqrot, 
      & ntypes, max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq, nq_chunk,
-     & rad_cutoff(2,dft_max_cent),red_iqsh(MXqshells,MAX_CHUNK)
+     & rad_cutoff(2,dft_max_cent),task_list(2,MXqshells),n_tot_tasks,
+     & red_iqsh(MXqshells,MAX_CHUNK)
