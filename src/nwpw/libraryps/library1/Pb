@@ -1,0 +1,31 @@
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Pb
+82.0 207.2 13 2
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   10.0
+6 0   2.0
+6 1   2.0
+<end>
+<solver> pauli                     <end>
+<pseudopotential>       troullier-martins <end>
+<rcut>
+  0 1.90
+  1 2.30
+  2 3.95
+<end>
+<semicore> 2.4 <end>
+
