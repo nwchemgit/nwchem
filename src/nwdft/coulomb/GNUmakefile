@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1995-05-08 19:46:21 og845 Exp $
+# $Id: GNUmakefile,v 1.4 1995-05-08 19:51:26 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o
       OBJ = \
@@ -13,7 +13,7 @@ endif
 
       LIBRARY = libnwdft.a
 
-      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.o
+      USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
