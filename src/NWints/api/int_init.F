@@ -1,11 +1,15 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.19 1995-03-04 16:32:50 d3e129 Exp $
+c $Id: int_init.F,v 1.20 1995-06-23 06:40:20 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
+#include "candoP.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
 c::passed
       integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
@@ -21,32 +25,85 @@ c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
 c
 c     
-      data mem_2e4c  /0/
-      data init_int  /0/
-      data mem_1e    /0/
-      data isz_2e4c  /0/
-      data isz_1e    /0/
-      data mem_1e_h1 /0/
-      data isz_2e3c  /0/
-      data isz_2e2c  /0/
-      data mem_2e3c  /0/
-      data mem_2e2c  /0/
-      data isz_3ov   /0/
-      data mem_3ov   /0/
-      data init_intd /0/
-      data DCexp     /0.0000000000D00/
-      data DCcoeff   /1.0000000000D00/
-      data val_int_acc /0.0d00/
+      mem_2e4c  = 0
+      init_int  = 0
+      mem_1e    = 0
+      isz_2e4c  = 0
+      isz_1e    = 0
+      mem_1e_h1 = 0
+      isz_2e3c  = 0
+      isz_2e2c  = 0
+      mem_2e3c  = 0
+      mem_2e2c  = 0
+      isz_3ov   = 0
+      mem_3ov   = 0
+      init_intd = 0
+      DCexp     = 0.0D00
+      DCcoeff   = 1.0D00
+      val_int_acc = 0.0d00
 c
-      data intd_memthresh /0/
-      data numd_tot       /0/
-      data numd_okay      /0/
-      data numd_red       /0/
+      intd_memthresh = 0
+      numd_tot       = 0
+      numd_okay      = 0
+      numd_red       = 0
 c
       if(init_int.eq.1) then
         write(6,*)' warning nested int_inits'
         write(6,*)' int_init already called '
         call util_flush(6)
+      endif
+c
+c initialize cando information from rtdb
+c
+      user_cando_sp   = .false.
+      user_cando_nw   = .false.
+      user_cando_txs  = .false.
+      def_cando_sp    = .false.
+      def_cando_nw    = .false.
+      def_cando_txs   = .false.
+c
+      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
+        user_cando_sp = .true.
+        def_cando_sp  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_sp set to always be ',def_cando_sp
+          call util_flush(6)
+        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_nw',MT_LOG,1,status)) then
+        user_cando_nw = .true.
+        def_cando_nw  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_nw set to always be ',def_cando_nw
+          call util_flush(6)
+        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
+        user_cando_txs = .true.
+        def_cando_txs  = status
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        ' int_init: cando_txs set to always be ',def_cando_txs
+          call util_flush(6)
+        endif
+      endif
+* sanity checking: e.g., you only want to turn off a particular integral
+* code never always turn it on.
+*
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+        if (ga_nodeid().eq.0) then
+          write(6,*)' you are trying to turn an integral code on?? '
+          write(6,*)' sp  ', def_cando_sp
+          write(6,*)' nw  ', def_cando_nw
+          write(6,*)' txs ', def_cando_txs
+          call util_flush(6)
+        endif
+        call errquit
+     &      ('int_init: logic error with user cando settings',911)
       endif
 c
       status = .true.

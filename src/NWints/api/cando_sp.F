@@ -1,6 +1,6 @@
       logical function cando_sp(basisin,ish,jsh)
       implicit none
-c $Id: cando_sp.F,v 1.8 1994-10-18 06:05:21 d3e129 Exp $
+c $Id: cando_sp.F,v 1.9 1995-06-23 06:40:16 d3e129 Exp $
 c
 c a zero [i|j]sh means ignore this shell
 c this allows one function for all 1e and 2e permutations
@@ -14,20 +14,19 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "candoP.fh"
 #include "geobasmapP.fh"
 c::passed
       integer basisin,ish,jsh
 c::local
       integer basis, mytype, mycont
 c
-      cando_sp = .true.
-#ifdef BASIS_DEBUG
-      cando_sp = bas_check_handle(basisin,'cando_sp')
-      if (.not.cando_sp) then
-        write(6,*)' bad basis handle '
+      if (user_cando_sp) then
+        cando_sp = def_cando_sp
         return
       endif
-#endif
+c
+      cando_sp = .true.
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -49,9 +48,6 @@ c.... check jsh
      $         (mycont.le.25)
       endif
 c
-#if defined(DEBUGNW)
-      if(cando_sp) cando_sp = .false.
-#endif
       end
       logical function cando_nw(basisin,ish,jsh)
       implicit none
@@ -70,16 +66,18 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
+#include "candoP.fh"
 c::passed
       integer basisin,ish,jsh
 c::local
       integer basis, mytype
 c
-      cando_nw = bas_check_handle(basisin,'cando_nw')
-      if (.not.cando_nw) then
-        write(6,*)' bad basis handle '
+      if (user_cando_nw) then
+        cando_nw = def_cando_nw
         return
       endif
+c
+      cando_nw = .true.
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -114,19 +112,18 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
+#include "candoP.fh"
 c::passed
       integer basisin,ish_u,jsh_u
 c::local
       integer basis, mytype, mycont
 c
-      cando_sp_u = .true.
-#ifdef BASIS_DEBUG
-      cando_sp_u = bas_check_handle(basisin,'cando_sp_u')
-      if (.not.cando_sp_u) then
-        write(6,*)' bad basis handle '
+      if (user_cando_sp) then
+        cando_sp_u = def_cando_sp
         return
       endif
-#endif
+c
+      cando_sp_u = .true.
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -148,7 +145,4 @@ c.... check jsh_u
      $         (mycont.le.25)
       endif
 c
-#if defined(DEBUGNW)
-      if(cando_sp_u) cando_sp_u = .false.
-#endif
       end
