@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.8 2000-04-26 23:29:10 edo Exp $
+c     $Id: dft_scf_so.F,v 1.9 2000-04-27 18:50:29 edo Exp $
 c     
       implicit none
 c     
@@ -1260,26 +1260,11 @@ c
 c     Keep orbital ordering according to principle
 c     of maximum overlap with previous iteration.
 c
-      if (lmaxov)then
-         if (me.eq.0 .and. oprint_conv_details)
-     &      write(LuOut,3224)homo, lumo
-            call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
-     &                  g_fock, g_movecs(ispin), g_tmp)
+      if (lmaxov)
+     .     call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
+     &                  g_tmp, g_movecs(ispin), g_s,g_fock,
+     .        noc,oprint_conv_details,homo,lumo)
 
-         homo = -1.0d8
-         lumo =  1.0d8
-         if(noc(ispin).gt.0) then
-           do i = 1, noc(ispin)
-              homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
-           enddo
-           do i = noc(ispin)+1, nbf
-              lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
-           enddo
-         endif
-         if (me.eq.0 .and. oprint_conv_details)
-     &      write(LuOut,3224)homo, lumo
-      endif
- 3224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
       call ga_copy(g_fockso(1), g_moso(1))
