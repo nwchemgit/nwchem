@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.17 1995-10-17 08:54:05 d3g681 Exp $
+#$Id: GNUmakefile,v 1.18 1995-10-25 01:15:32 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -67,7 +67,10 @@ OBJ_OPTIMIZE = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
                dgesv.o    dgetrs.o   dgetrf.o   dlaswp.o \
                dgetf2.o \
                dlagtf.o   dlagts.o   dlarnv.o   dlaruv.o   dpotrf.o \
-               dpotri.o   dtrtri.o   dlauum.o   dlauu2.o   dpotf2.o
+               dpotri.o   dtrtri.o   dlauum.o   dlauu2.o   dpotf2.o \
+               dsyev.o    dsygst.o   dsygv.o    dsytrd.o   dorgtr.o \
+               dsteqr.o   dlansy.o   dsygs2.o   dsterf.o   dsytd2.o \
+               dorgql.o   dlatrd.o   dlae2.o    dlazro.o   dorg2l.o 
 else
 OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
                ilaenv.o   slabrd.o   slarfb.o   slasv2.o   sormlq.o \
@@ -80,8 +83,11 @@ OBJ_OPTIMIZE = sgesvd.o   slarf.o    slassq.o   sorml2.o   lsamen.o \
                sgeqrf.o   slapy2.o   slasr.o    sormbr.o \
                sgesv.o    sgetrs.o   sgetrf.o   slaswp.o \
                sgetf2.o \
-               slagtf.o   slagts.o   slarnv.o   slaruv.o   spotrf.o\
-               spotri.o   strtri.o   slauum.o   slauu2.o   spotf2.o
+               slagtf.o   slagts.o   slarnv.o   slaruv.o   spotrf.o \
+               spotri.o   strtri.o   slauum.o   slauu2.o   spotf2.o \
+               ssyev.o    ssygst.o   ssygv.o    ssytrd.o   sorgtr.o \
+               ssteqr.o   slansy.o   ssygs2.o   ssterf.o   ssytd2.o \
+               sorgql.o   slatrd.o   slae2.o    slazro.o   sorg2l.o \
 
 endif
 
