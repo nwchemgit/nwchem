@@ -1,6 +1,6 @@
       logical function int2e_file_open(
      $     filename,
-     $     cachesize, filesize, precision_arg)
+     $     cachesize, filesize, precision_arg, orestart)
       implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
@@ -10,11 +10,14 @@
       character*(*) filename
       integer cachesize, filesize
       double precision precision_arg
+      logical orestart
 c
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
 c
-c     Currently does not allow for restart ... but will soon.
+c     Currently only allows for restart if entire file is disk resident
+c     ... needs mods to allow writing of memory cached integrals
+c     (actually gets simpler once the file routines do the caching)
 c
       call util_pname(filename, actualname)
 c
@@ -59,6 +62,31 @@ c
          max_file_rec = 2048    ! Default max size of about 2 Gb
       else 
          max_file_rec = 0
+      endif
+c
+c     Figure out the size of an existing file
+c
+      if (orestart) then
+         open(unitno,
+     $        file=actualname,
+     $        status='old',
+     $        form='unformatted',
+     $        err=1000)
+         goto 1001
+ 1000    call errquit('int2e_file_open: restart failed',0)
+ 1001    file_opened = .true.
+c
+         n_rec_in_file = 0
+ 1010    read(unitno, err=1011, end=1012)
+         n_rec_in_file = n_rec_in_file + 1
+         goto 1010
+ 1011    call errquit('int2e_file_open: error reading file',0)
+ 1012    rewind unitno
+         if (oinfo) then
+            write(6,1020) n_rec_in_file
+ 1020       format(/' Opened integral file with',i6,' records'/)
+            call util_flush(6)
+         endif
       endif
 c
 c     defer allocation of memory until the first write otherwise
@@ -751,7 +779,7 @@ c
          memsize = int(nq)      ! Set these so that scf_tidy cleans up
          filesize = nq*0.3 + 2*(n_per_rec+1) ! Allow for small overflow
          if (.not. int2e_file_open(int2efilename, memsize, filesize, 
-     $        tol2e))
+     $        tol2e, .false.))
      $        call errquit('int2e_test_mem: int2e_file_open failed',0)
          int2e_test_mem = .true.
       else if (oinfo .and. ofirst) then

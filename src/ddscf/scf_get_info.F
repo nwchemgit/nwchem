@@ -183,7 +183,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.20 1995-12-11 17:24:27 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.21 1995-12-13 01:26:10 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -242,6 +242,7 @@ c
       double precision tol2e
 c
       integer chunktmp
+      logical orestart
 c
       logical int2e_file_open
       external int2e_file_open
@@ -261,6 +262,8 @@ c
      $     MT_INT, 1, filesize)) filesize = 0
       if (.not. rtdb_get(rtdb, 'int2e:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
+      if (.not. rtdb_get(rtdb, 'int2e:restart',
+     $     MT_LOG, 1, orestart)) orestart = .false.
       if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, int2efilename)) 
      $     call util_file_prefix('aoints',int2efilename)
 c
@@ -268,10 +271,14 @@ c
       owritefile= .false.
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
-         owritefile = .true.
          if (.not. int2e_file_open(int2efilename, memsize, filesize,
-     $        tol2e*0.01d0))
+     $        tol2e*0.01d0, orestart))
      $        call errquit('get_fock_param: opening aoints?', 0)
+         if (orestart) then
+            oreadfile = .true.
+         else
+            owritefile = .true.
+         endif
       endif
 c
 c  Use labels by default

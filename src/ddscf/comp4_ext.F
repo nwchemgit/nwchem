@@ -1,0 +1,36 @@
+      subroutine comp4_extract(m, i, s, nb_per_i)
+C$Id: comp4_ext.F,v 1.1 1995-12-13 01:24:14 d3g681 Exp $
+      implicit none
+c
+      integer m(*)              ! Array holding info compressed to 4 bits
+      integer i                 ! Index into compressed array
+      double precision s        ! Returns extracted value
+      integer nb_per_i          ! No. of bytes per integer
+c
+      integer v                 ! Value after compression
+#if defined(CRAY)
+      integer vv, vvv
+#endif
+      integer index, nbits
+#include "bitops_decls.fh"
+      double precision fast(0:15)
+      data fast/0.0d0, 1.0d-10, 1.0d-9, 1.0d-8, 1.0d-7, 1.0d-6,
+     $     1.0d-5, 1.0d-4, 1.0d-3, 1.0d-2, 1.0d-1, 1.0d0, 1.0d1,
+     $     1.0d2, 1.0d3, 1.0d4/
+#include "bitops_funcs.fh"
+c
+      v = 15
+      index = (i - 1)/(2*nb_per_i) + 1
+      nbits = 4*(i - (index-1)*(2*nb_per_i) - 1)
+#if defined(CRAY)
+      vvv =  shiftl(v, nbits)
+      vv = shiftr(iand(m(index), vvv), nbits)
+      v = iand(vv,15)
+#else
+      v = iand(rshift(iand(m(index), lshift(v, nbits)), nbits),15)
+#endif
+c
+      s = fast(v)
+*      write(6,*) i, ' -> ', index, nbits, v, s
+c
+      end
