@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.67 1997-11-01 00:09:13 d3e129 Exp $
+C$Id: geom.F,v 1.68 1997-11-07 17:32:17 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -248,7 +248,7 @@ c
       implicit none
 #include "rtdb.fh"
 #include "geomP.fh"
-#include "context.fh"
+*****#include "context.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -276,8 +276,10 @@ c
       names(geom) = name
       lenn(geom) = inp_strlen(name)
       trans(geom) = 'junk'
-      if (.not.context_rtdb_match(rtdb, name, trans(geom)))
+      if (.not. rtdb_cget(rtdb, name, 1, trans(geom)))
      $     trans(geom) = name
+*      if (.not.context_rtdb_match(rtdb, name, trans(geom)))
+*     $     trans(geom) = name
       lent(geom) = inp_strlen(trans(geom))
 c     
 c     now get the info from the data base
@@ -560,7 +562,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
-#include "context.fh"
+*****#include "context.fh"
 #include "inp.fh"
 c     
       integer rtdb              ! [input]
@@ -582,8 +584,10 @@ c
 c     try to translate the name
 c     
       trans(geom) = 'junk'
-      if (.not. context_rtdb_match(rtdb, name, trans(geom)))
+      if (.not. rtdb_cget(rtdb, name, 1, trans(geom)))
      $     trans(geom) = name
+*      if (.not. context_rtdb_match(rtdb, name, trans(geom)))
+*     $     trans(geom) = name
       lent(geom) = inp_strlen(trans(geom))
 c     
 c     now put the info into the data base
