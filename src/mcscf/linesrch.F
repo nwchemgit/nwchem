@@ -9,6 +9,7 @@
       double precision dlamch, step
       logical linebracket
       external linebracket
+      external dlamch
 
       write(6,*)
       write(6,*)

@@ -2,8 +2,8 @@ c
 c   MCSCF Secular solution front-end
 c
       subroutine mcscf_cisolve( rtdb, geom, basis, nbf, nclosed,
-     $                          nact, eps, g_h, g_coul, dm1, dm2,
-     $                          oprint, ociprint )
+     $                          nact, nsym, orbsym, eps, g_h, g_coul,
+     $                          dm1, dm2, oprint, ociprint )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -19,6 +19,8 @@ c
       integer nbf
       integer nclosed
       integer nact
+      integer nsym
+      integer orbsym(nbf)
       integer g_h
       integer g_coul
       double precision eps(nbf)
@@ -36,11 +38,14 @@ c
       integer mxworkvec
       parameter(mxworkvec=5)
 #endif      
-      integer nela, nelb, nsym, nactel, multip
-      integer osym(detci_maxorb)
+      integer nela, nelb, nactel, multip, symstate
+      integer actsym(detci_maxorb), actmap(detci_maxorb)
+      integer actrmap(detci_maxorb)
       integer guess_cfg(12)
       double precision guess_coeff(6)
       double precision ciener, citol
+      double precision acteps(detci_maxorb)
+      double precision mxcnt
       integer maxiter
       integer mul(detci_maxsy*detci_maxsy)
       integer ijmap(detci_maxorb*detci_maxorb)
@@ -85,14 +90,46 @@ c
      $    call errquit('detci: incompatible elec and spin',0)
 c
 c   Retrieve symmetry stuff
-c   Nothing yet
 c
-      nsym = 1
-      mul(1) = 1
-      do i=1,nact
-        osym(i) = 1
+      if (.not.rtdb_get(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
+     $   symstate = 1
+      call getsymm_multab( nsym, mul )
+c
+c   Remap active indices into symmetry blocks
+c
+      ii = 0
+      do j=1,nsym
+        do i=1,nact
+          if (orbsym(nclosed+i).eq.j) then
+            ii = ii + 1
+            actmap(ii) = i
+            actrmap(i) = ii
+            actsym(ii) = orbsym(nclosed+i)
+            acteps(ii) = eps(nclosed+i)
+          endif
+        enddo
       enddo
-      call detci_ijmap( nact, nsym, osym, mul, ntij, ijmap )
+c
+c$$$      MAXITER = 1                      ! The following removes 
+c$$$      SYMSTATE = 1                     ! symmetry mapping
+c$$$      NSYM = 1
+c$$$      DO I=1,NACT
+c$$$        ACTSYM(I) = 1
+c$$$        ACTMAP(I) = I
+c$$$        ACTRMAP(I) = I
+c$$$        ACTEPS(I) = EPS(NCLOSED+I)
+c$$$      ENDDO
+c
+c
+c$$$      if (ga_nodeid().eq.0) then
+c$$$        write(6,771) 'Orb map',(actmap(i),i=1,nact)
+c$$$        write(6,771) 'Orb rev map',(actrmap(i),i=1,nact)
+c$$$        write(6,771) 'Orb symm',(actsym(i),i=1,nact)
+c$$$ 771    format(a20,5x,10i3)
+c$$$      endif
+c
+c
+      call detci_ijmap( nact, nsym, actsym, mul, ntij, ijmap )
 c
 c   Allocate local space for 1e and 2e MO integrals
 c   Push global MO integrals into local space
@@ -102,14 +139,17 @@ c
      $  call errquit('mcscf_cisolve: cannot allocate',0)
       if (.not.ma_push_get(MT_DBL,(n2*n2),'eri',l_eri,k_eri))
      $  call errquit('mcscf_cisolve: cannot allocate',0)
-      call mcscf_getmolocal( nclosed, nact, nbf, g_h, g_coul,
+      call dfill(n2,0.d0,dbl_mb(k_h1),1)
+      call dfill((n2*n2),0.d0,dbl_mb(k_eri),1)
+      call mcscf_getmolocal( nclosed, nact, nbf, actrmap,
+     $                       g_h, g_coul,
      $                       ntij, ijmap, dbl_mb(k_h1),
      $                       dbl_mb(k_eri) )
 c
 c   Initialize DetCI internals
 c
-      call detci_init( nact, nela, nelb, nsym, mul, osym,
-     $                 iprint, eps(nclosed+1),
+      call detci_init( nact, nela, nelb, nsym, symstate,
+     $                 mul, actsym, iprint, acteps,
      $                 dbl_mb(k_h1), dbl_mb(k_eri) )
 c
 c   Create CI-vectors
@@ -124,22 +164,22 @@ c
       enddo
 c
 c   Guess CI vector for first time thru
+c   Can manually set the guess config. in the database
+c   otherwise generate guess via Aufbau rules with correct
+c   symmetry
 c
       inquire(file=civec_in,exist=civec_saved)
       if ((hasprint.le.1).or.(.not.(civec_saved))) then
-        do i=1,nela
-          guess_cfg(i) = i
-        enddo
-        do i=1,nelb
-          guess_cfg(i+nela) = i
-        enddo
         guess_coeff(1) = 1.d0
+        if (.not.rtdb_get(rtdb,'mcscf:guess',MT_INT,
+     $    (nela+nelb),guess_cfg))
+     $    call detci_guesscfg( nact, nsym, nela, nelb, actsym, mul,
+     $                         acteps, symstate, guess_cfg )
         call detci_guess( 1, guess_cfg, guess_coeff, g_civec )
       else
         if (.not.(file_read_ga(civec_in,g_civec)))
      $    call errquit('mcscf_ci: cannot read CI vector',0)
       endif
-c$$$      CALL DETCI_GUESS( 6, GUESS_CFG, GUESS_COEFF, G_CIVEC )
 c
 c   Davidson diag
 c
@@ -156,12 +196,25 @@ c
 c
 c   Print out converged ground state CI vector
 c
-      if (ociprint) call detci_print( g_civec, 1.d-2 )
+      if (ociprint) call detci_print( g_civec, 2.d-2 )
+c
+c   Check symmetry contamination of soln vector
+c
+      if (nsym.gt.1) then
+        call detci_symmproj( g_civec, mxcnt, .false. )
+        if (mxcnt.gt.1.d-14) then
+          if (ga_nodeid().eq.0) write(6,881) mxcnt
+ 881      format('Warning - CI symmetry contamination:',e12.3)
+        else if (ociprint) then
+          if (ga_nodeid().eq.0) write(6,882) mxcnt
+ 882      format(//,10x,'CI Symmetry contamination:',e12.3)
+        endif
+      endif
 c
 c   Compute MO densities
 c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidens)
-      call detci_density( g_civec, dm1, dm2 )
+      call detci_density( g_civec, actmap, dm1, dm2 )
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidens)
 c
 c   Save CI vector for restart
@@ -199,7 +252,8 @@ c
 
 
 
-      subroutine mcscf_getmolocal( nclosed, nact, nbf, g_h, g_coul,
+      subroutine mcscf_getmolocal( nclosed, nact, nbf, rmap,
+     $                             g_h, g_coul,
      $                             ntij, ijmap, h1, eri )
       implicit none
 #include "mafdecls.fh"
@@ -207,6 +261,7 @@ c
       integer nclosed
       integer nact
       integer nbf
+      integer rmap(nact)
       integer g_h
       integer g_coul
       integer ntij
@@ -230,7 +285,7 @@ c
       do i=1,nact
         do j=1,i
           gij = ((i-1)*i)/2 + j
-          ij = ijmap(i,j)
+          ij = ijmap(rmap(i),rmap(j))
           do k=1,nact
             kk = (k-1)*nact
             klo = coff + (k-1)*nbf + 1
@@ -240,7 +295,7 @@ c
           do k=1,nact
             kk = (k-1)*nact
             do l=1,k
-              kl = ijmap(k,l)
+              kl = ijmap(rmap(k),rmap(l))
               eri(ij,kl) = dbl_mb(k_t+kk+l-1)
             enddo
           enddo

@@ -1,10 +1,10 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.6 1996-02-15 23:40:04 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.7 1996-02-22 10:37:27 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
-     $                           nact, osym, orbsym, dm1, dm2,
+     $                           nact, oskel, orbsym, dm1, dm2,
      $                           g_coul, g_exch, oconj, pfac,
      $                           g_conj, g_gradold, g_hcore, orbe,
      $                           eone, etwo, gnorm, g_movecs )
@@ -20,7 +20,7 @@ c
 c
        integer rtdb, geom, basis                       ! [input] Handles
        integer nbf, nclosed, nact                      ! [input] Orbital parameters
-       logical osym                                    ! [input] Symmetry toggle
+       logical oskel                                   ! [input] Symmetry toggle
        integer orbsym                                  ! [input] Orbital irreps
        double precision dm1(*)                         ! [input] 1-PDM
        double precision dm2(*)                         ! [input] 2-PDM
@@ -49,7 +49,6 @@ c
        double precision eev(0:maxlinsrch), gsv(0:maxlinsrch)
        double precision av(0:maxlinsrch)
        double precision xx, yy, eold, hmax, hmin, maxx
-       logical oskel
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
 c
@@ -71,9 +70,6 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
-       endif
-       if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel)) then
-         oskel = sym_number_ops(geom).gt.0
        endif
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
@@ -134,7 +130,7 @@ c
        if (gnorm.gt.1.d-2) then
          lshift = lshift0
        else if (lshift.eq.lshift0) then
-         lshift = lshift/5.d0
+         lshift = lshift0/5.d0
        else
          lshift = 0.d0
        endif
@@ -222,7 +218,7 @@ c
          if (gnorm0.gt.1.d-2) then
            write(6,771) 
  771       format(20x,'CI resolved')
-           call moints_build_6x( basis, osym,
+           call moints_build_6x( basis, oskel,
      $                           molo, molo, mohi, 1, nbf,
      $                           g_newvecs, g_coul, .true.,
      $                           g_exch, .true., 16 )
@@ -232,13 +228,13 @@ c
      $                         orbe, g_hcore, g_coul, dm1, dm2,
      $                         .false., .false. )
         else
-         call moints_build_6x( basis, osym,
+         call moints_build_6x( basis, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_newvecs, g_coul, .true.,
      $                         g_exch, .false., 16 )
         endif
 #else
-         call moints_build_6x( basis, osym,
+         call moints_build_6x( basis, oskel,
      $                         molo, molo, mohi, 1, nbf,
      $                         g_newvecs, g_coul, .true.,
      $                         g_exch, .false., 16 )
@@ -303,7 +299,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.6 1996-02-15 23:40:04 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.7 1996-02-22 10:37:27 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch

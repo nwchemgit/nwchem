@@ -14,7 +14,7 @@ c
        integer rtdb
 c
        integer geom, basis
-       integer nbf, nclosed, nvir, nact, noper
+       integer nbf, nclosed, nvir, nact, noper, nsym
        integer nactel, nela, nelb, multip, orlen
        integer l_occ, k_occ, l_sym, k_sym
        integer l_evals, k_evals
@@ -33,7 +33,6 @@ c
        double precision tol2e, gnorm, xx
        logical oconj
        logical oskel
-       logical osym
        logical oorbsolve
        logical oprinfo
 c
@@ -55,8 +54,6 @@ c
        integer mcscf_rohf_den2occ
        external mcscf_rohf_den2occ
 c
-c
-       data osym/.true./
        data oorbsolve/.true./
 c
 c
@@ -72,9 +69,9 @@ c
        call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
        nvir = nbf - nclosed - nact
        orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
-       if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel)) then
-         oskel = sym_number_ops(geom).gt.0
-       endif
+       nsym = sym_number_ops(geom)+1
+       if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
+     $   oskel = sym_number_ops(geom).gt.0
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
@@ -174,7 +171,7 @@ c
 c
 c  Get orbital symmetries
 c 
-       if (.not.ma_push_get(MT_INT, nbf, 'MO occ', l_sym, k_sym))
+       if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
      $     call errquit('mcscf: cannot allocate symmetry',0)
        call sym_movecs_adapt( basis, 1.d-8, g_movecs,
      $                        int_mb(k_sym), nmixed )
@@ -224,7 +221,7 @@ c
 c  4-Index Tranform 
 c
          if (omcscfprof) call pstat_on(ps_4index)
-         call moints_build_6x( basis, osym,
+         call moints_build_6x( basis, oskel,
      $                         mo_lo, mo_lo, mo_hi, 1, nbf,
      $                         g_movecs, g_coul, .true.,
      $                         g_exch, .true., 16 )
@@ -236,9 +233,9 @@ c  CI solver
 c
          if (omcscfprof) call pstat_on(ps_ci)
          call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                       dbl_mb(k_evals), g_hcore, g_coul,
-     $                       dbl_mb(k_dm1), dbl_mb(k_dm2), .true.,
-     $                       .false. )
+     $                       nsym, int_mb(k_sym), dbl_mb(k_evals),
+     $                       g_hcore, g_coul, dbl_mb(k_dm1),
+     $                       dbl_mb(k_dm2), .true., .false. )
          if (omcscfprof) call pstat_off(ps_ci)
 c
 c  Orbital solver
@@ -252,7 +249,7 @@ c
          if (oorbsolve) then
            if (omcscfprof) call pstat_on(ps_orb)
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                          osym, int_mb(k_sym), dbl_mb(k_dm1),
+     $                          oskel, int_mb(k_sym), dbl_mb(k_dm1),
      $                          dbl_mb(k_dm2), g_coul, g_exch, oconj,
      $                          pfac, g_conj, g_gradold, g_hcore,
      $                          dbl_mb(k_evals), eone, etwo, gnorm,
@@ -307,7 +304,7 @@ c
 c
 c  Resolve secular eqn with natural orbitals
 c
-       call moints_build_6x( basis, osym,
+       call moints_build_6x( basis, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., 16 )
@@ -316,9 +313,9 @@ c
        if (ga_nodeid().eq.0) write(6,882) 
  882   format(//,10x,' Active Space Ground State CI vector')
        call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     dbl_mb(k_evals), g_hcore, g_coul,
-     $                     dbl_mb(k_dm1), dbl_mb(k_dm2), .false.,
-     $                     .true. )
+     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
+     $                     g_hcore, g_coul, dbl_mb(k_dm1),
+     $                     dbl_mb(k_dm2), .false., .true. )
 c
 c  Save natural orbitals to disk
 c
@@ -395,7 +392,7 @@ c
        call ga_zero(g_grad)
        call ga_zero(g_x)
        call ga_zero(g_prod)
-       call moints_build_6x( basis, osym,
+       call moints_build_6x( basis, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., 16 )
@@ -820,8 +817,8 @@ c
        integer mo_lo, mo_hi, noper, nn, i
        integer g_coul, g_exch
        double precision tmp(1000)
-       logical osym
-       data osym/.false./
+       logical oskel
+       data oskel/.false./
        integer ga_create_JKblocked
        external ga_create_JKblocked
 
@@ -831,7 +828,7 @@ c
        nn = nbf*nbf
        g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb Oper')
        g_exch = ga_create_JKblocked(noper,nbf,nbf,'X Oper')
-       call moints_build_6x( basis, osym,
+       call moints_build_6x( basis, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., 16 )
