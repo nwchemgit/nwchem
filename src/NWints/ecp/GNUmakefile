@@ -52,9 +52,9 @@ OBJ_ENERGY = \
       ecp_local.o    \
       int_ecp.o      
 
-OBJ = 
+OBJ =  
 
-OBJ_OPTIMIZE = $(OBJ_ENERGY) \
+OBJ_OPTIMIZE = $(OBJ_ENERGY) 
 
 USES_BLAS = ecp_cart_xpd.f \
       ecp_cstrans.f  \

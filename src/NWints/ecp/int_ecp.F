@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin)
-* $Id: int_ecp.F,v 1.3 1996-10-16 22:40:51 d3e129 Exp $
+* $Id: int_ecp.F,v 1.4 1996-10-16 22:42:34 d3e129 Exp $
       implicit none
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
@@ -265,7 +265,7 @@ c
      &        dbl_mb(mb_exndcf(jcf,bas_id)),
      &        jnp,jng,jl,
      &        dpdum,nV,dpdum,lecp_mem,.true.)
-          lecp_mem = lecp_mem + nV  ! nint block used in api routine
+          lecp_mem = lecp_mem + nV  ! nint block used in api routine int_hf1sp
           mem_ecp = max(mem_ecp,lecp_mem)
 *          write(6,*)' i_cont ',i_cont
 *          write(6,*)' j_cont ',j_cont
