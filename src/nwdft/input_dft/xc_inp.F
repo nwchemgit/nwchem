@@ -40,8 +40,7 @@ c     xmpw91
 c     ft97
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-cedo      parameter (num_dirs = 42,numfunc=30)
-      parameter (num_dirs = 42,numfunc=30)
+      parameter (num_dirs = 44,numfunc=30)
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -63,7 +62,8 @@ c
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
-     ,     'optx','optc','becke97-2','mpw91','ft97'/
+     ,     'optx','optc','becke97-2','mpw91',
+     ,     'ft97','xft97','cft97'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -92,7 +92,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
-     , 3000, 3100,3200,3300,3400,3500,3700,3800,
+     , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
@@ -455,9 +455,41 @@ c
 c        assume total wanted
 c     
        xccomb(15) = .true.
-         lxfac(25) = .true.
+
          nlxfac(25) = .true.
          xfac(25) = 1.0d0
+c     Slater XC
+         lxfac(2) = .true.
+         nlxfac(2) = .false.
+         xfac(2)=1d0
+         lcfac(24)=.true.
+         nlcfac(24)=.true.
+         cfac(24)=1d0
+       goto 10
+c     
+c    X ft97 Filatov Thiel
+c     
+ 3810  continue
+c
+c        assume total wanted
+c     
+         nlxfac(25) = .true.
+         xfac(25) = 1.0d0
+c     Slater XC
+         xfac(2) = 1d0
+         lxfac(2) = .true.
+         nlxfac(2) = .false.
+       goto 10
+c     
+c   C  ft97 Filatov Thiel
+c     
+ 3820  continue
+c
+c        assume total wanted
+c     
+         lcfac(24)=.true.
+         nlcfac(24)=.true.
+         cfac(24)=1d0
        goto 10
 c     
 c     lyp; LYP functional for correlation
@@ -1167,7 +1199,11 @@ c
      &       /,' [hcth407] ',
      &       /,' [hcthp14]',
      &       /,' [optx]',
-     &       /,' [becke97gga1]')
+     &       /,' [becke97gga1]',
+     &       /,' [mpw91]',
+     &       /,' [ft97]',
+     &       /,' [xft97]',
+     &       /,' [cft97]')
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0)
 c     

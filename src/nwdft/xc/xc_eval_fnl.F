@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.37 2003-02-15 01:18:51 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.38 2003-02-15 08:32:19 edo Exp $
 c
       implicit none
 c
@@ -336,11 +336,12 @@ c
             call xc_xmpw91_d2()
          endif
       endif
-      if (abs(xfac(25)).gt.eps)then
+      if (abs(xfac(25)).gt.eps.or.abs(cfac(24)).gt.eps)then
          if (.not. do_2nd) then
             call xc_ft97(tol_rho,xfac(25),lxfac(25),nlxfac(25), 
+     .           cfac(24),lcfac(24),nlcfac(24), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func)
+     &           Ex, Ec, qwght,ldew,func)
          else
             call errquit('2nds not available ',0)
 !            call xc_ft97_d2()

@@ -1,16 +1,19 @@
 c
-c$Id: xc_ft97.F,v 1.1 2003-02-15 01:18:52 edo Exp $
+c$Id: xc_ft97.F,v 1.2 2003-02-15 08:32:19 edo Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
+     .      cfac, lcfac, nlcfac,
      ,                    rho, delrho, 
-     &                    Amat, Cmat, nq, ipol, Ex, qwght,
+     &                    Amat, Cmat, nq, ipol, Ex, Ec, qwght,
      &                    ldew,func)     
       implicit none
 #include "dft2drv.fh"
       logical ldew ! [input]
       logical lxfac, nlxfac ! [input]
+      logical lcfac, nlcfac ! [input]
       double precision func(*) ![input/output]
       double precision xfac ![input]
+      double precision cfac ![input]
       character*4 funcname ! functional name [input]
 c
       integer ipol  ! no. of spin states [input]
@@ -30,13 +33,13 @@ c to hcth
       double precision rhob 
       double precision za   
       double precision zb   
-      double precision hE_x, hE_c 
       double precision dfdrax, dfdrac
       double precision dfdrbx, dfdrbc
       double precision dfdzac,dfdzax,dfdza
       double precision dfdzbc,dfdzbx,dfdzb
 c
-      double precision f_ft97,dfdra,dfdgaa,dfdrb,dfdgbb
+      double precision fc_ft97,dfdrac,dfdgaac,dfdrbc,dfdgbbc
+      double precision fx_ft97,dfdrax,dfdgaax,dfdrbx,dfdgbbx
 c
       if(ipol.eq.1) then
         do n=1,nq
@@ -45,12 +48,16 @@ c
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1)
             call xc_rks_ft97(rho(n,1),gammaval,
-     *           f_ft97,dfdra,dfdgaa)
-            if(ldew) func(n)=func(n)+f_ft97
-            Ex=Ex+qwght(n)*xfac*f_ft97
-            Amat(n,1) = Amat(n,1)+dfdra*xfac
-            dfdza=(dfdgaa*xfac)*0.5d0 
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaa
+     *           fc_ft97,dfdrac,dfdgaac,
+     *           fx_ft97,dfdrax,dfdgaax)
+            if(ldew) func(n)=func(n)+fc_ft97*cfac+
+     *           fx_ft97*xfac
+            Ex=Ex+qwght(n)*xfac*fx_ft97
+            Ec=Ec+qwght(n)*cfac*fc_ft97
+            Amat(n,1) = Amat(n,1)+dfdrax*xfac+dfdrac*cfac
+!            dfdza=(dfdgaa*xfac)*0.5d0 
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaac*cfac+
+     +           dfdgaax*xfac
           endif
         enddo
       else
@@ -58,27 +65,25 @@ c
           if(rho(n,1).gt.tol_rho) then
           rhoa=rho(n,2)
           rhob=rho(n,3)
-            za=0.d0
-            gammaval=delrho(n,1,1)*delrho(n,1,1) +
+            za=delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1)
-            if(gammaval.gt.tol_rho) za=gammaval
-            zb=0.d0
-            gammaval=delrho(n,1,2)*delrho(n,1,2) +
+            zb=delrho(n,1,2)*delrho(n,1,2) +
      &           delrho(n,2,2)*delrho(n,2,2) +
      &           delrho(n,3,2)*delrho(n,3,2) 
-            if(gammaval.gt.tol_rho) zb=gammaval
-            call xc_uks_ft97(
+            call xc_uks_ft97(tol_rho,
      (           rhoa,rhob,za,zb,
-     *           f_ft97,dfdra,dfdrb,dfdgaa,dfdgbb)
-            if(ldew) func(n)=func(n)+f_ft97*xfac 
-            Ex=Ex+f_ft97*qwght(n)*xfac
-            Amat(n,1) = Amat(n,1)+dfdra*xfac
-            Amat(n,2) = Amat(n,2)+dfdrb*xfac
-            dfdza=dfdgaa*xfac
-            dfdzb=dfdgbb*xfac
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza*0.5d0
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb*0.5d0
+     *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc,
+     *           fx_ft97,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+            if(ldew) func(n)=func(n)+fc_ft97*cfac+fx_ft97*xfac 
+            Ex=Ex+qwght(n)*xfac*fx_ft97
+            Ec=Ec+qwght(n)*cfac*fc_ft97
+            Amat(n,1) = Amat(n,1)+dfdrax*xfac+dfdrac*cfac
+            Amat(n,2) = Amat(n,2)+dfdrbx*xfac+dfdrbc*cfac
+            dfdza=dfdgaax*xfac+dfdgaac*cfac
+            dfdzb=dfdgbbx*xfac+dfdgbbc*cfac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
+            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb
           endif
         enddo
       endif
@@ -89,7 +94,7 @@ CDFT repository Quantum Chemistry Group
 C
 
 c-----------------------------------------------------------------------
-      subroutine xc_rks_ft97(r,g,f,dfdra,dfdgaa)
+      subroutine xc_rks_ft97(r,g,fc,dfdrac,dfdgaac,fx,dfdrax,dfdgaax)
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the closed shell case. 
@@ -129,8 +134,8 @@ c
       implicit none
 c
       double precision r, g
-      double precision f ,dfdra ,dfdrb ,dfdgaa ,dfdgbb
-      double precision f1,dfdra1,       dfdgaa1
+      double precision fc ,dfdrac ,dfdrb ,dfdgaac ,dfdgbb
+      double precision fx,dfdrax,       dfdgaax
 c
       double precision rhoa, rhob, rhoa13, rhob13
       double precision gama, gamb
@@ -139,11 +144,6 @@ c...  Parameters
 c
       double precision r13
       parameter (r13=1.0d0/3.0d0)
-c     Ax = -3/4*(6/pi)**(1/3)
-c     Bx = -(6/pi)**(1/3)
-      double precision Ax, Bx
-      parameter(Ax    = -0.930525736349100025002010218071667d0)
-      parameter(Bx    = -1.24070098179880003333601362409556d0)
 c
       rhoa   = 0.5d0*r
       rhoa13 = rhoa**r13
@@ -152,16 +152,15 @@ c
       rhob13 = rhoa13
       gamb   = gama
       call FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
-     +                f,dfdra,dfdrb,dfdgaa,dfdgbb)
+     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb)
       call FT97_EXFUN(rhoa,rhob,rhoa13,rhob13,
-     +                gama,gamb,f1,.false.,.false.)
-      call FT97_EXGRAD(rhoa,rhoa13,gama,dfdra1,dfdgaa1,.false.)
-      f      = f      + f1      + Ax*r*rhoa13
-      dfdra  = dfdra  + dfdra1  + Bx*rhoa13
-      dfdgaa = dfdgaa + dfdgaa1
+     +                gama,gamb,fx,.false.,.false.)
+      call FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
       end
 c-----------------------------------------------------------------------
-      subroutine xc_uks_ft97(ra,rb,gaa,gbb,f,dfdra,dfdrb,dfdgaa,dfdgbb)
+      subroutine xc_uks_ft97(tol_rho,ra,rb,gaa,gbb,
+     ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,
+     ,     fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the spin polarised case.
@@ -204,42 +203,29 @@ c
       implicit none
 c
       double precision ra, rb, gaa, gbb
-      double precision f ,dfdra ,dfdrb ,dfdgaa ,dfdgbb
-      double precision f1,dfdra1,dfdrb1,dfdgaa1,dfdgbb1
+      double precision fc ,dfdrac ,dfdrbc ,dfdgaac ,dfdgbbc
+      double precision fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx
 c
       double precision rhoa13, rhob13
 c
-      double precision r13
+      double precision r13,tol_rho
       parameter (r13=1.0d0/3.0d0)
-c     Ax = -3/4*(6/pi)**(1/3)
-c     Bx = -(6/pi)**(1/3)
-      double precision Ax, Bx
-      parameter(Ax    = -0.930525736349100025002010218071667d0)
-      parameter(Bx    = -1.24070098179880003333601362409556d0)
 c
       rhoa13 = ra**r13
       rhob13 = rb**r13
       call FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
-     +                f,dfdra,dfdrb,dfdgaa,dfdgbb)
+     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
       call FT97_EXFUN(ra,rb,rhoa13,rhob13,
-     +           gaa,gbb,f1,.true.,.false.)
-      call FT97_EXGRAD(ra,rhoa13,gaa,dfdra1,dfdgaa1,.false.)
-      if (rb.gt.0.0d0) then
-         call FT97_EXGRAD(rb,rhob13,gbb,dfdrb1,dfdgbb1,.false.)
-      else
-         dfdrb1  = 0.0d0
-         dfdgbb1 = 0.0d0
+     +           gaa,gbb,fx,.true.,.false.,tol_rho)
+      call FT97_EXGRAD(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
+      if(rb.gt.tol_rho**2) then
+      call FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
       endif
-      f      = f      + f1      + Ax*(ra*rhoa13+rb*rhob13)
-      dfdra  = dfdra  + dfdra1  + Bx*rhoa13
-      dfdrb  = dfdrb  + dfdrb1  + Bx*rhob13
-      dfdgaa = dfdgaa + dfdgaa1
-      dfdgbb = dfdgbb + dfdgbb1
       end
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       SUBROUTINE FT97_EXFUN (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,FT97,UHF,
-     +                       VARIA)
+     +                       VARIA,tol_rho)
 C     *
 C     VALUE OF THE FT97 EXCHANGE xc_ft97 AT A GIVEN POINT IN SPACE.
 C     *
@@ -260,6 +246,7 @@ C              =.FALSE. VARIANT B (RECOMMENDED)                  (I)
 C     *
       IMPLICIT double precision (A-H,O-Z)
       LOGICAL UHF,VARIA
+      double precision tol_rho
 C     Variants A and B, see eqs.(15) and (16).
       PARAMETER (BETAA=2.930000D-3)
       PARAMETER (AX=9.474169D-4, BX=2.501149D03, BETA0=2.913644D-3)
@@ -279,7 +266,7 @@ C     CORRAI : See eqs.(9),(11),(15) and (16).
 C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
       CORRAI =-RHOA*RHOA13*BETA*XALPHA/DENOMA
       IF(UHF) THEN
-         IF(RHOB.LT.1.0D-29) THEN
+         IF(RHOB.LT.tol_rho) THEN
             FT97   = CORRAI
          ELSE
             IF(.NOT.VARIA) BETA = BETA0+AX*AMB/(BX*BX+AMB)

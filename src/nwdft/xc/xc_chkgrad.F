@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.22 2003-02-15 01:18:51 edo Exp $
+* $Id: xc_chkgrad.F,v 1.23 2003-02-15 08:32:19 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -15,7 +15,7 @@ c
      + xfac(14)+xfac(15)+xfac(16)+xfac(17)+xfac(18) +xfac(19) +
      +     cfac(2) + cfac(4) + cfac(5) + cfac(12) +
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
-     + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) +
+     + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) + cfac(24) +
      + xfac(25)
       if (abs(tot).gt.eps)then
          xc_chkgrad = .true.
@@ -68,7 +68,6 @@ c     hcth functionals
      .     xfac(14).ne.0d0.or.
      .     xfac(15).ne.0d0.or.
      .     xfac(19).ne.0d0.or.
-     .     xfac(25).ne.0d0.or.
      .     cfac(13).ne.0d0.or.
      .     cfac(14).ne.0d0.or.
      .     cfac(15).ne.0d0.or.
