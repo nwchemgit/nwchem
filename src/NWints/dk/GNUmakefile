@@ -1,5 +1,5 @@
 
-# $ ID:$
+# $ID:$
 
      OBJ_OPTIMIZE = bas_create_uncont.o ga_extra.o int_1edk_ga.o
 
