@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.3 2001-12-21 16:50:29 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.4 2001-12-28 00:00:01 bylaska Exp $                       
 *
 
 
@@ -137,7 +137,7 @@ c        Eold = cpsi_geodesic_energy(0.0d0)
          Enew = linesearch(0.0d0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
-     >                        tole,tmin,deltae)
+     >                        tole,tmin,deltae,1)
          call cpsi_geodesic_final(tmin)
          deltac = c_rho_error()
 
@@ -231,7 +231,7 @@ c     tmin = 0.0d0
       Enew = linesearch(0.0d0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
-     >                        tole,tmin,deltae)
+     >                        tole,tmin,deltae,1)
       call cpsi_geodesic_final(tmin)
       deltac = c_rho_error()
 

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.4 2001-12-27 20:54:54 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.5 2001-12-28 00:00:02 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -165,7 +165,7 @@ c        write(*,*) "<s|s>, <g|g>, sigma:",dte,dt,max_sigma
          Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae)
+     >                        0.5d0,tmin,deltae,2)
          call psi_geodesic_final(tmin)
 c     write(*,*) "tmin:",tmin,tmin/max_sigma,max_sigma
 c     write(*,*) 
@@ -201,7 +201,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
       Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae)
+     >                        0.5d0,tmin,deltae,2)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
 c     write(*,*) "END,tmin:",tmin,tmin/max_sigma,max_sigma

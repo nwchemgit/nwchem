@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.2 2001-12-28 00:00:01 bylaska Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -39,7 +39,8 @@ c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $
 *     ********************************
 
       real*8 function linesearch(t0,deltat,FUNC1,DFUNC1,
-     >                           tolerance,tmin,deltaE)
+     >                           tolerance,tmin,deltaE,
+     >                           stoptype)
       implicit none
       real*8 t0,deltat
       real*8   FUNC1
@@ -49,16 +50,17 @@ c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $
       real*8   tolerance
       real*8   tmin
       real*8   deltaE
+      integer  stoptype
 
 
 *     **** local variables ****
-      logical secant
+      logical secant,notfinished
       integer indx(3)
       real*8  t(3)
       real*8  f(3)
       real*8  df(3)
       real*8  t_last, f_last
-      real*8  t_first,f_first
+      real*8  t_first,f_first,df_first
       real*8 up,down,fmin,dfmin,deltaf
 
 *     **** linesearch_counter common block ****
@@ -77,6 +79,7 @@ c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $
       f_last = f(1)
       t_first = t(1)
       f_first = f(1)
+      df_first = df(1)
 
       f(2)  =  FUNC1(t(1)+deltat)
       df(2) = DFUNC1(t(1)+deltat)
@@ -104,7 +107,14 @@ c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $
       call Order_Values(3,f,indx)
       deltaf = f(indx(2)) - f(indx(1))
 
-      do while (dabs(deltaf).gt.tolerance) 
+      if (stoptype.eq.1) then
+        notfinished = dabs(deltaf).gt.tolerance
+      else
+        notfinished = dabs(df(indx(1))/df_first).gt.tolerance
+        notfinished = .false.
+      end if
+
+      do while (notfinished) 
       
 
 *       **** use secant interpolation to generate tmin ***
@@ -168,6 +178,12 @@ c     $Id: linesearch.F,v 1.1 2001-12-14 20:07:28 bylaska Exp $
            deltaf = f(indx(2)) - f(indx(1))
         else
            deltaf=0.0d0
+        end if
+
+        if (stoptype.eq.1) then
+          notfinished = dabs(deltaf).gt.tolerance
+        else
+          notfinished = dabs(df(indx(1))/df_first).gt.tolerance
         end if
            
       end do
