@@ -9,7 +9,7 @@
      + i_lseqi)
 c
 c
-c $Id: sp_init.F,v 1.117 2003-07-17 19:39:29 d3j191 Exp $
+c $Id: sp_init.F,v 1.118 2003-08-06 02:52:12 d3j191 Exp $
 c
       implicit none
 c
@@ -270,7 +270,7 @@ c
       character*255 filrst
 c
       character*1 cdum
-      integer i,j,jdum,ibx,iby,ibz,itemp(10)
+      integer i,j,jdum,ibx,iby,ibz,itemp(11)
       real*8 rtemp(5),rsgmr
 c
       mbbl=0
@@ -360,12 +360,13 @@ c
       itemp(8)=npbtyp
       itemp(9)=nbxtyp
       itemp(10)=nsf
+      itemp(11)=nseq
       rtemp(1)=bsize
       rtemp(2)=1.001d0*bxmin
       rtemp(3)=1.001d0*bymin
       rtemp(4)=1.001d0*bzmin
       rtemp(5)=rsgm
-      call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,10,mt_byte),0)
+      call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,11,mt_byte),0)
       call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,5,mt_byte),0)
       call ga_brdcst(msp_05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
       call ga_brdcst(msp_06,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
@@ -379,6 +380,7 @@ c
       npbtyp=itemp(8)
       nbxtyp=itemp(9)
       nsf=itemp(10)
+      nseq=itemp(11)
       bsize=rtemp(1)
       bxmin=rtemp(2)
       bymin=rtemp(3)
@@ -541,6 +543,7 @@ c
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       integer sp_btop
       external sp_btop
@@ -1095,6 +1098,10 @@ c
       close(unit=lfnrst,status='keep')
       close(unit=lfntop,status='keep')
 c
+      endif
+c
+      if(nseq.gt.0) then
+      call ga_brdcst(msp_22,lseq,nseq*ma_sizeof(mt_int,1,mt_byte),0)
       endif
 c
       if(.not.ma_verify_allocator_stuff()) then
