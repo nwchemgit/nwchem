@@ -1,7 +1,7 @@
       subroutine dplot_dump(lgaussian,out_unit,iproc,luout,
      ,     where,what,title,
      ,     natom,xyz,charge,volume,
-     ,     coofrom,cooto,no_of_spacings,ngrid,values)
+     ,     coofrom,cooto,no_of_spacings,ngrid,values,atag)
       implicit none
       logical lgaussian
       character *(*) title
@@ -12,12 +12,17 @@
       integer no_of_spacings(3),ngrid
       integer iproc,luout
       double precision values(*),volume,coofrom(3),cooto(3)
+      character*16 atag(*)
 c
       double precision spread(3),step(3),angle(3)
       integer const_m(3),const_p(3)
 c
-      integer i,ii,ifast
+      integer i,ii,ifast,atomicno
       double precision appch,sum
+      character*16 element
+      character*2 symbol
+      logical geom_tag_to_element
+      external geom_tag_to_element
 c
       call  dplot_defgrid(volume,angle,
      ,     spread,step,const_m,const_p,
@@ -45,8 +50,14 @@ c
             Write(Out_Unit,9498)
      &           no_of_spacings(3)+1,0d0,0d0,step(3)
             do i=1,natom
+            if (.not. geom_tag_to_element(atag(i), symbol, 
+     &         element, atomicno)) then
+               if (symbol .ne. 'bq') call errquit
+     &              ('dplotdump: center is neither atom nor bq',
+     &              0)
+            endif
             Write(Out_Unit,9499)
-     .            int(charge(i)),charge(i),xyz(1,i),xyz(2,i),xyz(3,i)
+     .            atomicno,charge(i),xyz(1,i),xyz(2,i),xyz(3,i)
  9499       format(I5,4F12.6)
 c
 c     dump MOlist (if any)

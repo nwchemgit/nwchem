@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.21 2001-05-11 19:50:40 edo Exp $
+* $Id: dplot.F,v 1.22 2002-12-12 00:35:10 edo Exp $
 *
       Implicit None
 *     
@@ -443,7 +443,7 @@ c
      ,     title(1:Lth_Tit),
      ,     natom,dbl_mb(k_xyz),dbl_mb(k_charge),volume,
      ,     Ext_From_To(1,1),Ext_From_To(1,2),
-     ,     no_of_spacings,ngrid,dbl_mb(k_vls))
+     ,     no_of_spacings,ngrid,dbl_mb(k_vls),Byte_mb(k_Tags))
       If (iProc.eq.0 .and. (Where.ne.'GRID'.or.What.eq.'CHARGES')) Then
          Write(LuOut,*)
          If (What.eq.'CHARGES') Then
