@@ -294,7 +294,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
  * -------------------
  */
     extern Integer  mxmynd_(), mxnprc_();
-    extern void     mxinit_();
 
     extern Integer  mapchk_(), count_list();
     extern void     memreq_();
@@ -331,8 +330,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     test_timing.pdspgvx  = 0.0e0;
 #endif
 
-
-    mxinit_();
 
     me    = mxmynd_();
     nproc = mxnprc_();
@@ -401,6 +398,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     msize   = *n;
    *info    = 0;
    *meigval = 0;
+
 
    /*
     *  Quick return if possible.
@@ -516,9 +514,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      */
     
 #ifdef DEBUG7
-   printf(" in pdspevx me = %d \n", mxmynd_());
+    printf(" in pdspevx me = %d \n", mxmynd_());
 #endif
-
+    
     proclist = iscratch;
     reduce_maps( *n, mapA, *n, mapZ, 0, mapZ, &nn_proc, proclist );
 
@@ -541,8 +539,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     pgexit( &linfo, msg, proclist, &nn_proc, scratch );
     
     if ( linfo != 0 ) {
-	*info = -51;
-	return;
+      *info = -51;
+      return;
     }
 
     /*
@@ -554,11 +552,17 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     isize   = msize * sizeof( Integer );
     strcpy(msg2, "mapA ");
     pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+    
+
     maxinfo = max( maxinfo, linfo );
     
     strcpy(msg2, "mapZ ");
     pdiff( &isize, (char *) mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+
+
     maxinfo = max( maxinfo, linfo );
+
+
     
     *scratch       = *lb;
     *(scratch + 1) = *ub;
@@ -567,13 +571,16 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     isize = 3 * sizeof( DoublePrecision );
     strcpy(msg2, "lb,ub,or abstol ");
     pdiff( &isize, (char *) scratch, proclist, &nn_proc, (Integer *) (scratch+3), msg, msg2, &linfo );
+
+
     maxinfo = max( maxinfo, linfo );
     
     linfo = maxinfo;
     
-   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
+    pgexit( &linfo, msg, proclist, &nn_proc, scratch );
 
-   if ( linfo != 0 ) {
+    
+    if ( linfo != 0 ) {
       *info = -51;
       return;
    }
@@ -653,13 +660,16 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      * Reduce A to tridiagonal form.
      */
 
-
+    
+    
     if (nvecsA + nvecsQ > 0) {
-
       fnormA = 0.0;
-      if( nvecsA > 0 )
-	sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
-
+      /*
+	 if( nvecsA > 0 ){
+	 sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
+	 }
+	 */
+      
 #ifdef TIMING
       tt1 = t1 = mxclock_();
 #endif
@@ -684,7 +694,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
         isize = msize - 1;
         vec[0] = sqrt((DoublePrecision) 2.e0 ) * dnrm2_( &isize, &ee[1], &IONE );
         vec[1] = dnrm2_( &msize, dd, &IONE );
-        fnormT = dnrm2_( &ITWO, vec, &IONE );
+/*        fnormT = dnrm2_( &ITWO, vec, &IONE );
+*/
+	fnormT = 0.0e0;
+
 	
         ulp = DLAMCHE * DLAMCHB ;
 	
@@ -871,19 +884,19 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       t2 = mxclock_();
       test_timing.pstein = t2 - t1;
 #endif
-
+    
     
     /*
-      fprintf(stderr, " me = %d neigval %d \n",  me, neigval );
-      */
+       fprintf(stderr, " me = %d neigval %d \n",  me, neigval );
+       */
     
-      /*
-	for ( iii = 0; iii < neigval; iii++)
-	eval[iii] += psgn*psigma;
-	*/
-      
-      /*
-       * Send info, mapZ to any processors in 
+    /*
+       for ( iii = 0; iii < neigval; iii++)
+       eval[iii] += psgn*psigma;
+       */
+    
+    /*
+     * Send info, mapZ to any processors in 
      * ({mapA} U {mapZ[neigval:*n-1]}) - {mapZ[0:neigval-1]}
      */
     

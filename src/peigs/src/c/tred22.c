@@ -126,10 +126,6 @@ void peigs_gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
   extern Integer maxd_();
   extern Integer mxcombv1_();
   
-  if (datatype != 5) {
-    fprintf (stderr,"gsum00: invalid datatype = %d\n",datatype);
-  }
-  
   mxcombv1_( buf, maxd_, &eight, &items, &snumprocs, plist, &msgtype, (char *)work);
 }
 
@@ -154,10 +150,6 @@ void gsum00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
   Integer eight = sizeof(DoublePrecision);
   extern Integer sumdv_();
   extern Integer mxcombv1_();
-  
-  if (datatype != 5) {
-    fprintf (stderr,"gsum00: invalid datatype = %d\n",datatype);
-  }
   
   mxcombv1_( buf, sumdv_, &eight, &items, &snumprocs, plist, &msgtype, (char *)work);
 }
