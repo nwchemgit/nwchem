@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.21 1995-10-17 08:52:27 d3g681 Exp $
+# $Id: GNUmakefile,v 1.22 1995-10-31 09:21:30 d3e129 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
@@ -9,6 +9,8 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
+nolib:
+	rm -i $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/$(LIBRARY)
 tasks tasks.ps:	tasks.tex
 	latex tasks
 	latex tasks
