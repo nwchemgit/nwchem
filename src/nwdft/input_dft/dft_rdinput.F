@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
      &                    XC_bas_han, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.5 1995-06-30 22:02:58 pg511 Exp $
+C$Id: dft_rdinput.F,v 1.6 1995-07-15 23:02:33 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -43,15 +43,15 @@ c******************************************************************************
 c****
 c**** recover logical parameters from rtdb
 c****
-      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
-        write (6,*) "dft_rdinput: did not find dft:skeleton"
-        oskel = sym_number_ops(geom) .gt. 0
-        if (.not.rtdb_put(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))
-     &       call errquit('rdinput: rtdb_put failed',88) 
-      else 
-        write (6,*) "dft_rdinput: found dft:skeleton"
-        write (6,*) "oskel: ",oskel
-      endif 
+C      if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel)) then
+C        write (6,*) "dft_rdinput: did not find dft:skeleton"
+C        oskel = sym_number_ops(geom) .gt. 0
+C        if (.not.rtdb_put(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))
+C     &       call errquit('rdinput: rtdb_put failed',88) 
+C      else 
+C        write (6,*) "dft_rdinput: found dft:skeleton"
+C        write (6,*) "oskel: ",oskel
+C      endif 
 c****
 c**** recover charge from rtdb
 c****
