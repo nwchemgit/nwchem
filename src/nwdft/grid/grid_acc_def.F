@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.4 1999-07-10 01:06:08 edo Exp $
+c$Id: grid_acc_def.F,v 1.5 1999-07-10 06:55:35 d3e129 Exp $
 c
       implicit none
 c      
@@ -16,7 +16,7 @@ c
       integer rtdb
       integer num_gridtypes, grid_acc_index,jj,igridin
       parameter (num_gridtypes = 7)
-      logical leb, oprint, oprint_grid,lgridin
+      logical oprint, oprint_grid,lgridin
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
       double precision grid_acc(num_gridtypes)

@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.5 1999-07-10 01:06:09 edo Exp $
+C$Id: grid_utils.F,v 1.6 1999-07-10 06:55:35 d3e129 Exp $
 c
       implicit none
 c      
@@ -157,9 +157,9 @@ c
       double precision zmin
       double precision acc_AO_gauss
       integer mbf, nq, mbfnq
-      integer m, n, me,nproc
+      integer m, me,nproc
       integer avail
-      double precision r2min, x, y, z, r2
+      double precision x, y, z, r2
       integer nxtask,nt1,nt2
       external nxtask
 c
@@ -223,6 +223,7 @@ c
 c         
 c           angular momentum
 c         
+            l = 0
             if (itype .lt. 0)then
                call errquit('mbf_ao_max: sp-type orbital not coded', 5)
             else 
@@ -231,6 +232,7 @@ c
 c         
 c           cartesian/spherical harmonic
 c         
+            nbf_ang = 0
             if (isphere .eq. 0)then !  cartesian set
                nbf_ang = (l+1)*(l+2)/2
             elseif (isphere .eq. 1)then !  spherical harmonic
@@ -617,7 +619,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.5 1999-07-10 01:06:09 edo Exp $
+C$Id: grid_utils.F,v 1.6 1999-07-10 06:55:35 d3e129 Exp $
 c
       implicit none
 c
