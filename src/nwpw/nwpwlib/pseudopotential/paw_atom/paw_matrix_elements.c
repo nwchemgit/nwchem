@@ -1,3 +1,7 @@
+/*
+   $Id: paw_matrix_elements.c,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 #include   <stdio.h>
 #include   <string.h>
 #include   <math.h>

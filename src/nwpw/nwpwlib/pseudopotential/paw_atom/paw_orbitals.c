@@ -1,3 +1,7 @@
+/*
+   $Id: paw_orbitals.c,v 1.3 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 /************************************
   REVISION LOG ENTRY
   Revision By: Marat Valiev

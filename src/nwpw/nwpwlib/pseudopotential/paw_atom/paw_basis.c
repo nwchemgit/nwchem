@@ -1,3 +1,7 @@
+/*
+   $Id: paw_basis.c,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+*/
+
  /************************************
   REVISION LOG ENTRY
   Revision By: Marat Valiev

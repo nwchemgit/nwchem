@@ -1,9 +1,10 @@
+/*
+   $Id: paw_get_inverse.c,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 #include        <stdio.h>
-
 #include        <stdlib.h>
-
 #include        <string.h>
-
 #include        <math.h>
 
 #include        "paw_my_memory.h"

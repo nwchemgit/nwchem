@@ -1,5 +1,10 @@
 #ifndef _PAW_SCHRODINGER_H_
 #define _PAW_SCHRODINGER_H_
+
+/*
+   $Id: paw_schrodin.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 /* Schrodinger.h - 6/9/95
    author     - Eric Bylaska
 

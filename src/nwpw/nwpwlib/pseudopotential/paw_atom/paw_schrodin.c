@@ -1,3 +1,7 @@
+/*
+   $Id: paw_schrodin.c,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 /* paw_Schrodinger.c - 6/9/95
    author     - Eric Bylaska
 

@@ -1,5 +1,9 @@
 #ifndef _PAW_PRED_CORR_H_
 #define _PAW_PRED_CORR_H_
+/*
+   $Id: paw_pred_cor.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 
 /* paw_Pred_Corr.h - 6/9/95
    author      - Eric Bylaska

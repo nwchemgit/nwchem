@@ -1,5 +1,9 @@
 #ifndef _PAW_POTENTIAL_H_
 #define _PAW_POTENTIAL_H_
+/*
+   $Id: paw_potential.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 
 extern void   paw_Thomas_Fermi(double Z, double Vtmp[]);
 extern void   paw_init_potential();

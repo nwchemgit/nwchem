@@ -1,5 +1,9 @@
 #ifndef _PAW_MY_CONSTANTS_H_
 #define _PAW_MY_CONSTANTS_H_
+/*
+   $Id: paw_my_constants.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 
 #define  PI 3.14159265358979323846264338327950288419
 #define  SMALL 1.0e-9

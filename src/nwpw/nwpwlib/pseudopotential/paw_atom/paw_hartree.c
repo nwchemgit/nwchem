@@ -1,3 +1,7 @@
+/*
+   $Id: paw_hartree.c,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+*/
+
 #include	<stdio.h>
 #include  <math.h>
 #include  "paw_loggrid.h"

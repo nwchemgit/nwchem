@@ -1,6 +1,10 @@
 #ifndef	_PAW_ATOM_H_
 #define _PAW_ATOM_H_
 
+/*
+   $Id: paw_atom.h,v 1.2 2004-10-14 22:05:02 bylaska Exp $
+*/
+
 
 
 extern void   paw_init_atom(char *aname, char *infile);

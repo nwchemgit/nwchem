@@ -1,3 +1,7 @@
+/*
+   $Id: paw_core.c,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+*/
+
 #include        <stdlib.h>
 #include        <stdio.h>
 #include        <string.h>

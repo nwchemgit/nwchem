@@ -1,5 +1,9 @@
 #ifndef _PAW_COMP_CHARGE_H_
 #define _PAW_COMP_CHARGE_H_
+/*
+   $Id: paw_comp_charge.h,v 1.2 2004-10-14 22:05:02 bylaska Exp $
+*/
+
 
 extern void paw_init_comp_charge( double );
 extern double paw_boundary_function(double );

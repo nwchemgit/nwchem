@@ -1,5 +1,9 @@
 #ifndef	_PAW_BASIS_H_
 #define _PAW_BASIS_H_
+/*
+   $Id: paw_basis.h,v 1.3 2004-10-14 22:05:02 bylaska Exp $
+*/
+
 
 extern void paw_init_paw_basis(
                            char*,
