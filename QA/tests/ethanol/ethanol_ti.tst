@@ -2,29 +2,29 @@ Iteration        =          0
 Energy           =    0.000E+00
 
 Iteration        =          0
-Energy           =   -7.296E+03
+Energy           =   -8.868E+03
 
 Iteration        =          0
-Energy           =   -7.298E+03
+Energy           =   -8.873E+03
 
 Iteration        =          0
-Energy           =   -7.294E+03
+Energy           =   -8.873E+03
 
 Iteration        =          0
-Energy           =   -7.294E+03
+Energy           =   -8.869E+03
 
 Iteration        =          0
-Energy           =   -7.291E+03
+Energy           =   -8.869E+03
 
 Iteration        =          0
-Energy           =   -7.291E+03
+Energy           =   -8.874E+03
 
 Iteration        =          0
-Energy           =   -7.291E+03
+Energy           =   -8.875E+03
 
 Iteration        =          0
-Energy           =   -7.292E+03
+Energy           =   -8.880E+03
 
 Iteration        =          0
-Energy           =   -7.291E+03
+Energy           =   -8.887E+03
 
