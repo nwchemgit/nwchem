@@ -42,8 +42,8 @@ the DFT module are:
            [lock]
 
 
-  XC [[acm] [b3lyp] [beckehandh] \
-     [becke97]  [becke97-1] [hcth] \
+  XC [[acm] [b3lyp] [beckehandh] [pbe0]\
+     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -86,19 +86,15 @@ the DFT module are:
 
 
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
-       [(gausleg <integer radpts default 50> 
-                 <integer nagrid default 10>) ||\ 
-        (lebedev <integer radpts default 50> 
-                 <integer iangquad default 4>)] \ 
-       [delley||becke] \
+       [(gausleg||lebedev ) default lebedev ] \
+       [(old||new) default new ] \
+       [(becke||erf1||erf2||ssf) default erf1] \
+       [(euler||mura||treutler||lindh) default mura] \
        [rm <real rm default 2.0>]
         
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
-              [accAOfunc <integer accAOfunc default 20>] \
-              [accXCfunc <integer accXCfunc default 20>] \
               [accCoul <integer accCoul default 10>] \
-              [accQrad <integer accQrad default 12>] \
               [radius <real radius default 25.0>]]
 
 
@@ -170,8 +166,8 @@ has the same effect.
 
 \section{XC and DECOMP --- Exchange-Correlation Potentials}
 \begin{verbatim}
-  XC [[acm] [b3lyp] [beckehandh] \
-     [becke97]  [becke97-1] [hcth] \
+  XC [[acm] [b3lyp] [beckehandh] [pbe0]\
+     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -424,6 +420,11 @@ These options can be invoked by specifying any of the following input lines,
    XC b3lyp
    XC becke97
    Xc becke97-1
+   xc becke98
+   xc pbe0
+   xc hcth
+   xc h120
+   xc h147
 \end{verbatim}
 
 The keyword \verb+beckehandh+ specifies that the exchange-correlation energy will be
@@ -432,7 +433,7 @@ computed as
 E_{XC} \ \approx \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm
   Slater}_{X} + \frac{1}{2} E^{\rm PW91LDA}_{C}
 \end{eqnarray*}
-We know this is NOT the correct Becke perscribed implementation which
+We know this is NOT the correct Becke prescribed implementation which
 requires the XC potential in the energy expression.  But this is what
 is currently implemented as an approximation to it.
 
@@ -712,10 +713,7 @@ procedures deemed undesirable with the obvious keywords,
 \label{grgrid}
 \begin{verbatim}
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
-       [(gausleg <integer radpts default 50> 
-                 <integer nagrid default 10>) ||\ 
-        (lebedev <integer radpts> 
-                 <integer iangquad>)] \ 
+       [(gausleg||lebedev ) default lebedev ] \
        [(old||new) default new ] \
        [(becke||erf1||erf2||ssf) default erf1] \
        [(euler||mura||treutler||lindh) default mura] \
@@ -903,7 +901,7 @@ Within this numerical integration procedure various levels
 of accuracy have also been defined and are available to the user.  
 The input for this type of grid takes the form,
 \begin{verbatim}
-  GRID lebedev <integer radpts default 50> <integer iangquad default 8> 
+  GRID lebedev <integer radpts > <integer iangquad > 
 \end{verbatim}
 In this context the variable iangquad specifies a certain number of
 angular points as indicated by the table below.\footnote{
@@ -1030,7 +1028,9 @@ in this paper).\\
 In Nwchem 4.0 the XC integration code has been re-written using a
 space decomposiition scheme similar to the one proposed in R.E.Stratmann, G.Scuseria and  M.J.Frisch,
 Chem. Phys. Lett. {\bf 257}, 213 (1996) (keyword
-{\bf \tt new}. To use the XC integration routines available in
+{\bf \tt new}). 
+
+To use the XC integration routines available in
 older version of NWChem, use the keyword {\bf \tt old}.
 
 
@@ -1038,12 +1038,12 @@ older version of NWChem, use the keyword {\bf \tt old}.
 
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
-              [accAOfunc <integer accAOfunc default 20>] \
-              [accXCfunc <integer accXCfunc default 20>] \
               [accCoul <integer accCoul default 10>] \
-              [accQrad <integer accQrad default 12>] \
               [radius <real radius default 25.0>]]
 \end{verbatim}
+%              [accQrad <integer accQrad default 12>] \
+%              [accAOfunc <integer accAOfunc default 20>] \
+%              [accXCfunc <integer accXCfunc default 20>] \
 %              [accCDfunc <integer accAOfunc default 20>] \
 %
 %{\bf JEFF: tight needs explanation}
@@ -1054,17 +1054,17 @@ the default values will be adequate for the calculation, but different
 values can be specified in the input for the DFT module using the
 keywords described below.
 
-The input to define a screening tolerance for evaluation of the AO 
-Gaussian functions is specified with the keyword \verb+accAOfunc+, as
-follows,
-\begin{verbatim}
-  TOLERANCES accAOfunc <integer accAOfunc>
-\end{verbatim}
-A Gaussian Type Function of the Orbital basis set is 
-evaluated at a point $r_i$ if its value it is greater than 
-$exp(-${\tt accAOfunc}$)$ ;
-the default value is set to $-ln(\Delta E)$, where $\Delta E$ is the desired 
-accuracy on energy.
+%The input to define a screening tolerance for evaluation of the AO 
+%Gaussian functions is specified with the keyword \verb+accAOfunc+, as
+%follows,
+%\begin{verbatim}
+%  TOLERANCES accAOfunc <integer accAOfunc>
+%\end{verbatim}
+%A Gaussian Type Function of the Orbital basis set is 
+%evaluated at a point $r_i$ if its value it is greater than 
+%$exp(-${\tt accAOfunc}$)$ ;
+%the default value is set to $-ln(\Delta E)$, where $\Delta E$ is the desired 
+%accuracy on energy.
 %A Gaussian orbital basis (AO) function with exponent $\zeta$
 %and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 %evaluated  at a point $r_i$ only if 
@@ -1101,16 +1101,16 @@ values greater than $10^{(-{\tt accCoul})}$ are evaluated.
   TOLERANCES accCoul <integer accCoul default 10>
 \end{verbatim}
 
-The user also has the option of specifying the radial quadrature 
-grid cut-off for the DFT calculation, using the keyword
-\verb+accQrad+.  The input line for this option is as follows,
-\begin{verbatim}
-  TOLERANCES accQrad <integer accQrad default 12>
-\end{verbatim}
+%The user also has the option of specifying the radial quadrature 
+%grid cut-off for the DFT calculation, using the keyword
+%\verb+accQrad+.  The input line for this option is as follows,
+%\begin{verbatim}
+%  TOLERANCES accQrad <integer accQrad default 12>
+%\end{verbatim}
 
-The value entered for \verb+accQrad+ is the cutoff distance, in bohr, for grid
-points around a given center or atom.  Grid points that lie more than 
-\verb+accQrad+ bohr from the center or atom are neglected. 
+%The value entered for \verb+accQrad+ is the cutoff distance, in bohr, for grid
+%points around a given center or atom.  Grid points that lie more than 
+%\verb+accQrad+ bohr from the center or atom are neglected. 
 
 Screening away needless computation of the XC functional (on the grid)
 due to negligible density is also possible with the use of,
