@@ -8,4 +8,4 @@ view:	user.ps
 hardcopy:	user.ps
 	lpr -Pm1137 user.ps
 clean:
-	/bin/rm -f *.dvi *.aux *.log *.ps 
+	/bin/rm -f *.dvi *.aux *.log *.ps *.toc
