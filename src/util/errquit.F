@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.14 2003-10-17 22:58:34 carlfahl Exp $
+C$Id: errquit.F,v 1.15 2003-10-21 23:16:05 edo Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -24,6 +24,7 @@ c
       call ecce_print1('errquit code', mt_int,icode,1)
       call ecce_print_module_exit('errquit', 'failed')
 c
+      man_sec = ' '
       if (ga_nodeid() .eq. 0) write(LuOut,1)
  1    format(1x,72('-'))
       write(LuOut, 2) string, icode
@@ -81,30 +82,25 @@ c
 c
         if (errcode .eq. RTDB_ERR) then
           write(LuOut,*) 'An error occured in the Runtime Database'
-          man_sec = ''
         endif
 c
         if (errcode .eq. BASIS_ERR) then
           write(LuOut,*) 'There is an error in the specified basis set'
-          man_sec = ''
         endif
 c
         if (errcode .eq. GEOM_ERR) then
           write(LuOut,*) 'There is an error related to the specified ',
      &                   'geometry'
-          man_sec = ''
         endif
 c
         if (errcode .eq. INPUT_ERR) then
           write(LuOut,*) 'There is an error in the input file'
-          man_sec = ''
         endif
 c
         if (errcode .eq. CAPMIS_ERR) then
           write(LuOut,*) 'A feature requested has not yet been ',
      &                   'implimented'
-          write(LuOut,*) ''
-          man_sec = ''
+          write(LuOut,*) 
         endif
 c
         if (errcode .eq. GA_ERR) then
@@ -121,20 +117,17 @@ c
 c
         if (errcode .eq. INT_ERR) then
           write(LuOut,*) 'An error occured while computing integrals'
-          man_sec = ''
         endif
 c
         if (errcode .eq. DISK_ERR) then
           write(LuOut,*) 'An error occured while trying to read or ',
      &                   'write to disk space'
-          man_sec = ''
         endif
 c
         if (errcode .eq. CALC_ERR) then
           write(LuOut,*) 'This type of error is most commonly ',
      &                   'associtated with calcuations not reaching ',
      &                   'convergence critea'
-          man_sec = ''
         endif 
 c
         write(LuOut,1) 
