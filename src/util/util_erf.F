@@ -97,7 +97,7 @@ c !************************************************************************
       implicit none
       integer ITMAX
       real*8  a,gammcf,gln,x,EPS,FPMIN
-      PARAMETER (ITMAX=100,EPS=3.0d-16,FPMIN=1.0d-30)
+      PARAMETER (ITMAX=100,EPS=3.0d-12,FPMIN=1.0d-30)
       real*8       an,b,c,d,del,h
       integer i
       real*8   ln_gamma
@@ -118,7 +118,7 @@ c !************************************************************************
         d=1.0d0/d
         del=d*c
         h=h*del
-        IF(ABS(del-1.0d0).lt.EPS) GOTO 1
+        IF(DABS(del-1.0d0).lt.EPS) GOTO 1
 11    CONTINUE
       call errquit('a too large, ITMAX too small in gcf',0)
 1     gammcf=DEXP(-x+a*LOG(x)-gln)*h
@@ -137,7 +137,7 @@ c !************************************************************************
       integer  ITMAX 
       parameter (ITMAX=100)
       real*8  EPS
-      parameter (EPS=3.0d-16)
+      parameter (EPS=3.0d-12)
 
 *     **** local variables ****
       integer n
@@ -168,7 +168,7 @@ c !************************************************************************
 
       CALL errquit('a too large, ITMAX too small in gser',0)
 
-1     gamser=sum*EXP(-x+a*LOG(x)-gln)
+1     gamser=sum*DEXP(-x+a*LOG(x)-gln)
 
       return
       END 
