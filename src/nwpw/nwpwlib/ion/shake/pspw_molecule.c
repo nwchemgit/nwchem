@@ -14,10 +14,12 @@
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
+#if !defined(__crayx1)
 #define USE_FCD
 #endif
+#endif
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY)&&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32) 
 #define pspw_molecule_read_ PSPW_MOLECULE_READ
 #define pspw_molecule_data_ PSPW_MOLECULE_DATA
 #define pspw_molecule_end_ 	PSPW_MOLECULE_END

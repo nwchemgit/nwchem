@@ -1,5 +1,5 @@
 /*
- $Id: hgh_parse.c,v 1.1 2003-12-02 19:17:08 bylaska Exp $
+ $Id: hgh_parse.c,v 1.2 2004-05-04 22:09:31 edo Exp $
 */
 
 #include <stdlib.h>
@@ -10,10 +10,12 @@
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
+#if !defined(__crayx1)
 #define USE_FCD
 #endif
+#endif
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
 #define hgh_parse_ HGH_PARSE
 #endif
 

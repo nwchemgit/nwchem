@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.10 2004-01-28 01:29:38 bylaska Exp $
+ $Id: pspsolve.c,v 1.11 2004-05-04 22:09:31 edo Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,10 +14,12 @@
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
+#if !defined(__crayx1)
 #define USE_FCD
 #endif
+#endif
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
 #define pspsolve_ PSPSOLVE
 #endif
 

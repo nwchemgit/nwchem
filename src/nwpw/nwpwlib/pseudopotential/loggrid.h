@@ -1,5 +1,5 @@
 /*
- $Id: loggrid.h,v 1.2 2002-02-13 19:13:56 edo Exp $
+ $Id: loggrid.h,v 1.3 2004-05-04 22:06:09 edo Exp $
 */
 #ifndef _LOG_GRID_H_
 #define _LOG_GRID_H_
@@ -42,7 +42,7 @@ extern int  	index_r_LogGrid();
 
 #endif
 #include <math.h>
-#ifdef CRAY
+#if defined(CRAY) &&!defined(__crayx1)
 #include <fp.h>
 #endif
 

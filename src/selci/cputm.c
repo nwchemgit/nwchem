@@ -1,5 +1,5 @@
 /*
- $Id: cputm.c,v 1.6 1999-12-16 22:19:50 edo Exp $
+ $Id: cputm.c,v 1.7 2004-05-04 21:56:20 edo Exp $
  */
 
 #include <sys/types.h>
@@ -10,7 +10,7 @@
 #endif
 
 
-#if defined(CRAY) || defined(WIN32)
+#if defined(CRAY) || defined(WIN32) && !defined(__crayx1)
 #ifndef WIN32
 #define FATR
 #endif

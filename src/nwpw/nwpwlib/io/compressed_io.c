@@ -1,5 +1,5 @@
 /*
- $Id: compressed_io.c,v 1.1 2001-08-30 01:56:20 bylaska Exp $
+ $Id: compressed_io.c,v 1.2 2004-05-04 22:01:53 edo Exp $
 *************************************************************************
 *									*
 * compressed_io.c							*
@@ -32,10 +32,12 @@
 
 #if defined(CRAY) || defined(CRAY_T3D)
 #include <fortran.h>
+#if !defined(__crayx1)
 #define USE_FCD
 #endif
+#endif
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32) &&!defined(__crayx1)
 #define cwrite_ CWRITE
 #define cread_  CREAD
 #define iwrite_ IWRITE
