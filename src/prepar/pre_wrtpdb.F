@@ -3,9 +3,9 @@
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
-     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum)
+     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.33 2001-11-15 17:44:10 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.34 2001-11-15 18:19:27 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
       integer iropt,irrand,nxrep,nyrep,nzrep,nskip
       real*8 rdist,drep(3)
-      integer msb,nsb,nmols,irenum
+      integer msb,nsb,nmols,irenum,invert
       integer idsb(2,msb),iskip(3,nskip),lang(*)
 c
       integer length,ioff
@@ -121,7 +121,7 @@ c
       if(nsa.gt.0.and.nwm.eq.0) dbz0=xs(3,1)
       if(nsa.eq.0.and.nwm.gt.0) dbz0=xw(3,1,1)
       if(nsa.gt.0.and.nwm.gt.0) dbz=min(xs(3,1),xw(3,1,1))
-      if(rdist.gt.0.0d0) then
+      if(invert.eq.0) then
       do 31 i=1,nsa
       dbz0=min(dbz0,xs(3,i))
    31 continue
@@ -140,7 +140,7 @@ c
       dbz0=max(dbz0,xw(3,j,i))
    43 continue
    42 continue
-      dbz0=dbz0-0.5d0*rdist
+      dbz0=dbz0+0.5d0*rdist
       endif
       endif
 c

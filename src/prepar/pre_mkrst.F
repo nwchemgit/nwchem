@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.69 2001-08-29 23:04:05 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.70 2001-11-15 18:19:27 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,9 @@ c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand
+      integer invert
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
+      real*8 boxset(3)
       real*8 edgex,edgey,edgez
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -93,6 +95,7 @@ c
       nzrep=0
       iropt=0
       irrand=0
+      invert=0
       nskip=0
 c
 c     allocate memory
@@ -517,7 +520,10 @@ c
 c     set box
 c
       if(card(1:6).eq.'setbox') then
-      read(card(7:42),'(3f12.6)') box
+      read(card(7:42),'(3f12.6)') boxset
+      if(boxset(1).gt.0.0d0) box(1)=boxset(1)
+      if(boxset(2).gt.0.0d0) box(2)=boxset(2)
+      if(boxset(3).gt.0.0d0) box(3)=boxset(3)
       if(util_print('restart',print_medium)) then
       write(lfnout,1050) box
  1050 format(' Box dimensions set to ',3f12.6)
@@ -675,7 +681,7 @@ c
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
-     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,irenum))
+     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,irenum,invert))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
@@ -1256,6 +1262,7 @@ c
       read(card(35:46),'(f12.6)') rdist
       read(card(47:51),'(i5)') iropt
       read(card(52:56),'(i5)') irrand
+      read(card(57:61),'(i5)') invert
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,lfnout,drep,box,
