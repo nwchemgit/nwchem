@@ -4,6 +4,7 @@
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "stdio.fh"
 #include "util.fh"
 #include "global.fh"
       integer rtdb
@@ -12,11 +13,20 @@ c
       double precision cpu, wall, Vba
       logical task_et_doit
       external task_et_doit
+      character*32 theory
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
-
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+      if (theory.ne.'scf') then
+         write(LuOut,*) 'Electron Transfer for DFT has not been',
+     &                  ' implemented. NWChem will skip this task!.'
+         task_et = .false.
+         return
+      endif
+c
       status = task_et_doit(rtdb,Vba)
 c
       if (.not. rtdb_put(rtdb, 'task:et', mt_dbl, 1, Vba))
@@ -51,7 +61,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.13 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_et.F,v 1.14 2004-12-18 00:56:10 bert Exp $
 c
 *
 #include "rtdb.fh"
