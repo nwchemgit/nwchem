@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.463 2004-05-05 23:58:13 edo Exp $
+# $Id: makefile.h,v 1.464 2004-05-12 04:37:20 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -827,11 +827,15 @@ ifeq ($(TARGET),IBM)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
 # -qhot seems to break a lot of things so don't ever use it
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000 -qarch=auto -qtune=auto -NS2048
+  FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000 -qarch=auto -qtune=auto -NS2048
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
   COPTIMIZE = -O -qarch=auto -qtune=auto
+  ifdef  USE_GPROF
+    FOPTIONS += -pg
+    LDOPTIONS += -pg
+  endif
 
     DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
    CORE_LIBS +=  $(BLASOPT) 
@@ -923,8 +927,7 @@ ifeq ($(TARGET),IBM64)
 
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qxlf77=leadzero
    COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
-  FVECTORIZE = -O5 -qhot -qfloat=fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto 
+  FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000  -qarch=auto -qtune=auto
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
     FVECTORIZE  += -qfloat=rsqrt:fltint
@@ -944,6 +947,10 @@ else
    FOPTIONS += -qintsize=8 
    DEFINES  += -DEXT_INT 
 endif
+  ifdef  USE_GPROF
+    FOPTIONS += -pg
+    LDOPTIONS += -pg
+  endif
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
    CORE_LIBS += -llapack $(BLASOPT) -lblas
@@ -962,7 +969,6 @@ ifeq ($(TARGET),LAPI)
 ifdef OLDXLF
          FC += -qnohpf
 endif
-# -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
@@ -977,13 +983,14 @@ LARGE_FILES = YES
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k  -qxlf77=leadzero
   ifdef  USE_GPROF
     FOPTIONS += -pg
-    COPTIONS += -pg
     LDOPTIONS += -pg
   endif
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
-RSQRT=y
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint:rsqrt -NQ40000 -NT80000 -NS10000 -qipa=level=2
+  FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000 -NS10000 -qipa=level=2
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
   COPTIMIZE = -O
 	FC += -qarch=auto -qtune=auto -qcache=auto -qthreaded
 	CC += -qarch=auto -qtune=auto -qcache=auto
@@ -1032,9 +1039,11 @@ LARGE_FILES = YES
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k -qxlf77=leadzero -qthreaded
        AR   = ar -X 64
    COPTIONS = -q64
-  FOPTIMIZE = -O3 -qstrict -qfloat=fltint:rsqrt -NQ40000 -NT80000
+  FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000
   FOPTIMIZE += -qarch=auto -qtune=auto -qcache=auto
-  FVECTORIZE = -O5 -qhot -qfloat=fltint:rsqrt 
+  ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
   COPTIMIZE = -O
 
     DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX -DPARALLEL_DIAG
@@ -1125,10 +1134,11 @@ endif
     FOPTIONS = -qextname -qfixed -qnosave  -qalign=4k
     FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
     FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto
-    FOPTIMIZE+=  -qfloat=rsqrt:fltint:nostrictnmaf 
-    FOPTIMIZE+=  -qipa=level=1 -qunroll=yes 
-    FVECTORIZE = -O5 -qhot -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf  
-    FDEBUG= -O2 
+    ifdef RSQRT
+      FOPTIMIZE  += -qfloat=rsqrt:fltint
+    endif
+    FOPTIMIZE+=  -qunroll=yes 
+#    FDEBUG= -O2 
     DEFINES  +=-DXLFLINUX -DCHKUNDFLW
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
@@ -1345,6 +1355,9 @@ endif
       FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap -qxlf77=leadzero
       FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
+      ifdef RSQRT
+        FOPTIMIZE  += -qfloat=rsqrt:fltint
+      endif
       FDEBUG= -O2 -g
       EXPLICITF = TRUE
       DEFINES  +=   -DXLFLINUX
@@ -1502,7 +1515,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       endif
 
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-endif
+endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
 # tested under RedHat gingin64 preview vs 8.0.95
 # MA problems (MMAP?) needed malloc replacement
@@ -1544,7 +1557,7 @@ endif
       endif
       ifeq ($(FC),g77)
 #        FOPTIONS  +=  -fno-globals# -Wno-globals # 
-      DEFINES  +=   -DBAD_GACCESS
+        DEFINES  +=   -DBAD_GACCESS
         FOPTIONS  += -Wunused  -fno-silent
         FOPTIONS  += -fno-second-underscore  -fno-f90 
         FOPTIMIZE  += -O3 -ffast-math 
@@ -1567,9 +1580,9 @@ endif
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-ifeq ($(BUILDING_PYTHON),python)
-   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
-endif
+     ifeq ($(BUILDING_PYTHON),python)
+     EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
+     endif
 endif
 
     ifeq ($(_CPU),ppc64)
@@ -1580,12 +1593,12 @@ endif
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
         ifdef  USE_GPROF
           FOPTIONS += -pg
-          COPTIONS += -pg
+          LDOPTIONS += -pg
         endif
-        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto  -qcache=auto
-        FOPTIMIZE+=  -qfloat=rsqrt:fltint:nostrictnmaf 
-        FOPTIMIZE+=  -qipa=level=1
-        FVECTORIZE = -O5 -qhot -qalias=std -qfloat=rsqrt:fltint:nostrictnmaf 
+        FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto
+        ifdef RSQRT
+          FOPTIMIZE  += -qfloat=rsqrt:fltint
+        endif
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
