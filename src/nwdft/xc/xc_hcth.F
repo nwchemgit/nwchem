@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.11 1999-06-10 23:01:28 edo Exp $
+c$Id: xc_hcth.F,v 1.12 1999-06-11 16:37:46 edo Exp $
 c
       Implicit none
 c
@@ -830,9 +830,19 @@ Cfah Here starts the big outer loop over the powers u
 Cfah construction of the F_xc itself
 Cfah -------------------------------
         IF (rhoa.GT.tol_rho) THEN
+           if(n.eq.0) then
+          F_xc(1) = F_xs0 (sol(1), rhoa, za)
+          else
           F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
+          endif
         ENDIF
-          if(abs(u_caa).gt.0.d0)F_xc(n*3+2) = e_caa*u_caa**n*c_naa
+          if(abs(u_caa).gt.0.d0)then
+             if(n.eq.0) then
+             F_xc(2) = e_caa*c_naa
+             else
+             F_xc(n*3+2) = e_caa*u_caa**n*c_naa
+             endif
+          endif
 
         IF (rhob.GT.tol_rho) THEN
            if(n.eq.0) then
@@ -841,10 +851,21 @@ Cfah -------------------------------
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
           endif
         ENDIF
-          if(abs(u_cbb).gt.0.d0)
-     .         F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
+          if(abs(u_cbb).gt.0.d0) then
+             if(n.eq.0) then
+                F_xc(2) = F_xc(2)+e_cbb*c_nbb
+             else
+                F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
+             endif
+          endif
 
-          if(abs(u_cab).gt.0.d0)F_xc(n*3+3) = e_cab*u_cab**n*c_nab
+          if(abs(u_cab).gt.0.d0) then
+             if(n.eq.0) then
+                F_xc(3) = e_cab*c_nab
+             else
+                F_xc(n*3+3) = e_cab*u_cab**n*c_nab
+             endif
+          endif
 
 Cfah       print*, 'in deriv:', e_cab, u_cab, c_nab
 
@@ -878,7 +899,10 @@ Cfah ---------------------
            endif
 
         if(abs(u_caa).gt.0.d0) then
-           if(n.eq.1) then
+           if(n.eq.0) then
+          dF_caa(1) = c_naa*de_caa_by_drhoa
+          dF_caa(3) = 0d0
+           elseif(n.eq.1) then
           dF_caa(1) = c_naa*u_caa*
      *       de_caa_by_drhoa+c_naa*e_caa*du_caa_by_drhoa
           dF_caa(3) = c_naa*e_caa*du_caa_by_dza
@@ -891,7 +915,10 @@ Cfah ---------------------
         endif
 
         if(abs(u_cbb).gt.0.d0) then
-           if(n.eq.1) then
+           if(n.eq.0) then
+          dF_cbb(2) = c_nbb*de_cbb_by_drhob 
+          dF_cbb(4) = 0d0
+           elseif(n.eq.1) then
           dF_cbb(2) = c_nbb*u_cbb*de_cbb_by_drhob + 
      -   c_nbb*e_cbb*du_cbb_by_drhob
           dF_cbb(4) = c_nbb*e_cbb*du_cbb_by_dzb
@@ -904,7 +931,12 @@ Cfah ---------------------
 
 
         if(abs(u_cab).gt.0.d0) then
-           if(n.eq.1) then
+           if(n.eq.0) then
+          dF_cab(1) = c_nab*de_cab_by_drhoa
+          dF_cab(2) = c_nab*de_cab_by_drhob
+          dF_cab(3) = 0d0
+          dF_cab(4) = 0d0
+           elseif(n.eq.1) then
           dF_cab(1) = c_nab*u_cab*
      *         de_cab_by_drhoa+c_nab*n*e_cab*du_cab_by_drhoa 
           dF_cab(2) = c_nab*u_cab*
