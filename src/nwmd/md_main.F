@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.59 2000-02-04 17:18:01 d3j191 Exp $
+c $Id: md_main.F,v 1.60 2000-02-10 22:54:57 d3j191 Exp $
 c
       implicit none
 c
@@ -1458,7 +1458,7 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
-      logical lself,local,locali
+      logical lself,local,locali,lpbcs
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
@@ -1494,7 +1494,8 @@ c
       do 1 ibbl=1,nbbl
 c
       call sp_getxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,lself)
+     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
+     + lself,lpbcs)
 c
       if(locali.and..not.local) then
       call timer_stop(13)
@@ -1504,8 +1505,8 @@ c
 c
       call cf_comw(xw,xwm,jwfr,jwto)
 c
-      call forces(lself,xw,xwm,fw,zw,dbl_mb(i_rtos),iwl(1,lwdyn),
-     + int_mb(i_iwz),
+      call forces(lself,lpbcs,xw,xwm,fw,zw,dbl_mb(i_rtos),
+     + iwl(1,lwdyn),int_mb(i_iwz),
      + iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),fs,dbl_mb(i_zs),
      + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),

@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.41 2000-02-01 00:56:00 d3j191 Exp $
+c $Id: sp_main.F,v 1.42 2000-02-10 22:55:06 d3j191 Exp $
 c
       implicit none
 c
@@ -790,19 +790,29 @@ c
 c
 #include "sp_common.fh"
 c
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      real*8 arg_nint
+      external arg_nint
+#endif
+c
       real*8 xs(msa,3)
       real*8 boxsiz(maxbox,3)
       integer ibownr(maxbox,3)
       integer isl(msa,mis2)
-      integer numsa
+      integer numsa,nfold
 c
       integer isa,isaf,isal,jsa,ibox,inod
       integer ibx,iby,ibz,i,ipx,ipy,ipz
-      real*8 xcgx,xcgy,xcgz,factor
+      real*8 xcgx,xcgy,xcgz,factor,boxi(3)
+c
+      boxi(1)=one/box(1)
+      boxi(2)=one/box(2)
+      boxi(3)=one/box(3)
+      nfold=0
 c
       isaf=1
       isal=0
-      do 5 isa=1,numsa
+      do 1 isa=1,numsa
 c
       if(isa.lt.numsa) then
       if(isl(isa+1,lssgm).ne.isl(isaf,lssgm)) isal=isa
@@ -814,28 +824,55 @@ c
       xcgx=zero
       xcgy=zero
       xcgz=zero
-      do 6 jsa=isaf,isal
+      do 2 jsa=isaf,isal
       xcgx=xcgx+xs(jsa,1)
       xcgy=xcgy+xs(jsa,2)
       xcgz=xcgz+xs(jsa,3)
-    6 continue
+    2 continue
       factor=one/dble(isal-isaf+1)
       xcgx=factor*xcgx
       xcgy=factor*xcgy
       xcgz=factor*xcgz
 c
+      if(npbtyp.ne.0) then
+      if(abs(xcgx).gt.boxh(1)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xcgx=xcgx-arg_nint(xcgx*boxi(1))*box(1)
+#else
+      xcgx=xcgx-nint(xcgx*boxi(1))*box(1)
+#endif
+      nfold=1
+      endif
+      if(abs(xcgy).gt.boxh(2)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xcgy=xcgy-arg_nint(xcgy*boxi(2))*box(2)
+#else
+      xcgy=xcgy-nint(xcgy*boxi(2))*box(2)
+#endif
+      nfold=1
+      endif
+      if(abs(xcgz).gt.boxh(3)) then
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xcgz=xcgz-arg_nint(xcgz*boxi(3))*box(3)
+#else
+      xcgz=xcgz-nint(xcgz*boxi(3))*box(3)
+#endif
+      nfold=1
+      endif
+      endif
+c
       ibx=0
       iby=0
       ibz=0
-      do 7 i=1,nbx-1
+      do 3 i=1,nbx-1
       if(xcgx+boxh(1).gt.boxsiz(i,1)) ibx=i
-    7 continue
-      do 8 i=1,nby-1
+    3 continue
+      do 4 i=1,nby-1
       if(xcgy+boxh(2).gt.boxsiz(i,2)) iby=i
-    8 continue
-      do 9 i=1,nbz-1
+    4 continue
+      do 5 i=1,nbz-1
       if(xcgz+boxh(3).gt.boxsiz(i,3)) ibz=i
-    9 continue
+    5 continue
       if(npbtyp.gt.0) then
       if(ibx.ge.nbx) ibx=ibx-nbx
       if(iby.ge.nby) iby=iby-nby
@@ -861,16 +898,16 @@ c
       ipz=ibownr(ibz+1,3)
       ibox=(ibz*nby+iby)*nbx+ibx
       inod=(ipz*npy+ipy)*npx+ipx
-      do 10 jsa=isaf,isal
+      do 6 jsa=isaf,isal
       isl(jsa,lsbox)=ibox
       isl(jsa,lsnod)=inod
-   10 continue
+    6 continue
 c
       isaf=isa+1
       isal=0
       endif
 c
-    5 continue
+    1 continue
 c
       return
       end
@@ -1847,7 +1884,8 @@ c
       return
       end
       subroutine sp_getxbl(ibbl,lhandl,local,
-     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,lself)
+     + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
+     + lself,lpbcs)
 c
       implicit none
 c
@@ -1858,13 +1896,15 @@ c
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3)
-      logical lself,local
+      logical lself,local,lpbcs
       real*8 pw(2),pwp(2),ps(2),psp(2)
 c
       call sp_gtxpbl(ibbl,lhandl,local,
      + iwl,int_mb(i_packw),xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.false.)
+c
+      lpbcs=lpbc9
 c
       return
       end
