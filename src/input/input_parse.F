@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.44 1998-07-13 21:42:57 d3g681 Exp $
+C     $Id: input_parse.F,v 1.45 1998-07-27 04:11:21 d3e129 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -26,7 +26,7 @@ c
 c
       if (ga_nodeid() .eq. 0) then
 c     
-         if (util_print(print_low,'banner')) then
+         if (util_print('banner',print_low)) then
            write(6,*)
            write(6,*)
            call util_print_centered(6, 'NWChem Input Module',40,.true.)
@@ -149,7 +149,7 @@ c
          endif                  ! End while
  9999    status = rtdb_parallel(.true.) ! Restore parallel access to db
          if (nlines.gt.0 .and. found_task.eq.0 .and. 
-     $       util_print(print_low,'warning')) then
+     $       util_print('warning',print_low)) then
 c
 c     Read input but found no task directive.  Not an error
 c     but is probably undesirable ... unless doing python loop

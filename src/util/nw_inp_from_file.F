@@ -10,7 +10,7 @@ c
       logical input_parse, status
       external input_parse
 c
-      if (util_print(print_low,'nw_inp_from_file')) then
+      if (util_print('nw_inp_from_file',print_low)) then
          write(6,*) ' Reading NWChem input from ', 
      $        filename(1:inp_strlen(filename))
          call util_flush(6)

@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.26 1998-06-14 20:00:49 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.27 1998-07-27 04:09:10 d3e129 Exp $
 c
       implicit none
 c
@@ -277,7 +277,7 @@ c               call scf_movecs_read
                endif
             else
                if (ga_nodeid() .eq. 0 .and. 
-     $              util_print(print_low, 'warning')) then
+     $              util_print('warning',print_low)) then
                   write(6,111) nbf, nbf_vecs, nmo, nmo_vecs(1),
      &              trans(1:inp_strlen(trans)),
      &              bas_vecs(1:inp_strlen(bas_vecs))
@@ -302,7 +302,7 @@ c               call scf_movecs_read
 *     Rather then failing simply force atomic guess
 *     call errquit('rhf: failed to load vectors',0)
             if (ga_nodeid() .eq. 0 .and. 
-     $           util_print(print_low,'warning')) then
+     $           util_print('warning',print_low)) then
                write(6,*) 
                write(6,*) ' Load of old vectors failed. ',
      &              '  Forcing atomic density guess'

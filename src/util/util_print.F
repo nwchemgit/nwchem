@@ -1,4 +1,4 @@
-      block data dataprintcommon
+      block data bd_printcommon
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -9,13 +9,13 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.12 1997-04-06 21:01:07 d3g681 Exp $
+C$Id: util_print.F,v 1.13 1998-07-27 04:11:41 d3e129 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "inp.fh"
       character*(*) name
-      external dataprintcommon  ! block data for T3D linker
+      external bd_printcommon  ! block data for T3D linker
       integer level
       integer ind
 c     
