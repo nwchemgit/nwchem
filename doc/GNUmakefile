@@ -1,11 +1,54 @@
-user.ps:	user.tex	fullpage.sty
-	latex user
-	latex user
-	latex user
-	dvips user -o 
-view:	user.ps
-	ghostview user.ps
-hardcopy:	user.ps
-	lpr -Pm1137 user.ps
-clean:
-	/bin/rm -f *.dvi *.aux *.log *.ps *.toc
+.SUFFIXES:    .tex .dvi .ps .log .aux
+
+PSFLAGS	      = -D 300
+
+TEX	      = user.tex
+
+DVI           = user.dvi
+
+PSFILE	      = user.ps
+
+
+#
+#
+#
+
+
+all:		$(PSFILE)
+
+
+
+postscript:	$(PSFILE)
+
+
+
+print:		postscript
+		lp $(PSFILE) 
+
+
+dvi:		$(DVI)
+
+
+
+clean:		
+		@rm -f $(DVI) $(PSFILE) *.toc *.aux *.log *.bbl *.blg
+
+
+
+.tex.dvi:
+		latex $*
+		latex $*
+		latex $*
+
+
+
+.dvi.ps:
+		latex \&psfont $*
+		dvips $(PSFLAGS) -o $@ $<
+
+
+####
+user.dvi:	fullpage.sty dft.tex
+
+
+
