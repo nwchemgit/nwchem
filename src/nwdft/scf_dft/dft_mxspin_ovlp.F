@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.2 1997-02-01 01:59:38 d3h449 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.3 1997-02-22 19:35:05 gutowski Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -91,11 +91,11 @@ c
       call gadest(g_s)
 c
       if(.not.MA_Pop_Stack(l_tmpi1))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_tmpr2))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_tmpr1))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
       return
       end
