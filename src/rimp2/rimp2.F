@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.37 1997-08-20 21:51:34 bernhold Exp $
+C$Id: rimp2.F,v 1.38 1998-01-31 20:14:20 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -471,8 +471,8 @@ C
 C
 C     Initialize DAs.  We know everything but how much memory to give it.
 C
-      If (DA_Init(TopSpin, MaxDASiz, TotDASiz, -1) .ne. 0)
-     $   Call ErrQuit('RIMP2: DA_Init failed', 0)
+      If (DRA_Init(TopSpin, MaxDASiz, TotDASiz, -1) .ne. 0)
+     $   Call ErrQuit('RIMP2: DRA_Init failed', 0)
 #endif
 C
 C
@@ -556,8 +556,8 @@ C
 C
 #ifdef RIMP2_USE_DA
 C
-      If ( DA_Terminate() .ne. 0) Call ErrQuit(
-     $   'RIMP2: DA_Terminate failed', 0)
+      If ( DRA_Terminate() .ne. 0) Call ErrQuit(
+     $   'RIMP2: DRA_Terminate failed', 0)
 #endif
 C
 C     ***********

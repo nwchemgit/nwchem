@@ -1,5 +1,5 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.10 1997-04-01 03:43:32 gg502 Exp $
+C$Id: put_3cints.F,v 1.11 1998-01-31 20:14:18 bernhold Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
@@ -15,13 +15,13 @@ C
 C
 C     Note:  We don't necessarily want to write out the whole GA.
 C
-      If ( DA_Write_Section(.FALSE.,
+      If ( DRA_Write_Section(.FALSE.,
      $   G_I, 1,            NA*(IHi-ILo+1), 1, FitLen,
      $   LU,  1+NA*(ILo-1), NA*IHi,         1, FitLen, Req) .ne. 0)
-     $   Call ErrQuit( 'Put_3cInts: Error from DA_Write_Section', ILo)
+     $   Call ErrQuit( 'Put_3cInts: Error from DRA_Write_Section', ILo)
 C
-      If ( DA_Wait(Req) .ne. 0) Call ErrQuit(
-     $   'Put_3cInts: Error from DA_Wait', ILo)
+      If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
+     $   'Put_3cInts: Error from DRA_Wait', ILo)
 C
       Put_3cInts = .TRUE.
 C

@@ -1,5 +1,5 @@
       Logical function Close_3ci_file( LU, Stat)
-C$Id: close_3ci.F,v 1.2 1996-09-22 18:40:38 d3g681 Exp $
+C$Id: close_3ci.F,v 1.3 1998-01-31 20:14:13 bernhold Exp $
       Implicit NONE
       Integer LU
       Character*1 Stat
@@ -25,9 +25,9 @@ C
 C
 #ifdef RIMP2_USE_DA
       If ( Keep ) then
-         If ( DA_Close(LU) .ne. 0) Goto 8000
+         If ( DRA_Close(LU) .ne. 0) Goto 8000
       Else
-         If ( DA_Delete(LU) .ne. 0) Goto 8000
+         If ( DRA_Delete(LU) .ne. 0) Goto 8000
       EndIf
 #else
       If ( Keep ) then

@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.4 1997-04-01 03:43:32 gg502 Exp $
+C$Id: open_3ci.F,v 1.5 1998-01-31 20:14:17 bernhold Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -39,7 +39,7 @@ C
       EndIf
 C
  9000 Format( 1X, 'Transformed three-center integral file ', A,
-     $   ' is a disk array (DA)')
+     $   ' is a disk-resident array (DRA)')
  9010 Format( 1X, 'holding ', 1PE10.3, ' integrals (', F10.3, ' MB)')
 C
 C     Setup filename
@@ -48,16 +48,17 @@ C     these days?
 C
       Sp = Char( Spin + IChar('a') - 1 )
 C
-      FilNam = Name(:LNBlnk(Name))
-      FilNam(LNBlnk(FilNam)+1:) = Sp
+      tmpname = name
+      tmpname(lnblnk(tmpname)+1:) = sp
+      call util_file_name(tmpname, .true., .true., filnam)
 C
-C     By opening with DA_RW we avoid having to worry about whether the
+C     By opening with DRA_RW we avoid having to worry about whether the
 C     file already exists or not.
 C
-      If ( DA_Create(Type, NI*NA, FitLen,
+      If ( DRA_Create(Type, NI*NA, FitLen,
      $   'MO 3-center integrals', FilNam(:LNBlnk(FilNam)),
-     $   DA_RW, NA, FitLen, LU) .ne. 0)
-     $   Call Errquit('Open_3cI_File (DA) failed', Spin)
+     $   DRA_RW, NA, FitLen, LU) .ne. 0)
+     $   Call Errquit('Open_3cI_File (DRA) failed', Spin)
 C
       Open_3ci_File = .TRUE.
 C
