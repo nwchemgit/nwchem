@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.6 2000-07-27 16:29:41 bjohnson Exp $	
+#	$Id: MakeFile,v 1.7 2000-08-26 00:37:03 d3g681 Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -114,7 +114,8 @@ HEADERS =      util.fh \
 
 LIBRARY = util.lib
 LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-              -DPERM_DEF_DIR=$(PERM_DEF_DIR)
+              -DPERM_DEF_DIR=$(PERM_DEF_DIR) \
+              -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 LIB_INCLUDES = -I..\ddscf
 
 LIB_TARGETS = testsolve testecce
