@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.99 1997-12-16 23:57:26 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.100 1998-03-03 02:12:49 d3h449 Exp $
 c     
       implicit none
 c
@@ -925,7 +925,10 @@ c
             if(ispin.eq.2)name = '- beta'
             call scf_movecs_sym_adapt(ao_bas_han, g_movecs(ispin),
      &                                oprint_syma, nbf_ao, name,
-     &                                .false., 1)
+     &                                .true., 
+     &                                int_mb(k_ir+nbf_ao*(ispin-1)))
+c23456789012345678901234567890123456789012345678901234567890123456789012
+
          endif      
 c     
 c        Form a new density matrix.
@@ -1252,15 +1255,15 @@ c
 c
 c     symmetry adapt vectors last time print symmetries, etc.
 c
-      if (oadapt)then
-         call scf_movecs_sym_adapt(ao_bas_han, g_movecs, oprint, 
-     &                             nbf_ao, '- alpha', .true., 
-     &                             int_mb(k_ir))
-         if (ipol.eq.2)
-     &      call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), oprint, 
-     &                                nbf_ao, '- beta', .true., 
-     &                                int_mb(k_ir+nbf_ao))
-      endif      
+c      if (oadapt)then
+c         call scf_movecs_sym_adapt(ao_bas_han, g_movecs, oprint, 
+c     &                             nbf_ao, '- alpha', .true., 
+c     &                             int_mb(k_ir))
+c         if (ipol.eq.2)
+c     &      call scf_movecs_sym_adapt(ao_bas_han, g_movecs(2), oprint, 
+c     &                                nbf_ao, '- beta', .true., 
+c     &                                int_mb(k_ir+nbf_ao))
+c      endif      
 c
 c     Vector analysis stolen from rohf.F
 c
