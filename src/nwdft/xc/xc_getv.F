@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.16 1997-11-19 05:55:24 d3j191 Exp $
+C$Id: xc_getv.F,v 1.17 1997-12-08 23:48:51 d3h449 Exp $
 c
       implicit none
 c      
@@ -171,6 +171,7 @@ c
      &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
      &                     cntobfr, cetobfr, natoms)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
+c      write(6,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
 c
 c           Symmetrize Vxc?
 c

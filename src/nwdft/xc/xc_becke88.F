@@ -1,7 +1,7 @@
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght)     
 c
-C$Id: xc_becke88.F,v 1.8 1997-03-28 18:45:45 d3h449 Exp $
+C$Id: xc_becke88.F,v 1.9 1997-12-08 23:48:50 d3h449 Exp $
 c
       implicit none
 c      
@@ -168,6 +168,9 @@ c
             if (nlfac)then
                Ex = Ex + (CD43a*Ca + CD43b*Cb)*qwght(n)*fac
             endif
+cwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+c            write(6,*)' ex, cd13a, cd43a, cd13b, cd43b, ca, cb: ',
+c     &                  ex, cd13a, cd43a, cd13b, cd43b, ca, cb
 c
             if (GNa.gt.tol_rho)then
                gaa = Pa/GNa*fac

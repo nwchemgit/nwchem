@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.96 1997-11-26 23:06:43 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.97 1997-12-08 23:48:47 d3h449 Exp $
 c     
       implicit none
 c
@@ -289,8 +289,8 @@ c
 c
 c        The big chunk is the memory needed for new_eval_gbsets 
 c        which is roughly 4*nqmax*nbf_ao.  This is reduced by
-c        screening and is computed at the end of xc_setquad to be
-c        4*max_pr_mbfnq.
+c        screening (and chunking up the angular grid) and is 
+c        computed at the end of xc_setquad to be 4*max_pr_mbfnq.
 c
          availm = availm - (nqmax*(natoms + 3*nbf_ao_mxnbf_ce + 1) +
      &                      4*max_pr_mbfnq + 
@@ -712,6 +712,8 @@ c
       else
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       endif
+c      write(6,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2): ',
+c     &           Etnew, Ecore, Ecoul, Exc(1), Exc(2)
 c     
       if (last_time_energy)then
 c     

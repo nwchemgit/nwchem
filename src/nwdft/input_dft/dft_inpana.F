@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.36 1997-11-26 17:27:05 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.37 1997-12-08 23:48:39 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -457,6 +457,9 @@ c
             if (nquad_task.ne.1)then
                write(LuOut,9141)nquad_task
             endif
+            if (nq_chunk.ne.0)then
+               write(LuOut,9145)nq_chunk
+            endif
          endif
          if (oprint_convergence)then     
             write(LuOut,*)
@@ -554,6 +557,8 @@ c
  9140 format(10x,'Spatial weights used: Becke. ')
  9141 format(10x,'Parallel task size associated with evaluation of ',/,
      &       10x,'grid based components has been modified to: ',i2)
+ 9145 format(10x,'Chunking of the angular grid is being used; ',
+     &           'nq_chunk = ',i4)
  9142 format(10x,'Angular quadrature: Gauss-Legendre. ')
  9143 format(10x,'Angular quadrature: Lebedev. ')
  9144 format(10x,'Tag',14x,'B.-S. Rad.',1x,'Rad. Pts.',1x,'Ang. Pts.',/,

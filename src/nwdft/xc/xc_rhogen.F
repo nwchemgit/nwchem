@@ -4,7 +4,7 @@
      &                     rho, delrho, rhoat, scr, rchi_atom,
      &                     rdelchi_atom, rdens_atom, cetobfr)
 c
-c$Id: xc_rhogen.F,v 1.13 1997-11-14 01:14:37 d3h449 Exp $
+c$Id: xc_rhogen.F,v 1.14 1997-12-08 23:48:54 d3h449 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
       double precision ff(nq)   ! scratch array
-      double precision rho(nq,ipol*(ipol+1)/2) ! density values [output]
+      double precision rho(nq,(ipol*(ipol+1))/2) ! density values [output]
       double precision scr(nq)   ! scratch array
       double precision rchi_atom(natoms)
       double precision rdelchi_atom(natoms)
@@ -38,18 +38,27 @@ c
 c
 c     local declarations
 c
-      integer i0, ii, mu, nu, n
+      integer i0, ii, mu, nu, n, npol
       integer iat, inizia, ifirst, ilast, nbfia, nnia, idim
       integer ifinia, ifinja, icount
       integer jat, inizja, jfirst, jlast, nbfja, nnja, jdim
       double precision FUNC_MAX, DELFUNC_MAX, FUNC_MAXI, FUNC_MAXJ
       double precision P_MAXJ, P_MAXJ_A, P_MAXJ_B, P_MAXIJ
-      double precision tol_rho_tmp, aaa
+      double precision tol_rho_tmp, aaa, reset
+      double precision neg_d_max, neg_d_max_der, neg_d_max_at
+      integer num_neg, num_neg_der, num_neg_at
       double precision dabsmax
       external dabsmax
 c
 c     Evaluate the charge density and its gradient at each of the sampling 
 c     points 
+c
+c     Initial all incoming arrays:
+c
+      npol = (ipol*(ipol+1))/2
+      call dfill(nq*npol,0.D0,rho,1)
+      if (grad)call dfill(3*nq*ipol,0.D0,delrho,1)
+      if (ldelley)call dfill(nq*natoms,0.D0,rhoat,1)
 c
 c     Screening is accomplished by:  p(r) <= |Xi(r)|*|Xj(r)|*|Dij|
 c     Xi(r) is screened on desired accuracy/max(|Xj(r)|)*max(|Dij|)
@@ -183,9 +192,52 @@ c
   220    continue
   225    continue
   230 continue
+c
+c     Temp check for negative numerical densities:
+c 
+c     reset negative densities to 1d-30?
+c
+      reset = 1d-30
+c
+c     Check density rho
+c
+      call neg_check_rho(rho(1,ipol), delrho, nq, ipol, reset, 
+     &                   num_neg, neg_d_max, grad)
+c      if (num_neg.ne.0)
+c     &   write(6,*)' negative numerical density components: ',
+c     &   num_neg, neg_d_max
+c
       if (ipol.eq.2)then
          call dcopy(nq, rho(1,2), 1, rho(1,1), 1)
          call daxpy(nq, 1.d0, rho(1,3), 1, rho(1,1), 1)
       endif
+c
+      return
+      end
+      subroutine neg_check_rho(rho, delrho, nq, ipol, reset, n_neg, 
+     &                         max_neg, grad)
+c
+      implicit none
+c
+      double precision rho(nq,ipol), delrho(nq,3,ipol), reset, max_neg
+      integer nq, ipol, n_neg, i, n
+      logical grad
+c
+      n_neg = 0
+      max_neg = 0.0d0
+      do i = 1, ipol
+         do n = 1, nq
+            if (rho(n,i).lt.0.d0)then
+               if (rho(n,i).lt.max_neg)max_neg = rho(n,i)
+               rho(n,i) = reset
+               if (grad)then
+                  delrho(n,1,i) = reset
+                  delrho(n,2,i) = reset
+                  delrho(n,3,i) = reset
+               endif
+               n_neg = n_neg + 1
+            endif
+         enddo
+      enddo
       return
       end

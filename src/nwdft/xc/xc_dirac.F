@@ -1,7 +1,7 @@
       Subroutine xc_dirac(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
      &                    ipol, Ex, qwght, ldew, func)
 c
-C$Id: xc_dirac.F,v 1.7 1997-03-28 18:45:47 d3h449 Exp $
+C$Id: xc_dirac.F,v 1.8 1997-12-08 23:48:50 d3h449 Exp $
 c
       Implicit none
 c
@@ -12,7 +12,7 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision rho(nq,(ipol*(ipol+1))/2)
 c
 c     Quadrature Weights
 c
@@ -63,6 +63,11 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
             if (abs(rho(n,1)).gt.tol_rho)then
+               if (rho(n,2).lt.0.d0.or.rho(n,3).lt.0.d0)then
+                  write(6,*)' n, nq, rho(n,1), rho(n,2), rho(n,3): ',
+     &                        n, nq, rho(n,1), rho(n,2), rho(n,3)
+                  call errquit(' negative density ',911)
+               endif
                rho32=rho(n,2)**one_third
                rho33=rho(n,3)**one_third
                Amat(n,1) = Amat(n,1) + P3*rho32*fac
@@ -70,11 +75,15 @@ c
                if (ldew)func(n) = func(n) + ( rho32*rho(n,2) + 
      &                                        rho33*rho(n,3)   )*P4*fac
                Exp = Exp + (rho32*rho(n,2)+rho33*rho(n,3))*qwght(n)
+c      write(6,*)'from xc_dirac ; rho32, rho33, qwght(n): ',
+c     &                           rho32, rho33, qwght(n)
             endif
    20    continue
 c 
          Ex = Ex + P4*Exp*fac
 c
       endif
+c      write(6,*)'from xc_dirac ; p4, exp, fac, Ex: ', 
+c     &                           p4, exp, fac, Ex
       return
       end
