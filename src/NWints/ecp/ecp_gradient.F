@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.3 1996-10-18 22:15:41 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.4 1996-10-18 23:36:36 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -126,7 +126,7 @@ C $Id: ecp_gradient.F,v 1.3 1996-10-18 22:15:41 mg201 Exp $
       if (debug_addresses) write (LuOut,*) 
      &    'n_cart_a,n_cart_b,n_cart_ab,n_cont_ab',
      &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab
-      if (n_int .ne. n_ab) call errquit (
+      if (n_int .lt. n_ab) call errquit (
      &    'Mismatch of integral count in ecp_gradient',99)
       if (sphcart .ne. 0) call errquit(
      &    'Do your own spherical transformation, lazy bum!',99)
@@ -165,7 +165,7 @@ C $Id: ecp_gradient.F,v 1.3 1996-10-18 22:15:41 mg201 Exp $
       if (.not.DryRun) then
         memscr = lscr-i_scr+1
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in ecp_integral',99)
+     &      'Insufficient scratch memory in ecp_gradient',99)
         call dcopy (n_prim_A*n_cont_A,coef_A,1,scr(i_xca),1)
         call dcopy (n_prim_B*n_cont_B,coef_b,1,scr(i_xcb),1)
         k = i_xca-1
