@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.4 1999-07-23 19:53:01 d3e129 Exp $
+* $Id: vib_istep.F,v 1.5 1999-07-26 22:27:17 d3e129 Exp $
 *
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
@@ -153,6 +153,8 @@ c
 * routine to compute the xyz coordinates along each mode vector
 *
       implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
 #include "stdio.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
@@ -172,7 +174,7 @@ c
 c
       integer num_steps
       parameter (num_steps = 4*5) ! must be mod 4 == 0
-      double precision step_norms(num_steps), cur_step, step_factor
+      double precision step_norms(num_steps), cur_step, step_size
       integer my_sign, my_quad
       integer imode, ivec, iatom, ixyz, istep
       integer geom
@@ -208,13 +210,16 @@ c
 * .0 .1 .2 .3 .4 .5 .4 .3 .2 .1 .0 -.1 -.2 -.3 -.4 -.5 -.4 -.3 -.2 -.1
 *  1  1  1  1  1  2  2  2  2  2  3   3   3   3   3   4   4   4   4   4
       call dfill(num_steps,0.0d00,step_norms,1)
-      step_factor = 0.1
+      if (.not.rtdb_get(rtdb,'vib:animate:step_size',
+     &                            mt_dbl,1,step_size)) then
+         step_size = 0.15
+      endif
       cur_step = 0.0d00
       my_sign  = 1.0d00
       do istep = 1,num_steps
         my_quad = istep/5 + 1
         step_norms(istep) = cur_step
-        cur_step = cur_step + my_sign*step_factor
+        cur_step = cur_step + my_sign*step_size
         if (my_quad.eq.1.or.my_quad.eq.4) then
           my_sign = 1.0d00
         else
