@@ -13,7 +13,7 @@ OBJ_OPTIMIZE = moints_trf1idx.o
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F
+  USES_BLAS = moints.F moints_trf1idx.F
 
 LIB_DEFINES = 
 
