@@ -55,16 +55,12 @@ c
       integer lprint
 c
       integer len_t,length,len_f
-      integer ishort,jshort
-      real*8 rshort
 c
       integer mtyp,i_ltyp,l_ltyp
       integer nring3,nring4,nring5,nring6
 c
-      integer i,j,k,isgm,natoms,ilo,ihi,iseq,jlo,jhi,ioff,ilist
-      integer link1,link2,link3,link4,link5,link
+      integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn
-      real*8 rlink,dist
       logical found
 c
       if(lprint.ge.5) then

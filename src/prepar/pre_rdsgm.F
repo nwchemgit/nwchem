@@ -27,7 +27,6 @@ c
 c
       character*80 card
       integer i,j,l,length,na,jmol
-      character*6 name
       integer nsatm,nsbnd,nsang,nsdih,nsimp,ld(6),md(3),rd(6)
 c
       jmol=imol

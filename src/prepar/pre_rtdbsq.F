@@ -22,6 +22,9 @@ c
 c
 #include "geom.fh"
 c
+      real*8 cau2nm
+      parameter(cau2nm=5.29177249d-02)
+c
       integer irtdb,igeom
       integer lfnout,mseq,nseq,matm,natm,mssb,nssb,mlnk,nlnk
       integer lseq(4,mseq),latm(5,matm),lssb(2,mssb),llnk(2,mlnk)
@@ -29,11 +32,10 @@ c
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
       real*8 xatm(3,matm)
-      character*255 filnam
       integer lprint
-      real*8 b,c(3),q
+      real*8 c(3),q
       character*16 tag
-      integer i,j,num,numh
+      integer i,num,numh
       character*10 symbol,element
       integer iatn
 c
@@ -45,9 +47,9 @@ c
       latm(3,i)=0
       latm(4,i)=0
       latm(5,i)=0
-      xatm(1,i)=5.29177249d-02*c(1)
-      xatm(2,i)=5.29177249d-02*c(2)
-      xatm(3,i)=5.29177249d-02*c(3)
+      xatm(1,i)=cau2nm*c(1)
+      xatm(2,i)=cau2nm*c(2)
+      xatm(3,i)=cau2nm*c(3)
       if(.not.geom_tag_to_element(tag,symbol,element,iatn))
      + call errquit('geom_tag_to_element failed',9999)
       catm(1,i)='      '

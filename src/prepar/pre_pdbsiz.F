@@ -1,5 +1,5 @@
       logical function pre_pdbsiz(iunit,filnam,lfnout,lprint,
-     + model,natm,nseq,nssb,nlnk,namslv)
+     + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
 c     function to read dimensions from a pdb formatted file
 c
@@ -23,11 +23,12 @@ c
 c
       integer iunit,lfnout,model,natm,nseq,nssb,nchain,nlnk
       character*255 filnam
-      integer lprint
+      integer lprint,numslv
       character*3 namslv
 c
       character*80 card
       integer length,mdl,nsgm,isgm,i
+      logical lslvnt
 c
       natm=0
       nseq=0
@@ -37,6 +38,8 @@ c
       isgm=0
       nsgm=0
       nlnk=0
+      lslvnt=.false.
+      numslv=0
 c
       length=index(filnam,' ')-1
 c
@@ -115,13 +118,17 @@ c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
       if(mdl.eq.model) then
-      natm=natm+1
+      if(.not.lslvnt) natm=natm+1
       read(card(23:26),1003) i
  1003 format(i4)
       if(i.ne.isgm) then
       isgm=i
+      if(lslvnt) then
+      numslv=numslv+1
+      else
       nsgm=nsgm+1
       nchain=nchain+1
+      endif
       endif
       endif
       goto 1
@@ -130,17 +137,21 @@ c
 c     HETATM
 c
       if(card(1:6).eq.'HETATM') then
+      if(card(18:20).eq.namslv) lslvnt=.true.
       if(mdl.eq.model) then
-      natm=natm+1
+      if(.not.lslvnt) natm=natm+1
       read(card(23:26),1004) i
  1004 format(i4)
       if(i.ne.isgm) then
       isgm=i
+      if(lslvnt) then
+      numslv=numslv+1
+      else
       nsgm=nsgm+1
       nchain=nchain+1
       endif
       endif
-      if(card(18:20).eq.namslv) goto 9
+      endif
       goto 1
       endif
 c

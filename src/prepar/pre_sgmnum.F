@@ -3,8 +3,7 @@
 c
 c     function to scan database for unique segments in sequence
 c
-c     in  : iunit     = dbase logical file number
-c           filnam    = dbase file name
+c     in  : filnam    = dbase file name
 c           lfnout    = output file logical file number
 c           lprint    = integer for print to output
 c           lseq(1,*) = sequence segment numbers
@@ -16,7 +15,7 @@ c     out : lseq(2,*) = index to segment list
 c
       implicit none
 c
-      integer iunit,lfnout,mseq,nseq,nsgm
+      integer lfnout,mseq,nseq,nsgm
       integer lseq(4,mseq)
       character*5 cseq(2,mseq)
       integer lprint

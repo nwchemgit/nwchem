@@ -1,10 +1,9 @@
       integer function pre_atnum(element)
 c
-c $Id: pre_atnum.F,v 1.1 1998-04-14 18:20:14 d3j191 Exp $
+c $Id: pre_atnum.F,v 1.2 1998-04-28 23:10:45 d3j191 Exp $
 c
       implicit none
       character*2 element
-      integer number
 c
       character*2 aname(0:105),bname(0:105)
 c

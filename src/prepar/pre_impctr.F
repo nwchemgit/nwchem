@@ -41,7 +41,6 @@ c
       logical valid
 c
       integer i,j,k,l,li,lj,nh,ic
-      real*8 angle
 c
       pre_impctr=.false.
 c

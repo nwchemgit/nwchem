@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.6 1998-04-21 15:18:19 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.7 1998-04-28 23:10:49 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -244,7 +244,7 @@ c
      + call errquit('Memory allocation failed for ldih',9999)
       if(.not.ma_push_get(mt_int,18*mdih,"kdih",l_kdih,i_kdih))
      + call errquit('Memory allocation failed for ldih',9999)
-      if(.not.ma_push_get(mt_int,36*mdih,"rdih",l_rdih,i_rdih))
+      if(.not.ma_push_get(mt_dbl,36*mdih,"rdih",l_rdih,i_rdih))
      + call errquit('Memory allocation failed for rdih',9999)
 c
 c     integer limp(1:4,mimp) : improper torsion indices
@@ -263,7 +263,7 @@ c                  6         : force constant set 3
 c
       if(.not.ma_push_get(mt_int,9*mimp,"limp",l_limp,i_limp))
      + call errquit('Memory allocation failed for limp',9999)
-      if(.not.ma_push_get(mt_int,6*mimp,"rimp",l_rimp,i_rimp))
+      if(.not.ma_push_get(mt_dbl,6*mimp,"rimp",l_rimp,i_rimp))
      + call errquit('Memory allocation failed for rimp',9999)
 c
 c     generate the atomic and bonded lists

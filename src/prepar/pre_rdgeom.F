@@ -1,5 +1,5 @@
       logical function pre_rdgeom(irtdb,csa,isar,isgm,isfnd,xs,vs,
-     + xscr,msa,nsa,nmis,msm,nsm)
+     + msa,nsa,nmis,msm,nsm)
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
       integer irtdb,msa,nsa,nmis,msm,nsm
       character*16 csa(msa)
       integer isar(msa),isgm(msa),isfnd(msa)
-      real*8 xs(3,msa),vs(3,msa),xscr(3,msm)
+      real*8 xs(3,msa),vs(3,msa)
 c
       integer igeom,i
       character*16 tag
@@ -34,12 +34,8 @@ c
       isfnd(i)=1
       isar(i)=0
     1 continue
-      do 2 i=1,nsm
-      xscr(1,i)=0.0d0
-      xscr(2,i)=0.0d0
-      xscr(3,i)=0.0d0
-    2 continue
       nsa=msa
+      nmis=0
 c
       if(.not.geom_destroy(igeom))
      + call errquit('pre_rdgeom: geom_destroy failed',9999)

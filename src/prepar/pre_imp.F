@@ -63,7 +63,6 @@ c
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
-c      write(*,'(6i5)') nimp,1,(limp(j,nimp),j=1,4)
       endif
 c
 c     chiral
@@ -86,7 +85,6 @@ c
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
-c      write(*,'(6i5)') nimp,4,(limp(j,nimp),j=1,4)
       endif
 c
       endif

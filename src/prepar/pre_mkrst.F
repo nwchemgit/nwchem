@@ -1,6 +1,6 @@
       logical function pre_mkrst(irtdb,source,lfnout,lprint,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
-     + lfncmd,filcmd)
+     + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
       implicit none
 c
@@ -8,35 +8,58 @@ c
 c
       logical pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
       external pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
-      logical pre_rdgeom
-      external pre_rdgeom
+      logical pre_rdgeom,pre_orient,pre_slvsiz,pre_slvrd,pre_slvnum
+      external pre_rdgeom,pre_orient,pre_slvsiz,pre_slvrd,pre_slvnum
+      logical pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
+      external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
+      logical pre_rdrst,pre_disres
+      external pre_rdrst,pre_disres
+      logical util_nwchemrc_get
+      external util_nwchemrc_get
 c
       integer irtdb,lfnout,lprint,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
-      character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam
+      integer lfnslv
+      character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
+      character*10 slvmdl
+      character*3 slvnam
       character*80 source,card
 c
-      integer nsa,nwa,nwm,nmis,npbtyp,nwmx,noe
-      integer msa,mwa,mwm,mnoe,msm,nsm
-      real*8 box(3)
+      integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
+      integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
+      integer nnoe
+      real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist
 c
-      integer l_cwa,i_cwa
+      integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
       integer l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
-      integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr,l_xwcr,i_xwcr
-      integer l_xscr,i_xscr,l_inoe,i_inoe,l_dnoe,i_dnoe
+      integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr
+      integer l_inoe,i_inoe,l_dnoe,i_dnoe
+      integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
+      integer l_wfnd,i_wfnd,l_wcmr,i_wcmr
+      integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
 c
-      logical lslvnt,ldistr,lnames
-      integer length,len
+      logical lslvnt,ldistr,lsolva,lcryst,lnames
+      integer length,len,islv,idum1,idum2,idum3,idum4
 c
       if(lprint.ge.5) write(lfnout,1000)
  1000 format('RESTART FILE GENERATION')
 c
-      if(.not.pre_topsiz(lfntop,filtop,lfnout,lprint,msa,mwa))
+      if(.not.pre_topsiz(lfntop,filtop,lfnout,lprint,mat,msa,mwa,msb))
      + call errquit('pre_topsiz failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,'(a,4i4)') 'topology sizes',
+     + mat,msa,mwa,msb
       nwm=0
+      nwmc=0
+      nwms=0
       nwa=0
       nsa=0
+      nsb=0
+      nnoe=0
+      xmax(1)=0.0d0
+      xmax(2)=0.0d0
+      xmax(3)=0.0d0
+      rshell=1.2d0
 c
 c     allocate memory
 c     ---------------
@@ -49,12 +72,22 @@ c     integer isfnd(msa)     : solute atom found flags
 c     real*8 qsa(msa)        : solute atom charges
 c     real*8 xs(3,msa)       : solute atom coordinates
 c
+      if(.not.ma_push_get(mt_int,2*mnoe,"inoe",l_inoe,i_inoe))
+     + call errquit('Memory allocation failed for inoe',9999)
+      if(.not.ma_push_get(mt_dbl,5*mnoe,"dnoe",l_dnoe,i_dnoe))
+     + call errquit('Memory allocation failed for dnoe',9999)
+      if(.not.ma_push_get(mt_int,mat,"anum",l_num,i_num))
+     + call errquit('Memory allocation failed for anum',9999)
+      if(.not.ma_push_get(mt_dbl,mat,"amass",l_mas,i_mas))
+     + call errquit('Memory allocation failed for amass',9999)
       if(.not.ma_push_get(mt_byte,16*mwa,"cwa",l_cwa,i_cwa))
      + call errquit('Memory allocation failed for cwa',9999)
       if(.not.ma_push_get(mt_byte,16*msa,"csa",l_csa,i_csa))
      + call errquit('Memory allocation failed for csa',9999)
       if(.not.ma_push_get(mt_int,msa,"sar",l_sar,i_sar))
      + call errquit('Memory allocation failed for sar',9999)
+      if(.not.ma_push_get(mt_int,msa,"sat",l_sat,i_sat))
+     + call errquit('Memory allocation failed for sat',9999)
       if(.not.ma_push_get(mt_int,msa,"sgm",l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
       if(.not.ma_push_get(mt_int,msa,"sfnd",l_sfnd,i_sfnd))
@@ -65,34 +98,67 @@ c
      + call errquit('Memory allocation failed for xs',9999)
       if(.not.ma_push_get(mt_dbl,3*msa,"vs",l_vs,i_vs))
      + call errquit('Memory allocation failed for xs',9999)
+      if(.not.ma_push_get(mt_int,2*msb,"idsb",l_isb,i_isb))
+     + call errquit('Memory allocation failed for idsb',9999)
+      if(.not.ma_push_get(mt_dbl,msb,"cdsb",l_csb,i_csb))
+     + call errquit('Memory allocation failed for cdsb',9999)
 c
       lslvnt=.false.
       ldistr=.false.
+      lsolva=.false.
+      lcryst=.false.
+c
       nwm=0
+      nwmc=0
+      nwms=0
       nwa=0
       nsa=0
       nsm=0
-      nwmx=0
       noe=0
       npbtyp=0
+c
+c     allocate memory for solvent
+c
+      if(.not.lcryst) then
+      nwmc=0
+      mwmc=1
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
+      endif
+      if(.not.lsolva) then
+      nwm=0
+      mwm=1
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+     + call errquit('ma_alloc_get failed for xw',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+     + call errquit('ma_alloc_get failed for vw',9999)
+      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+     + call errquit('ma_alloc_get failed for iwmr',9999)
+      lsolva=.true.
+      endif
+c
+      if(lprint.ge.5) write(lfnout,'(a)') 'Memory allocated'
 c
 c     read topology file
 c     ------------------
 c
       if(.not.pre_toprd(lfntop,filtop,lfnout,lprint,
-     + byte_mb(i_cwa),mwa,nwa,int_mb(i_sar),int_mb(i_sgm),
-     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm))
+     + int_mb(i_num),dbl_mb(i_mas),mat,
+     + byte_mb(i_cwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
+     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
+     + dbl_mb(i_csb),msb,nsb))
      + call errquit('pre_toprd failed',9999)
       if(lprint.ge.5) write(lfnout,2000) filtop(1:index(filtop,' ')-1)
  2000 format('Topology successfully read from ',a)
 c
       msm=nsm
-c
-c     allocate memory for solute reference coordinates
-c     ------------------------------------------------
-c
-      if(.not.ma_push_get(mt_dbl,3*msm,"xscr",l_xscr,i_xscr))
-     + call errquit('Memory allocation failed for xscr',9999)
 c
 c     open the command file
 c     ---------------------
@@ -101,29 +167,99 @@ c
      + form='formatted',status='old',err=99)
       goto 1
    99 continue
-      write(*,'(a,a)') 'source=',source(1:index(source,' ')-1)
+c
+c     write restart when no command file is found
+c     ===========================================
+c
+      if(lprint.ge.5) then
+      write(lfnout,'(a,a)') 'No command file, source=',
+     + source(1:index(source,' ')-1)
+      endif
       if(source(1:8).eq.'geometry') then
       if(.not.pre_rdgeom(irtdb,byte_mb(i_csa),int_mb(i_sar),
      + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
-     + dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
+     + msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdgeom failed',9999)
+      if(lprint.ge.5) write(lfnout,'(a)') 'Geometry read from rtdb'
       else
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
+     + idum1,idum2,idum3,idum4,slvnam,nwmc))
+     + call errquit('pre_pdbsiz failed',9999)
+c
+c     allocate memory for crystal solvent
+c     -----------------------------------
+c
+cx      if(nwmc.gt.0) then
+      mwmc=nwmc
+      if(nwmc.eq.0) mwmc=1
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
+cx      endif
+c
+c     read the pdb file
+c     -----------------
+c
       if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
-     + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
+     + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
+     + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
+     + mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
       if(lprint.ge.5) write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
       write(lfnout,2103) nmis,nsa
+      if(nmis.gt.0) then
+      if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,"grid",l_grid,
+     + i_grid)) call errquit('Memory allocation failed for grid',9999)
+      if(.not.pre_misfit(lfnout,lprint,int_mb(i_sfnd),dbl_mb(i_xs),
+     + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
+     + dbl_mb(i_grid),mgrid,ngrid,gdist))
+     + call errquit('pre_misfit failed',9999)
+      if(.not.ma_pop_stack(l_grid))
+     + call errquit('Memory deallocation failed for grid',9999)
       endif
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,dbl_mb(i_xs),
-     + msa,nsa)) call errquit('pre_center failed',9999)
+      endif
+c
+c     center the solute
+c     -----------------
+c
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_center failed',9999)
+c
+c     orient the solute
+c     -----------------
+c
+      if(.not.pre_orient(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_orient failed',9999)
+c
+c     determine the boxsize
+c     ---------------------
+c
+      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+      if(lprint.ge.5) write(lfnout,'(a,3f12.6)') 'boxsize=',box
+c
+c     write the restart file
+c     ----------------------
+c
       if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
-     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + mwm,mwa,nwm,nwa,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,
-     + nwmx,int_mb(i_inoe),int_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       goto 9
+c
+c     loop through commands from command file
+c     =======================================
 c
     1 continue
 c
@@ -131,19 +267,79 @@ c
  1001 format(a)
 c
 c     read distance restraints
-c     ------------------------
+c     ========================
 c
       if(card(1:6).eq.'disres') then
+      if(.not.pre_disres(card,int_mb(i_sgm),byte_mb(i_csa),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,nnoe))
+     + call errquit('pre_disres failed',9999)
       endif
 c
 c     read solvent coordinates
-c     ------------------------
+c     ========================
 c
       if(card(1:6).eq.'solvnt') then
+c
+c     free solvent memory if previously allocated
+c     -------------------------------------------
+c
+      if(lslvnt) then
+      if(.not.ma_free_heap(l_xslv))
+     + call errquit('ma_free_heap failed on l_xslv',9999)
+      if(.not.ma_free_heap(l_vslv))
+     + call errquit('ma_free_heap failed on l_vslv',9999)
+      lslvnt=.false.
+      endif
+c
+c     get restart file name for the solvent
+c     -------------------------------------
+c
+      if(.not.util_nwchemrc_get(slvmdl,filslv))
+     + call errquit('util_nwchemrc_get failed on slvmdl',9999)
+      if(lprint.ge.5) then
+      write(lfnout,'(a,a)') 'solvent file=',
+     + filslv(1:index(filslv,' ')-1)
+      endif
+c
+c     check if solvent restart file exists
+c     ------------------------------------
+c
+      open(unit=lfnslv,file=filslv(1:index(filslv,' ')-1),
+     + status='old',err=9999)
+      close(unit=lfnslv)
+c
+c     get dimensions from solvent restart file
+c     ----------------------------------------
+c
+      if(.not.pre_slvsiz(lfnslv,filslv,nwms,nwas))
+     + call errquit('pre_slvsiz failed',9999)
+      if(nwas.ne.nwa) call errquit('incompatible solvent',9999)
+      mwms=nwms
+c
+c     allocate memory for solvent coordinates and velocities
+c     ------------------------------------------------------
+c
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,"xslv",l_xslv,i_xslv))
+     + call errquit('ma_alloc_get failed for xslv',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwms,"vslv",l_vslv,i_vslv))
+     + call errquit('ma_alloc_get failed for vslv',9999)
+c
+c     read solvent coordinates and velocities
+c     ---------------------------------------
+c
+      if(.not.pre_slvrd(lfnslv,filslv,dbl_mb(i_xslv),dbl_mb(i_vslv),
+     + mwms,mwa,nwms,nwa,boxs))
+     + call errquit('pre_slvrd failed',9999)
+      lslvnt=.true.
+      if(lprint.ge.5) then
+      write(lfnout,'(a,i5,a,a)') 'SOLVENT:',nwms,
+     + ' molecules read from ',filslv(1:index(filslv,' ')-1)
+      write(lfnout,'(a,3f12.6)') 'slvbox=',boxs
+      endif
       endif
 c
 c     read pdb file
-c     -------------
+c     =============
 c
       if(card(1:6).eq.'rd_pdb') then
       filnam=card(8:80)
@@ -151,26 +347,141 @@ c
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
       lnames=length.eq.len.and.filnam(1:len).eq.filpdb(1:len)
+c
+c     read the pdb file
+c     -----------------
+c
       if(.not.pre_rdpdb(filnam,lfnpdb,filtmp,lfntmp,lnames,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
-     + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
+     + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
+     + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
+     + mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
-      if(lprint.ge.5) write(lfnout,2003) filnam(1:index(filnam,' ')-1)
+      if(lprint.ge.5) then
+      write(lfnout,2003) filnam(1:index(filnam,' ')-1)
  2003 format('PDB file successfully read from ',a)
       write(lfnout,2103) nmis,nsa
  2103 format('Missing',i5,' atoms out of',i5)
+      endif
       endif
 c
 c     read restart file
 c     ------------------
 c
       if(card(1:6).eq.'rd_rst') then
+      filnam=card(8:80)
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filrst
+      if(.not.pre_rdrst(lfnrst,filnam,npbtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_rdrst failed',9999)
       endif
 c
 c     write pdb file
 c     --------------
 c
       if(card(1:6).eq.'wr_pdb') then
+      if(card(8:13).eq.'solute') then
+      filnam=card(15:80)
+      iopt=0
+      else
+      filnam=card(8:80)
+      iopt=nwm
+      endif
+      length=index(filnam,' ')-1
+      if(length.eq.0) filnam=filpdb
+      len=index(filpdb,' ')-1
+      if(.not.pre_wrtpdb(lfnpdb,filnam,iopt,int_mb(i_num),dbl_mb(i_mas),
+     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
+     + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,slvnam))
+     + call errquit('pre_wrtpdb failed',9999)
+      endif
+c
+c     read coordinates
+c     ================
+c
+      if(card(1:6).eq.'rdcoor') then
+c
+c     determine the coordinate source
+c     -------------------------------
+c
+      if(source(1:8).eq.'geometry') then
+c
+c     read coordinates from rtdb
+c     --------------------------
+c
+      if(.not.pre_rdgeom(irtdb,byte_mb(i_csa),int_mb(i_sar),
+     + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
+     + msa,nsa,nmis,msm,nsm))
+     + call errquit('pre_rdgeom failed',9999)
+      if(lprint.ge.3) write(lfnout,2103) nmis,nsa
+      else
+c
+c     free memory for crystal solvent if already allocated
+c     ----------------------------------------------------
+c
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
+c
+c     determine the dimensions on the pdb file
+c     ----------------------------------------
+c
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
+     + idum1,idum2,idum3,idum4,slvnam,nwmc))
+     + call errquit('pre_pdbsiz failed',9999)
+c
+c     allocate memory for crystal solvent
+c     -----------------------------------
+c
+      if(nwmc.gt.0) then
+      mwmc=nwmc
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"xwc",l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,"vwc",l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wfnd",l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,"wcmr",l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
+      endif
+c
+c     read the pdb file
+c     -----------------
+c
+      if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
+     + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
+     + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
+     + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
+     + mwmc,mwa,nwmc,nwa))
+     + call errquit('pre_rdpdb failed',9999)
+      if(lprint.ge.5) then
+      write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
+      write(lfnout,2103) nmis,nsa
+      endif
+      endif
+c
+c     determine the boxsize
+c     ---------------------
+c
+      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+      if(lprint.ge.5) then
+      write(lfnout,'(a,3f12.6)') 'boxsize=',box
+      endif
       endif
 c
 c     write restart file
@@ -178,10 +489,10 @@ c     ------------------
 c
       if(card(1:6).eq.'wr_rst') then
       if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
-     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + mwm,mwa,nwm,nwa,
-     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,
-     + nwmx,int_mb(i_inoe),int_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
       endif
 c
@@ -189,20 +500,121 @@ c     center solute
 c     -------------
 c
       if(card(1:6).eq.'center') then
-      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,dbl_mb(i_xs),
-     + msa,nsa)) call errquit('pre_center failed',9999)
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_center failed',9999)
       endif
 c
 c     orient solute
 c     -------------
 c
       if(card(1:6).eq.'orient') then
+      if(.not.pre_orient(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_orient failed',9999)
       endif
 c
 c     solvate solute
 c     --------------
 c
       if(card(1:6).eq.'solvat') then
+c
+c     determine type of solvation box
+c     -------------------------------
+c
+      islv=0
+      if(card(8:11).eq.'cube') then
+      if(card(17:17).eq.' ') then
+      box(1)=box(1)+rshell
+      box(2)=box(2)+rshell
+      box(3)=box(3)+rshell
+      edge=max(box(1),box(2),box(3))
+      else
+      read(card(12:23),'(f12.6)',err=9999) edge
+      endif
+      box(1)=edge
+      box(2)=edge
+      box(3)=edge
+      islv=1
+      endif
+      if(card(8:10).eq.'box') then
+      if(card(16:16).eq.' ') then
+      box(1)=box(1)+rshell
+      box(2)=box(2)+rshell
+      box(3)=box(3)+rshell
+      else
+      read(card(11:22),'(f12.6)',err=9999) box(1)
+      read(card(23:34),'(f12.6)',err=9999) box(2)
+      read(card(35:46),'(f12.6)',err=9999) box(3)
+      endif
+      islv=1
+      endif
+      if(card(8:13).eq.'sphere') then
+      if(card(19:19).eq.' ') then
+      box(1)=box(1)+rshell
+      box(2)=box(2)+rshell
+      box(3)=box(3)+rshell
+      edge=max(box(1),box(2),box(3))
+      else
+      read(card(14:25),'(f12.6)',err=9999) edge
+      endif
+      box(1)=edge
+      box(2)=edge
+      box(3)=edge
+      islv=2
+      endif
+      if(islv.eq.0) call errquit('Illegal solvation type',9999)
+      if(lprint.ge.5) then
+      write(lfnout,'(a,i5,a,3f12.6)') 'solv type',islv,' in box',box
+      endif
+c
+c     free memory for system solvent if allocated previously
+c     ------------------------------------------------------
+c
+      if(lsolva) then
+      if(.not.ma_free_heap(l_xw))
+     + call errquit('ma_free_heap failed on l_xw',9999)
+      if(.not.ma_free_heap(l_vw))
+     + call errquit('ma_free_heap failed on l_vw',9999)
+      if(.not.ma_free_heap(l_iwmr))
+     + call errquit('ma_free_heap failed on l_iwmr',9999)
+      lsolva=.false.
+      endif
+c
+c     estimate the maximum number of system solvent molecules
+c     -------------------------------------------------------
+c
+      if(.not.pre_slvnum(islv,boxs,nwms,box,mwm))
+     + call errquit('pre_slvnum failed',9999)
+      nwm=0
+      if(lprint.ge.5) then
+      write(lfnout,'(a,i5)') 'maximum solvent number is ',mwm
+      endif
+c
+c     allocate memory for system solvent
+c     ----------------------------------
+c
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+     + call errquit('ma_alloc_get failed for xw',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+     + call errquit('ma_alloc_get failed for vw',9999)
+      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+     + call errquit('ma_alloc_get failed for iwmr',9999)
+      lsolva=.true.
+c
+c     solvate the system
+c     ------------------
+c
+      if(.not.pre_solvat(islv,boxs,dbl_mb(i_xslv),dbl_mb(i_vslv),
+     + mwms,mwa,nwms,nwa,touch,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,nwm,
+     + dbl_mb(i_xs),msa,nsa,
+     + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
+     + call errquit('pre_solvat failed',9999)
+      if(lprint.ge.1) then
+      write(lfnout,'(a,i7,a)') 'System solvated in',nwm,
+     + ' solvent molecules'
+      endif
       endif
 c
 c     set crystal solvent
@@ -215,24 +627,41 @@ c     expand box
 c     ----------
 c
       if(card(1:6).eq.'expand') then
+      if(card(8:9).eq.'to') then
+      read(card(11:22),'(f12.6)',end=9999,err=9999) edge
+      box(1)=box(1)+edge
+      read(card(23:34),'(f12.6)',end=9999,err=9999) edge
+      box(2)=box(2)+edge
+      read(card(35:46),'(f12.6)',end=9999,err=9999) edge
+      box(3)=box(3)+edge
+      elseif(card(8:11).eq.'with') then
+      read(card(13:24),'(f12.6)',end=9999,err=9999) edge
+      box(1)=box(1)+edge
+      box(2)=box(2)+edge
+      box(3)=box(3)+edge
+      endif
       endif
 c
 c     set minimum box size
 c     --------------------
 c
       if(card(1:6).eq.'boxsiz') then
+      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
       endif
 c
 c     set periodic boundary conditions
 c     --------------------------------
 c
       if(card(1:6).eq.'period') then
+      npbtyp=1
       endif
 c
 c     set vacuum conditions
 c     ---------------------
 c
       if(card(1:6).eq.'vacuum') then
+      npbtyp=0
       endif
 c
 c     set velocities to zero
@@ -247,6 +676,16 @@ c
       if(card(1:6).eq.'zerocd') then
       endif
 c
+c     set envelope
+c     ------------
+c
+      if(card(1:5).eq.'touch') then
+      read(card(7:19),'(f12.6)') touch
+      if(lprint.ge.5) then
+      write(lfnout,'(a,f12.6)') 'Envelope set to',touch
+      endif
+      endif
+c
 c     end
 c     ---
 c
@@ -255,14 +694,16 @@ c
 c      if(.not.pre_wrtrst(lfnrst
 c
     9 continue
-      close(unit=lfncmd,status='delete')
+      close(unit=lfncmd)
   999 continue
 c
 c     deallocate memory
 c     -----------------
 c
-      if(.not.ma_pop_stack(l_xscr))
-     + call errquit('Memory deallocation failed for xscr',9999)
+      if(.not.ma_pop_stack(l_csb))
+     + call errquit('Memory deallocation failed for cdsb',9999)
+      if(.not.ma_pop_stack(l_isb))
+     + call errquit('Memory deallocation failed for idsb',9999)
       if(.not.ma_pop_stack(l_vs))
      + call errquit('Memory deallocation failed for vs',9999)
       if(.not.ma_pop_stack(l_xs))
@@ -273,12 +714,50 @@ c
      + call errquit('Memory deallocation failed for sfnd',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
+      if(.not.ma_pop_stack(l_sat))
+     + call errquit('Memory deallocation failed for sat',9999)
       if(.not.ma_pop_stack(l_sar))
      + call errquit('Memory deallocation failed for sar',9999)
       if(.not.ma_pop_stack(l_csa))
      + call errquit('Memory deallocation failed for csa',9999)
       if(.not.ma_pop_stack(l_cwa))
      + call errquit('Memory deallocation failed for cwa',9999)
+      if(.not.ma_pop_stack(l_mas))
+     + call errquit('Memory deallocation failed for amass',9999)
+      if(.not.ma_pop_stack(l_num))
+     + call errquit('Memory deallocation failed for anum',9999)
+      if(.not.ma_pop_stack(l_dnoe))
+     + call errquit('Memory deallocation failed for dnoe',9999)
+      if(.not.ma_pop_stack(l_inoe))
+     + call errquit('Memory deallocation failed for inoe',9999)
+c
+      if(lslvnt) then
+      if(.not.ma_free_heap(l_xslv))
+     + call errquit('ma_free_heap failed on l_xslv',9999)
+      if(.not.ma_free_heap(l_vslv))
+     + call errquit('ma_free_heap failed on l_vslv',9999)
+      lslvnt=.false.
+      endif
+      if(lsolva) then
+      if(.not.ma_free_heap(l_xw))
+     + call errquit('ma_free_heap failed on l_xw',9999)
+      if(.not.ma_free_heap(l_vw))
+     + call errquit('ma_free_heap failed on l_vw',9999)
+      if(.not.ma_free_heap(l_iwmr))
+     + call errquit('ma_free_heap failed on l_iwmr',9999)
+      lsolva=.false.
+      endif
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
 c
       pre_mkrst=.true.
       return

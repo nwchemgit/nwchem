@@ -1,0 +1,78 @@
+      logical function pre_wrtpdb(lfnpdb,filpdb,iopt,num,amass,mat,
+     + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,slvnam)
+c
+c $Id: pre_wrtpdb.F,v 1.1 1998-04-28 23:10:55 d3j191 Exp $
+c
+      implicit none
+c
+      character*2 pre_atnam
+      external pre_atnam
+c
+      integer lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat
+      character*255 filpdb
+      integer num(mat),isat(msa),isgm(msa)
+      character*16 cwa(mwa),csa(msa)
+      character*3 slvnam
+      real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
+c
+      integer length
+c
+      integer i,j,k,nats,nums,numslv
+      real*8 temp
+c
+c     open PDB file
+c
+      length=index(filpdb,' ')-1
+      open(unit=lfnpdb,file=filpdb(1:length),form='formatted',
+     + status='unknown',err=9999)
+c
+      write(lfnpdb,1000)
+ 1000 format(
+     + 'HEADER',/,
+     + 'TITLE     ',/,
+     + 'TITLE    2',/,
+     + 'TITLE    3',/,
+     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
+c
+      nums=0
+      do 1 i=1,nsa
+      temp=4.009103873d1*amass(isat(i))*
+     + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
+      if(temp.gt.999.0) temp=999.989
+      write(lfnpdb,1001) i,csa(i)(11:14),csa(i)(1:4),
+     + isgm(i),(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
+ 1001 format('ATOM',i7,1x,a4,1x,a4,i5,4x,3f8.3,6x,f6.2,4x,a2)
+      if(isgm(i).gt.nums) nums=isgm(i)
+    1 continue
+c
+      write(lfnpdb,1002)
+ 1002 format('TER')
+c
+      numslv=iopt
+      if(iopt.lt.0) numslv=nwm
+      if(iopt.gt.nwm) numslv=nwm
+c
+      if(numslv.gt.0) then
+      nats=nsa
+      do 2 i=1,numslv
+      do 3 j=1,nwa
+      nats=nats+1
+      write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
+     + i+nums,(1.0d1*xw(k,j,i),k=1,3)
+ 1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3)
+    3 continue
+    2 continue
+      endif
+c
+      write(lfnpdb,1004)
+ 1004 format('END')
+c
+c
+      close(unit=lfnpdb)
+      pre_wrtpdb=.true.
+      return
+c
+ 9999 continue
+      pre_wrtpdb=.false.
+      return
+      end

@@ -1,0 +1,85 @@
+      logical function pre_orient(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
+     + xs,msa,nsa)
+c
+      implicit none
+c
+      integer mwm,mwa,nwm,nwa,mwmc,nwmc,msa,nsa
+      real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc),xs(3,msa)
+c
+      integer i,ismax
+      real*8 angle,dist,o(3),p(3),rsmax
+c
+      if(nsa.le.0) then
+      pre_orient=.false.
+      return
+      endif
+c
+c     find largest solute distance from origin
+c
+      ismax=0
+      rsmax=0.0d0
+      do 1 i=1,nsa
+      dist=xs(1,i)**2+xs(2,i)**2+xs(3,i)**2
+      if(dist.gt.rsmax) then
+      ismax=i
+      rsmax=dist
+      endif
+    1 continue
+c
+c     find rotation axis
+c
+      p(1)=xs(2,ismax)
+      p(2)=-xs(1,ismax)
+      p(3)=0.0d0
+c
+c     find rotation angle
+c
+      angle=acos(xs(3,ismax)/sqrt(rsmax))
+c
+c     find offset
+c
+      o(1)=0.0d0
+      o(2)=0.0d0
+      o(3)=0.0d0
+c
+c     rotate
+c
+      call pre_rotate(o,p,angle,xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
+     + xs,msa,nsa)
+c
+c     find largest distance in xy plane
+c
+      ismax=0
+      rsmax=0.0d0
+      do 2 i=1,nsa
+      dist=xs(1,i)**2+xs(2,i)**2
+      if(dist.gt.rsmax) then
+      ismax=i
+      rsmax=dist
+      endif
+    2 continue
+c
+c     find rotation axis
+c
+      p(1)=0.0d0
+      p(2)=0.0d0
+      p(3)=1.0d0
+c
+c     find rotation angle
+c
+      angle=acos(xs(2,ismax)/sqrt(rsmax))
+c
+c     find offset
+c
+      o(1)=0.0d0
+      o(2)=0.0d0
+      o(3)=0.0d0
+c
+c     rotate
+c
+      call pre_rotate(o,p,angle,xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
+     + xs,msa,nsa)
+c
+      pre_orient=.true.
+      return
+      end

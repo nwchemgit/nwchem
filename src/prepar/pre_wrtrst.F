@@ -1,15 +1,16 @@
       logical function pre_wrtrst(lfnrst,filrst,npbtyp,box,
-     + iwmr,xw,vw,xwcr,mwm,mwa,nwm,nwa,isar,xs,vs,xscr,msa,nsa,nwmx,
+     + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
+     + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
       implicit none
 c
-      integer lfnrst,mwm,mwa,nwm,nwa,msa,nsa,nwmx,mnoe,noe,msm,nsm
+      integer lfnrst,mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
       integer npbtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
-      real*8 xscr(3,msm),xwcr(3,mwm),dnoe(5,mnoe)
-      integer iwmr(mwm),isar(msa),inoe(2,mnoe)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),dnoe(5,mnoe)
+      integer iwmrc(mwmc),iwmr(mwm),isar(msa),inoe(2,mnoe)
 c
       integer i,j,k,length
       character*10 rstdat,rsttim
@@ -32,13 +33,20 @@ c
  1003 format(e12.5)
       write(lfnrst,1004) 0.0d0,0.0d0,0.0d0
  1004 format(3f12.6)
-      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmx,0,0,0,noe
+      write(lfnrst,1005) nwmc+nwm,nwa,nsm,nsa,nwmc,0,0,0,noe
  1005 format(7i10,2i5)
 c
 c     write coordinates
 c
       if(nwm.gt.0) then
+      if(nwmc.gt.0) then
+      write(lfnrst,1006) (((xwc(k,j,i),k=1,3),j=1,nwa),i=1,nwmc),
+     + (((xw(k,j,i),k=1,3),j=1,nwa),i=1,nwm)
+      else
       write(lfnrst,1006) (((xw(k,j,i),k=1,3),j=1,nwa),i=1,nwm)
+      endif
+      elseif(nwmc.gt.0) then
+      write(lfnrst,1006) (((xwc(k,j,i),k=1,3),j=1,nwa),i=1,nwmc)
  1006 format(6f13.8)
       endif
 c
@@ -50,7 +58,14 @@ c
 c     write velocities
 c
       if(nwm.gt.0) then
+      if(nwmc.gt.0) then
+      write(lfnrst,1008) (((vwc(k,j,i),k=1,3),j=1,nwa),i=1,nwmc),
+     + (((vw(k,j,i),k=1,3),j=1,nwa),i=1,nwm)
+      else
       write(lfnrst,1008) (((vw(k,j,i),k=1,3),j=1,nwa),i=1,nwm)
+      endif
+      elseif(nwmc.gt.0) then
+      write(lfnrst,1008) (((vwc(k,j,i),k=1,3),j=1,nwa),i=1,nwmc)
  1008 format(6f13.8)
       endif
 c
@@ -62,19 +77,25 @@ c
 c     write reference coordinates
 c
       if(nwm.gt.0) then
-      write(lfnrst,1010) ((xwcr(k,i),k=1,3),i=1,nwm)
+      write(lfnrst,1010) ((0.0d0,k=1,3),i=1,nwm)
  1010 format(6f13.8)
       endif
 c
       if(nsm.gt.0) then
-      write(lfnrst,1011) ((xscr(k,i),k=1,3),i=1,nsm)
+      write(lfnrst,1011) ((0.0d0,k=1,3),i=1,nsm)
  1011 format(6f13.8)
       endif
 c
 c     write dynamics type
 c
       if(nwm.gt.0) then
+      if(nwmc.gt.0) then
+      write(lfnrst,1012) (iwmrc(i),i=1,nwmc),(iwmr(i),i=1,nwm)
+      else
       write(lfnrst,1012) (iwmr(i),i=1,nwm)
+      endif
+      elseif(nwmc.gt.0) then
+      write(lfnrst,1012) (iwmrc(i),i=1,nwmc)
  1012 format(80i1)
       endif
 c

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.14 1998-04-24 03:35:46 d3j191 Exp $
+c $Id: prepar.F,v 1.15 1998-04-28 23:10:56 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -33,8 +33,8 @@ c
 #include "inp.fh"
 #include "msgids.fh"
 c
-      logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task1,pre_mkrst
-      external pre_rtdbin,pre_mkseq,pre_mktop,pre_task1,pre_mkrst
+      logical pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
+      external pre_rtdbin,pre_mkseq,pre_mktop,pre_task,pre_mkrst
 c
       integer irtdb0,irtdb,itask
 c
@@ -46,13 +46,38 @@ c
       character*80 source
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer len,lenc,lend,lprint,lfntmp,lfncmd
-      integer newtop,newseq,newrst
+      integer len,lenc,lend,lprint,lfntmp,lfncmd,lfnslv
+      integer newtop,newseq,newrst,mgrid,mnoe
+      real*8 gdist
+      logical lstate
 c
       irtdb=irtdb0
 c
       call util_print_push
       call util_print_rtdb_load(irtdb,'prepar')
+      lprint=10
+      if(util_print('prepare',print_none)) lprint=0
+      if(util_print('prepare',print_low)) lprint=1
+      if(util_print('prepare',print_medium)) lprint=2
+      if(util_print('prepare',print_high)) lprint=4
+      if(util_print('prepare',print_debug)) lprint=5
+c
+      lstate=rtdb_parallel(.false.)
+c
+c     set logical file numbers to be used
+c     -----------------------------------
+c
+      lfnout=6
+      lfnpdb=12
+      lfnfrg=13
+      lfnseq=14
+      lfnsgm=15
+      lfntop=16
+      lfnrst=17
+      lfnpar=18
+      lfntmp=19
+      lfncmd=20
+      lfnslv=21
 c
 c     node 0 only please
 c     ------------------
@@ -60,10 +85,11 @@ c
       prepar=.true.
       if(ga_nodeid().ne.0) then
   100 continue
-      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
-      if(itask.eq.0) return
-      if(itask.eq.1) then
-      if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
+      if(.not.pre_task(irtdb,itask))
+     + call errquit('pre_task failed',9999)
+      if(itask.eq.0) then
+      lstate=rtdb_parallel(.true.)
+      return
       endif
       goto 100
       endif
@@ -71,19 +97,28 @@ c
 c     header
 c     ------
 c
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,'nwARGOS Preparation Phase',40,.true.)
-      write(6,*)
-      write(6,*)
+      if(lprint.ge.3) then
+      call util_print_centered(lfnout,'Prepare Module',40,.true.)
+      endif
       call ecce_print_module_entry('prepare')
 c
 c     get info from rtdb
 c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
-     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst))
+     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mgrid,gdist,mnoe))
      + call errquit('pre_rtdbin failed',9999)
+c
+c     directories
+c     -----------
+c
+      if(lprint.ge.4) then
+      write(lfnout,'(a,a)') 'ffield=',ffield(1:index(ffield,' ')-1)
+      write(lfnout,'(a,a)') 'dir_s =',dir_s(1:index(dir_s,' ')-1)
+      write(lfnout,'(a,a)') 'dir_x =',dir_x(1:index(dir_x,' ')-1)
+      write(lfnout,'(a,a)') 'dir_u =',dir_u(1:index(dir_u,' ')-1)
+      write(lfnout,'(a,a)') 'dir_t =',dir_t(1:index(dir_t,' ')-1)
+      endif
 c
 c     construct file names
 c     --------------------
@@ -122,26 +157,6 @@ c
       if(source(1:1).eq.' ') source='geometry'
       if(source(1:4).eq.'rtdb') source='geometry'
 c
-c     set logical file numbers to be used
-c     -----------------------------------
-c
-      lfnout=6
-      lfnpdb=12
-      lfnfrg=13
-      lfnseq=14
-      lfnsgm=15
-      lfntop=16
-      lfnrst=17
-      lfnpar=18
-      lfntmp=19
-      lfncmd=20
-c
-      lprint=10
-      if(util_print('sequence',print_none)) lprint=0
-      if(util_print('sequence',print_low)) lprint=1
-      if(util_print('sequence',print_medium)) lprint=2
-      if(util_print('sequence',print_high)) lprint=4
-      if(util_print('sequence',print_debug)) lprint=5
 c
 c     check if the topology file exists
 c     ---------------------------------
@@ -220,7 +235,7 @@ c
      + form='formatted',status='old',err=5)
       if(newrst.eq.0) then
       close(unit=lfnrst)
-      write(lfnout,1007) filseq(1:index(filseq,' ')-1)
+      write(lfnout,1007) filrst(1:index(filrst,' ')-1)
  1007 format('Using existing restart file ',a)
       goto 6
       else
@@ -235,7 +250,8 @@ c     generate restart file
 c     ---------------------
 c
       if(.not.pre_mkrst(irtdb,source,lfnout,lprint,lfntop,filtop,
-     + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd))
+     + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
+     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue
@@ -243,14 +259,14 @@ c
 c     remove temporary file if they exist
 c     -----------------------------------
 c
-c      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
-c     + form='formatted',status='old',err=11)
-c      close(unit=lfncmd,status='delete')
-c   11 continue
-c      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
-c     + form='formatted',status='old',err=12)
-c      close(unit=lfntmp,status='delete')
-c   12 continue
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='old',err=11)
+      close(unit=lfncmd,status='delete')
+   11 continue
+      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
+     + form='formatted',status='old',err=12)
+      close(unit=lfntmp,status='delete')
+   12 continue
 c
 c     reset print
 c     -----------
@@ -261,7 +277,10 @@ c     signal other nodes to return
 c     ----------------------------
 c
       itask=0
-      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
+      if(.not.pre_task(irtdb,itask))
+     + call errquit('pre_task failed',9999)
+c
+      lstate=rtdb_parallel(.true.)
 c
       prepar=.true.
       return

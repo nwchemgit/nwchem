@@ -12,7 +12,7 @@ c
       character*5 cseq(2,mseq)
       character*10 slvmdl
       character*255 filseq
-      integer i,j,length,mol
+      integer i,length,mol
 c
       length=index(filseq,' ')-1
 c

@@ -20,11 +20,11 @@ c
       external pre_atrad
 c
       integer matm,mbnd
-      integer natm,nbnd
+      integer nbnd
       real*8 xatm(3,matm)
       integer latm(5,matm),lbnd(2,mbnd)
       integer ilo,ihi
-      integer i,j,k,ltemp
+      integer i,j
       real*8 dist
 c
       pre_bnd=.false.

@@ -1,6 +1,6 @@
       logical function pre_rtdbin(irtdb,ffield,
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
-     + newtop,newseq,newrst)
+     + newtop,newseq,newrst,mgrid,gdist,mnoe)
 c
 c     function to read input for prepare module from rtdb
 c
@@ -19,9 +19,10 @@ c
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
       integer newtop,newseq,newrst
-      integer len,ndx
+      integer len,ndx,mgrid,mnoe
+      real*8 gdist
 c
-      character*255 home,filnam,key,value
+      character*255 key,value
 c
       ffield=' '
       dir_s=' '
@@ -29,7 +30,6 @@ c
       dir_u=' '
       dir_t=' '
       source=' '
-c
 c
 c     read from rtdb
 c     --------------
@@ -56,6 +56,11 @@ c
       if(.not.rtdb_get(irtdb,'prep:newtop',mt_int,1,newtop)) newtop=0
       if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq)) newseq=0
       if(.not.rtdb_get(irtdb,'prep:newrst',mt_int,1,newrst)) newrst=0
+c
+      if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24
+      if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0
+c
+      if(.not.rtdb_get(irtdb,'prep:mnoe',mt_int,1,mnoe)) mnoe=1
 c
       if(slvnam.eq.'HOH'.and.slvmdl(1:1).eq.' ') slvmdl='spce      '
 c
@@ -99,12 +104,6 @@ c
       if(util_nwchemrc_get(key,value))
      + dir_t=value(1:index(value,' '))
       endif
-c
-      write(*,'(a,a)') 'ffield=',ffield(1:index(ffield,' ')-1)
-      write(*,'(a,a)') 'dir_s =',dir_s(1:index(dir_s,' ')-1)
-      write(*,'(a,a)') 'dir_x =',dir_x(1:index(dir_x,' ')-1)
-      write(*,'(a,a)') 'dir_u =',dir_u(1:index(dir_u,' ')-1)
-      write(*,'(a,a)') 'dir_t =',dir_t(1:index(dir_t,' ')-1)
 c
       pre_rtdbin=.true.
       return

@@ -30,8 +30,8 @@ c
       external pre_mkfrg,pre_namiup,pre_links,pre_wrtseq
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
-      integer natm,nseq,nssb,nsgm,nbnd,nang,ndih,nimp,nlnk
-      integer nsgmat,lprint
+      integer natm,nseq,nssb,nsgm,nlnk
+      integer lprint
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -46,14 +46,14 @@ c
       character*10 slvmdl
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
-      integer igeom
+      integer igeom,numslv
 c
       if(lprint.ge.5) write(lfnout,1000)
  1000 format('SEQUENCE GENERATION')
 c
       if(source(1:3).eq.'pdb') then
       if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
-     + natm,nseq,nssb,nlnk,slvnam))
+     + natm,nseq,nssb,nlnk,slvnam,numslv))
      + call errquit('pre_pdbsiz failed',9999)
       else
       if(.not.geom_create(igeom,source))
@@ -359,4 +359,6 @@ c
       if(.not.ma_pop_stack(l_latm))
      + call errquit('Memory deallocation failed for latm',9999)
 c
+      pre_mkseq=.true.
+      return
       end

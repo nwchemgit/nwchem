@@ -1,18 +1,20 @@
       logical function pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,lnams,
-     + csa,isar,isgm,isfnd,xs,vs,xscr,msa,nsa,nmis,msm,nsm)
+     + csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
+     + xw,vw,mwm,mwa,nwm,nwa)
 c
       implicit none
 c
-      integer lfnpdb,lfntmp,msa,nsa,nmis,msm,nsm
+      integer lfnpdb,lfntmp,msa,nsa,nmis,msm,nsm,mwm,mwa,nwm,nwa
       logical lnams,lnames
       character*255 filpdb,filtmp
       character*16 csa(msa)
-      integer isar(msa),isgm(msa),isfnd(msa)
-      real*8 xs(3,msa),vs(3,msa),xscr(3,msm)
+      integer isar(msa),isgm(msa),iwmr(mwm),isfnd(msa),iwfnd(mwm)
+      real*8 xs(3,msa),vs(3,msa)
+      real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num
+      integer i,last,nprv,num,iw
       real*8 x,y,z
       character*3 namr
       character*4 nama
@@ -20,6 +22,7 @@ c
       logical lsolut
 c
       lnames=lnams
+      iw=1
 c
 c     open pdb file
 c     -------------
@@ -55,11 +58,6 @@ c
       vs(3,i)=0.0d0
       if(isgm(i).gt.last) last=isgm(i)
     1 continue
-      do 2 i=1,nsm
-      xscr(1,i)=0.0d0
-      xscr(2,i)=0.0d0
-      xscr(3,i)=0.0d0
-    2 continue
       nsa=0
       lsolut=.true.
 c
@@ -99,12 +97,12 @@ c
       xs(1,i)=1.0d-01*x
       xs(2,i)=1.0d-01*y
       xs(3,i)=1.0d-01*z
-c      write(*,'(a6,a4,i5)') nama,namr,i
       goto 100
       endif
     3 continue
-c      write(*,'(a6,a4)') nama,namr
       else
+      iwfnd(iw)=iwfnd(iw+1)
+      iwmr(iw)=0
       endif
 c
       goto 100

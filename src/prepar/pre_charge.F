@@ -8,15 +8,15 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 c
+      logical pre_task
+      external pre_task
+c
 c     conversion factor
 c
 c     cnm2au : from nm to bohr
 c
       real*8 cnm2au
       parameter(cnm2au=1.88972598786d+01)
-c
-      logical pre_task1
-      external pre_task1
 c
 c     in  : latm(2,matm)      = atomic number
 c           matm              = dimension atom list
@@ -36,7 +36,7 @@ c
       integer lbnd(2,mbnd)
 c
       integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask
-      integer igeom2,nout,icon(100),ncon,nconst
+      integer igeom2,nout,icon(100),ncon,nconst,irest
       real*8 rcon
       character*16 tag
       real*8 coord(3),chrge
@@ -125,10 +125,12 @@ c
       if(.not.rtdb_put(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
      + call errquit('pre_charge: rtdb_put rcon failed',0)
   100 continue
+      irest=2
+      if(.not.rtdb_put(irtdb,'esp:irest',mt_int,1,irest))
+     + call errquit('pre_charge: rtdb_put irest failed',0)
       itask=1
-      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
-      if(itask.eq.1) then
-      if(.not.pre_task1(irtdb)) call errquit('pre_task1 failed',9999)
+      if(.not.pre_task(irtdb,itask))
+     + call errquit('pre_task failed',9999)
       if(.not.geom_create(igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_create failed',0)
       if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry')) then
@@ -142,7 +144,7 @@ c
     9 continue
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
-      endif
+      pre_charge=.true.
       return
 c
   200 continue

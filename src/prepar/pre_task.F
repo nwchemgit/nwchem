@@ -1,18 +1,28 @@
-      logical function pre_task1(irtdb)
+      logical function pre_task(irtdb,itask)
 c
       implicit none
 c
 #include "rtdb.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "mafdecls.fh"
 c
       logical scf,esp
       external scf,esp
 c
-      integer irtdb
+      integer irtdb,itask
       logical lstate
+c
+      call ga_sync()
+      call ga_brdcst(pre_i00,itask,ma_sizeof(mt_int,1,mt_byte),0)
+c
+      pre_task=.true.
+c
+      if(itask.eq.1) then
 c
       lstate=rtdb_parallel(.true.)
 c
-      pre_task1=.false.
+      pre_task=.false.
 c
 c      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
@@ -23,11 +33,13 @@ c      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(esp(irtdb)) then
-      pre_task1=.true.
+      pre_task=.true.
       endif
       endif
 c
       lstate=rtdb_parallel(.false.)
+c
+      endif
 c
       return
       end

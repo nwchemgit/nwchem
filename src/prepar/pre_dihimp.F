@@ -7,7 +7,7 @@ c
       integer latm(5,matm),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       character*80 ffield
 c
-      integer i,j,k,no,nd
+      integer i,j,k,no
 c
       if(ffield(1:6).eq.'gromos'.or.ffield(1:6).eq.'charmm') then
 c

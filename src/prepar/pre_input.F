@@ -13,19 +13,23 @@ c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
-      character*80 ffield,project,sysnam,string
+      character*80 ffield,sysnam
       character*255 dir_s,dir_x,dir_u,dir_t,commnd
       integer newtop,newseq,newrst
 c
-      integer len,number
+      integer len,number,mgrid,mnoe,inoe(2)
+      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5)
+      character*4  cnoe(2)
 c
-      if(ga_nodeid().eq.0) then
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,'PREPARE Input Module',40,.true.)
-      write(6,*)
-      write(6,*)
-      endif
+c      if(ga_nodeid().eq.0) then
+c      if(util_print('prepare',print_medium)) then
+c      write(6,*)
+c      write(6,*)
+c      call util_print_centered(6,'PREPARE Input Module',40,.true.)
+c      write(6,*)
+c      write(6,*)
+c      endif
+c      endif
 c
 c     set the defaults
 c     ----------------
@@ -42,12 +46,19 @@ c
       newseq=0
       newrst=0
       source=' '
+      mgrid=24
+      rgrid=0.2d0
+      mnoe=0
+c
+      touch=0.25
+      xpndw=0.10
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,commnd))
      + call errquit('rtdb_cget failed on file_prefix',9999)
       commnd=commnd(1:index(commnd,' ')-1)//'.cmd '
       open(unit=68,file=commnd(1:index(commnd,' ')-1),
-     + form='formatted',status='new',err=9999)
+     + form='formatted',status='unknown',err=9999)
+      rewind(unit=68)
       number=0
 c
 c     read the prepare input block
@@ -173,6 +184,187 @@ c
       goto 2
       endif
 c
+c     counterion grid parameters
+c     --------------------------
+c
+      if(inp_compare(.false.,'grid',item)) then
+      if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
+      if(.not.inp_f(rgrid)) call errquit('pre_input: grid',9999)
+      goto 2
+      endif
+c
+c     noe's
+c     -----
+c
+      if(inp_compare(.false.,'noe',item)) then
+      if(.not.inp_i(inoe(1))) call errquit('pre_input: noe',9999)
+      if(.not.inp_a(cnoe(1))) call errquit('pre_input: noe',9999)
+      if(.not.inp_i(inoe(2))) call errquit('pre_input: noe',9999)
+      if(.not.inp_a(cnoe(2))) call errquit('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(1))) call errquit('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(2))) call errquit('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(3))) call errquit('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(4))) call errquit('pre_input: noe',9999)
+      if(.not.inp_f(dnoe(5))) call errquit('pre_input: noe',9999)
+      mnoe=mnoe+1
+      write(68,6820) inoe,cnoe,dnoe
+ 6820 format('disres',2i5,2a4,3f12.6,2e12.5)
+      number=number+1
+      goto 2
+      endif
+c
+c     touch
+c     -----
+c
+      if(inp_compare(.false.,'touch',item)) then
+      if(.not.inp_f(touch)) call errquit('pre_input: touch',9999)
+      write(68,6801) touch
+ 6801 format('touch ',f12.6)
+      number=number+1
+      goto 2
+      endif
+c
+c     periodic
+c     --------
+c
+      if(inp_compare(.false.,'periodic',item)) then
+      write(68,6802)
+ 6802 format('period ')
+      number=number+1
+      goto 2
+      endif
+c
+c     vacuum
+c     ------
+c
+      if(inp_compare(.false.,'vacuo',item)) then
+      write(68,6803)
+ 6803 format('vacuum ')
+      number=number+1
+      goto 2
+      endif
+c
+c     center
+c     ------
+c
+      if(inp_compare(.false.,'center',item)) then
+      write(68,6818)
+ 6818 format('center ')
+      number=number+1
+      goto 2
+      endif
+c
+c     orient
+c     ------
+c
+      if(inp_compare(.false.,'orient',item)) then
+      write(68,6819)
+ 6819 format('orient ')
+      number=number+1
+      goto 2
+      endif
+c
+c     solvate
+c     ------
+c
+      if(inp_compare(.false.,'solvate',item)) then
+      write(68,6804) touch
+ 6804 format('touch ',f12.6)
+      if(.not.inp_a(item)) then
+      write(68,6805) xpndw
+ 6805 format('rdcoor',/,'period ',/,'solvnt',/,'solvat cube ',/,
+     + 'expand with ',f12.6,/,'wr_rst')
+      number=number+1
+      goto 1
+      else
+      if(inp_compare(.false.,'cube',item)) then
+      if(.not.inp_f(edge)) then
+      write(68,6811)
+ 6811 format('period',/,'solvat cube')
+      else
+      write(68,6812) edge
+ 6812 format('period',/,'solvat cube',f12.6)
+      endif
+      elseif(inp_compare(.false.,'box',item)) then
+      if(.not.inp_f(edges(1))) then
+      write(68,6813)
+ 6813 format('period',/,'solvat box')
+      else
+      if(.not.inp_f(edges(2))) edges(2)=edges(1)
+      if(.not.inp_f(edges(2))) edges(3)=edges(2)
+      write(68,6814) edges
+ 6814 format('period',/,'solvat box',3f12.6)
+      endif
+      elseif(inp_compare(.false.,'sphere',item)) then
+      if(.not.inp_f(edge)) then
+      write(68,6815)
+ 6815 format('vacuum',/,'solvat sphere')
+      else
+      write(68,6816) edge
+ 6816 format('vacuum',/,'solvat sphere',f12.6)
+      endif
+      endif
+      endif
+      number=number+1
+      goto 2
+      endif
+c
+c     write
+c     -----
+c
+      if(inp_compare(.false.,'write',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(inp_compare(.false.,'solute',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(.not.inp_compare(.false.,'pdb',item))
+     + call errquit('pre_input: write solute',9999)
+      if(.not.inp_a(item)) then
+      write(68,6806) ' '
+      else
+      write(68,6806) item(1:index(item,' ')-1)
+ 6806 format('wr_pdb solute ',a)
+      endif
+      elseif(inp_compare(.false.,'pdb',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6807) ' '
+      else
+      write(68,6807) item(1:index(item,' ')-1)
+ 6807 format('wr_pdb ',a)
+      endif
+      elseif(inp_compare(.false.,'rst',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6808) ' '
+      else
+      write(68,6808) item(1:index(item,' ')-1)
+ 6808 format('wr_rst ',a)
+      endif
+      endif
+      number=number+1
+      goto 2
+      endif
+c
+c     read
+c     ----
+c
+      if(inp_compare(.false.,'read',item)) then
+      if(.not.inp_a(item)) then
+      write(68,6817)
+ 6817 format('rdcoor')
+      else
+      if(inp_compare(.false.,'pdb',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      write(68,6809) item(1:index(item,' ')-1)
+ 6809 format('rd_pdb ',a)
+      elseif(inp_compare(.false.,'rst',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      write(68,6810) item(1:index(item,' ')-1)
+ 6810 format('rd_rst ',a)
+      endif
+      endif
+      number=number+1
+      goto 2
+      endif
+c
 c     end
 c     ---
 c
@@ -245,6 +437,13 @@ c
       endif
       if(newrst.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
+      if(mgrid.gt.0) then
+      if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'prep:rgrid',mt_dbl,1,rgrid))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c

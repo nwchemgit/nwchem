@@ -15,7 +15,7 @@ c
       character*255 filseq
       character*80 card
       integer lprint
-      integer i,j,iseq,ilnk,length,ival,ncrd,ncnt,imol
+      integer i,j,iseq,ilnk,length,imol
 c
       length=index(filseq,' ')-1
       open(unit=lfnseq,file=filseq(1:length),form='formatted',

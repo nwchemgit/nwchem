@@ -36,7 +36,7 @@ c
       integer lprint
 c
       integer len_s,len_x,len_u,len_t,length
-      integer i,j
+      integer i
 c
       len_s=index(dir_s,' ')-1
       len_x=index(dir_x,' ')-1

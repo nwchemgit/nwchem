@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
-* $Id: pre_atype.F,v 1.5 1998-04-24 07:46:30 d3e129 Exp $
+* $Id: pre_atype.F,v 1.6 1998-04-28 23:10:45 d3j191 Exp $
       implicit none
 c
 c     in  : lfnpar            = atom types file number
@@ -200,7 +200,7 @@ c
       read(lfnpar,1000,end=17,err=9999) card
       if(card(1:10).ne.'Atom types') goto 18
       if(lprint.ge.2)
-     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
    16 continue
       read(lfnpar,1000,end=17,err=9999) card
  1000 format(a)
@@ -227,7 +227,7 @@ c
       read(lfnpar,1000,end=117,err=9999) card
       if(card(1:10).ne.'Atom types') goto 118
       if(lprint.ge.2)
-     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   116 continue
       read(lfnpar,1000,end=117,err=9999) card
       if(card(1:1).eq.'#') goto 116
@@ -249,7 +249,7 @@ c
       read(lfnpar,1000,end=217,err=9999) card
       if(card(1:10).ne.'Atom types') goto 218
       if(lprint.ge.2)
-     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   216 continue
       read(lfnpar,1000,end=217,err=9999) card
       if(card(1:1).eq.'#') goto 216
@@ -271,7 +271,7 @@ c
       read(lfnpar,1000,end=317,err=9999) card
       if(card(1:10).ne.'Atom types') goto 318
       if(lprint.ge.2)
-     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   316 continue
       read(lfnpar,1000,end=317,err=9999) card
       if(card(1:1).eq.'#') goto 316

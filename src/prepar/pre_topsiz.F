@@ -1,13 +1,13 @@
       logical function pre_topsiz(lfntop,filtop,lfnout,lprint,
-     + nsa,nwa)
+     + nat,nsa,nwa,nsb)
 c
       implicit none
 c
-      integer lfntop,lfnout,lprint,nsa,nwa
+      integer lfntop,lfnout,lprint,nsa,nwa,nat
       character*255 filtop
       character*1 cdummy
 c
-      integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsb,nsh,nsd,nso,nst,nsx
+      integer nwb,nwh,nwd,nwo,nwt,nwn,nsb,nsh,nsd,nso,nst,nsx
       integer i,j,len
 c
       len=index(filtop,' ')-1
@@ -18,13 +18,13 @@ c
       read(lfntop,1000) cdummy
  1000 format(a1)
     1 continue
-      read(lfntop,1001) natl
+      read(lfntop,1001) nat
  1001 format(i5)
-      do 2 i=1,natl
+      do 2 i=1,nat
       read(lfntop,1000) cdummy
     2 continue
-      do 3 i=1,natl
-      do 4 j=i,natl
+      do 3 i=1,nat
+      do 4 j=i,nat
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
     4 continue

@@ -26,7 +26,7 @@ c
       integer ishort,jshort
       real*8 rshort
 c
-      integer i,j,iu,ib,k,l
+      integer i,j,iu,k,l
       integer link1,link2,link3,mol
 c
       if(lprint.ge.5) then
