@@ -2,6 +2,7 @@
      $                       nocc,nvir,iprt)
       implicit none
 c
+#include "ccsd_len.fh"
       integer g_objo,g_objv,nocc,nvir,iprt
       double precision t1(nvir,nocc),buf1(lnobj),buf2(lnobj)
 c
@@ -9,7 +10,6 @@ c
      &        lbfo,lbfv
       Integer Nodes, IAm
 C
-#include "ccsd_len.fh"
 #include "msgids.fh"
 #include "tcgmsg.fh"
 #include "global.fh"

@@ -2,8 +2,8 @@
       parameter (mxrout=100, mxlev=20)
 C
       Integer no(mxlev)
+      Double Precision  Tcp0, Tio0
       Double Precision tcp(mxrout), tio(mxrout)
-      Double Precision Tio, Tcp0, Tio0
       Integer ncall(mxrout)
       character*8 name(mxrout)
       Integer Level, NROut

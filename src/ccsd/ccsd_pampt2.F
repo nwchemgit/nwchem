@@ -8,12 +8,12 @@
      &        g_t2,g_ht2,g_moint,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
 c
+#include "ccsd_len.fh"
       double precision cmo(nbf,nbf),eorb(nbf),t1(*),t2(lnoov),
      &                 tau(lnoov),ht1(*),ht2(lnoov),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
 c
       integer nodes,iam
-#include "ccsd_len.fh"
 #include "ccsd_debug.fh"
 #include "mafdecls.fh"
 #include "bas.fh"

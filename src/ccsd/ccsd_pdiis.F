@@ -5,6 +5,7 @@ c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
 c
+#include "ccsd_len.fh"
       double precision t1(lnov),ht1(lnov),scra(lnoov),scrb(lnoov),
      &                 bbkp(*),bb(*),rms
       integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_t2,g_ht2
@@ -15,7 +16,6 @@ c
       double precision zip,one,half,two
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 C
-#include "ccsd_len.fh"
 #include "msgids.fh"
 #include "global.fh"
 c
