@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.12 2002-05-03 19:44:01 bylaska Exp $
+* $Id: cpsi.F,v 1.13 2003-07-30 18:16:48 bylaska Exp $
 *
 
 
@@ -985,6 +985,7 @@ c      end
       implicit none 
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -992,8 +993,18 @@ c      end
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value
+      logical value,psi_nogrid
       integer neall,n,vers
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer rtdb,ind
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*30 filename
+      character*30 control_input_psi
+      external     control_input_psi
+      logical  c_wvfnc_expander
+      external c_wvfnc_expander
 
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc
@@ -1051,7 +1062,63 @@ c      end
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) 
+     >  call errquit('cpsi_initialize:out of heap memory',0)
+
+*     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+          filename =  control_input_psi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0)
+
+          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_put failed', 0)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = c_wvfnc_expander(rtdb)
+
+        end if
+        value = rtdb_parallel(.true.)
+
+      end if
+
+      end if
 
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.12 2002-04-29 16:04:11 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.13 2003-07-30 18:16:48 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -29,7 +29,7 @@
       parameter (ALPHA=0.30d0)
 
       logical value,value2
-      integer ms,i,ia,icharge
+      integer ms,i,ia,icharge,ne_excited(2)
       integer dn(2),phi1(2),phi2(2)
       integer ee(2),eigs(2)
       integer smatrix,kematrix
@@ -37,6 +37,7 @@
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
       real*8  rho_error,rho_error_old,total_dn
+      character*30 filename
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
@@ -70,6 +71,10 @@
       character*12 control_boundry
       external     control_boundry
 
+      integer      control_excited_ne
+      character*30 control_input_epsi
+      external     control_excited_ne
+      external     control_input_epsi
 
       call Parallel_taskid(taskid)
       call D3dB_n2ft3d(1,n2ft3d)
@@ -367,6 +372,23 @@ c 50   call lcao_diis_end()
      >                    unita,
      >                    ispin,ne,
      >                    psimatrix,dcpl_mb(phi2(1)))
+
+
+*     **** write out excited orbitals ****
+      ne_excited(1) = 0
+      ne_excited(2) = 0
+      ne_excited(1) = control_excited_ne(1)
+      if (ispin.eq.2) ne_excited(2) = control_excited_ne(2)
+      filename = control_input_epsi()
+
+      if ((ne_excited(1)+ne_excited(2)).gt.0) 
+     >  call lcao_write_epsi(filename,
+     >                    version,
+     >                    ngrid,
+     >                    unita,
+     >                    ispin,ne,ne_excited,
+     >                    psimatrix,dcpl_mb(phi2(1)))
+
 
 
 *     ***** free heap memory ****

@@ -1,14 +1,15 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-02-11 19:11:05 edo Exp $
+# $Id: GNUmakefile,v 1.5 2003-07-30 18:16:48 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 				c_wvfnc_new.o \
+				c_wvfnc_expander.o \
 				pspw_reformat_c_wvfnc.o
                 
 
     LIBRARY = libband.a
 
-    USES_BLAS = pspw_reformat_c_wvfnc.F c_wvfnc_new.F
+    USES_BLAS = pspw_reformat_c_wvfnc.F c_wvfnc_new.F c_wvfnc_expander.F
                 
 
   LIB_DEFINES =

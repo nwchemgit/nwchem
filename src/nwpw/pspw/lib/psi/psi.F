@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.38 2003-07-21 22:06:28 bylaska Exp $
+* $Id: psi.F,v 1.39 2003-07-30 18:16:48 bylaska Exp $
 *
 
 
@@ -4124,6 +4124,35 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     *****  read initial wavefunctions into psi1  ****
       call epsi_read(ispin0,ne_excited,dcpl_mb(psi1_excited(1)))
+
+
+
+*     **** Ortho Check ****
+c     call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
+c    >                        dcpl_mb(psi1_excited(1)),
+c    >                        dcpl_mb(psi1_excited(1)),
+c    >                        sum2)
+c     
+c     sum1 = dble(ne_excited(1) + ne_excited(2))
+c     if (dabs(sum2-sum1).gt.1.0d-10) then
+c
+c        call Parallel_taskid(taskid)
+c        call Grsm_g_MakeOrtho(npack1,ne_excited(1),
+c    >                         dcpl_mb(psi1_excited(1)))
+c        if (ispin.gt.1) then
+c          call Grsm_g_MakeOrtho(npack1,ne_excited(2),
+c    >                           dcpl_mb(psi1_excited(1)
+c    >                                  +ne_excited(1)*npack1))
+c        end if
+c        call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
+c    >                        dcpl_mb(psi1_excited(1)),
+c    >                        dcpl_mb(psi1_excited(1)),
+c    >                        sum2)
+c        if (taskid.eq.MASTER)
+c    >    write(*,*) "Warning - Gram-Schmidt being performed on epsi:",
+c    >               dabs(sum2-sum1)
+c
+c     end if
 
 
 

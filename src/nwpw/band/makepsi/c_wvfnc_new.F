@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.3 2001-12-17 23:31:12 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.4 2003-07-30 18:16:48 bylaska Exp $
 *
       subroutine c_wvfnc_new(wavefunction_filename,
      >             			version,
@@ -29,7 +29,7 @@
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        value = MA_push_get(mt_int,8*NMAX,
+        value = MA_push_get(mt_int,8*(NMAX+1),
      >                    'filling',filling(2),filling(1))
         if (.not. value) call errquit('out of stack memory',0)
 
@@ -65,7 +65,7 @@
 
       implicit none
       integer NMAX
-      integer filling(4,NMAX,2)
+      integer filling(4,(NMAX+1),2)
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
@@ -91,6 +91,7 @@
       external         gcdot,util_random
  
 
+      p = util_random(5291999) !*** initialize the random sequence ***
       call getfilling(ne(1),filling)
       if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
 
@@ -174,8 +175,8 @@
 
 c         IF((ABS(filling(4,n,ms)).gt.1)) THEN
             do 125 K=0,NFFT3D-1
-			  rx = (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
-			  ry = (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+			  rx = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
+			  ry = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
      >                              + dcmplx(rx,ry)
   125       continue

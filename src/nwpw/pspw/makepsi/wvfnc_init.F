@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_init.F,v 1.3 2002-10-15 21:24:01 bylaska Exp $
+* $Id: wvfnc_init.F,v 1.4 2003-07-30 18:16:49 bylaska Exp $
 *
 
 
@@ -37,6 +37,7 @@
       double precision gcdotc,util_random
       external         gcdotc,util_random
  
+      p = util_random(5291999)  !*** initialize the random sequence ***
       value = .false.
       version = 3
 
@@ -160,8 +161,9 @@ c           CFULL(L2)=DCONJG(CC(N))
             do 125 K=1,NFFT3D-1
 c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-     >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+     >                   + (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
   125       continue
+            call gctimereverse(nfft1,nfft2,nfft3,dcpl_mb(cfull_indx))
             P=gcdotc(nfft1,nfft2,nfft3,
      >               dcpl_mb(cfull_indx),
      >               dcpl_mb(cfull_indx))
@@ -247,5 +249,85 @@ c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
       GCDOTC=sum
       return
       end 
+
+
+
+
+      subroutine gctimereverse(nfft1,nfft2,nfft3,A)
+      implicit none
+      integer nfft1,nfft2,nfft3
+      complex*16 A(*)
+
+*     **** local variables ****
+      integer i3,j3,k3
+      integer i2,j2,k2
+      integer index1,index2
+
+      A(1) = dcmplx(dble(A(1)),0.0d0)
+      do k3=1,(nfft3/2-1)
+         i3 =  k3
+         j3 = -k3
+         if (i3.lt.0) i3 = i3 + nfft3
+         if (j3.lt.0) j3 = j3 + nfft3
+         i3 = i3 + 1
+         j3 = j3 + 1
+         index1 = (i3-1)*(nfft1/2+1)*nfft2 + 1
+         index2 = (j3-1)*(nfft1/2+1)*nfft2 + 1
+
+         A(index2) = dconjg(A(index1))
+
+      end do
+      index1 = (nfft3/2)*(nfft1/2+1)*nfft2 + 1
+      A(index1) = dcmplx(0.0d0,0.0d0)
+
+      do k3=(-nfft3/2+1),(nfft3/2-1)
+      do k2=1,(nfft2/2-1)
+         i2 =  k2
+         i3 =  k3
+         j2 = -k2
+         j3 = -k3
+         if (i2.lt.0) i2 = i2 + nfft2
+         if (i3.lt.0) i3 = i3 + nfft3
+         if (j2.lt.0) j2 = j2 + nfft2
+         if (j3.lt.0) j3 = j3 + nfft3
+         i2 = i2 + 1
+         i3 = i3 + 1
+         j2 = j2 + 1
+         j3 = j3 + 1
+         index1 = (i3-1)*(nfft1/2+1)*nfft2 + (i2-1)*(nfft1/2+1) + 1
+         index2 = (j3-1)*(nfft1/2+1)*nfft2 + (j2-1)*(nfft1/2+1) + 1
+
+         A(index2) = dconjg(A(index1))
+
+      end do
+      end do
+      k3 = nfft3/2
+      do k2=1,(nfft2/2)
+         i2 =  k2
+         i3 =  k3
+         if (i2.lt.0) i2 = i2 + nfft2
+         if (i3.lt.0) i3 = i3 + nfft3
+         i2 = i2 + 1
+         i3 = i3 + 1
+         index1 = (i3-1)*(nfft1/2+1)*nfft2 + (i2-1)*(nfft1/2+1) + 1
+
+         A(index1) = dcmplx(0.0d0,0.0d0)
+      end do
+      k2 = nfft2/2
+      do k3=(-nfft3/2+1),(nfft3/2)
+         i2 =  k2
+         i3 =  k3
+         if (i2.lt.0) i2 = i2 + nfft2
+         if (i3.lt.0) i3 = i3 + nfft3
+         i2 = i2 + 1
+         i3 = i3 + 1
+         index1 = (i3-1)*(nfft1/2+1)*nfft2 + (i2-1)*(nfft1/2+1) + 1
+
+         A(index1) = dcmplx(0.0d0,0.0d0)
+      end do
+
+
+      return
+      end
       
 

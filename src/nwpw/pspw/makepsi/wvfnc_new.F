@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_new.F,v 1.6 2003-04-30 01:20:45 bylaska Exp $
+* $Id: wvfnc_new.F,v 1.7 2003-07-30 18:16:49 bylaska Exp $
 *
 
       subroutine wvfnc_new(wavefunction_filename,
@@ -82,12 +82,14 @@
       integer i,j,k,ms,n
 
       double precision p,scale
-      double complex cc,cx,sx,zx
+      double complex cc,cx,sx,zx,zc
 
 *     **** external functions ****
       double precision gcdotc,util_random
       external         gcdotc,util_random
  
+
+      p = util_random(5291999) !*** initialize the random sequence ****
 
       call getfilling(ne(1),filling)
       if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
@@ -154,10 +156,15 @@ c       CFULL(L1)=CC(1)
         dcpl_mb(cfull_indx+l1) = cc
         do k=1,nfft3d
           dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
-     >           + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+     >           + dcmplx((0.5d0-util_random(0)),
+     >                    (0.5d0-util_random(0)))
+     >              /dsqrt(dble(nfft3d))
 c         dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
-c    >           + (0.5d0-util_random(9))
+c    >           + (0.5d0-util_random(0))
         end do
+        zc = dcpl_mb(cfull_indx)
+        dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
+        call gctimereverse(nfft1,nfft2,nfft3,dcpl_mb(cfull_indx))
         P=gcdotc(nfft1,nfft2,nfft3,
      >           dcpl_mb(cfull_indx),
      >           dcpl_mb(cfull_indx))
@@ -166,7 +173,7 @@ c    >           + (0.5d0-util_random(9))
 
         call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
 
-        dcpl_mb(cfull_indx+l1)=(0.0d0,0.0d0)
+        dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
  
         DO 130 N=2,NE(ms)
 c         L1=INC3C*K3(N)+INC2C*K2(N)+K1(N)+1
@@ -190,10 +197,15 @@ c           CFULL(L2)=DCONJG(CC(N))
           IF((ABS(filling(4,n,ms)).gt.1)) THEN
             do 125 K=0,NFFT3D-1
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-     >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
+     >           + dcmplx((0.5d0-util_random(0)),
+     >                    (0.5d0-util_random(0)))
+     >              /dsqrt(dble(nfft3d))
 c             dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-c    >                   + (0.5d0-util_random(9))
+c    >                   + (0.5d0-util_random(0))
   125       continue
+            zc = dcpl_mb(cfull_indx)
+            dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
+            call gctimereverse(nfft1,nfft2,nfft3,dcpl_mb(cfull_indx))
             P=gcdotc(nfft1,nfft2,nfft3,
      >               dcpl_mb(cfull_indx),
      >               dcpl_mb(cfull_indx))
@@ -204,8 +216,8 @@ c    >                   + (0.5d0-util_random(9))
 
           call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
 
-          dcpl_mb(cfull_indx+l1)=(0.0d0,0.0d0)
-          dcpl_mb(cfull_indx+l2)=(0.0d0,0.0d0)
+          dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
+          dcpl_mb(cfull_indx+l2)=dcmplx(0.0d0,0.0d0)
   130   CONTINUE
  
 
