@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr, tau)
 c      
-c     $Id: dftg_gridv0a.F,v 1.19 2003-02-18 18:45:45 pollack Exp $
+c     $Id: dftg_gridv0a.F,v 1.20 2003-05-27 22:20:49 pollack Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -46,8 +46,8 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-      double precision tau(n_per_rec,3,ipol)
-
+c      double precision tau(n_per_rec,3,ipol)
+       double precision tau(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
