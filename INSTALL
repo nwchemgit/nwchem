@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.64 2004-04-20 16:49:06 edo Exp $
+$Id: INSTALL,v 1.65 2004-04-22 17:42:05 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -136,10 +136,11 @@ BASIC BUILD INSTRUCTIONS:
    LAPI64         IBM SP          AIX/LAPI                        y
    				 		   
    LINUX          x86             RH,MDK          GNU,Intel,PGI   y
-                  ppc             RH6.0,YD2.1     GNU
+                  ppc             YD2.1,SLES8     GNU,xlf         y
    LINUX64        Alpha           RedHat 6.2      Compaq          y
                   ia64            RedHat 7.2      Intel           y
                   x86_64          Suse SLES8      PGI             y
+                  ppc64           Suse SLES8      xlf             y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
    HPUX64         hppa            HPUX 11.0                       y
@@ -593,8 +594,8 @@ using NWChem.
 GA RELATED ISSUES:
 -------------------
 Occasionally, bugs in NWChem are associated with the Global Array tools
-(http://www.emsl.pnl.gov:2080/docs/global/ga.html).  Check out the URL
-http://www.emsl.pnl.gov:2080/docs/global/support.html for GA installation
+(http://www.emsl.pnl.gov/docs/global/ga.html).  Check out the URL
+http://www.emsl.pnl.gov/docs/global/support.html for GA installation
 related issues.  NOTE: some installations do not even work without some of
 the system related issues being resolved that are listed in that URL.
 
