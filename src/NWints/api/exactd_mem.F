@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.29 1999-11-02 21:56:21 bert Exp $
+c $Id: exactd_mem.F,v 1.30 1999-11-02 22:00:49 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -53,8 +53,9 @@ c:tex-
 c
 c     Check if Douglas-Kroll is done or not
 c
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll',MT_LOG,1,
-     $   doug_kroll)) doug_kroll = .false.
+      if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
+     $    doug_kroll = .false.
+c
       call int_mem_zero()
 c
       nbfmax = 0
