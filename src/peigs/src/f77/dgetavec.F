@@ -568,8 +568,8 @@ C
       INTEGER            idamax
       EXTERNAL           idamax
 c      
-      double precision dnrm2
-      external dnrm2
+      DOUBLE PRECISION DNRM2
+      EXTERNAL DNRM2, DSCAL
 c      
 *     ..
 *     .. Intrinsic Functions ..
@@ -598,7 +598,11 @@ c
 c this is for an occasionally breakage on cray mpp
 c can''t tell if it is the compiler or what
 c
-      Z( K ) = gamma(k)* ONE
+      if ( abs(gamma(k)) .lt. DLAMCHS) then
+         Z( K ) = DLAMCHS
+      else	
+         Z( K ) = gamma(k)* ONE
+      endif
 c     
 c     DO I = B1, bn
 c     write(*,*) ' gamma ', i, gamma(i), k
@@ -632,7 +636,6 @@ c
 c      
       I2 = IAND(MAX0(K - B1,0),3)
       I4 = IAND(MAX0(I2,0),3)
-
       DO I = K - 1, K - I4, -1
          IF (Z(I+1) .NE. 0.0D+0) THEN
             Z(I) = -LPLUS(I)*Z(I+1)
@@ -749,14 +752,14 @@ c
       END DO
 c      
 c      
-c     ZTZ = ZERO
-c     DO I = B1, BN
-c     ZTZ = ZTZ + Z( I ) * Z( I )
-c     END DO
-c      
-      ztz = dnrm2( bn-b1+1, z(b1), 1)
+c     
+      i = bn-b1+1
+      ztz = DNRM2( i, z(b1), 1)
+      ztz = 1.0e0/ztz
+      call DSCAL(i, ztz, z(b1), 1)
+c     
 c + DLAMCHU
-c      
+c      	
       RETURN
 101   format (E22.14)
 102   format (E22.14,E22.14)
@@ -765,6 +768,3 @@ c
 *     End of DGETAVEC
 *      
       END
-
-
-
