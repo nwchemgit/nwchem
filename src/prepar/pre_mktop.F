@@ -5,7 +5,7 @@
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + ignore,slvnam)
 c
-c $Id: pre_mktop.F,v 1.28 2001-11-06 06:15:21 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.29 2001-11-15 16:45:57 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -147,7 +147,8 @@ c
 c     determine termini
 c     -----------------
 c
-      if(.not.pre_term(lfnout,lfnsgm,dir_s,dir_x,dir_u,dir_t,
+      if(.not.pre_term(lfnout,lfnsgm,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_term failed',9999)
@@ -160,7 +161,8 @@ c
 c     determine array dimensions
 c     --------------------------
 c
-      if(.not.pre_dimens(lfnout,lfnsgm,dir_s,dir_x,dir_u,dir_t,
+      if(.not.pre_dimens(lfnout,lfnsgm,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + natm,nbnd,nang,ndih,nimp))
      + call errquit('pre_dimens failed',9999)
@@ -313,7 +315,7 @@ c
       if(.not.ma_push_get(mt_dbl,nval,'rval',l_rval,i_rval))
      + call errquit('Memory allocation failed for rval',9999)
       if(.not.pre_mklist(lfnout,lfnsgm,lfnmat,
-     + ffield,dir_s,dir_x,dir_u,dir_t,
+     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,

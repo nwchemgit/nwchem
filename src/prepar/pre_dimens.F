@@ -1,8 +1,8 @@
       logical function pre_dimens(lfnout,lfnsgm,
-     + dir_s,dir_x,dir_u,dir_t,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp)
 c
-c $Id: pre_dimens.F,v 1.6 1998-06-08 23:29:30 d3j191 Exp $
+c $Id: pre_dimens.F,v 1.7 2001-11-15 16:45:56 d3j191 Exp $
 c
 c     function to determine total system array dimensions
 c
@@ -16,7 +16,7 @@ c
       integer lfnout,lfnsgm,mseq,nseq,natm,nbnd,nang,ndih,nimp
       integer lseq(4,mseq)
       character*10 cseq(mseq)
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
 c
       character*255 filsgm
       integer i,nsatm,nsbnd,nsang,nsdih,nsimp
@@ -44,7 +44,7 @@ c     find segment file
 c     -----------------
 c
       if(pre_sgmfil(cseq(i),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t)) then
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c)) then
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)

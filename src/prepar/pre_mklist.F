@@ -1,5 +1,5 @@
       logical function pre_mklist(lfnout,lfnsgm,lfnmat,
-     + ffield,dir_s,dir_x,dir_u,dir_t,
+     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,
      + latm,catm,qatm,matm,natm,
@@ -10,7 +10,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx)
 c
-c $Id: pre_mklist.F,v 1.25 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.26 2001-11-15 16:45:56 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
 c
       integer lfnout,lfnsgm,lfnmat
       character*80 ffield
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       integer mseq,nseq
       integer lseq(4,mseq)
       character*10 cseq(mseq)
@@ -70,7 +70,7 @@ c     generate segment filename
 c     -------------------------
 c
       if(.not.pre_sgmfil(cseq(i),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t))
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c))
      + call errquit('pre_sgmfil failed',9999)
 c
 c     append the atom and bonded lists
@@ -873,7 +873,7 @@ c
       filmat=cseq(i)(1:index(cseq(nseq+1),' ')-1)//'.mat '
       lseq(3,nseq+1)=natm+1
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t))
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c))
      + call errquit('pre_sgmfil failed',9999)
       if(.not.pre_rdsgm(lfnout,ffield,0,0,igrp,ipgrp,lfnsgm,
      + filsgm,lfnmat,filmat,latm,catm,qatm,matm,natmt,
