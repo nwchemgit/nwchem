@@ -222,7 +222,10 @@ input for the variable \verb+group_name+ include such entries as:
 
 The \verb+SYMMETRY+ directive is optional.  The default is no symmetry 
 (i.e., $C_1$ point group). Automatic detection of point
-group symmetry is not yet automated, though this is planned.
+group symmetry is available through the use of \verb+autosym+ in the
+\verb+GEOMETRY+ directive main line (discussed in Section \ref{sec:geomkeys}).
+Note: if the \verb+SYMMETRY+ directive is present the \verb+autosym+
+keyword is ignored.
 
 If only symmetry-unique atoms are specified, the others will be
 generated through the action of the point group operators, but the
@@ -296,7 +299,7 @@ the definitions and usage of the values specified for the variable
   to associate functions with centers.
 \item All centers with the same tag will have the same basis
   functions.
-\item When automatic symmetry detection becomes functional in NWChem,
+\item When using automatic symmetry detection,
   only centers with the same tag will be candidates for testing for
   symmetry equivalence.
 \item The user-specified charges (of all centers, atomic and dummy)
