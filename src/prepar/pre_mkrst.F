@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
 c
-c $Id: pre_mkrst.F,v 1.59 2000-09-05 22:29:24 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.60 2000-09-11 17:21:51 d3j191 Exp $
 c
       implicit none
 c
@@ -41,7 +41,7 @@ c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
       integer l_sml,i_sml,l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
-      integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr
+      integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr,l_sfr,i_sfr
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
       integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
@@ -123,6 +123,8 @@ c
      + call errquit('Memory allocation failed for sgm',9999)
       if(.not.ma_push_get(mt_int,msa,'sml',l_sml,i_sml))
      + call errquit('Memory allocation failed for sml',9999)
+      if(.not.ma_push_get(mt_int,msa,'sfr',l_sfr,i_sfr))
+     + call errquit('Memory allocation failed for sfr',9999)
       if(.not.ma_push_get(mt_int,msa,'sfnd',l_sfnd,i_sfnd))
      + call errquit('Memory allocation failed for sfnd',9999)
       if(.not.ma_push_get(mt_dbl,msa,'qsa',l_qsa,i_qsa))
@@ -189,6 +191,7 @@ c
      + int_mb(i_num),dbl_mb(i_mas),mat,
      + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,
      + int_mb(i_wat),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
+     + int_mb(i_sfr),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu))
      + call errquit('pre_toprd failed',9999)
@@ -641,12 +644,13 @@ c
       len=index(filpdb,' ')-1
       if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,box,
      + int_mb(i_num),dbl_mb(i_mas),
-     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
-     + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
+     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
+     + int_mb(i_sfr),
+     + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
-     + call errquit('pre_wrtpdbpre failed',9999)
+     + call errquit('pre_wrtpdb failed',9999)
       endif
 c
 c     write pov file
@@ -1159,6 +1163,8 @@ c
      + call errquit('Memory deallocation failed for qsa',9999)
       if(.not.ma_pop_stack(l_sfnd))
      + call errquit('Memory deallocation failed for sfnd',9999)
+      if(.not.ma_pop_stack(l_sfr))
+     + call errquit('Memory deallocation failed for sfr',9999)
       if(.not.ma_pop_stack(l_sml))
      + call errquit('Memory deallocation failed for sml',9999)
       if(.not.ma_pop_stack(l_sgm))

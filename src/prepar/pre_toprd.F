@@ -1,23 +1,23 @@
       logical function pre_toprd(lfntop,filtop,lfnout,
-     + num,amass,mat,cwa,qwa,mwa,nwa,iwat,isat,isgm,isml,
+     + num,amass,mat,cwa,qwa,mwa,nwa,iwat,isat,isgm,isml,isfr,
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu)
 c
-c $Id: pre_toprd.F,v 1.17 2000-09-07 15:25:25 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.18 2000-09-11 17:21:51 d3j191 Exp $
 c
       implicit none
 c
       integer lfntop,lfnout,mwa,nwa,msa,nsa,nsm,msb,nsb,mat
       character*16 cwa(mwa),csa(msa)
       integer num(mat),isat(msa),isgm(msa),isml(msa),idsb(2,msb)
-      integer iwat(mwa)
+      integer iwat(mwa),isfr(msa)
       real*8 amass(mat),qsa(msa),cdsb(msb),qwa(mwa)
       character*255 filtop
       character*10 slvnam
       character*1 cdummy
 c
       integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsh,nsd,nso,nst,nsx
-      integer i,j,idummy,len,m,nqu
+      integer i,j,idummy,len,m,mf,nqu
       real*8 qu(nqu)
 c
       len=index(filtop,' ')-1
@@ -87,9 +87,10 @@ c 1010 format(f12.6)
       if(nwa.gt.0) read(lfntop,1006) slvnam
  1006 format(a10)
       do 10 i=1,nsa
-      read(lfntop,1339) csa(i),m,isgm(i),isat(i),idummy
- 1339 format(a16,5x,2i5,10x,2i5)
+      read(lfntop,1339) csa(i),mf,m,isgm(i),isat(i),idummy
+ 1339 format(a16,3i5,10x,2i5)
       isml(i)=m
+      isfr(i)=mf
       qsa(i)=qu(idummy)
 c      read(lfntop,1007) isat(i),m,isgm(i),csa(i),n
 c 1007 format(i7,i7,14x,i7,a16,7x,i5)
