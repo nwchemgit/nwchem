@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.32 2000-10-25 19:05:57 d3j191 Exp $
+c $Id: util_md.F,v 1.33 2000-11-15 04:52:49 d3j191 Exp $
 c
       implicit none
 c
@@ -259,19 +259,15 @@ c
      + err=9)
       write(lfn,1000)
      + 0.0d0,0.0d0,-3.0d0*max(abs(xmax),abs(ymax),abs(zmax),
-     + abs(xmin),abs(ymin),abs(zmin)),
-     + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin),
-     + 0.0d0, 0.0d0, 0.0d0,
-     + 1.3d0, 0.0d0, 0.0d0,
-     + 0.0d0, 0.0d0, 1.0d0,
-     + 0.0d0, 1.0d0, 0.0d0
+     + abs(xmin),abs(ymin),abs(zmin))
+c     + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin),
+c     + 0.0d0, 0.0d0, 0.0d0,
+c     + 1.3d0, 0.0d0, 0.0d0,
+c     + 0.0d0, 0.0d0, 1.0d0,
+c     + 0.0d0, 1.0d0, 0.0d0
  1000 format('camera {',/,
      + ' location <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' up <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' right <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' direction <',f12.6,',',f12.6,',',f12.6,'>',/,
-     + ' sky <',f12.6,',',f12.6,',',f12.6,'>',/,'}')
+     + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,'}')
       write(lfn,1001) -1.0d-1, 1.0d-1,-1.0d0, 1.0d0,1.0d0,1.0d0
       write(lfn,1001)  1.0d0,  2.0d0, -2.5d0, 1.0d0,1.0d0,1.0d0
       write(lfn,1001)  1.0d0,  2.0d0,  5.0d-1,1.0d0,1.0d0,1.0d0
