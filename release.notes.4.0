@@ -52,6 +52,11 @@ Basis Sets:
   o Basis set library has been updated to include all new basis sets at the EMSL
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
+  o Some of the old basis sets were corrected:
+    Basis Set "Ag_Hay-Wadt_VDZ_(n+1)_ECP", correction coefficient in first s-contraction
+    Basis Set "Ag_LANL2DZ_ECP", correction coefficient in first s-contraction
+    Complete Basis Set Family "CRENBS_ECP", complete revision of all basis sets
+    ECP "Ce_SBKJC_VDZ_ECP", correction switched integer powers for d-f component
   o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the 
     Douglas-Kroll and DmD approximations.
   o Dyall double-zeta basis sets for the 4p, 5p and 6p elements added
