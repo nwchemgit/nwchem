@@ -4,7 +4,7 @@
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
      &                      tklst, Tol2E)
-C     $Id: ccsd_pampt2.F,v 2.10 1997-06-05 17:45:41 gg502 Exp $
+C     $Id: ccsd_pampt2.F,v 2.11 1997-10-18 20:14:36 d3g681 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_t2,g_ht2,g_ncoul,g_nexch,g_nt2,g_nht2,
@@ -24,9 +24,8 @@ c
 #include "global.fh"
 c
       integer i,j,a,b,av,bv,ij,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
-     &        ilo,ihi,jlo,jhi,x,y,inode,next,lhoo,lhoov
-      logical stat
-      double precision eccsd,fac,eccsd1
+     &        ilo,ihi,jlo,jhi,lhoo,lhoov
+      double precision eccsd,fac
 c
       double precision zip,one,half,two
 c

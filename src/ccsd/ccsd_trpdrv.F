@@ -3,7 +3,7 @@
      &                       eccsdt,g_objo,g_objv,g_coul,g_exch,
      &                       ncor,nocc,nvir,iprt,emp4,emp5,
      &                       oseg_lo,oseg_hi)
-C     $Id: ccsd_trpdrv.F,v 2.5 1997-04-14 06:35:02 gg502 Exp $
+C     $Id: ccsd_trpdrv.F,v 2.6 1997-10-18 20:14:39 d3g681 Exp $
       implicit none
       double precision t1(*),buff(*),bufo(*),
      &                 bufv(*),f1n(*),f1t(*),f2n(*),
@@ -34,7 +34,6 @@ C
       call qenter('trpdrv',0)
       inode=-1
       aold=0
-      next=nxtval(-nodes)
       next=nxtval(nodes)
       do a=oseg_lo,oseg_hi
        av=a-ncor-nocc
@@ -145,7 +144,9 @@ c 3234     format(' te2 iam aijk',5i5,2e15.5)
       enddo
 c      print *,'end of loops'
 c
+      call ga_sync
       next=nxtval(-nodes)
+      call ga_sync
       call qexit('trpdrv',0)
       return
       end

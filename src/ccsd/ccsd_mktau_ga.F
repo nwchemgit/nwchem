@@ -3,14 +3,14 @@ C NAME
 C     CCSD_MkTau_GA -- Form Tau = T2 + T1T1 in a GA
 C
 C REVISION
-C     $Id: ccsd_mktau_ga.F,v 2.1 1997-06-05 17:46:28 gg502 Exp $
+C     $Id: ccsd_mktau_ga.F,v 2.2 1997-10-18 20:14:36 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine CCSD_MkTau_GA(NOcc, NVir, T1, LDT1, g_T2, g_Tau)
       Implicit NONE
       Integer NOcc, NVir, LDT1
       Double Precision T1(LDT1, NVir)
-      Integer g_T2, g_Z2, g_Tau
+      Integer g_T2, g_Tau
 C
 C ARGUMENTS
 C DESCRIPTION

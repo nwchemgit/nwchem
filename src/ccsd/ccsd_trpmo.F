@@ -2,7 +2,7 @@
      $                       g_objv,g_ncoul,g_nexch,
      $                       iprt)
       implicit none
-C     $Id: ccsd_trpmo.F,v 2.1 1997-05-29 16:42:55 gg502 Exp $
+C     $Id: ccsd_trpmo.F,v 2.2 1997-10-18 20:14:40 d3g681 Exp $
       integer ncor,nocc,nvir,nact,nbf,g_objv,g_nt2,
      $        g_ncoul,g_nexch,iprt
       double precision scr(*),scra(*),t1(*)
@@ -12,15 +12,15 @@ c
 #include "mafdecls.fh"
 c
       integer iam
-      integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av,ad1,ad2,ad3,ad4
+      integer ihi,ilo,jhi,jlo,i,j,k,b,av,ad1,ad2
       integer nvp1
-      double precision xx
       double precision zip
       data zip/0.0d00/
 c
       if (iprt.gt.5)print *,' sort_ccsd '
 c
       iam = ga_nodeid()
+      call ga_sync
 c
       nvp1=nvir+1
       lnoo=nocc*nocc
@@ -54,6 +54,7 @@ c
 c
        endif
       enddo
+      call ga_sync
 c
 c - put vectors in g_objv for use in triples, overwrite [vvoo] ints
       lnobj=lnoov+lnooo
@@ -78,6 +79,7 @@ c
         call ga_put(g_objv,lnobj+1,lnobj+lnoov,av,av,scr,lnoov)
        endif
       enddo
+      call ga_sync
 c
       return
       end

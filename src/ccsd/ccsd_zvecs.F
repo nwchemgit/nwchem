@@ -3,7 +3,7 @@
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
      $                      g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_zvecs.F,v 2.5 1997-06-05 17:45:41 gg502 Exp $
+C     $Id: ccsd_zvecs.F,v 2.6 1997-10-18 20:14:43 d3g681 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,
@@ -21,7 +21,7 @@ c
 #include "global.fh"
 c
       integer i,j,a,b,bv,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
-     &        ilo,ihi,jlo,jhi,lhoo,lhoov,maxbfsh
+     &        ilo,ihi,jlo,jhi,lhoo,lhoov
 c
       Integer Nodes, IAm
       double precision one

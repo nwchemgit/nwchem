@@ -1,6 +1,6 @@
       Logical Function ccsd(rtdb)
        implicit none
-C     $Id: ccsd.F,v 2.7 1997-10-13 06:34:50 d3e129 Exp $
+C     $Id: ccsd.F,v 2.8 1997-10-18 20:14:31 d3g681 Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -14,7 +14,7 @@ c
        integer geom, basis
        logical status
        character*255 title
-       character*255 movecs_in, movecs
+       character*255 movecs_in
        double precision threshscf
        logical moint_driver, scf
        external moint_driver, scf

@@ -2,7 +2,7 @@
      &                    hiu,giu,habe,gabe,hia,ht1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_ht2,g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_itf.F,v 2.5 1997-10-14 00:47:56 d3e129 Exp $
+C     $Id: ccsd_itf.F,v 2.6 1997-10-18 20:14:34 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_ht2
@@ -49,6 +49,7 @@ c ------------------------------------------------------------
 c ------------------------------------------------------------
 c fill new GAs
 c ------------------------------------------------------------
+      call ga_sync
       call ga_distribution(g_t2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do a=1,nvir
         if (a.ge.g_ilo.and.a.le.g_ihi)then
@@ -75,6 +76,7 @@ c
      &                 dbl_mb(k_t1),ht1,idiis,g_nt2,g_nht2,
      &                 g_ncoul,g_nexch,tklst)
 c
+      call ga_sync
       call ga_distribution(g_ht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do a=1,nvir
         if (a.ge.g_ilo.and.a.le.g_ihi)then
@@ -93,6 +95,7 @@ c
      &                 dbl_mb(k_sa),lnoov,1.0d00)
         endif
       enddo
+      call ga_sync
 CRK   if (.not.ga_destroy(g_nexch))
 CRK  &    call errquit('ga_dest g_nexch fail',0)
 CRK   if (.not.ga_destroy(g_ncoul))

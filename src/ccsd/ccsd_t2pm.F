@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.9 1997-10-13 06:34:51 d3e129 Exp $
+C     $Id: ccsd_t2pm.F,v 2.10 1997-10-18 20:14:39 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -339,7 +339,7 @@ c
      &    print *,' begin parallel integral generation'
       call ga_zero(g_sht2)
       call ga_zero(g_c)
-      next=nxtval(-nodes)
+      call ga_sync
       next=nxtval(nodes)
       do icnt=0,nsh*(nsh+1)/2-1
 c // parallel task here
@@ -407,7 +407,9 @@ c
 c // end parallel task
 c
       enddo
+      call ga_sync
       next=nxtval(-nodes)
+      call ga_sync
 c sync before 3 and 4 index transformation
       call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
      &                g_x,g_c)

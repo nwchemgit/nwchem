@@ -1,16 +1,44 @@
 
+      integer function moints_trp_mem(basis, nmo1, blen)
+      implicit none
+#include "global.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+      integer basis, nmo1, blen
+c
+c     return memory required for moints_trp with given arguments
+c
+      integer nbf, nsh, maxbfsh, max2e, mem2
+      integer n_ssni, n_integ, n_ssbb, n_hlp, bsize
+      logical status
+c
+      status = bas_numbf(basis,nbf)
+      status = status.and.bas_numcont(basis,nsh)
+      status = status.and.bas_nbf_cn_max(basis,maxbfsh)
+      if (.not.status) call errquit('moints: cannot get basis info',0)
+      bsize = max(blen,maxbfsh)
+      call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
+      max2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
+      n_integ = max2e+mem2+ma_sizeof(mt_int, 4*max2e, mt_dbl)
+      n_ssbb = maxbfsh*maxbfsh*bsize*bsize
+      n_ssni = maxbfsh*maxbfsh*nbf*nmo1
+      n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
+c
+      moints_trp_mem = 
+     $     ma_sizeof(mt_int, 3*(nbf+nsh), mt_dbl) +
+     $     nbf**2 + n_ssni + n_ssbb + max(n_integ, n_hlp+n_ssbb)
+c
+      end
+      
+
+c  $Id: moints_trp.F,v 2.8 1997-10-18 20:14:43 d3g681 Exp $
 c
 c
-c
-c
-c  $Id: moints_trp.F,v 2.7 1997-10-14 00:47:58 d3e129 Exp $
-c
+c     No-one knows what this stuff is doing ... are the next comments correct?
 c
 c  This routine returns the Coulomb and exchange integral
 c  operator matrices for the range of MO-indices as mo_indx_hi, mo_indx_lo
 c  The g_coul, g_exch global arrays are ordered as
-c
-c
 c
 c               ij
 c  (ij|ab) = ( J  )  = g_coul[ ij : (a-1)*N2 + b ] = g_coul [ ij : (b-1)*N2 + a ]
@@ -19,8 +47,6 @@ c
 c               ij
 c  (ia|jb) = ( K  )  = g_exch[ ij : (a-1)*N2 + b ]
 c                  ab
-c
-c
 c
 c
 
@@ -59,23 +85,22 @@ c Local variables
 c
        integer geom, nmo1, nmo2, nbf, nsh, maxbfsh
        integer bsize, ngrp, kgr, lgr
-       integer l_gmap, k_gmap
        integer ish0, jsh0, ish, jsh, ilen, jlen
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt, l_xmo, k_xmo
        integer l_hlp, k_hlp, l_ssni,k_ssni
-       integer l_hlp2, k_hlp2
+       integer l_hlp2, k_hlp2, l_hlp3, k_hlp3
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
        integer l_glo, k_glo, l_ghi, k_ghi
-       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
+       integer n_ssbb, n_ssni, n_hlp, n_hlp2, n_hlp3, n_ijni
        integer mem2, max2e
        integer num_nodes, ploop, next, nmixed, i, iz, jz, kz
        integer l_sym, k_sym
        integer g_tmp                       
-       double precision scale, schw_ij, q2
+       double precision scale, schw_ij, q2, d1, d2
        logical status, osym, odoit, oblk, st
 c
        integer moints_numgr, gr_len
@@ -84,7 +109,6 @@ c
        double precision half
        data half/0.5d00/
        data oblk/.true./    ! toggle whether to use Texas blocking or shell quartet AO ints
-c
 c
 c  General basis info
 c
@@ -95,7 +119,7 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
-       nmo1 = mo1_hi - occ_start + 1
+       nmo1 = mo1_hi - mo1_lo + 1
        nmo2 = mo2_hi - mo2_lo + 1
 c     
 c  Symmetry adapt the MOs and renumber irreps to start at zero
@@ -106,7 +130,8 @@ c
      $         call errquit('moints_trp: no memory for syms?',0)
           if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
      $      call errquit('moints_trp: cannot ga_create tmp',0)
-          call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
+          if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
+	  call ga_sync
           call sym_movecs_adapt( basis, 1d-8, g_tmp,
      $                            int_mb(k_sym), nmixed )
           call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
@@ -127,20 +152,27 @@ c
 c
 c  Integrals allocation
 c
-       call int_mem_2e4c(max2e, mem2)
-       status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
-       status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)
+*      call int_mem_2e4c(max2e, mem2)
+       call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
+       max2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
 c
 c  Reorder shells by descending shell-length
 c
        status = ma_push_get(MT_INT,nsh,'shell order map',
      $                      l_shmap, k_shmap)
        status = ma_push_get(MT_INT,nsh,'group lo', l_glo, k_glo )
+     $       .and. status
        status = ma_push_get(MT_INT,nsh,'group hi', l_ghi, k_ghi)
+     $       .and. status
        status = ma_push_get(MT_INT,nbf,'basis map',
      $                      l_bfmap, k_bfmap)
+     $       .and. status
        status = ma_push_get(MT_INT,nbf,'rev basis map',
      $                      l_rbfmap, k_rbfmap)
+     $       .and. status
+
+       if (.not. status) call errquit('moints_trp: map memory?',0)
+
        call moints_shorder( basis, nsh, nbf, blen, ngrp,
      $                      int_mb(k_glo), int_mb(k_ghi),
      $                      int_mb(k_shmap),
@@ -150,30 +182,19 @@ c  Copy of MO coefficients with reordered rows
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'reorder mos',
      $                      l_xmo, k_xmo)
-#ifdef OLD_AOBLOCK
-       ngrp = moints_numgr( basis, blen )
-       status = ma_push_get(MT_INT,(ngrp*4),'shell group map',
-     $                      l_gmap, k_gmap)
-       call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
-       call dcopy((nbf*nbf), cmo, 1, dbl_mb(k_xmo), 1)
-#else
+
        call row_exch( nbf, nbf, int_mb(k_rbfmap), cmo,
      $                       dbl_mb(k_xmo) )
-#endif       
 c
 c  Temporary partially-transformed arrays
 c     
        bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
-       n_ssbb1 = max((nmo1*nmo1),n_ssbb)
+*       n_ssbb1 = max((nmo1*nmo1),n_ssbb)
        n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
        n_hlp2 = maxbfsh*maxbfsh*nmo2
+       n_hlp3 = maxbfsh*maxbfsh
        n_ssni = maxbfsh*maxbfsh*nbf*nmo1
-       n_ssai = maxbfsh*maxbfsh*nmo2*nmo1
-       status = ma_push_get(MT_DBL,n_ssbb1,'ssbb block',l_ssbb,k_ssbb)
-       status = ma_push_get(MT_DBL,n_ssbb,'ssbbt block',l_ssbbt,k_ssbbt)
-       status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
-       status = ma_push_get(MT_DBL,n_hlp2,'hlp block',l_hlp2,k_hlp2)
        status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
        if (.not.(status)) call errquit('cannot allocate local memory',0)
 c
@@ -181,7 +202,11 @@ c Initialize
 c
        if (oexch) call ga_zero(g_exch)
        if (ocoul) call ga_zero(g_coul)
+
+       call ga_sync
+
        ploop = 0
+       call ga_sync
        next = nxtval(num_nodes)
 c
 c  4-fold shell loop
@@ -205,21 +230,11 @@ c
              if (next.eq.ploop) then
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
-#ifdef OLD_AOBLOCK
-               do kgr=1,ngrp
-                 call gr_sh_idx(ngrp,int_mb(k_gmap),kgr,kshlo,kshhi)
-                 kblen = gr_len(ngrp,int_mb(k_gmap),kgr,kbflo,kbfhi)
-                 do lgr=1,kgr
-                   call gr_sh_idx(ngrp,int_mb(k_gmap),lgr,lshlo,lshhi)
-                   lblen = gr_len(ngrp,int_mb(k_gmap),lgr,lbflo,lbfhi)
-                   call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
-     $                               lshlo, lshhi, schw_ij, tol2e,
-     $                               max2e, dbl_mb(k_eri),
-     $                               mem2, dbl_mb(k_iscr),
-     $                               ibflo, ibfhi, jbflo, jbfhi,
-     $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb), osym, .false. )
-#else
+
+               if (.not. ma_push_get(MT_DBL,n_ssbb,'ssbb block',
+     $              l_ssbb,k_ssbb)) call errquit
+     $              ('moints_trp: failed to alloc ssbb',n_ssbb)
+
                do kgr=1,ngrp
                  kshlo = int_mb(k_glo+kgr-1)
                  kshhi = int_mb(k_ghi+kgr-1)
@@ -236,6 +251,15 @@ c
                    lbflo = int_mb(k_rbfmap+iz-1)
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
+                   
+                   if (.not. ma_push_get(MT_DBL, max2e,'moints: buf', 
+     $                  l_eri, k_eri)) call errquit
+     $                  ('moints_trp: failed to alloc buf',max2e)
+                   if (.not. ma_push_get(MT_DBL, mem2, 'moints: scr', 
+     $                  l_iscr, k_iscr)) call errquit
+     $                  ('moints_trp: failed to alloc scr',mem2)
+
+
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
      $                               int_mb(k_shmap),int_mb(k_rbfmap),
@@ -246,17 +270,36 @@ c
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb) )
 
-#endif
+                   if (.not. ma_pop_stack(l_iscr))
+     $                  call errquit('moints: failed to pop', l_iscr)
+                   if (.not. ma_pop_stack(l_eri))
+     $                  call errquit('moints: failed to pop', l_eri)
+
+
+                   if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
+     $                  l_hlp,k_hlp)) call errquit
+     $                  ('moints_trp: failed to alloc hlp',n_hlp)
+
                    if (lgr.ne.kgr) then
+
+                      if (.not. ma_push_get(MT_DBL,n_ssbb,'ssbbt block',
+     $                     l_ssbbt,k_ssbbt)) call errquit
+     $                     ('moints: failed ssbbt', n_ssbb)
+
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt))
+
                      call moints_trf1( nbf, 1, nbf, mo1_lo, mo1_hi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 1.d0,
      $                                 dbl_mb(k_ssbb),
      $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
+
+                     if (.not. ma_pop_stack(l_ssbbt))
+     $                    call errquit('moints: failed to pop', l_ssbbt)
+
                    else
                      call moints_trf1( nbf, 1, nbf, mo1_lo, mo1_hi,
      $                                 ilen, jlen, kbflo, kbfhi,
@@ -265,9 +308,26 @@ c
      $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
                    endif
+
+                   if (.not. ma_pop_stack(l_hlp))
+     $                  call errquit('moints: failed to pop', l_hlp)
+
                  enddo
                enddo
+
+               if (.not. ma_pop_stack(l_ssbb))
+     $              call errquit('moints: failed to pop', l_ssbb)
+
+               if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
+     $              l_hlp,k_hlp)) call errquit
+     $              ('moints_trp: failed to alloc hlp',n_hlp)
+
                if (oexch) then
+
+                  if (.not. ma_push_get(MT_DBL,n_hlp2,'hlp2 block',
+     $                 l_hlp2,k_hlp2)) call errquit
+     $                 ('moints_trp: failed to alloc hlp2',n_hlp2)
+
                  call mo_trp_trf23K( nbf, occ_start,
      $                               mo1_lo, mo1_hi, nmo2,
      $                               mo2_lo, mo2_hi, ibflo, ibfhi,
@@ -276,39 +336,52 @@ c
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp),
      $                               dbl_mb(k_xmo), cmo, 
      $                               g_exch, ncor, nocc)
+
+                 if (.not. ma_pop_stack(l_hlp2))
+     $                call errquit('moints: failed to pop', l_hlp2)
+
                endif
                if (ocoul) then
-CRK              call mo_trp_trf2J( nbf, occ_start, mo2_lo, mo2_hi,
+
+                  if (.not. ma_push_get(MT_DBL,n_hlp3,'hlp3 block',
+     $                 l_hlp3,k_hlp3)) call errquit
+     $                 ('moints_trp: failed to alloc hlp2',n_hlp3)
+
                  call mo_trp_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
-     $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
-     $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
+     $                              dbl_mb(k_ssni),
+     $                              dbl_mb(k_hlp3), dbl_mb(k_xmo),
      $                              g_coul, ncor, nocc)
+
+                 if (.not. ma_pop_stack(l_hlp3))
+     $                call errquit('moints: failed to pop', l_hlp3)
+
                endif
+               if (.not. ma_pop_stack(l_hlp))
+     $              call errquit('moints: failed to pop', l_hlp)
                next = nxtval(num_nodes)
              endif
              ploop = ploop + 1
            endif
          enddo
        enddo
+       call ga_sync
        next = nxtval(-num_nodes)
+       call ga_sync
+
+*       d1 = ga_ddot(g_coul,g_coul)
+*       d2 = ga_ddot(g_exch,g_exch)
+*       if (ga_nodeid() .eq. 0) then
+*	   write(6,*) ' GACOUL1 ', d1
+*	   write(6,*) ' GAEXCH1 ', d2
+*       endif
+c
+       call ga_sync
 c
 c Clean-up
 c
        if (.not. ma_pop_stack(l_ssni))
      $     call errquit('moints: failed to pop', l_ssni)
-       if (.not. ma_pop_stack(l_hlp2))
-     $     call errquit('moints: failed to pop', l_hlp2)
-       if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp)
-       if (.not. ma_pop_stack(l_ssbbt))
-     $     call errquit('moints: failed to pop', l_ssbbt)
-       if (.not. ma_pop_stack(l_ssbb))
-     $     call errquit('moints: failed to pop', l_ssbb)
-#ifdef OLD_AOBLOCK
-       if (.not. ma_pop_stack(l_gmap))
-     $     call errquit('moints: failed to pop', l_gmap)
-#endif
        if (.not. ma_pop_stack(l_xmo))
      $     call errquit('moints: failed to pop', l_xmo)
        if (.not. ma_pop_stack(l_rbfmap))
@@ -321,12 +394,6 @@ c
      $     call errquit('moints: failed to pop', l_glo)
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap)
-       if (.not. ma_pop_stack(l_iscr))
-     $     call errquit('moints: failed to pop', l_iscr)
-       if (.not. ma_pop_stack(l_eri))
-     $     call errquit('moints: failed to pop', l_eri)
-c
-c 
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
        if (oexch) then
@@ -341,7 +408,15 @@ c
      $                       dbl_mb(k_hlp), ncor, nocc, nvir,
      $                       osym, int_mb(k_sym) )
        endif
-       call ga_sync()
+
+       call ga_sync
+
+*       d1 = ga_ddot(g_coul,g_coul)
+*       d2 = ga_ddot(g_exch,g_exch)
+*       if (ga_nodeid() .eq. 0) then
+*	   write(6,*) ' GACOUL1 ', d1
+*	   write(6,*) ' GAEXCH1 ', d2
+*       endif
 c
 c  Clean up
 c
@@ -359,6 +434,7 @@ c
  334   format(/,10x,'**** COMMUNICATION DISABLED ****')
 #endif
 c
+       call ga_sync()
        return
        end
 
@@ -383,7 +459,7 @@ c
 c
        integer aoff,nni,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
        integer ssij
-       integer aa,bb,a,b,i,j,v
+       integer a,b,i,j,v
        double precision cc
 c
        ofroz = ostart - 1
@@ -401,7 +477,6 @@ c
      $               xc(1,vlo), nbf, ssni(1,jlo,ilo,a),
      $               nbf, 0.d0, ssv, nvir )
          do b=ostart,ostart+nocc-1
-capr         do b=ostart,a
            call dfill(nni,0.d0,h1,1)
            do j=jlo,jhi
              cc = c(j,b)
@@ -412,15 +487,11 @@ capr         do b=ostart,a
              enddo
            enddo
 #ifndef NOCOMMS
-capr           aa = a - ofroz
-capr           bb = b - ofroz
-capr           ab = (aa*(aa-1))/2 + bb - aoff
            ab = (a-olo)*nocc+b-ostart+1
            call ga_acc(g_exch,ivlo,ivhi,ab,ab,h1,nni,1.d0)
 #endif
          enddo
          do b=ostart,ostart+nocc-1
-capr         do b=ostart,a
            call dfill(nnj,0.d0,h2,1)
            do i=ilo,ihi
             cc = c(i,b)
@@ -431,9 +502,6 @@ capr         do b=ostart,a
             enddo
           enddo
 #ifndef NOCOMMS
-capr          aa = a - ofroz
-capr          bb = b - ofroz
-capr          ab = (aa*(aa-1))/2 + bb - aoff
           ab = (a-olo)*nocc+b-ostart+1
           call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
 #endif
@@ -457,19 +525,17 @@ c
       integer syms(*)
 
       integer nvir, clo, chi, rlo, rhi, my_id
-      integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
+      integer ofroz, a1, a2, aa1, aa, aoff, k_local, ld
 
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
+      call ga_sync
       my_id = ga_nodeid()
       call ga_distribution(g_exch, my_id, rlo, rhi, clo, chi )
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       do a1=olo,ohi
         aa1 = a1 - ofroz
-capr        do a2=ostart,a1
         do a2=ostart,ostart+nocc-1
-capr          aa2 = a2 - ofroz
-capr          aa = (aa1*(aa1-1))/2 + aa2 - aoff
           aa = (a1-olo)*nocc+a2-ostart+1
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
@@ -478,100 +544,82 @@ capr          aa = (aa1*(aa1-1))/2 + aa2 - aoff
             if (osym) call moints_sym_zero( nbf, vlo, vhi, syms,
      $                                      a1, a2, tmp)
             call dcopy((nvir*nvir),tmp,1,dbl_mb(k_local),1)
-c$$$            PRINT*,' A1,A2: ',A1,A2
-c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif
         enddo
       enddo
+      call ga_sync
       return
       end
       subroutine mo_trp_trf2J( nbf, ostart, olo, ohi, ilo, ihi,
-     $                         jlo, jhi, ssni, h1, h2, c, g_coul,
-     &                         ncor, nocc )
+     $     jlo, jhi, ssni, h2, c, g_coul,
+     &     ncor, nocc )
       implicit none
       integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
-      double precision h1(nbf,ilo:ihi)
+      double precision h1(21)   ! cartesian H shell 
       double precision h2(jlo:jhi,ilo:ihi)
       double precision c(nbf,nbf)
       integer g_coul,ncor,nocc
-c
+c     
+      double precision tmp
       integer nni, ijlo, ijhi, ilen, jlen, ijlen
-      integer ab, aa, bb, a, b, i, j, aoff, ofroz
-#ifdef BLOCK_TRANSF
-      integer jtop
-#endif
-c
-c
+      integer ab, a, b, i, j, aoff, ofroz, u
+c     
+c     
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
       nni = ilen*nbf
       ijlen = ilen*jlen
-#ifdef BLOCK_TRANSF
-      ijlo = (ilo-1)*nbf + 1
-      ijhi = ihi*nbf
-#endif
       do a=olo,ohi
-capr        do b=ostart,a
-        do b=ostart,ostart+nocc-1
-          call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,a),
-     $               nbf,c(1,b),nbf,0.d0,h2,ijlen)
+         do b=ostart,ostart+nocc-1
+            do i = ilo,ihi
+               do j = jlo,jhi
+                  tmp = 0.0d0
+                  do u = 1,nbf
+                     tmp = tmp + ssni(u,j,i,a)*c(u,b)
+                  enddo
+                  h2(j,i) = tmp
+               enddo
+            enddo
+*            call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,a),
+*     $           nbf,c(1,b),nbf,0.d0,h2,ijlen)
 #ifndef NOCOMMS
-capr          aa = a - ofroz
-capr          bb = b - ofroz
-capr          ab = (aa*(aa-1))/2 + bb - aoff
-          ab = (a-olo)*nocc+b-ostart+1
-#ifdef BLOCK_TRANSF
-          call dfill(nni,0.d0,h1,1)
-          do i=ilo,ihi
-            jtop = jhi
-            if (jhi.eq.ihi) jtop = i
-            do j=jlo,jtop
-              h1(j,i) = h2(j,i)
-            enddo
-          enddo
-          call ga_acc(g_coul,ijlo,ijhi,ab,ab,h1,nni,1.d0)
-#else
-CRK       do i=ilo,ihi
-CRK         ijlo = i*(i-1)/2 + jlo
-CRK         ijhi = i*(i-1)/2 + jhi
-CRK         if (jhi.eq.ihi) ijhi = i*(i-1)/2 + i
-CRK         write(6,*)'ijlo,ijhi',ijlo,ijhi
-CRK         call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(jlo,i),1,1.d0)
-CRK       enddo
-          if(jlo.le.ilo)then
-            do i=ilo,ihi
-            do j=jlo,min(i,jhi)
-              ijlo = i*(i-1)/2 + j
-              ijhi = i*(i-1)/2 + j
-              call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
-            enddo
-            enddo
-          else
-            do j=jlo,jhi
-            do i=ilo,min(j,ihi)
-              ijlo = j*(j-1)/2 + i
-              ijhi = j*(j-1)/2 + i
-              call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
-            enddo
-            enddo
-          endif
-
-CRK2      do i=ilo,ihi
-CRK2      do j=jlo,min(i,jhi)
-CRK2        ijlo = (i-1)*nbf + jlo
-CRK2        ijhi = (i-1)*nbf + jhi
-CRK2        if (jhi.eq.ihi) ijhi = (i-1)*nbf + i
-CRK2        write(6,*)'ab,h2(j,i)',ab,j,i,h2(j,i)
-CRK2        call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
-CRK2      enddo
-CRK2      enddo
+            ab = (a-olo)*nocc+b-ostart+1
+            if(jlo.le.ilo)then
+               do i=ilo,ihi
+*                  do j=jlo,min(i,jhi)
+*                     ijlo = i*(i-1)/2 + j
+*                     ijhi = i*(i-1)/2 + j
+*                     call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
+*                  enddo
+                  ijlo = i*(i-1)/2 + jlo
+                  ijhi = i*(i-1)/2 + min(i,jhi)
+                  if (ijhi .ge. ijlo) call ga_acc(g_coul, ijlo, ijhi,
+     $                 ab, ab, h2(jlo,i), 1, 1.d0)
+               enddo
+            else
+               do j=jlo,jhi
+*     do i=ilo,min(j,ihi)
+*     ijlo = j*(j-1)/2 + i
+*     ijhi = j*(j-1)/2 + i
+*     call ga_acc(g_coul,ijlo,ijhi,ab,ab,h2(j,i),1,1.d0)
+*     enddo
+                  ijlo = j*(j-1)/2 + ilo
+                  ijhi = j*(j-1)/2 + min(j,ihi)
+                  if (ijhi .ge. ijlo)  then
+                     do i = ilo,min(j,ihi)
+                        h1(i-ilo+1) = h2(j,i)
+                     enddo
+                     call ga_acc(g_coul, ijlo, ijhi, ab, ab, 
+     $                    h1,1,1.d0)
+                  endif
+               enddo
+            endif
 #endif
-#endif
-        enddo
+         enddo
       enddo
       return
       end
@@ -589,37 +637,28 @@ CRK2      enddo
       integer syms(*)
 
       integer clo, chi, rlo, rhi, my_id
-      integer ofroz, aoff, a1, a2, aa1, aa2, aa, k_local, ld
+      integer ofroz, aoff, a1, a2, aa, k_local, ld
+
+      call ga_sync
 
       ofroz = ostart - 1
       aoff = ((olo-ofroz)*(olo-ofroz-1))/2
       my_id = ga_nodeid()
       call ga_distribution(g_coul, my_id, rlo, rhi, clo, chi )
       do a1=olo,ohi
-capr        aa1 = a1 - ofroz
         do a2=ostart,ostart+nocc-1
-capr        do a2=ostart,a1
-capr          aa2 = a2 - ofroz
-capr          aa = (aa1*(aa1-1))/2 + aa2 - aoff
           aa = (a1-olo)*nocc+a2-ostart+1
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
-CRK         do aa1=0,nbf*(nbf+1)/2-1
-CRK            write(6,*)'read x',aa,dbl_mb(k_local+aa1)
-CRK         enddo
             call mo_trp_Jtrf34a( nbf, c, dbl_mb(k_local), tmp, 
      &                           ncor,nocc,nvir)
             if (osym) call moints_sym_zero(nbf, vlo, vhi, syms, a1, a2,
      $                                     dbl_mb(k_local))
-c$$$            PRINT*,' A1,A2: ',A1,A2
-c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
-CRK         do aa1=0,nvir*nvir-1
-CRK            write(6,*)'x',dbl_mb(k_local+aa1)
-CRK         enddo
             call ga_release(g_coul,rlo,rhi,aa,aa)
           endif
         enddo
       enddo
+      call ga_sync
       return
       end
       subroutine mo_trp_Jtrf34a( nbf, c, x, tmp, ncor, nocc, nvir)

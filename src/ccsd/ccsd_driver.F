@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.20 1997-07-29 21:00:18 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.21 1997-10-18 20:14:33 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -45,13 +45,10 @@ C
        Integer MaxBfSh
        Character*80 CC_Theory
        character*20 scftype_vecs
-capr
 #include "ccsd_len.fh"
 c
-       integer maxit,iprt,ncor,ndel,l_mo,k_mo,g_objv,
-     &         l_scr,k_scr
+       integer maxit,iprt,ncor,ndel,l_mo,k_mo, l_scr,k_scr
        Double Precision Convi, Tol2E
-capr
 c
        logical movecs_read_header, movecs_read
        external movecs_read_header, movecs_read
@@ -344,6 +341,7 @@ C
 C      Note that these are not strictly pair energies -- the diagonals
 C      are off by a factor of two.
 C
+       call ga_sync
        If ( OExch ) then
           If ( Util_Print('guess pair energies', Print_Debug) ) then
              If ( Me .eq. 0 ) Call Banner( LuOut,
@@ -373,6 +371,7 @@ C
           Call GA_DGOp(msg_cc_emp2, EMP2, 1, '+')
           Call GA_Sync
        EndIF
+       call ga_sync
 C
 C     Also get the SCF energy so we can report the total energy
 C

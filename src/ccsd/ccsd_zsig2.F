@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_tz1,g_tz2,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.2 1997-04-14 06:35:05 gg502 Exp $
+C     $Id: ccsd_zsig2.F,v 2.3 1997-10-18 20:14:42 d3g681 Exp $
       implicit none
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &        g_sht2,g_zx,g_zc,g_tz1,g_tz2,g_tz3,iprt
@@ -250,7 +250,9 @@ c
       enddo
 c
       inode=-1
+      call ga_sync
       next=nxtval(-nodes)
+      call ga_sync
       next=nxtval(nodes)
       do a=1,nvir
         do i=1,nocc

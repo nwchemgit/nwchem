@@ -3,11 +3,11 @@
      &                      mem2,max2e,tol2e,g_nt2,g_nz2,g_nhz2,g_tz1,
      &                      g_tz2)
       implicit none
-C     $Id: ccsd_aosig.F,v 2.2 1997-05-29 16:42:50 gg502 Exp $
+C     $Id: ccsd_aosig.F,v 2.3 1997-10-18 20:14:32 d3g681 Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
-      integer nfi,nfj,nfk,nfl,lnijkl,lnof,lnov
+      integer nfi,nfj,nfk,nfl,lnijkl,lnof
       integer p,q,a,b,c,i,j,k,ad1,ad2,ad3,ad4
       double precision cmo(nbf,nbf),scra(nbf,nbf),scrb(nbf*nbf)
       double precision t1(nocc,nvir),hz1(nocc,nvir),tzvv(nvir,nvir),
@@ -154,7 +154,7 @@ c     Generate integrals
 c
       call ga_zero(g_tmp4)
       nodes=ga_nnodes()
-      next=nxtval(-nodes)
+      call ga_sync()
       next=nxtval(nodes)
       icnt=-1
       call dfill(nbf*nbf,0.0d00,hzao,1)
@@ -204,6 +204,8 @@ c // parallel task here
       enddo
 c
       call ga_sync()
+      next=nxtval(-nodes)
+      call ga_sync
       call ga_dgop(910,hzao,nbf*nbf, '+')
 c
       if(iam.eq.0)then
@@ -262,9 +264,9 @@ c
      &                 tzao,hzao,nbf,hz1,scra,scrb,cmo,nocc,nvir,
      &                       g_tmp,g_tmp2,g_tmp3,g_tmp4)
       implicit none
-      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,i,j,k,l,nbf,nocc,nvir
-      integer p,q,r,s,a,b,c,d,g_ilo,g_ihi,g_jlo,g_jhi,ad1,ad2,ad3,ad4
-      integer g_tmp,g_tmp2,g_tmp3,g_tmp4,g_tz1
+      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,i,j,nbf,nocc,nvir
+      integer p,q,r,s,c,ad1,ad2
+      integer g_tmp,g_tmp2,g_tmp3,g_tmp4
       double precision eri1(llo:lhi,klo:khi,jlo:jhi,ilo:ihi),
      &                 eri2(jlo:jhi,klo:khi,llo:lhi,ilo:ihi),
      &                 tzao(nbf,nbf),hzao(nbf,nbf),scra(nbf,nbf),

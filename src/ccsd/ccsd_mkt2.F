@@ -1,6 +1,6 @@
       subroutine ccsd_mkt2(ncor,nocc,nvir,nact,eorb,
      $                     t2,scra,g_nexch,g_t2,iprt)
-C     $Id: ccsd_mkt2.F,v 2.4 1997-05-29 16:42:52 gg502 Exp $
+C     $Id: ccsd_mkt2.F,v 2.5 1997-10-18 20:14:35 d3g681 Exp $
       implicit none
       integer ncor,nocc,nvir,nact,iprt,g_t2,g_nexch
       double precision eorb(*),t2(*),scra(*)
@@ -8,7 +8,7 @@ c
       integer iam
 c
       integer jlo,jhi,ilo,ihi
-      integer a,b,i,j,av,bv,icnt,lhoov,ad1,ad2,lhoo
+      integer a,b,i,j,lhoov,ad1,ad2,lhoo
 C
 #include "ccsd_len.fh"
 #include "global.fh"
@@ -21,6 +21,7 @@ c
       lhoo=nocc*(nocc+1)/2
       lhoov=nvir*nocc*(nocc+1)/2
 c
+      call ga_sync
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
         if (a.ge.ilo.and.a.le.ihi)then
@@ -44,6 +45,7 @@ c
           call ga_put(g_t2,1,lhoov,a,a,scra,lhoov)
         endif
       enddo
+      call ga_sync
 c
       return
       end

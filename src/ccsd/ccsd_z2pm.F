@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.3 1997-10-14 00:47:57 d3e129 Exp $
+C     $Id: ccsd_z2pm.F,v 2.4 1997-10-18 20:14:41 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -11,7 +11,7 @@ C     $Id: ccsd_z2pm.F,v 2.3 1997-10-14 00:47:57 d3e129 Exp $
 #include "rtdb.fh"
 c
       integer g_sz2t,lnoo
-      integer i,j,k,l,a,b,ad1,ad2,ad3,g_jlo,g_jhi,g_ilo,g_ihi,
+      integer i,j,k,l,ad1,ad2,ad3,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
      &        xy,x,y,ipp,imm,ii,jj,iijj,jjii
 c

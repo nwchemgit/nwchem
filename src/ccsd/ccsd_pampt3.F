@@ -2,13 +2,13 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.8 1997-10-14 00:47:57 d3e129 Exp $
+C     $Id: ccsd_pampt3.F,v 2.9 1997-10-18 20:14:37 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
 
-      double precision tol2e,cmo(nbf,nbf),eorb(nbf),xx,
+      double precision tol2e,cmo(nbf,nbf),eorb(nbf),
      &                 hiu(*),giu(*),habe(*),gabe(*),hia(*),
      &                 t1(nocc*nvir),ht1(nocc*nvir)
 

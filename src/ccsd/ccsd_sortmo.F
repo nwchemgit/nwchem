@@ -1,14 +1,14 @@
       subroutine ccsd_sortmo(ncor,nocc,nvir,nact,nbf,scra,scrb,
      $                       g_coul,g_exch,g_ncoul,g_nexch,
      $                       iprt)
-C     $Id: ccsd_sortmo.F,v 2.6 1997-09-19 17:52:17 rg240 Exp $
+C     $Id: ccsd_sortmo.F,v 2.7 1997-10-18 20:14:38 d3g681 Exp $
       implicit none
       integer ncor,nocc,nvir,nact,nbf,g_coul,g_exch,
      $        g_ncoul,g_nexch,iprt
       double precision scra(nbf*nbf),scrb(nact*nact)
 c
       integer iam,ga_nodeid
-      integer ihi,ilo,jhi,jlo,ij,kl,i,j,k,l,a,b,ad1,ad2,ad3,ad4
+      integer ihi,ilo,jhi,jlo,ij,i,j,ad1,ad2
 c
       if (iprt.gt.5)print *,' sort_ccsd '
 c      call ga_summarize(.true.)

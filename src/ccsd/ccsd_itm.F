@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.7 1997-10-14 00:47:56 d3e129 Exp $
+C     $Id: ccsd_itm.F,v 2.8 1997-10-18 20:14:35 d3g681 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -384,7 +384,7 @@ c-----------------------------------------------------------------------
 c
 c
       inode=-1
-      next=nxtval(-nodes)
+      call ga_sync
       next=nxtval(nodes)
       do a=1,nvir
           do i=1,nocc
@@ -399,6 +399,9 @@ c
           endif
         enddo
       enddo
+      call ga_sync
+      next=nxtval(-nodes)
+      call ga_sync
 c
       if (.not.ga_destroy(g_tmt2))
      &    call errquit('ga_dest g_tmt2 fail',0)
@@ -697,7 +700,7 @@ c
      &    call errquit('ga_dest g_tmt fail',0)
 c
       inode=-1
-      next=nxtval(-nodes)
+      call ga_sync
       next=nxtval(nodes)
       do a=1,nvir
        do b=1,nvir
@@ -714,6 +717,9 @@ c -- end parallel task --
 c
        enddo
       enddo
+      call ga_sync
+      next=nxtval(-nodes)
+      call ga_sync
 c
 c -- add some trivial terms to ht1 (nothing to ht2)
       inode=-1
@@ -730,7 +736,6 @@ c
        enddo
       enddo
       call ga_dgop(msg_cc_term6,ht1,lnov, '+')
-      next=nxtval(-nodes)
 c
       call qexit('itm',0)
       return

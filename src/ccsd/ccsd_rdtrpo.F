@@ -1,6 +1,6 @@
       subroutine ccsd_rdtrpo(t1,buf1,buf2,g_objo,g_objv,
      $                       nocc,nvir,iprt)
-C     $Id: ccsd_rdtrpo.F,v 2.5 1997-04-14 06:35:01 gg502 Exp $
+C     $Id: ccsd_rdtrpo.F,v 2.6 1997-10-18 20:14:38 d3g681 Exp $
       implicit none
 c
 #include "ccsd_len.fh"
@@ -17,6 +17,7 @@ C
 C
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
+      call ga_sync
 c
 c - read in objects
 c - [io|ov], [oo|iv], t2(io:vv) / [ao|vo], t2(oo:av), t2(oo,va)
@@ -109,6 +110,8 @@ c
        endif
       enddo
 c
+      call ga_sync()
+c
 c sort t1 then broadcast which also serves to synchronize processes
       if (iam.eq.0)then
        call ga_get(g_objv,lnoov+lnooo+1,lnoov+lnooo+lnov,nvir+1,nvir+1,
@@ -123,6 +126,7 @@ c sort t1 then broadcast which also serves to synchronize processes
       endif
       call ga_brdcst(msg_cc_t1b,t1,mdtob(lnov),0)
 c
+      call ga_sync
       call ga_distribution(g_objo,iam,jl,jh,il,ih)
       do i=1,nocc
        if (i.ge.il.and.i.le.ih)then

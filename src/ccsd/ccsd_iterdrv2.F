@@ -1,14 +1,14 @@
-      subroutine ccsd_iterdrv2(basis,nsh,ncor,nocc,nvir,nact,nbf,
+      subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                        maxit,Thre,iprt,cmo,eorb,t1,
      &                        ht1,scra,scrb,hiu,hia,habe,giu,gabe,
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E)
-C     $Id: ccsd_iterdrv2.F,v 2.12 1997-10-13 06:34:50 d3e129 Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.13 1997-10-18 20:14:34 d3g681 Exp $
       implicit none
 c
-      integer basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
+      integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
      & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
       Double Precision Thre, Tol2E
@@ -27,18 +27,25 @@ c
 *rak-e
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
-     &        i,j,a,b,av,lhoo,lhoov,ad1,ad2,ad3,ad4
+     &        i,av,lhoo,lhoov
       integer max2e,mem2
       double precision eold,dabs,tx(4),rms,deccsd,
      &                 tstart,tend
 
-      Integer IAm
+      Integer IAm, fd
+      logical file_read_ga,  file_write_ga
+      external file_read_ga, file_write_ga
+
+      logical orestart
+      character*255 t1file, t2file
 
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "rtdb.fh"
+#include "eaf.fh"
 c
       double precision zip,ten
       data zip/0.0d00/,ten/10.0d00/
@@ -53,15 +60,43 @@ c
 c
       nvp1=nvir+1
 c - starting vectors
-      call dfill(lnov,zip,t1,1)
-c
+
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
-      if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-       call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
+
+      call util_file_name('t1', .false.,.false.,t1file)
+      call util_file_name('t2', .false.,.false.,t2file)
+
+      if (.not.rtdb_get(rtdb, 'ccsd:restart',MT_LOG, 1, orestart))
+     $    orestart = .false.
+
+      if (orestart) then
+	if (.not. file_read_ga(t2file,g_t2)) then
+	   if (iam .eq. 0) write(6,*) ' Restart from T2 failed'
+	   orestart = .false.
+	   goto 2451
+        endif
+        if (eaf_open(t1file, eaf_rw, fd) .ne. 0) then
+	   if (iam .eq. 0) write(6,*) ' Restart from T1 failed'
+	   orestart = .false.
+	   goto 2451
+        endif
+        if (eaf_read(fd, 0.0d0, t1, 8*lnov) .ne. 0) then
+	   if (iam .eq. 0) write(6,*) ' Restart from T1 failed'
+	   orestart = .false.
+	   goto 2451
+        endif
+        if (eaf_close(fd) .ne. 0) call errquit
+     $       ('ccsd: close of t1?',0)
       endif
-c
-      call ccsd_mkt2(ncor,nocc,nvir,nact,eorb,scra,
-     &               scrb,g_nexch,g_t2,iprt)
+c Note that if restart fails orestart will be set false
+2451  if (.not. orestart) then
+        call dfill(lnov,zip,t1,1)
+        if (nvp1.ge.ilo.and.nvp1.le.ihi)then
+         call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
+        endif
+        call ccsd_mkt2(ncor,nocc,nvir,nact,eorb,scra,
+     &                 scrb,g_nexch,g_t2,iprt)
+      endif
       call ccsd_mktask(basis,nsh,tklst)
 c
 c ------------------------------------------------------------
@@ -102,6 +137,19 @@ c ----------------------------------------------------------
       ndiis=ndiis+1
       if (ndiis.gt.mxvec)ndiis=mxvec
       offt2=(idiis-1)*lhoov
+
+c
+c     Write out the current T1 and T2 for possible restart
+c
+	if (.not. file_write_ga(t2file,g_t2)) call errquit
+     $     ('ccsd: write of t2 failed', 0)
+        if (eaf_open(t1file, eaf_rw, fd) .ne. 0) call errquit
+     $     ('ccsd: opening t1 failed',0)
+        if (eaf_write(fd, 0.0d0, t1, 8*lnov) .ne. 0) call errquit
+     $     ('ccsd: writing t1 failed',0)
+        if (eaf_close(fd) .ne. 0) call errquit
+     $     ('ccsd: close of t1?',0)
+
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
         if (iam.eq.0)write(6,1236)
  1236   format(18x,'*************converged*************',18x,
@@ -140,6 +188,7 @@ c ----------------------------------------------------------
       call dfill(lnov,zip,ht1,1)
       call dfill(lhoov,zip,scra,1)
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
+      call ga_sync
       do bev=1,nvir+1
       if (bev.ge.ilo.and.bev.le.ihi)then
         call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,1)
@@ -174,7 +223,7 @@ c ----------------------------------------------------------
      &      tx(2)-tx(1),
      &      tx(4)-tx(3)-(tx(2)-tx(1)),
      &      main_block_time
- 1235 format(i4,f18.10,2(1pd11.3),3(f9.2))
+ 1235 format(i4,f18.10,2(1p,d11.3,0p),3(f9.2))
 c
       call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
       call ecce_print1('ccsd delta energy', mt_dbl, deccsd, 1)
