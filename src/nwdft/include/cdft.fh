@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.37 2000-01-06 00:41:08 edo Exp $
+C$Id: cdft.fh,v 1.38 2000-01-06 00:52:44 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -165,9 +165,9 @@ c
 c     char
 c
      .     radgrid
-      character*10 radgrids(6)
-      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv',
-     ,'rlindh'/
+Cedo      character*10 radgrids(6)
+Cedo      data radgrids /'eumac','murakn','tarad','gausslag','gcinterv',
+Cedo     ,'rlindh'/
       logical xc_interp
       external xc_interp
 
