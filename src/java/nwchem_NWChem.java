@@ -1,11 +1,10 @@
 import java.awt.*;
 import java.io.*;
-import java.net.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-class nwchem_NWChem extends JFrame implements ActionListener, ChangeListener, WindowListener {
+class nwchem_NWChem implements ActionListener, ChangeListener, WindowListener {
   
   Font defaultFont;
   int setnumber=0;
@@ -14,21 +13,21 @@ class nwchem_NWChem extends JFrame implements ActionListener, ChangeListener, Wi
   JFrame dialogFrame;
   String nwFile = new String();
   String command = new String();
+  nwchem_Socket nwchemSocket;
   Runtime nwchemRun;
   Process nwchemProcess;
-  Socket socket = null;
 
   public nwchem_NWChem(){
 
-    super("NWChem running");
+    //    super("NWChem running");
 
-    defaultFont = new Font("Dialog", Font.BOLD,12);
+    //    defaultFont = new Font("Dialog", Font.BOLD,12);
 
-    super.getContentPane().setLayout(new GridBagLayout());
-    super.getContentPane().setForeground(Color.black);
-    super.getContentPane().setBackground(Color.lightGray);
-    super.getContentPane().setFont(defaultFont);
-    super.addWindowListener(this);
+    //    super.getContentPane().setLayout(new GridBagLayout());
+    //    super.getContentPane().setForeground(Color.black);
+    //    super.getContentPane().setBackground(Color.lightGray);
+    //    super.getContentPane().setFont(defaultFont);
+    //    super.addWindowListener(this);
 
     chooser = new JFileChooser();
     pdbFilter = new ExtensionFilter(".nw");
@@ -37,44 +36,40 @@ class nwchem_NWChem extends JFrame implements ActionListener, ChangeListener, Wi
     dialogFrame.setSize(300,400);
     chooser.showOpenDialog(dialogFrame);
 
-    JPanel header = new JPanel();
-    header.setLayout(new GridBagLayout());
-    header.setForeground(Color.black);
-    header.setBackground(Color.lightGray);
-    addComponent(super.getContentPane(),header,0,0,2,1,1,1,
-		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    //    JPanel header = new JPanel();
+    //    header.setLayout(new GridBagLayout());
+    //    header.setForeground(Color.black);
+    //    header.setBackground(Color.lightGray);
+    //    addComponent(super.getContentPane(),header,0,0,2,1,1,1,
+    //		 GridBagConstraints.NONE,GridBagConstraints.WEST);
 
     nwFile=chooser.getSelectedFile().toString();
 
-    JLabel systemLabel = new JLabel(chooser.getSelectedFile().toString());
-    addComponent(header,systemLabel,0,0,1,1,1,1,
-    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-    systemLabel.setForeground(Color.black);
+    //    JLabel systemLabel = new JLabel(chooser.getSelectedFile().toString());
+    //    addComponent(header,systemLabel,0,0,1,1,1,1,
+    //    		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+    //    systemLabel.setForeground(Color.black);
     
-    JButton doneButton = new JButton("Done");
-    addComponent(header,doneButton,5,0,1,1,1,1,
-		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-    doneButton.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e){ 
-	setVisible(false); }});
+    //    JButton doneButton = new JButton("Done");
+    //    addComponent(header,doneButton,5,0,1,1,1,1,
+    //		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+    //    doneButton.addActionListener(new ActionListener(){
+    //      public void actionPerformed(ActionEvent e){ 
+    //	setVisible(false); }});
 
-    // setup server side socket
-
-    try{
-      //      socket = new Socket("127.0.0.1",3333);
-    } catch (Exception s) { s.printStackTrace(); };
+    nwchemSocket = new nwchem_Socket();
 
     command="/usr/people/d3j191/nwchem/bin/SGITFP/nwchem "+nwFile;
     System.out.println("Command: "+command);
     try{
       nwchemRun = Runtime.getRuntime();
       nwchemProcess = nwchemRun.exec(command);
-      nwchemProcess.waitFor();
+      //      nwchemProcess.waitFor();
     } catch (Exception e) { e.printStackTrace(); };
 
-    setLocation(25,225);	
-    setSize(900,700);
-    setVisible(true);
+    //    setLocation(25,225);	
+    //    setSize(900,700);
+    //    setVisible(true);
 
   }	
 

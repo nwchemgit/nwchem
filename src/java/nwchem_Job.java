@@ -176,7 +176,7 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
       }});
 
     runJobButton = new JButton("Run Job");
-    addComponent(panel,runJobButton,5,2,1,1,1,1,
+    addComponent(panel,runJobButton,5,6,1,1,1,1,
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.CENTER);
     runJobButton.addActionListener(this);
 
@@ -215,7 +215,7 @@ class nwchem_Job extends JFrame implements ActionListener, ChangeListener, Windo
 		 GridBagConstraints.HORIZONTAL,GridBagConstraints.NORTH);
 
     setLocation(500,1);	
-    setSize(800,250);
+    setSize(800,400);
 
   }
 
