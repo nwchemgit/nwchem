@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.20 2003-06-07 16:15:59 bylaska Exp $
+* $Id: electron.F,v 1.21 2003-06-30 18:38:45 bylaska Exp $
 *
 
 
@@ -200,36 +200,41 @@
 
 
 c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
-      call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
-     >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
-     >                           dte)
+c     call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
+c    >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
+c    >                           dte)
+      call dcopy(2*(npack1)*(ne(1)+ne(2)),psi1,1,psi2,1)
+      call daxpy(2*(npack1)*(ne(1)+ne(2)),
+     >           (-dte),
+     >           dcpl_mb(Hpsi_k(1)),1,
+     >           psi2,1)
 
       return
       end
 
 
-      subroutine electron_sd_subupdate(npack1,nn,
-     >                                 psi1,psi2,Hpsi,dte)
-      implicit none
-      integer    npack1,nn
-      complex*16 psi1(npack1,nn)
-      complex*16 psi2(npack1,nn)
-      complex*16 Hpsi(npack1,nn)
-      real*8     dte
-
-      integer n
-
-*     ************************************
-*     **** do a steepest descent step ****
-*     ************************************
-      do n=1,nn
-        call Pack_c_SMul(1,(-dte),Hpsi(1,n),psi2(1,n))
-        call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
-      end do
-
-      return
-      end
-
+c      subroutine electron_sd_subupdate(npack1,nn,
+c     >                                 psi1,psi2,Hpsi,dte)
+c      implicit none
+c      integer    npack1,nn
+c      complex*16 psi1(npack1,nn)
+c      complex*16 psi2(npack1,nn)
+c      complex*16 Hpsi(npack1,nn)
+c      real*8     dte
+c
+c      integer n
+c
+c*     ************************************
+c*     **** do a steepest descent step ****
+c*     ************************************
+c      do n=1,nn
+c        call Pack_c_SMul(1,(-dte),Hpsi(1,n),psi2(1,n))
+c        call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+c      end do
+c
+c      return
+c      end
+ 
 *     ***********************************
 *     *					*
 *     *		electron_energy		*
@@ -683,7 +688,7 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
 
 
 *     ***** local variables ****
-      integer ms,n,n1(2),shift
+      integer ms,n,n1(2),shift1,shift2
      
 
       n1(1) = 1
@@ -692,21 +697,32 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
 
 *     **** no preconditioning ***
       do ms=1,ispin
-            shift = (ms-1)*ne(1)*ne(1)
+            shift1 = 1 + (ms-1)*npack1
+            shift2 = 1 + (ms-1)*ne(1)*ne(1)
             n     = ne(ms)
-            call Grsm_gmg_Mul(npack1,n,
-     >                        psi_k(1+(ms-1)*ne(1)*npack1),
-     >                        hml(shift+1),
-     >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
+c           call Grsm_gmg_Mul(npack1,n,
+c    >                        psi_k(1+(ms-1)*ne(1)*npack1),
+c    >                        hml(shift2+1),
+c    >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
+            call DGEMM('N','N',2*npack1,n,n,
+     >                (1.0d0),
+     >                psi_k(shift1),  2*npack1,
+     >                hml(shift2),    n,
+     >                (0.0d0),
+     >                THpsi_k(shift1),2*npack1)
       end do
-      call Grsm_ggg_Sub(npack1,(ne(1)+ne(2)),
-     >                  dcpl_mb(Hpsi_k(1)),
-     >                  THpsi_k,
-     >                  THpsi_k)
-      call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
-     >                    (-1.0d0),
-     >                    THpsi_k,
-     >                    THpsi_k)
+c     call Grsm_ggg_Sub(npack1,(ne(1)+ne(2)),
+c    >                  dcpl_mb(Hpsi_k(1)),
+c    >                  THpsi_k,
+c    >                  THpsi_k)
+c     call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
+c    >                    (-1.0d0),
+c    >                    THpsi_k,
+c    >                    THpsi_k)
+      call daxpy(2*npack1*(ne(1)+ne(2)),
+     >           (-1.0d0),
+     >           dcpl_mb(Hpsi_k(1)),1,
+     >           THpsi_k,1)
       
       return
       end
@@ -835,7 +851,11 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
-         call Grsm_ggm_sym_dot(npack1,n,
+c        call Grsm_ggm_sym_dot(npack1,n,
+c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+c    >                     hml(shift+1))
+         call Pack_ccm_sym_dot(1,n,
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     hml(shift+1))
@@ -871,7 +891,11 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       do ms=1,ispin
          shift = (ms-1)*ne(1)*ne(1)
          n     = ne(ms)
-         call Grsm_ggm_sym_dot(npack1,n,
+c        call Grsm_ggm_sym_dot(npack1,n,
+c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c    >                     hmlt(shift+1))
+         call Pack_ccm_sym_dot(1,n,
      >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
      >                     psi_k(1+(ms-1)*ne(1)*npack1),
      >                     hmlt(shift+1))
