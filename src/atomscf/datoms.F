@@ -109,7 +109,7 @@ c
                goto 1010
             endif
 c
-            write(6,*) me,' doing ', iat, ' ', tag
+*            write(6,*) me,' doing ', iat, ' ', tag
 c
 c...  gather  shell / symmetry info
 c
