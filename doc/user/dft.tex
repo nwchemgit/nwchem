@@ -670,7 +670,9 @@ Keyword & {\tt Total Energy Target Accuracy} \\ \hline
   \end{tabular} \\
 \end{center}
 
-We computed total DFT energies at the LDA level of theory for many
+In order to determine the level of radial and angular quadrature needed
+to give us the target accuracy we computed total DFT energies 
+at the LDA level of theory for many
 homonuclear atomic, diatomic and triatomic systems in rows 1-4 of the
 periodic table.  In each case all bond lengths were set to twice the
 Bragg-Slater radius.  The total DFT energy of the system was computed
@@ -682,16 +684,37 @@ or most accurate calculation in which a grid of 235 radial points 48
 theta and 96 phi angular points on each atom was used.  This
 corresponds to approximately 1 million points per atom.  The following
 tables were empirically determined to give the desired target accuracy
-for DFT total energies.  These tables show the number of radial and
+for DFT total energies.  These tables below show the number of radial and
 angular shells which the DFT module will use for for a given atom
 depending on the row it is in (in the periodic table) and the desired
 accuracy.  Note, differing atom types in a given molecular system will
 most likely have differing associated numerical grids.  The intent is
-to generate the desired energy accuracy.
+to generate the desired energy accuracy (with utter disregard for speed).
+
+{\bf Important note to users.}  We clearly understand that the default
+(Euler-MacLaurin/Gauss-Legendre) grids are large and result in slow
+construction of the numerical components of the Kohn-Sham equations.
+Alternatively, we have provided access to two-dimensional Lebedev angular 
+quadratures which can be used in many
+cases to substantially reduce the number of grid points per atom while
+keeping good accuracy.  We have not yet had the opportunity to benchmark
+the Lebedev angular quadratures to the same extent that we have for
+the Gauss-Legendre.  We therefore do not have recommended Lebedev
+quadratures for specific target accuracy for all elements of the
+periodic table.  If the user wants to significantly decrease CPU time
+to solution it is suggested that a few prototype benchmark
+calculations be done using various Lebedev quadratures (which we describe
+below) while
+monitoring the numerically integrated density and total energies for
+the molecular systems of interest.  For many examples we have observed
+speed-ups of two or more for the same numerical 
+accuracy when using Lebedev rather than the default Gauss-Legendre 
+quadrature.  
+
 
 \begin{table}[h]
 \begin{center}
-\caption{Number of radial and angular shells required for Row 1 atoms
+\caption{Program default number of radial and angular shells empirically determined for Row 1 atoms
   (Li $\rightarrow$ F) to reach the desired accuracies.}
 
 \vspace{.2in}
@@ -709,7 +732,7 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 
 \begin{table}[h]
 \begin{center}
-\caption{Number of radial and angular shells required for Row 2 atoms
+\caption{Program default number of radial and angular shells empirically determined for Row 2 atoms
   (Na $\rightarrow$ Cl) to reach the desired accuracies.}
 
 \vspace{.2in}
@@ -727,7 +750,7 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 
 \begin{table}[h]
 \begin{center}
-\caption{Number of radial and angular shells required for Row 3 atoms
+\caption{Program default number of radial and angular shells empirically determined for Row 3 atoms
   (K $\rightarrow$ Br) to reach the desired accuracies.}
 
 \vspace{.2in}
@@ -745,7 +768,7 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 
 \begin{table}[h]
 \begin{center}
-\caption{Number of radial and angular shells required for Row 4 atoms
+\caption{Program default number of radial and angular shells empirically determined for Row 4 atoms
   (Rb $\rightarrow$ I) to reach the desired accuracies.}
 
 \vspace{.2in}
@@ -804,12 +827,13 @@ Therefore the user can specify any number of radial points along with
 the level of angular quadrature (1-10).
 
 The user can also specify grid parameters specific for a given atom type: 
-parameter that must be spupplied are: atom tag, number of radial points, number
-of anular points and \verb+accQrad+ (all three parameters must be give).
+parameters that must be supplied are: atom tag, number of radial points, number
+of angular points and \verb+accQrad+ (all three parameters must be given).
 As an example, here is a grid input line for the water molecule
 \begin{verbatim}
 grid lebedev 80 5 H 70 4 12 O 90 5 15 
 \end{verbatim}
+
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
 %{\bf JEFF: store\_weight and nquad\_task need explaining}
 %store\_weight and nquad_task keywords will remain as expert user only
