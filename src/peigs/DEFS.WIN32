@@ -1,0 +1,58 @@
+#
+# WIN32 version of DEFS
+# BGJ (11/99)
+#
+
+#
+#	$Id: DEFS.WIN32,v 1.1 1999-11-13 02:42:51 bjohnson Exp $
+#
+
+peigs_SRC		= $(TOPDIR)\src
+peigs_TARGET		= WIN32
+
+peigs_DIR	= $(peigs_SRC)\peigs
+#peigs_LIB	= $(TOPDIR)\lib\win32\peigs.lib
+
+#peigs_OBJDIR	 = $(peigs_DIR)\o
+peigs_HDIR	 = $(peigs_DIR)\h
+#peigs_CSRC	 = $(peigs_DIR)\src\c
+#peigs_F77SRC	 = $(peigs_DIR)\src\f77
+#peigs_COMMDIR	 = $(peigs_DIR)\comm
+#peigs_FTOC	 = $(peigs_DIR)\ctof
+#peigs_EXAMPLE_LIB = -L$(TOPDIR)\lib\$(NWCHEM_TARGET) $(CORE_LIBS) $(EXTRA_LIBS) $(LIBS)
+
+#peigs_FC = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
+#peigs_TARGET_definition = $(peigs_TARGET)
+#peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
+
+#peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
+peigs_COMM = TCGMSG
+#peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition) -P
+
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CPU = PENTIUM
+#peigs_CC += -DSTD_DBL -DSTD_INT
+#peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+
+#peigs_CPP += -DSTD_INT -DSTD_DBL -P
+#peigs_COMMLIB = -L$(TOPDIR)\lib\$(NWCHEM_TARGET) -ltcgmsg
+#peigs_BLASLIB   = -lblas
+#peigs_LAPACKLIB = -L$(NWCHEM_TOP)\lib\$(NWCHEM_TARGET) -llapack
+#peigs_PEIGSLIB  = -lpeigs
+#peigs_COMMLIB = -ltcgmsg
+
+!IF 0
+export peigs_COMM
+export peigs_CC
+export peigs_FC
+export peigs_CODEOBJ
+export peigs_FCONVERT
+export peigs_TARGET
+export peigs_NODE
+export peigs_COMM
+export peigs_CPP
+!ENDIF
+
+LIB_INCLUDES = -I"$(peigs_HDIR)"
+LIB_DEFINES = -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
