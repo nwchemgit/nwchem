@@ -1,4 +1,4 @@
-/* $Id: ga_asymmetr.c,v 1.1 2004-11-29 21:37:17 edo Exp $ */
+/* $Id: ga_asymmetr.c,v 1.2 2004-12-02 06:02:16 edo Exp $ */
 /**
  * Symmetrizes matrix A:  A := .5 * (A+A`)
  * diag(A) remains unchanged
@@ -16,13 +16,15 @@ ga_antisymmetrize_(Integer *g_a) {
   
   DoublePrecision alpha = 0.5;
   Integer i, me = ga_nodeid_();
+  extern void * FATR ga_malloc(Integer nelem, int type, char *name);
+  extern void FATR ga_free(void *ptr);
+  void FATR gai_add(Integer *lo, Integer *hi, Void *a, Void *b, DoublePrecision alpha, Integer type, Integer nelem, Integer ndim);
+
   Integer alo[GA_MAX_DIM], ahi[GA_MAX_DIM], lda[GA_MAX_DIM], nelem=1;
   Integer blo[GA_MAX_DIM], bhi[GA_MAX_DIM], ldb[GA_MAX_DIM];
   Integer ndim, dims[GA_MAX_DIM], type;
   Logical have_data;
-  Integer g_b; /* temporary global array (b = A') */
   Void *a_ptr, *b_ptr;
-  int local_sync_begin,local_sync_end;
 
   ga_sync_();
 
