@@ -6,6 +6,7 @@ prepare
  system crown_em
  solvate
  touch 1.0
+ free
 end
 
 task prepare
