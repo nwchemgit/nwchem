@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.209 1997-02-26 16:51:31 d3e129 Exp $
+# $Id: makefile.h,v 1.210 1997-02-26 18:59:19 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -215,6 +215,7 @@ ifeq ($(TARGET),SOLARIS)
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
+	CPP = /usr/ccs/lib/cpp
          CC = gcc
      RANLIB = echo
   MAKEFLAGS = -j 2 --no-print-directory
