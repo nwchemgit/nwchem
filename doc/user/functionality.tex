@@ -76,6 +76,20 @@ In addition, automatic interfaces are provided to
 \item Python
 \end{itemize}
 
+\section{Relativistic effects}
+
+The following methods for including relativity in quantum chemistry 
+calculations are available:
+\begin{itemize}
+\item The spin-free one-electron Douglas-Kroll approximation is available for all 
+ quantum mechanical methods and their gradients.
+\item Dyall's spin-free Modified Dirac Hamiltonian approximation is available 
+ for the Hartree-Fock method and its gradients.
+\item One-electron spin-orbit effects can be included via spin-orbit potentials.
+ This option is available for DFT and its gradients, but has to be run without 
+ symmetry.
+\end{itemize}
+
 \section{Pseudopotential plane-wave electronic structure}
 
 The following modules are available to compute the energy, minimize the
@@ -103,20 +117,6 @@ ional semicore corrections
 \item Modules to convert between small and large plane-wave expansions
 \item Interface to DRIVER, STEPPER, and VIB modules
 \item Mulliken analysis
-\end{itemize}
-
-\section{Relativistic effects}
-
-The following methods for including relativity in quantum chemistry 
-calculations are available:
-\begin{itemize}
-\item The spin-free one-electron Douglas-Kroll approximation is available for all 
- quantum mechanical methods and their gradients.
-\item Dyall's spin-free Modified Dirac Hamiltonian approximation is available 
- for the Hartree-Fock method and its gradients.
-\item One-electron spin-orbit effects can be included via spin-orbit potentials.
- This option is available for DFT and its gradients, but has to be run without 
- symmetry.
 \end{itemize}
 
 \section{Periodic system electronic structure}
