@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.62 1997-03-06 06:07:53 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.63 1997-03-06 08:26:53 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -121,13 +121,15 @@ MODULES := $(patsubst argos,argos fft NWints,$(MODULES) )
 MODULES := $(patsubst fft,fft peigs,$(MODULES) )
 MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
 
-# This dependency is the other way round (matchnxyz used by symmetry)
-# but is required for correct linking on SOLARIS.  Nasty kludge.
-MODULES := $(patsubst NWints, NWints symmetry, $(MODULES) )
+MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 
 MODULES := $(patsubst ddscf,ddscf atomscf NWints,$(MODULES) )
-
-MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
+# This dependency is the other way round (matchnxyz used by symmetry)
+# but is required for correct linking on SOLARIS.  Nasty kludge.
+#
+# This must be the last one!!!!!!!! rak 3/6/97
+#
+MODULES := $(patsubst NWints,NWints symmetry, $(MODULES) )
 
 # Now we've got a list of modules, but there may be duplicates
 # so let's get rid of them.
