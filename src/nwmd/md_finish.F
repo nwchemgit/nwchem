@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.11 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: md_finish.F,v 1.12 1999-12-15 00:44:42 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +28,7 @@ c
       if(.not.ma_pop_stack(l_pw))
      + call errquit('Failed to deallocate memory for pw',0)
       endif
+      call sp_pack_finish()
       if(.not.ma_pop_stack(l_esk))
      + call errquit('Failed to deallocate memory for esk',0)
       if(.not.ma_pop_stack(l_ess))
