@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: mov2asc.F,v 1.3 1997-04-01 22:26:13 rg240 Exp $
+C     $Id: mov2asc.F,v 1.4 2002-09-10 18:24:04 d3k958 Exp $
 C
 #include "mafdecls.fh"
 c
@@ -35,6 +35,8 @@ C
       Integer IArgc
       External IArgc
 C
+      double precision energy, enrep
+c
 C     Interpret command line
 C
       NArgs = IArgc()
@@ -133,6 +135,9 @@ C
          enddo
       enddo
 C
+      read(binlu) energy, enrep
+      write(Asclu,'(2E25.15)') energy, enrep
+c
       close(binlu)
       Close(AscLu)
 C
