@@ -1,0 +1,12 @@
+! 
+! $Id: paw_ovlp_data.fh,v 1.1 2003-01-31 06:47:43 marat Exp $
+! 
+
+!     **** paw_ovlp.fh common blocks ****
+      integer    coeff(2),toeff(2)     ! overlap coefficientss 
+      integer    indx2(2),sgn(2)
+      integer    total_nbasis,neall
+      integer    w(4),w_up(4),w_down(4)     ! overlap weights
+      common / paw_ovlp / coeff,toeff,indx2,sgn,w,w_up,w_down,
+     >                    total_nbasis,neall
+
