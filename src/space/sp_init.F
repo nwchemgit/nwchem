@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.50 2000-01-06 21:20:33 d3j191 Exp $
+c $Id: sp_init.F,v 1.51 2000-01-11 21:58:19 d3j191 Exp $
 c
       implicit none
 c
@@ -1521,7 +1521,7 @@ c
       if(nsa.gt.0) then
       call ga_distribution(ga_s,me,il,ih,jl,jh)
       call ga_put(ga_s,il,ih,jl+6,jl+8,fs,msa)
-      if(llong) call ga_put(ga_s,il,ih,jl+9,jl+11,fs(1,1,2),msa) 
+      if(llong) call ga_put(ga_s,il,ih,jl+9,jl+11,fs(1,1,2),msa)
       endif
 c
       if(lpair) then
@@ -1941,8 +1941,10 @@ c
       call ga_get(ga_ip,ilp,ihp,jlp,jhp,ipl,mbox)
       nsan=ipl(2,2)
 c
+      if(nsan.gt.0) then
       call ga_distribution(ga_s,me,ils,ihs,jls,jhs)
       call ga_put(ga_s,ils,ils+nsan-1,jls+6,jls+8,fs,msa)
+      endif
 c
       call ga_sync()
 c
