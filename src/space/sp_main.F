@@ -1,6 +1,6 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,numwm,isl,xs,vs,numsa)
 c
-c $Id: sp_main.F,v 1.16 1999-08-26 14:37:52 d3j191 Exp $
+c $Id: sp_main.F,v 1.17 1999-08-26 15:26:59 d3j191 Exp $
 c
       implicit none
 c
@@ -1624,7 +1624,7 @@ c
 c
       integer nod(np),nlst(np,2),nen(np,mbbl)
       integer lbbl(mbbl,mbb2)
-      real*8 stime,syntim,synsum,dlb(np),factor
+      real*8 stime,syntim,synsum,dlb(np),factor,facx,facy,facz
 c
       integer i,j,k,n,ibusy
 c
@@ -1647,6 +1647,10 @@ cx
 cx
       if(synsum.lt.1.0d-5) return
 c
+      facx=1.0d0
+      facy=1.0d0
+      facz=1.0d0
+c
 c     count load balancing steps with increasing synsum
 c
       if(nldup.lt.0) then
@@ -1666,17 +1670,6 @@ c
       if(dlb(i).lt.dlb(ibusy)) ibusy=i
     2 continue
 c
-c     resize boxes
-c     ------------
-c
-      if(loadb.eq.1.or.(loadb.eq.3.and.nldup.gt.lbpair)) then
-      nldup=0
-      tsyncp=synsum
-      factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
-      call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor)
-      return
-      endif
-c
 c     order node list
 c
       do 3 i=1,np-1
@@ -1688,6 +1681,29 @@ c
       endif
     4 continue
     3 continue
+c
+c     resize boxes
+c     ------------
+c
+      if(loadb.eq.1.or.(loadb.eq.3.and.nldup.gt.lbpair)) then
+      nldup=0
+      tsyncp=synsum
+      factor=(1.0d0-factld*(synsum/dble(np)-dlb(ibusy))/synsum)**third
+      call sp_resize(ibusy-1,int_mb(i_iown),dbl_mb(i_boxs),factor,
+     + facx,facy,facz)
+      if(me.eq.0) then
+      do 16 i=1,np
+      if(i.eq.1) then
+      write(lfnsyn,3001) nod(i),dlb(nod(i)+1),facx,facy,facz
+ 3001 format(i5,f12.6,12x,3f12.6)
+      else
+      write(lfnsyn,3002) nod(i),dlb(nod(i)+1)
+ 3002 format(i5,f12.6)
+      endif
+   16 continue
+      endif
+      return
+      endif
 c
 c     get active neighbors
 c
@@ -1747,8 +1763,9 @@ c
 c
       if(me.eq.0) then
       do 15 i=1,np
-      write(lfnsyn,3001) nod(i),dlb(nod(i)+1),nen(nod(i)+1,1)
- 3001 format(i5,f12.6,i5)
+      write(lfnsyn,3003) nod(i),dlb(nod(i)+1),nlst(nod(i),2),
+     + nen(nod(i)+1,1)
+ 3003 format(i5,f12.6,i7,i5)
    15 continue
       endif
 c
@@ -1762,7 +1779,7 @@ c
 c
       return
       end
-      subroutine sp_resize(ipmin,ibownr,boxsiz,factor)
+      subroutine sp_resize(ipmin,ibownr,boxsiz,factor,facx,facy,facz)
 c
       implicit none
 c
@@ -1772,7 +1789,7 @@ c
 #include "msgids.fh"
 c
       integer ipmin,ibownr(maxbox,3)
-      real*8 factor,boxsiz(maxbox,3)
+      real*8 factor,facx,facy,facz,boxsiz(maxbox,3)
 c
       integer ibx,iby,ibz,ipminx,ipminy,ipminz
       real*8 bxi,bxr,byi,byr,bzi,bzr,rfact
@@ -1794,8 +1811,10 @@ c
       bxr=zero
       do 8 ibx=1,nbx
       if(ibownr(ibx,1).eq.ipminx) then
+      facx=1.0d0/boxsiz(ibx,1)
       boxsiz(ibx,1)=factor*boxsiz(ibx,1)
       if(boxsiz(ibx,1).lt.bxmin) boxsiz(ibx,1)=bxmin
+      facx=facx*boxsiz(ibx,1)
       bxi=bxi+boxsiz(ibx,1)
       else
       bxr=bxr+boxsiz(ibx,1)
@@ -1818,8 +1837,10 @@ c
       byr=zero
       do 11 iby=1,nby
       if(ibownr(iby,2).eq.ipminy) then
+      facy=1.0d0/boxsiz(iby,2)
       boxsiz(iby,2)=factor*boxsiz(iby,2)
       if(boxsiz(iby,2).lt.bymin) boxsiz(iby,2)=bymin
+      facy=1.0d0/boxsiz(iby,2)
       byi=byi+boxsiz(iby,2)
       else
       byr=byr+boxsiz(iby,2)
@@ -1842,8 +1863,10 @@ c
       bzr=zero
       do 14 ibz=1,nbz
       if(ibownr(ibz,3).eq.ipminz) then
+      facz=1.0d0/boxsiz(ibz,3)
       boxsiz(ibz,3)=factor*boxsiz(ibz,3)
       if(boxsiz(ibz,3).lt.bzmin) boxsiz(ibz,3)=bzmin
+      facz=1.0d0/boxsiz(ibz,3)
       bzi=bzi+boxsiz(ibz,3)
       else
       bzr=bzr+boxsiz(ibz,3)
