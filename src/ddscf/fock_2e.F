@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $                    tol2e1, oskel1, vg_dens, vg_fock )
-c$Id: fock_2e.F,v 1.12 1999-06-22 19:22:15 edo Exp $
+     $     tol2e1, oskel1, vg_dens, vg_fock, asym )
+c$Id: fock_2e.F,v 1.13 2000-04-27 20:05:53 zzhang Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -23,6 +23,7 @@ c     !!! BGJ test !!!
       logical oskel1                 ! [input] toggle skeleton Fock matrix
       integer vg_dens(nfock)         ! [input] array of handles to densities
       integer vg_fock(nfock)         ! [input] array of handles to Fock matrices
+      logical asym                   ! [input] flag to antisymmetrize Fock matrices
 c     !!! BGJ test !!!
       integer ifock
       integer g_xc(100) ! Assume no more than 100 fock matrices !!!
@@ -65,7 +66,7 @@ c
          jfac(1)=0d0
          kfac(1)=-0.5d0
          call ao_fock_2e( geom1, ao_basis, 1, jfac, kfac,
-     $                    tol2e1, oskel1, vg_dens, vg_fock )
+     $        tol2e1, oskel1, vg_dens, vg_fock, asym )
 
          call fock_j_fit(nfock, vg_dens, vg_fockc)
          call ga_add(1.0d0, vg_fockc, 1.0d0, vg_fock,
@@ -82,11 +83,11 @@ c
      $         jfac, kfac, tol2e1, oskel1, vg_dens, vg_fock )
         else
           call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $         tol2e1, oskel1, vg_dens, vg_fock )
+     $          tol2e1, oskel1, vg_dens, vg_fock,asym )
         endif
       else
           call ao_fock_2e( geom1, ao_basis, nfock, jfac, kfac,
-     $                    tol2e1, oskel1, vg_dens, vg_fock )
+     $        tol2e1, oskel1, vg_dens, vg_fock, asym )
       endif
 
 c     !!! BGJ test !!!
