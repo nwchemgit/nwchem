@@ -11,6 +11,7 @@ c
 #include "mafdecls.fh"
       integer rtdb
       double precision junk
+      external dscfps
 c
       if (.not. rtdb_get(rtdb, 'scf:pstat',
      $     MT_LOG, 1, oscfps)) oscfps = .false.

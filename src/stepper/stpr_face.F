@@ -4,7 +4,7 @@
      &       CONVGG, NATD, NMODE,
      &       TRACK, BCKSTP, RPATH , rtdb, step_number)
 c
-c $Id: stpr_face.F,v 1.4 1994-10-26 22:26:09 d3e129 Exp $
+c $Id: stpr_face.F,v 1.5 1994-12-29 07:07:16 og845 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb, him, kim, step_number, maxiter
@@ -13,6 +13,7 @@ c
       LOGICAL SETM
       logical oselect, osetmass
 c      CHARACTER LINE*7
+      external stpr_data
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC

@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.15 1994-10-06 00:18:38 d3g681 Exp $
+c $Id: int_init.F,v 1.16 1994-12-29 07:12:38 og845 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -13,6 +13,7 @@ c::passed
 c::local
       integer ibas, ang2use, angm
       logical status
+      external api_data
 c
       if(init_int.eq.1) then
         write(6,*)' warning nested int_inits'
@@ -158,6 +159,7 @@ c
 c
       integer intt_lvl_tmp 
       logical status, rtdb_status
+      external int_time_data
 c
       rtdb_status = rtdb_parallel(.true.)
       if(rtdb_get(rtdb,'int:time level',MT_INT,1,intt_lvl_tmp)) then

@@ -25,6 +25,7 @@ c
       character*16 element
       logical osymmetry
       integer atn, isys
+      external geom_data
 c
 c     read a geometry from the input deck and output it
 c     to the rtdb.
