@@ -4,14 +4,14 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.1 1994-06-14 21:54:37 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.2 1994-06-16 06:14:25 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
-     $   AOBas, G_C, FitBas, G_I)
+     $   AOBas, G_C, FitBas, G_I, Geom)
       Implicit NONE
       Character*1 IntTyp
-      Integer Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C
+      Integer Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C, Geom
 C
 C ARGUMENTS
 C     IntTyp   Type of integral to be transformed. 'E' for three-center
@@ -76,19 +76,21 @@ C INCLUDE FILES
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "bas.fh"
+#include "geom.fh"
 C
 C EXTERNAL ROUTINES
       Logical LSame      ! From BLAS-[23]
       External LSame
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer IAlo, IAhi, Slo, Shi, Plo, Phi, Qlo, Qhi, NI, NA
-      Integer NAOSh, MxBFSh, LInt, LScr, MySLo, MySHi
-      Integer S, SSh, SShlo, SShhi, PSh, QSh, NBFSSh, NBFPSh, NBFQSh
+      Integer IAlo, IAhi, NI, NA
+      Integer MxBFSh, LInt, LScr, MySLo, MySHi
+      Integer SShlo, SShhi
       Logical Status, UseERI
       Integer Local_Idx, LDLocal, H_Int, H_Scr, Int_Idx, Scr_Idx
       Integer H_CP, H_CQ, CP_Idx, CQ_Idx, LCP, LCQ
-      Integer Junk
+      Integer NCent, CenP, CenQ, MxBFCe, PBFLo, PBFHi, QBFLo,
+     $   QBFHi
 C
 C     Dimensions of A and I ranges
 C
@@ -139,7 +141,6 @@ C     get the basis functions that define the local panel and translate
 C     them to shell blocks.
 C
       Call GA_Distribution( G_I, GA_NodeID(), IAlo, IAhi, MySLo, MySHi)
-c$$$      Write (LuOut, *) 'Step12 distribution ', IALo,IAhi, MySLo, mySHi
 C
       Status = .TRUE.
       Status = Status .AND. Bas_BF2Cn( FitBas, MySLo, SShlo)
@@ -147,8 +148,8 @@ C
 C
 C     We also need some info about the AO basis
 C
-      Status = Status .AND. Bas_NumCont( AOBas, NAOSh)
       Status = Status .AND. Bas_NBF_Cn_Max( AOBas, MxBFSh)
+      Status = Status .AND. Bas_NBF_Ce_Max( AOBas, MxBFCe)
 C
       If (.NOT. Status ) then
          Write (LuErr, *) 'XF3cI_Step12: Problems with basis set ',
@@ -177,7 +178,7 @@ C     so we have them in a convenient organization.  So we must make
 C     sure that Scr is at least the size of Int (though the integrals
 C     will probably already require this).
 C
-      LScr = Max( LScr, LInt )
+      LScr = Max( LScr, LInt, NA*MxBFSh )
 C
 C     And we reuse Int as the intermediate in the two transformation
 C     steps, where we need it to be large enough to hold the
@@ -193,8 +194,8 @@ C
 C
 C     We also need to localize bits of the transformation matrix, C
 C
-      LCP = NA * MxBFSh
-      LCQ = NI * MxBFSh
+      LCP = NA * MxBFCe
+      LCQ = NI * MxBFCe
 C
       Status = Status .AND. MA_Push_Get( MT_Dbl, LCP, 'trans. scr',
      $   H_CP, CP_Idx)
@@ -216,9 +217,6 @@ C     and a copy operation.
 C
       Call GA_Access( G_I, IAlo, IAhi, MySLo, MySHi, Local_Idx, LDLocal)
 C
-c$$$      Write (LuOut, *) 'Accessing ', IALo, IAHi, MySLo, MySHi, LDLocal,
-c$$$     $   NA, NI,
-c$$$     $    IAHi-IAlo+1, NA*NI, LdLocal, NA * NI
       If ( IAHi-IAlo+1 .lt. NA*NI .OR. LdLocal .lt. NA * NI ) then
          Write (LuErr, *) 'XF3cI_Step12: Local dimensions of G_I ',
      $      ' inconsistent with arguments. Distribution may be wrong.'
@@ -227,135 +225,34 @@ c$$$     $    IAHi-IAlo+1, NA*NI, LdLocal, NA * NI
          Return
       EndIf
 C
-C     ******************************
-C     * Cover the whole (pq| space *
-C     ******************************
-C     Having these loops on the outside (instead of SSh) minimizes the
-C     communication required to get the patches of C we need.
+      If ( .NOT. Geom_NCent( Geom, NCent) ) then
+         Write (LuErr, *) 'XF3cI_Step12: Problem getting number of ',
+     $      'centers.'
+         XF3cI_Step12 = .FALSE.
+         Return
+      EndIf
 C
-      Status = .TRUE.
+      Do CenP = 1, NCent
+         Status = Bas_Ce2BFR( AOBas, CenP, PBFLo, PBFHi)
+         Call GA_Get(G_C, PBFlo, PBFhi, Alo, Ahi,
+     $      Dbl_MB(CP_Idx), MxBFCe)
+         Do CenQ = 1, NCent
+            Status = Bas_Ce2BFR( AOBas, CenQ, QBFLo, QBFHi)
+            Call GA_Get(G_C, QBFlo, QBFhi, Ilo, Ihi,
+     $         Dbl_MB(CQ_Idx), MxBFCe)
 C
-      Do Psh = 1, NAOSh
-         Status = Status .AND. Bas_Cn2BFR( AOBas, PSh, Plo, Phi)
-         NBFPSh = Phi - Plo +1
-C
-C        Get the matching block of the transformation matrix
-C
-         Call GA_Get(G_C, Plo, Phi, Alo, Ahi,
-     $      Dbl_MB( CP_Idx), NBFPSh)
-c$$$         Call DGeWr(Phi-Plo+1, AHi-ALo+1, Dbl_MB( CP_Idx),
-c$$$     $      NBFPSh, Plo-1, Alo-1, LuOut, 'P tranformation', 80,
-c$$$     $      'E15.6', Junk)
-C
-         Do Qsh = 1, NAOSh
-            Status = Bas_Cn2BFR( AOBas, QSh, Qlo, Qhi)
-            NBFQSh = Qhi - Qlo +1
-C
-C           Get the matching block of the transformation matrix
-C
-c$$$            Call GA_Print(G_C)
-            Call GA_Get(G_C, Qlo, Qhi, Ilo, Ihi,
-     $         Dbl_MB( CQ_Idx), NBFQSh)
-c$$$            Call DGeWr(Qhi-Qlo+1, IHi-ILo+1, Dbl_MB( CQ_Idx),
-c$$$     $         NBFQSh, Qlo-1, Ilo-1, LuOut, 'Q tranformation', 80,
-c$$$     $         'E15.6', Junk)
-C
-C           ********************************************            
-C           * Step through all |s) shells on this node *
-C           ********************************************
-C
-            Do SSh = SShlo, SShhi
-               Status = Status .AND. Bas_Cn2BFR( FitBas, SSh, Slo, Shi)
-               NBFSSh = Shi - Slo +1
-C
-C              ********************************
-C              * Evaluate this integral block *
-C              ********************************
-C
-               If ( UseERI ) then
-                  Call Int_2e3c( FitBas, SSh, AOBas, PSh, QSh,
-     $               LScr, Dbl_MB( Scr_Idx), LInt, Dbl_MB( Int_Idx))
-               Else
-                  Call Int_1e3ov( FitBas, SSh, AOBas, PSh, AOBAs, QSh,
-     $               LScr, Dbl_MB( Scr_Idx), LInt, Dbl_MB( Int_Idx))
-               EndIf
-C
-C              The integrals come out (s|pq), but we want (pq|s).
-C
-c$$$               Write (LuOut, *) 'PSh, QSh, SSh = ', PSh, QSh, SSh
-c$$$               Write (LuOut, *) 'NBFPSh, NBFQSh, NBFSSh = ',
-c$$$     $            NBFPSh, NBFQSh, NBFSSh
-c$$$               Call DGeWr(NBFPSh*NBFQSh, NBFSSh, Dbl_MB( Int_Idx),
-c$$$     $            NBFPSh*NBFQSh, 0, 0, LuOut, 'AO integrals', 80,
-c$$$     $            'E15.6', Junk)
-c$$$               Call DGECOP('T', NBFPSh*NBFQSh, NBFSSh,
-c$$$     $            Dbl_MB( Int_Idx), NBFSSh,
-c$$$     $            Dbl_MB( Scr_Idx), NBFPSh*NBFQSh)
-               Call DGECOP('N', NBFPSh*NBFQSh, NBFSSh,
-     $            Dbl_MB( Int_Idx), NBFPSh*NBFQSh,
-     $            Dbl_MB( Scr_Idx), NBFPSh*NBFQSh)
-C
-c$$$               Write (LuOut, *) 'PSh, QSh, SSh = ', PSh, QSh, SSh
-c$$$               Call DGeWr(NBFPSh*NBFQSh, NBFSSh, Dbl_MB( Scr_Idx),
-c$$$     $            NBFPSh*NBFQSh, 0, 0, LuOut, 'AO integrals', 80,
-c$$$     $            'E15.6', Junk)
-C
-C              ******************************************
-C              * Transform this block (pq|s) --> (ai|s) *
-C              ******************************************
-C              Use Int as scratch (we've made sure its large enough)
-C              and put the results directly into the global array G_I
-C
-               Do S = 1, NBFSSh
-C
-C                 C_{pa}^T (pq|s) --> (aq|s)
-C
-                  Call dgemm('T', 'N', NA, NBFQSh, NBFPSh,
-     $               FP_One, Dbl_MB( CP_Idx), NBFPSh, 
-     $               Dbl_MB( Scr_Idx + (S-1)*NBFPSh*NBFQSh), NBFPSh,
-     $               FP_Zero, Dbl_MB( Int_Idx), NA)
-C
-C                 (aq|s) --> (ai|s)
-C
-                  Call dgemm('N', 'N', NA, NI, NBFQSh,
-     $               FP_One, Dbl_MB( Int_Idx), NA,
-     $                       Dbl_MB( CQ_Idx ), NBFQSh, 
-C
-C                   Offet below derives from
-C                   a) Offset for this node, -(MySLo-1)
-C                   b) Offset for this shell, SLo-1
-C                   c) Offset within the shell, S
-C                   d) Offest of first column must be 0, -1
-C
-     $               FP_One, Dbl_MB( Local_Idx+(S+SLo-MySLo-1)*LDLocal),
-     $               NA)
-c$$$     $               FP_One, Dbl_MB( Local_Idx + (S+SLo-2)*NA*NI), NA)
-C
-c$$$               Write (LuOut, *) 'PSh, QSh, SSh, S = ', PSh, QSh, SSh, S
-c$$$                  Call GA_Print(G_C)
-               EndDo ! S
-C
-            EndDo               ! SSh
-c$$$C
-c$$$            Call DGeWr(NA*NI, MySHi-MySLo+1, Dbl_MB( Local_Idx),
-c$$$     $         NA*NI, 0, 0, LuOut, 'MO integrals', 80,
-c$$$     $         'E15.6', Junk)
-         EndDo                  ! QSh
-C
-      EndDo                     ! PSh
+            Call XF3cI_Step12a(UseERI, AOBas, CenP, CenQ,
+     $         Dbl_MB(CP_Idx), MxBFCe, NA, Dbl_MB(CQ_Idx), MxBFCe, NI,
+     $         FitBas, SShLo, SShhi, Dbl_MB(Local_Idx), LDLocal, 
+     $         Dbl_MB(Int_Idx), LInt, Dbl_MB(Scr_Idx), LScr )
+         EndDo
+      EndDo
 C
 C     ****************************
 C     * Clean up after ourselves *
 C     ****************************
 C
       Call GA_Release_Update( G_I, IAlo, IAhi, MySLo, MySHi)
-C
-      If (.NOT. Status ) then
-         Write (LuErr, *) 'XF3cI_Step12: Problem with basis info ',
-     $      'queries in loops.'
-         XF3cI_Step12 = .FALSE.
-         Return
-      EndIf
 C
       Status = Status .AND. MA_Pop_Stack( H_CQ)
       Status = Status .AND. MA_Pop_Stack( H_CP)
