@@ -1,12 +1,12 @@
  argument  1 = ch5n_nbo.nw
  argument  2 = -master
- argument  3 = cagle.emsl.pnl.gov
- argument  4 = 33387
+ argument  3 = skor.emsl.pnl.gov
+ argument  4 = 34751
  argument  5 = 1
- argument  6 = 2
+ argument  6 = 3
  argument  7 = 0
  argument  8 = 0
- 
+
 
 
 ============================== echo of input deck ==============================
@@ -37,8 +37,13 @@ end
 
 task SCF energy
 
+#  $nbo cmo $end
+# run UHF instead of RHF
+# $nbo print=4 $end
+
 nbo
- $nbo cmo $end
+ $nbo $end
+ $del delete 1 element 9 24 $end
 end
 
 task nbo
@@ -48,27 +53,27 @@ task nbo
 
                                          
                                          
- 
- 
+
+
               Northwest Computational Chemistry Package (NWChem) 4.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
+
                                          
                                          
- 
- 
-                COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000
+
+
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
- 
+
                             >>> All Rights Reserved <<<
- 
- 
+
+
                                     DISCLAIMER
                                     ----------
 
@@ -118,18 +123,18 @@ task nbo
            Job information
            ---------------
 
-    hostname      = cagle
-    program       = /scratch/windus/nwchem/bin/SOLARIS/nwchem
-    date          = Wed Nov  1 17:22:49 2000
+    hostname      = skor
+    program       = /home/windus/nwchem-nbo/nwchem/bin/LINUX/nwchem
+    date          = Thu Feb  7 15:37:54 2002
 
-    compiled      = Wed Nov  1 14:48:11 PST 2000
-    source        = /scratch/windus/nwchem
+    compiled      = Thu Feb  7 15:37:49 PST 2002
+    source        = /home/windus/nwchem-nbo/nwchem
     nwchem branch = Development
     input         = ch5n_nbo.nw
     prefix        = methylamine.
     data base     = ./methylamine.db
     status        = startup
-    nproc         =    2
+    nproc         =    3
     time left     =     -1s
 
 
@@ -137,30 +142,30 @@ task nbo
            Memory information
            ------------------
 
-    heap      =    2097138 doubles =     16.8 Mbytes
-    stack     =    2097147 doubles =     16.8 Mbytes
-    global    =    4194304 doubles =     33.6 Mbytes (distinct from heap & stack)
-    total     =    8388589 doubles =     67.1 Mbytes
+    heap      =    2097146 doubles =     16.0 Mbytes
+    stack     =    2097139 doubles =     16.0 Mbytes
+    global    =    4194304 doubles =     32.0 Mbytes (distinct from heap & stack)
+    total     =    8388589 doubles =     64.0 Mbytes
     verify    = yes
     hardfail  = no 
 
 
            Directory information
            ---------------------
- 
+
   0 permanent = .
   0 scratch   = .
- 
- 
- 
- 
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
-             Methylamine...rhf/3-21g//Pople-Gordon standard geometry
-             -------------------------------------------------------
- 
+
+
+                                                                                                     Methylamine...rhf/3-21g//Pople-Gordon standard geometry
+                                                                                                     -------------------------------------------------------
+
   library name resolved from: .nwchemrc
   library file name is: </msrc/proj/nwchem/share/library>
   
@@ -173,17 +178,17 @@ task nbo
   1 S  1.72256000E+02  0.061767
   1 S  2.59109000E+01  0.358794
   1 S  5.53335000E+00  0.700713
- 
+
   2 S  3.66498000E+00 -0.395897
   2 S  7.70545000E-01  1.215840
- 
+
   3 P  3.66498000E+00  0.236460
   3 P  7.70545000E-01  0.860619
- 
+
   4 S  1.95857000E-01  1.000000
- 
+
   5 P  1.95857000E-01  1.000000
- 
+
   N (Nitrogen)
   ------------
             Exponent  Coefficients 
@@ -191,26 +196,26 @@ task nbo
   1 S  2.42766000E+02  0.059866
   1 S  3.64851000E+01  0.352955
   1 S  7.81449000E+00  0.706513
- 
+
   2 S  5.42522000E+00 -0.413301
   2 S  1.14915000E+00  1.224420
- 
+
   3 P  5.42522000E+00  0.237972
   3 P  1.14915000E+00  0.858953
- 
+
   4 S  2.83205000E-01  1.000000
- 
+
   5 P  2.83205000E-01  1.000000
- 
+
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
   1 S  5.44717800E+00  0.156285
   1 S  8.24547000E-01  0.904691
- 
+
   2 S  1.83192000E-01  1.000000
- 
+
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -226,17 +231,20 @@ task nbo
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
 
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
 
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.05290211     0.71185194     0.00000000
@@ -246,14 +254,14 @@ task nbo
     5 H                    1.0000     0.56673311     1.07518494    -0.88998100
     6 H                    1.0000    -0.42321689    -1.09481506     0.82466200
     7 H                    1.0000    -0.42321689    -1.09481506    -0.82466200
- 
+
       Atomic Mass 
       ----------- 
- 
+
       C                 12.000000
       N                 14.003070
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)      42.0501640369
 
@@ -262,14 +270,14 @@ task nbo
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.47000
@@ -293,7 +301,7 @@ task nbo
    19 Torsion                  4     1     2     7        -180.00000
    20 Torsion                  5     1     2     6         180.00000
    21 Torsion                  5     1     2     7         -60.00002
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -333,11 +341,11 @@ task nbo
 
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
               Methylamine...rhf/3-21g//Pople-Gordon standard geometry
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =    28
@@ -362,14 +370,14 @@ task nbo
 
 
 
- Forming initial guess at       2.2s
+ Forming initial guess at       1.2s
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:         -93.95811521
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -378,9 +386,9 @@ task nbo
  2-e energy   =      71.724848
  HOMO         =      -0.284461
  LUMO         =       0.165748
- 
 
- Starting SCF solution at       3.0s
+
+ Starting SCF solution at       1.4s
 
 
 
@@ -392,14 +400,13 @@ task nbo
  Final Fock-matrix accuracy:          1.000E-07
  ----------------------------------------------
 
- 
 
- #quartets = 2.187D+04 #integrals = 7.148D+04 #direct =  0.0% #cached =100.0%
+ #quartets = 2.187E+04 #integrals = 7.148E+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./methylamine.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =    533
+ Max. records in memory =      2        Max. records in file   =  17456
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -408,21 +415,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -94.6569803632  5.76D-01  1.61D-01      2.1
-                 2      -94.6769427090  2.08D-01  9.60D-02      2.3
-                 3      -94.6794323075  7.27D-03  4.02D-03      2.5
-                 4      -94.6794449267  4.80D-05  1.69D-05      2.8
+                 1      -94.6569803632  5.76E-01  1.61E-01      0.3
+                 2      -94.6769427090  2.08E-01  9.60E-02      0.3
+                 3      -94.6794323075  7.27E-03  4.02E-03      0.4
+                 4      -94.6794449267  4.80E-05  1.69E-05      0.4
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -94.679444926726
-      One-electron energy =   -210.716788531244
-      Two-electron energy =     73.987179567582
+         Total SCF energy =    -94.679444926724
+      One-electron energy =   -210.716788531238
+      Two-electron energy =     73.987179567577
  Nuclear repulsion energy =     42.050164036937
 
-        Time for solution =      1.3s
+        Time for solution =      0.2s
 
 
              Final eigenvalues
@@ -448,120 +455,120 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    17    0.9779
    18    0.9873
    19    1.2592
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
- Vector    2  Occ=2.000000D+00  E=-1.118262D+01
-              MO Center=  5.3D-02,  7.1D-01, -1.4D-17, r^2= 2.8D-02
+
+ Vector    2  Occ=2.000000E+00  E=-1.118262E+01
+              MO Center=  5.3E-02,  7.1E-01,  1.8E-17, r^2= 2.8E-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.987262  1 C  s          
- 
- Vector    3  Occ=2.000000D+00  E=-1.163995D+00
-              MO Center= -9.1D-02, -4.6D-01,  1.4D-15, r^2= 9.2D-01
+
+ Vector    3  Occ=2.000000E+00  E=-1.163995E+00
+              MO Center= -9.1E-02, -4.6E-01,  4.5E-16, r^2= 9.2E-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      0.597567  2 N  s                  6      0.208631  1 C  s          
     10     -0.198832  2 N  s                 11      0.176693  2 N  s          
- 
- Vector    4  Occ=2.000000D+00  E=-8.920205D-01
-              MO Center= -6.2D-04,  4.5D-01, -9.3D-16, r^2= 1.7D+00
+
+ Vector    4  Occ=2.000000E+00  E=-8.920205E-01
+              MO Center= -6.2E-04,  4.5E-01, -1.3E-15, r^2= 1.7E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.573814  1 C  s                 15     -0.334534  2 N  s          
      1     -0.180647  1 C  s                  2      0.174168  1 C  s          
- 
- Vector    5  Occ=2.000000D+00  E=-6.589713D-01
-              MO Center= -3.1D-02, -4.0D-01,  1.6D-15, r^2= 1.6D+00
+
+ Vector    5  Occ=2.000000E+00  E=-6.589713E-01
+              MO Center= -3.1E-02, -4.0E-01, -1.7E-15, r^2= 1.6E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      0.323151  2 N  pz                18      0.278358  2 N  pz         
      5      0.203085  1 C  pz                27     -0.187028  7 H  s          
     25      0.187028  6 H  s                  9      0.172893  1 C  pz         
- 
- Vector    6  Occ=2.000000D+00  E=-5.928089D-01
-              MO Center= -2.0D-01,  4.5D-01,  1.4D-15, r^2= 1.5D+00
+
+ Vector    6  Occ=2.000000E+00  E=-5.928089E-01
+              MO Center= -2.0E-01,  4.5E-01,  7.9E-17, r^2= 1.5E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.312415  1 C  px                 7      0.242701  1 C  px         
     19     -0.234275  3 H  s                 20     -0.215917  3 H  s          
     12      0.192309  2 N  px                16      0.189106  2 N  px         
- 
- Vector    7  Occ=2.000000D+00  E=-5.492397D-01
-              MO Center=  9.9D-02,  7.8D-02,  9.0D-15, r^2= 1.7D+00
+
+ Vector    7  Occ=2.000000E+00  E=-5.492397E-01
+              MO Center=  9.9E-02,  7.8E-02, -1.3E-14, r^2= 1.7E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      0.318200  2 N  py                13      0.316324  2 N  py         
      4     -0.295967  1 C  py                 8     -0.209280  1 C  py         
      3     -0.165730  1 C  px                 7     -0.155348  1 C  px         
- 
- Vector    8  Occ=2.000000D+00  E=-5.170761D-01
-              MO Center=  1.7D-01,  3.8D-01, -9.7D-15, r^2= 2.0D+00
+
+ Vector    8  Occ=2.000000E+00  E=-5.170761E-01
+              MO Center=  1.7E-01,  3.8E-01,  1.8E-14, r^2= 2.0E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.325108  1 C  pz                 9      0.275670  1 C  pz         
     14     -0.205748  2 N  pz                18     -0.205258  2 N  pz         
-    23     -0.201916  5 H  s                 21      0.201916  4 H  s          
-    24     -0.194878  5 H  s                 22      0.194878  4 H  s          
- 
- Vector    9  Occ=2.000000D+00  E=-3.687332D-01
-              MO Center=  1.1D-01, -5.2D-01, -2.8D-15, r^2= 1.4D+00
+    21      0.201916  4 H  s                 23     -0.201916  5 H  s          
+    22      0.194878  4 H  s                 24     -0.194878  5 H  s          
+
+ Vector    9  Occ=2.000000E+00  E=-3.687332E-01
+              MO Center=  1.1E-01, -5.2E-01,  3.3E-15, r^2= 1.4E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      0.543111  2 N  px                12      0.412271  2 N  px         
     15      0.262843  2 N  s                 20      0.210201  3 H  s          
     17     -0.204476  2 N  py         
- 
- Vector   10  Occ=0.000000D+00  E= 2.663259D-01
-              MO Center= -3.6D-01, -2.3D-01, -1.5D-13, r^2= 3.7D+00
+
+ Vector   10  Occ=0.000000E+00  E= 2.663259E-01
+              MO Center= -3.6E-01, -2.3E-01,  1.7E-14, r^2= 3.7E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.178751  2 N  s                  6      1.174257  1 C  s          
-    28     -0.743071  7 H  s                 26     -0.743071  6 H  s          
+    26     -0.743071  6 H  s                 28     -0.743071  7 H  s          
     20     -0.735769  3 H  s                  8      0.581692  1 C  py         
     24     -0.572895  5 H  s                 22     -0.572895  4 H  s          
     16     -0.324419  2 N  px         
- 
- Vector   11  Occ=0.000000D+00  E= 3.293294D-01
-              MO Center=  5.1D-02,  4.3D-01,  9.0D-14, r^2= 4.3D+00
+
+ Vector   11  Occ=0.000000E+00  E= 3.293294E-01
+              MO Center=  5.1E-02,  4.3E-01, -4.7E-13, r^2= 4.3E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      2.025202  1 C  s                 22     -1.042909  4 H  s          
-    24     -1.042909  5 H  s                 15     -1.039043  2 N  s          
-    20     -0.708399  3 H  s                 28      0.607271  7 H  s          
-    26      0.607271  6 H  s                 16      0.233517  2 N  px         
+     6      2.025202  1 C  s                 24     -1.042909  5 H  s          
+    22     -1.042909  4 H  s                 15     -1.039043  2 N  s          
+    20     -0.708399  3 H  s                 26      0.607271  6 H  s          
+    28      0.607271  7 H  s                 16      0.233517  2 N  px         
      8      0.198996  1 C  py                 7      0.174492  1 C  px         
- 
- Vector   12  Occ=0.000000D+00  E= 3.359293D-01
-              MO Center=  2.6D-01,  3.7D-01,  1.3D-13, r^2= 3.9D+00
+
+ Vector   12  Occ=0.000000E+00  E= 3.359293E-01
+              MO Center=  2.6E-01,  3.7E-01,  4.0E-13, r^2= 3.9E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.231542  5 H  s                 22     -1.231542  4 H  s          
-     9      1.165735  1 C  pz                26     -0.711953  6 H  s          
-    28      0.711953  7 H  s                 18      0.408873  2 N  pz         
-     5      0.253926  1 C  pz         
- 
- Vector   13  Occ=0.000000D+00  E= 3.570776D-01
-              MO Center= -5.2D-01,  1.0D+00, -7.8D-14, r^2= 2.6D+00
+    22      1.231542  4 H  s                 24     -1.231542  5 H  s          
+     9     -1.165735  1 C  pz                28     -0.711953  7 H  s          
+    26      0.711953  6 H  s                 18     -0.408873  2 N  pz         
+     5     -0.253926  1 C  pz         
+
+ Vector   13  Occ=0.000000E+00  E= 3.570776E-01
+              MO Center= -5.2E-01,  1.0E+00, -9.9E-14, r^2= 2.6E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     20      1.779083  3 H  s                  7      1.442406  1 C  px         
     24     -0.775480  5 H  s                 22     -0.775480  4 H  s          
      3      0.308293  1 C  px                16     -0.279779  2 N  px         
      6     -0.266421  1 C  s                 15      0.245126  2 N  s          
- 
- Vector   14  Occ=0.000000D+00  E= 3.821130D-01
-              MO Center= -2.1D-01, -4.3D-01,  2.1D-15, r^2= 3.7D+00
+
+ Vector   14  Occ=0.000000E+00  E= 3.821130E-01
+              MO Center= -2.1E-01, -4.3E-01,  1.1E-13, r^2= 3.7E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.058717  7 H  s                 26     -1.058717  6 H  s          
-    18      0.955791  2 N  pz                 9     -0.903276  1 C  pz         
-    24     -0.852884  5 H  s                 22      0.852884  4 H  s          
-    14      0.261729  2 N  pz         
- 
- Vector   15  Occ=0.000000D+00  E= 4.500272D-01
-              MO Center=  2.0D-02,  2.6D-01,  8.6D-15, r^2= 2.5D+00
+    26      1.058717  6 H  s                 28     -1.058717  7 H  s          
+    18     -0.955791  2 N  pz                 9      0.903276  1 C  pz         
+    22     -0.852884  4 H  s                 24      0.852884  5 H  s          
+    14     -0.261729  2 N  pz         
+
+ Vector   15  Occ=0.000000E+00  E= 4.500272E-01
+              MO Center=  2.0E-02,  2.6E-01,  1.9E-14, r^2= 2.5E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.467766  1 C  py                17      1.185692  2 N  py         
@@ -569,45 +576,55 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     26      0.513205  6 H  s                 28      0.513205  7 H  s          
     13      0.304274  2 N  py                16      0.263857  2 N  px         
      4      0.207184  1 C  py                20     -0.196480  3 H  s          
- 
- Vector   16  Occ=0.000000D+00  E= 9.475520D-01
-              MO Center= -4.5D-02,  4.9D-01, -1.8D-14, r^2= 2.1D+00
+
+ Vector   16  Occ=0.000000E+00  E= 9.475520E-01
+              MO Center= -4.5E-02,  4.9E-01,  7.9E-15, r^2= 2.1E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.191358  1 C  pz                 5     -0.669222  1 C  pz         
     23      0.530543  5 H  s                 21     -0.530543  4 H  s          
-    27      0.316789  7 H  s                 25     -0.316789  6 H  s          
- 
- Vector   17  Occ=0.000000D+00  E= 9.778717D-01
-              MO Center=  1.4D-01,  6.4D-01,  3.3D-15, r^2= 1.9D+00
+    25     -0.316789  6 H  s                 27      0.316789  7 H  s          
+
+ Vector   17  Occ=0.000000E+00  E= 9.778717E-01
+              MO Center=  1.4E-01,  6.4E-01, -6.3E-15, r^2= 1.9E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.205749  1 C  px                19      0.645240  3 H  s          
      3     -0.616987  1 C  px                 8     -0.602107  1 C  py         
      4      0.482270  1 C  py                15     -0.290392  2 N  s          
-    23     -0.182480  5 H  s                 21     -0.182480  4 H  s          
-    25      0.174582  6 H  s                 27      0.174582  7 H  s          
- 
- Vector   18  Occ=0.000000D+00  E= 9.873206D-01
-              MO Center=  7.5D-02,  7.9D-01, -3.6D-15, r^2= 1.5D+00
+    21     -0.182480  4 H  s                 23     -0.182480  5 H  s          
+    27      0.174582  7 H  s                 25      0.174582  6 H  s          
+
+ Vector   18  Occ=0.000000E+00  E= 9.873206E-01
+              MO Center=  7.5E-02,  7.9E-01, -7.0E-15, r^2= 1.5E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.113164  1 C  py                 4     -0.924767  1 C  py         
      7      0.747221  1 C  px                 3     -0.371456  1 C  px         
     15      0.319233  2 N  s                 21     -0.309582  4 H  s          
     23     -0.309582  5 H  s          
- 
- Vector   19  Occ=0.000000D+00  E= 1.259216D+00
-              MO Center=  4.8D-02,  3.0D-02, -3.8D-13, r^2= 2.7D+00
+
+ Vector   19  Occ=0.000000E+00  E= 1.259216E+00
+              MO Center=  4.8E-02,  3.0E-02, -1.4E-13, r^2= 2.7E+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.512396  1 C  pz                22     -0.945070  4 H  s          
     24      0.945070  5 H  s                  5     -0.815081  1 C  pz         
     27     -0.672602  7 H  s                 25      0.672602  6 H  s          
     18     -0.661802  2 N  pz                28      0.459385  7 H  s          
-    26     -0.459385  6 H  s                 23     -0.305529  5 H  s          
- 
- 
+    26     -0.459385  6 H  s                 21      0.305529  4 H  s          
+
+
+ center of mass
+ --------------
+ x =   0.04154841 y =  -0.06271122 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+          82.041366847001          -3.638323981209           0.000000000000
+          -3.638323981209          17.823512633679           0.000000000000
+           0.000000000000           0.000000000000          78.671997791295
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -620,83 +637,61 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     5 H    1     0.79   0.48  0.32
     6 H    1     0.71   0.46  0.25
     7 H    1     0.71   0.46  0.25
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     18.000000
- 
+
      1   1 0 0     -0.639214      0.000000      0.000000
      1   0 1 0      0.237259      0.000000      0.000000
      1   0 0 1      0.000000      0.000000      0.000000
- 
+
      2   2 0 0    -10.994111      0.000000      7.096194
      2   1 1 0      1.787392      0.000000      3.722922
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0    -10.586845      0.000000     46.171099
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -9.210448      0.000000     10.514167
- 
-
- Parallel integral file used       2 records with       0 large values
 
 
- Task  times  cpu:        2.2s     wall:        2.6s
- after task time 
- after task time 
- going to next task
- going to next task
- 
- 
+ Parallel integral file used       3 records with       0 large values
+
+
+ Task  times  cpu:        0.3s     wall:        0.6s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
 
  Saving state for nbo with suffix nbo
         ./methylamine.movecs
- 
 
- *********************************** NBO 4.M ***********************************
+
+ *********************************** NBO 5.0 ***********************************
              N A T U R A L   A T O M I C   O R B I T A L   A N D
           N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
  *******************************************************************************
-  (c) Copyright 1996-99 Board of Regents of the University of Wisconsin System
+  (c) Copyright 1996-2001 Board of Regents of the University of Wisconsin System
       on behalf of the Theoretical Chemistry Institute.  All Rights Reserved.
 
           Cite this program as:
 
-          NBO 4.M.  E. D. Glendening, J. K. Badenhoop, A. E. Reed,
-          J. E. Carpenter, and F. Weinhold, Theoretical Chemistry
-          Institute, University of Wisconsin, Madison, WI, 1999.
-
-       /CMO    / : Print analysis of canonical MOs
+          NBO 5.0.  E. D. Glendening, J. K. Badenhoop, A. E. Reed,
+          J. E. Carpenter, J. A. Bohmann, C. M. Morales, and F. Weinhold
+          (Theoretical Chemistry Institute, University of Wisconsin,
+          Madison, WI, 2001); http://www.chem.wisc.edu/~nbo5
 
  Read molecular orbitals from ./methylamine.movecs
 
 
- *********************************** NBO 4.M ***********************************
-             N A T U R A L   A T O M I C   O R B I T A L   A N D
-          N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
- *******************************************************************************
-  (c) Copyright 1996-99 Board of Regents of the University of Wisconsin System
-      on behalf of the Theoretical Chemistry Institute.  All Rights Reserved.
-
-          Cite this program as:
-
-          NBO 4.M.  E. D. Glendening, J. K. Badenhoop, A. E. Reed,
-          J. E. Carpenter, and F. Weinhold, Theoretical Chemistry
-          Institute, University of Wisconsin, Madison, WI, 1999.
-
-       /CMO    / : Print analysis of canonical MOs
-
- Filename changed to FILE1                                               
-
  Job title: Methylamine...rhf/3-21g//Pople-Gordon standard geometry         
 
- Storage needed:        2562 in NPA,        3278 in NBO (     2000000 available)
+ Storage needed:        4086 in NPA,        3278 in NBO (     2000000 available)
 
 
  NATURAL POPULATIONS:  Natural atomic orbital occupancies 
@@ -712,7 +707,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    7    C  1  py     Ryd( 3p)     0.00149       0.93121
    8    C  1  pz     Val( 2p)     1.24514      -0.08862
    9    C  1  pz     Ryd( 3p)     0.00057       1.01800
- 
+
   10    N  2  s      Cor( 1s)     1.99953     -15.25951
   11    N  2  s      Val( 2s)     1.42608      -0.71701
   12    N  2  s      Ryd( 3s)     0.00016       2.75770
@@ -722,182 +717,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   16    N  2  py     Ryd( 3p)     0.00118       1.56325
   17    N  2  pz     Val( 2p)     1.35213      -0.19175
   18    N  2  pz     Ryd( 3p)     0.00069       1.59492
- 
+
   19    H  3  s      Val( 1s)     0.81453       0.13283
   20    H  3  s      Ryd( 2s)     0.00177       0.95067
- 
+
   21    H  4  s      Val( 1s)     0.78192       0.15354
   22    H  4  s      Ryd( 2s)     0.00096       0.94521
- 
+
   23    H  5  s      Val( 1s)     0.78192       0.15354
   24    H  5  s      Ryd( 2s)     0.00096       0.94521
- 
+
   25    H  6  s      Val( 1s)     0.63880       0.20571
   26    H  6  s      Ryd( 2s)     0.00122       0.99883
- 
+
   27    H  7  s      Val( 1s)     0.63880       0.20571
   28    H  7  s      Ryd( 2s)     0.00122       0.99883
 
 
- Summary of Natural Population Analysis:                  
-                                                          
-                                       Natural Population 
-               Natural   -----------------------------------------------
-    Atom No    Charge        Core      Valence    Rydberg      Total
- -----------------------------------------------------------------------
-      C  1   -0.44079      1.99900     4.43848    0.00331     6.44079
-      N  2   -0.89713      1.99953     5.89376    0.00384     7.89713
-      H  3    0.18370      0.00000     0.81453    0.00177     0.81630
-      H  4    0.21713      0.00000     0.78192    0.00096     0.78287
-      H  5    0.21713      0.00000     0.78192    0.00096     0.78287
-      H  6    0.35998      0.00000     0.63880    0.00122     0.64002
-      H  7    0.35998      0.00000     0.63880    0.00122     0.64002
- =======================================================================
-   * Total *  0.00000      3.99853    13.98820    0.01328    18.00000
+ Summary of Natural Population Analysis:
 
-                                 Natural Population      
- --------------------------------------------------------
-   Core                       3.99853 ( 99.9632% of   4)
-   Valence                   13.98820 ( 99.9157% of  14)
-   Natural Minimal Basis     17.98672 ( 99.9262% of  18)
-   Natural Rydberg Basis      0.01328 (  0.0738% of  18)
- --------------------------------------------------------
-
-    Atom No         Natural Electron Configuration
- ----------------------------------------------------------------------------
-      C  1      [core]2s( 1.09)2p( 3.35)
-      N  2      [core]2s( 1.43)2p( 4.47)
-      H  3            1s( 0.81)
-      H  4            1s( 0.78)
-      H  5            1s( 0.78)
-      H  6            1s( 0.64)
-      H  7            1s( 0.64)
-
-
- NATURAL BOND ORBITAL ANALYSIS:
-
-                       Occupancies       Lewis Structure    Low   High
-           Occ.    -------------------  -----------------   occ   occ
-  Cycle   Thresh.   Lewis   Non-Lewis     CR  BD  3C  LP    (L)   (NL)   Dev
- =============================================================================
-   1(1)    1.90    17.95048   0.04952      2   6   0   1     0      0    0.02
- -----------------------------------------------------------------------------
-
- Structure accepted: No low occupancy Lewis orbitals
-
-           1 low occupancy (<1.9990e) core orbital  found on  C 1
-
- --------------------------------------------------------
-   Core                      3.99853 ( 99.963% of   4)
-   Valence Lewis            13.95195 ( 99.657% of  14)
-  ==================       ============================
-   Total Lewis              17.95048 ( 99.725% of  18)
-  -----------------------------------------------------
-   Valence non-Lewis         0.03977 (  0.221% of  18)
-   Rydberg non-Lewis         0.00975 (  0.054% of  18)
-  ==================       ============================
-   Total non-Lewis           0.04952 (  0.275% of  18)
- --------------------------------------------------------
-
-
-     (Occupancy)   Bond orbital/ Coefficients/ Hybrids
- -------------------------------------------------------------------------------
-   1. (1.99858) BD ( 1) C 1- N 2      
-                ( 40.07%)   0.6330* C 1 s( 21.71%)p 3.61( 78.29%)
-                                         0.0003  0.4653  0.0238 -0.0045  0.0083
-                                        -0.8843 -0.0300  0.0000  0.0000
-                ( 59.93%)   0.7742* N 2 s( 30.88%)p 2.24( 69.12%)
-                                         0.0001  0.5557 -0.0011  0.0340  0.0098
-                                         0.8306 -0.0005  0.0000  0.0000
-   2. (1.99860) BD ( 1) C 1- H 3      
-                ( 59.71%)   0.7728* C 1 s( 25.78%)p 2.88( 74.22%)
-                                         0.0002  0.5077 -0.0069 -0.8178  0.0055
-                                         0.2709  0.0093  0.0000  0.0000
-                ( 40.29%)   0.6347* H 3 s(100.00%)
-                                         1.0000  0.0030
-   3. (1.99399) BD ( 1) C 1- H 4      
-                ( 61.02%)   0.7812* C 1 s( 26.28%)p 2.80( 73.72%)
-                                         0.0001  0.5127 -0.0038  0.4069 -0.0016
-                                         0.2675  0.0016  0.7070 -0.0103
-                ( 38.98%)   0.6243* H 4 s(100.00%)
-                                         1.0000  0.0008
-   4. (1.99399) BD ( 1) C 1- H 5      
-                ( 61.02%)   0.7812* C 1 s( 26.28%)p 2.80( 73.72%)
-                                         0.0001  0.5127 -0.0038  0.4069 -0.0016
-                                         0.2675  0.0016 -0.7070  0.0103
-                ( 38.98%)   0.6243* H 5 s(100.00%)
-                                         1.0000  0.0008
-   5. (1.99442) BD ( 1) N 2- H 6      
-                ( 68.12%)   0.8253* N 2 s( 25.62%)p 2.90( 74.38%)
-                                         0.0000  0.5062  0.0005 -0.3726  0.0053
-                                        -0.3235 -0.0177  0.7070  0.0093
-                ( 31.88%)   0.5647* H 6 s(100.00%)
-                                         1.0000  0.0020
-   6. (1.99442) BD ( 1) N 2- H 7      
-                ( 68.12%)   0.8253* N 2 s( 25.62%)p 2.90( 74.38%)
-                                         0.0000  0.5062  0.0005 -0.3726  0.0053
-                                        -0.3235 -0.0177 -0.7070 -0.0093
-                ( 31.88%)   0.5647* H 7 s(100.00%
- Job title: Methylamine...rhf/3-21g//Pople-Gordon standard geometry         
-
- Storage needed:        2562 in NPA,        3278 in NBO (     2000000 available)
-
-
- NATURAL POPULATIONS:  Natural atomic orbital occupancies 
-                                                          
-  NAO Atom No lang   Type(AO)    Occupancy      Energy    
- ---------------------------------------------------------
-   1    C  1  s      Cor( 1s)     1.99900     -11.04184
-   2    C  1  s      Val( 2s)     1.09037      -0.28186
-   3    C  1  s      Ryd( 3s)     0.00068       1.95506
-   4    C  1  px     Val( 2p)     1.21702      -0.07381
-   5    C  1  px     Ryd( 3p)     0.00056       1.03030
-   6    C  1  py     Val( 2p)     0.88594      -0.01456
-   7    C  1  py     Ryd( 3p)     0.00149       0.93121
-   8    C  1  pz     Val( 2p)     1.24514      -0.08862
-   9    C  1  pz     Ryd( 3p)     0.00057       1.01800
- 
-  10    N  2  s      Cor( 1s)     1.99953     -15.25951
-  11    N  2  s      Val( 2s)     1.42608      -0.71701
-  12    N  2  s      Ryd( 3s)     0.00016       2.75770
-  13    N  2  px     Val( 2p)     1.80543      -0.32980
-  14    N  2  px     Ryd( 3p)     0.00181       1.49140
-  15    N  2  py     Val( 2p)     1.31013      -0.18920
-  16    N  2  py     Ryd( 3p)     0.00118       1.56325
-  17    N  2  pz     Val( 2p)     1.35213      -0.19175
-  18    N  2  pz     Ryd( 3p)     0.00069       1.59492
- 
-  19    H  3  s      Val( 1s)     0.81453       0.13283
-  20    H  3  s      Ryd( 2s)     0.00177       0.95067
- 
-  21    H  4  s      Val( 1s)     0.78192       0.15354
-  22    H  4  s      Ryd( 2s)     0.00096       0.94521
- 
-  23    H  5  s      Val( 1s)     0.78192       0.15354
-  24    H  5  s      Ryd( 2s)     0.00096       0.94521
- 
-  25    H  6  s      Val( 1s)     0.63880       0.20571
-  26    H  6  s      Ryd( 2s)     0.00122       0.99883
- 
-  27    H  7  s      Val( 1s)     0.63880       0.20571
-  28    H  7  s      Ryd( 2s)     0.00122       0.99883
-
-
- Summary of Natural Population Analysis:                  
-                                                          
-                                       Natural Population 
-               Natural   -----------------------------------------------
-    Atom No    Charge        Core      Valence    Rydberg      Total
- -----------------------------------------------------------------------
-      C  1   -0.44079      1.99900     4.43848    0.00331     6.44079
-      N  2   -0.89713      1.99953     5.89376    0.00384     7.89713
-      H  3    0.18370      0.00000     0.81453    0.00177     0.81630
-      H  4    0.21713      0.00000     0.78192    0.00096     0.78287
-      H  5    0.21713      0.00000     0.78192    0.00096     0.78287
-      H  6    0.35998      0.00000     0.63880    0.00122     0.64002
-      H  7    0.35998      0.00000     0.63880    0.00122     0.64002
- =======================================================================
-   * Total *  0.00000      3.99853    13.98820    0.01328    18.00000
+                                     Natural Population
+             Natural    ---------------------------------------------
+  Atom No    Charge        Core      Valence    Rydberg      Total
+ --------------------------------------------------------------------
+    C  1   -0.44079      1.99900     4.43848    0.00331     6.44079
+    N  2   -0.89713      1.99953     5.89376    0.00384     7.89713
+    H  3    0.18370      0.00000     0.81453    0.00177     0.81630
+    H  4    0.21713      0.00000     0.78192    0.00096     0.78287
+    H  5    0.21713      0.00000     0.78192    0.00096     0.78287
+    H  6    0.35998      0.00000     0.63880    0.00122     0.64002
+    H  7    0.35998      0.00000     0.63880    0.00122     0.64002
+ ====================================================================
+ * Total *  0.00000      3.99853    13.98820    0.01328    18.00000
 
                                  Natural Population      
  --------------------------------------------------------
@@ -993,18 +844,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                          0.0000  0.4225  0.0002  0.8489 -0.0159
                                         -0.3172  0.0042  0.0000  0.0000
   10. (0.00105) RY*( 1) C 1             s(  1.57%)p62.82( 98.43%)
-                                  )
-                                         1.0000  0.0020
-   7. (1.99900) CR ( 1) C 1             s(100.00%)p 0.00(  0.00%)
-                                         1.0000 -0.0003  0.0000  0.0001  0.0000
-                                         0.0002  0.0000  0.0000  0.0000
-   8. (1.99953) CR ( 1) N 2             s(100.00%)p 0.00(  0.00%)
-                                         1.0000 -0.0001  0.0000  0.0000  0.0000
-                                        -0.0001  0.0000  0.0000  0.0000
-   9. (1.97795) LP ( 1) N 2             s( 17.85%)p 4.60( 82.15%)
-                                         0.0000  0.4225  0.0002  0.8489 -0.0159
-                                        -0.3172  0.0042  0.0000  0.0000
-  10. (0.00105) RY*( 1) C 1             s(  1.57%)p62.82( 98.43%)
                                          0.0000 -0.0095  0.1248 -0.0017  0.5994
                                          0.0308 -0.7900  0.0000  0.0000
   11. (0.00034) RY*( 2) C 1             s(  0.00%)p 1.00(100.00%)
@@ -1073,10 +912,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                         -1.0000 -0.0020
 
 
- NHO Directionality and "Bond Bending" (deviations from line of nuclear centers)
+ NHO DIRECTIONALITY AND BOND BENDING (deviations from line of nuclear centers)
 
          [Thresholds for printing:  angular deviation  >  1.0 degree]
-                                    hybrid p-character > 25.0%
+                                    p- or d-character  > 25.0%
                                     orbital occupancy  >  0.10e
 
                        Line of Centers        Hybrid 1              Hybrid 2
@@ -1088,340 +927,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    4. BD ( 1) C 1- H 5   144.7   35.3   145.1   33.6   1.0      --     --    --
    5. BD ( 1) N 2- H 6    35.3  215.3    35.0  222.9   4.4      --     --    --
    6. BD ( 1) N 2- H 7   144.7  215.3   145.0  222.9   4.4      --     --    --
-   9. LP ( 1) N 2          --     --     90.0  339.4   --       --     --    --
+   9. LP ( 1) N 2          --     --     90.0  159.4   --       --     --    --
 
 
- CMO: NBO Analysis of Canonical Molecular Orbitals
-
- Leading (> 5%) NBO Contributions to Molecular Orbitals
- ======================================================
-  MO   1 (occ): orbital energy = -15.445751 a.u.
-                0.993*[  8]: CR ( 1) N 2(cr)  
-  MO   2 (occ): orbital energy = -11.182619 a.u.
-                0.993*[  7]: CR ( 1) C 1(cr)  
-  MO   3 (occ): orbital energy =  -1.163995 a.u.
-                0.629*[  1]: BD ( 1) C 1- N 2 
-                0.474*[  6]: BD ( 1) N 2- H 7 
-                0.474*[  5]: BD ( 1) N 2- H 6 
-  MO   4 (occ): orbital energy =  -0.892021 a.u.
-                0.491*[  4]: BD ( 1) C 1- H 5 
-                0.491*[  3]: BD ( 1) C 1- H 4 
-                0.472*[  2]: BD ( 1) C 1- H 3 
-               -0.357*[  6]: BD ( 1) N 2- H 7 
-               -0.357*[  5]: BD ( 1) N 2- H 6 
-  MO   5 (occ): orbital energy =  -0.658971 a.u.
-                0.594*[  6]: BD ( 1) N 2- H 7 
-               -0.594*[  5]: BD ( 1) N 2- H 6 
-                0.381*[  4]: BD ( 1) C 1- H 5 
-               -0.381*[  3]: BD ( 1) C 1- H 4 
-  MO   6 (occ): orbital energy =  -0.592809 a.u.
-                0.775*[  2]: BD ( 1) C 1- H 3 
-               -0.331*[  9]: LP ( 1) N 2(lp)  
-               -0.324*[  1]: BD ( 1) C 1- N 2 
-               -0.230*[  3]: BD ( 1) C 1- H 4 
-               -0.230*[  4]: BD ( 1) C 1- H 5 
-  MO   7 (occ): orbital energy =  -0.549240 a.u.
-                0.682*[  1]: BD ( 1) C 1- N 2 
-               -0.392*[  4]: BD ( 1) C 1- H 5 
-               -0.392*[  3]: BD ( 1) C 1- H 4 
-               -0.303*[  6]: BD ( 1) N 2- H 7 
-               -0.303*[  5]: BD ( 1) N 2- H 6 
-  MO   8 (occ): orbital energy =  -0.517076 a.u.
-               -0.594*[  4]: BD ( 1) C 1- H 5 
-                0.594*[  3]: BD ( 1) C 1- H 4 
-                0.381*[  6]: BD ( 1) N 2- H 7 
-               -0.381*[  5]: BD ( 1) N 2- H 6 
-  MO   9 (occ): orbital energy =  -0.368733 a.u.
-                0.901*[  9]: LP ( 1) N 2(lp)  
-                0.334*[  2]: BD ( 1) C 1- H 3 
-  MO  10 (vir): orbital energy =   0.266326 a.u.
-                0.434*[ 28]: BD*( 1) N 2- H 7*
-                0.434*[ 27]: BD*( 1) N 2- H 6*
-                0.321*[ 24]: BD*( 1) C 1- H 3*
-               -0.287*[ 21]: RY*( 1) H 6(ry*) 
-               -0.287*[ 22]: RY*( 1) H 7(ry*) 
-                0.256*[ 26]: BD*( 1) C 1- H 5*
-                0.256*[ 25]: BD*( 1) C 1- H 4*
-               -0.248*[ 18]: RY*( 1) H 3(ry*) 
-                0.236*[ 23]: BD*( 1) C 1- N 2*
-  MO  11 (vir): orbital energy =   0.329329 a.u.
-                0.389*[ 26]: BD*( 1) C 1- H 5*
-                0.389*[ 25]: BD*( 1) C 1- H 4*
-               -0.322*[ 20]: RY*( 1) H 5(ry*) 
-               -0.322*[ 19]: RY*( 1) H 4(ry*) 
-               -0.311*[ 28]: BD*( 1) N 2- H 7*
-               -0.311*[ 27]: BD*( 1) N 2- H 6*
-                0.265*[ 24]: BD*( 1) C 1- H 3*
-               -0.260*[ 23]: BD*( 1) C 1- N 2*
-  MO  12 (vir): orbital energy =   0.335929 a.u.
-               -0.470*[ 26]: BD*( 1) C 1- H 5*
-                0.470*[ 25]: BD*( 1) C 1- H 4*
-                0.337*[ 20]: RY*( 1) H 5(ry*) 
-               -0.337*[ 19]: RY*( 1) H 4(ry*) 
-               -0.328*[ 28]: BD*( 1) N 2- H 7*
-                0.328*[ 27]: BD*( 1) N 2- H 6*
-                0.230*[ 22]: RY*( 1) H 7(ry*) 
-               -0.230*[ 21]: RY*( 1) H 6(ry*) 
-  MO  13 (vir): orbital energy =   0.357078 a.u.
-                0.669*[ 24]: BD*( 1) C 1- H 3*
-               -0.483*[ 18]: RY*( 1) H 3(ry*) 
-               -0.297*[ 26]: BD*( 1) C 1- H 5*
-               -0.297*[ 25]: BD*( 1) C 1- H 4*
-  MO  14 (vir): orbital energy =   0.382113 a.u.
-                0.452*[ 28]: BD*( 1) N 2- H 7*
-               -0.452*[ 27]: BD*( 1) N 2- H 6*
-               -0.354*[ 22]: RY*( 1) H 7(ry*) 
-                0.354*[ 21]: RY*( 1) H 6(ry*) 
-               -0.319*[ 26]: BD*( 1) C 1- H 5*
-                0.319*[ 25]: BD*( 1) C 1- H 4*
-  MO  15 (vir): orbital energy =   0.450027 a.u.
-                0.805*[ 23]: BD*( 1) C 1- N 2*
-               -0.330*[ 10]: RY*( 1) C 1(ry*) 
-  MO  16 (vir): orbital energy =   0.947552 a.u.
-                0.808*[ 11]: RY*( 2) C 1(ry*) 
-               -0.315*[ 20]: RY*( 1) H 5(ry*) 
-                0.315*[ 19]: RY*( 1) H 4(ry*) 
-  MO  17 (vir): orbital energy =   0.977872 a.u.
-                0.768*[ 10]: RY*( 1) C 1(ry*) 
-               -0.359*[ 18]: RY*( 1) H 3(ry*) 
-               -0.325*[ 12]: RY*( 3) C 1(ry*) 
-  MO  18 (vir): orbital energy =   0.987321 a.u.
-                0.647*[ 13]: RY*( 4) C 1(ry*) 
-               -0.494*[ 12]: RY*( 3) C 1(ry*) 
-               -0.376*[ 23]: BD*( 1) C 1- N 2*
-               -0.349*[ 10]: RY*( 1) C 1(ry*) 
-  MO  19 (vir): orbital energy =   1.259216 a.u.
-                0.540*[ 11]: RY*( 2) C 1(ry*) 
-                0.376*[ 22]: RY*( 1) H 7(ry*) 
-               -0.376*[ 21]: RY*( 1) H 6(ry*) 
-               -0.262*[ 15]: RY*( 2) N 2(ry*) 
-                0.255*[ 20]: RY*( 1) H 5(ry*) 
-               -0.255*[ 19]: RY*( 1) H 4(ry*) 
-                0.255*[ 26]: BD*( 1) C 1- H 5*
-               -0.255*[ 25]: BD*( 1) C 1- H 4*
-  MO  20 (vir): orbital energy =   1.265000 a.u.
-                0.439*[ 22]: RY*( 1) H 7(ry*) 
-                0.439*[ 21]: RY*( 1) H 6(ry*) 
-                0.378*[ 18]: RY*( 1) H 3(ry*) 
-                0.316*[ 10]: RY*( 1) C 1(ry*) 
-                0.308*[ 24]: BD*( 1) C 1- H 3*
-                0.297*[ 28]: BD*( 1) N 2- H 7*
-                0.297*[ 27]: BD*( 1) N 2- H 6*
-  MO  21 (vir): orbital energy =   1.311201 a.u.
-                0.481*[ 20]: RY*( 1) H 5(ry*) 
-                0.481*[ 19]: RY*( 1) H 4(ry*) 
-                0.411*[ 26]: BD*( 1) C 1- H 5*
-                0.411*[ 25]: BD*( 1) C 1- H 4*
-                0.242*[ 12]: RY*( 3) C 1(ry*) 
-  MO  22 (vir): orbital energy =   1.340713 a.u.
-                0.556*[ 18]: RY*( 1) H 3(ry*) 
-                0.473*[ 24]: BD*( 1) C 1- H 3*
-               -0.304*[ 14]: RY*( 1) N 2(ry*) 
-               -0.259*[ 21]: RY*( 1) H 6(ry*) 
-               -0.259*[ 22]: RY*( 1) H 7(ry*) 
-                0.258*[ 16]: RY*( 3) N 2(ry*) 
-  MO  23 (vir): orbital energy =   1.381022 a.u.
-                0.401*[ 20]: RY*( 1) H 5(ry*) 
-               -0.401*[ 19]: RY*( 1) H 4(ry*) 
-               -0.387*[ 22]: RY*( 1) H 7(ry*) 
-                0.387*[ 21]: RY*( 1) H 6(ry*) 
-                0.312*[ 26]: BD*( 1) C 1- H 5*
-               -0.312*[ 25]: BD*( 1) C 1- H 4*
-               -0.294*[ 28]: BD*( 1) N 2- H 7*
-                0.294*[ 27]: BD*( 1) N 2- H 6*
-  MO  24 (vir): orbital energy =   1.511343 a.u.
-                0.913*[ 14]: RY*( 1) N 2(ry*) 
-                0.226*[ 18]: RY*( 1) H 3(ry*) 
-  MO  25 (vir): orbital energy =   1.642108 a.u.
-                0.952*[ 15]: RY*( 2) N 2(ry*) 
-  MO  26 (vir): orbital energy =   1.664791 a.u.
-                0.627*[ 16]: RY*( 3) N 2(ry*) 
-               -0.605*[ 17]: RY*( 4) N 2(ry*) 
-  MO  27 (vir): orbital energy =   1.966717 a.u.
-                0.719*[ 12]: RY*( 3) C 1(ry*) 
-                0.637*[ 13]: RY*( 4) C 1(ry*) 
-  MO  28 (vir): orbital energy =   2.839515 a.u.
-                0.725*[ 17]: RY*( 4) N 2(ry*) 
-                0.649*[ 16]: RY*( 3) N 2(ry*) 
-
-           Molecular Orbital Atom-Atom Bonding Character   
-          ================================================
-              bonding        nonbonding      antibonding
-    MO        (2c, 3c)        (1c, 1c*)       (2c*, 3c*)
-  ------  ---------------    ----------    ---------------
-    1(o)                     0.987  N 2
-          _____              _____         _____
-          0.011(b)           0.989(n)      0.000(a)  total
-  --------------------------------------------------------
-    2(o)                     0.986  C 1
-          _____              _____         _____
-          0.013(b)           0.987(n)      0.000(a)  total
-  --------------------------------------------------------
-    3(o)  0.395  C 1- N 2
-          0.225  N 2- H 7
-          0.225  N 2- H 6
-          _____              _____         _____
-          0.955(b)           0.045(n)      0.000(a)  total
-  --------------------------------------------------------
-    4(o)  0.241  C 1- H 5
-          0.241  C 1- H 4
-          0.222  C 1- H 3
-          0.127  N 2- H 7
-          0.127  N 2- H 6
-          _____              _____         _____
-          0.974(b)           0.025(n)      0.001(a)  total
-  --------------------------------------------------------
-    5(o)  0.353  N 2- H 7
-          0.353  N 2- H 6
-          0.145  C 1- H 5
-          0.145  C 1- H 4
-          _____              _____         _____
-          0.996(b)           0.000(n)      0.004(a)  total
-  --------------------------------------------------------
-    6(o)  0.600  C 1- H 3    0.110  N 2
-          0.105  C 1- N 2
-          0.053  C 1- H 5
-          0.053  C 1- H 4
-          _____              _____         _____
-          0.888(b)           0.110(n)      0.002(a)  total
-  --------------------------------------------------------
-    7(o)  0.465  C 1- N 2
-          0.154  C 1- H 5
-          0.154  C 1- H 4
-          0.092  N 2- H 7
-          0.092  N 2- H 6
-          _____              _____         _____
-          0.975(b)           0.024(n)      0.001(a)  total
-  --------------------------------------------------------
-    8(o)  0.353  C 1- H 5
-          0.353  C 1- H 4
-          0.145  N 2- H 7
-          0.145  N 2- H 6
-          _____              _____         _____
-          0.997(b)           0.001(n)      0.003(a)  total
-  --------------------------------------------------------
-    9(o)  0.112  C 1- H 3    0.811  N 2
-          _____              _____         _____
-          0.178(b)           0.812(n)      0.009(a)  total
-  --------------------------------------------------------
-   10(v)                     0.082  H 7    0.188  N 2- H 7
-                             0.082  H 6    0.188  N 2- H 6
-                             0.062  H 3    0.103  C 1- H 3
-                                           0.065  C 1- H 5
-                                           0.065  C 1- H 4
-                                           0.056  C 1- N 2
-          _____              _____         _____
-          0.001(b)           0.333(n)      0.666(a)  total
-  --------------------------------------------------------
-   11(v)                     0.104  H 5    0.151  C 1- H 5
-                             0.104  H 4    0.151  C 1- H 4
-                                           0.097  N 2- H 7
-                                           0.097  N 2- H 6
-                                           0.070  C 1- H 3
-                                           0.068  C 1- N 2
-          _____              _____         _____
-          0.001(b)           0.365(n)      0.634(a)  total
-  --------------------------------------------------------
-   12(v)                     0.114  H 5    0.221  C 1- H 5
-                             0.114  H 4    0.221  C 1- H 4
-                             0.053  H 7    0.108  N 2- H 7
-                             0.053  H 6    0.108  N 2- H 6
-          _____              _____         _____
-          0.003(b)           0.340(n)      0.657(a)  total
-  --------------------------------------------------------
-   13(v)                     0.233  H 3    0.447  C 1- H 3
-                                           0.088  C 1- H 5
-                                           0.088  C 1- H 4
-          _____              _____         _____
-          0.001(b)           0.359(n)      0.640(a)  total
-  --------------------------------------------------------
-   14(v)                     0.126  H 7    0.204  N 2- H 7
-                             0.126  H 6    0.204  N 2- H 6
-                                           0.102  C 1- H 5
-                                           0.102  C 1- H 4
-          _____              _____         _____
-          0.003(b)           0.385(n)      0.612(a)  total
-  --------------------------------------------------------
-   15(v)                     0.109  C 1    0.648  C 1- N 2
-          _____              _____         _____
-          0.000(b)           0.240(n)      0.760(a)  total
-  --------------------------------------------------------
-   16(v)                     0.654  C 1
-                             0.099  H 5
-                             0.099  H 4
-          _____              _____         _____
-          0.000(b)           0.914(n)      0.086(a)  total
-  --------------------------------------------------------
-   17(v)                     0.695  C 1
-                             0.129  H 3
-          _____              _____         _____
-          0.000(b)           0.918(n)      0.082(a)  total
-  --------------------------------------------------------
-   18(v)                     0.785  C 1    0.141  C 1- N 2
-          _____              _____         _____
-          0.000(b)           0.853(n)      0.147(a)  total
-  --------------------------------------------------------
-   19(v)                     0.291  C 1    0.065  C 1- H 5
-                             0.141  H 7    0.065  C 1- H 4
-                             0.141  H 6
-                             0.069  N 2
-                             0.065  H 5
-                             0.065  H 4
-          _____              _____         _____
-          0.001(b)           0.773(n)      0.227(a)  total
-  --------------------------------------------------------
-   20(v)                     0.193  H 7    0.095  C 1- H 3
-                             0.193  H 6    0.088  N 2- H 7
-                             0.143  H 3    0.088  N 2- H 6
-                             0.100  C 1
-          _____              _____         _____
-          0.001(b)           0.722(n)      0.277(a)  total
-  --------------------------------------------------------
-   21(v)                     0.232  H 5    0.169  C 1- H 5
-                             0.232  H 4    0.169  C 1- H 4
-                             0.059  C 1
-          _____              _____         _____
-          0.001(b)           0.654(n)      0.346(a)  total
-  --------------------------------------------------------
-   22(v)                     0.309  H 3    0.224  C 1- H 3
-                             0.159  N 2
-                             0.067  H 7
-                             0.067  H 6
-          _____              _____         _____
-          0.000(b)           0.705(n)      0.295(a)  total
-  --------------------------------------------------------
-   23(v)                     0.160  H 5    0.098  C 1- H 5
-                             0.160  H 4    0.098  C 1- H 4
-                             0.150  H 7    0.086  N 2- H 7
-                             0.150  H 6    0.086  N 2- H 6
-          _____              _____         _____
-          0.000(b)           0.632(n)      0.368(a)  total
-  --------------------------------------------------------
-   24(v)                     0.834  N 2
-                             0.051  H 3
-          _____              _____         _____
-          0.001(b)           0.967(n)      0.033(a)  total
-  --------------------------------------------------------
-   25(v)                     0.906  N 2
-          _____              _____         _____
-          0.001(b)           0.955(n)      0.044(a)  total
-  --------------------------------------------------------
-   26(v)                     0.759  N 2
-          _____              _____         _____
-          0.000(b)           0.916(n)      0.084(a)  total
-  --------------------------------------------------------
-   27(v)                     0.922  C 1
-          _____              _____         _____
-          0.000(b)           0.984(n)      0.016(a)  total
-  --------------------------------------------------------
-   28(v)                     0.947  N 2
-          _____              _____         _____
-          0.000(b)           0.993(n)      0.007(a)  total
-  --------------------------------------------------------
-          6.000(b)          16.000(n)      6.000(a)  Sum total for MOs
-
-
- Second Order Perturbation Theory Analysis of Fock Matrix in NBO Basis
+ SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS
 
      Threshold for printing:   0.50 kcal/mol
                                                           E(2)  E(j)-E(i) F(i,j)
@@ -1451,463 +960,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    9. LP ( 1) N 2            26. BD*( 1) C 1- H 5         1.46    1.14    0.037
 
 
- Natural Bond Orbitals (Summary):
-
-                                                     Principal Delocalizations
-           NBO              Occupancy    Energy      (geminal,vicinal,remote)
- ===============================================================================
- Molecular unit  1  (CH5N)
-   1. BD ( 1) C 1- N 2       1.99858    -0.89909
-   2. BD ( 1) C 1- H 3       1.99860    -0.69181    14(v)
-   3. BD ( 1) C 1- H 4       1.99399    -0.68892    28(v),26(g)
-   4. BD ( 1) C 1- H 5       1.99399    -0.68892    27(v),25(g)
-   5. BD (       0.0000 -0.0095  0.1248 -0.0017  0.5994
-                                         0.0308 -0.7900  0.0000  0.0000
-  11. (0.00034) RY*( 2) C 1             s(  0.00%)p 1.00(100.00%)
-                                         0.0000  0.0000  0.0000  0.0000  0.0000
-                                         0.0000  0.0000  0.0145  0.9999
-  12. (0.00022) RY*( 3) C 1             s( 56.51%)p 0.77( 43.49%)
-                                         0.0000 -0.0023  0.7517 -0.0072 -0.5771
-                                         0.0245 -0.3181  0.0000  0.0000
-  13. (0.00002) RY*( 4) C 1             s( 41.87%)p 1.39( 58.13%)
-  14. (0.00116) RY*( 1) N 2             s(  1.50%)p65.53( 98.50%)
-                                         0.0000 -0.0062  0.1224  0.0190  0.9837
-                                        -0.0082 -0.1302  0.0000  0.0000
-  15. (0.00044) RY*( 2) N 2             s(  0.00%)p 1.00(100.00%)
-                                         0.0000  0.0000  0.0000  0.0000  0.0000
-                                         0.0000  0.0000 -0.0132  0.9999
-  16. (0.00038) RY*( 3) N 2             s( 33.38%)p 2.00( 66.62%)
-                                         0.0000  0.0133  0.5776 -0.0129  0.0363
-                                        -0.0075  0.8152  0.0000  0.0000
-  17. (0.00002) RY*( 4) N 2             s( 65.14%)p 0.54( 34.86%)
-  18. (0.00178) RY*( 1) H 3             s(100.00%)
-                                        -0.0030  1.0000
-  19. (0.00096) RY*( 1) H 4             s(100.00%)
-                                        -0.0008  1.0000
-  20. (0.00096) RY*( 1) H 5             s(100.00%)
-                                        -0.0008  1.0000
-  21. (0.00122) RY*( 1) H 6             s(100.00%)
-                                        -0.0020  1.0000
-  22. (0.00122) RY*( 1) H 7             s(100.00%)
-                                        -0.0020  1.0000
-  23. (0.00016) BD*( 1) C 1- N 2      
-                ( 59.93%)   0.7742* C 1 s( 21.71%)p 3.61( 78.29%)
-                                         0.0003  0.4653  0.0238 -0.0045  0.0083
-                                        -0.8843 -0.0300  0.0000  0.0000
-                ( 40.07%)  -0.6330* N 2 s( 30.88%)p 2.24( 69.12%)
-                                         0.0001  0.5557 -0.0011  0.0340  0.0098
-                                         0.8306 -0.0005  0.0000  0.0000
-  24. (0.01569) BD*( 1) C 1- H 3      
-                ( 40.29%)   0.6347* C 1 s( 25.78%)p 2.88( 74.22%)
-                                        -0.0002 -0.5077  0.0069  0.8178 -0.0055
-                                        -0.2709 -0.0093  0.0000  0.0000
-                ( 59.71%)  -0.7728* H 3 s(100.00%)
-                                        -1.0000 -0.0030
-  25. (0.00769) BD*( 1) C 1- H 4      
-                ( 38.98%)   0.6243* C 1 s( 26.28%)p 2.80( 73.72%)
-                                        -0.0001 -0.5127  0.0038 -0.4069  0.0016
-                                        -0.2675 -0.0016 -0.7070  0.0103
-                ( 61.02%)  -0.7812* H 4 s(100.00%)
-                                        -1.0000 -0.0008
-  26. (0.00769) BD*( 1) C 1- H 5      
-                ( 38.98%)   0.6243* C 1 s( 26.28%)p 2.80( 73.72%)
-                                        -0.0001 -0.5127  0.0038 -0.4069  0.0016
-                                        -0.2675 -0.0016  0.7070 -0.0103
-                ( 61.02%)  -0.7812* H 5 s(100.00%)
-                                        -1.0000 -0.0008
-  27. (0.00426) BD*( 1) N 2- H 6      
-                ( 31.88%)   0.5647* N 2 s( 25.62%)p 2.90( 74.38%)
-                                         0.0000 -0.5062 -0.0005  0.3726 -0.0053
-                                         0.3235  0.0177 -0.7070 -0.0093
-                ( 68.12%)  -0.8253* H 6 s(100.00%)
-                                        -1.0000 -0.0020
-  28. (0.00426) BD*( 1) N 2- H 7      
-                ( 31.88%)   0.5647* N 2 s( 25.62%)p 2.90( 74.38%)
-                                         0.0000 -0.5062 -0.0005  0.3726 -0.0053
-                                         0.3235  0.0177  0.7070  0.0093
-                ( 68.12%)  -0.8253* H 7 s(100.00%)
-                                        -1.0000 -0.0020
-
-
- NHO Directionality and "Bond Bending" (deviations from line of nuclear centers)
-
-         [Thresholds for printing:  angular deviation  >  1.0 degree]
-                                    hybrid p-character > 25.0%
-                                    orbital occupancy  >  0.10e
-
-                       Line of Centers        Hybrid 1              Hybrid 2
-                       ---------------  -------------------   ------------------
-           NBO           Theta   Phi    Theta   Phi    Dev    Theta   Phi    Dev
- ===============================================================================
-   1. BD ( 1) C 1- N 2    90.0  270.0     --     --    --      90.0   87.0   3.0
-   3. BD ( 1) C 1- H 4    35.3   35.3    34.9   33.6   1.0      --     --    --
-   4. BD ( 1) C 1- H 5   144.7   35.3   145.1   33.6   1.0      --     --    --
-   5. BD ( 1) N 2- H 6    35.3  215.3    35.0  222.9   4.4      --     --    --
-   6. BD ( 1) N 2- H 7   144.7  215.3   145.0  222.9   4.4      --     --    --
-   9. LP ( 1) N 2          --     --     90.0  339.4   --       --     --    --
-
-
- CMO: NBO Analysis of Canonical Molecular Orbitals
-
- Leading (> 5%) NBO Contributions to Molecular Orbitals
- ======================================================
-  MO   1 (occ): orbital energy = -15.445751 a.u.
-                0.993*[  8]: CR ( 1) N 2(cr)  
-  MO   2 (occ): orbital energy = -11.182619 a.u.
-                0.993*[  7]: CR ( 1) C 1(cr)  
-  MO   3 (occ): orbital energy =  -1.163995 a.u.
-                0.629*[  1]: BD ( 1) C 1- N 2 
-                0.474*[  6]: BD ( 1) N 2- H 7 
-                0.474*[  5]: BD ( 1) N 2- H 6 
-  MO   4 (occ): orbital energy =  -0.892021 a.u.
-                0.491*[  4]: BD ( 1) C 1- H 5 
-                0.491*[  3]: BD ( 1) C 1- H 4 
-                0.472*[  2]: BD ( 1) C 1- H 3 
-               -0.357*[  6]: BD ( 1) N 2- H 7 
-               -0.357*[  5]: BD ( 1) N 2- H 6 
-  MO   5 (occ): orbital energy =  -0.658971 a.u.
-                0.594*[  6]: BD ( 1) N 2- H 7 
-               -0.594*[  5]: BD ( 1) N 2- H 6 
-                0.381*[  4]: BD ( 1) C 1- H 5 
-               -0.381*[  3]: BD ( 1) C 1- H 4 
-  MO   6 (occ): orbital energy =  -0.592809 a.u.
-                0.775*[  2]: BD ( 1) C 1- H 3 
-               -0.331*[  9]: LP ( 1) N 2(lp)  
-               -0.324*[  1]: BD ( 1) C 1- N 2 
-               -0.230*[  3]: BD ( 1) C 1- H 4 
-               -0.230*[  4]: BD ( 1) C 1- H 5 
-  MO   7 (occ): orbital energy =  -0.549240 a.u.
-                0.682*[  1]: BD ( 1) C 1- N 2 
-               -0.392*[  4]: BD ( 1) C 1- H 5 
-               -0.392*[  3]: BD ( 1) C 1- H 4 
-               -0.303*[  6]: BD ( 1) N 2- H 7 
-               -0.303*[  5]: BD ( 1) N 2- H 6 
-  MO   8 (occ): orbital energy =  -0.517076 a.u.
-               -0.594*[  4]: BD ( 1) C 1- H 5 
-                0.594*[  3]: BD ( 1) C 1- H 4 
-                0.381*[  6]: BD ( 1) N 2- H 7 
-               -0.381*[  5]: BD ( 1) N 2- H 6 
-  MO   9 (occ): orbital energy =  -0.368733 a.u.
-                0.901*[  9]: LP ( 1) N 2(lp)  
-                0.334*[  2]: BD ( 1) C 1- H 3 
-  MO  10 (vir): orbital energy =   0.266326 a.u.
-                0.434*[ 28]: BD*( 1) N 2- H 7*
-                0.434*[ 27]: BD*( 1) N 2- H 6*
-                0.321*[ 24]: BD*( 1) C 1- H 3*
-               -0.287*[ 21]: RY*( 1) H 6(ry*) 
-               -0.287*[ 22]: RY*( 1) H 7(ry*) 
-                0.256*[ 26]: BD*( 1) C 1- H 5*
-                0.256*[ 25]: BD*( 1) C 1- H 4*
-               -0.248*[ 18]: RY*( 1) H 3(ry*) 
-                0.236*[ 23]: BD*( 1) C 1- N 2*
-  MO  11 (vir): orbital energy =   0.329329 a.u.
-                0.389*[ 26]: BD*( 1) C 1- H 5*
-                0.389*[ 25]: BD*( 1) C 1- H 4*
-               -0.322*[ 20]: RY*( 1) H 5(ry*) 
-               -0.322*[ 19]: RY*( 1) H 4(ry*) 
-               -0.311*[ 28]: BD*( 1) N 2- H 7*
-               -0.311*[ 27]: BD*( 1) N 2- H 6*
-                0.265*[ 24]: BD*( 1) C 1- H 3*
-               -0.260*[ 23]: BD*( 1) C 1- N 2*
-  MO  12 (vir): orbital energy =   0.335929 a.u.
-               -0.470*[ 26]: BD*( 1) C 1- H 5*
-                0.470*[ 25]: BD*( 1) C 1- H 4*
-                0.337*[ 20]: RY*( 1) H 5(ry*) 
-               -0.337*[ 19]: RY*( 1) H 4(ry*) 
-               -0.328*[ 28]: BD*( 1) N 2- H 7*
-                0.328*[ 27]: BD*( 1) N 2- H 6*
-                0.230*[ 22]: RY*( 1) H 7(ry*) 
-               -0.230*[ 21]: RY*( 1) H 6(ry*) 
-  MO  13 (vir): orbital energy =   0.357078 a.u.
-                0.669*[ 24]: BD*( 1) C 1- H 3*
-               -0.483*[ 18]: RY*( 1) H 3(ry*) 
-               -0.297*[ 26]: BD*( 1) C 1- H 5*
-               -0.297*[ 25]: BD*( 1) C 1- H 4*
-  MO  14 (vir): orbital energy =   0.382113 a.u.
-                0.452*[ 28]: BD*( 1) N 2- H 7*
-               -0.452*[ 27]: BD*( 1) N 2- H 6*
-               -0.354*[ 22]: RY*( 1) H 7(ry*) 
-                0.354*[ 21]: RY*( 1) H 6(ry*) 
-               -0.319*[ 26]: BD*( 1) C 1- H 5*
-                0.319*[ 25]: BD*( 1) C 1- H 4*
-  MO  15 (vir): orbital energy =   0.450027 a.u.
-                0.805*[ 23]: BD*( 1) C 1- N 2*
-               -0.330*[ 10]: RY*( 1) C 1(ry*) 
-  MO  16 (vir): orbital energy =   0.947552 a.u.
-                0.808*[ 11]: RY*( 2) C 1(ry*) 
-               -0.315*[ 20]: RY*( 1) H 5(ry*) 
-                0.315*[ 19]: RY*( 1) H 4(ry*) 
-  MO  17 (vir): orbital energy =   0.977872 a.u.
-                0.768*[ 10]: RY*( 1) C 1(ry*) 
-               -0.359*[ 18]: RY*( 1) H 3(ry*) 
-               -0.325*[ 12]: RY*( 3) C 1(ry*) 
-  MO  18 (vir): orbital energy =   0.987321 a.u.
-                0.647*[ 13]: RY*( 4) C 1(ry*) 
-               -0.494*[ 12]: RY*( 3) C 1(ry*) 
-               -0.376*[ 23]: BD*( 1) C 1- N 2*
-               -0.349*[ 10]: RY*( 1) C 1(ry*) 
-  MO  19 (vir): orbital energy =   1.259216 a.u.
-                0.540*[ 11]: RY*( 2) C 1(ry*) 
-                0.376*[ 22]: RY*( 1) H 7(ry*) 
-               -0.376*[ 21]: RY*( 1) H 6(ry*) 
-               -0.262*[ 15]: RY*( 2) N 2(ry*) 
-                0.255*[ 20]: RY*( 1) H 5(ry*) 
-               -0.255*[ 19]: RY*( 1) H 4(ry*) 
-                0.255*[ 26]: BD*( 1) C 1- H 5*
-               -0.255*[ 25]: BD*( 1) C 1- H 4*
-  MO  20 (vir): orbital energy =   1.265000 a.u.
-                0.439*[ 22]: RY*( 1) H 7(ry*) 
-                0.439*[ 21]: RY*( 1) H 6(ry*) 
-                0.378*[ 18]: RY*( 1) H 3(ry*) 
-                0.316*[ 10]: RY*( 1) C 1(ry*) 
-                0.308*[ 24]: BD*( 1) C 1- H 3*
-                0.297*[ 28]: BD*( 1) N 2- H 7*
-                0.297*[ 27]: BD*( 1) N 2- H 6*
-  MO  21 (vir): orbital energy =   1.311201 a.u.
-                0.481*[ 20]: RY*( 1) H 5(ry*) 
-                0.481*[ 19]: RY*( 1) H 4(ry*) 
-                0.411*[ 26]: BD*( 1) C 1- H 5*
-                0.411*[ 25]: BD*( 1) C 1- H 4*
-                0.242*[ 12]: RY*( 3) C 1(ry*) 
-  MO  22 (vir): orbital energy =   1.340713 a.u.
-                0.556*[ 18]: RY*( 1) H 3(ry*) 
-                0.473*[ 24]: BD*( 1) C 1- H 3*
-               -0.304*[ 14]: RY*( 1) N 2(ry*) 
-               -0.259*[ 21]: RY*( 1) H 6(ry*) 
-               -0.259*[ 22]: RY*( 1) H 7(ry*) 
-                0.258*[ 16]: RY*( 3) N 2(ry*) 
-  MO  23 (vir): orbital energy =   1.381022 a.u.
-                0.401*[ 20]: RY*( 1) H 5(ry*) 
-               -0.401*[ 19]: RY*( 1) H 4(ry*) 
-               -0.387*[ 22]: RY*( 1) H 7(ry*) 
-                0.387*[ 21]: RY*( 1) H 6(ry*) 
-                0.312*[ 26]: BD*( 1) C 1- H 5*
-               -0.312*[ 25]: BD*( 1) C 1- H 4*
-               -0.294*[ 28]: BD*( 1) N 2- H 7*
-                0.294*[ 27]: BD*( 1) N 2- H 6*
-  MO  24 (vir): orbital energy =   1.511343 a.u.
-                0.913*[ 14]: RY*( 1) N 2(ry*) 
-                0.226*[ 18]: RY*( 1) H 3(ry*) 
-  MO  25 (vir): orbital energy =   1.642108 a.u.
-                0.952*[ 15]: RY*( 2) N 2(ry*) 
-  MO  26 (vir): orbital energy =   1.664791 a.u.
-                0.627*[ 16]: RY*( 3) N 2(ry*) 
-               -0.605*[ 17]: RY*( 4) N 2(ry*) 
-  MO  27 (vir): orbital energy =   1.966717 a.u.
-                0.719*[ 12]: RY*( 3) C 1(ry*) 
-                0.637*[ 13]: RY*( 4) C 1(ry*) 
-  MO  28 (vir): orbital energy =   2.839515 a.u.
-                0.725*[ 17]: RY*( 4) N 2(ry*) 
-                0.649*[ 16]: RY*( 3) N 2(ry*) 
-
-           Molecular Orbital Atom-Atom Bonding Character   
-          ================================================
-              bonding        nonbonding      antibonding
-    MO        (2c, 3c)        (1c, 1c*)       (2c*, 3c*)
-  ------  ---------------    ----------    ---------------
-    1(o)                     0.987  N 2
-          _____              _____         _____
-          0.011(b)           0.989(n)      0.000(a)  total
-  --------------------------------------------------------
-    2(o)                     0.986  C 1
-          _____              _____         _____
-          0.013(b)           0.987(n)      0.000(a)  total
-  --------------------------------------------------------
-    3(o)  0.395  C 1- N 2
-          0.225  N 2- H 7
-          0.225  N 2- H 6
-          _____              _____         _____
-          0.955(b)           0.045(n)      0.000(a)  total
-  --------------------------------------------------------
-    4(o)  0.241  C 1- H 5
-          0.241  C 1- H 4
-          0.222  C 1- H 3
-          0.127  N 2- H 7
-          0.127  N 2- H 6
-          _____              _____         _____
-          0.974(b)           0.025(n)      0.001(a)  total
-  --------------------------------------------------------
-    5(o)  0.353  N 2- H 7
-          0.353  N 2- H 6
-          0.145  C 1- H 5
-          0.145  C 1- H 4
-          _____              _____         _____
-          0.996(b)           0.000(n)      0.004(a)  total
-  --------------------------------------------------------
-    6(o)  0.600  C 1- H 3    0.110  N 2
-          0.105  C 1- N 2
-          0.053  C 1- H 5
-          0.053  C 1- H 4
-          _____              _____         _____
-          0.888(b)           0.110(n)      0.002(a)  total
-  --------------------------------------------------------
-    7(o)  0.465  C 1- N 2
-          0.154  C 1- H 5
-          0.154  C 1- H 4
-          0.092  N 2- H 7
-          0.092  N 2- H 6
-          _____              _____         _____
-          0.975(b)           0.024(n)      0.001(a)  total
-  --------------------------------------------------------
-    8(o)  0.353  C 1- H 5
-          0.353  C 1- H 4
-          0.145  N 2- H 7
-          0.145  N 2- H 6
-          _____              _____         _____
-          0.997(b)           0.001(n)      0.003(a)  total
-  --------------------------------------------------------
-    9(o)  0.112  C 1- H 3    0.811  N 2
-          _____              _____         _____
-          0.178(b)           0.812(n)      0.009(a)  total
-  --------------------------------------------------------
-   10(v)                     0.082  H 7    0.188  N 2- H 7
-                             0.082  H 6    0.188  N 2- H 6
-                             0.062  H 3    0.103  C 1- H 3
-                                           0.065  C 1- H 5
-                                           0.065  C 1- H 4
-                                           0.056  C 1- N 2
-          _____              _____         _____
-          0.001(b)           0.333(n)      0.666(a)  total
-  --------------------------------------------------------
-   11(v)                     0.104  H 5    0.151  C 1- H 5
-                             0.104  H 4    0.151  C 1- H 4
-                                           0.097  N 2- H 7
-                                           0.097  N 2- H 6
-                                           0.070  C 1- H 3
-                                           0.068  C 1- N 2
-          _____              _____         _____
-          0.001(b)           0.365(n)      0.634(a)  total
-  --------------------------------------------------------
-   12(v)                     0.114  H 5    0.221  C 1- H 5
-                             0.114  H 4    0.221  C 1- H 4
-                             0.053  H 7    0.108  N 2- H 7
-                             0.053  H 6    0.108  N 2- H 6
-          _____              _____         _____
-          0.003(b)           0.340(n)      0.657(a)  total
-  --------------------------------------------------------
-   13(v)                     0.233  H 3    0.447  C 1- H 3
-                                           0.088  C 1- H 5
-                                           0.088  C 1- H 4
-          _____              _____         _____
-          0.001(b)           0.359(n)      0.640(a)  total
-  --------------------------------------------------------
-   14(v)                     0.126  H 7    0.204  N 2- H 7
-                             0.126  H 6    0.204  N 2- H 6
-                                           0.102  C 1- H 5
-                                           0.102  C 1- H 4
-          _____              _____         _____
-          0.003(b)           0.385(n)      0.612(a)  total
-  --------------------------------------------------------
-   15(v)                     0.109  C 1    0.648  C 1- N 2
-          _____              _____         _____
-          0.000(b)           0.240(n)      0.760(a)  total
-  --------------------------------------------------------
-   16(v)                     0.654  C 1
-                             0.099  H 5
-                             0.099  H 4
-          _____              _____         _____
-          0.000(b)           0.914(n)      0.086(a)  total
-  --------------------------------------------------------
-   17(v)                     0.695  C 1
-                             0.129  H 3
-          _____              _____         _____
-          0.000(b)           0.918(n)      0.082(a)  total
-  --------------------------------------------------------
-   18(v)                     0.785  C 1    0.141  C 1- N 2
-          _____              _____         _____
-          0.000(b)           0.853(n)      0.147(a)  total
-  --------------------------------------------------------
-   19(v)                     0.291  C 1    0.065  C 1- H 5
-                             0.141  H 7    0.065  C 1- H 4
-                             0.141  H 6
-                             0.069  N 2
-                             0.065  H 5
-                             0.065  H 4
-          _____              _____         _____
-          0.001(b)           0.773(n)      0.227(a)  total
-  --------------------------------------------------------
-   20(v)                     0.193  H 7    0.095  C 1- H 3
-                             0.193  H 6    0.088  N 2- H 7
-                             0.143  H 3    0.088  N 2- H 6
-                             0.100  C 1
-          _____              _____         _____
-          0.001(b)           0.722(n)      0.277(a)  total
-  --------------------------------------------------------
-   21(v)                     0.232  H 5    0.169  C 1- H 5
-                             0.232  H 4    0.169  C 1- H 4
-                             0.059  C 1
-          _____              _____         _____
-          0.001(b)           0.654(n)      0.346(a)  total
-  --------------------------------------------------------
-   22(v)                     0.309  H 3    0.224  C 1- H 3
-                             0.159  N 2
-                             0.067  H 7
-                             0.067  H 6
-          _____              _____         _____
-          0.000(b)           0.705(n)      0.295(a)  total
-  --------------------------------------------------------
-   23(v)                     0.160  H 5    0.098  C 1- H 5
-                             0.160  H 4    0.098  C 1- H 4
-                             0.150  H 7    0.086  N 2- H 7
-                             0.150  H 6    0.086  N 2- H 6
-          _____              _____         _____
-          0.000(b)           0.632(n)      0.368(a)  total
-  --------------------------------------------------------
-   24(v)                     0.834  N 2
-                             0.051  H 3
-          _____              _____         _____
-          0.001(b)           0.967(n)      0.033(a)  total
-  --------------------------------------------------------
-   25(v)                     0.906  N 2
-          _____              _____         _____
-          0.001(b)           0.955(n)      0.044(a)  total
-  --------------------------------------------------------
-   26(v)                     0.759  N 2
-          _____              _____         _____
-          0.000(b)           0.916(n)      0.084(a)  total
-  --------------------------------------------------------
-   27(v)                     0.922  C 1
-          _____              _____         _____
-          0.000(b)           0.984(n)      0.016(a)  total
-  --------------------------------------------------------
-   28(v)                     0.947  N 2
-          _____              _____         _____
-          0.000(b)           0.993(n)      0.007(a)  total
-  --------------------------------------------------------
-          6.000(b)          16.000(n)      6.000(a)  Sum total for MOs
-
-
- Second Order Perturbation Theory Analysis of Fock Matrix in NBO Basis
-
-     Threshold for printing:   0.50 kcal/mol
-                                                          E(2)  E(j)-E(i) F(i,j)
-      Donor NBO (i)              Acceptor NBO (j)       kcal/mol   a.u.    a.u. 
- ===============================================================================
-
- within unit  1
-   2. BD ( 1) C 1- H 3       14. RY*( 1) N 2              0.84    2.18    0.038
-   3. BD ( 1) C 1- H 4       26. BD*( 1) C 1- H 5         0.52    1.39    0.024
-   3. BD ( 1) C 1- H 4       28. BD*( 1) N 2- H 7         3.03    1.37    0.057
-   4. BD ( 1) C 1- H 5       25. BD*( 1) C 1- H 4         0.52    1.39    0.024
-   4. BD ( 1) C 1- H 5       27. BD*( 1) N 2- H 6         3.03    1.37    0.057
-   5. BD ( 1) N 2- H 6       10. RY*( 1) C 1              0.56    1.78    0.028
-   5. BD ( 1) N 2- H 6       26. BD*( 1) C 1- H 5         2.85    1.51    0.059
-   6. BD ( 1) N 2- H 7       10. RY*( 1) C 1              0.56    1.78    0.028
-   6. BD ( 1) N 2- H 7       25. BD*( 1) C 1- H 4         2.85    1.51    0.059
-   7. CR ( 1) C 1            16. RY*( 3) N 2              0.61   13.11    0.080
-   7. CR ( 1) C 1            18. RY*( 1) H 3              1.40   11.99    0.116
-   7. CR ( 1) C 1            19. RY*( 1) H 4              1.55   11.99    0.122
-   7. CR ( 1) C 1            20. RY*( 1) H 5              1.55   11.99    0.122
-   8. CR ( 1) N 2            10. RY*( 1) C 1              1.51   16.23    0.140
-   8. CR ( 1) N 2            12. RY*( 3) C 1              0.84   16.77    0.106
-   8. CR ( 1) N 2            21. RY*( 1) H 6              0.61   16.26    0.089
-   8. CR ( 1) N 2            22. RY*( 1) H 7              0.61   16.26    0.089
-   9. LP ( 1) N 2            24. BD*( 1) C 1- H 3         8.13    1.13    0.086
-   9. LP ( 1) N 2            25. BD*( 1) C 1- H 4         1.46    1.14    0.037
-   9. LP ( 1) N 2            26. BD*( 1) C 1- H 5         1.46    1.14    0.037
-
-
- Natural Bond Orbitals (Summary):
+ NATURAL BOND ORBITALS (Summary):
 
                                                      Principal Delocalizations
            NBO              Occupancy    Energy      (geminal,vicinal,remote)
@@ -1948,56 +1001,83 @@ File balance: exchanges=     0  moved=     0  time=   0.0
        -------------------------------
             Total unit  1   18.00000  (100.0000%)
            Charge unit  1    0.00000
- at the end of task_nbo
- 1) N 2- H 6       1.99442    -0.80951    26(v),10(v)
-   6. BD ( 1) N 2- H 7       1.99442    -0.80951    25(v),10(v)
-   7. CR ( 1) C 1            1.99900   -11.04131    19(v),20(v),18(v),16(v)
-   8. CR ( 1) N 2            1.99953   -15.25929    10(v),12(v),21(v),22(v)
-   9. LP ( 1) N 2            1.97795    -0.44593    24(v),25(v),26(v)
-  10. RY*( 1) C 1            0.00105     0.97105
-  11. RY*( 2) C 1            0.00034     1.02120
-  12. RY*( 3) C 1            0.00022     1.51413
-  13. RY*( 4) C 1            0.00002     1.42223
-  14. RY*( 1) N 2            0.00116     1.48790
-  15. RY*( 2) N 2            0.00044     1.59323
-  16. RY*( 3) N 2            0.00038     2.06476
-  17. RY*( 4) N 2            0.00002     2.25931
-  18. RY*( 1) H 3            0.00178     0.94860
-  19. RY*( 1) H 4            0.00096     0.94464
-  20. RY*( 1) H 5            0.00096     0.94464
-  21. RY*( 1) H 6            0.00122     0.99736
-  22. RY*( 1) H 7            0.00122     0.99736
-  23. BD*( 1) C 1- N 2       0.00016     0.57000
-  24. BD*( 1) C 1- H 3       0.01569     0.68735
-  25. BD*( 1) C 1- H 4       0.00769     0.69640
-  26. BD*( 1) C 1- H 5       0.00769     0.69640
-  27. BD*( 1) N 2- H 6       0.00426     0.68085
-  28. BD*( 1) N 2- H 7       0.00426     0.68085
-       -------------------------------
-              Total Lewis   17.95048  ( 99.7249%)
-        Valence non-Lewis    0.03977  (  0.2209%)
-        Rydberg non-Lewis    0.00975  (  0.0542%)
-       -------------------------------
-            Total unit  1   18.00000  (100.0000%)
-           Charge unit  1    0.00000
- at the end of task_nbo
- status in task is   T
- after task time 
- status in task is   T
 
- Task  times  cpu:        1.5s     wall:        5.6s
- after task time 
- going to next task
- going to next task
- 
- 
+
+ Deletion of the following NBO Fock matrix elements:
+     9, 24;   
+
+ Orbital occupancies:
+
+       Orbital                   No deletions   This deletion   Change
+ ------------------------------------------------------------------------------
+   1. BD ( 1) C 1- N 2               1.99858        1.99870    0.00012
+   2. BD ( 1) C 1- H 3               1.99860        1.99846   -0.00014
+   3. BD ( 1) C 1- H 4               1.99399        1.99396   -0.00003
+   4. BD ( 1) C 1- H 5               1.99399        1.99396   -0.00003
+   5. BD ( 1) N 2- H 6               1.99442        1.99452    0.00010
+   6. BD ( 1) N 2- H 7               1.99442        1.99452    0.00010
+   7. CR ( 1) C 1                    1.99900        1.99901    0.00001
+   8. CR ( 1) N 2                    1.99953        1.99952   -0.00001
+   9. LP ( 1) N 2                    1.97795        1.99342    0.01547
+  10. RY*( 1) C 1                    0.00105        0.00075   -0.00031
+  11. RY*( 2) C 1                    0.00034        0.00034    0.00000
+  12. RY*( 3) C 1                    0.00022        0.00035    0.00013
+  13. RY*( 4) C 1                    0.00002        0.00001    0.00000
+  14. RY*( 1) N 2                    0.00116        0.00117    0.00001
+  15. RY*( 2) N 2                    0.00044        0.00044    0.00000
+  16. RY*( 3) N 2                    0.00038        0.00038    0.00000
+  17. RY*( 4) N 2                    0.00002        0.00002    0.00000
+  18. RY*( 1) H 3                    0.00178        0.00109   -0.00069
+  19. RY*( 1) H 4                    0.00096        0.00101    0.00005
+  20. RY*( 1) H 5                    0.00096        0.00101    0.00005
+  21. RY*( 1) H 6                    0.00122        0.00122    0.00000
+  22. RY*( 1) H 7                    0.00122        0.00122    0.00000
+  23. BD*( 1) C 1- N 2               0.00016        0.00016    0.00000
+  24. BD*( 1) C 1- H 3               0.01569        0.00049   -0.01520
+  25. BD*( 1) C 1- H 4               0.00769        0.00787    0.00017
+  26. BD*( 1) C 1- H 5               0.00769        0.00787    0.00017
+  27. BD*( 1) N 2- H 6               0.00426        0.00427    0.00001
+  28. BD*( 1) N 2- H 7               0.00426        0.00427    0.00001
+
+ NEXT STEP:  Evaluate the energy of the new density matrix
+             that has been constructed from the deleted NBO
+             Fock matrix by doing one SCF cycle.
+
+ ------------------------------------------------------------------------------
+
+      Calculation failed to converge
+      ------------------------------
+
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -94.668191927710
+      One-electron energy =   -210.781915814042
+      Two-electron energy =     74.063559849396
+ Nuclear repulsion energy =     42.050164036937
+
+        Time for solution =      0.1s
+
+
+
+ ------------------------------------------------------------------------------
+   Energy of deletion :        -94.668191928
+     Total SCF energy :        -94.679444927
+                          -------------------
+        Energy change :          0.011253 a.u.,           7.061 kcal/mol
+ ------------------------------------------------------------------------------
+
+
+
+ Task  times  cpu:        0.3s     wall:        0.8s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
- after task parsing
- after task parsing
- printing summary info
+
+
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -2008,11 +1088,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  198      198     1465     2036     1120        2        0        0     
-bytes total:             1.56e+06 5.52e+05 6.35e+05 4.48e+02 0.00e+00 0.00e+00
-bytes remote:            8.96e+04 4.16e+04 3.71e+04 2.24e+02 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 72960 bytes
- 
+calls:  228      228     1593     1905     1122        2        0        0     
+bytes total:             1.68e+06 5.65e+05 6.78e+05 4.48e+02 0.00e+00 0.00e+00
+bytes remote:            1.25e+05 6.10e+04 5.22e+04 2.88e+02 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 67392 bytes
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -2021,11 +1101,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        17	        20
+	maximum number of blocks	        23	        20
 	current total bytes		         0	         0
-	maximum total bytes		   1583804	  16765340
-	maximum total K-bytes		      1584	     16766
-	maximum total M-bytes		         2	        17
+	maximum total bytes		   1060988	  20487772
+	maximum total K-bytes		      1061	     20488
+	maximum total M-bytes		         2	        21
 
 
 
@@ -2037,7 +1117,7 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 4.0" (2000), Pacific Northwest National Laboratory,
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -2047,17 +1127,15 @@ MA usage statistics:
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Bylaska, E.; 
-            Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; Deegan, M.; 
-            Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; Fruchtl, H.; 
-            Glendenning, E.; Gutowski, M.; Harrison, R.; Hess, A.; 
-            Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; Kobayashi, R.; 
-            Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; Meng, B.; 
-            Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;Sandrone, G; 
-            Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; van Lenthe, J.; 
-            Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A 
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.0" (1999),
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
@@ -2077,7 +1155,6 @@ MA usage statistics:
 
 
 
- Total times  cpu:        4.6s     wall:       10.4s
- Creating: host=cagle, user=windus,
-           file=/scratch/windus/nwchem/bin/SOLARIS/nwchem, port=33387
- printing summary info
+ Total times  cpu:        0.8s     wall:        2.6s
+ Creating: host=skor, user=windus,
+           file=/home/windus/nwchem-nbo/nwchem/bin/LINUX/nwchem, port=34751

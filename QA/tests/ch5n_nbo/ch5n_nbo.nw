@@ -26,7 +26,8 @@ end
 task SCF energy
 
 nbo
- $nbo cmo $end
+ $nbo $end
+ $del delete 1 element 9 24 $end
 end
 
 task nbo 
