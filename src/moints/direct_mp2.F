@@ -15,7 +15,6 @@ c
 c
 c
        integer geom, basis
-       logical status
        character*255 title
        character*255 movecs_in
        character*255 title_vecs, basis_vecs
