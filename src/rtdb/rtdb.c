@@ -223,7 +223,10 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
       rtdb_broadcast(TYPE_RTDB_NELEM, MT_INT, 1, (void *) nelem);
 
       if (me > 0) {
-	if (!MA_allocate_heap(*ma_type, *nelem, name, ma_handle)) {
+        Integer ma_handle_buf;
+        Integer ma_type_buf = *ma_type;
+        Integer nelem_buf = *nelem;
+	if (!MA_allocate_heap(ma_type_buf, nelem_buf, name, &ma_handle_buf)) {
 	  /* Cannot just return and error here since cannot propogate the
 	     error condition to all the other processes ... exit via
 	     the TCGMSG error routine */
@@ -231,9 +234,10 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 	  Error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=",
 		(long) nelem);
 	}
+        *ma_handle = (int) ma_handle_buf;
       }
       
-      if (!MA_get_pointer(*ma_handle, &ma_data)) {
+      if (!MA_get_pointer((Integer) *ma_handle, &ma_data)) {
 	Error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
 	      (long) nelem);
       }
