@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.301 1999-10-19 15:49:32 d3g681 Exp $
+# $Id: makefile.h,v 1.302 1999-10-19 22:34:04 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1148,7 +1148,7 @@ ifeq ($(TARGET),DECOSF)
 
 #              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2 -check nounderflow
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
-              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow
+              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower
               COPTIONS = 
              FOPTIMIZE = -O 
              COPTIMIZE = -O
