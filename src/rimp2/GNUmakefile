@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1994-07-14 21:35:45 gg502 Exp $
+# $Id: GNUmakefile,v 1.6 1994-08-15 14:56:37 gg502 Exp $
 
 
 OBJ =		rimp2_v_e2.o	rimp2_mk_vmhalf.o \
@@ -15,7 +15,8 @@ OBJ =		rimp2_v_e2.o	rimp2_mk_vmhalf.o \
 
 LIBRARY =	librimp2.a
 
-USES_BLAS =	rimp2_v_e2.F    rimp2_mk_vmhalf.F	xf3ci_step12.F
+USES_BLAS =	rimp2_v_e2.F    rimp2_mk_vmhalf.F	xf3ci_step12.F \
+                xf3ci_step12a.F
 
 
 

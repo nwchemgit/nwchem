@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.3 1994-07-14 21:37:38 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.4 1994-08-15 14:59:08 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO, NOcc, NVir,
@@ -73,6 +73,9 @@ C EXTERNAL ROUTINES
       Double Precision DSum
       External Open_3cI_File, Get_3cInts, Close_3cI_File, DSum,
      $  GA_Create_One_By_Shells
+c$$$C
+c$$$      External GA_DASum_Patch, GA_DAMax_Patch
+c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C PARAMETERS
 C
@@ -90,6 +93,7 @@ C LOCAL VARIBLES
       Logical Status, PermSym
       Integer Junk
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA
+c$$$      Double precision ChkSum, MxElem
 C
       Call GA_Sync
       Call PStat_On(PS_Energy)
@@ -352,6 +356,22 @@ C
 C
                         Call GA_Copy( G_A, G_B)
 C
+c$$$                        ChkSum = GA_DASum_Patch( G_A, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9100) 'A', I, J, ChkSum
+c$$$ 9100                   Format(1X, 'RIMP2_V_E2: ', A,
+c$$$     $                     ' Integral block (', I5, ',', I5,
+c$$$     $                     ') checksum ', F30.15)
+c$$$                        MxElem = GA_DAMax_Patch( G_A, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9110) 'A', I, J, MxElem
+c$$$ 9110                   Format(1X, 'RIMP2_V_E2: ', A,
+c$$$     $                     ' Integral block (', I5, ',', I5,
+c$$$     $                     ') maximum ', F30.15)
+c$$$C
+C
 C                       *************************************************
 C                       * Make B into what is needed by pure spin cases *
 C                       *************************************************
@@ -371,6 +391,15 @@ C
                            Call GA_DAdd( Fact, G_A, -FP_Two, G_B, G_B)
                         EndIf
                         Call PStat_Off( PS_form_ab)
+c$$$C
+c$$$                        ChkSum = GA_DASum_Patch( G_B, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9100) 'B', I, J, ChkSum
+c$$$                        MxElem = GA_DAMax_Patch( G_B, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9110) 'B', I, J, MxElem
 C
 C                       So now we have the following for a particular IJ:
 C                       Term          A                  B
@@ -421,6 +450,15 @@ C
      $                        Blo, Bhi)
                         EndIf
                         Call PStat_Off( PS_denom)
+c$$$C
+c$$$                        ChkSum = GA_DASum_Patch( G_B, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9100) 'Denom B', I, J, ChkSum
+c$$$                        MxElem = GA_DAMax_Patch( G_B, 1, NVir(ISpin),
+c$$$     $                     1, NVir(JSpin))
+c$$$                        If ( GA_NodeID() .eq. 0)
+c$$$     $                     Write (LuOut, 9110) 'Denom B', I, J, MxElem
 C
 C                       ***********************
 C                       * Form IJ pair energy *
