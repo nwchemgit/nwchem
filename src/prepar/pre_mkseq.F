@@ -3,9 +3,9 @@
      + lfntmp,filtmp,lfnmod,filmod,
      + dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst)
+     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.35 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.36 2000-09-21 15:40:41 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -57,7 +57,7 @@ c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
-      character*1 altloc,chain
+      character*1 altloc,chain,his
       character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp,lfnmod
@@ -236,7 +236,7 @@ c
       if(.not.pre_rename(lfnout,ffield,lfnmod,filmod,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm,int_mb(i_llnk),
-     + byte_mb(i_clnk),mlnk,nlnk,icyren))
+     + byte_mb(i_clnk),mlnk,nlnk,icyren,his))
      + call errquit('pre_rename failed',9999)
 c
 c     write atom names to temporary file

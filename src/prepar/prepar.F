@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.38 2000-09-15 22:21:54 d3j191 Exp $
+c $Id: prepar.F,v 1.39 2000-09-21 15:40:41 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -52,7 +52,7 @@ c
       character*10 slvmdl
       character*3 slvnam
       character*80 source
-      character*1 altloc,chain
+      character*1 altloc,chain,his
       character*4 scount(mcount)
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
@@ -126,7 +126,7 @@ c
      + icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
-     + ignore,scount,mfract,nfract,ifract,scale,cpk))
+     + ignore,scount,mfract,nfract,ifract,scale,cpk,his))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -242,7 +242,7 @@ c
      + lfntmp,filtmp,lfnmod,filmod,
      + dir_s,dir_x,dir_u,dir_t,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
-     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst))
+     + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)

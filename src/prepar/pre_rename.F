@@ -1,8 +1,8 @@
       logical function pre_rename(lfnout,ffield,lfnmod,filmod,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
-     + llnk,clnk,mlnk,nlnk,icyren)
+     + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: pre_rename.F,v 1.16 2000-07-14 19:54:31 d3j191 Exp $
+c $Id: pre_rename.F,v 1.17 2000-09-21 15:40:41 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -19,7 +19,7 @@ c
       character*6 catm(3,matm)
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
-      character*1 dorr
+      character*1 dorr,his
       character*2 ctest
 c
       integer i,j,k,l
@@ -83,7 +83,9 @@ c
 c
     2 continue
       do 3 i=1,nseq
-      if(cseq(2,i)(1:3).eq.'HIS') cseq(2,i)(1:3)='HIE'
+      if(cseq(2,i)(1:3).eq.'HIS'.and.his.eq.'D') cseq(2,i)(1:3)='HID'
+      if(cseq(2,i)(1:3).eq.'HIS'.and.his.eq.'E') cseq(2,i)(1:3)='HIE'
+      if(cseq(2,i)(1:3).eq.'HIS'.and.his.eq.'P') cseq(2,i)(1:3)='HIP'
     3 continue
       endif
 c

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.67 2000-09-21 15:24:19 d3j191 Exp $
+c $Id: pre_input.F,v 1.68 2000-09-21 15:40:41 d3j191 Exp $
 c
       implicit none
 c
@@ -31,7 +31,7 @@ c
       real*8 polar,value,forcon,forc2,box(3)
       character*11 cfix
       real*8 rfix
-      character*1 altloc,chain
+      character*1 altloc,chain,his
       integer ires,jres,kres,i,j,k,ignore,igroup,jgroup,kgroup,lgroup
       integer nxrep,nyrep,nzrep,itran,jtran,nkeepw
       real*8 rrep,rdist,xtran(3)
@@ -66,6 +66,7 @@ c
       slvmdl='spce      '
       altloc='A'
       chain='*'
+      his='D'
       newtop=0
       newseq=0
       newrst=0
@@ -281,6 +282,17 @@ c
       if(inp_compare(.false.,'chain',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
       chain=item(1:1)
+      goto 2
+      endif
+c
+c     histidine protonation
+c     ---------------------
+c
+      if(inp_compare(.false.,'histidine',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
+      if(inp_compare(.false.,'hid')) his='D'
+      if(inp_compare(.false.,'hie')) his='E'
+      if(inp_compare(.false.,'hip')) his='P'
       goto 2
       endif
 c
@@ -1310,6 +1322,9 @@ c
       if(.not.rtdb_cput(irtdb,'prep:chain',1,chain))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
+c
+      if(.not.rtdb_cput(irtdb,'prep:his',1,his))
+     + call errquit('pre_input: rtdb_put failed',0)
 c
       if(model.ne.0) then
       if(.not.rtdb_put(irtdb,'prep:model',mt_int,1,model))
