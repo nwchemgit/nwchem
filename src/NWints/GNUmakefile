@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.47 2002-04-08 18:00:49 windus Exp $
+# $Id: GNUmakefile,v 1.48 2002-04-08 18:01:44 windus Exp $
 
-    HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh api/int_nbf.fh auxil/spcartP.fh hondo/hnd_whermt.fh hondo/hnd_rys.fh hondo/hnd_tol.fh
+    HEADERS = api/int_tim.fh api/apiP.fh api/int_nbf.fh auxil/spcartP.fh hondo/hnd_whermt.fh hondo/hnd_rys.fh hondo/hnd_tol.fh
     LIBRARY = libnwints.a
     SUBDIRS = api int auxil ints_sp deriv texas ecp hondo rel dk
     OBJ = intgrl_input.o
