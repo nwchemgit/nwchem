@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.5 2002-05-03 00:18:43 edo Exp $
+* $Id: trobsa.F,v 1.6 2002-05-03 00:39:21 edo Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -1321,28 +1321,43 @@ c
           icr=icoor(inp)
           inm=nmxyz(icr,in0)
 c
+      if(inm.gt.0) then
+        do  kn0=nfu(k0e)+1,nfu(k0b+1)
+          knp=npxyz(icr,kn0)
+          knm=nmxyz(icr,kn0)
+          if(knm.gt.0) then
+            do  i=1,nbls
+      xt1(i,inp,kn0)=(p1234(i,icr)*xt2(i,in0,kn0)-xt2(i,in0,knp)
+     + +habcd(i,icr,in0)*xt3(i,inm,kn0)
+     + +habcd(i,icr,kn0)*xt2(i,in0,knm))*abcd(i)
+            enddo  
+          else
+            do  i=1,nbls
+      xt1(i,inp,kn0)=(p1234(i,icr)*xt2(i,in0,kn0)-xt2(i,in0,knp)
+     + +habcd(i,icr,in0)*xt3(i,inm,kn0))*abcd(i)
+            enddo  
+          endif
+c
+c
+        enddo
+      else
               do 1000 kn0=nfu(k0e)+1,nfu(k0b+1)
               knp=npxyz(icr,kn0)
               knm=nmxyz(icr,kn0)
-                 do 1001 i=1,nbls
-      xt1(i,inp,kn0)=p1234(i,icr)*xt2(i,in0,kn0)-xt2(i,in0,knp)
- 1001            continue
       if(knm.gt.0) then
-                  do 1002 i=1,nbls
-       xt1(i,inp,kn0)=xt1(i,inp,kn0)+habcd(i,icr,kn0)*xt2(i,in0,knm)
- 1002             continue
+                 do 1001 i=1,nbls
+      xt1(i,inp,kn0)=(p1234(i,icr)*xt2(i,in0,kn0)-xt2(i,in0,knp)+
+     + habcd(i,icr,kn0)*xt2(i,in0,knm))*abcd(i)
+ 1001            continue
+              else
+                 do i=1,nbls
+      xt1(i,inp,kn0)=(p1234(i,icr)*xt2(i,in0,kn0)-xt2(i,in0,knp))*
+     * abcd(i)
+                 enddo
       endif
-      if(inm.gt.0) then
-                  do 1003 i=1,nbls
-       xt1(i,inp,kn0)=xt1(i,inp,kn0)+habcd(i,icr,in0)*xt3(i,inm,kn0)
- 1003             continue
-      endif
-c
-                  do i=1,nbls
-                     xt1(i,inp,kn0)=xt1(i,inp,kn0)*abcd(i)
-                  enddo
 c
  1000        continue
+      endif
  2005     continue
 c
       if(nrec.ge.nqij) then
