@@ -8,7 +8,9 @@ c
 c
       subroutine fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
-C$Id $
+c
+c$Id: fock_2e.F,v 1.2 1995-03-14 02:21:19 rg240 Exp $
+c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

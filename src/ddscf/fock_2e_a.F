@@ -1,6 +1,6 @@
 c$$$      block data cfock_data
 c$$$#include "cfock.fh"
-c$$$C$Id: fock_2e_a.F,v 1.1 1995-03-14 01:52:01 rg240 Exp $
+c$$$C$Id: fock_2e_a.F,v 1.2 1995-03-14 02:21:21 rg240 Exp $
 c$$$      data lchunksize /-1/, task_chunks/-1/
 c$$$*
 c$$$*     lchunksize and task_chunks can be overriden ... 
@@ -15,6 +15,9 @@ c$$$      end
      $                      fij, fik, fli, fjk, flj, flk,
      $                      tmp, vg_dens, vg_fock )
       implicit none
+c
+c$Id: fock_2e_a.F,v 1.2 1995-03-14 02:21:21 rg240 Exp $
+c
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "schwarz.fh"
