@@ -174,6 +174,15 @@
 
        end
 
+       subroutine mm_get_pfw(pfw)
+         implicit none
+#include "md_common.fh"
+         integer pfw
+         
+         pfw = i_fw
+
+       end
+
       subroutine mm_clear_bqzone(i)
          implicit none
 #include "mafdecls.fh"

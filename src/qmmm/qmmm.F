@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.15 2004-09-09 00:10:45 marat Exp $
+c $Id: qmmm.F,v 1.16 2004-09-11 01:22:51 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -27,7 +27,7 @@ c     -------------------------------------------
       call qmmm_data_init(irtdb)
 
 c     initialize bq settings 
-      call qmmm_bq_data_init()
+      call qmmm_bq_data_init(irtdb)
 
 c     create initial qm geometry
 c     --------------------------
@@ -98,9 +98,7 @@ c
 c     sync qm coordinates with the geometry object
 c     that was potentially modified outside qmmm (e.g.driver)     
 c     ------------------------------------------------------
-      call qmmm_sync_qm_geom(rtdb)
-
-      call qmmm_create_bq_geom(rtdb)
+      call qmmm_geom_prepare(rtdb)
 
       qmmm_energy = .false.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -109,14 +107,12 @@ c     ------------------------------------------------------
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,energy)
-      
-      call qmmm_restore_qm_geom(rtdb)
+      call qmmm_geom_finish(rtdb)
  
 c     update QM coordinates for MM module
 c     very important!!!
 c     ----------------------------------
       call qmmm_update_mm_coord(rtdb)
- 
 c     single point MM calculation
 c     ----------------------------------
        call mm_task_sp()
@@ -202,12 +198,8 @@ c
 c
 c     sync qm coordinates with the geometry object
 c     that was potentially modified outside qmmm (e.g.driver)     
-      call qmmm_sync_qm_geom(rtdb)
-
-c
-c    first do quantum part
-c    --------------------
-      call qmmm_create_bq_geom(rtdb)
+c     ------------------------------------------------------
+      call qmmm_geom_prepare(rtdb)
 
       nqm  = qmmm_get_nqm()
       nbq  = qmmm_get_nbq()
@@ -231,17 +223,15 @@ c    --------------------
 c
 c     now do mm part
 c     ----------------------------------
-      call qmmm_update_mm_coord(rtdb)
+      call qmmm_geom_finish(rtdb)
       call mm_task_sp()
       i_ai = qmmm_get_i_ai()
-
-      call dfill(3*nqm,0,dbl_mb(i_gmm),1)
 
       call mm_get_solute_force_quant(nqm,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_gmm))
-
-
+ 
+c
       if(mm_only) then
         call dfill(3*nqm,0,dbl_mb(i_g),1)
       end if
@@ -251,6 +241,7 @@ c     ----------------------------------
 
 
       call daxpy(3*nqm,1.0d0,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
+
 
       if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,3*nqm,dbl_mb(i_g)))
      + call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
@@ -274,7 +265,6 @@ c     ----------------------------------
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
-      call qmmm_restore_qm_geom(rtdb)
 
       if(.not.ma_free_heap(h_gmm))
      & call errquit('qmmm g: Failed to deallocate heap',nqm,
@@ -287,49 +277,6 @@ c     ----------------------------------
 
       end
 c
-      function qmmm(rtdb)
-      implicit none
-c
-#include "rtdb.fh"
-#include "util.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-c
-      integer rtdb
-      logical qmmm
-      character*30 operation
-      logical status
-      logical task_energy
-      external task_energy
-      logical qmmm_init
-      external qmmm_init
-      logical qmmm_end
-      external qmmm_end
-c
-c
-      status = .true.
-      write(6,*) "initializing qmmm"
-      if( .not. qmmm_init(rtdb)) then
-       call errquit('qmmm_init',0,INPUT_ERR)
-      end if
-c
-c     determine calculation type
-c     --------------------------
-      if(.not.rtdb_cget(rtdb,'task:operation',1,operation))
-     + call errquit('qmmm: no calculation type',0,INPUT_ERR)
-c
-      if (inp_compare(.false., 'energy', operation)) then
-         status = task_energy(rtdb)
-      end if
-      if( .not. qmmm_end(rtdb)) then
-       call errquit('qmmm_end',0,INPUT_ERR)
-      end if
-c
-      qmmm=status
-      return
-      end
-
       subroutine qmmm_update_mm_coord(irtdb)
       implicit none
 #include "mafdecls.fh"

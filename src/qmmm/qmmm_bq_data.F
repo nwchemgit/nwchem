@@ -6,7 +6,7 @@ c
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
       integer irtdb
-
+c
       nbqs=0
       nbqw=0
       nbq=nbqs+nbqw

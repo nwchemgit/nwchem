@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.15 2004-09-09 00:10:45 marat Exp $
+c $Id: mm_interface.F,v 1.16 2004-09-11 01:22:51 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -17,7 +17,9 @@ c
 
       subroutine mm_end()
       implicit none
+#include "md_common.fh"
 c
+      call md_wrtrst(lfnqrs,filqrs,.false.)
       call md_finish()
 c
       return
@@ -632,6 +634,115 @@ c     mm local variables
 
       end
 
+      subroutine mm_set_solvent_coord(nt,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+
+      integer i,j,k,m,j1
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pxw
+      integer pwl
+
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pxw(pxw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+        if(mm_bqwzone(i)) then
+            do j=1,nt/mwa
+              if(int_mb(pwl+i-1).eq.ai(j)) then
+                 do m=1,mwa
+                   j1=(j-1)*mwa+m
+                   do k=1,3
+                     dbl_mb(pxw+(i-1)+(k-1)*mwm+(m-1)*3*mwm)=c(k,j1)*
+     >                                                       cau2nm
+                   end do
+                 end do
+              end if
+            end do
+        end if
+      end do
+
+      end
+
+      subroutine mm_get_solvent_force(nt,
+     >                       ai,
+     >                       g)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision g(3,nt)
+
+      integer i,j,k,m,j1,ioff
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pfw
+      integer pwl
+
+
+      call dfill(3*nt,0.0d0,g,1)
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pfw(pfw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+        if(mm_bqwzone(i)) then
+            do j=1,nt/mwa
+              if(int_mb(pwl+i-1).eq.ai(j)) then
+                 do m=1,mwa
+                   j1=(j-1)*mwa+m
+                   do k=1,3
+                     ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
+                     g(k,j1)=dbl_mb(ioff)*cau2nm/cau2kj
+                   end do
+                 end do
+              end if
+            end do
+        end if
+      end do
+
+      call ga_dgop(msg_qmmm_forcew,g,3*nt,'+')
+
+      end
+
       subroutine mm_get_solute_force_quant(nt,ai,g)
       implicit none
 #include "global.fh"
@@ -646,6 +757,22 @@ c     mm local variables
       double precision  g(3,nt)
       
       call mm_get_solute_force_gen(nt,mm_quant_link,ai,g)
+      end
+
+      subroutine mm_get_solute_force_bq(nt,ai,g)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+#include "rtdb.fh"
+      integer nt
+      integer ai(nt)
+      double precision  g(3,nt)
+      
+      call mm_get_solute_force_gen(nt,mm_bqzone,ai,g)
       end
 
       subroutine mm_get_solute_force_gen(nt,mm_type,ai,g)
@@ -669,6 +796,8 @@ c     local variables
       integer psdt
       integer psl
       integer pfs
+
+      call dfill(3*nt,0.0d0,g,1)
 
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
@@ -705,6 +834,24 @@ c
 
       call mm_set_solute_coord_gen(nt,
      >                       mm_quant_link,
+     >                       ai,
+     >                       c)
+
+      end
+
+      subroutine mm_set_solute_coord_bq(nt,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+
+      call mm_set_solute_coord_gen(nt,
+     >                       mm_bqzone,
      >                       ai,
      >                       c)
 
