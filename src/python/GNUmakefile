@@ -3,9 +3,18 @@ LIBRARY = libpython.a
 
 OBJ = python_input.o task_python.o nwchem_wrap.o nw_inp_from_string.o 
 
-PY = /msrc/home/d3g681/Python-1.5.1
+ifndef PYTHONHOME
+error:
+	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
+	@exit 1
+endif
+ifndef PYTHONVERSION
+error1:
+	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
+	@exit 1
+endif
 
-LIB_INCLUDES += -I$(PY)/include/python1.5
+LIB_INCLUDES += -I$(PYTHONHOME)/include/python$(PYTHONVERSION)
 
 
 include ../config/makefile.h
