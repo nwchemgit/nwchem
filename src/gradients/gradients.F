@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.18 1996-09-19 16:58:13 vg038 Exp $
+c$Id: gradients.F,v 1.19 1996-11-02 00:32:59 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -29,6 +29,7 @@ c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
       call util_print_rtdb_load(rtdb,'gradients')
+      call ecce_print_module_entry ('scf')
 c
       status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) call errquit
@@ -95,6 +96,7 @@ c
      &    call errquit
      &    ('gradients:error destroying geom and basis handles',911)
 c
+      call ecce_print_module_exit ('scf','ok')
       call util_print_pop
       gradients = .true.
 c

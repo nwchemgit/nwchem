@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom )
-c$Id: grad_force.F,v 1.12 1996-10-21 00:39:35 vg038 Exp $
+c$Id: grad_force.F,v 1.13 1996-11-02 00:32:58 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -109,7 +109,10 @@ C------------------------------------------------------------------------------
      $     lh_jl4, ld_jl4, lh_il4, ld_il4, lh_jk4, ld_jk4
 
       double precision crd,  ! atomic coordinates
-     $                 charge, charge_nuc, tol2e, q
+     $                 charge, charge_nuc, tol2e, q, gnorm, gmax
+
+      double precision grad_norm, grad_max
+      external grad_norm, grad_max
 
       dimension crd(3), g_dens(6) ! max # of density matrices
 
@@ -584,6 +587,15 @@ C     default: print the total forces
         call util_flush(luout)
       endif
 
+C     forces for ECCE
+      if ( ga_nodeid() .eq. 0 ) then
+        gnorm = grad_norm ( dbl_mb(k_force), nat )
+        gmax  = grad_max  ( dbl_mb(k_force), nat )
+        call ecce_print2 ('gradients', mt_dbl, dbl_mb(k_force), 3,3,nat)
+        call ecce_print1 ('gradient norm', mt_dbl, 1, gnorm )
+        call ecce_print1 ('gradient max', mt_dbl, 1, gmax )
+      endif
+
 C     print timing information
       if (ga_nodeid().eq.0 .and.
      $     util_print('timing', print_default)) then
@@ -668,4 +680,42 @@ C  free memory
 
       return
       end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      double precision function grad_norm ( frc, nat )
+      implicit none
 
+      integer nat
+      double precision frc(3*nat)
+
+      integer i
+      double precision g2
+
+      g2 = 0
+      do i=1, 3*nat
+        g2 = g2 + frc(i)*frc(i)
+      enddo
+
+      grad_norm = sqrt(g2)
+
+      return
+      end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      double precision function grad_max (frc, nat )
+      implicit none
+
+      integer nat
+      double precision frc(3,nat)
+
+      integer i
+      double precision norm, mxnorm
+
+      mxnorm = 0
+      do i=1, nat
+        norm = frc(1,i)*frc(1,i) + frc(2,i)*frc(2,i) + frc(3,i)*frc(3,i) 
+        mxnorm = max(norm,mxnorm)
+      enddo
+
+      grad_max = sqrt(mxnorm)
+
+      return
+      end
