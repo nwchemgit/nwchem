@@ -1,0 +1,250 @@
+ argument  1 = pyqa
+  Unable to open pyqa --- appending .nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.3
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname      = fermi
+    program       = /msrc/home/d3g681/nwchem/bin/SOLARIS/nwchem
+    date          = Wed Jul 14 14:09:02 1999
+
+    compiled      = Wed Jul 14 13:00:01 PDT 1999
+    source        = /msrc/home/d3g681/nwchem
+    nwchem branch = Development
+    input         = pyqa.nw
+    prefix        = testpy.
+    data base     = /tmp/testpy.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles =     70.8 Mbytes
+    stack     =    2949121 doubles =     23.6 Mbytes
+    global    =   11796491 doubles =     94.4 Mbytes (within heap+stack)
+    total     =   11796482 doubles =     94.4 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = /tmp
+  0 scratch   = /tmp
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S        5.447178  0.156285
+  1 S        0.824547  0.904691
+ 
+  2 S        0.183192  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ h                           3-21g                   2        2   2s
+
+
+ 
+                               NWChem Python program
+                               ---------------------
+ 
+print "value check:"
+print "INT     = ", INT
+print "DBL     = ", DBL
+print "CHAR    = ", CHAR
+print "LOGICAL = ", LOGICAL
+
+rtdb_put("test_int2", 22)
+print ' Done 1'
+rtdb_put("test_int", [22, 10, 3],    INT)
+print ' Done 2'
+rtdb_put("test_dbl", [22.9, 12.4, 23.908],  DBL)
+print ' Done 3'
+rtdb_put("test_str", "hello", CHAR)
+print ' Done 4'
+rtdb_put("test_logic", [0,1,0,1,0,1], LOGICAL)
+print ' Done 5'
+rtdb_put("test_logic2", 0, LOGICAL)
+print ' Done 6'
+
+rtdb_print(1)
+
+print "test_str    = ", rtdb_get("test_str")
+print "test_int    = ", rtdb_get("test_int")
+print "test_in2    = ", rtdb_get("test_int2")
+print "test_dbl    = ", rtdb_get("test_dbl")
+print "test_logic  = ", rtdb_get("test_logic")
+print "test_logic2 = ", rtdb_get("test_logic2")
+
+def energy(r):
+  input_parse('''
+    geometry noprint noautoz
+      h 0 0 0
+      h 0 0 %f
+   end
+  ''' % r)
+  return task_energy('scf')
+
+for r in (0.4, 0.5, 0.6):
+  print r, energy(r)
+
+print task_optimize('scf')
+
+ 
+value check:
+INT     =  1010
+DBL     =  1013
+CHAR    =  1000
+LOGICAL =  1011
+ Done 1
+ Done 2
+ Done 3
+ Done 4
+ Done 5
+ Done 6
+
+ Contents of RTDB /tmp/testpy.db
+ -------------------------------
+
+ Entry                                   Type[nelem]           Date
+ ---------------------------  ----------------------  ------------------------
+ test_int2                                int[1]      Wed Jul 14 14:09:02 1999
+22 
+ basis:names                             char[9]      Wed Jul 14 14:09:02 1999
+ao basis
+ :print                                  char[5]      Wed Jul 14 14:09:02 1999
+none
+ task:theory                             char[7]      Wed Jul 14 14:09:02 1999
+python
+ test_dbl                              double[3]      Wed Jul 14 14:09:02 1999
+2.29000000000000e+01 1.24000000000000e+01 2.39080000000000e+01 
+ basis:ao basis:tags info                 int[7]      Wed Jul 14 14:09:02 1999
+2 3 3 1 2 0 0 
+ test_int                                 int[3]      Wed Jul 14 14:09:02 1999
+22 10 3 
+ basis:ao basis:contraction info            int[14]     Wed Jul 14 14:09:02 1999
+0 2 1 1 3 0 1 0 1 1 5 6 0 5 
+ test_logic                           logical[6]      Wed Jul 14 14:09:02 1999
+f t f t f t 
+ basis:ao basis:bs_stdname               char[6]      Wed Jul 14 14:09:02 1999
+3-21g
+ basis:ao basis:header                    int[7]      Wed Jul 14 14:09:02 1999
+1 2 3 3 6 0 0 
+ test_logic2                          logical[1]      Wed Jul 14 14:09:02 1999
+f 
+ basis:ao basis:number of exps and coeffs            int[1]      Wed Jul 14 14:09:02 1999
+6 
+ basis:ao basis:exps and coeffs         double[6]      Wed Jul 14 14:09:02 1999
+5.44717800000000e+00 8.24547000000000e-01 1.56285000000000e-01 9.04691000000000e-01 
+1.83192000000000e-01 1.00000000000000e+00 
+ test_str                                char[6]      Wed Jul 14 14:09:02 1999
+hello
+ basis:nbasis                             int[1]      Wed Jul 14 14:09:02 1999
+1 
+ file_prefix                             char[7]      Wed Jul 14 14:09:02 1999
+testpy
+ basis:ao basis:assoc ecp name           char[4]      Wed Jul 14 14:09:02 1999
+ 
+ 
+ basis:ao basis:bs_tags                  char[2]      Wed Jul 14 14:09:02 1999
+h
+ rtdb:stored:state                    logical[3]      Wed Jul 14 14:09:02 1999
+t f f 
+
+test_str    =  hello
+test_int    =  [22, 10, 3]
+test_in2    =  22
+test_dbl    =  [22.9, 12.4, 23.908]
+test_logic  =  [0, 1, 0, 1, 0, 1]
+test_logic2 =  0
+0.4 -0.922872125632
+0.5 -1.0508013667
+0.6 -1.10472131353
+(-1.12295983552, [0.0, 0.0, 3.66372611493e-06, 0.0, 0.0, -3.66372611493e-06])
