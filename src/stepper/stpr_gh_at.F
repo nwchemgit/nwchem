@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.19 1999-05-31 23:26:56 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.20 1999-08-16 22:49:01 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -439,12 +439,14 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        24)
 c     
-          call util_print_set_level(print_low) ! Minimize output
+          if (print_level.gt.print_low)
+     &          call util_print_set_level(print_low) ! Minimize output
           time_taskg1 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb)) call errquit
      &        ('stpr_gen_hess_at: energy+grad failed',25)
           time_taskg1 = time_taskg1 + util_wallsec()
-          call util_print_set_level(print_level) ! Restore current print
+          if (print_level.gt.print_low)
+     &          call util_print_set_level(print_level) ! Restore current print
 c     
 *
           if (o_stepper_debug) then
@@ -531,13 +533,17 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        35)
 c     
-          call util_print_set_level(print_none) ! Minimize output
+*          call util_print_push
+          if (print_level.gt.print_none)
+     &          call util_print_set_level(print_none) ! Minimize output
           time_taskg2 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
      &        36)
           time_taskg2 = time_taskg2 + util_wallsec()
-          call util_print_set_level(print_level) ! Restore current print
+*          call util_print_pop
+          if (print_level.gt.print_none)
+     &          call util_print_set_level(print_level) ! Restore current print
 c     
 *
           if (o_stepper_debug) then
