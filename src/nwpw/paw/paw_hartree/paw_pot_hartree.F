@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree.F,v 1.5 2003-02-16 05:51:55 bylaska Exp $
+c $Id: paw_pot_hartree.F,v 1.6 2003-02-17 00:57:59 bylaska Exp $
 c
 
 !**************************************************
@@ -30,7 +30,8 @@ c
 c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_int,ion_nion(),"i_paw_pot_hartree",
      >                                     i_paw_pot_hartree)
-      if (.not.ok) call errquit('init_paw_pot_hartree: alloc heap',1)
+      if (.not.ok) 
+     > call errquit('init_paw_pot_hartree:out of heap memory',0)
       paw_pot_hartree_size = 0
       do in=1,ion_nion()
          int_mb(i_paw_pot_hartree(1) + in - 1) = paw_pot_hartree_size
@@ -43,7 +44,7 @@ c     !*** calculate the size and indexing ***
       ok = my_alloc(mt_dcpl,paw_pot_hartree_size,
      >               "paw_pot_hartree",paw_pot_hartree)
       if (.not.ok)
-     > call errquit("init_paw_pot_hartree: error allocating heap",1)
+     > call errquit("init_paw_pot_hartree:out of heap memory",1)
   
       write(*,*) "initialized paw_hartree_pot"
       end !subroutine init_paw_pot_hartree
