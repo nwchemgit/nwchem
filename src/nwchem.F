@@ -12,6 +12,9 @@
 #include "pstat.fh"
 #include "util.fh"
 #include "inp.fh"
+c!!! BGJ
+#include "bgj_common.fh"
+c!!! BGJ
       integer rtdb
       integer stack
       integer heap
@@ -22,7 +25,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.112 1998-09-04 18:04:04 d3e129 Exp $
+c     $Id: nwchem.F,v 1.113 1998-09-09 13:03:13 bjohnson Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -187,6 +190,9 @@ c
          if (.not. rtdb_open(rtdb_name, 'old', rtdb))
      $        call errquit('start: rtdb_open old failed ', 0)
       endif
+c!!! BGJ
+      bgj_rtdb = rtdb
+c!!! BGJ
 c
       if (ostartup.or.ocontinue) then
         orestart = .false.
