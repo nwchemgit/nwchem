@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.21 2001-06-21 19:14:28 zzhang Exp $
+c$Id: grid_quadv0b.F,v 1.22 2001-08-14 23:55:31 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -40,11 +40,11 @@ c !!! temp !!! ***
       double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
-      integer ldmat,idmat,i, grid_nbfm, j
+      integer ldmat,idmat,i, grid_nbfm
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
-      integer iscf_rho,iscf_delrho, iq
+      integer iscf_rho,iscf_delrho
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss

@@ -19,7 +19,9 @@
 c     bp and with different dimensions
 c     grid_setsp      : nqmax    ,natoms
 c     rest of routine : n_per_rec, natoms
+#ifdef USE_BP
       double precision bp(n_per_rec,natoms)
+#endif
       double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
       integer iniz(natoms), ifin(natoms)
       double precision ccoef(ncoef_max), expo(nbf_ao_mxprim)

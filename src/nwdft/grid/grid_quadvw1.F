@@ -16,9 +16,10 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadvw1.F,v 1.7 2001-05-05 05:20:15 edo Exp $
+c$Id: grid_quadvw1.F,v 1.8 2001-08-14 23:55:32 edo Exp $
 c
       implicit none
+#define USE_BP
 #include "cgridfile.fh"
 #include "stdio.fh"
 #include "cdft.fh"

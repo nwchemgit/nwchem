@@ -12,9 +12,10 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf)
 c
-c$Id: grid_quadvw.F,v 1.26 2001-05-16 01:50:46 edo Exp $
+c$Id: grid_quadvw.F,v 1.27 2001-08-14 23:55:32 edo Exp $
 c
       implicit none
+#define USE_BP
 #include "cgridfile.fh"
 #include "stdio.fh"
 #include "geom.fh"
