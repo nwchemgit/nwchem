@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.4 1997-07-30 02:05:26 d3g681 Exp $
+* $Id: scf_hessian.F,v 1.5 1998-09-16 21:19:43 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -79,8 +79,8 @@ c
             call util_flush(luout)
          endif
       endif
-c modify the code to pass both baisis and geom
-c     call hnd_hessian ( rtdb, basis, geom )
+c
+c modify the code to pass both basis and geom
 c
       call scf_hnd_dder(rtdb,geom,basis)
 c
@@ -100,7 +100,3 @@ c
 c
       return
       end
-
-
-
-

@@ -1,8 +1,8 @@
 c**********************************************************************
-c     sunbroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.17 1998-08-04 18:40:01 mdupuis Exp $
+c     subroutines interfaced with and adapted from HONDO
+c $Id: rhf_hessian.F,v 1.18 1998-09-16 21:19:40 mdupuis Exp $
 c**********************************************************************
-      subroutine hnd_der_init(geom,basis)
+      subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
 c 
       parameter (zero=0.0d+00)
@@ -12,6 +12,7 @@ c
       parameter (mxnbf =2048)
       parameter (mxtype=5)
       logical  status
+      integer  rtdb 
       integer  geom 
       integer  basis
       integer  num
@@ -445,24 +446,30 @@ c
       return 
       end
 c
-      subroutine hnd_int_1e_stvdd(rtdb)
+      subroutine hnd_int_1e_stvdd(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
 #include "global.fh"
-      integer rtdb
+      integer rtdb,geom,basis
+
+      integer ir,iw,ip
+      common/hnd_iofile/ir,iw,ip
 c
 c     ----- routine adapted from HONDO's -STVDD- -----
 c
       logical dbug
       logical out 
+c
       dbug=.false.
       out =.false.
+      out =out.or.dbug
+c
       if(out.and.ga_nodeid().eq.0) then
-         write(6,*) ' in routine ... hnd_int_1e_stvdd ... '
+         write(iw,*) ' in routine ... hnd_int_1e_stvdd ... '
       endif
 c
 c     ----- routine -stvdd- -----
 c
-      call hnd_stvdd(rtdb)
+      call hnd_stvdd(rtdb,geom,basis)
 c
       return
       end
@@ -478,6 +485,7 @@ c
       logical out 
       dbug=.false.
       out =.false.
+      out =out.or.dbug
       if(out.and.ga_nodeid().eq.0) then
          write(6,*) ' in routine ... hnd_int_2e_jkdd ... '
       endif
@@ -496,8 +504,11 @@ c
 #include "global.fh"
 c
       integer rtdb, basis, geom
+      integer ir,iw,ip
+      common/hnd_iofile/ir,iw,ip
       double precision total_wall,total_cpu
       logical ohondo
+      logical dbug
 c
       ohondo =.true.
 c
@@ -505,7 +516,14 @@ c
 
 c     ----- fill appropriate arrays for HONDO integrals -----
 
-         call hnd_der_init(geom,basis)
+         call hnd_der_init(rtdb,geom,basis)
+         if(dbug) then
+            write(iw,*) '-scf_hnd_dder-'
+            write(iw,*) 'rtdb  = ',rtdb
+            write(iw,*) 'geom  = ',geom
+            write(iw,*) 'basis = ',basis
+            call util_flush(6)
+         endif
    
          call hnd_nw_hnd
 
@@ -518,7 +536,7 @@ c     ----- calculate 1e 2nd derivatives -----
          total_wall = -util_wallsec()
          total_cpu  = -util_cpusec()
 
-         call hnd_int_1e_stvdd(rtdb)
+         call hnd_int_1e_stvdd(rtdb,geom,basis)
        
          total_wall = total_wall + util_wallsec()
          total_cpu  = total_cpu  + util_cpusec()
@@ -1835,9 +1853,9 @@ C     X=59.0 TO INFINITY                         NROOTS = 5
 C
 C     ------ SUBROUTINES TAKEN FROM HSS.F IN HONDO ------
 C 
-      SUBROUTINE HND_STVDD(RTDB)
+      SUBROUTINE HND_STVDD(RTDB,GEOM,BASIS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INTEGER RTDB
+      INTEGER RTDB,GEOM,BASIS
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=500)
       COMMON/HND_GRAD12/DE(3,MXATOM)
@@ -1845,7 +1863,7 @@ C
 C
 C     ----- MEMORY BLOCK   -----
 C
-      CALL HND_DDER1_INIT1(RTDB)
+      CALL HND_DDER1_INIT1(RTDB,GEOM,BASIS)
 C
 C     ----- NUCLEAR FORCES -----
 C
@@ -1863,7 +1881,7 @@ C
 C
 C     ----- MEMORY BLOCK   -----
 C
-      CALL HND_DDER1_INIT2(RTDB)
+      CALL HND_DDER1_INIT2(RTDB,GEOM,BASIS)
 C
 C     ----- DENSITY FORCES -----
 C
@@ -1895,15 +1913,15 @@ C
       RETURN
       END
 C
-      subroutine hnd_dder1_init1(rtdb)
+      subroutine hnd_dder1_init1(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
 #include "mafdecls.fh"
 #include "global.fh"
 c
-c*    logical status
-c*    integer g_dens, g_wdens
-      integer rtdb 
+      integer     rtdb,geom,basis 
+      character*8 scftyp
+      logical     dbug
 c 
       common/hnd_iofile/ir,iw,ip
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -1911,31 +1929,28 @@ c
       common/hnd_basnum/num
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
-      dimension g_dens(3) ! max # of density matrices
       data zero    /0.0d+00/
 c
-      do i = 1,3
-         g_dens(i) = 0
-      enddo 
+      dbug=.false.
+      if(dbug) then
+         write(iw,*) 'in -hnd_dder1_init1-'
+      endif
 c
       nc=3*nat
       num2=(num*(num+1))/2
       num3= num*num
 c     
-      need1 = nc*nc+num2*nc+num2+num2
-     &        +num2+num2+num2
-c*   &        +num3+num3+num3+num3
+      need1 = nc*nc+num2*nc
+     &        +num2+num2+num3+num3
 
 c     ----- extra memory to hold temporary de, fc, and df -----
 
       need2 = need1+nc+nc*nc+num2*nc
 c
-      need = max(need1,need2)
+      need  = need2
 c
 c     ----- memory pointers -----
 c
-c*     if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
-c*    & call errquit('hnd_dder1_init, malloc of init  failed',911)
       if(.not.ma_push_get(mt_dbl,need ,'mem init',i_init,init)) then
          write(iw,*)'The totoal number of basis functions=', num 
          write(iw,*)'The stack memory for dder_1e =', need 
@@ -1947,62 +1962,471 @@ c
       i10=i01+ num2*nc
       i20=i10+ num2
       i30=i20+ num2
+      i40=i30+ num3
+      i50=i40+ num3
 c
-      i40=i30+ num2
-      i50=i40+ num2
-      i60=i50+ num2
-c
-c*    i70=i60+ num3
-c*    i80=i70+ num3
-c*    i90=i80+ num3
-c*    i95=i90+ num3
-      i70=i60+ 0
-      i80=i70+ 0
-      i90=i80+ 0
-      i95=i90+ 0
-c
-      i96=i95+ nc
-      i97=i96+ nc*nc
-      i98=i97+ num2*nc
-c
-      do 10 i=1,need
-   10 x(i+init-1)=zero
-c
-c*    call hnd_dens_path1(rtdb,g_dens,g_wdens)
-c
-c*    call ga_get(g_dens(1),1,num,1,num, x(i60),num)
-c
-c*    call ga_get(g_wdens  ,1,num,1,num, x(i80),num)
-
-c*    call hnd_nwhnd_tran(x(i60),x(i70),num)
-
-c*    ij = 0
-c*    do i = 1,num
-c*       do j = 1,i
-c*          ij = ij + 1
-c*          x(i10 +ij-1) = x(i70 + (j-1)*(num)+(i-1))
-c*       enddo
-c*    enddo
-c%%%
-c*    call hnd_prtr(x(i10),num)
-      call hnd_get_dens(rtdb,x(i10),num)
-c%%%
-c
-c*    status = ga_destroy ( g_wdens )
-c*    do i=1, 3
-c*      status = ga_destroy ( g_dens(i) )
-c*    enddo
+      call hnd_hess_get_dens(rtdb,geom,basis,
+     1                       x(i10),x(i20),
+     2                       x(i30),x(i40),
+     3                       scftyp)
 c
       return
       end
+      subroutine hnd_hess_get_dens(rtdb,geom,basis,
+     1                             d1hnd,d2hnd,   
+     2                             d1nw,d2nw,   
+     3                             scftyp)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "schwarz.fh"
+#include "util.fh"
 c
-      subroutine hnd_dder1_init2(rtdb)
+c     Assumes energy has been completed, MO vectors stored
+c     and all information is still in the RTDB
+c
+      double precision      d1nw,d2nw
+      double precision      d1hnd,d2hnd
+c
+      integer       rtdb              ! [input] database handle
+      integer       geom, basis       ! handles
+      logical       status
+      character*255 title
+      character*255 movecs_in, movecs_out
+      character*8   scftyp 
+      dimension     d1nw(*),d2nw(*)
+      dimension     d1hnd(*),d2hnd(*)
+      integer       ir
+      integer       iw
+      integer       ip
+      common /hnd_iofile/ ir,iw,ip
+c
+      logical       dbug
+c
+      dbug=.false.
+c
+c     Extract high level info from the data-base setting defaults
+c     
+      if (.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+c
+c     Figure output input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c
+      if (.not. rtdb_cget(rtdb, 'hess:input vectors',  1, 
+     $     movecs_in )) then
+           call util_file_name('movecs', .false.,.false.,movecs_in )
+      endif
+      call util_file_name_resolve(movecs_in , .false.)
+      if (.not. rtdb_cget(rtdb, 'hess:output vectors',  1,
+     $     movecs_out)) then
+           call util_file_name('movecs', .false.,.false.,movecs_out)
+      endif
+      call util_file_name_resolve(movecs_out, .false.)
+      if(dbug) then
+         write(iw,*) '-hnd_hess_get_dens-'
+         write(iw,*) 'movecs_in  = ',movecs_in
+         write(iw,*) 'movecs_out = ',movecs_out
+      endif
+c
+      call hnd_hess_dens_read(rtdb,geom,basis,movecs_in,
+     1                        d1nw,d2nw,
+     2                        d1hnd,d2hnd,
+     3                        scftyp)
+c
+      return
+      end
+      subroutine hnd_hess_dens_read(rtdb,geom,basis,movecs,
+     1                              d1nw,d2nw,
+     2                              d1hnd,d2hnd,
+     3                              scftyp)
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "stdio.fh"
+
+      logical       status
+      integer       rtdb, basis, geom
+      character*(*) movecs
+      character*4   scftype
+      character*8   scftyp 
+c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+
+      logical  movecs_read_header, movecs_read
+      external movecs_read_header, movecs_read
+
+      integer g_molec
+  
+      integer       max_sh_bf, max_at_bf 
+      integer       nat, nbf, nopen , nclosed , nvirt 
+      integer                 nopenu, nclosedu, nvirtu  
+      integer       ndens, nbf2, nocc, i, iset
+      character*255 title_molec, basis_name_molec
+      character*20  scftype_molec
+      integer       nbf_molec, nsets_molec, nmo_molec(2)
+      integer                               nmo
+c
+      integer   l_eval, k_eval, l_occ, k_occ
+c
+      double precision d1nw(*),d2nw(*)
+      double precision d1hnd(*),d2hnd(*)
+c
+      logical dbug
+      dbug=.false.
+c
+c     get information about basis set
+c
+      status = geom_ncent(geom,nat)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get natoms',0)
+      status = bas_numbf(basis,nbf)
+      if ( .not.status ) 
+     & call errquit('vecs_read: could not get nbf',0)
+      status = bas_nbf_cn_max(basis,max_sh_bf)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get max_sh_bf',0)
+      status = bas_nbf_ce_max(basis,max_at_bf)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get max_at_bf',0)
+c
+c     read vector file header
+c
+      if (.not. movecs_read_header(movecs, title_molec,
+     &    basis_name_molec, scftype_molec, nbf_molec,
+     &    nsets_molec, nmo_molec, 2))
+     &    call errquit('vecs_read: failed to read header', 911)
+      if(dbug) then
+         write(6,9999)
+     1     movecs
+     2   ,title_molec
+     3   ,basis_name_molec
+     4   ,scftype_molec
+     5   ,nbf_molec
+     6   ,nsets_molec
+     7   ,nmo_molec
+      endif
+c
+      if (nsets_molec.eq.1) then
+         scftype = 'RHF'
+         scftyp  = 'RHF     '
+      else
+         scftype = 'UHF'
+         scftyp  = 'UHF     '
+      endif
+      call inp_ucase(scftype)
+
+C     # of eigenvalues and density matrices
+      if ( scftype .eq. 'UHF' ) then
+        nbf2  = 2 * nbf
+        ndens = 3
+        nmo   = max(nmo_molec(1),nmo_molec(2))
+      else if ( scftype .eq. 'RHF' ) then
+        nbf2  = nbf
+        ndens = 1
+        nmo   =     nmo_molec(1)
+      endif
+
+C     allocate and initialize global and local memory
+
+C     occupation numbers
+      status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
+     $                                                  k_occ)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_occ',911)
+C     eigenvalues
+      status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_eval',911)
+      
+      status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
+     $                           nbf_molec, nmo,g_molec)
+      if (.not.status)
+     $     call errquit('property: GA for molecular MOs',911)
+c
+c     read ( alpha ) orbitals
+c
+      iset=1
+      status = movecs_read(movecs,iset,
+     $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+      if (.not.status)
+     $  call errquit('property: could not read molecular MOs',911)
+       
+      nclosed = 0
+      nopen   = 0
+      nvirt   = 0
+      do i=1,nmo_molec(1)
+         if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+            nclosed=nclosed+1
+         elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+            nopen=nopen+1
+         else
+            nvirt=nvirt+1
+         endif
+      enddo
+      if(dbug) then
+         write(6,9998) nclosed , nopen , nvirt
+      endif
+c
+c     read ( beta ) orbitals
+c
+      if( nsets_molec.gt.1 ) then
+            iset=2
+         status = movecs_read(movecs,iset,
+     $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+         if (.not.status)
+     $     call errquit('property: could not read molecular MOs',911)
+
+         nclosedu= 0
+         nopenu  = 0
+         nvirtu  = 0
+         do i=1,nmo_molec(2)
+            if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+               nclosedu=nclosedu+1
+            elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+               nopenu=nopenu+1
+            else
+               nvirtu=nvirtu+1
+            endif
+         enddo
+         if(dbug) then
+            write(6,9997) nclosedu, nopenu, nvirtu
+         endif
+      endif
+
+      status = ga_destroy ( g_molec )
+
+      call hnd_hess_dens_make (geom, basis, 
+     $     dbl_mb(k_eval), dbl_mb(k_occ), nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     d1nw, d2nw, d1hnd, d2hnd )
+
+c
+c     free temporary arrays
+c
+      status = MA_pop_stack ( l_eval)
+      status = MA_pop_stack ( l_occ )
+
+      return
+ 9999 format(
+     1   /,'movecs             = ',a24,
+     2   /,'title_molec        = ',a24,
+     3   /,'basis_name_molec   = ',a24,
+     4   /,'scftype_molec      = ',a24,
+     5   /,'nbf_molec          = ',i12,
+     6   /,'nsets_molec        = ',i12,
+     7   /,'nmo_molec          = ',i12,i12 
+     8      )
+ 9998 format(' nclosed , nopen , nvirt  = ',3i10)
+ 9997 format(' nclosedu, nopenu, nvirtu = ',3i10)
+      end
+      subroutine hnd_hess_dens_make (geom, basis,  
+     $     evals, occ, nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     d1nw, d2nw, d1hnd, d2hnd )
+
+c     read mo vecs 
+
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer geom, basis, ndens
+      integer nbf, nbf2, nclosed, nopen, nclosedu, nopenu
+      double precision evals, occ
+      double precision d1nw ,d2nw 
+      double precision d1hnd,d2hnd
+      character*4 scftype
+      character*(*) movecs
+
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      logical  movecs_read, file_read_ga
+      external movecs_read, file_read_ga
+
+      dimension evals(nbf2), occ(nbf2)
+      dimension d1nw(*), d2nw(*)
+      dimension d1hnd(*), d2hnd(*)
+
+C     local variables
+      integer g_vecs, g_vecs2
+      integer g_dens, g_dens2
+      integer nocc, l_ind, k_ind, l_ind2, k_ind2
+      integer i, j, ij
+      integer iopen
+      logical status
+c
+      logical dbug
+      dbug=.false.
+
+      if(dbug) then
+         write(6,*) 'in -hnd_hess_dens_make'
+      endif
+
+C  get MO vectors from file 
+
+      g_vecs = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
+      g_dens = ga_create_atom_blocked ( geom, basis, 'mo density' )
+      if ( scftype.eq. 'UHF' ) then
+        g_vecs2 = ga_create_atom_blocked (geom, basis, 'uhf mo vectors')
+        g_dens2 = ga_create_atom_blocked (geom, basis, 'uhf mo density')
+      endif
+
+      status = movecs_read(movecs,1,occ,evals,g_vecs)
+      if (.not.status) then
+        call errquit('hess_dens_make: could not read mo vectors', 110)
+      endif
+
+      if (scftype .eq. 'UHF') then
+        status = movecs_read(movecs,2,occ(nbf+1),evals(nbf+1),g_vecs2)
+        if (.not.status) then
+        call errquit('hess_dens_make: could not read uhf vectors', 110)
+        endif
+      endif
+      
+      if(dbug) then
+         write(6,*) 'passing by here..... do not stop for now'
+      endif
+c
+
+      if (scftype .eq. 'RHF') then
+
+        if(nclosed.eq.0) then
+          call ga_zero(g_dens)
+        else
+          call ga_matmul_patch('n','t',2.0d+00,0.0d+00,
+     1         g_vecs,1,nbf,1,nclosed,
+     2         g_vecs,1,nclosed,1,nbf,
+     3         g_dens,1,nbf,1,nbf)
+        endif
+        if(nopen.gt.0) then
+          do iopen=1,nopen
+            call ga_matmul_patch('n','t',occ(nclosed+iopen),1.0d+00,
+     1           g_vecs,1,nbf,nclosed+iopen,nclosed+iopen,
+     2           g_vecs,nclosed+iopen,nclosed+iopen,1,nbf,
+     3           g_dens,1,nbf,1,nbf)
+          enddo
+        endif
+        call ga_symmetrize(g_dens)
+        call ga_get(g_dens,1,nbf,1,nbf,d1nw,nbf)
+ 
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d1hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'alpha density'
+           call hnd_prtr(d1hnd,nbf) 
+        endif
+
+      else  ! UHF
+
+        call ga_zero(g_dens )
+        call ga_zero(g_dens2)
+
+        if(nopen.gt.0) then
+          do iopen=1,nopen
+            call ga_matmul_patch('n','t',occ(iopen),1.0d+00,
+     1           g_vecs,1,nbf,iopen,iopen,
+     2           g_vecs,iopen,iopen,1,nbf,
+     3           g_dens,1,nbf,1,nbf)
+          enddo
+        endif
+        if(nopenu.gt.0) then
+          do iopen=1,nopenu
+            call ga_matmul_patch('n','t',occ(nbf+iopen),1.0d+00,
+     1           g_vecs2,1,nbf,iopen,iopen, 
+     2           g_vecs2,iopen,iopen,1,nbf,
+     3           g_dens2,1,nbf,1,nbf)
+          enddo
+        endif
+
+        call ga_symmetrize(g_dens)
+        call ga_get(g_dens,1,nbf,1,nbf,d1nw,nbf)
+
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d2hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'alpha density'
+           call hnd_prtr(d1hnd,nbf) 
+        endif
+
+c
+
+        call ga_symmetrize(g_dens2)
+        call ga_get(g_dens2,1,nbf,1,nbf,d1nw,nbf)
+
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d2hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'beta  density'
+           call hnd_prtr(d2hnd,nbf) 
+        endif
+
+      endif
+
+c
+
+      status = ga_destroy ( g_vecs )
+      if ( scftype .eq. 'UHF' ) then
+        status = ga_destroy ( g_vecs2 )
+      endif
+
+      return
+      end
+      subroutine hnd_dder1_init2(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
 c
 #include "mafdecls.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb,geom,basis
+      logical dbug
+      integer ir,iw,ip
+      common/hnd_iofile/ir,iw,ip
 c 
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_dder1_mem/i_init,init
@@ -2011,6 +2435,11 @@ c
 c
       equivalence (x(1),dbl_mb(1))
       data zero    /0.0d+00/
+c
+      dbug=.false.
+      if(dbug) then
+         write(iw,*) 'in -hnd_dder1_init2-'
+      endif
 c
       nc=3*nat
       num2=(num*(num+1))/2
@@ -2021,35 +2450,457 @@ c
       i10=i01+ num2*nc
       i20=i10+ num2
       i30=i20+ num2
+      i40=i30+ num3
+      i50=i40+ num3
 c
-      i40=i30+ num2
-      i50=i40+ num2
-      i60=i50+ num2
-c
-c*    i70=i60+ num3
-c*    i80=i70+ num3
-c*    i90=i80+ num3
-c*    i95=i90+ num3
-      i70=i60+ 0
-      i80=i70+ 0
-      i90=i80+ 0
-      i95=i90+ 0
-c
-c*    call hnd_nwhnd_tran(x(i80),x(i90),num)
-c
-c*    ij = 0
-c*     do i = 1,num
-c*       do j = 1,i
-c*          ij = ij + 1
-c*          x(i10 +ij-1) = x(i90 + (j-1)*(num)+(i-1))
-c*       enddo
-c*    enddo
-      call hnd_get_wdens(rtdb,x(i10),num)
+      call hnd_hess_get_wdens(rtdb,geom,basis,
+     1                        x(i10),x(i20),
+     2                        x(i30),x(i40),
+     3                        scftyp)
 c
       return
       end
+      subroutine hnd_hess_get_wdens(rtdb,geom,basis,
+     1                             d1hnd,d2hnd,   
+     2                             d1nw,d2nw,   
+     3                             scftyp)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "schwarz.fh"
+#include "util.fh"
 c
-c     logical function gradients(rtdb)
+c     Assumes energy has been completed, MO vectors stored
+c     and all information is still in the RTDB
+c
+      double precision      d1nw,d2nw
+      double precision      d1hnd,d2hnd
+c
+      integer       rtdb              ! [input] database handle
+      integer       geom, basis       ! handles
+      logical       status
+      character*255 title
+      character*255 movecs_in, movecs_out
+      character*8   scftyp 
+      dimension     d1nw(*),d2nw(*)
+      dimension     d1hnd(*),d2hnd(*)
+c
+c     Extract high level info from the data-base setting defaults
+c     
+      if (.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+c
+c     Figure output input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c
+      if (.not. rtdb_cget(rtdb, 'prop:input vectors',  1, 
+     $     movecs_in )) then
+           call util_file_name('movecs', .false.,.false.,movecs_in )
+      endif
+      call util_file_name_resolve(movecs_in , .false.)
+      if (.not. rtdb_cget(rtdb, 'prop:output vectors',  1,
+     $     movecs_out)) then
+           call util_file_name('movecs', .false.,.false.,movecs_out)
+      endif
+      call util_file_name_resolve(movecs_out, .false.)
+c
+      call hnd_hess_wdens_read(rtdb,geom,basis,movecs_in,
+     1                        d1nw,d2nw,
+     2                        d1hnd,d2hnd,
+     3                        scftyp)
+c
+      return
+      end
+      subroutine hnd_hess_wdens_read(rtdb,geom,basis,movecs,
+     1                              d1nw,d2nw,
+     2                              d1hnd,d2hnd,
+     3                              scftyp)
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "stdio.fh"
+
+      logical       status
+      integer       rtdb, basis, geom
+      character*(*) movecs
+      character*4   scftype
+      character*8   scftyp 
+c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+
+      logical  movecs_read_header, movecs_read
+      external movecs_read_header, movecs_read
+
+      integer g_molec
+  
+      integer       max_sh_bf, max_at_bf 
+      integer       nat, nbf, nopen , nclosed , nvirt 
+      integer                 nopenu, nclosedu, nvirtu  
+      integer       ndens, nbf2, nocc, i, iset
+      character*255 title_molec, basis_name_molec
+      character*20  scftype_molec
+      integer       nbf_molec, nsets_molec, nmo_molec(2)
+      integer                               nmo
+c
+      integer   l_eval, k_eval, l_occ, k_occ
+c
+      double precision d1nw(*),d2nw(*)
+      double precision d1hnd(*),d2hnd(*)
+     
+      logical dbug
+      integer ir,iw,ip
+      common/hnd_iofile/ir,iw,ip
+c
+      dbug=.false.
+      if(dbug) then
+         write(iw,*) 'in -hnd_hess_wdens_read-'
+      endif
+c
+c     get information about basis set
+c
+      status = geom_ncent(geom,nat)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get natoms',0)
+      status = bas_numbf(basis,nbf)
+      if ( .not.status ) 
+     & call errquit('vecs_read: could not get nbf',0)
+      status = bas_nbf_cn_max(basis,max_sh_bf)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get max_sh_bf',0)
+      status = bas_nbf_ce_max(basis,max_at_bf)
+      if ( .not.status )
+     & call errquit('vecs_read: could not get max_at_bf',0)
+c
+c     read vector file header
+c
+      if (.not. movecs_read_header(movecs, title_molec,
+     &    basis_name_molec, scftype_molec, nbf_molec,
+     &    nsets_molec, nmo_molec, 2))
+     &    call errquit('vecs_read: failed to read header', 911)
+      if(dbug) then
+         write(6,9999)
+     1     movecs
+     2   ,title_molec
+     3   ,basis_name_molec
+     4   ,scftype_molec
+     5   ,nbf_molec
+     6   ,nsets_molec
+     7   ,nmo_molec
+      endif
+c
+      if (nsets_molec.eq.1) then
+         scftype = 'RHF'
+         scftyp  = 'RHF     '
+      else
+         scftype = 'UHF'
+         scftyp  = 'UHF     '
+      endif
+      call inp_ucase(scftype)
+
+C     # of eigenvalues and density matrices
+      if ( scftype .eq. 'UHF' ) then
+        nbf2  = 2 * nbf
+        ndens = 3
+        nmo   = max(nmo_molec(1),nmo_molec(2))
+      else if ( scftype .eq. 'RHF' ) then
+        nbf2  = nbf
+        ndens = 1
+        nmo   =     nmo_molec(1)
+      endif
+
+C     allocate and initialize global and local memory
+
+C     occupation numbers
+      status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
+     $                                                  k_occ)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_occ',911)
+C     eigenvalues
+      status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_eval',911)
+      
+      status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
+     $                           nbf_molec, nmo,g_molec)
+      if (.not.status)
+     $     call errquit('property: GA for molecular MOs',911)
+c
+c     read ( alpha ) orbitals
+c
+      iset=1
+      status = movecs_read(movecs,iset,
+     $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+      if (.not.status)
+     $  call errquit('property: could not read molecular MOs',911)
+       
+      nclosed = 0
+      nopen   = 0
+      nvirt   = 0
+      do i=1,nmo_molec(1)
+         if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+            nclosed=nclosed+1
+         elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+            nopen=nopen+1
+         else
+            nvirt=nvirt+1
+         endif
+      enddo
+      if(dbug) then
+         write(6,9998) nclosed , nopen , nvirt
+      endif
+c
+c     read ( beta ) orbitals
+c
+      if( nsets_molec.gt.1 ) then
+            iset=2
+         status = movecs_read(movecs,iset,
+     $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+         if (.not.status)
+     $     call errquit('property: could not read molecular MOs',911)
+
+         nclosedu= 0
+         nopenu  = 0
+         nvirtu  = 0
+         do i=1,nmo_molec(2)
+            if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+               nclosedu=nclosedu+1
+            elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+               nopenu=nopenu+1
+            else
+               nvirtu=nvirtu+1
+            endif
+         enddo
+         if(dbug) then
+            write(6,9997) nclosedu, nopenu, nvirtu
+         endif
+      endif
+
+      status = ga_destroy ( g_molec )
+
+      call hnd_hess_wdens_make (geom, basis, 
+     $     dbl_mb(k_eval), dbl_mb(k_occ), nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     d1nw, d2nw, d1hnd, d2hnd )
+
+c
+c     free temporary arrays
+c
+      status = MA_pop_stack ( l_eval)
+      status = MA_pop_stack ( l_occ )
+
+      return
+ 9999 format(
+     1   /,'movecs             = ',a24,
+     2   /,'title_molec        = ',a24,
+     3   /,'basis_name_molec   = ',a24,
+     4   /,'scftype_molec      = ',a24,
+     5   /,'nbf_molec          = ',i12,
+     6   /,'nsets_molec        = ',i12,
+     7   /,'nmo_molec          = ',i12,i12 
+     8      )
+ 9998 format(' nclosed , nopen , nvirt  = ',3i10)
+ 9997 format(' nclosedu, nopenu, nvirtu = ',3i10)
+      end
+      subroutine hnd_hess_wdens_make (geom, basis,  
+     $     evals, occ, nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     d1nw, d2nw, d1hnd, d2hnd )
+
+c     read mo vecs 
+
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer geom, basis, ndens
+      integer nbf, nbf2, nclosed, nopen, nclosedu, nopenu
+      double precision evals, occ
+      double precision d1nw ,d2nw 
+      double precision d1hnd,d2hnd
+      character*4 scftype
+      character*(*) movecs
+
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      logical  movecs_read, file_read_ga
+      external movecs_read, file_read_ga
+
+      dimension evals(nbf2), occ(nbf2)
+      dimension d1nw(*), d2nw(*)
+      dimension d1hnd(*), d2hnd(*)
+
+C     local variables
+      integer g_vecs, g_vecs2
+      integer g_wdens, g_wdens2
+      integer nocc, l_ind, k_ind, l_ind2, k_ind2
+      integer i, j, ij
+      integer iclosed,iopen
+      logical status
+c
+      logical dbug
+      dbug=.false.
+
+      if(dbug) then
+         write(6,*) 'in -hnd_hess_wdens_make'
+      endif
+
+C  get MO vectors from file 
+
+      g_vecs  = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
+      g_wdens = ga_create_atom_blocked ( geom, basis, 'mo wensity' )
+      if ( scftype.eq. 'UHF' ) then
+        g_vecs2  = ga_create_atom_blocked (geom, basis,'uhf mo vectors')
+        g_wdens2 = ga_create_atom_blocked (geom, basis,'uhf mo wensity')
+      endif
+
+      status = movecs_read(movecs,1,occ,evals,g_vecs)
+      if (.not.status) then
+        call errquit('hess_wdens_make: could not read mo vectors', 110)
+      endif
+
+      if (scftype .eq. 'UHF') then
+        status = movecs_read(movecs,2,occ(nbf+1),evals(nbf+1),g_vecs2)
+        if (.not.status) then
+        call errquit('hess_wdens_make: could not read uhf vectors', 110)
+        endif
+      endif
+      
+      if(dbug) then
+         write(6,*) 'passing by here..... do not stop for now'
+      endif
+c
+
+      if (scftype .eq. 'RHF') then
+
+        call ga_zero(g_wdens)
+        do iclosed=1,nclosed
+          occ(iclosed)=occ(iclosed)*evals(iclosed)
+          call ga_matmul_patch('n','t',occ(iclosed),1.0d+00,
+     1         g_vecs,1,nbf,iclosed,iclosed,
+     2         g_vecs,iclosed,iclosed,1,nbf,
+     3         g_wdens,1,nbf,1,nbf)
+        enddo
+        if(nopen.gt.0) then
+          do iopen=1,nopen
+            occ(nclosed+iopen)=occ(nclosed+iopen)*evals(nclosed+iopen)
+            call ga_matmul_patch('n','t',occ(nclosed+iopen),1.0d+00,
+     1           g_vecs,1,nbf,nclosed+iopen,nclosed+iopen,
+     2           g_vecs,nclosed+iopen,nclosed+iopen,1,nbf,
+     3           g_wdens,1,nbf,1,nbf)
+          enddo
+        endif
+        call ga_symmetrize(g_wdens)
+        call ga_get(g_wdens,1,nbf,1,nbf,d1nw,nbf)
+ 
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d1hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'alpha w-density'
+           call hnd_prtr(d1hnd,nbf) 
+        endif
+
+      else  ! UHF
+
+        call ga_zero(g_wdens )
+        call ga_zero(g_wdens2)
+
+        if(nopen.gt.0) then
+          do iopen=1,nopen
+            occ(iopen)=occ(iopen)*evals(iopen)
+            call ga_matmul_patch('n','t',occ(iopen),1.0d+00,
+     1           g_vecs,1,nbf,iopen,iopen,
+     2           g_vecs,iopen,iopen,1,nbf,
+     3           g_wdens,1,nbf,1,nbf)
+          enddo
+        endif
+        if(nopenu.gt.0) then
+          do iopen=1,nopenu
+            occ(nbf+iopen)=occ(nbf+iopen)*evals(nbf+iopen)
+            call ga_matmul_patch('n','t',occ(nbf+iopen),1.0d+00,
+     1           g_vecs2,1,nbf,iopen,iopen, 
+     2           g_vecs2,iopen,iopen,1,nbf,
+     3           g_wdens2,1,nbf,1,nbf)
+          enddo
+        endif
+
+        call ga_symmetrize(g_wdens)
+        call ga_get(g_wdens,1,nbf,1,nbf,d1nw,nbf)
+
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d2hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'alpha w-density'
+           call hnd_prtr(d1hnd,nbf) 
+        endif
+
+c
+
+        call ga_symmetrize(g_wdens2)
+        call ga_get(g_wdens2,1,nbf,1,nbf,d1nw,nbf)
+
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       triangularize
+
+        ij=0
+        do i=1,nbf
+          do j=1,i
+            ij=ij+1
+            d2hnd(ij)=d2nw(i+nbf*(j-1))
+          enddo
+        enddo
+
+        if(dbug) then
+           write(6,*) 'beta  w-density'
+           call hnd_prtr(d2hnd,nbf) 
+        endif
+
+      endif
+
+c
+
+      status = ga_destroy ( g_vecs )
+      if ( scftype .eq. 'UHF' ) then
+        status = ga_destroy ( g_vecs2 )
+      endif
+
+      return
+      end
       subroutine hnd_dens_path1(rtdb,g_dens,g_wdens)
       implicit none
 #include "mafdecls.fh"
@@ -2100,7 +2951,6 @@ c
      $     call errquit('gradients: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('gradients: no ao basis ', 0)
-**       call int_normalize(basis)
 
 c
 c     Figure output input/output MO vectors ... all this should be
@@ -2124,7 +2974,7 @@ c
       call intd_init(rtdb,1,basis)
       call schwarz_init (geom, basis)
 c
-      call hnd_dens_path2(rtdb,basis,geom,movecs_out,g_dens,g_wdens)
+      call hnd_dens_path2(rtdb,geom,basis,movecs_out,g_dens,g_wdens)
 c
       call schwarz_tidy()
 
@@ -2146,7 +2996,6 @@ c
 c
       subroutine hnd_dens_path2 ( rtdb, basis, geom, movecs,
      &                            g_dens,g_wdens)
-c     subroutine grad_force ( rtdb, basis, geom, movecs )
 c
       implicit none
 
@@ -2195,7 +3044,7 @@ C     get information about basis set
       status = bas_nbf_ce_max(basis,max_at_bf)
       if ( .not.status )
      & call errquit('path2: could not get max_at_bf',0)
-c
+ 
 C     get information about type of calculation
       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
      $     nopen = 0
@@ -2440,8 +3289,7 @@ C
       LOGICAL OUT
 C     LOGICAL SOME
       CHARACTER*4 KEYEFC
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DDER1_MEM/I_INIT,INIT
@@ -2457,7 +3305,7 @@ C
       DATA KEYEFC /' EFC'/
       DATA KEYFLD /4H FLD/
 C
-      OUT =.FALSE.       
+      OUT =.FALSE.
 C
 C     ----- ZERO OUT GRADIENT+HESSIAN ARRAYS -----
 C
@@ -2593,20 +3441,22 @@ C
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
       COMMON/HND_GRAD12/DE(3,MXATOM)
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION DNAM(3)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
-      LOGICAL SOME,OUT
+      LOGICAL SOME,OUT,DBUG
       DIMENSION ERRMSG(3)
       DATA ERRMSG  /'PROGRAM ','STOP IN','- HLFX -'/
       DATA SCF,UHF /'SCF     ','UHF    '/
       DATA ZERO    /0.0D+00/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
 C
-      SOME = .FALSE.
-      OUT  = .FALSE.
+      DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
+      SOME=.FALSE.
+      SOME=SOME.OR.OUT
 C
       NC=3*NAT
       NUM2=(NUM*(NUM+1))/2
@@ -2653,6 +3503,11 @@ C
       DO 20 I=1,NUM2*NC
    20 X(I+I01-1)=ZERO
 C
+      IF(DBUG) THEN
+         WRITE(IW,*) 'HND-HLFX'
+         CALL HND_PRTR(X(I10),NUM)
+      ENDIF      
+C
 C
 C     ----- CALCULATE -HELFEY- CONTRIBUTION -----
 C
@@ -2682,8 +3537,9 @@ C
          WRITE(IW,9995) (I,I=MIN,MAX)
          WRITE(IW,9996)
 C
-         DO 9200 I=1,3
- 9200    WRITE(IW,9992) DNAM(I),(DE(I,J),J=MIN,MAX)
+         DO I=1,3
+            WRITE(IW,9992) DNAM(I),(DE(I,J),J=MIN,MAX)
+         ENDDO
       ENDIF
 C
       IF(MAX.LT.NAT) GO TO 9100
@@ -2697,8 +3553,9 @@ C
          CALL HND_HSSOUT(X(I00),NC,NC,NC)
 C
          WRITE(IW,9990)
-         DO 9250 IC=1,NC
- 9250    CALL HND_PRTR(X(I01+(IC-1)*NUM2),NUM)
+         DO IC=1,NC
+            CALL HND_PRTR(X(I01+(IC-1)*NUM2),NUM)
+         ENDDO
 C
          WRITE(IW,9998)
 C
@@ -2755,6 +3612,7 @@ C
 C
       OUT =.FALSE.
       SOME=.FALSE.
+      SOME=SOME.OR.OUT
 C
 C     ----- CALCULATE -HELFEY- TERM -----
 C
@@ -3302,8 +4160,7 @@ C
       LOGICAL IANDJ
       LOGICAL NORM,DOUBLE
       LOGICAL SOME,OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -3757,8 +4614,7 @@ C
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       LOGICAL OUT
@@ -3767,7 +4623,7 @@ C     COMMON/HND_IOFILE/IR,IW
       DATA SCF,UHF /'SCF     ','UHF     '/
       DATA ZERO   /0.0D+00/
 C
-      OUT = .FALSE.
+      OUT =.FALSE. 
 C
       NC=3*NAT
       NUM2=(NUM*(NUM+1))/2
@@ -4343,8 +5199,7 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -4749,8 +5604,7 @@ C
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_DDER1_MEM/I_INIT,INIT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION X(1)
       LOGICAL OUT
@@ -4763,7 +5617,7 @@ C     COMMON/HND_IOFILE/IR,IW
       DATA ZERO   /0.0D+00/
       DATA NFT17  /17/
 C
-      OUT = .FALSE.
+      OUT =.FALSE.
 C
       NC=3*NAT
       NUM2=(NUM*(NUM+1))/2
@@ -4795,7 +5649,7 @@ C     ----- STORE AWAY 1E-GRADIENT -----
 C
       DO 10 I=1,3*NAT
          X(I95+I-1)=DE(I,1)
-   10    DE (I,1)=ZERO
+   10    DE(I,1)=ZERO
 C
 C     ----- STORE AWAY 1E-FORCE CONSTANT -----
 C
@@ -4807,7 +5661,7 @@ C     ----- STORE AWAY 1E-DERIVATIVE FOCK MATRICES -----
 C
       DO 12 I=1,NC*NUM2
          X(I97+I-1)=X(I01+I-1)
-   12    X (I01+I-1)=ZERO     
+   12    X(I01+I-1)=ZERO     
 C
 C     ----- GET -TV- DERIVATIVES -----
 C
@@ -4831,7 +5685,7 @@ C
 C     ----- PRINT OUT -----
 C
       IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9999)
-      IF(.NOT.OUT) GO TO 9300
+      IF(OUT) THEN          
       MAX=0
  9100 MIN=MAX+1
       MAX=MAX+8
@@ -4848,7 +5702,7 @@ C
       NC=3*NAT
       IF (GA_NODEID().EQ.0) THEN
          WRITE(IW,9991)
-         CALL HND_HSSOUT(FC,NC,NC,NC)
+         CALL HND_HSSOUT(X(I00),NC,NC,NC)
          WRITE(IW,9990)
          DO 9250 IC=1,NC
  9250    CALL HND_PRTR(X(I01+(IC-1)*NUM2),NUM)
@@ -4856,7 +5710,7 @@ C
          WRITE(IW,9998)
       ENDIF
 C
- 9300 CONTINUE
+      ENDIF
 C
 C     ----- WRITE -DF- ON -FT11- -----
 C
@@ -4892,6 +5746,7 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
+      LOGICAL DBUG
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
@@ -4918,7 +5773,9 @@ C
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
 C
+      DBUG=.FALSE.
       OUT =.FALSE.
+      OUT =OUT.OR.DBUG
 C
 C     ----- CALCULATE -TV- DERIVATIVE TERM -----
 C
@@ -5094,7 +5951,7 @@ C
  6000 CONTINUE
  7000 CONTINUE
 C
-      IF(OUT) THEN       
+      IF(DBUG) THEN       
       WRITE(IW,9993) II,JJ
       MAX=0
  7500 MIN=MAX+1
@@ -5132,7 +5989,7 @@ C
 C
 C     ----- PRINT OUT -----
 C
-      IF(.NOT.OUT) GO TO 9300
+      IF(OUT) THEN        
       MAX=0
  9100 MIN=MAX+1
       MAX=MAX+8
@@ -5153,7 +6010,7 @@ C
  9250  CALL HND_PRTR(DF(1,IC),NUM)
 C
       WRITE(IW,9998)
- 9300 CONTINUE
+      ENDIF
 C
       RETURN
  9999 FORMAT(/,10X,20(1H-),/,10X,'-TV- DERIVATIVE TERM',
@@ -5692,8 +6549,7 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -6308,8 +7164,7 @@ C
 C     COMMON/HND_IJPAIR/IA(1)
       COMMON/HND_DDER1_MEM/I_INIT,INIT
       COMMON/HND_GRAD12/DE(3,MXATOM)
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       LOGICAL OUT,SOME
@@ -6322,8 +7177,8 @@ C     COMMON/HND_IOFILE/IR,IW
       DATA NFT17  /17/
       DATA NFT18  /18/
 C
-      OUT = .FALSE.
-      SOME= .FALSE.
+      OUT =.FALSE.
+      SOME=.FALSE.
 C
       NC=3*NAT
       NUM2=(NUM*(NUM+1))/2
@@ -6416,8 +7271,6 @@ C     NC=3*NAT
       WRITE(IW,9990)
       DO 9250 IC=1,3*NAT
          CALL HND_PRTR(X(I01+(IC-1)*NUM2),NUM)
-C        CALL HND_PRTR(DS(1,IC),NUM)
-C        CALL HND_PRTRL(DS(1,IC),NUM)
  9250 CONTINUE
 C
       WRITE(IW,9998)
@@ -6942,8 +7795,7 @@ C
       LOGICAL IANDJ
       LOGICAL NORM
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_NSHEL/
@@ -6996,8 +7848,9 @@ C
      2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
      3              3, 3, 2, 2, 3/
 C
+      OUT =.FALSE.
+C
       TOL=RLN10*ITOL
-      OUT =.TRUE. 
       NORM=NORMF.NE.1.OR.NORMP.NE.1
 C
 C     ----- CALCULATE -S- DERIVATIVE TERM -----
@@ -7357,8 +8210,7 @@ C
       character*2 bnam
       PARAMETER (NUMMX=3072)
       PARAMETER (MXATOM=500)
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(NUMMX)
@@ -7708,11 +8560,6 @@ C
       RETURN
       END
 C
-C
-C-----------------------------------------------------------------
-C
-C     ------ SUBROUTINES TAKEN FROM HSS.F IN HONDO ------
-C
       SUBROUTINE HND_JKDD(RTDB,GEOM,BASIS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       INTEGER RTDB,GEOM,BASIS
@@ -7739,14 +8586,14 @@ C
       DATA SCFTYP  /'RHF     '/
 C
       END
-      subroutine hnd_dder2_init(rtdb)
+      subroutine hnd_dder2_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
 #include "mafdecls.fh"
 #include "global.fh"
-c     logical status
-      integer rtdb 
-      integer g_dens, g_wdens
+      integer rtdb,geom,basis 
+c
+      logical dbug
 c 
       common/hnd_dermem/iwfn,iclb,inijg,igint,ifint,isint,iijklg,
      1 idab,ichrg,ixy,ixz,iyz,ix,iy,iz,isj,isk,isl,igijkl,ignkl,ignm,
@@ -7762,16 +8609,15 @@ c
       common/hnd_dder2_mem/i_init2,init2
       common/hnd_iofile/ir,iw,ip
 c
-      dimension g_dens(3) ! max # of density matrices
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
 c
       data zero    /0.0d+00/
 c
-      do i = 1,3
-         g_dens(i) = 0
-      enddo
-      g_wdens = 0 
+      dbug=.false.
+      if(dbug) then
+         write(iw,*) 'in -hnd_dder2_init-'
+      endif
 c
       nc= nat*3
       l1= num
@@ -7785,9 +8631,7 @@ c
 
 c     ----- memory blocks -----
 
-      need =  0
-c*    needa = num*num + num*num
-      needa = 0
+      needa = l2 + l2 + l3 + l3
       need  = needm + needa
    
 c     ----- memory block to store 1-e results fc + df -----
@@ -7795,8 +8639,6 @@ c     ----- memory block to store 1-e results fc + df -----
       needc = nc*nc +nc*l2
       need  = need + needc
 c
-c*     if(.not.ma_push_get(mt_dbl,need , 'mem init2',i_init2,init2))
-c*   & call errquit('hnd_dder2_init, malloc of init2  failed',911)
       if(.not.ma_push_get(mt_dbl,need,'mem init2',i_init2,init2)) then
          write(iw,*)'The total number of basis functions =',num
          write(iw,*)'The stack memory for dder_2e =',need
@@ -7806,14 +8648,15 @@ c
       return
       end
 c
-      subroutine hnd_dder2_inita(rtdb)
+      subroutine hnd_dder2_inita(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
 #include "mafdecls.fh"
 #include "global.fh"
       logical status
-      integer rtdb 
-      integer g_dens, g_wdens
+      integer rtdb,geom,basis 
+      character*8 scftyp
+      logical dbug
       common/hnd_dermem/iwfn,iclb,inijg,igint,ifint,isint,iijklg,
      1 idab,ichrg,ixy,ixz,iyz,ix,iy,iz,isj,isk,isl,igijkl,ignkl,ignm,
      2 idij,idkl,ib00,ib01,ib10,ic00,id00,if00,
@@ -7827,26 +8670,24 @@ c
       common/ hnd_mcpar/nfzc,ncorbs,nci
       common/ hnd_needm/needm
 c
-      dimension g_dens(3) ! max # of density matrices
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
 c
       data zero    /0.0d+00/
 c
-      do i = 1,3
-        g_dens(i) = 0
-      enddo
-      g_wdens = 0 
+      dbug=.false.
+      if(dbug) then
+         write(iw,*) 'in -hnd_dder2_inita-'
+      endif
 c
       nc= nat*3
       l1= num
       l2=(num*(num+1))/2
       l3= num*num
 
-c     ----- memory block of density matrix -----
+c     ----- memory block for getting density matrix -----
 
-c*    needa = num*num + num*num
-      needa = 0       + 0
+      needa = l2+l3+l3    
 
 c     ----- total memory block -----
 
@@ -7857,47 +8698,29 @@ c
       i02=i01+ nc* l2
       i10=i02
 c
-      inita = init2 + needm
-c*    i40   = inita + num*num
-c*    i50   = i40   + num*num
+      i20   = i10   + l2
+      i30   = i20   + l2     
+      i40   = i30   + l3
+      i50   = i40   + l3
 c
-      do 10 i=1,need
-   10 x(i+init2-1)=zero
-c
-c*    call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c      ----- check g_dens(1),g_dens(2),g_dens(3) -----
-
-c*    call ga_get(g_dens(1),1,num,1,num, x(inita),num)
-
-c     ----- shell order from nwchem to hondo -----
-
-c*    call hnd_nwhnd_tran(x(inita),x(i40),num)
-c     
-c*    ij = 0
-c*    do i = 1,num
-c*       do j = 1,i
-c*          ij = ij + 1
-c*          x(i10 +ij-1) = x(i40 + (j-1)*(num)+(i-1))
-c*       enddo
-c*    enddo
-c
-c*    status = ga_destroy ( g_wdens )
-c*    do i=1, 3
-c*      status = ga_destroy ( g_dens(i) )
-c*    enddo
-      call hnd_get_dens(rtdb,x(i10),num)
+      call hnd_hess_get_dens(rtdb,geom,basis,
+     1                       x(i10),x(i20),
+     2                       x(i30),x(i40),
+     3                       scftyp)
+      if(dbug) then
+         write(iw,*) 'in -hnd_dder2_inita-'
+         call hnd_prtr(x(i10),l1)
+      endif
 c
       return
       end
-c
       subroutine hnd_dder2_popm 
       implicit double precision (a-h,o-z)
 #include "mafdecls.fh"
       common/hnd_dder2_mem/i_init2,init2
 c
       if(.not.ma_pop_stack(i_init2))
-     & call errquit('hnd_dder2_init, ma_pop_stack of init2
+     & call errquit('hnd_dder2_popm, ma_pop_stack of init2
      & failed',911)
 c
       return
@@ -7927,8 +8750,7 @@ c
       COMMON/HND_DEROPT/DERTYP
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_DAFILE/IDAF,NAV,IODA(255)
       COMMON/HND_INTTYP/NPOPLE,NHONDO
       COMMON/HND_INTFIL/NINTMX
@@ -7978,7 +8800,7 @@ C     ----- THIS CODE FOR GRADIENT + HESSIAN ( -MDER- = 2 ) -----
 C
       MDER=2
 C
-      SOME=.TRUE.
+      SOME=.FALSE.
       CALL HND_SECOND(TIM0,WTIM0)
 C
       CALL HND_HONDO
@@ -8044,7 +8866,7 @@ C
 C     ----- GET MEMORY BLOCK -----
 C
       NEEDM = IADDR
-      CALL HND_DDER2_INIT(RTDB)
+      CALL HND_DDER2_INIT(RTDB,GEOM,BASIS)
 C
 C     ----- RESCALE MEMORY POINTER ----- 
 C
@@ -8053,7 +8875,7 @@ C
 C
 C     ----- GET DENSITY MATRIX ----
 C
-      CALL HND_DDER2_INITA(RTDB)
+      CALL HND_DDER2_INITA(RTDB,GEOM,BASIS)
 C
       IF(MCCI) GO TO 100
 C
@@ -8077,6 +8899,9 @@ C     ----- X(I10) PASS THROUGH COMMON BLOCK -----
 C     CALL HND_JKDHF(X(I10),X(I20),X(J10),X(J20),X(J30),
 C    1 IA,NUM,NORB,L1)
 C 
+      DO I=1,L2
+         X(I+IDAB-1)=X(I+I10-1)
+      ENDDO
       CALL HND_JDDHF(X(I00),NC,X(I01),L2,L1)
 C
 C     ----- STORE AWAY 1E-GRADIENT -----
@@ -8250,10 +9075,11 @@ C
       SUBROUTINE HND_JDDHF(FC,NC,DF,LDF,NBF)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+      PARAMETER (MXATOM=500)
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
-C     COMMON/HND_DSHPRT/OUT
+      LOGICAL DBUG
+      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION FC(NC,NC),DF(LDF,NC)
       DATA NFT17 /17/
 C
@@ -8262,8 +9088,11 @@ C
 C     ----- READ DERIVATIVE FOCK MATRICES -----
 C     ----- DIAGONAL IS MULTIPLIED BY 2.0 -----
 C
+      DBUG= .FALSE.
       OUT = .FALSE.
+      OUT =OUT.OR.DBUG
 C
+      IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9997)
       IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9999)
 C
       CALL HND_REWFIL(NFT17)
@@ -8278,23 +9107,23 @@ C
       DF(IJ,IC)=DF(IJ,IC)+DF(IJ,IC)
    10 CONTINUE
 C
-c*     IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRTRL(DF(1,IC),NBF)
-C*     IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRTR (DF(1,IC),NBF)
+       IF(DBUG.AND.GA_NODEID().EQ.0) CALL HND_PRTR (DF(1,IC),NBF)
 C
    20 CONTINUE
-      IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRTR(DF(1,1 ),NBF)
 C
 C     ----- READ 1E-HESSIAN -----
 C
       CALL HND_HSSRD(NFT17,FC,NC*NC)
       IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9998)
       IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_HSSOUT(FC,NC,NC,NC)
+      IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9996)
+      IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRSQ(DE,NC/3,3,3)
 C
       RETURN
-C9999 FORMAT(/,' DERIVATIVE FOCK MATRICES',/,1X,24(1H-))
-C9998 FORMAT(/,' HESSIAN MATRIX',/,1X,14(1H-))
  9999 FORMAT(/,' 1E-DERIVATIVE FOCK MATRICES',/,1X,24(1H-))
  9998 FORMAT(/,' 1E-HESSIAN MATRIX',/,1X,14(1H-))
+ 9997 FORMAT(/,' -JDDHF- ')
+ 9996 FORMAT(/,' 1E-GRADIENT      ',/,1X,14(1H-))
 C
       END
 C
@@ -8307,8 +9136,7 @@ C
       PARAMETER (MXSHEL=512)
       LOGICAL SOME
       LOGICAL SPSKIP
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_JKDTIM/DG80,DHND
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
       COMMON/HND_INTHND/SPSKIP
@@ -10627,8 +11455,7 @@ C
       PARAMETER (MXNBF =2048)
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_DERINV/INVTYP
@@ -10895,8 +11722,7 @@ C
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_DERSKP/IIAT,JJAT,KKAT,LLAT,SKIPI,SKIPJ,SKIPK,SKIPL
       COMMON/HND_DERPAR/IDER,JDER,KDER,LDER,NDER
       COMMON/HND_SHLPAR/LIT,LJT,LKT,LLT,LOCI,LOCJ,LOCK,LOCL,
@@ -11294,19 +12120,23 @@ C
       SUBROUTINE HND_JDDSAV(FC,NC,DF,LDF,NBF)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+      PARAMETER (MXATOM=500)
+      LOGICAL DBUG
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
-C     COMMON/HND_DSHPRT/OUT
+      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_GRAD12/DE(3,MXATOM)
       DIMENSION FC(NC,NC),DF(LDF,NC)
       DATA NFT17 /17/
       DATA PT5   /0.5D+00/
 C 
+      DBUG= .FALSE.
       OUT = .FALSE.
+      OUT =OUT.OR.DBUG
 C
 C     ----- WRITE DERIVATIVE FOCK MATRICES  -----
 C     ----- OFF-DIAGONAL ARE DIVIDED BY 2.0 -----
 C
+      IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9997)
       IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9999)
 C
       CALL HND_REWFIL(NFT17)
@@ -11320,185 +12150,28 @@ C
       DF(IJ,IC)=DF(IJ,IC)*PT5
    10 CONTINUE
 C
-c*    IF(OUT) CALL HND_PRTRL(DF(1,IC),NBF)
-c*    IF(OUT) CALL HND_PRTR (DF(1,IC),NBF)
+      IF(DBUG) CALL HND_PRTR (DF(1,IC),NBF)
 C
       CALL HND_HSSWRT(NFT17,DF(1,IC),LDF)
    20 CONTINUE
-      IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRTR(DF(1,1 ),NBF)
 C
 C     ----- WRITE 2E-HESSIAN -----
 C
       CALL HND_HSSWRT(NFT17,FC,NC*NC)
       IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9998)
       IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_HSSOUT(FC,NC,NC,NC)
+      IF(OUT.AND.GA_NODEID().EQ.0) WRITE(IW,9996)
+      IF(OUT.AND.GA_NODEID().EQ.0) CALL HND_PRSQ(DE,NC/3,3,3)
       RETURN
-C9999 FORMAT(/,' DERIVATIVE FOCK MATRICES',/,1X,24(1H-))
-C9998 FORMAT(/,' HESSIAN MATRIX',/,1X,14(1H-))
  9999 FORMAT(/,' 2E-DERIVATIVE FOCK MATRICES',/,1X,24(1H-))
  9998 FORMAT(/,' 2E-HESSIAN MATRIX',/,1X,14(1H-))
+ 9997 FORMAT(/,' -JDDSAV- ')
+ 9996 FORMAT(/,' 2E-GRADIENT      ',/,1X,14(1H-))
 C
       END
 C
 C     ------ SUBROUTINES ABOVE FROM HSS.F IN HONDO -------
 C
-
-C
-C     ------ SUBROUTINES TAKEN FROM DER.F IN HONDO ------
-C
-C     ------ SUBSTITUTE BY NWCHEM ------
-c$$$      SUBROUTINE LGRDDM(D,V,E,EIJ,T,IA,NDIM)
-c$$$      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-c$$$      PARAMETER (MXATOM=500)
-c$$$      CHARACTER*8 ERRMSG
-c$$$      CHARACTER*8 WFNTYP,SCFTYP
-c$$$      CHARACTER*8 RHF,UHF,GVB,SCF,WFNMC,WFNCI,WFNMP2,WFNMP4
-c$$$      LOGICAL OUT
-c$$$      COMMON/IOFILE/IR,IW
-c$$$      COMMON/DAFILE/IDAF,NAV,IODA(255)
-c$$$      COMMON/INFOA/NAT,ICH,MUL,NUM,NX,NE,NA,NB,ZAN(MXATOM),
-c$$$     1                                         C(3,MXATOM)
-c$$$      COMMON/SCFWFN/CICOEF(2,12),F(25),ALPHA(325),BETA(325),
-c$$$     1 NO(10),NCO,NSETO,NPAIR
-c$$$      COMMON/SCFOPT/SCFTYP
-c$$$      COMMON/WFNOPT/WFNTYP
-c$$$      COMMON/QMTOPT/QMTTOL,NQMT
-c$$$      COMMON/ MCPAR/NFZC,NCORBS,NCI
-c$$$      DIMENSION EIJ(NDIM,1),T(1),IA(1)
-c$$$      DIMENSION V(NDIM,1),D(1),E(1)
-c$$$      DIMENSION ERRMSG(3)
-c$$$      DATA ERRMSG /'PROGRAM ','STOP IN ','-LGRDDM-'/
-c$$$      DATA ZERO   /0.0D+00/
-c$$$      DATA PT5    /0.5D+00/
-c$$$      DATA ONE    /1.0D+00/
-c$$$      DATA TWO    /2.0D+00/
-c$$$      DATA RHF    /'RHF     '/
-c$$$      DATA UHF    /'UHF     '/
-c$$$      DATA GVB    /'GVB     '/
-c$$$      DATA SCF    /'SCF     '/
-c$$$      DATA WFNMC  /'MC      '/
-c$$$      DATA WFNCI  /'CI      '/
-c$$$      DATA WFNMP2 /'MP2     '/
-c$$$      DATA WFNMP4 /'MP4     '/
-c$$$C
-c$$$      OUT =.FALSE.
-c$$$      NUM2=(NUM*(NUM+1))/2
-c$$$      NUM3= NUM* NUM
-c$$$C
-c$$$      IF(WFNTYP.NE.SCF                  ) GO TO 100
-c$$$      IF(SCFTYP.EQ.GVB                  ) GO TO 100
-c$$$      IF(SCFTYP.EQ.RHF.AND.NSETO.GT.0   ) GO TO 100
-c$$$C
-c$$$C     ----- CLOSED-SHELL OR -UHF- CASE -----
-c$$$C
-c$$$      OCC=ONE
-c$$$      IF(SCFTYP.NE.UHF) OCC=TWO
-c$$$      CALL HND_DAREAD(IDAF,IODA,V,NUM3,15)
-c$$$      CALL HND_DAREAD(IDAF,IODA,E,NUM ,17)
-c$$$C
-c$$$      IJ=0
-c$$$      DO 20 I=1,NUM
-c$$$         DO 20 J=1,I
-c$$$            IJ=IJ+1
-c$$$            DUM=ZERO
-c$$$            DO 10 K=1,NA
-c$$$   10          DUM=DUM-E(K)*V(I,K)*V(J,K)
-c$$$   20       D(IJ)=DUM*OCC
-c$$$C
-c$$$      IF(SCFTYP.EQ.UHF) THEN
-c$$$         CALL HND_DAREAD(IDAF,IODA,V,NUM3,19)
-c$$$         CALL HND_DAREAD(IDAF,IODA,E,NUM ,21)
-c$$$         IJ=0
-c$$$         DO 40 I=1,NUM
-c$$$            DO 40 J=1,I
-c$$$               IJ=IJ+1
-c$$$               DUM=ZERO
-c$$$               DO 30 K=1,NB
-c$$$   30             DUM=DUM-E(K)*V(I,K)*V(J,K)
-c$$$   40          D(IJ)=D(IJ)+DUM*OCC
-c$$$      ENDIF
-c$$$C
-c$$$      IF(OUT) THEN
-c$$$         WRITE(IW,9998)
-c$$$         CALL HND_PRTRL(D,NUM)
-c$$$      ENDIF
-c$$$      RETURN
-c$$$C
-c$$$  100 IF(WFNTYP.EQ.WFNCI.OR.WFNTYP.EQ.WFNMP2
-c$$$     1                  .OR.WFNTYP.EQ.WFNMP4) GO TO 200
-c$$$C
-c$$$C     -----       -ROHF- OR -GVB- OR -MCHF- CASE           -----
-c$$$C     ----- IF -NFZC- .NE.0 ( ORBITALS ARE NOT OPTIMIZED ) -----
-c$$$C           THE GRADIENT CANNOT BE DONE PRESENTLY.
-c$$$C
-c$$$      IF(NFZC.NE.0) THEN
-c$$$         WRITE(IW,9999)
-c$$$         CALL HND_HNDERR(3,ERRMSG)
-c$$$      ENDIF
-c$$$C
-c$$$      CALL HND_DAREAD(IDAF,IODA,  V,NUM3,15)
-c$$$      CALL HND_DAREAD(IDAF,IODA,EIJ,NUM3,22)
-c$$$      NORB=NA
-c$$$      IF(WFNTYP.EQ.WFNMC) NORB=NCORBS+NCI
-c$$$      IF(OUT) THEN
-c$$$         WRITE(IW,9997)
-c$$$         CALL HND_PRSQL(V,NORB,NUM,NDIM)
-c$$$         WRITE(IW,9996)
-c$$$         CALL HND_PRSQ(EIJ,NORB,NQMT,NDIM)
-c$$$      ENDIF
-c$$$C
-c$$$C     ----- CALCULATE - C * E * C(T) - -----
-c$$$C
-c$$$      DO 110 IJ=1,NUM2
-c$$$  110    D(IJ)=ZERO
-c$$$      DO 150 I=1,NUM
-c$$$         DO 130 L=1,NORB
-c$$$            DUM=ZERO
-c$$$            DO 120 K=1,NORB
-c$$$  120          DUM=DUM+V(I,K)*EIJ(K,L)
-c$$$  130       T(L)=DUM
-c$$$      DO 150 J=1,NUM
-c$$$         II=MAX0(I,J)
-c$$$         JJ=MIN0(I,J)
-c$$$         IJ=IA(II)+JJ
-c$$$         DUM=ZERO
-c$$$         DO 140 L=1,NORB
-c$$$  140       DUM=DUM+T(L)*V(J,L)
-c$$$         D(IJ)=D(IJ)-DUM*PT5
-c$$$  150    CONTINUE
-c$$$C
-c$$$C     -----             -MP- OR -CI- WAVEFUNCTIONS              -----
-c$$$C     ----- TOTAL ENERGY-WEIGHTED DENSITY IS ALREADY CALCULATED -----
-c$$$C
-c$$$  200 IF(WFNTYP.EQ.WFNCI ) THEN
-c$$$         WRITE(IW,9999)
-c$$$         CALL HND_HNDERR(3,ERRMSG)
-c$$$      ENDIF
-c$$$      IF(WFNTYP.EQ.WFNMP4) THEN
-c$$$         WRITE(IW,9999)
-c$$$         CALL HND_HNDERR(3,ERRMSG)
-c$$$      ENDIF
-c$$$
-c$$$C     ----- -MP- WAVEFUNCTIONS -----
-c$$$
-c$$$      IF(WFNTYP.EQ.WFNMP2) THEN
-c$$$         CALL HND_DAREAD(IDAF,IODA,D,NUM2,111)
-c$$$      ENDIF
-c$$$C
-c$$$      IF(OUT) THEN
-c$$$         WRITE(IW,9998)
-c$$$         CALL HND_PRTR(D,NUM)
-c$$$c        CALL HND_PRTRL(D,NUM)
-c$$$      ENDIF
-c$$$      RETURN
-c$$$ 9999 FORMAT(' THERE ARE FROZEN CORE ORBITALS IN THE MCSCF.',/,
-c$$$     1       ' OR ELSE THIS IS A -CI- OR -MP4- WAVEFUNCTION.',/,
-c$$$     2       ' IN ANY CASE THE GRADIENT CAN NOT BE COMPUTED PRESENTLY')
-c$$$ 9998 FORMAT(/,' -D- IN -LGRDDM- ')
-c$$$ 9997 FORMAT(/,' -V- IN -LGRDDM- ')
-c$$$ 9996 FORMAT(/,' -EIJ- IN -LGRDDM- ')
-c$$$      END
-c$$$C
       SUBROUTINE HND_JKDSET(MDER)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
@@ -11560,14 +12233,14 @@ C     -> ISINGL = 2
       CALL HND_HONDO
 C
       NISO=512*24/ISINGL
-      CALL HND_DAREAD(IDAF,IODA,ISO,NISO,5)
-      DO 130 II=1,NSHELL
-      DO 110 IT=1,NTWD
-  110 INDOUT(IT)=ISO(II,IT)
-      CALL HND_ISOOUT(NT)
-      DO 120 IT=1,NT
-  120 ISO(II,IT)=INDIN(IT)
-  130 CONTINUE
+c-    CALL HND_DAREAD(IDAF,IODA,ISO,NISO,5)
+c-    DO 130 II=1,NSHELL
+c-    DO 110 IT=1,NTWD
+c-110 INDOUT(IT)=ISO(II,IT)
+c-    CALL HND_ISOOUT(NT)
+c-    DO 120 IT=1,NT
+c-120 ISO(II,IT)=INDIN(IT)
+c-130 CONTINUE
 C
 C     ----- DEFINE NEW ORDER OF SHELLS ACCORDING TO TYPE -----
 C
@@ -11630,8 +12303,7 @@ C
       LOGICAL VECTOR
       PARAMETER (LENVEC=255)
       CHARACTER*8 ERRMSG
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MACHNV/VECTOR
       COMMON/HND_MEMORY/MAXCOR,MAXSCM
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
@@ -11917,17 +12589,18 @@ C
       ISJL  =ISJK  +( MODTYP**2       * MODTYP**2       )*MAXXYZ*3
       ISKL  =ISJL  +( MODTYP**2       * MODTYP**2       )*MAXXYZ*3
       ILAST =ISKL  +( MODTYP**2       * MODTYP**2       )*MAXXYZ*3
-      INEED =ILAST -1
+      INEED =ILAST - IWFN
+      IFIRST=IWFN
       IADDR =ILAST
-
-C     WRITE(IW,9997) NUMXYZ,INEED,MAXCOR
+      ILAST =ILAST - 1
 
       IF(OUT) WRITE(IW,9996) IWFN,ICLB,INIJG,IGINT,IFINT,ISINT,IIJKLG,
      1 IDAB,ICHRG,IXY,IXZ,IYZ,IX,IY,IZ,ISJ,ISK,ISL,IGIJKL,IGNKL,IGNM,
      2 IDIJ,IDKL,IB00,IB01,IB10,IC00,ID00,IF00,
      3 IAAI,IAAJ,IBBK,IBBL,IFI,IFJ,IFK,IFL,
      4 ISII,ISJJ,ISKK,ISLL,ISIJ,ISIK,ISIL,ISJK,ISJL,ISKL,
-     5 IDIJSI,IDIJSJ,IDKLSK,IDKLSL,IABV,ICV,IRW
+     5 IDIJSI,IDIJSJ,IDKLSK,IDKLSL,IABV,ICV,IRW,
+     6 IFIRST,ILAST,INEED,IADDR
 C
       RETURN
   300 CONTINUE
@@ -11940,8 +12613,6 @@ C
      2     /,' FOR HIGHER FUNCTIONS NO DERIVATIVES ARE AVAILABLE    ')
  9998 FORMAT(/,' NOT ENOUGH CORE FOR -JKDMEM-',/,
      1         ' LVAR,LFIX,MAXXYZ,MINXYZ,MAXCOR = ',5I10)
-C9997 FORMAT(' - DEW  - , MAXVEC = ',I3,' INEED = ',I10,
-C    1                  ' MAXCOR = ',I10)
  9996 FORMAT(
      1 ' IWFN  ',I8,' ICLB  ',I8,' INIJG ',I8,' IGINT ',I8,' IFINT ',I8,
      1 ' ISINT ',I8,' IIJKLG',I8,/,
@@ -11957,7 +12628,8 @@ C    1                  ' MAXCOR = ',I10)
      4 ' ISIJ  ',I8,' ISIK  ',I8,' ISIL  ',I8,' ISJK  ',I8,/
      4 ' ISJL  ',I8,' ISKL  ',I8,/,
      5 ' IDIJSI',I8,' IDIJSJ',I8,' IDKLSK',I8,' IDKLSL',I8,/,
-     5 ' IABV  ',I8,' ICV   ',I8,' IRW   ',I8)
+     5 ' IABV  ',I8,' ICV   ',I8,' IRW   ',I8,/,
+     6 ' IFIRST',I8,' ILAST ',I8,' INEED ',I8,' IADDR ',I8)
  9995 FORMAT(' SPECIAL -SP- ROUTINES USED.',
      1       ' IWFN,ICLB,INEED,MAXCOR = ',4I8)
       END
@@ -12310,8 +12982,7 @@ C
       PARAMETER (MXSHEL=512)
       COMMON/HND_RESTAR/NREST
       COMMON/HND_DSHINT/IST,JST,KST,LST
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -12326,7 +12997,7 @@ C     COMMON/HND_IOFILE/IR,IW
       DIMENSION DNAM(3)
       DATA DNAM /4HE'X ,4HE'Y ,4HE'Z /
 C
-      OUT = .FALSE.
+      OUT = .FALSE.     
 C
 C     ----- TRANSFER GRADIENT INTO -EG- -----
 C
@@ -12449,8 +13120,7 @@ C
       LOGICAL IEQJ0,KEQL0,SAME0,FIRST
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_LCAPID/NAP,IAP
       COMMON/HND_JKSTAT/LVEC,NVEC
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
@@ -12514,7 +13184,7 @@ C
       LCAP=NAP.GT.1
       DABTOL=TENM10
       CUTOFF=TENM09
-      SOME=.TRUE.
+      SOME=.FALSE.
 C
       NUMI0=0
       NUMJ0=0
@@ -13018,8 +13688,7 @@ C
       CHARACTER*8 ERRMSG
       PARAMETER (MXIODA=255)
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MACHIN/ISINGL,NBITS
       COMMON/HND_DAFNAV/IXDDAF(2048),NAV10,NAV20
       COMMON/HND_DAFREC/LENDAR(MXIODA)
@@ -13236,8 +13905,7 @@ C
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
       LOGICAL IANDJ,IANDK,IANDL,JANDK,JANDL,KANDL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -13642,8 +14310,7 @@ C
       LOGICAL UHFTYP
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -13752,8 +14419,7 @@ C
       LOGICAL NOCORE,NOOPEN
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -13891,8 +14557,7 @@ C
       LOGICAL NOCORE,NOOPEN,NOPAIR
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -14028,8 +14693,7 @@ C
       PARAMETER (MXSHEL=512)
       LOGICAL OUT
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -14197,8 +14861,7 @@ C
       PARAMETER (MXSHEL=512)
       INTEGER ZSHIFTR
       LOGICAL OUT
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_INTFIL/NINTMX
       COMMON/NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
@@ -17104,8 +17767,7 @@ C
       PARAMETER (MXATOM=500)
       LOGICAL OUT
       LOGICAL SKIPI,SKIPJ,SKIPK,SKIPL
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_GRAD12/DE(3,MXATOM)
       COMMON/HND_DSHPRT/OUT
       COMMON/HND_DERINV/INVTYP
@@ -17207,8 +17869,7 @@ C
       LOGICAL IIEQJJ,KKEQLL,IJEQKL,IJGTKL,IJLTKL
       LOGICAL OUT
       LOGICAL BUG1,BUG2,BUG
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_DERPAR/IDER,JDER,KDER,LDER,NDER
       COMMON/HND_DERSHL/FD(12),SD(78)
       COMMON/HND_SHLPAR/LIT,LJT,LKT,LLT,LOCI,LOCJ,LOCK,LOCL,
@@ -17645,8 +18306,7 @@ C
       COMMON/HND_INTTYP/NPOPLE,NHONDO
       COMMON/HND_RESTAR/NREST
       COMMON/HND_TIMEX/TIMLIM,TI,TX,TIM,WTI,WTX,WTIM
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_NSHEL/
      1EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),CD(MXPRIM),CF(MXPRIM),
      1CG(MXPRIM),
@@ -17873,19 +18533,25 @@ C     IJ = (II*(II-1))/2 + JJ
  9228 FORMAT(6X,7(6X,I3,6X))
  9248 FORMAT(I5,1X,7E15.8)
       END
-C---------------------------------------------------------------
       subroutine hnd_cphf_init(rtdb)
       implicit double precision (a-h,o-z)
       integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
       parameter (mxatom=500)
+      logical dbug
+      logical out
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_cphf_mem/i_init,init
       common/hnd_basnum/num
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
       data zero    /0.0d+00/
+
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
 
 c     ----- get nocc and nvir -----
 
@@ -18004,8 +18670,11 @@ c
 #include "global.fh"
 #include "rtdb.fh"
       integer  rtdb,geom,basis
+      logical dbug
       logical out
-      out = .false.
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
 c
       if (out.and.ga_nodeid().eq.0 ) then
           print*,' ..... in subroutine cphfx .....'
@@ -18019,7 +18688,6 @@ c     ----- cphf integrated with nwchem -----
 c
       return
       end
-c
       subroutine hnd_cphf(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
       parameter (mxatom=500)
@@ -18037,13 +18705,11 @@ c*    integer  g_fc
       integer  g_aods(3*mxatom), g_mods(3*mxatom)
       integer  g_dsta(3*mxatom), g_tmpta(3*mxatom)
       integer  g_modfwa(3*mxatom)
-c*    integer  g_vecs,g_eval
-c*    integer  g_eval
+      integer  g_eval
       integer  g_newaods,g_tmpaods
       integer  g_mafock(1),g_mmfock(1),g_tmpfock(1)
       double precision occ(mxnbf)
       double precision jfac(1),kfac(1)
-c*    double precision  occ,evals
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       logical  movecs_read
@@ -18062,14 +18728,13 @@ c*    double precision  occ,evals
       external file_write_ga,file_read_ga
 c*    character*(nw_max_path_len) cphf_sol
       character*256 cphf_sol
-c*      character*256 fname
       integer  g_ya, g_ya_tr
 c
       character*8 errmsg
+      logical dbug
       logical out
       logical out_grad
       common/hnd_iofile/ir,iw,ip
-c*    common/hnd_iofile/ir,iw
       common/hnd_dafile/idaf,nav,ioda(255)
       common/hnd_grad12/de(3,mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -18089,17 +18754,19 @@ c
       data nft17  /17/
       data nft18  /18/
 c
+      dbug     = .false.
       out      = .false.
-      out_grad = .true.
+      out      = out.or.dbug
+      out_grad = .false.
+      if(out) then
+         write(iw,*) 'in hnd_cphf'
+      endif
 
 c     ----- get nocc and nvir -----
 
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
      $     call errquit ('scf: nopen > nelec ', nopen)
 
-c*    if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-c*   $     nopen = 0
-c*
       nocc = nclosed 
       nvir = num - nocc 
       na   = nocc
@@ -18164,23 +18831,26 @@ c     ----- get mo vectors from file -----
 
 c     ----- figure output input/output MO vectors -----
 
-       if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
-     $      movecs_in = 'atomic'
-       if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-     $      movecs_out = ' '
-       movecs = ' '
-       if (movecs.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
-         else
-            movecs_out = movecs_in
-         endif
+       if (.not.rtdb_cget(rtdb,'hess:input vectors',1,movecs_in))
+     $     then
+           call util_file_name('movecs',.false.,.false.,movecs_in)
        endif
-       movecs = movecs_out
+       call util_file_name_resolve(movecs_in,.false.)
+       if (.not.rtdb_cget(rtdb,'hess:output vectors',1,movecs_out))
+     $     then               
+           call util_file_name('movecs',.false.,.false.,movecs_out)
+       endif
+       call util_file_name_resolve(movecs_out,.false.)
+       movecs = movecs_in
 
-c      ----- read eig-vec and put eng-val in x(i40) -----
+c      ----- read eig-vec and put eig-val in x(i40) -----
 
        status = movecs_read (movecs, 1, occ, x(i40), g_vecs)
+       if (out.and.ga_nodeid().eq.0) then
+           call hnd_prsq(  occ ,1,num,num)
+           call hnd_prsq(x(i40),1,num,num)
+           call ga_print(g_vecs)
+       endif
 
 c     ----- rewind nft17 and load into x(i70) -----
 
@@ -18189,19 +18859,18 @@ c     ----- rewind nft17 and load into x(i70) -----
       do in =1,nc
 c
         call hnd_hssrd(nft17,x(i70),num2) 
+
+c     ----- expand from triangular matrix to square matrix ----
+
         do 450 j = 1,num
          do 450 i = 1,num
-
           ii = max0(i,j)
           jj = min0(i,j)
           ij = (ii*(ii-1))/2 + jj
-
-c     ----- expand from triangular matrix to squre matrix ----
-
   450   x(i50+num*(j-1)+i-1) = x(i70+ij-1)
 
         if (out.and.ga_nodeid().eq.0) then
-            call hnd_sprtr(x(i50),num)
+            call hnd_prsq(x(i50),num,num,num)
         endif
 
 c     ----- ao-df shell order from hondo to nwchem:x(i50)->x(i70)--
@@ -18306,12 +18975,12 @@ c
       i80=i70+ num3
       need=i80-1
 
-c      ----- read eig-vec and put eng-val in x(i50) -----
+c      ----- read eig-vec and put eig-val in x(i50) -----
 
        status = movecs_read (movecs, 1, occ, x(i50), g_vecs)
 
        if (.not.status) then
-         call errquit('hnd_dderjk: could not read mo vectors', 110)
+         call errquit('hnd_cphf: could not read mo vectors', 110)
        endif
 
 c     ----- read ds from disk to local memory x(i70) -----
@@ -18332,7 +19001,6 @@ c     ----- load ds/dq from disk to local memory x(i70) -----
 c     ----- expand from triangular matrix to squre matrix ----
 
          x(i60+num*(j-1)+i-1) = x(i70+ij-1)
-c*       x(i60+num*(j-1)+i-1) = x(i70+(in-1)*num2+ij-1)
         enddo
        enddo
 
@@ -18859,8 +19527,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
       CHARACTER*4 DNAM
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION DNAM(3),FC(9),FCM(1)
       DATA DNAM /'d/dx','d/dy','d/dz'/
 C
@@ -18910,8 +19577,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "global.fh"
       CHARACTER*4 DNAM
-      common/hnd_iofile/ir,iw,ip
-C     COMMON/HND_IOFILE/IR,IW
+      COMMON/HND_IOFILE/IR,IW,IP
       DIMENSION DNAM(3),GRD(3,1)
       DATA DNAM /'d/dx','d/dy','d/dz'/
 C
@@ -18949,7 +19615,6 @@ C
       PARAMETER (MXBFN=3072)
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_LISTNG/LIST
-C     COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
       DIMENSION D(1),DD(10)
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
