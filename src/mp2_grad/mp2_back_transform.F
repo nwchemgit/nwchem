@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.12 1997-03-27 08:47:42 d3e129 Exp $
+* $Id: mp2_back_transform.F,v 1.13 1997-04-04 21:25:25 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -21,6 +21,7 @@
 #include "bas.fh"
 #include "eaf.fh"
 #include "cmp2ps.fh"
+#include "geom.fh"
       integer basis, rtdb, geom
       logical oskel
       integer nbf               ! No. of basis functions
@@ -49,9 +50,10 @@ c
       integer l_shdim, k_shdim, l_shlo, k_shlo
       integer l_t, k_t, l_tmp, k_tmp, l_iauv, k_iauv, l_map, k_map
       integer l_c_t, k_c_t
+      integer l_act, k_act, l_actsh, k_actsh
       integer twopdmunit
-      integer junk, ninseg, ierr, i, shmax, tdim
-      integer nsh
+      integer junk, ninseg, ierr, i, j, ish, ishlo, ishhi, shmax, tdim
+      integer nsh, natoms
       character*(nw_max_path_len) fname
 c
       double precision tol2e
@@ -162,6 +164,26 @@ c
       do i = oseg_lo, oseg_hi
          call dcopy(nbf, c_a(1,i), 1, dbl_mb(k_c_t+i-oseg_lo), ninseg)
       end do
+c
+c     Determine list of active centers
+c
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     $     ('mp2_backt: geom ?',0)
+      if (.not. ma_push_get(mt_log, natoms, 'mp2:back act',
+     $     l_act, k_act)) call errquit('mp2:back ma ', natoms)
+      call grad_active_atoms(rtdb, natoms, log_mb(k_act))
+c
+c     Turn this into a list of active shells
+c
+      if (.not. ma_push_get(mt_log, nsh, 'mp2:back actsh',
+     $     l_actsh, k_actsh)) call errquit('mp2:back ma ', nsh)
+      do i = 1, natoms
+         if (.not. bas_ce2cnr(basis, i, ishlo, ishhi))
+     $        call errquit('mp2:backt basis?',0)
+         do ish = ishlo,ishhi
+            log_mb(k_actsh+ish-1) = log_mb(k_act+i-1)
+         enddo
+      enddo
 c      
       call pstat_on(ps_nonsep)
       call mp2_nonsep_test(rtdb, basis,
@@ -171,8 +193,19 @@ c
      $     nshpairlocal, int_mb(k_shpairslocal),
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_tmp), grad,
-     $     tol2e, oskel)
+     $     tol2e, oskel,
+     $     log_mb(k_actsh))
       call pstat_off(ps_nonsep)
+c
+c     Zero out gradients on inactive atoms
+c
+      do i = 1, natoms
+         if (.not. log_mb(k_act+i-1)) then
+            do j = 1, 3
+               grad(j,i) = 0.0d0
+            enddo
+         endif
+      enddo
 c
       call schwarz_tidy()
 c
@@ -550,7 +583,7 @@ c
      $     nsh, nbf, ninseg,
      $     nshpairlocal, shpairslocal, shdim, shlo,
      $     t, tbuf, grad,
-     $     tol2e, oskel)
+     $     tol2e, oskel, oactive)
       implicit none
 #include "schwarz.fh"
 #include "mafdecls.fh"
@@ -572,6 +605,7 @@ c
       double precision tbuf(*)  ! nbf*S*S
       double precision tol2e
       logical oskel
+      logical oactive(*)        ! oactive(ish)=true if shell is active
 
       double precision grad(3,*)
 c     
@@ -645,6 +679,9 @@ c
             do ysh = 1, xsh
                odoit = schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
      $              .gt. tol2e
+               odoit = odoit .and. 
+     $              (oactive(ush).or.oactive(vsh).or.
+     $               oactive(xsh).or.oactive(ysh))
                q4 = 1.0d0
                if (odoit .and. oskel) odoit = 
      $              sym_shell_quartet(basis, ush, vsh, xsh, ysh, q4)
