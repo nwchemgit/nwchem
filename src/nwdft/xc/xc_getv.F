@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.43 2001-03-09 22:11:27 bjohnson Exp $
+C$Id: xc_getv.F,v 1.44 2001-08-09 22:19:55 bjohnson Exp $
 c
       implicit none
 c      
@@ -106,10 +106,10 @@ c
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
 #ifdef BETTIS
-         if (bettis_test()) then
-            write(*,*)'**Bettis test is ON in xc_getv'
+         if (bettis_screened_x()) then
+            write(*,*)'**Screened exchange is ON in xc_getv'
          else
-            write(*,*)'**Bettis test is OFF in xc_getv'
+            write(*,*)'**Screened exchange is OFF in xc_getv'
          endif
 #endif
          tol2e=10.d0**(-itol2e)
@@ -125,7 +125,7 @@ c
               call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
 #ifdef BETTIS
-              if (.not. bettis_test()) then
+              if (.not. bettis_screened_x()) then
 c                Do J and K together
 #endif
                  call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
@@ -183,7 +183,7 @@ c                Do K
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
 #ifdef BETTIS
-               if (.not. bettis_test()) then
+               if (.not. bettis_screened_x()) then
 c                 Do J and K together
 #endif
                   call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
