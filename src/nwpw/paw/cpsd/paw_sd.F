@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.21 2003-02-08 23:05:13 bylaska Exp $
+* $Id: paw_sd.F,v 1.22 2003-02-08 23:12:04 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -414,12 +414,12 @@
       icount = 0
    1  continue
          icount = icount + 1
-c         call paw_inner_loop(ispin,ne,
-c     >             npack1,nfft3d,nemax,
-c     >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
-c     >             it_in,E,deltae,deltac,deltar,
-c     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
-c     >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
+         call paw_inner_loop(ispin,ne,
+     >             npack1,nfft3d,nemax,
+     >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
+     >             it_in,E,deltae,deltac,deltar,
+     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
+     >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
          deltae = 0.0d0
          deltac = 0.0d0
          deltar = 0.0d0

@@ -1,8 +1,9 @@
 
-# $Id: GNUmakefile,v 1.3 2002-08-16 01:13:05 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2003-02-08 23:12:04 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_sd.o \
+		paw_inner_loop.o \
 		psi_marat_write.o
 
 
@@ -13,7 +14,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS = paw_sd.F 
+    USES_BLAS = paw_sd.F paw_inner_loop.F
                 
 
   LIB_DEFINES =

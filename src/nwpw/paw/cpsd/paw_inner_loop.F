@@ -1,0 +1,491 @@
+*
+* $Id: paw_inner_loop.F,v 1.1 2003-02-08 23:12:04 bylaska Exp $
+*
+
+      subroutine paw_inner_loop(ispin,ne,
+     >                      npack1,nfft3d,nemax,
+     >                      psi1,psi2,dn,
+     >                      it_in,E,deltae,deltac,deltar,
+     >                      hml,lmd,
+     >                      psi_r,Hpsi)
+      implicit none
+      integer    ispin,ne(2)
+      integer    npack1,nfft3d,nemax
+      complex*16 psi1(npack1,nemax)
+      complex*16 psi2(npack1,nemax)
+      real*8     dn(2*nfft3d,2)
+      integer    it_in
+      real*8     E(*)
+      real*8     deltae,deltac,deltar
+      real*8     hml(2*nemax*nemax),lmd(2*nemax*nemax)
+
+*     **** very big workspace variables ****
+      real*8     psi_r(2*nfft3d,nemax)
+      complex*16 Hpsi(npack1,nemax)
+
+
+#include "mafdecls.fh"
+
+
+*     **** local variables ****
+      logical move
+      integer n2ft3d,np
+      integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
+      integer nx,ny,nz
+      integer index,indext
+      real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
+      real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
+      real*8  deltamm
+
+
+
+*     **** MA local variables ****
+      logical value
+      integer tmp_L(2)
+      integer tmp1(2),tmp2(2)
+      integer vl(2),vc(2),dng(2)
+      integer vlr_l(2),rho(2),r_grid(2)
+      integer xcp(2),xce(2),dnall(2)
+      integer natmx,fion(2),ftest(2)
+      integer sumi(2)
+      integer npack0
+
+*     ***** external functions ****
+      logical  control_move
+      integer  ion_nion,control_gga
+      real*8   control_time_step,control_fake_mass,ion_dti
+      real*8   lattice_omega,coulomb_e,ewald_e
+      external control_move
+      external ion_nion,control_gga
+      external control_time_step,control_fake_mass,ion_dti
+      external lattice_omega,coulomb_e,ewald_e
+      integer  control_version
+      external control_version
+      real*8   ion_ion_e
+      external ion_ion_e
+
+
+
+      call Pack_npack(0,npack0)
+      n2ft3d = 2*nfft3d
+      deltamm = 0.0d0
+
+      write(*,*) "In paw_inner_loop"
+      return
+
+
+      call nwpw_timing_start(12)
+*     **** allocate MA local variables ****
+      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+     >                     'tmp_L',tmp_L(2),tmp_L(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+
+      if (control_version().eq.3) then
+       value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
+      end if
+
+      if (control_version().eq.4) then
+       value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+       value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+      end if
+
+      if (control_version().eq.4) then
+       value = value.and.
+     >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+      end if
+
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
+      natmx = ion_nion()
+      value = value.and.
+     >        MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+      call nwpw_timing_end(12)
+     
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      move = control_move()
+      
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+
+      dt = control_time_step()
+      dte = dt/dsqrt(control_fake_mass())
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv    = scal1*lattice_omega()
+
+      if (control_version().eq.4)
+     >   call lattice_r_grid(dbl_mb(r_grid(1)))
+
+*     ******************************************
+*     ****                                  ****
+*     ****   Start of steepest descent loop ****
+*     ****                                  ****
+*     ******************************************
+      do it=1,it_in
+        call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+        if (move) call ion_shift()
+      
+
+*       ********************************
+*       **** generate phaze factors ****
+*       ********************************
+        call phafac()
+
+
+        call nwpw_timing_start(11)
+*       *******************
+*       **** get psi_r ****
+*       *******************
+        do n=n1(1),n2(ispin)
+           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_unpack(1,psi_r(1,n))
+           call D3dB_cr_fft3b(1,psi_r(1,n))
+           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+        end do
+
+
+
+*       *********************
+*       **** generate dn ****
+*       *********************
+        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        do ms=1,ispin
+           do n=n1(ms),n2(ms)
+              do i=1,n2ft3d
+                 dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+              end do
+           end do
+           call D3dB_r_Zero_Ends(1,dn(1,ms))
+        end do
+
+
+*       **********************
+*       **** generate dng ****
+*       **********************
+        call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
+        call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dcpl_mb(tmp1(1)))
+        call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
+        call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
+
+
+
+
+
+*       *****************************************
+*       **** generate local pseudopotential  ****
+*       **** and also get force if move true ****
+*       *****************************************
+ 
+c        call v_local(dcpl_mb(vl(1)),
+c     >               move,
+c     >               dcpl_mb(dng(1)),
+c     >               dbl_mb(fion(1)))
+c
+c
+c*       *** long-range psp for charge systems ***
+c        if (control_version().eq.4) then
+c          call v_lr_local(dbl_mb(r_grid(1)),
+c     >                    dbl_mb(vlr_l(1)))
+c          if (move) then
+c             call grad_v_lr_local(dbl_mb(r_grid(1)),
+c     >                            dbl_mb(rho(1)),
+c     >                            dbl_mb(fion(1)))
+c          end if
+c        end if
+
+
+
+
+*       ************************************
+*       **** generate coulomb potential ****
+*       ************************************
+        if (control_version().eq.3) 
+     >     call coulomb_v(dcpl_mb(dng(1)),dcpl_mb(vc(1)))
+
+        if (control_version().eq.4) 
+     >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+
+*       *************************************************
+*       **** generate exchange-correlation potential ****
+*       *************************************************
+        if (control_gga().eq.0) then
+          call vxc(n2ft3d,ispin,dn,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)),
+     >                      dcpl_mb(tmp1(1)))
+        else
+          call v_bwexc(n2ft3d,ispin,dn,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
+        end if
+     
+
+*       ******************
+*       **** get Hpsi ****
+*       ******************
+        call nwpw_timing_start(13)
+        if (control_version().eq.3) 
+     >     call paw_psi_H(ispin,ne,psi1,psi_r,
+     >             dcpl_mb(vl(1)),
+     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             move,dbl_mb(fion(1)))
+
+        if (control_version().eq.4) 
+     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
+     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+     >             move,dbl_mb(fion(1)))
+
+
+        
+*       ************************************
+*       **** do a steepest descent step ****
+*       ************************************
+        do n=1,n2(ispin)
+          call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
+          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
+        end do
+        call nwpw_timing_end(13)
+
+*       *******************************************
+*       **** get ion forces and do steepest    ****
+*       **** descent on ions                   ****
+*       *******************************************
+        if (move) then
+
+*          **** get the ewald force ****
+           if (control_version().eq.3) call ewald_f(dbl_mb(fion(1)))
+
+*          **** get the free-space ion force ****
+           if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
+
+
+
+*          **** remove ion forces using ion_FixIon ****
+           call ion_FixIon(dbl_mb(fion(1)))
+
+           call ion_optimize_step(dbl_mb(fion(1)))
+        end if
+
+
+*       *****************************************        
+*       **** lagrange multiplier corrections ****
+*       *****************************************        
+        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
+     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+
+      end do
+
+*     *************************************
+*     ***** total energy calculation ******
+*     *************************************
+      call nwpw_timing_start(10)
+      call Parallel_np(np)
+
+*     *** get orbital energies ****
+      n = ne(1)
+      nn = n*n
+      do ms=1,ispin
+         do ii=n1(ms),n2(ms)
+           i = ii-n1(ms)
+           index = (i+1) + i*n + (ms-1)*nn
+c           call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,ii),sum)
+           call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,ii),sum)
+
+           hml(index) =  -sum
+           do jj=ii+1,n2(ms)
+              j = jj-n1(ms)
+              index  = (i+1) + j*n + (ms-1)*nn
+              indext = (j+1) + i*n + (ms-1)*nn
+c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
+              call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,jj),sum)
+
+              hml(index)  =  -sum
+              hml(indext) =  -sum
+           end do 
+         end do
+      end do
+      if (np.gt.1)  call D3dB_Vector_SumAll((ispin*nn),hml)
+      eorbit = 0.0d0
+      do ms=1,ispin
+         do ii=1,ne(ms)
+            index = (ii) + (ii-1)*n + (ms-1)*nn
+            eorbit = eorbit + hml(index)
+         end do
+      end do
+      if (ispin.eq.1) eorbit = eorbit+eorbit
+        
+
+*     **** get ewald energy ****
+      eion = 0.0d0
+      if (control_version().eq.3) eion = ewald_e()
+    
+*     **** get free-space ion-ion energy ****
+      if (control_version().eq.4) eion = ion_ion_e()
+
+
+
+           
+*     **** get coulomb energy ****
+      if (control_version().eq.3) ehartr = coulomb_e(dcpl_mb(dng(1)))
+      if (control_version().eq.4) then
+         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+         ehartr = 0.5d0*ehartr*dv
+      end if
+        
+
+*     **** get exchange-correlation energy ****
+      call D3dB_rr_dot(1,dn(1,1),dbl_mb(xce(1)),exc)
+      call D3dB_rr_dot(1,dn(1,1),dbl_mb(xcp(1)),pxc)
+      if (ispin.eq.1) then
+         exc= exc + exc 
+         pxc= pxc + pxc 
+      else
+         call D3dB_rr_dot(1,dn(1,2),dbl_mb(xce(1)),exc2)
+         call D3dB_rr_dot(1,dn(1,2),dbl_mb(xcp(1)+n2ft3d),pxc2)
+         exc= exc + exc2
+         pxc= pxc + pxc2
+      end if
+      exc = exc*dv
+      pxc = pxc*dv
+        
+  
+*     ***** average Kohn-Sham kinetic energy ****
+      call ke_ave(ispin,ne,psi1,eke)
+
+
+*     **** average Kohn-Sham v_local energy ****
+      call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+
+
+*     *** add in long range part ****
+      if (control_version().eq.4) then
+      call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
+      elocal = elocal + sum*dv
+      end if
+
+ 
+*     ***** average Kohn-Sham v_nonlocal energy ****
+c     call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
+c     call v_nonlocal(ispin,ne,psi1,Hpsi,
+c    >                move,dbl_mb(ftest(1)))
+      enlocal = 0.0d0
+c     do ms=1,ispin
+c     do n=n1(ms),n2(ms)
+c        call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+c        enlocal = enlocal - sum
+c     end do
+c     end do
+c     if (np.gt.1) call D3dB_SumAll(enlocal)
+c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
+
+
+
+*     **** total energy ****
+      Eold=E(1)
+      E(1) = eorbit + eion + exc - ehartr - pxc
+      E(2) = eorbit
+      E(3) = ehartr
+      E(4) = exc
+      E(5) = eion
+      E(6) = eke
+      E(7) = elocal
+      E(8) = enlocal
+      E(9) = 2.0d0*ehartr
+      E(10) = pxc
+
+
+
+*     **** set convergence variables ****
+      deltae = (E(1)-Eold)/(dt*dble(it_in))
+
+*     *** deltac ***
+      do n=n1(1),n2(ispin)
+         do i=1,npack1
+            Hpsi(i,n) = psi2(i,n) - psi1(i,n)
+         end do
+      end do
+
+      do n=n1(1),n2(ispin)
+         call Pack_cc_idot(1,Hpsi(1,n),Hpsi(1,n),dbl_mb(sumi(1)+n-1))
+      end do
+      if (np.gt.1) 
+     >     call D3dB_Vector_SumAll((n2(ispin)-n1(1)),
+     >                             dbl_mb(sumi(1)))
+      deltac = 0.0d0
+      do n=n1(1),n2(ispin)
+         if (dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
+      end do
+      deltac = deltac/dte
+
+
+*     *** deltar ***
+      deltar = deltamm
+      if (move) then
+        do i=1,ion_nion()
+           sum = dsqrt( dbl_mb(fion(1)+(i-1)*3  )**2 
+     >                + dbl_mb(fion(1)+(i-1)*3+1)**2 
+     >                + dbl_mb(fion(1)+(i-1)*3+2)**2)
+           if (sum.gt.deltar) deltar = sum
+        end do
+      end if
+       
+      call nwpw_timing_end(10)
+
+*     **** dealocate MA local variables ****
+      call nwpw_timing_start(12)
+      value = MA_pop_stack(sumi(2))
+      value = MA_pop_stack(ftest(2))
+      value = MA_pop_stack(fion(2))
+      value = MA_pop_stack(dnall(2))
+      value = MA_pop_stack(xce(2))
+      value = MA_pop_stack(xcp(2))
+      value = MA_pop_stack(dng(2))
+      value = MA_pop_stack(rho(2))
+      value = MA_pop_stack(vl(2))
+
+      if ((control_version().eq.4))
+     >   value = MA_pop_stack(r_grid(2))
+
+      if (control_version().eq.4) 
+     >   value = MA_pop_stack(vlr_l(2))
+
+      value = MA_pop_stack(vc(2))
+      value = MA_pop_stack(tmp2(2))
+      value = MA_pop_stack(tmp1(2))
+      value = MA_pop_stack(tmp_L(2))
+
+      call nwpw_timing_end(12)
+
+
+      return
+      end
+ 
