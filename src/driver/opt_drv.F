@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.51 1998-08-01 02:14:16 d3g681 Exp $
+C$Id: opt_drv.F,v 1.52 1998-08-04 18:40:33 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -681,7 +681,7 @@ c
             if(inp_compare(.false.,'cvgopt',field)) then
                if(inp_f(dum)) then
                   cvgopt =dum
-                  convggm=cvgtol
+                  convggm=cvgopt
                   go to 10
                else
                   call errquit('hnd_opt_input: cvgopt',911)
@@ -689,7 +689,7 @@ c
             elseif(inp_compare(.false.,'convggm',field)) then
                if(inp_f(dum)) then
                   cvgopt =dum
-                  convggm=cvgtol
+                  convggm=cvgopt
                   go to 10
                else
                   call errquit('hnd_opt_input: convggm',911)
@@ -2702,7 +2702,7 @@ c
       endif
       if(mxyz.le.ncart) then
          write(iw,*) 'something wrong in -eckart- transform'
-         write(iw,*) 'nxyz,mxyz,mcart = ',nxyz,mxyz,mcart
+         write(iw,*) 'nxyz,mxyz,ncart = ',nxyz,mxyz,ncart
          call hnd_hnderr(3,errmsg)
       endif
 c
