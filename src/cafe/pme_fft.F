@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.9 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: pme_fft.F,v 1.10 1999-08-25 19:34:42 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -70,6 +70,10 @@ c
     2 continue
 c
       call wrkspc2(1,ngx,ngy,ngz,map1,map2,liwrk,lrwrk,ignr)
+cx
+      liwrk=2*liwrk
+      lrwrk=2*lrwrk
+cx
 c
       if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',l_rwrk,i_rwrk))
      + call errquit('Failed to allocate rwork',0)
@@ -77,8 +81,10 @@ c
       if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
      + call errquit('Failed to allocate iwork',0)
 c
+      call timer_start(5)
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
      + lrwrk,dbl_mb(i_rwrk),liwrk,int_mb(i_iwrk),jstat)
+      call timer_stop(5)
 c
       if(.not.ma_verify_allocator_stuff())
      +     call errquit('FFT buffer problems after',me)
