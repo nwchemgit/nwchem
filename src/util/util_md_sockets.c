@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.1 1999-08-10 14:27:39 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.2 1999-08-11 01:42:47 d3j191 Exp $
  */
 
 #include <sys/types.h>
@@ -30,12 +30,12 @@ int client_socket_open_(int port)
   return sockfd;
 }
 
-void client_socket_write_(int sockfd, char *value)
+long client_socket_write_(int *sockfd, char *value, int *vlen)
 {
-  write(sockfd,&value,1);
+  return write(*sockfd,value,*vlen);
 }
 
-void client_socket_close_(int sockfd)
+void client_socket_close_(int *sockfd)
 {
-  close(sockfd);
+  close(*sockfd);
 }
