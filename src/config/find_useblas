@@ -6,10 +6,10 @@
 
 set blas = (daxpy ddot  dscal  dcopy  dnrm2 idamax dasum drot)
 set blas = ($blas drotg dswap  dmach  dgemm dgemv  dgesv dspmv)
-set blas = ($blas dger  dgesvd dspsvx dgetrs dgetrf)
+set blas = ($blas dger  dgesvd dspsvx dgetrs dgetrf dpotrf dpotri)
 set blas = ($blas saxpy sdot  sscal  scopy  snrm2 isamax sasum srot)
 set blas = ($blas srotg sswap  smach  sgemm sgemv  sgesv sspmv)
-set blas = ($blas sger  sgesvd sspsvx sgetrs sgetrf)
+set blas = ($blas sger  sgesvd sspsvx sgetrs sgetrf spotrf spotri)
 
 touch .find_useblas_tmp
 rm -f .find_useblas_tmp
