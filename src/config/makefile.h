@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.373 2001-10-31 21:10:27 windus Exp $
+# $Id: makefile.h,v 1.374 2001-11-06 17:39:23 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1162,7 +1162,7 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
-   EXTRA_LIBS +=  -lreadline -lncurses -lutil  -lpthread -ldl
+   EXTRA_LIBS +=  -lreadline -lncurses -lnwcutil  -lpthread -ldl
    INCPATH += -I/usr/include/python1.5
 endif
 
@@ -1428,7 +1428,7 @@ ifeq ($(TARGET),FUJITSU_SOLARIS)
   LDOPTIONS =
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
  
-     CORE_LIBS = -lutil \
+     CORE_LIBS = -lnwcutil \
                  -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma -ltcgmsg
  
      CORE_LIBS += -lsocket -lrpcsvc -lnsl
