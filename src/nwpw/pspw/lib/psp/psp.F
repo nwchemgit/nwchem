@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.10 2003-10-22 19:45:26 bylaska Exp $
+* $Id: psp.F,v 1.11 2003-10-25 22:17:40 bylaska Exp $
 *
 
 #define TCGMSG
@@ -806,6 +806,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
         if (move) then
        
+!DIR$ ivdep
           do i=1,npack0
              dbl_mb(xtmp(1)+i-1) 
      >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
@@ -915,6 +916,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(vtmp(1)))
 
+!DIR$ ivdep
          do i=1,npack0
            dbl_mb(xtmp(1)+i-1) 
      >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
@@ -1071,6 +1073,7 @@ c             call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
 c    >                           +(ia-1)*npack1*lmmax_max),
 c    >                        dcpl_mb(exi(1)),
 c    >                        dcpl_mb(vtmp(1)))
+!DIR$ ivdep
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
               end do
@@ -1081,6 +1084,7 @@ c             call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
 c    >                           +(ia-1)*npack1*lmmax_max),
 c    >                        dcpl_mb(exi(1)),
 c    >                        dcpl_mb(vtmp(1)))
+!DIR$ ivdep
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) 
      >                = dbl_mb(k+shift)
@@ -1117,6 +1121,7 @@ c             call Pack_tc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
 c    >                           +(ia-1)*npack1*lmmax_max),
 c    >                        dcpl_mb(exi(1)),
 c    >                        dcpl_mb(vtmp(1)))
+!DIR$ ivdep
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
               end do
@@ -1128,6 +1133,7 @@ c             call Pack_itc_Mul(1,dbl_mb(vnl(1)+(l-1)*npack1
 c    >                           +(ia-1)*npack1*lmmax_max),
 c    >                        dcpl_mb(exi(1)),
 c    >                        dcpl_mb(vtmp(1)))
+!DIR$ ivdep
               do k=0,npack1-1
                dcpl_mb(vtmp(1)+k) 
      >                = dbl_mb(k+shift)
@@ -1170,6 +1176,7 @@ c          end do
      >            dbl_mb(sw1(1)+n-1+(l-1)*nn)
      >            =2.0d0*dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
 
+!DIR$ ivdep
                 do i=1,npack1
                    ctmp = psi1(i+(n-1)*npack1)
      >                  *dconjg(dcpl_mb(vtmp(1)+i-1))
@@ -1336,6 +1343,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *          *** current function is p or f ****
            else
+!DIR$ ivdep
               do i=1,npack1
                  dcpl_mb(vtmp(1)+i-1) 
      >                     = dbl_mb(vnl(1) + (i-1)
@@ -1364,6 +1372,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
              if (ispin.eq.1) 
      >         dbl_mb(sw1(1)+n-1)=2.0d0*dbl_mb(sw1(1)+n-1)
 
+!DIR$ ivdep
                do i=1,npack1
                   ctmp = psi1(i+(n-1)*npack1)
      >                 *dconjg(dcpl_mb(vtmp(1)+i-1))
