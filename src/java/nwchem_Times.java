@@ -18,6 +18,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
   String card;
 
   int np;
+  int nt;
   boolean first = true;
 
   int ndx[];
@@ -139,6 +140,10 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       String card;
       card=br.readLine();
       np = Integer.parseInt(card.substring(1,5).trim());
+      nt = Integer.parseInt(card.substring(6,10).trim());
+      for(int it=0; it<nt; it++){
+	  card=br.readLine();
+      };
       first=true;
       ndx = new int[np];
       ndata = new double[np][17];
