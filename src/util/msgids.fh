@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.16 1995-10-24 18:54:28 rg240 Exp $
+C$Id: msgids.fh,v 1.17 1995-10-24 18:55:34 rg240 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -46,6 +46,7 @@ C
       Integer Msg_gen_at_iatom, Msg_gen_at_ixyz
       Integer Msg_dftg_cdf,Msg_schw2,Msg_schw3
       Integer Msg_Mull1,Msg_Mull2
+      Integer Msg_Act_Energy
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
