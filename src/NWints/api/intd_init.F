@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.11 1997-06-06 21:07:36 pg481 Exp $
+c $Id: intd_init.F,v 1.12 1997-11-07 12:47:12 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -141,6 +141,10 @@ c
         call errquit('intd_init: basis handles hosed ',nbas)
       endif
 *      write(6,*)' intd_init: basis set handles valid '
+c
+c check for both sp and gc shells
+c
+      call int_bothsp_gc_check(bases,nbas,'intd_init')
 c
 c initialize defnxyz routines
 c      

@@ -1,4 +1,4 @@
-c $Id: int_func_c.F,v 1.3 1997-05-29 00:36:07 d3e129 Exp $
+c $Id: int_func_c.F,v 1.4 1997-11-07 12:47:08 d3e129 Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}
@@ -108,4 +108,57 @@ c
      &      'functionality yet'
         call errquit(' int_nospshell_check: error ',911)
       endif
+      end
+c:tex-% this is an internal API routine
+c:tex-\subsection{int\_bothsp_gc\_check}
+c:tex-This routine checks to see if the basis sets used
+c:tex-have both sp shells/type basis functions and general
+c:tex-contractions.  The 2e integral codes cannot handle this.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_bothsp_gc_check(basesin,nbas,tine)
+c:tex-\end{verbatim}
+c
+c routine to stop if basis/shell has sp shells
+c
+      implicit none
+#include "stdio.fh"
+#include "basP.fh"
+c:tex-\begin{verbatim}
+      integer nbas           ! [input] number of basis sets
+      integer basesin(nbas)  ! [input] basis set handles
+      character*(*) tine     ! [input] routine identifier
+c:tex-\end{verbatim}
+
+      integer bas1, basis1
+      integer bas2, basis2
+      logical badcombo
+*
+      do bas1 = 1,nbas
+        do bas2 = 1,bas1
+          basis1 = basesin(bas1) + BASIS_HANDLE_OFFSET
+          basis2 = basesin(bas2) + BASIS_HANDLE_OFFSET
+          badcombo = bas_any_sp_shell(basis1).and.bas_any_gc(basis2)
+          if (badcombo) then
+            write(luout,*)' calling routine: ',tine
+            write(luout,*)
+     &          ' basis set combination sp shells with general ',
+     &          'contractions'
+            write(luout,*)' basis 1 handle=',basesin(bas1),
+     &          ' name:',bs_name(basis1)(1:len_bs_name(basis1))
+            write(luout,*)'         any sp shells: ',
+     &          bas_any_sp_shell(basis1)
+            write(luout,*)'         any gen. con.: ',
+     &          bas_any_gc(basis1)
+            write(luout,*)' basis 2 handle=',basesin(bas2),
+     &          ' name:',bs_name(basis2)(1:len_bs_name(basis2))
+            write(luout,*)'         any sp shells: ',
+     &          bas_any_sp_shell(basis2)
+            write(luout,*)'         any gen. con.: ',
+     &          bas_any_gc(basis2)
+            call errquit('int_bothsp_gc_check: fatal error',911)
+          endif
+        enddo
+      enddo
       end
