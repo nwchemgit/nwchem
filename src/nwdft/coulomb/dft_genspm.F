@@ -1,12 +1,12 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole)
-C$Id: dft_genspm.F,v 1.3 1995-05-04 05:12:19 og845 Exp $
+C$Id: dft_genspm.F,v 1.4 1995-10-17 08:54:42 d3g681 Exp $
       implicit none
-#include <mafdecls.h>
-#include <tcgmsg.fh>
-#include <global.fh>
-#include <bas.fh>
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "bas.fh"
 #include "stdio.fh"
       integer int_nint,nxtask
       external int_nint,nxtask

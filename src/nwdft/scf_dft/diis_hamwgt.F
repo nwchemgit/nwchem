@@ -1,4 +1,4 @@
-c$Id: diis_hamwgt.F,v 1.1 1995-04-27 03:16:23 og845 Exp $
+c$Id: diis_hamwgt.F,v 1.2 1995-10-17 08:55:00 d3g681 Exp $
 c***********************************************************************
 c
 c     subroutine hamwght
@@ -19,7 +19,7 @@ c
 c
       Integer nhist(2), icall(2)
 c
-#include "mafdecls.h"
+#include "mafdecls.fh"
 c
       irow(j) = mod(j-1,mxhist)+1
       ii=(ispin-1)*mxhist + irow(icall(ispin))

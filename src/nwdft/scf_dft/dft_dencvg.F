@@ -1,11 +1,11 @@
       double precision function dft_dencvg(iga_dens,igdenso,nbf)
-C$Id: dft_dencvg.F,v 1.1 1995-04-27 03:16:18 og845 Exp $
+C$Id: dft_dencvg.F,v 1.2 1995-10-17 08:54:52 d3g681 Exp $
       implicit double precision(a-h,o-z)
       logical LResult
-#include "mafdecls.h"
-#include <global.fh>
-#include <tcgmsg.fh>
-#include <msgids.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgids.fh"
 c     
       idone=0
       me=ga_nodeid()

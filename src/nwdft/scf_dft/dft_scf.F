@@ -5,7 +5,7 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.9 1995-09-14 17:29:38 pg511 Exp $
+C$Id: dft_scf.F,v 1.10 1995-10-17 08:54:56 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
@@ -17,20 +17,20 @@ c**** nwchem handles
 c**** 
       integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
 
-#include <bas.fh>
-#include <geom.fh>
+#include "bas.fh"
+#include "geom.fh"
 
-#include <context.fh>
+#include "context.fh"
 
-#include <mafdecls.h>
-#include <stdio.fh>
-#include <rtdb.fh>
-#include <global.fh>
-#include <tcgmsg.fh>
-#include <msgids.fh>
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgids.fh"
 
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
       Logical movecs_write, movecs_read_header, movecs_read
       External movecs_write,movecs_read_header, movecs_read

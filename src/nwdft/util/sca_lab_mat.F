@@ -1,7 +1,7 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,ig_a,vec,vec2)
 
-C$Id: sca_lab_mat.F,v 1.6 1995-02-02 23:20:08 d3g681 Exp $
+C$Id: sca_lab_mat.F,v 1.7 1995-10-17 08:55:25 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -12,7 +12,7 @@ c****
       integer basis_hand
 c**** 
 
-#include <bas.fh>
+#include "bas.fh"
  
       Dimension vec(nshbfb,*),vec2(nshbfa,*)
 c     

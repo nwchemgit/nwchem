@@ -179,7 +179,7 @@ c
      $                               max2e, dbl_mb(k_eri), mem2,
      $                               dbl_mb(k_iscr), ilen, jlen,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb) )
+     $                               dbl_mb(k_ssbb), .false. )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    if (lb.ne.kb) then

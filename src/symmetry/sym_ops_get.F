@@ -1,8 +1,8 @@
       subroutine sym_ops_get(geom,numops,symops)
-C$Id: sym_ops_get.F,v 1.3 1995-10-10 06:17:46 d3g681 Exp $
+C$Id: sym_ops_get.F,v 1.4 1995-10-17 08:56:24 d3g681 Exp $
       implicit none
 c
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "geomP.fh"
 c
       integer i,j,geom,numops

@@ -12,12 +12,12 @@ c****
 c**** 
       Logical LResult,IOLGC, doesit, isit
       
-#include <bas.fh>
-#include <mafdecls.h>
+#include "bas.fh"
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 
-#include <stdio.fh>
+#include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "schwarz.fh"
@@ -26,7 +26,7 @@ c****
       DIMENSION F(2)
       
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
       
 c-->  Charge Density Expansion Coefficients

@@ -2,7 +2,7 @@
      &                     CD_coef,iga_vc,Ecoul,nbf_cd,
      &                     iVcoul_opt,iga_2ceri,iga_dens,IOLGC,itol2e)
 
-C$Id: dft_getvc.F,v 1.2 1995-04-26 18:09:51 og845 Exp $
+C$Id: dft_getvc.F,v 1.3 1995-10-17 08:54:44 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       logical IOLGC
@@ -12,12 +12,12 @@ c**** nwchem handles
 c****
       integer rtdb, geom, AO_bas_han, CD_bas_han
 c**** 
-#include <bas.fh>
-#include <rtdb.fh>
-#include <stdio.fh>
-#include <mafdecls.h>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "bas.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 
 c
 c     Charge Density Expansion Coefficients

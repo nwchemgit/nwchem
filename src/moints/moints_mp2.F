@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.16 1995-06-22 08:54:27 rg240 Exp $
+C$Id: moints_mp2.F,v 1.17 1995-10-17 08:54:16 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -16,7 +16,7 @@ C$Id: moints_mp2.F,v 1.16 1995-06-22 08:54:27 rg240 Exp $
        integer ilo,ihi,jlo,jhi,my_id
        integer g_epair
        double precision xx,denom
-       double precision moint_epair_eval
+       double precision moints_epair_eval
 
        nnt = (nocc*(nocc+1))/2
        if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
@@ -65,7 +65,7 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moint_epair_eval(ndim,vstart,nocc,nvir,
+             xx = moints_epair_eval(ndim,vstart,nocc,nvir,
      $                             dbl_mb(k_exch),orbe,denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
@@ -120,7 +120,7 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
        integer ilo,ihi,jlo,jhi,my_id
        integer ooff
        double precision xx,denom
-       double precision moint_epair_eval
+       double precision moints_epair_eval
 c
 c
 c
@@ -159,7 +159,7 @@ c
            if ((ij.ge.jlo).and.(ij.le.jhi)) then
              denom = orbe(i) + orbe(j)
              call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moint_epair_eval(ndim,vstart,nocc,nvir,
+             xx = moints_epair_eval(ndim,vstart,nocc,nvir,
      $                             dbl_mb(k_exch),orbe,denom)
              call ga_release(g_k,1,ihi,ij,ij)
              if (i.eq.j) xx = xx/2.d0
@@ -194,7 +194,7 @@ c$$$       endif
 
 
 
-       double precision function moint_epair_eval( ndim, vstart, nocc,
+       double precision function moints_epair_eval( ndim, vstart, nocc,
      $                                          nvir, xk, orbe, denom )
        implicit none
        integer ndim, vstart, nocc, nvir
@@ -211,12 +211,6 @@ c$$$       endif
            xx = xx + yy/(denom - orbe(nocc+kk) - orbe(nocc+ll))
          enddo
        enddo
-       moint_epair_eval = xx
+       moints_epair_eval = xx
        return
        end
-
-
-
-
-
-

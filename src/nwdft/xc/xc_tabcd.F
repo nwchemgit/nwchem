@@ -3,10 +3,10 @@
      &     ipol,nq,nbf,max_at_bf,max_at_bf2,GRAD,basis,
      &     natoms,iniz,ifin,igVxc,ibf)
 
-C$Id: xc_tabcd.F,v 1.1 1995-04-26 03:40:17 og845 Exp $
+C$Id: xc_tabcd.F,v 1.2 1995-10-17 08:55:37 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-#include"bas.fh"
+#include "bas.fh"
       Logical GRAD
       integer basis
 

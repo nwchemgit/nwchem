@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb, geom, AO_bas_han, CD_bas_han,
      &                      XC_bas_han, iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.2 1995-05-19 00:22:50 og845 Exp $
+C$Id: dft_main0d.F,v 1.3 1995-10-17 08:54:53 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -13,19 +13,19 @@ c****
       integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
 c**** 
 
-#include <bas.fh>
-#include <geom.fh>
-#include <rtdb.fh>
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
 
-#include <mafdecls.h>
-#include <stdio.fh>
+#include "mafdecls.fh"
+#include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
 
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
 
       Dimension iconst(nconst),iga_dens(2),iga_evecs(2),iga_vxc(4)

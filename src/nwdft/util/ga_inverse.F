@@ -1,7 +1,7 @@
       subroutine ga_inverse(g_a, g_s)
-C$Id: ga_inverse.F,v 1.3 1995-02-02 23:19:54 d3g681 Exp $
+C$Id: ga_inverse.F,v 1.4 1995-10-17 08:55:18 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
       integer g_a               ! input matrix

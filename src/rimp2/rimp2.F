@@ -1,12 +1,12 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.25 1995-06-28 18:39:27 gg502 Exp $
+C$Id: rimp2.F,v 1.26 1995-10-17 08:55:51 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
 #include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"

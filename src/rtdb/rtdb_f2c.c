@@ -1,10 +1,10 @@
-/*$Id: rtdb_f2c.c,v 1.9 1995-03-31 01:43:43 d3g681 Exp $*/
+/*$Id: rtdb_f2c.c,v 1.10 1995-10-17 08:56:07 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
 #ifdef CRAY
-#include "fortran.h"
+#include <fortran.h>
 #endif
 
 typedef long logical;		/* Equivalent C type to FORTRAN logical */

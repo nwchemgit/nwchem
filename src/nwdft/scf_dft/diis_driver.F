@@ -2,7 +2,7 @@
      &     MXhist,nbf,geom,AO_bas_han,
      &     iga_fock,iga_dens,iga_tmp,iga_svecs,iga_diis,isvals)
 
-C$Id: diis_driver.F,v 1.1 1995-04-27 03:16:23 og845 Exp $
+C$Id: diis_driver.F,v 1.2 1995-10-17 08:54:59 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -13,12 +13,12 @@ C$Id: diis_driver.F,v 1.1 1995-04-27 03:16:23 og845 Exp $
 
       Save lpulay,npulay,ipulay,nhist
 
-#include "mafdecls.h"
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
 c     
 c     Use the DIIS scheme to accelerate convergence.

@@ -1,5 +1,5 @@
       Subroutine Stupid_XF(G_C, G_V, AOBas, FitBas)
-C$Id: stupid_xf.F,v 1.2 1995-02-02 23:21:26 d3g681 Exp $
+C$Id: stupid_xf.F,v 1.3 1995-10-17 08:56:02 d3g681 Exp $
       Implicit NONE
 C
       Integer G_C, G_V, AOBas, FitBas
@@ -20,7 +20,7 @@ C
      $   H_Scr, Scr_Idx, I
 C
 #include "numerical_constants.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
 C

@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han,iga_2ceri,geom)
 
-C$Id: dft_get2eri.F,v 1.1 1995-04-26 03:43:36 og845 Exp $
+C$Id: dft_get2eri.F,v 1.2 1995-10-17 08:54:43 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -11,9 +11,9 @@ c**** nwchem handles
 c****
       integer CD_bas_han, geom
 c**** 
-#include <bas.fh>
+#include "bas.fh"
 
-#include <mafdecls.h>
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 

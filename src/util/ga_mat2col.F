@@ -1,9 +1,9 @@
       Subroutine GA_Mat2Col( G_A, AILo, AIHi, AJLo, AJHi,
      $   G_B, BILo, BIHi, BJLo, BJHi)
-C$Id: ga_mat2col.F,v 1.3 1995-02-02 18:09:31 d3g681 Exp $
+C$Id: ga_mat2col.F,v 1.4 1995-10-17 08:56:30 d3g681 Exp $
       Implicit NONE
       Integer G_A, G_B, AILo, AIHi, AJLo, AJHi, BILo, BIHi, BJLo, BJHi
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 C LOCAL VARIABLES
       Integer LenCol, Me, NProc, BOff, Col
@@ -51,7 +51,7 @@ C
      $   G_B, BILo, BIHi, BJLo, BJHi)
       Implicit NONE
       Integer G_A, G_B, AILo, AIHi, AJLo, AJHi, BILo, BIHi, BJLo, BJHi
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 C LOCAL VARIABLES
       Integer LenCol, Me, NProc, AOff, Col

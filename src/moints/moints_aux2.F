@@ -1,8 +1,8 @@
       subroutine moints_gblk( basis, ish, jsh, kshlo, kshhi,
-     $                        lshlo, lshhi, schw_ij, tol2e,
-     $                        max2e, eri, mem2, iscr, ilen,
-     $                        jlen, kblo, kbhi, lblo, lbhi, ssbb )
-C$Id: moints_aux2.F,v 1.2 1995-02-02 23:18:45 d3g681 Exp $
+     $     lshlo, lshhi, schw_ij, tol2e,
+     $     max2e, eri, mem2, iscr, ilen,
+     $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
+C     $Id: moints_aux2.F,v 1.3 1995-10-17 08:54:21 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -11,31 +11,46 @@ C$Id: moints_aux2.F,v 1.2 1995-02-02 23:18:45 d3g681 Exp $
       double precision schw_ij, tol2e, eri(*), iscr(*)
       integer ilen, jlen, kblo, kbhi, lblo, lbhi
       double precision ssbb(lblo:lbhi,kblo:kbhi,jlen,ilen)
-c
+      double precision q4
+      logical sym_shell_quartet, osym, odoit
+      external sym_shell_quartet
+c     
       integer ksh, lsh, kbflo, kbfhi, lbflo, lbfhi, ltop
       integer klen, llen, kblen, lblen, bsize
       logical status
 
- 
+      q4 = 1.0d0                ! If not using symmetry
       kblen = kbhi - kblo + 1
       lblen = lbhi - lblo + 1
       bsize = kblen*lblen*ilen*jlen
       call dfill(bsize,0.d0,ssbb,1)
       do ksh=kshlo,kshhi
-        status = bas_cn2bfr(basis,ksh,kbflo,kbfhi)
-        klen = kbfhi - kbflo + 1
-        ltop = lshhi
-        if (kshlo.eq.lshlo) ltop = ksh
-        do lsh=lshlo,ltop
-          if (schwarz_shell(ksh,lsh)*schw_ij.ge.tol2e) then
-            status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
-            llen = lbfhi - lbflo + 1
-            call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
-     $                    mem2, iscr, max2e, eri )
-            call eri2blk( ilen, jlen, klen, llen, eri,
-     $                    ssbb(lbflo,kbflo,1,1), lblen, kblen )
-          endif
-        enddo
+         status = bas_cn2bfr(basis,ksh,kbflo,kbfhi)
+         klen = kbfhi - kbflo + 1
+         ltop = lshhi
+         if (kshlo.eq.lshlo) ltop = ksh
+         do lsh=lshlo,ltop
+            odoit = (schwarz_shell(ksh,lsh)*schw_ij) .ge. tol2e
+            if (odoit .and. osym) then
+               odoit = odoit .and. 
+     $              sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4)
+               write(6,1) ish, jsh, ksh, lsh, odoit, q4
+ 1             format(1x,4i5,2x,l,2x,f6.2)
+            endif
+            q4 = 1.0d0
+            odoit = .true.
+            if (odoit) then
+               status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
+               llen = lbfhi - lbflo + 1
+               call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
+     $              mem2, iscr, max2e, eri )
+c     
+*               call print_shell_block(basis,eri, ish, jsh, ksh, lsh)
+c     
+               call eri2blk( ilen, jlen, klen, llen, eri,
+     $              ssbb(lbflo,kbflo,1,1), lblen, kblen, q4 )
+            endif
+         enddo
       enddo
       if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, kblen, ssbb )
       return
@@ -95,18 +110,19 @@ c
 c
 c
       subroutine eri2blk( ilen, jlen, klen, llen, eri, blk,
-     $                    lblen, kblen )
+     $                    lblen, kblen, q4)
       implicit none
       integer ilen,jlen,klen,llen,lblen,kblen
       double precision blk(lblen,kblen,jlen,ilen)
       double precision eri(llen,klen,jlen,ilen)
+      double precision q4
       integer k,l,i,j
 
       do i=1,ilen
         do j=1,jlen
           do k=1,klen
             do l=1,llen
-              blk(l,k,j,i) = eri(l,k,j,i)
+              blk(l,k,j,i) = eri(l,k,j,i)*q4
             enddo
           enddo
         enddo
@@ -278,7 +294,7 @@ c
 
 
       subroutine moints_Ktrf34( g_exch, otrp, ostart, olo, ohi,
-     $                          vlo, vhi, nbf, c, tmp )
+     $                          vlo, vhi, nbf, c, tmp, osym, syms )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -290,6 +306,9 @@ c
 
       integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
+
+      logical osym
+      integer syms(nbf)
 
       ofroz = ostart - 1
       nvir = vhi - vlo + 1
@@ -304,6 +323,10 @@ c
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
             call moints_Ktrf34a( otrp, nbf, c, dbl_mb(k_local), tmp )
+
+            if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
+     $           dbl_mb(k_local))
+
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif
         enddo
@@ -311,9 +334,34 @@ c
       return
       end
 
-
-
-
+      subroutine moints_sym_zero(nbf, vlo, vhi, syms, i, j, x)
+      implicit none
+      integer nbf
+      integer vlo, vhi
+      integer syms(nbf)
+      integer i, j
+      double precision x(vlo:vhi, vlo:vhi)
+c
+      integer symij
+      integer symijp
+      integer p, q
+      integer ieor
+      intrinsic ieor
+c
+      write(6,*) ' moints_sym_zero ', i, j
+c
+      symij = ieor(syms(i),syms(j))
+      do p = vlo, vhi
+         symijp = ieor(symij,syms(p))
+         do q = vlo, vhi
+            if (ieor(symijp,syms(q)) .ne. 0) then
+               x(q,p) = 0.0d0
+               x(p,q) = 0.0d0
+            endif
+         enddo
+      enddo
+c
+      end
 
 c
 c
@@ -414,3 +462,40 @@ c
       return
       end
 
+
+      subroutine print_shell_block(basis, eri, ish, jsh, ksh, lsh)
+      implicit none
+#include "bas.fh"
+      integer basis
+      double precision eri
+      integer ish, jsh, ksh, lsh
+      logical status
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
+c
+      status = bas_cn2bfr(basis,ish,ilo,ihi)
+      status = bas_cn2bfr(basis,jsh,jlo,jhi)
+      status = bas_cn2bfr(basis,ksh,klo,khi)
+      status = bas_cn2bfr(basis,lsh,llo,lhi)
+c
+      call psb2(eri,ilo,ihi,jlo,jhi,klo,khi,llo,lhi)
+c
+      end
+      subroutine psb2(eri,ilo,ihi,jlo,jhi,klo,khi,llo,lhi)
+      implicit none
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
+      double precision eri(llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
+      integer i,j,k,l
+c
+      do i = ilo,ihi
+         do j= jlo,jhi
+            do k=klo,khi
+               do l=llo,lhi
+                  write(6,1) i,j,k,l,eri(l,k,j,i)
+ 1                format(1x,4i5,1p,d20.12)
+               enddo
+            enddo
+         enddo
+      enddo
+c
+      end
+      

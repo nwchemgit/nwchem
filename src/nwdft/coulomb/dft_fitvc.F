@@ -1,6 +1,6 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     iga_vc, Ecoul2, nbf_cd, iga_2ceri,IOLGC,itol2e)
-C$Id: dft_fitvc.F,v 1.3 1995-06-19 18:24:15 og845 Exp $
+C$Id: dft_fitvc.F,v 1.4 1995-10-17 08:54:41 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       
@@ -12,17 +12,17 @@ c****
 
       Logical LResult,IOLGC
       
-#include <bas.fh>
+#include "bas.fh"
 #include "rtdb.fh"
 #include "context.fh"
 
-#include <mafdecls.h>
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
 c      
 c-->  Charge Density Expansion Coefficients

@@ -1,12 +1,12 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.2 1995-06-28 04:42:42 og845 Exp $
+C     $Id: dft_invio.F,v 1.3 1995-10-17 08:55:12 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       character*10 fname
       character*(*) name,ioop
       logical LResult, doesit, isit
-#include <mafdecls.h>
+#include "mafdecls.fh"
 #include "stdio.fh"
       
       if (name.eq.'XC') then

@@ -1,7 +1,7 @@
       subroutine int_2c_ga(ibas, jbas, g, integ_type, Alpha)
-C$Id: int_2c_ga.F,v 1.1 1995-05-22 23:37:25 vg038 Exp $
+C$Id: int_2c_ga.F,v 1.2 1995-10-17 08:56:32 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
 #include "bas.fh"

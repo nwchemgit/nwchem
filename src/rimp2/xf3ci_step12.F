@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.13 1995-06-15 21:16:37 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.14 1995-10-17 08:55:56 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
@@ -73,7 +73,7 @@ C
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "bas.fh"

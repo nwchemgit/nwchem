@@ -2,7 +2,7 @@
      &                   Tmat,nTrows,nTcols,
      &                   idirect,iga_vxc,iga_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.3 1995-04-27 03:16:56 og845 Exp $
+C$Id: xc_fitv.F,v 1.4 1995-10-17 08:55:31 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -16,15 +16,15 @@ c****
 
       Parameter (itmp=98)
 
-#include <bas.fh>
+#include "bas.fh"
 
-#include <mafdecls.h>
-#include <global.fh>
-#include <tcgmsg.fh>
-#include <msgids.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgids.fh"
 
 #if defined(DFT_TIMER)
-#include <timer.fh>
+#include "timer.fh"
 #endif
 c
 c--> XC Energy & Potential

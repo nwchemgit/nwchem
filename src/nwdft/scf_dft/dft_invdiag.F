@@ -1,15 +1,15 @@
       Subroutine dft_invdiag(geom,basis,iga_A,iga_cdinv,n)
 
-C$Id: dft_invdiag.F,v 1.1 1995-04-27 03:16:19 og845 Exp $
+C$Id: dft_invdiag.F,v 1.2 1995-10-17 08:54:52 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       parameter (toll=1.d-6)
       Parameter (THRESHOLD=1.D-12)
       logical LResult
       integer geom,basis
-#include <mafdecls.h>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 
 
       me=ga_nodeid()

@@ -4,7 +4,7 @@ C     XF3cI_Step3 -- Do the last step of the three-center integral
 C     transformation
 C
 C REVISION
-C     $Id: xf3ci_step3.F,v 1.2 1994-07-14 21:39:09 gg502 Exp $
+C     $Id: xf3ci_step3.F,v 1.3 1995-10-17 08:55:57 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step3(G_In, NAIn, NIIn,
@@ -60,7 +60,7 @@ C     restriction can be lifted when GA_DGEMM is capable of working
 C     with submatrices.
 C
 C INCLUDE FILES
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"

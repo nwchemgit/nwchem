@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,iga_dens,AO_bas_han)
 
-C$Id: dft_getspm.F,v 1.3 1995-05-19 00:21:37 og845 Exp $
+C$Id: dft_getspm.F,v 1.4 1995-10-17 08:54:43 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult
@@ -11,11 +11,11 @@ c****
       integer  geom, AO_bas_han
       double precision centerl(3)
 
-#include <bas.fh>
-#include <geom.fh>
+#include "bas.fh"
+#include "geom.fh"
 
-#include <mafdecls.h>
-#include <stdio.fh>
+#include "mafdecls.fh"
+#include "stdio.fh"
 
 
         if (.not. geom_ncent(geom, natoms))
@@ -130,9 +130,9 @@ c
 c-----------------------------------------------------------------------
 c     Find the ranges of the molecular system in the x, y, and z directions
 c-----------------------------------------------------------------------
-#include <stdio.fh>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "stdio.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
       integer natoms
       double precision xcrd(natoms),ycrd(natoms),zcrd(natoms)
 c     

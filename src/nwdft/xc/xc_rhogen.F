@@ -7,12 +7,12 @@
      &     rho,delrho,gamma,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.4 1995-04-29 00:15:56 og845 Exp $
+c$Id: xc_rhogen.F,v 1.5 1995-10-17 08:55:36 d3g681 Exp $
 c
       Implicit double precision (a-h,o-z)
       Implicit integer (i-n)
 
-#include <bas.fh>
+#include "bas.fh"
       Logical GRAD,ldelley
       Integer basis
 

@@ -1,13 +1,14 @@
       subroutine gacrea(geom,basis,n,m,name,ihand,how)
-C$Id: gacrea.F,v 1.5 1995-06-28 04:42:45 og845 Exp $
+C$Id: gacrea.F,v 1.6 1995-10-17 08:55:18 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
 c
 #if defined(DFT_GASTAT)
-#include "gastat.fh"
+*rjh ... this include file appears not to exist anywhere
+*#include "gastat.fh"
 #endif
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -65,12 +66,12 @@ c
       end
       subroutine gadest(ihand)
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 c
 #if defined(DFT_GASTAT)
-#include "gastat.fh"
+*#include "gastat.fh"
 #endif
 c
       logical ok
@@ -100,7 +101,7 @@ c
       implicit none
 c
 #if defined(DFT_GASTAT)
-#include "gastat.fh"
+*#include "gastat.fh"
 c
       integer i, j, ic
       write(LuOut,*)'                GA_STATS                    '

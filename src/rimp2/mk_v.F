@@ -3,7 +3,7 @@ C NAME
 C     mk_v -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: mk_v.F,v 1.1 1994-06-14 21:54:23 gg502 Exp $
+C     $Id: mk_v.F,v 1.2 1995-10-17 08:55:48 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function Mk_V(Basis, MinEval, G_V)
@@ -41,7 +41,7 @@ C     3) 2 * Bas_NumBF(Basis)^2
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "bas.fh"

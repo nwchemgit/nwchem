@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: rimp2_denom.F,v 1.2 1994-10-31 17:28:00 gg502 Exp $
+C     $Id: rimp2_denom.F,v 1.3 1995-10-17 08:55:51 d3g681 Exp $
 C
       Subroutine RIMP2_Denom(G_Ints, BaseI, BaseJ, NVirI, NVirJ,
      $   OccEigI, OccEigJ, VirEigI, VirEigJ)
@@ -41,7 +41,7 @@ C     solely by the distribution of G_Ints.
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer AILo, AIHi, BJLo, BJHi, ILo, IHi, JLo, JHi, ALo, AHi,

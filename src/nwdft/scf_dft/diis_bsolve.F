@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist,icall)
 
-C$Id: diis_bsolve.F,v 1.1 1995-04-27 03:16:21 og845 Exp $
+C$Id: diis_bsolve.F,v 1.2 1995-10-17 08:54:57 d3g681 Exp $
 
 c     
 c***********************************************************************
@@ -42,9 +42,9 @@ c
       dimension wght(mxhist+1),pulay((mxhist+1)*(mxhist+2)/2)
 c     
 #include "stdio.fh"
-#include "mafdecls.h"
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 c     
       logical LResult
 

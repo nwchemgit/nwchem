@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.5 1995-06-02 05:24:08 gg502 Exp $
+c  $Id: moints_6x.F,v 1.6 1995-10-17 08:54:19 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -206,7 +206,7 @@ c
      $                                  dbl_mb(k_iscr), ilen, jlen,
      $                                  kbflo, kbfhi, lbflo, lbfhi,
      $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt) )
+     $                                  dbl_mb(k_ssbbt), .false. )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = tcgtime()

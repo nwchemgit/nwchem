@@ -1,10 +1,10 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.5 1995-04-10 01:39:28 gg502 Exp $
+C$Id: put_3cints.F,v 1.6 1995-10-17 08:55:50 d3g681 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "stdio.fh"
 C
 C LOCAL VARIABLES

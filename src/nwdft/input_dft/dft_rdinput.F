@@ -1,7 +1,7 @@
       Subroutine dft_rdinput( rtdb, geom, AO_bas_han, CD_bas_han,
      &                    XC_bas_han, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.6 1995-07-15 23:02:33 og845 Exp $
+C$Id: dft_rdinput.F,v 1.7 1995-10-17 08:54:48 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -32,8 +32,8 @@ c
 #include "sym.fh"
 
 #include "mafdecls.fh"
-#include <quad.fh>
-#include <stdio.fh>
+#include "quad.fh"
+#include "stdio.fh"
 
       Dimension iconst(nconst)
 

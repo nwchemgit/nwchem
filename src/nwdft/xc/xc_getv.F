@@ -3,7 +3,7 @@
      &     iVxc_opt,iga_xcinv,
      &     iga_dens,iga_vxc,IOLGC,iAOacc,
      &     iga_wght,iga_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.2 1995-05-19 00:22:27 og845 Exp $
+C$Id: xc_getv.F,v 1.3 1995-10-17 08:55:33 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -16,11 +16,11 @@ c****
 
 
 c
-#include <mafdecls.h>
-#include <rtdb.fh>
-#include <bas.fh>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 
 c removed include bas_dft.fh
 c

@@ -2,14 +2,14 @@
      &     rq0,mbf,mcenters,iniz,ifin,
      &     zprim, nzprim,acc_gauss)
 
-C$Id: nbf_to_mbf.F,v 1.6 1995-02-02 23:20:07 d3g681 Exp $
+C$Id: nbf_to_mbf.F,v 1.7 1995-10-17 08:55:22 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       integer basis_hand, geom_hand
 
       Logical LResult
 
-#include <bas.fh>
+#include "bas.fh"
 
 c--   > Distance Squared between Sampling Points and Centers
 

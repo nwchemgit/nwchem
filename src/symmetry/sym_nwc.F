@@ -20,12 +20,12 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.7 1995-04-11 18:39:03 rg240 Exp $
+C$Id: sym_nwc.F,v 1.8 1995-10-17 08:56:24 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
 
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "geom.fh"
 #include "geomP.fh"
 #include "rtdb.fh"

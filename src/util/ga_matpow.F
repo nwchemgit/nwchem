@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.1 1994-12-29 06:50:58 og845 Exp $
+C     $Id: ga_matpow.F,v 1.2 1995-10-17 08:56:31 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -37,7 +37,7 @@ C     size of V is also used.
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -1,6 +1,6 @@
       subroutine diis_core(pulay,mxhist,nhist,icall,nbf,ispin,ipol,
      &     iga_diis,iga_err)
-C$Id: diis_core.F,v 1.1 1995-04-27 03:16:22 og845 Exp $
+C$Id: diis_core.F,v 1.2 1995-10-17 08:54:59 d3g681 Exp $
       implicit real*8 (a-h,o-z) 
 c
       dimension pulay((mxhist+1)*(mxhist+2)/2,ipol)
@@ -41,10 +41,10 @@ c
 c***********************************************************************
 c
 c
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "stdio.fh"
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "global.fh"
+#include "tcgmsg.fh"
 c
       irow(j) = mod(j-1,mxhist)+1
       ijcanon(i,j) = i*(i-1)/2 +j

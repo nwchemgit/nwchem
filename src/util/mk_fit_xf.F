@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.2 1995-06-20 20:11:29 gg502 Exp $
+C     $Id: mk_fit_xf.F,v 1.3 1995-10-17 08:56:34 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
@@ -46,7 +46,7 @@ C     3) 2 * Bas_NumBF(Basis)^2
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "bas.fh"

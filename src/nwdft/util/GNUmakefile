@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.28 1995-08-25 19:23:05 d3e129 Exp $
+#$Id: GNUmakefile,v 1.29 1995-10-17 08:55:21 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -70,3 +70,25 @@ endif
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+bas_ncontr_cn_max.o :	 $(INCDIR)/bas.fh 
+dft_eval_basis.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+dft_eval_funs.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+dft_eval_grad.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+dft_eval_hess.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+dft_header.o :	 $(INCDIR)/stdio.fh 
+dft_invio.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
+dft_mpole.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+dft_second.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
+dft_tstamp.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/global.fh 
+ga_chol.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_chol_seq.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_inv_seq.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+ga_inverse.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+gacrea.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+gat_lab_can.o :	 $(INCDIR)/bas.fh 
+int_2e3c_can.o :	 $(INCDIR)/bas.fh 
+int_eval_gbsets.o :	 $(INCDIR)/bas.fh 
+nbf_to_mbf.o :	 $(INCDIR)/bas.fh 
+new_eval_gbsets.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
+sca_lab_mat.o :	 $(INCDIR)/bas.fh 

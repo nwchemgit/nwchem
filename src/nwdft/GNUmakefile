@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.11 1995-04-26 18:09:25 og845 Exp $
+#$Id: GNUmakefile,v 1.12 1995-10-17 08:54:24 d3g681 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
@@ -26,3 +26,8 @@ nwdft.o:  \
       include/timer.fh   \
       include/quad.fh  \
       include/dimensions.fh  
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+bas.fh :	 $(INCDIR)/context.fh 
+geom.fh :	 $(INCDIR)/global.fh 
+mafdecls.fh :	 $(INCDIR)/rtdb.fh 
+stdio.fh :	 $(INCDIR)/tcgmsg.fh 

@@ -1,10 +1,10 @@
       subroutine dft_s2_value(geom,basis,symmetry,na,nb,
      &     nbf,ga_densa,ga_densb)
-C     $Id: dft_s2_value.F,v 1.1 1995-05-10 03:52:43 og845 Exp $
+C     $Id: dft_s2_value.F,v 1.2 1995-10-17 08:54:55 d3g681 Exp $
       implicit none
-#include <mafdecls.h>
-#include <global.fh>
-#include <tcgmsg.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 #include "stdio.fh"
       integer geom,basis
       logical symmetry

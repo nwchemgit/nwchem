@@ -1,9 +1,9 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.5 1995-05-08 19:46:44 og845 Exp $
+C     $Id: dft_mpole.F,v 1.6 1995-10-17 08:55:13 d3g681 Exp $
       implicit none
 
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "inp.fh"

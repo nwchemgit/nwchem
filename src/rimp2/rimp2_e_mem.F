@@ -3,7 +3,7 @@ C NAME
 C     rimp2_e_mem -- Determine optimal memory usage for energy calc.
 C
 C REVISION
-C     $Id: rimp2_e_mem.F,v 1.2 1995-06-28 17:39:46 gg502 Exp $
+C     $Id: rimp2_e_mem.F,v 1.3 1995-10-17 08:55:52 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, Mode,
@@ -33,7 +33,7 @@ C
 C INCLUDE FILES
 #include "stdio.fh"
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "msgids.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES

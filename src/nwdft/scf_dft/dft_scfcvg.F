@@ -1,15 +1,15 @@
       subroutine dft_scfcvg(rms,etold,etnew,Enuc,scfcon,
      &igcon,iter,itrscf,idone,converged,rtdb)
-C$Id: dft_scfcvg.F,v 1.1 1995-04-27 03:16:21 og845 Exp $
+C$Id: dft_scfcvg.F,v 1.2 1995-10-17 08:54:56 d3g681 Exp $
       implicit double precision(a-h,o-z)
       logical DENSITY,converged,status
       integer rtdb
 #include "stdio.fh"
-#include "mafdecls.h"
-#include <global.fh>
-#include <tcgmsg.fh>
-#include <msgids.fh>
-#include <rtdb.fh>
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgids.fh"
+#include "rtdb.fh"
 c
       idone=0
       converged = .false.

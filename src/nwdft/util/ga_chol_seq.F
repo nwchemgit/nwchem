@@ -1,7 +1,7 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.6 1995-06-28 04:42:44 og845 Exp $
+C$Id: ga_chol_seq.F,v 1.7 1995-10-17 08:55:16 d3g681 Exp $
       implicit none
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"

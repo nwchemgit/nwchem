@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1995-07-29 23:40:04 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 1995-10-17 08:56:17 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -41,3 +41,21 @@ stpr_sumstc.F:	chow.fh
 
 
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+dft_optimize.o :	 stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
+scf_optimize.o :	 stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
+stpr_cheker.o :	 chow.fh 
+stpr_driver.o :	 chow.fh 
+stpr_face.o :	 $(INCDIR)/util.fh stpr_inP.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh chow.fh 
+stpr_gen_apphess_at.o :	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+stpr_gen_aux.o :	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/context.fh 
+stpr_gen_hess_at.o :	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+stpr_hesupd.o :	 chow.fh 
+stpr_inihes.o :	 chow.fh 
+stpr_mkstep.o :	 $(INCDIR)/util.fh chow.fh 
+stpr_output.o :	 $(INCDIR)/util.fh 
+stpr_partit.o :	 $(INCDIR)/util.fh chow.fh 
+stpr_stepcor.o :	 $(INCDIR)/util.fh 
+stpr_sumstc.o :	 $(INCDIR)/util.fh chow.fh 
+stpr_walk.o :	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh 
+stpr_wlkchk.o :	 $(INCDIR)/util.fh 

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.17 1995-04-27 03:15:55 og845 Exp $
+C$Id: nwdft.F,v 1.18 1995-10-17 08:54:25 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult
       logical CDFIT,XCFIT
@@ -16,7 +16,7 @@ c
 c     
 c>>>  original NWdft includes ...
 c     
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"

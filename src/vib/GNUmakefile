@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1995-07-31 06:08:59 d3e129 Exp $
+# $Id: GNUmakefile,v 1.3 1995-10-17 08:56:39 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = 
            OBJ = vib_bcalc.o \
@@ -43,3 +43,7 @@ include ../config/makelib.h
 
 
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+vib_chkhess.o :	 $(INCDIR)/stdio.fh 
+vib_rdinp.o :	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
+vib_vib.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 

@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.5 1995-10-17 08:54:14 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.6 1995-10-17 08:54:18 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -60,15 +60,19 @@ c
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
        integer kb, lb
+       integer i
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
-       integer l_mo, k_mo
+       integer l_mo,k_mo
        integer l_shmap, k_shmap
-       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
+       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2
        integer mem2, max2e
-       integer num_nodes, ploop, next, itmp
+       integer n_ijni
+       integer num_nodes, ploop, next
+       integer k_sym, l_sym
+       integer nmixed
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
@@ -77,7 +81,7 @@ c
        integer tottask
        logical status
        logical oprint
-c
+       logical osym
 c
 #include "moints_stats.fh"
 c
@@ -94,6 +98,7 @@ c
 c
        data tol2e/1.d-12/
        data oprint/.true./
+       data osym /.false./
 c
 c
 c  General basis info
@@ -106,6 +111,23 @@ c
        if (.not.status) call errquit('moints: cannot get basis info',0)
        nmo1 = mo1_hi - occ_start + 1
        nmo2 = mo2_hi - mo2_lo + 1
+c
+       if (osym) then
+c     
+c     Symmetry adapt the MOs and renumber irreps to start at zero
+c     
+          if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
+     $         call errquit('moints_2x: no memory for syms?',0)
+          call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
+     $         nmixed)
+          if (nmixed .ne. 0)
+     $         call errquit('moints_2x: symmetry contamination', nmixed)
+          do i =0, nbf-1
+             int_mb(k_sym+i) = int_mb(k_sym+i) - 1
+          enddo
+          write(6,*) ' Symmetry of MOs in MP2'
+          write(6,'(40i2)') (int_mb(k_sym+i),i=0,nbf-1)
+       endif
 c
 c  Local MO coefficients
 c
@@ -200,7 +222,7 @@ c
      $                               max2e, dbl_mb(k_eri), mem2,
      $                               dbl_mb(k_iscr), ilen, jlen,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb) )
+     $                               dbl_mb(k_ssbb), osym )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    if (lb.ne.kb) then
@@ -311,17 +333,16 @@ c
            endif
            call moints_Ktrf34( g_exch, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
-     $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp) )
-           itmp = nbf
+     $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp),
+     $          osym, int_mb(k_sym))
          else
            call moints2xv_Ktrf4( g_exch, occ_start, mo1_lo, mo1_hi,
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                           dbl_mb(k_hlp) )
+     $                           dbl_mb(k_hlp), osym, int_mb(k_sym) )
            t4kidx = t4kidx + tcgtime() - tz
-           itmp = nmo2
          endif
          if (util_print('exchange integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_exch)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
          endif
        endif
 c
@@ -385,6 +406,10 @@ c
        mi_ntasksK = 1.d0
        mi_mintaskK = 0.d0
 
+       if (osym) then
+          if (.not. ma_pop_stack(l_sym))
+     $         call errquit('moints_2x: memory corrupt',0)
+       endif
 
        return
        end
@@ -566,7 +591,7 @@ c
 c Transform last index of K to virtual
 c
       subroutine moints2xv_Ktrf4( g_exch, ostart, olo, ohi,
-     $                           vlo, vhi, nbf, c, tmp )
+     $                           vlo, vhi, nbf, c, tmp, osym, syms )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -574,6 +599,8 @@ c
       integer nbf, ostart, olo, ohi, vlo, vhi
       double precision c(nbf,nbf)
       double precision tmp(nbf,nbf)
+      logical osym
+      integer syms(nbf)
 
       integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa2, aa, aoff, k_local, ld
@@ -592,6 +619,10 @@ c
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
             call moints2xv_Ktrf4a( vlo, vhi, nbf, c,
      $                            dbl_mb(k_local), tmp )
+
+            if (osym) call moints_sym_zero(nbf, vlo, vhi,
+     $           syms, a1, a2, tmp)
+
             call dcopy((nvir*nvir),tmp,1,dbl_mb(k_local),1)
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif

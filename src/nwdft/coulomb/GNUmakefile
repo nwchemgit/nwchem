@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1995-06-23 00:46:29 og845 Exp $
+# $Id: GNUmakefile,v 1.6 1995-10-17 08:54:45 d3g681 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o
       OBJ = \
@@ -20,3 +20,10 @@ endif
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+dft_fitcd.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+dft_fitvc.o :	 $(INCDIR)/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+dft_genspm.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+dft_get2eri.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+dft_getspm.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+dft_getvc.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 

@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.10 1995-04-10 01:39:33 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.11 1995-10-17 08:55:58 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -67,7 +67,7 @@ C INCLUDE FILES
 #include "bas.fh"
 #include "global.fh"
 #include "rimp2_timers.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "util.fh"
 C
 C EXTERNAL ROUTINES

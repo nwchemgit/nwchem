@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.21 1995-06-28 21:23:15 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.22 1995-10-17 08:55:54 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -68,7 +68,7 @@ C     Global: 2*NVir*NFit + NVir*NVir
 C
 C INCLUDE FILES
 #include "global.fh"
-#include "mafdecls.h"
+#include "mafdecls.fh"
 #include "numerical_constants.fh"
 #include "stdio.fh"
 #include "rimp2_timers.fh"

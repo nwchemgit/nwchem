@@ -1,9 +1,9 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.3 1995-06-28 04:42:43 og845 Exp $
+C$Id: dft_tstamp.F,v 1.4 1995-10-17 08:55:15 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "global.fh"
 #include "tcgmsg.fh"
-#include <stdio.fh>
+#include "stdio.fh"
       character*8 istime,isdate
       character*(*) name
 #if defined(CRAY)
