@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, noc, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.8 2002-01-07 18:22:57 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.9 2002-01-07 21:11:38 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -134,18 +134,21 @@ c
       enddo
 c
       call ga_sync()
-       call movecs_print_anal(basis, 1, nct, 0.15d0, g_a,
-     & 'Alpha Orbitals without Beta Partners', 
+      call movecs_print_anal(basis,int_mb(k_non),int_mb(k_non)
+     & ,0.15d0,g_alpha,'Alpha Orbitals without Beta Partners',
      &   .false., 0.0 ,.false., 0 , .false., 0 )
+c
+      if (nct.GE.2) then
+      do i = 2,nct
+      ind = int_mb(k_non+i-1)
+      call movecs_print_anal(basis,ind,ind
+     & ,0.15d0,g_alpha,'',
+     &   .false., 0.0 ,.false., 0 , .false., 0 )
+      enddo
+      endif
 c
       if (.not. ga_destroy(g_a)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_a', 0)
-c
-      if(.not.MA_Pop_Stack(l_non))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-c
-      if(.not.MA_Pop_Stack(l_part))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
 c-----------------------------------------------------------------
 c Overlap Diagonalization
@@ -268,13 +271,6 @@ c
 c
 c      call ga_print(g_ualpha)                 
 c
-      if(.not.MA_Pop_Stack(l_unp))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-c  
-      if(.not.MA_Pop_Stack(l_vals))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
-      call ga_sync()
-c
 c  resulting orbitals are printed after the alpha/beta overlap 
 c
 c-----------------------------------------------------------------
@@ -324,9 +320,23 @@ c  print alpha orbitals without beta partners which resulted
 c  from diagonalization above
 c
       call ga_sync()
+c
        call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
-     &'Alpha Orbitals without Beta Partners (after maximizing overlap)', 
+     &'Alpha Orbitals without Beta Partners (after maximizing alpha/beta
+     & overlap)', 
      &   .false., 0.0 ,.false., 0 , .false., 0 )
+c
+      if(.not.MA_Pop_Stack(l_unp))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+c
+      if(.not.MA_Pop_Stack(l_vals))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+c
+      if(.not.MA_Pop_Stack(l_non))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+c  
+      if(.not.MA_Pop_Stack(l_part))
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
       if (.not. ga_destroy(g_ualpha)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0)
