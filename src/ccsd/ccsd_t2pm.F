@@ -9,10 +9,7 @@
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
+#include "ccsd_debug.fh"
 c
       integer g_sht2t,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,

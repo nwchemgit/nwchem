@@ -11,17 +11,12 @@ c
       integer i
       double precision mone
       parameter (mone = -1.0d0)
-C
-      Integer LenDbg
-      Parameter (LenDbg = 15)
-      integer doa, dob, dog, doh, dojk, dos, dod
-      common/debug/doa(LenDbg),dob(LenDbg),dog(LenDbg),doh(LenDbg),
-     $   dojk(LenDbg), dos(LenDbg),dod(LenDbg)
+#include "ccsd_debug.fh"
 c     
       if (.not. rtdb_get(rtdb, 'ccsd:maxiter',
      $     MT_INT, 1, maxit)) maxit = 20
       if (.not. rtdb_get(rtdb, 'ccsd:thresh',
-     $     MT_INT, 1, convi)) convi = 8
+     $     MT_INT, 1, convi)) convi = 6
       if (.not. rtdb_get(rtdb, 'ccsd:iprt',
      $     MT_INT, 1, iprt)) iprt = 0
       if (.not. rtdb_get(rtdb, 'ccsd:maxdiis',

@@ -18,8 +18,7 @@ c
 c$$$      double precision rtc
 c$$$      external rtc
 c
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
+#include "ccsd_len.fh"
 c
       integer iter,idiis,ndiis,bev,jhi,jlo,ihi,ilo,offt2,nvp1,
      &        i,av

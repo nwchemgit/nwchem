@@ -66,6 +66,11 @@ c ------NEW AO CCSD CODE
       if (.not. context_rtdb_match(rtdb, 'input mo vector file',
      $     movecs_in)) movecs_in = movecs
       status = ccsd_driver( rtdb, geom, basis, movecs_in )
+C
+      If ( .NOT. Geom_Destroy(Geom) )
+     $   Call ErrQuit('CCSD: Failed to destroy geometry', Geom)
+      If ( .NOT. Bas_Destroy(Basis) )
+     $   Call ErrQuit('CCSD: Failed to destroy basis', Basis)
 c
 c
 c

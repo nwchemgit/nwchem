@@ -11,9 +11,7 @@ c
       Character*(*) CC_Theory
       Integer RTDB
 c
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-c
+#include "ccsd_len.fh"
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"

@@ -1,11 +1,14 @@
       subroutine rddcom()
-      implicit integer (a-z)
+      Implicit NONE
+c$$$      implicit integer (a-z)
+C
+      Integer I
+      Logical NonStd
+C
+#include "ccsd_debug.fh"
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
-      Logical NonStd
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
 C
 C     Check for any non-standard setting of the debugging switches
 C

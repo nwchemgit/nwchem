@@ -5,9 +5,6 @@ c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
 c
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-c
       double precision t1(lnov),ht1(lnov),scra(lnoov),scrb(lnoov),
      &                 bbkp(*),bb(*),rms
       integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_t2,g_ht2
@@ -18,12 +15,16 @@ c
       double precision zip,one,half,two
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 C
+#include "ccsd_len.fh"
 #include "msgids.fh"
-#include "para1.fh"
+#include "global.fh"
 c
       INTEGER INFO
       INTEGER ITMP(100)
+      Integer Nodes, IAm
 c
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
       call qenter('pdiis',0)
 c
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)

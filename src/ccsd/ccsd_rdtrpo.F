@@ -2,18 +2,20 @@
      $                       nocc,nvir,iprt)
       implicit none
 c
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-c
       integer g_objo,g_objv,nocc,nvir,iprt
       double precision t1(nvir,nocc),buf1(lnobj),buf2(lnobj)
 c
       integer il,ih,jl,jh,i,j,k,a,av,bv,ad1,ad2,
      &        lbfo,lbfv
+      Integer Nodes, IAm
 C
+#include "ccsd_len.fh"
 #include "msgids.fh"
 #include "tcgmsg.fh"
-#include "para1.fh"
+#include "global.fh"
+C
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
 c
 c - read in objects
 c - [io|ov], [oo|iv], t2(io:vv) / [ao|vo], t2(oo:av), t2(oo,va)

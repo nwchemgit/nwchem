@@ -23,13 +23,18 @@ c
       return
       end
       subroutine isortx(ix,inc,n,indx)
-      implicit real*8 (a-h,o-z)
-      dimension ix(*),indx(*)
+      Implicit NONE
+c$$$      implicit real*8 (a-h,o-z)
+      Integer Inc, N
+      Integer IX(*),indx(*)
 c -- sort array ix in ascending/decending order and set up index
 c    array indx, such that indx(i)=original position of i
 c      do 100 i=1,n
 c      indx(i)=i
 c 100   continue
+C
+      Integer I, L, IXrra, Irra, J, IncX, Ir
+C
       if (inc.eq.0)then
         write(6,105)inc,n
  105       format(' error isortx: inc, n ',2i10)

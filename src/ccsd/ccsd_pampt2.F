@@ -8,25 +8,18 @@
      &        g_t2,g_ht2,g_moint,g_ncoul,g_nexch,
      &        tklst(nsh*(nsh+1)/2,2)
 c
-
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-c
       double precision cmo(nbf,nbf),eorb(nbf),t1(*),t2(lnoov),
      &                 tau(lnoov),ht1(*),ht2(lnoov),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
 c
       integer nodes,iam
-      common/para1/nodes,iam
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
-c
+#include "ccsd_len.fh"
+#include "ccsd_debug.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
+#include "global.fh"
 c
       double precision tol2e
       data tol2e/1.d-12/
@@ -46,6 +39,8 @@ c
       double precision zip,one,half,two
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 c
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
       call ga_sync()
       call qenter('pampt',0)
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)

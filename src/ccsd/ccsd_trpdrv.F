@@ -11,9 +11,6 @@
       integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,ndel,iprt,g_coul,
      &        g_exch,oseg_lo,oseg_hi
 c
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-c
       double precision gmoint2,eaijk,eccsdt
       integer a,b,c,i,j,k,aold,av,inode,t2j,eintc,eintx,
      &        dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
@@ -22,10 +19,16 @@ c
       double precision zip,one,half,two
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 C
-#include "para1.fh"
+      Integer Nodes, IAm
+C
+#include "ccsd_len.fh"
+#include "global.fh"
 c
 capr      call ga_print(g_coul)
 capr      call ga_print(g_exch)
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
+C
       call ga_sync()
       call qenter('trpdrv',0)
       inode=-1

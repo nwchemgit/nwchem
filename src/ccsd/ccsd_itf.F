@@ -10,10 +10,7 @@
 #include "bas.fh"
 #include "rtdb.fh"
 #include "global.fh"
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
+#include "ccsd_debug.fh"
 c
       integer lnov,g_nt2,g_nht2,offt2,lnoov,iam,g_jlo,g_jhi,
      &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,lnvv,

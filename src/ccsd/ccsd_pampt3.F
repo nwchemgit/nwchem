@@ -19,11 +19,8 @@
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "context.fh"
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
-
+#include "ccsd_debug.fh"
+C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
      &        l_eri2,k_eri2,l_scre,k_scre,l_t1ao,k_t1ao,
      &        l_offsh,k_offsh,l_sc1,k_sc1,l_sc2,k_sc2,

@@ -48,8 +48,7 @@ C
        Character*80 CC_Theory
        character*20 scftype_vecs
 capr
-      integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
-      common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
+#include "ccsd_len.fh"
 c
        integer maxit,convi,iprt,irstrt,ncor,ndel,l_mo,k_mo,g_objv,
      &         l_scr,k_scr

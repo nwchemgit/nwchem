@@ -19,18 +19,16 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
 #include "msgids.fh"
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
+#include "ccsd_debug.fh"
 c
       integer g_aitm,g_tmt1,g_tmt2,g_tmt,g_tmp,g_tmp2,
      &        g_jlo,g_jhi,g_ilo,g_ihi,
      &        i,j,k,l,ij,a,b,c,ad1,ad2,ad3,ad4,ad5,ad6,lnoo,lnov,lnvv
       integer inode,next,aold
+      Integer Nodes, IAm
 c
-      integer nodes,iam
-      common/para1/nodes,iam
+      Nodes = GA_NNodes()
+      IAm = GA_NodeID()
 c
       call qenter('itm',0)
 c
