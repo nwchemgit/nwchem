@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.25 2000-06-05 19:32:18 zzhang Exp $
+* $Id: task_gradient.F,v 1.26 2000-10-19 01:27:35 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -86,7 +86,7 @@ c
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
 c     cleanup any grid parameters
-         call grid_cleanup(rtdb)
+         call grid_cleanup(rtdb,.false.)
       else if (theory .eq. 'sodft') then
 c     setup ipol=2: spin unrestricted DFT, but save current setting
          ipol_dft = 1
@@ -99,7 +99,7 @@ c     restore ipol value
          if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
      &        call errquit('task_gradient: rtdb_put failed', 1)
 c     cleanup any grid parameters
-         call grid_cleanup(rtdb)
+         call grid_cleanup(rtdb,.false.)
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
          prefix = 'mp2'
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
