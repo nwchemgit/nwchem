@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.77 2004-01-28 17:56:08 marat Exp $
+C     $Id: input_parse.F,v 1.78 2004-04-15 23:43:14 marat Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -128,7 +128,7 @@ c
                call mcscf_input(rtdb)
             else if (inp_compare(.false.,test,'plnwv')) then
                call plnwv_input(rtdb)
-            else if (inp_compare(.false.,test,'cons')) then
+            else if (inp_compare(.false.,test,'constraints')) then
                call cons_input(rtdb)
             else if (inp_compare(.false.,test,'dplot')) then
                call dplot_input(rtdb)
@@ -289,7 +289,7 @@ c
             else if (inp_compare(.false.,test,'ecce_print')) then
                continue         ! Already digested by input_file_info
             else
-               call errquit('input_parse: unknown directive',0,
+               call errquit('input_parse: unknown directive '//test,0,
      &       INPUT_ERR)
             endif
 c
