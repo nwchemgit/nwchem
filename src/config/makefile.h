@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.355 2001-04-16 00:11:47 edo Exp $
+# $Id: makefile.h,v 1.356 2001-04-27 01:28:49 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1122,6 +1122,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
 
 ifeq ($(BUILDING_PYTHON),python)
    EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
+#   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
 #   EXTRA_LIBS += -lpthread
    INCPATH += -I/usr/include/python1.5
@@ -1131,24 +1132,39 @@ endif
 ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
 endif
+         _CPU = $(shell uname -m  )
 
 ifeq ($(FC),pgf77)
   DEFINES   += -DPGLINUX
 # added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
   FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
-# for pentium
+ifeq ($(_CPU),586)
   FOPTIONS  += -tp p5  
-# for Pentium Pro or Pentium II
-# FOPTIONS  += -tp p6
-  FOPTIMIZE  = -O2 -Mvect
+endif
+ifeq ($(_CPU),686)
+ FOPTIONS  += -tp p6
+endif
+  FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144,prefetch
   COPTIONS   = -Wall -m486 -malign-double
   COPTIMIZE  = -g -O2
   MAKEFLAGS += FC=pgf77
 else
+ ifeq ($(FC),ifc)
+  FOPTIONS   =  -align  -132  -mp -w
+  FOPTIMIZE = -O3 -prefetch -rcd -unroll 
+ifeq ($(_CPU),586)
+  FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
+endif
+ifeq ($(_CPU),686)
+  FOPTIMIZE +=  -tpp6 -xiMK # this are for PentiumIII
+endif
+  DEFINES   += -DIFCLINUX
+ else
 # defaults are for X86 platforms
          FC  = g77
   FOPTIONS   = -fno-second-underscore 
-  FOPTIMIZE  = -g -O2 -Wuninitialized 
+  FOPTIMIZE  =  -O2  -malign-double -finline-functions 
+  FOPTIMIZE  +=  -march=i$(_CPU)
   COPTIONS   = -Wall -m486 -malign-double 
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
@@ -1156,17 +1172,19 @@ else
   EGCS = YES
 ifdef EGCS
   FOPTIONS  += -Wno-globals
-  FOPTIONS  += -fno-globals -Wunused -fno-silent -m486 -malign-double
+  FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
   FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
   FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs -fno-rerun-loop-opt 
-  FOPTIMIZE += -fforce-mem -fforce-addr -ffloat-store
+  FOPTIMIZE += -fforce-mem -fforce-addr #-ffloat-store
 endif
+
 
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
   FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
-  FOPTIMIZE  = -g -O2 
+  FOPTIMIZE  = -g -O2
   COPTIONS   = -Wall
   COPTIMIZE  = -g -O2
+endif
 endif
 endif
 
@@ -1176,11 +1194,19 @@ ifeq ($(FC),pgf77)
      LINK.f = pgf77 $(LDFLAGS)
  EXTRA_LIBS += -lm
 else
+ifeq ($(FC),ifc)
+  LDOPTIONS = -g
+     LINK.f = ifc $(LDFLAGS)
+     EXTRA_LIBS = -lPEPCF90 -lF90 -limf -lm
+else
   LDOPTIONS = -g -Xlinker -export-dynamic
+#  LDOPTIONS = -g -Xlinker -static
      LINK.f = g77 $(LDFLAGS)
  EXTRA_LIBS += -lm
+
 ifndef EGCS
  EXTRA_LIBS += -lf2c -lm
+endif
 endif
 endif
 
