@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.101 2001-12-10 23:32:59 d3j191 Exp $
+c $Id: sp_init.F,v 1.102 2002-01-15 15:40:10 d3j191 Exp $
 c
       implicit none
 c
@@ -776,7 +776,11 @@ c
       vw(new,j,k)=bvw(i,j,k)
       fw(new,j,k)=bfw(i,j,k)
    12 continue
+      if(nserie.eq.0) then
+      xwcr(new,j)=zero
+      else
       xwcr(new,j)=brw(i,j)
+      endif
   124 continue
       iwl(new,lwbox)=ibw(i,1)
       iwl(new,lwdyn)=5*ibw(i,2)
@@ -988,6 +992,11 @@ c
       do 32 i=1,nsm
       read(lfnrst,1012,end=99,err=99) (xscr(i,j),j=1,3)
  1012 format(2x,3f13.8)
+      if(nserie.eq.0) then
+      xscr(i,1)=zero
+      xscr(i,2)=zero
+      xscr(i,3)=zero
+      endif
    32 continue
       endif
    99 continue
