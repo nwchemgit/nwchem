@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.12 1995-03-31 01:36:36 d3g681 Exp $
+C$Id: vectors.F,v 1.13 1995-04-03 23:37:55 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -40,7 +40,6 @@ c
      $        ('movecs_read_header: basis_name too short', lenbas)
          basis_name = ' '
          read(unitno, err=1001, end=2001) basis_name(1:lenbas)
-         
          read(unitno, err=1001, end=2001) nsets
          read(unitno, err=1001, end=2001) nbf
          if (nsets .gt. ldnmo) then
@@ -58,8 +57,8 @@ c
       movecs_read_header = ok .eq. 1
       if (.not. movecs_read_header) return
 c
-*     call cbrdcst(Msg_Vec_Ttl, title, 0)
-*     call cbrdcst(Msg_Vec_Nam, basis_name, 0)
+      call util_char_ga_brdcst(Msg_Vec_Ttl, title)
+      call util_char_ga_brdcst(Msg_Vec_Nam, basis_name)
       call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
       call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
       call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)

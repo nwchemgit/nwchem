@@ -48,6 +48,7 @@ c
       end if
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf_init: bas_name?', 0)
+c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)
 c
@@ -139,7 +140,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.1 1995-03-31 01:36:28 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.2 1995-04-03 23:37:49 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
