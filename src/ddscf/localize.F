@@ -1,6 +1,26 @@
+      subroutine fudgeit(rtdb)
+      implicit none
+#include "cscf.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+      integer g_over, g_sc, g_tmp
+      integer ga_create_atom_blocked
+c
+      g_over = ga_create_atom_blocked(geom, basis, 'tmp')
+      call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
+      call ga_matpow(g_over, -0.5d0, 1d-12)
+      call ga_dgemm('n', 'n', nbf, nmo, nbf, 
+     $     1.0d0, g_over, g_movecs, 0.0d0, g_sc)
+      
+
+      end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.6 2000-09-13 18:14:23 d3g681 Exp $
+* $Id: localize.F,v 1.7 2000-10-12 17:58:45 d3g681 Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -20,6 +40,7 @@ c
       double precision y, w, ef, scale
 c
       integer g_uc(4), x, g_mosc
+      integer ga_create_atom_blocked
 c
       if (.not. rtdb_cget(rtdb, 'scf:loctype', 1, loctype)) 
      $     loctype = 'PM'
