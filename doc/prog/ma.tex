@@ -1,11 +1,19 @@
 \label{sec:ma}
 
-MA is a library of routines that comprises a dynamic memory allocator
-for use by C, FORTRAN, or mixed-language applications.  FORTRAN
-applications require such a library because the language does not
-support dynamic memory allocation.  C applications can benefit from
+The Memoray Allocator (MA) is used to allocate data that will generally not be directly
+shared with other processes, such as workspace for a particular local
+calculation or for replication of very small sets of data.  The MA tool
+is a library of routines that comprises a dynamic memory allocator
+for use by C, FORTRAN, or mixed-language applications.  It provides
+both heap and stack memory management disciplines, debugging and
+verification support (for detecting memory leaks, for example), usage
+statistics, and quantitative memory availability information.
+
+Applications written in FORTRAN
+require this sort of library because the language does not
+support dynamic memory allocation.  Applications written in C can benefit from
 using MA instead of the ordinary {\tt malloc()} and {\tt free()}
-routines because of the extra features MA provides: both heap and
+routines because of the extra features MA provides, which include both heap and
 stack memory management disciplines, debugging and verification
 support, usage statistics, and quantitative memory availability
 information.  MA is designed to be portable across a large variety of
@@ -25,7 +33,7 @@ All MA memory must be explicitly assigned a specific type by defining each
 data item in units of integer, logical, 
 double precision, or character words.  The type of data is specified
 in arguments using predefined Fortran parameters (or macros in C).
-These parameters are available in the include files \verb+mafdecls.fh+ in 
+These parameters are available in the \verb+include+ files \verb+mafdecls.fh+ in 
 Fortran and in \verb+macdecls.h+ in C.  The parameters are typed as follows:
 
 \begin{description} 
@@ -40,7 +48,7 @@ Fortran and in \verb+macdecls.h+ in C.  The parameters are typed as follows:
 To access required MA definitions, C applications should include
 {\tt macdecls.h} and FORTRAN applications should include
 {\tt mafdecls.fh}.  These are public header files for a dynamic memory 
-allocator, and are included in the .../src/ma subdirectory of the
+allocator, and are included in the \verb+.../src/ma+ subdirectory of the
 NWChem directory tree.  The files contain the type declarations
 and parameter declarations for the datatype constants, and define
 needed functions and variable types.
