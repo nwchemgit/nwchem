@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.108 2001-01-12 19:38:44 d3g681 Exp $
+C$Id: geom.F,v 1.109 2001-04-07 01:02:11 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5036,5 +5036,105 @@ c
         sum = sum+geom_invnucexp(i,geom)
       end do
       geom_any_finuc = sum .gt. 1.0d-20
+      return
+      end
+      subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint)
+      implicit none
+#include "stdio.fh"
+#include "geom.fh"
+C
+C     ----- CENTER AND MOMENTS OF INERTIA ----- 
+C
+      integer geom ! [in]
+      integer natoms ! [in]
+      double precision coord(3,*) ! [in]
+      double precision ci(3),ai(3,3) ! [out] ctr of mass and inertua tensor
+      logical oprint
+c
+      double precision tr(3)
+      integer iat,i,j
+      double precision amass,mass,x,y,z
+c
+c
+      do j=1,3
+         ci(j)=0d0
+         do i=1,3
+            ai(j,i)=0d0
+         enddo
+      enddo
+      amass=0d0
+      do iat=1,natoms
+         if(.not.geom_mass_get(geom, iat, mass)) call
+     .        errquit(' mass_get  failed ',iat)
+         amass=amass+mass
+         do i=1,3
+            ci(i)=ci(i)+mass*coord(i,iat)
+         enddo
+      enddo
+      do i=1,3
+         ci(i)=ci(i)/amass
+         tr(i)=ci(i)
+      enddo    
+c
+      do iat=1,natoms
+         if(.not.geom_mass_get(geom, iat, mass)) call
+     .        errquit(' mass_get  failed ',iat)
+         x =coord(1,iat) - tr(1)
+         y =coord(2,iat) - tr(2)
+         z =coord(3,iat) - tr(3)
+         ai(1,1)=ai(1,1)+mass*(y*y+z*z)
+         ai(2,1)=ai(2,1)-mass* x*y
+         ai(1,2)=ai(2,1)
+         ai(3,1)=ai(3,1)-mass* x*z
+         ai(1,3)=ai(3,1)
+         ai(2,2)=ai(2,2)+mass*(x*x+z*z)
+         ai(3,2)=ai(3,2)-mass* y*z
+         ai(2,3)=ai(3,2)
+         ai(3,3)=ai(3,3)+mass*(x*x+y*y)
+      enddo
+      if(oprint) then
+         write(luout,9999)
+         write(luout,9998) (ci(i),i=1,3)
+         write(luout,9997)
+         do i=1,3
+         write(luout,'(3f25.12)') (ai(i,j),j=1,3)
+         enddo
+      endif
+c
+      return
+ 9999 format(/,1x,'center of mass',/,1x,14(1h-))
+ 9998 format(' x = ',f12.8,' y = ',f12.8,' z = ',f12.8)
+ 9997 format(/,1x,'moments of inertia (a.u.)',/,1x,18(1h-))
+      end
+      subroutine geom_momint(geom)
+      implicit none
+#include "mafdecls.fh"
+#include "geom.fh"
+      integer geom
+c
+      integer natoms,l_coord,k_coord,
+     ,     k_charge,l_charge,k_tag,l_tag
+      logical oprint
+      double precision ci(3),ai(3,3)
+      oprint = .true.
+c
+c     print moment of inertia
+c
+      if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
+     $     'rohf: problem with call to geom_ncent', geom)
+      if (.not. ma_push_get(mt_dbl,3*natoms,'tcoords',l_coord,k_coord))
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+      if (.not. ma_push_get(mt_dbl,natoms,'coords',l_charge,k_charge))
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+      if (.not. ma_push_get(mt_byte,natoms*16,'coords',l_tag,k_tag))
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+      if (.not. geom_cart_get(geom, natoms, byte_mb(k_tag), 
+     .     dbl_mb(k_coord), dbl_mb(k_charge)))
+     $     call errquit('uhf_anal: geom_cent_tag failed',0)
+      if (.not. ma_chop_stack(l_charge))
+     $     call errquit('uhf_analyze: pop failed', 0)
+      call geom_momint0(geom,dbl_mb(k_coord),natoms,ci,AI,oprint)
+      if (.not. ma_chop_stack(l_coord))
+     $     call errquit('uhf_analyze: pop failed', 0)
       return
       end
