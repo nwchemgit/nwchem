@@ -1,5 +1,5 @@
 /*
- $Id: linux_setfpucw.c,v 1.8 2003-09-11 00:10:03 edo Exp $
+ $Id: linux_setfpucw.c,v 1.9 2003-09-15 20:21:32 edo Exp $
  */
 #include <stdio.h>
 #ifdef __CYGWIN__
@@ -12,8 +12,8 @@
 
 void linux_trapfpe_(void) { 
 #ifdef LINUXIA64
-//#include <linux/prctl.h>
-#include </usr/src/linux/include/linux/prctl.h>
+#include <linux/prctl.h>
+//#include </usr/src/linux/include/linux/prctl.h>
 /* grabbed from ftp://linux.hpl.hp.com/pub/linux-ia64/prctl-1.3.tar.gz  */
 int retval;
 /* this causes a Sigbus for each unaligned access */
