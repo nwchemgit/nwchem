@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.143 2001-11-14 23:50:59 edo Exp $
+# $Id: GNUmakefile,v 1.144 2001-11-27 18:01:24 edo Exp $
 
 include ../config/makefile.h
 
@@ -83,7 +83,7 @@ endif
 
 ifeq ($(TARGET),HPUX)
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
-  EXTRA_OBJ = util_hp_extra.o
+#  EXTRA_OBJ = util_hp_extra.o
 endif
 
 ifeq ($(TARGET),KSR)
