@@ -305,10 +305,6 @@ void pdspeval ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern Integer  tred2();
     extern void     pstebz_(), pstein32(), mxm25(), sfnorm();
 
-#ifndef RIOS
-    char    *strcpy();
-    extern DoublePrecision sqrt (), fabs ();
-#endif
 
 /*
  *  ---------------------------------------------------------------
