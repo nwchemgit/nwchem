@@ -1,12 +1,11 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.41 1996-10-10 20:32:04 d3g681 Exp $
+C$Id: scf.F,v 1.42 1996-11-01 22:04:18 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "inp.fh"
 #include "cscfps.fh"
 #include "sym.fh"
@@ -14,8 +13,6 @@ C$Id: scf.F,v 1.41 1996-10-10 20:32:04 d3g681 Exp $
 #include "cscf.fh"
 c
 c     ROHF module.
-c
-c     Context is '...:scf'
 c
 c     Currently performs closed-shell and high-spin open-shell
 c     restricted Hatree-Fock calculations
@@ -29,15 +26,13 @@ c
 c
       integer nbf_per_ir(20)
       integer natoms, Nff
-      logical rohf, uhf, riscf_init
-      external rohf, uhf, riscf_init
+      logical rohf, uhf, riscf_init, cphf_poliz
+      external rohf, uhf, riscf_init, cphf_poliz
 c
-c     Make sure database is parallel, push context down to SCF,
+c     Make sure database is parallel, 
 c     and initialize performance statistics
 c
       status = rtdb_parallel(.true.)
-      if (.not. context_push('scf'))
-     $     call errquit('scf: context_push failed', 0)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'scf')
       oprint = util_print('information', print_low)
@@ -202,13 +197,11 @@ c
 c     Store energy and convergence status ... not sure if better to
 c     do this here or have each wavefunction type do it
 c
-      if (.not. context_prefix('energy', name)) call errquit
-     $     ('scf: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, name, MT_DBL, 1, energy)) call errquit
+      if (.not. rtdb_put(rtdb, 'scf:energy', MT_DBL, 1, energy))
+     $     call errquit
      $     ('scf: failed to store energy in rtdb', 0)
-      if (.not. context_prefix('converged', name)) call errquit
-     $     ('scf: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) call errquit
+      if (.not. rtdb_put(rtdb, 'scf:converged', MT_LOG, 1, converged)) 
+     $     call errquit
      $     ('scf: failed to store converged in rtdb', 0)
 c
 c     terminate integrals 
@@ -224,12 +217,16 @@ c
         call riscf_tidy ( geom, basis, riscf_basis )
       endif
 c
+      call scf_pstat_print
+c
+c     Compute the polarizability if requested
+c
+*      if (util_print('polarizability', print_never) .or. 
+*     $     util_print('polar', print_never)) scf = cphf_poliz(rtdb)
+c
 c     Nothing else for now ... return convergence status
 c
       call util_print_pop
-      if (.not. context_pop('scf')) call errquit('context_pop failed',0)
       scf = converged
-c
-      call scf_pstat_print
 c
       end

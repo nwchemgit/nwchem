@@ -3,6 +3,7 @@
 #include "cscf.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
       logical movecs_read
       external movecs_read
 c
@@ -15,7 +16,8 @@ c
          if (.not. movecs_read(movecs_in, 2,
      $        dbl_mb(k_occ+nbf), dbl_mb(k_eval+nbf),
      $        g_movecs(2))) then
-            if (ga_nodeid() .eq. 0) then
+            if (ga_nodeid() .eq. 0 .and.
+     $           util_print('information', print_default)) then
                write(6,*) '  Duplicating RHF/ROHF vectors for UHF'
             endif
             call ga_copy(g_movecs(1), g_movecs(2))
@@ -58,11 +60,15 @@ c
 c
       integer l_e, k_e, l_o, k_o
       integer g_old
+      integer iset, nset
       logical movecs_read
       external movecs_read
 c
-      if (scftype .eq. 'UHF') call errquit
-     $     ('scf_movecs_lock: not yet for UHF',0)
+      if (scftype .eq. 'UHF') then
+         nset = 2
+      else
+         nset = 1
+      endif
 c
 c     Allocate space for the old vectors
 c
@@ -74,11 +80,14 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_o, k_o))
      $     call errquit('movecs_lock: insufficient memory',nbf)
 c
-      if (.not. movecs_read(movecs_in, 1,
-     $     dbl_mb(k_o), dbl_mb(k_e), g_old))
-     $     call errquit('scf_movecs_lock: read failed',0)
+      do iset = 1, nset
+         if (.not. movecs_read(movecs_in, iset,
+     $        dbl_mb(k_o), dbl_mb(k_e), g_old))
+     $        call errquit('scf_movecs_lock: read failed',0)
 c
-      call movecs_lock(geom, basis, g_old, g_movecs, dbl_mb(k_eval))
+         call movecs_lock(geom, basis, g_old, g_movecs(iset), 
+     $        dbl_mb(k_eval+nbf*(iset-1)))
+      enddo
 c
       if (.not. ma_pop_stack(l_o))call errquit('scf_movecs_lock: ma?',0)
       if (.not. ma_pop_stack(l_e))call errquit('scf_movecs_lock: ma?',0)

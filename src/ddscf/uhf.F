@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
+C$Id: uhf.F,v 1.26 1996-11-01 22:04:19 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
+C     $Id: uhf.F,v 1.26 1996-11-01 22:04:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -309,6 +309,7 @@ c
                   call ga_print(g_movecs)
                   call ga_print(g_movecs(2))
                end if
+               if (olock) call scf_movecs_lock
                call scf_movecs_write
                goto 10
             end if
@@ -331,6 +332,7 @@ c
       endif
       call movecs_fix_phase(g_movecs)
       call movecs_fix_phase(g_movecs(2))
+      if (olock) call scf_movecs_lock
       call scf_movecs_write
 c     
 c     Free globals
@@ -445,7 +447,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
+C$Id: uhf.F,v 1.26 1996-11-01 22:04:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -536,7 +538,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
+c     $Id: uhf.F,v 1.26 1996-11-01 22:04:19 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1022,7 +1024,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.25 1996-10-10 23:38:05 d3g681 Exp $
+C$Id: uhf.F,v 1.26 1996-11-01 22:04:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
