@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.6 1994-04-26 19:40:36 d3g681 Exp $
+c $Id: bas_input.F,v 1.7 1994-07-28 07:58:32 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -416,14 +416,11 @@ c     the form 'basis <symbol>_<basis name>'
 c
       if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $     call errquit('bas_tag_lib: tag does not refer to an atom', 0)
-*     write(6,*) ' tag, symbol, element, atn '
-*     write(6,*) tag,' ', symbol, ' ',element, ' ',atn
       string = symbol
       lenn = inp_strlen(string)
       string(lenn+1:lenn+1) = '_'
       string(lenn+2:) = standard
       call inp_lcase(string)
-*     write(6,*) ' searching for basis ', string(1:inp_strlen(string))
 c
 c     Open the library file and try to locate the basis
 c

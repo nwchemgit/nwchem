@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.8 1994-05-20 17:48:49 d3e129 Exp $
+c $Id: basisP.F,v 1.9 1994-07-28 07:58:36 d3g681 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -144,7 +144,7 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
       do itag = 1, infbs_head(HEAD_NTAGS,basis)
-         if (inp_compare(.true.,bs_tags(itag,basis),tag)) return
+         if (bs_tags(itag,basis) .eq. tag) return
       enddo
 c
 c     No match found ... append new tag to the list

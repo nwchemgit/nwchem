@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.20 1994-06-09 05:31:19 d3g681 Exp $
+c $Id: basis.F,v 1.21 1994-07-28 07:58:34 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -414,6 +414,7 @@ c
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "inp.fh"
+#include "geom.fh"
 c
 c function declarations
 c      
@@ -422,13 +423,15 @@ c
 c:: passed
       integer basisin  ! [input] basis set handle
 c:: local
-      integer mytags, myucont, myprim, mycoef, basis, len_tag, empty
+      integer mytags, myucont, myprim, mycoef, basis
       integer i,j,k,l, ifcont, mygen, mytype, iexptr, icfptr
+      integer atn, len_tag, len_ele
+      character*2 symbol
+      character*16 element
       character*3 ctype(0:6),cltype(2)
       character*3 shell_type
-      character*16 blank
+      character*35 buffer  ! Room for tag+space+(+element+) = 16+1+1+16+1
 c
-      blank   = ' '
       ctype(0)='S'
       ctype(1)='P'
       ctype(2)='D'
@@ -460,33 +463,29 @@ c
       myucont = infbs_head(HEAD_NCONT,basis)
       myprim  = infbs_head(HEAD_NPRIM,basis)
       mycoef  = infbs_head(HEAD_NCOEF,basis)
-
-*      write(6,2) mytags, myucont, myprim, mycoef  
-* 2    format(
-*     $     ' number of unique tags         :',i5/
-*     $     ' number of unique contractions :',i5/
-*     $     ' number of unique primitives   :',i5/
-*     $     ' number of unique coefficients :',i5)
-
+c
       do 00100 i=1,mytags
-         len_tag = inp_strlen(bs_tags(i,basis))
-         empty = (16 - len_tag)/2
-         write(6,3) blank(1:empty), bs_tags(i,basis)
- 3       format(' ',a,a/' ----------------'/)
+
+         if (geom_tag_to_element(bs_tags(i,basis), symbol, element,
+     $        atn)) then
+            len_tag = inp_strlen(bs_tags(i,basis))
+            len_ele = inp_strlen(element)
+            write(buffer,'(a,'' ('',a,'')'')')
+     $           bs_tags(i,basis)(1:len_tag), element(1:len_ele)
+         else
+            buffer = bs_tags(i,basis)
+         endif
+         len_tag = inp_strlen(buffer)
+         call util_print_centered(6, buffer, len_tag/2 + 1, .true.)
+
          myucont = infbs_tags(TAG_NCONT,i,basis)
-*         write(6,4) myucont,infbs_tags(TAG_NPRIM,i,basis),
-*     $        infbs_tags(TAG_NCOEF,i,basis)
-* 4      format(
-*     &       ' number of contractions:',i5/
-*     &       ' number of primitives  :',i5/
-*     &       ' number of coefficients:',i5/)
 c        
         ifcont = infbs_tags(TAG_FCONT,i,basis)
 c     
         write(6,6)
  6      format(
      $       '          Exponent Coefficients '/
-     $       '       ----------- ',60('-'))
+     $       '       ------------ ',60('-'))
         do 00200 j=1,myucont
           myprim = infbs_cont(CONT_NPRIM,ifcont,basis)
           mygen  = infbs_cont(CONT_NGEN,ifcont,basis)
@@ -497,19 +496,12 @@ c
           else
             shell_type = ctype(mytype)
           endif
-*          write(6,5) j, shell_type(1:inp_strlen(shell_type)),
-*     $         myprim, mygen
-* 5        format(/
-*     $         ' contraction           :', i5/
-*     $         ' type                  :    ',a/
-*     $         ' number of primitives  :', i5/
-*     $         ' number of contractions:', i5/)
           iexptr = infbs_cont(CONT_IEXP,ifcont,basis) - 1
           icfptr = infbs_cont(CONT_ICFP,ifcont,basis) - 1
           do 00300 k=1,myprim
              write(6,7) j, shell_type(1:2), exndcf((iexptr+k),basis),
      &             (exndcf((icfptr+k+(l-1)*myprim),basis),l=1,mygen)
- 7           format(1x,i2,1x,a2,1x,f11.4,20f10.6)
+ 7           format(1x,i2,1x,a2,1x,f12.6,20f10.6)
 00300     continue
           write(6,*)
           ifcont = ifcont + 1
@@ -646,7 +638,8 @@ c
       do 00100 i=1,nat
         foundit = .false.
         do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
-          if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
+*          if(inp_compare(.true.,tags(i,geom),bs_tags(j,basis))) then
+          if(tags(i,geom) .eq. bs_tags(j,basis)) then
             ibs_ce2uce(i,basis) = j
             foundit = .true.
             goto 00102
