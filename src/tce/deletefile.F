@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.1 2002-10-18 23:42:06 sohirata Exp $
+c $Id: deletefile.F,v 1.2 2002-10-23 01:38:51 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -11,8 +11,8 @@ c
 #include "sf.fh"
 #include "tce.fh"
       integer d_sf
-      integer dummy
 c
-      dummy = sf_destroy(d_sf)
+      if (sf_destroy(d_sf).ne.0)
+     1  call errquit('deletefile: sf problem',0)
       return
       end

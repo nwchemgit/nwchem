@@ -1,6 +1,6 @@
       subroutine tce_residual_t3(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.1 2002-10-22 16:23:08 sohirata Exp $
+c $Id: tce_residual_t3.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -29,18 +29,24 @@ c
       external nxtval
       logical nodezero
 c
+c     =====================
+c     Zero scratch residual
+c     =====================
+c
+      nodezero = (ga_nodeid().eq.0)
+      if (.not.ga_create(mt_dbl,1,1,'residual',1,1,g_residual))
+     1  call errquit('tce_residual_t1: GA problem',0)
+      residual = 0.0d0
+      call ga_put(g_residual,1,1,1,1,residual,1)
+      call ga_sync()
+c
 c     ================
 c     Loop over blocks
 c     ================
 c
-      nodezero = (ga_nodeid().eq.0)
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
-      if (.not.ga_create(mt_dbl,1,1,'residual',1,1,g_residual))
-     1  call errquit('tce_residual_t3: GA problem',0)
-      residual = 0.0d0
-      call ga_put(g_residual,1,1,1,1,residual,1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do p3b = p2b,noab+nvab
@@ -108,11 +114,11 @@ c
           enddo
         enddo
       enddo
+      next = nxtval(-nprocs)
+      call ga_sync()
       call ga_get(g_residual,1,1,1,1,residual,1)
       residual = 0.5d0*dsqrt(residual)
       if (.not.ga_destroy(g_residual))
      1  call errquit('tce_residual_t3: GA problem',1)
-      next = nxtval(-nprocs)
-      call ga_sync()
       return
       end

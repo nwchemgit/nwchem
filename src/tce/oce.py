@@ -1,5 +1,8 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
+#
+# $Id: oce.py,v 1.2 2002-10-23 01:38:51 sohirata Exp $
+#
 
 import string
 

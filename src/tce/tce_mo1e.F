@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e)
 c
-c $Id: tce_mo1e.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_mo1e.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c
@@ -30,6 +30,7 @@ c     =====================================
 c     Determine the size of SF and allocate
 c     =====================================
 c
+      nodezero = (ga_nodeid().eq.0)
       sf_size=0
       do g1b = 1,noa+nob+nva+nvb
         do g2b = 1,noa+nob+nva+nvb

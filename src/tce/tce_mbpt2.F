@@ -1,12 +1,14 @@
       subroutine tce_mbpt2(d_mo2e,k_2e_offset,
      1                     d_t2,k_t2_offset,mbpt2)
 c
-c $Id: tce_mbpt2.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_mbpt2.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "sym.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "tce.fh"
       integer d_mo2e
       integer d_t2
@@ -27,8 +29,16 @@ c
       integer next
       integer nxtval
       external nxtval
-      double precision ddot
-      external ddot
+c
+c     =====================
+c     Zero scratch residual
+c     =====================
+c
+      if (.not.ga_create(mt_dbl,1,1,'mbpt2',1,1,g_mbpt2))
+     1  call errquit('tce_mbpt2: GA problem',0)
+      mbpt2 = 0.0d0
+      call ga_put(g_mbpt2,1,1,1,1,mbpt2,1)
+      call ga_sync()
 c
 c     ================
 c     Loop over blocks
@@ -37,10 +47,6 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
-      if (.not.ga_create(mt_dbl,1,1,'mbpt2',1,1,g_mbpt2))
-     1  call errquit('tce_mbpt2: GA problem',0)
-      mbpt2 = 0.0d0
-      call ga_put(g_mbpt2,1,1,1,1,mbpt2,1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -67,6 +73,9 @@ c
      1                int_mb(k_t2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
      2                *noab+h3b-1)*noab+h4b-1))
                     mbpt2 = ddot(size,dbl_mb(k_t2),1,dbl_mb(k_v2),1)
+                    if (util_print('mbpt2',print_debug))
+     1                write(LuOut,9200) ga_nodeid(),p1b,p2b,h3b,h4b,
+     2                mbpt2 * factor
                     call ga_acc(g_mbpt2,1,1,1,1,mbpt2,1,factor)
                     if (.not.ma_pop_stack(l_t2))
      1                call errquit('tce_mbpt2: MA problem',2)
@@ -81,10 +90,12 @@ c
           enddo
         enddo
       enddo
+      next = nxtval(-nprocs)
+      call ga_sync()
       call ga_get(g_mbpt2,1,1,1,1,mbpt2,1)
       if (.not.ga_destroy(g_mbpt2))
      1  call errquit('tce_mbpt2: GA problem',1)
-      next = nxtval(-nprocs)
-      call ga_sync()
+ 9200 format(/,1x,'node',i3,' blocks:',4i3,' MBPT(2) contribution',
+     1       f20.10)
       return
       end

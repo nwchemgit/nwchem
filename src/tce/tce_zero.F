@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.1 2002-10-18 23:42:09 sohirata Exp $
+c $Id: tce_zero.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
 c     Zero scratch a file
 c
@@ -24,5 +24,6 @@ c
       call put_block(d_sf,dbl_mb(k_temp),size,0)
       if (.not.ma_pop_stack(l_temp))
      1  call errquit('createfile: MA problem',1)
+      call ga_sync()
       return
       end

@@ -1,6 +1,6 @@
       subroutine tce_ao1e(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.1 2002-10-18 23:42:07 sohirata Exp $
+c $Id: tce_ao1e.F,v 1.2 2002-10-23 01:38:52 sohirata Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -28,13 +28,11 @@ c
       double precision kf(4)     ! Prefactor for HF exchange as input for shell_fock_build
       integer i
       integer ndu,nfu
-      logical nodezero
 c
 c     ====================
 c     Initialize int_API's
 c     ====================
 c
-      nodezero = (ga_nodeid().eq.0)
       symmetry=(sym_number_ops(geom).gt.0).and.sym_abelian_group(geom)
       call scf_get_fock_param(rtdb,tol2e)
 c
@@ -61,7 +59,7 @@ c
         call ga_dgemm('N','T',nbf,nbf,nocc(i),1.0d0,
      1    g_movecs(i),g_movecs(i),0.0d0,g_dens(i))
         if (ipol.eq.1) call ga_dscal(g_dens(i),2.0d0)
-        if (nodezero.and.util_print('ao1e',
+        if (util_print('ao1e',
      1    print_debug)) call ga_print(g_dens(i))
       enddo
 c
@@ -72,7 +70,7 @@ c
       call ga_zero(g_hcore)
       call int_1e_ga(ao_bas_han,ao_bas_han,g_hcore,'kinetic',.false.)
       call int_1e_ga(ao_bas_han,ao_bas_han,g_hcore,'potential',.false.)
-      if (nodezero.and.util_print('ao1e',
+      if (util_print('ao1e',
      1  print_debug)) call ga_print(g_hcore)
 c
 c     =====================
@@ -141,7 +139,7 @@ c
         call ga_add(1.0d0,g_hcore,1.0d0,g_ao1e(i),g_ao1e(i))
       enddo
       if (ipol.eq.1) call ga_copy(g_ao1e(1),g_ao1e(2))
-      if (nodezero.and.util_print('ao1e',print_debug)) then
+      if (util_print('ao1e',print_debug)) then
         call ga_print(g_ao1e(1))
         call ga_print(g_ao1e(2))
       endif
@@ -165,5 +163,9 @@ c     ======
 c     Return
 c     ======
 c
+      do i = 1, ipol
+        if (.not.ga_destroy(g_movecs(i)))
+     1    call errquit('tce_ao1e: GA problem',0)
+      enddo
       return
       end

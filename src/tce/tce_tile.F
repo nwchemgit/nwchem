@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.4 2002-10-22 16:23:08 sohirata Exp $
+c $Id: tce_tile.F,v 1.5 2002-10-23 01:38:53 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -19,8 +19,8 @@ c
 #include "stdio.fh"
 #include "tce.fh"
 c
-      integer ga_dble
-      integer ma_dble
+      double precision ga_dble
+      double precision ma_dble
       integer available
       integer isize
       double precision size
@@ -41,8 +41,8 @@ c     ====================
 c
       nodezero = (ga_nodeid().eq.0)
       ga_dble = dfloat(ga_memory_avail()) / dfloat(bytes)
-      ma_dble=dfloat(ma_inquire_avail(mt_dbl))
-      call ga_dgop(msg_tdmem,ga_dble,1,'+')
+      ma_dble = dfloat(ma_inquire_avail(mt_dbl))
+      call ga_dgop(msg_tcemem,ga_dble,1,'+')
       if (ga_uses_ma()) then
         available = int(ga_dble)/2
       else
@@ -144,8 +144,6 @@ c
         do any = nfc(ipol)+1,nmo(ipol)-nfv(ipol)
           write(LuOut,*) any," spin=B, sym=",int_mb(k_irs(ipol)+any-1)
         enddo
-        call ga_print(g_movecs(1))
-        call ga_print(g_movecs(ipol))
       endif
 c
 c     Hole Alpha
@@ -327,9 +325,5 @@ c     ======
 c     Return
 c     ======
 c
-      do i = 1, ipol
-        if (.not.ga_destroy(g_movecs(i))) 
-     1    call errquit('tce_tile: GA problem',0)
-      enddo
       return
-      end             
+      end

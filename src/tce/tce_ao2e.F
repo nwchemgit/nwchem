@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.1 2002-10-18 23:42:07 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -116,6 +116,8 @@ c
       do lsh=1,nshells
         do ksh=1,nshells
           if (next.eq.count) then
+            if (util_print('ao2e',print_debug))
+     1        write(LuOut,9190) lsh,ksh,ga_nodeid()
             if (.not.bas_cn2bfr(ao_bas_han,ksh,klo,khi))
      1        call errquit('tce_ao2e: basis fn range problem',0)
             krange = khi - klo + 1
@@ -180,6 +182,11 @@ c
      2            dbl_mb(k_movecs_sorted),nbf,
      3            0.0d0,dbl_mb(k_pq),N)
                 call ma_pack(dbl_mb(k_pq),dbl_mb(k_pq_packed),N)
+                if (util_print('ao2e',print_debug)) then
+                  write(LuOut,9200) l,k
+                  call ma_print_compact(dbl_mb(k_pq_packed),
+     1              sf_size_pq,1,'Half transformed MO 2e')
+                endif
                 dummy=sf_write(d_ao2e,
      1            dfloat(bytes*(loff(l)+k-1)*sf_size_pq),
      2            dfloat(bytes*sf_size_pq),dbl_mb(k_pq_packed),request)
@@ -217,5 +224,7 @@ c     ======
 c     Return
 c     ======
 c
+ 9190 format(/,'k- and l-shells',2i3,' has been assigned to node ',i3)
+ 9200 format(/,'k and l',2i3)
       return
       end

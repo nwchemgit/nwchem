@@ -1,12 +1,14 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.2 2002-10-22 16:23:07 sohirata Exp $
+c $Id: tce_guess_t2.F,v 1.3 2002-10-23 01:38:53 sohirata Exp $
 c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "sym.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "tce.fh"
       integer d_mo2e
       integer d_t2
@@ -41,6 +43,8 @@ c
           do h3b = 1,noab
             do h4b = h3b,noab
               if (next.eq.count) then
+                if (util_print('t2',print_debug))
+     1            write(LuOut,9200) p1b,p2b,h3b,h4b,ga_nodeid()
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
      1            .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
                 if (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),
@@ -68,6 +72,8 @@ c
                         enddo
                       enddo
                     enddo
+                    if (util_print('t2',print_debug))
+     1                call ma_print_compact(dbl_mb(k_t2),size,1,'t2')
                     call put_block(d_t2,dbl_mb(k_t2),size,
      1                int_mb(k_t2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
      2                *noab+h3b-1)*noab+h4b-1))
@@ -84,5 +90,6 @@ c
       enddo
       next = nxtval(-nprocs)
       call ga_sync()
+ 9200 format(/,4i3,' has been assigned to node ',i3)
       return
       end

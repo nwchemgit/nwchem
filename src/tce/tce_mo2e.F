@@ -1,6 +1,6 @@
-      subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e)
+      subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.1 2002-10-18 23:42:08 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -19,6 +19,7 @@ c
       logical nodezero             ! True if node zero
       integer d_ao2e               ! Half MO integrals
       integer d_mo2e               ! MO integrals
+      integer k_2e_offset          ! MO integrals offset
       integer l_kl,k_kl            ! Half MO integrals
       integer l_sl,k_sl            ! Quarter transformed
       integer l_pqkl_packed,k_pqkl_packed! Packed
@@ -33,8 +34,8 @@ c
       integer sf_size_rs
       integer sf_size_pq
       integer sf_size_pqrs
-      integer pqoff,pqrsoff
-      integer pqboff
+      integer pqoff
+      integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
       integer dummy
@@ -66,6 +67,8 @@ c     ===========
 c
       sf_size_pqrs = 0
       pq_packed_off = 0
+      if (.not.ma_push_get(mt_int,Nb*Nb,'pqboff',l_pqboff,k_pqboff))
+     1  call errquit('tce_mo2e: MA problem',11)
       do pb = 1,Nb
         do qb = pb,Nb
           do rb = 1,Nb
@@ -82,6 +85,7 @@ c
               endif
             enddo
           enddo
+          int_mb(k_pqboff+(pb-1)*Nb+qb-1) = pq_packed_off
           pq_packed_off = pq_packed_off + int_mb(k_range+pb-1) 
      1                                  * int_mb(k_range+qb-1)
         enddo
@@ -102,11 +106,11 @@ c
       nprocs = ga_nnodes()
       count = 0
       next = nxtval(nprocs)
-      pqboff = 0
-      pqrsoff = 0
       do pb = 1,Nb
         do qb = pb,Nb
           if (next.eq.count) then
+            if (util_print('mo2e',print_debug))
+     1        write(LuOut,9190) pb,qb,ga_nodeid()
             spin_pq = int_mb(k_spin+pb-1)+int_mb(k_spin+qb-1)
             sym_pq = ieor(int_mb(k_sym+pb-1),int_mb(k_sym+qb-1))
             sf_size_pq = int_mb(k_range+pb-1)*int_mb(k_range+qb-1)
@@ -115,8 +119,8 @@ c
      2        call errquit('tce_mo2e: MA problem',2)
             do kl = 1,sf_size_kl
               dummy=sf_read(d_ao2e,
-     1          dfloat(bytes*((kl-1)*pq_packed_off+pqboff)),
-     2          dfloat(bytes*sf_size_pq),
+     1          dfloat(bytes*((kl-1)*pq_packed_off+int_mb(k_pqboff
+     2          +(pb-1)*Nb+qb-1))),dfloat(bytes*sf_size_pq),
      3          dbl_mb(k_pqkl_packed+(kl-1)*sf_size_pq),request)
               dummy=sf_wait(request)
             enddo
@@ -162,11 +166,17 @@ c
                         pqoff = pqoff + r_range * s_range
                       enddo
                     enddo
-                    dummy=sf_write(d_mo2e,dfloat(bytes*pqrsoff),
-     1                dfloat(bytes*sf_size_pq*sf_size_rs),
-     2                dbl_mb(k_pqrs),request)
+                    if (util_print('mo2e',print_debug))
+     1                then 
+                      write(LuOut,9200) pb,qb,rb,sb
+                      call ma_print_compact(dbl_mb(k_pqrs),
+     1                sf_size_pq*sf_size_rs,1,'MO 2e')
+                    endif
+                    dummy=sf_write(d_mo2e,dfloat(bytes*
+     1                int_mb(k_2e_offset+(((pb-1)*Nb+qb-1)*Nb
+     2                +rb-1)*Nb+sb-1)),dfloat(bytes*sf_size_pq
+     3                *sf_size_rs),dbl_mb(k_pqrs),request)
                     dummy=sf_wait(request)
-                    pqrsoff = pqrsoff + sf_size_pq*sf_size_rs
                     if (.not.ma_pop_stack(l_pqrs)) 
      1                call errquit('tcc_mo2e: MA problem',5)
                     if (.not.ma_pop_stack(l_sl)) 
@@ -178,7 +188,6 @@ c
             if (.not.ma_pop_stack(l_pqkl_packed)) 
      1        call errquit('tcc_mo2e: MA problem',3)
             next = nxtval(nprocs)
-            pqboff = pqboff + sf_size_pq
           endif
           count = count + 1
         enddo
@@ -192,6 +201,8 @@ c     ==========
 c
       if (.not.ma_pop_stack(l_kl)) 
      1  call errquit('tcc_mo2e: MA problem',10)
+      if (.not.ma_pop_stack(l_pqboff)) 
+     1  call errquit('tcc_mo2e: MA problem',12)
 c
 c     Debug only
 c
@@ -240,6 +251,8 @@ c     ======
 c     Return
 c     ======
 c
+ 9190 format(/,' p q blocks ',2i3,' has been assigned to node ',i3)
+ 9200 format(/,' p q r s blocks ',4i3)
       dummy = sf_destroy(d_ao2e)
       return
       end
