@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.24 1994-08-19 01:23:16 d3g681 Exp $
+c $Id: basis.F,v 1.25 1994-08-20 01:42:37 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1453,10 +1453,12 @@ c
 c
       basis = basisin + BASIS_HANDLE_OFFSET 
 c
-      lenofit = inp_strlen(bs_name(basis))
-      basis_name(1:lenofit) = bs_name(basis)(1:lenofit)
-      lenofit = inp_strlen(bs_trans(basis))
-      basis_name(1:lenofit) = bs_trans(basis)(1:lenofit)
+*      lenofit = inp_strlen(bs_name(basis))
+*      basis_name(1:lenofit) = bs_name(basis)(1:lenofit)
+*      lenofit = inp_strlen(bs_trans(basis))
+*      basis_name(1:lenofit) = bs_trans(basis)(1:lenofit)
+      basis_name = bs_name(basis)
+      trans_name = bs_trans(basis)
 c
       end
 c......................................................................
