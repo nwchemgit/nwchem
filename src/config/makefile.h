@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.339 2000-10-27 19:56:13 edo Exp $
+# $Id: makefile.h,v 1.340 2000-11-01 01:05:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1393,11 +1393,12 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   FC         = fort
   CC         = ccc      
   LINK.f = fort $(LDFLAGS)
-  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64
+  DEFINES   +=   -DEXT_INT -DLINUX -DLINUX64 -DPARALLEL_DIAG
   FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe3 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
   EXTRA_LIBS = 
   FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
   FVECTORIZE = -fast -O5 -tune host -arch host
+#  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lf77blas -latlas
   CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
 endif
 ifeq ($(TARGET),FUJITSU_VPP)
