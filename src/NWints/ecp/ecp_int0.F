@@ -1,11 +1,12 @@
-C $Id: ecp_int0.F,v 1.5 1997-10-01 18:24:00 mg201 Exp $
+C $Id: ecp_int0.F,v 1.6 1997-10-03 01:47:27 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
      &    l_a,n_prim_a,n_cont_a,coef_a,zeta_a,n_na,
      &    l_b,n_prim_b,n_cont_b,coef_b,zeta_b,n_nb,
-     &    l_ecp_max,n_prim_c,n_coef_c,ind_c,n_c_tot,coef_c,zeta_c,
-     &    p_min,p_max,tol,sphcart,tmp,l_tmp,
+     &    l_ecp_max,n_prim_c,n_coef_c,
+     &    ind_z,ind_c,n_z_tot,n_c_tot,n_cent,
+     &    zeta_c,coef_c,p_min,p_max,tol,sphcart,tmp,l_tmp,
      &    csco,lcsco,
      &    ecp_ints,n_blk,ibug)
 *                                                                      *
@@ -15,39 +16,40 @@ C $Id: ecp_int0.F,v 1.5 1997-10-01 18:24:00 mg201 Exp $
 *                                                                      *
 *   mem_max (out) - maximum scratch memory required                    *
 *   DryRun (inp) - logical to only return memory if true               *
-*   R_AC (inp) - distance between centres A and C                      *
-*   X_AC,Y_AC,Z_AC (inp) - cartesian coordinates of centre C relative  *
-*                          to centre A, X_AC = X_C - X_A, etc.         *
 *   l_a (inp) - (maximum) angular momentum of functions on centre A    *
 *   n_prim_a (inp) - number of primitive functions on centre A         *
 *   n_cont_a (inp) - number of contracted functions on centre A        *
-*   coef_a - contraction coefficients of basis functions on centre A   *
-*   zeta_a - exponents of primitive basis functions on centre A        *
-*   R_BC (inp) - distance between centres B and C                      *
-*   X_BC,Y_BC,Z_BC (inp) - cartesian coordinates of centre C relative  *
-*                          to centre B, X_BC = X_C - X_B, etc.         *
+*   coef_a (inp) - centre A contraction coefficients                   *
+*   zeta_a (inp) - centre A exponents                                  *
+*   n_na (inp) - number of cartesian components for centre A           *
 *   l_b (inp) - (maximum) angular momentum of functions on centre B    *
 *   n_prim_b (inp) - number of primitive functions on centre B         *
 *   n_cont_b (inp) - number of contracted functions on centre B        *
-*   coef_b - contraction coefficients of basis functions on centre B   *
-*   zeta_b - exponents of primitive basis functions on centre B        *
+*   coef_b (inp) - centre B contraction coefficients                   *
+*   zeta_b (inp) - centre B exponents                                  *
+*   n_nb (inp) - number of cartesian components for centre B           *
 *   l_ecp_max (inp) - maximum angular momentum of ECP projector        *
 *   n_prim_c (inp) - number of primitive functions for each power of r *
 *                    in ECP expansion                                  *
 *   n_coef_c (inp) - array of number of coefficients/exponents for     *
 *                    each projector                                    *
-*   ind_c (inp) - address of first coefficient/exponent for each l     *
-*   n_c_tot (inp) - total number of ECP coefficients/exponents         *
-*   coef_c - ECP contraction coefficients                              *
+*   ind_z (inp) - array of addresses of first exponent for each l      *
+*   ind_c (inp) - array of addresses of first coefficient for each l   *
+*   n_z_tot (inp) - total number of ECP exponents                      *
+*   n_c_tot (inp) - total number of ECP coefficients                   *
+*   n_cent (inp) - number of ECP centres                               *
 *   zeta_c - ECP exponents                                             *
+*   coef_c - ECP contraction coefficients                              *
 *   p_min - minimum power of r in ECP expansion                        *
 *   p_max - maximum power of r in ECP expansion                        *
 *   tol (inp) - maximum relative error in bessel functions             *
 *   sphcart (inp) - 1 for spherical basis, 0 for cartesian basis.      *
-*   n_blk (inp) - 1 for scalar only, 3 for s-o only, 4 for both        *
-*   tmp - work array                                                   *
-*   l_tmp - length of tmp                                              *
+*   tmp (scr) - work array                                             *
+*   l_tmp (inp) - length of tmp                                        *
+*   csco (inp) - cartesian/spherical transformation                    *
+*   lcsco (inp) - length of cartesian/spherical transformation         *
 *   ecp_ints - integrals over ECP                                      *
+*   n_blk (inp) - 1 for scalar only, 3 for s-o only, 4 for both        *
 *   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
 *          array printing, 3 for both.                                 *
 *                                                                      *
@@ -64,15 +66,18 @@ C $Id: ecp_int0.F,v 1.5 1997-10-01 18:24:00 mg201 Exp $
 #include "stdio.fh"
 #include "ecp_consts.fh"
       integer l_a,n_prim_a,n_cont_a,n_na,l_b,n_prim_b,n_cont_b,n_nb,
-     &    l_ecp_max,n_c_tot,l_tmp,p_min,p_max,sphcart,mem_max,ibug
-      integer n_coef_c(-1:l_ecp_max),n_prim_c(p_min:p_max,-1:l_ecp_max),
-     &    ind_c(-1:l_ecp_max)
-      integer i,j,m,i_wrk,i_prm,i_tmp,i_Q_int,i_scr,i_free,i_ang,l_c,
-     &    l_c_min,l_c_max,l_cmp,n_ab,nc_ab,ncab,n_l,n_c,n_blk,n_cont_c
-      integer n_all_a,n_all_b,n_ang,n_x
+     &    l_ecp_max,n_z_tot,n_c_tot,n_cent,l_tmp,p_min,p_max,sphcart,
+     &    mem_max,n_blk,ibug
+      integer n_coef_c(-1:l_ecp_max,n_cent,2),
+     &    n_prim_c(p_min:p_max,-1:l_ecp_max,n_cent,2),
+     &    ind_z(-1:l_ecp_max,n_cent,2),ind_c(-1:l_ecp_max,n_cent,2)
+      integer i,j,m,i_wrk,i_prm,i_tmp,i_Q_int,i_coef,i_scr,i_free,i_ang,
+     &    i_ze,i_cont_c,i_off,i_co,l_c,l_c_min,l_c_max,l_cmp,
+     &    n_ab,nc_ab,ncab,n_l,n_co,n_co_tot,n_co_max,n_cont_c
+      integer n_all_a,n_all_b,n_ang,n_x,n_pass
       integer lcsco
-      logical DryRun,debug_gen,debug_addresses,debug_arrays
-      double precision coef_c(n_c_tot),zeta_c(n_c_tot),
+      logical DryRun,debug_gen,debug_addresses,debug_arrays,skip
+      double precision zeta_c(n_z_tot),coef_c(n_c_tot),
      &    coef_a(n_prim_a,n_cont_a),coef_b(n_prim_b,n_cont_b),
      &    zeta_a(n_prim_a),zeta_b(n_prim_b),
      &    tmp(l_tmp),ecp_ints(n_na,n_cont_a,n_nb,n_cont_b,n_blk),
@@ -114,42 +119,55 @@ C $Id: ecp_int0.F,v 1.5 1997-10-01 18:24:00 mg201 Exp $
         l_c_max = l_a
       end if
 *
-*     Loop over ECP angular momentum projectors
+*   Loop over ECP angular momentum projectors (l values)
 *
-C      write (LuOut,*) 'Starting l_c loop'
       do l_c = l_c_min,l_c_max,2
-        if (l_c .gt. 0) then
-          n_cont_c = n_blk/4+1
-          n_x = n_blk
-        else if (n_blk .ne. 3) then
-          n_cont_c = 1
-          n_x = 1
-        else
-          go to 10
-        end if
-        n_c = n_coef_c(l_c)
+*
+*     Define parameters for the different integral class cases
+*
+        call ecp_ind_var (l_c,n_blk,n_coef_c(l_c,1,1),n_coef_c(l_c,1,2),
+     &      ind_c(l_c,1,1),ind_c(l_c,1,2),ind_z(l_c,1,1),ind_z(l_c,1,2),
+     &      n_x,n_co_tot,n_co_max,i_off,n_pass,i_cont_c,n_cont_c,skip)
+        if (skip) go to 10
+*
+*     Set up pointers for radial integral evaluation
+*
         i_Q_int = 1
-        i_tmp = i_Q_int+ncab*n_cont_c
+        i_tmp = i_Q_int+ncab*max(n_cont_c,n_pass)
         i_prm = i_tmp+n_ab
-        i_wrk = i_prm+n_ab*n_c
-        i_free = i_wrk+nc_ab
-        if (debug_addresses) write (LuOut,*) 'i_Q_int,i_tmp,i_prm,',
-     &      'i_wrk,i_free,mem_max',
-     &      i_Q_int,i_tmp,i_prm,i_wrk,i_free,mem_max
+        i_wrk = i_prm+n_ab*n_co_max
+        i_coef = i_wrk+nc_ab
+        i_free = i_coef+n_co_tot
+        if (debug_addresses) write (LuOut,*) 
+     &      'i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free,mem_max',
+     &      i_Q_int,i_tmp,i_prm,i_wrk,i_coef,i_free,mem_max
         if (DryRun) then
           mem_max = max(mem_max,i_free-1)
         else
           if (i_free-1 .gt. l_tmp) call errquit(
      &        ' Insufficient memory in ecp_int0',99)
-          i = ind_c(l_c)
-          if (debug_addresses) write (LuOut,*) 'l_c,ind_c(l_c),n_c',
-     &        l_c,ind_c(l_c),n_c
-          call ecp_radint0 (p_min,p_max,
-     &        n_prim_c(p_min,l_c),n_c,n_cont_c,zeta_c(i),coef_c(i),
-     &        l_a,n_prim_a,n_cont_a,zeta_a,coef_a,
-     &        l_b,n_prim_b,n_cont_b,zeta_b,coef_b,
-     &        tmp(i_prm),tmp(i_tmp),tmp(i_wrk),tmp(i_Q_int),
-     &        (ibug/10))
+          i = i_cont_c
+          j = i_Q_int
+          do m = 1,n_pass
+            i_ze = ind_z(l_c,1,i)
+            i_co = ind_c(l_c,1,i)
+            n_co = n_coef_c(l_c,1,i)
+            call dcopy (n_co,coef_c(i_co),1,tmp(i_coef),1)
+            if (n_cont_c .eq. 2) call dcopy 
+     &          (n_co,coef_c(ind_c(l_c,1,2)),1,tmp(i_coef+n_co),1)
+            if (debug_addresses) write (LuOut,*) 
+     &          'l_c,i_ze,i_co,n_co',
+     &          l_c,i_ze,i_co,n_co
+            call ecp_radint0 (p_min,p_max,
+     &          n_prim_c(p_min,l_c,1,i),n_co,n_cont_c,
+     &          zeta_c(i_ze),tmp(i_coef),
+     &          l_a,n_prim_a,n_cont_a,zeta_a,coef_a,
+     &          l_b,n_prim_b,n_cont_b,zeta_b,coef_b,
+     &          tmp(i_prm),tmp(i_tmp),tmp(i_wrk),tmp(j),
+     &          (ibug/10))
+            i = i+1
+            j = j+ncab
+          end do
         end if
 *
         n_l = 2*l_c+1
@@ -215,6 +233,7 @@ C      write (LuOut,*) 'Starting l_c loop'
 *
             i = i_ang
             do j = 1,n_x
+              m = j+i_off
               if (debug_arrays) call ecp_matpr (tmp(i),-l_c,l_c,
      &            -l_c,l_c,-l_c,l_c,-l_c,l_c,'Spherical tensor overlap',
      &            'F',78,4)
@@ -227,8 +246,8 @@ C      write (LuOut,*) 'Starting l_c loop'
               if (debug_arrays) call ecp_matpr (tmp(i_scr),1,n_na,
      &            1,n_nb,1,n_na,1,n_nb,'Angular integrals','F',78,4)
               call ecp_angrad (n_na,n_cont_a,n_nb,n_cont_b,
-     &            tmp(i_scr),tmp(i_Q_int),ecp_ints(1,1,1,1,j))
-              if (debug_arrays) call ecp_matpr (ecp_ints(1,1,1,1,j),
+     &            tmp(i_scr),tmp(i_Q_int),ecp_ints(1,1,1,1,m))
+              if (debug_arrays) call ecp_matpr (ecp_ints(1,1,1,1,m),
      &            1,n_all_b,1,n_all_a,1,n_all_b,1,n_all_a,
      &            'Assembled integrals','E',78,4)
               if ((j .eq. 1) .and. (n_x .eq. 4)) 
