@@ -231,7 +231,7 @@ c
      /              (exp_iat+expo(jat))
                range=range+shift_2g
 cedo               write(0,*) ' expA expB shift_2g ',exp_iat,
-     .              expo(jat),shift_2g
+cedo     .              expo(jat),shift_2g
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g
                   range_max =  range
