@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.2 2002-10-30 21:49:14 sohirata Exp $
+c $Id: sf_test.F,v 1.3 2002-10-30 22:05:30 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -28,20 +28,17 @@ c
       call put_block(d_test,dbl_mb(k_sf),1,ga_nodeid())
       call ga_sync()
       call get_block(d_test,dbl_mb(k_sf),size,0)
-      write(*,*) ga_nodeid()
-      call ma_print(dbl_mb(k_sf),size,1,'result')
-c     do i = 1,size
-c       if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
-c    1    call errquit('sf_test failed',i)
-c     enddo
+      do i = 1,size
+        if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
+     1    call errquit('sf_test failed',i)
+      enddo
       if (.not.ma_pop_stack(l_sf))
      1  call errquit('sf_print: MA problem',1)
       if (nodezero.and.util_print('sf',print_default))
      1  write(LuOut,9010)
       call deletefile(d_test)
-      stop
  9000 format(/,1x,
-     1 'This module uses a global file system accessible by all nodes.')
+     1 'This module uses a global file system accessible by all nodes')
  9010 format(/,1x,'I/O self test is being performed ... passed')
       return
       end
