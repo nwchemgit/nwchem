@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func)     
 c
-c$Id: xc_hcth.F,v 1.4 1998-10-14 22:03:52 og845 Exp $
+c$Id: xc_hcth.F,v 1.5 1998-10-16 00:35:50 og845 Exp $
 c
       Implicit none
 c
@@ -11,14 +11,15 @@ c
       double precision func(*)
       double precision fac
 c
-      integer ipol, nq        ! [input]
-      double precision tol_rho! [input]
+      integer ipol  ! no. of spin states [input]
+      integer nq    ! no. of quadrature pts [input]
+      double precision tol_rho! [input]!threshold on density
       double precision Ec ! Correlation energy [input/output] 
       double precision Ex ! Exchange    energy [input/output] 
       double precision rho(nq,ipol*(ipol+1)/2)! Charge Density [input] 
       double precision delrho(nq,3,ipol) ! Charge Density Gradient[input] 
       double precision qwght(nq) ! Quadrature Weights [input]
-      double precision Amat(nq,ipol)  !Sampling Matrices for the XC 
+      double precision Amat(nq,ipol)  !Sampling Matrices for the XC [output]
       double precision Cmat(nq,3,ipol)!Potential & Energy [output]
 c     
 c References:
@@ -51,7 +52,8 @@ c
             if(gammaval.gt.tol_rho)  za=sqrt(gammaval)
             zb=za
             call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
-     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol)
+     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
+     &           'hcth')
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
@@ -78,7 +80,8 @@ c
      &           delrho(n,3,2)*delrho(n,3,2) 
             if(gammaval.gt.tol_rho) zb=sqrt(gammaval)
             call hcth(dfdra, dfdza, dfdrb, dfdzb, rhoa, rhob, 
-     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol)
+     &           za, zb, .false., hE_x, hE_c, tol_rho,ipol,
+     ,           'hcth')
             if(ldew) func(n)=func(n)+(hE_c+hE_x)*fac
             Ec=Ec+hE_c*qwght(n)*fac
             Ex=Ex+hE_x*qwght(n)*fac
@@ -100,7 +103,7 @@ c
 
       SUBROUTINE hcth(dfdra, dfdza, dfdrb, dfdzb, 
      1                  rhoa, rhob, za, zb, energy, hE_x, hE_c, 
-     2     tol_rho,ipol)
+     2     tol_rho,ipol,functional)
 
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
 C    SUPPLIED TO THE ROUTINE:
@@ -134,9 +137,6 @@ C              This is a consequence of the Cadpac implementation
 C    dfdzb  -- partial functional derivative of F_xc with respect to   
 C              mod(grad(rhobeta)), divided by zb !!!!!!!!!
 
-C please note that a cutoff of 1.D-10 for the density is hard-wired in the 
-C code in several different places; if the density at a point in space is 
-C lower than that value, its contribution is neglected. 
 
       implicit none
       
@@ -152,21 +152,28 @@ C lower than that value, its contribution is neglected.
       double precision dfdrb     ![output]
       double precision dfdza     ![output]
       double precision dfdzb     ![output]
-      integer max_pow_u,n
-      PARAMETER(max_pow_u = 4)
+      character*4 functional
       double precision pi
       PARAMETER (PI=3.1415926535898D0)
 
-Cfah max_pow_u is equivalent to "m" in the Becke V paper, that is, the greatest 
+      integer limpow,n
+      PARAMETER(limpow = 4)
+Cfah limpow is equivalent to "m" in the Becke V paper, that is, the greatest 
 Cfah power of u appearing in the power expansion. 
 Cfah The "Becke V" paper is: 
 Cfah Becke A. D.  Density-functional thermochemistry. V.
 Cfah Systematic optimization of exchange-correlation functionals, 
 Cfah J. Chem. Phys., 1997, 107, 8554-8560
 
-      double precision sol((max_pow_u+1)*3), F((max_pow_u+1)*3,5), 
-     &          FF((max_pow_u+1)*3,5,5),
-     &          F_xc((max_pow_u+1)*3)
+
+      LOGICAL energy
+C               B97         B97-1          HCTH        HCTH-A
+C m max          2,            2,            4,           4,
+      integer numfunc,nofunc,max_pow_u
+      parameter(numfunc=4)
+      double precision sol((limpow+1)*3), F((limpow+1)*3,5), 
+     &          FF((limpow+1)*3,5,5),
+     &          F_xc((limpow+1)*3)
 
 Cfah sol -- contains the coefficients of the terms in F_xc
 Cfah        convention: sol(1) = c_{x alpha, 0}, c_{x beta, 0}
@@ -198,8 +205,60 @@ Cfah          of u_{c alpha beta}
 
 Cfah these transformed variables u will be defined and given short-cut names 
 Cfah below. 
-
-      LOGICAL energy
+      double precision coeffs(3*(limpow+1),numfunc)
+      character*4 funcnam(numfunc)
+      integer maxpow(numfunc)
+      data maxpow  /     2,     2,    4,      4/
+      data funcnam/'b970','b971','hcth','hcta'/
+Cc X s,0
+      data (coeffs(1,n),n=1,4)/
+     /     +0.80940d+00,+0.789518d+00,+0.109320d+01,+0.109878d+01/
+c C ss,0 
+      data (coeffs(2,n),n=1,4)/
+     ,     +0.17370d+00,+0.820011d-01,+0.222601d+00,+0.136823d-01/
+c C ab,0 
+      data (coeffs(3,n),n=1,4)/
+     ,     +0.94540d+00,+0.955689d+00,+0.729974d+00,+0.836897d+00/
+c X s,1 
+      data (coeffs(4,n),n=1,4)/
+     ,     +0.50730d+00,+0.573805d+00,-0.744056d+00,-0.251173d+01/
+c C ss,1 
+      data (coeffs(5,n),n=1,4)/
+     ,     +0.23487d+01,+0.271681d+01,-0.338622d-01,+0.268920d+00/
+c C ab,1 
+      data (coeffs(6,n),n=1,4)/
+     ,     +0.74710d+00,+0.788552d+00,+0.335287d+01,+0.172051d+01/
+c X s,2 
+      data (coeffs(7,n),n=1,4)/
+     ,     +0.74810d+00,+0.660975d+00,+0.559920d+01,+0.156233d-01/
+c C ss,2
+      data (coeffs(8,n),n=1,4)/
+     ,     -0.24868d+01,-0.287103d+01,-0.125170d-01,-0.550769d+00/
+c C ab,2
+      data (coeffs(9,n),n=1,4)/
+     ,     -0.45961d+01,-0.547869d+01,-0.115430d+02,-0.278498d+01/
+c X s,3 
+      data (coeffs(10,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,-0.678549d+01, 0.00000000d0/
+c C ss,3
+      data (coeffs(11,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,-0.802496d+00,+0.103947d+01/
+c C ab,3
+      data (coeffs(12,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,+0.808564d+01,-0.457504d+01/
+c X s,4 
+      data (coeffs(13,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,+0.449357d+01, 0.00000000d0/
+c C ss,4
+      data (coeffs(14,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,+0.155396d+01, 0.00000000d0/
+c C ab,4
+      data (coeffs(15,n),n=1,4)/
+     ,      0.0000000d0, 0.00000000d0,-0.447857d+01, 0.00000000d0/
+c
+c X +0.1! coeffs for HF exchange
+c
+C     ,     +0.19430d+00,+0.210000d+00, 0.00000000d0, 0.00000000d0/
 
 C     Initialise
 
@@ -210,27 +269,34 @@ C     Initialise
       hE_c = 0.D0
       hE_x = 0.D0
 
-      IF ((rhoa + rhob) .LT. 1.D-10) RETURN
+      IF (rhoa .LT. tol_rho.and.rhob.lt.tol_rho) RETURN
 Cfah numerical cutoff: if the density is too low, its contribution is 
 Cfah neglectable. 
+      do n=1,numfunc
+        if(functional.eq.funcnam(n)) nofunc=n
+      enddo
+      max_pow_u=maxpow(nofunc)
+      do n=1,3*(limpow+1)
+        sol(n)=coeffs(n,nofunc)
+      enddo
 
 C please refer to these coeffs as THCH1/iterate-e750-g500-v1-m4-n4
 
-      sol( 1) =     0.109320D+01
-      sol( 2) =     0.222601D+00
-      sol( 3) =     0.729974D+00
-      sol( 4) =    -0.744056D+00
-      sol( 5) =    -0.338622D-01
-      sol( 6) =     0.335287D+01
-      sol( 7) =     0.559920D+01
-      sol( 8) =    -0.125170D-01
-      sol( 9) =    -0.115430D+02
-      sol(10) =    -0.678549D+01
-      sol(11) =    -0.802496D+00
-      sol(12) =     0.808564D+01
-      sol(13) =     0.449357D+01
-      sol(14) =     0.155396D+01
-      sol(15) =    -0.447857D+01
+c      sol( 1) =     0.109320D+01
+c      sol( 2) =     0.222601D+00
+c      sol( 3) =     0.729974D+00
+c      sol( 4) =    -0.744056D+00
+c      sol( 5) =    -0.338622D-01
+c      sol( 6) =     0.335287D+01
+c      sol( 7) =     0.559920D+01
+c      sol( 8) =    -0.125170D-01
+c      sol( 9) =    -0.115430D+02
+c      sol(10) =    -0.678549D+01
+c      sol(11) =    -0.802496D+00
+c      sol(12) =     0.808564D+01
+c      sol(13) =     0.449357D+01
+c      sol(14) =     0.155396D+01
+c      sol(15) =    -0.447857D+01
 
       IF (energy) THEN
         CALL hcderiv(F,FF,
@@ -239,7 +305,7 @@ C please refer to these coeffs as THCH1/iterate-e750-g500-v1-m4-n4
 Cfah this logical indicates whether or not the
 Cfah derivatives are required
      &             rhoa,rhob,za,zb,
-     &                 max_pow_u,
+     &             limpow,    max_pow_u, 
      &             sol,tol_rho)
  
 
@@ -251,7 +317,7 @@ Cfah derivatives are required
 Cfah this logical indicates whether or not the
 Cfah derivatives are required 
      &             rhoa,rhob,za,zb,
-     &                 max_pow_u,
+     &              limpow,   max_pow_u,
      &             sol,tol_rho)
 
         if(ipol.eq.2) then
@@ -371,20 +437,20 @@ Cfah------------------------------------------------------------
 Cfah this logical indicates whether or not the 
 Cfah derivatives are required (important for cadpac use only)
      &             rhoa,rhob,za,zb,
-     &                 max_pow_u,
+     &             limpow,    max_pow_u,
      &             sol,tol_rho,ipol)
 
 c    subroutine supplied by Fred Hamprecht fah@igc.phys.chem.ethz.ch
       IMPLICIT NONE
 
-      INTEGER max_pow_u
-      double precision f_xc((max_pow_u + 1)*3)
-      double precision f((max_pow_u+1)*3,4), ff((max_pow_u+1)*3,5,4)
+      INTEGER max_pow_u,limpow
+      double precision f_xc((limpow + 1)*3)
+      double precision f((limpow+1)*3,4), ff((limpow+1)*3,5,4)
       double precision rhoa, rhob, za, zb,tol_rho
       integer ipol! [input]
 
       LOGICAL derivestuff 
-      DOUBLE PRECISION sol((max_pow_u+1)*3)
+      DOUBLE PRECISION sol((limpow+1)*3)
     
       
       DOUBLE PRECISION dF_xa(4)
