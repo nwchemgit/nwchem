@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.3 1996-02-14 17:14:49 d3e129 Exp $
+c $Id: int_spcart.F,v 1.4 1996-02-14 17:43:34 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -180,7 +180,7 @@ c
 00300     continue
 00200   continue
 00100 continue
-*      call spcart_print_both(D,ld)
+*     call spcart_print_both(D,ld)
       end
 *.......................................................................
       subroutine spcart_print_both(D,ld)
