@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.44 2002-03-04 17:31:09 edo Exp $
+$Id: INSTALL,v 1.45 2002-03-19 21:21:10 mhackler Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -130,28 +130,39 @@ BASIC BUILD INSTRUCTIONS:
    "cd $NWCHEM_TOP/src"
 
 4)  The currently supported platforms are:
-
-    NWCHEM_TARGET  Platform       Checked    OS/Version    Precision 
-    -----------------------------------------------------------------
-    SOLARIS        Sun             ***      Solaris 2.X    double
-    IBM            IBM RS/6000     ***      AIX 4.X        double
-    DECOSF         DEC AXP         ***      Tru64 4.0-5.0  double
-    SGI_N32        SGI 64 bit os   ***      IRIX 6.5       double 
-                   using 32 pointers			       
-    SGITFP         SGI 64 bit os   ***      IRIX 6.5       double
-    CRAY-T3D       Cray T3D                 UNICOS         single
-    CRAY-T3E       Cray T3E        ***      UNICOS         single
-    LAPI           IBM SP          ***      AIX/LAPI       double
-    LINUX          Intel x86       ***      RedHat 5.2-6.2 double
-                   PowerPC         **       RedHat 6.0     double
-    LINUX64        Alpha           **       RedHat 6.2     double
-    HPUX           HP              **       HPUX 11.0      double
-    WIN32          Intel x86        *       Windows98/NT   double
-    -----------------------------------------------------------------
-   *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
-          If you don't have it get it from IBM.  Also, the environment
-          variable LARGE_FILES should be set to YES during the compile to
-          allow larger than 2 GB scratch files.
+         
+   NWCHEM_TARGET  Platform        OS/Version    compilers    LARGE_FILES
+   ----------------------------------------------------------------------
+   SOLARIS        Sun             Solaris 2.X                     y
+   SOLARIS64      Sun             Solaris 2.X                     -
+   				 		   
+   IBM            IBM RS/6000     AIX 4.X                         y
+   IBM64          IBM RS/6000     AIX 4.X                         -
+   				 		   
+   DECOSF         DEC AXP         Tru64 4.0-5.0                   -
+   				 		   
+   SGI_N32        SGI 64 bit os   IRIX 6.5        
+                  using 32 ints 		   
+   SGITFP         SGI 64 bit os   IRIX 6.5       
+   				 		   
+   CRAY-T3D       Cray T3D        UNICOS         
+   CRAY-T3E       Cray T3E        UNICOS         
+   				 		   
+   LAPI           IBM SP          AIX/LAPI                        y
+   LAPI64         IBM SP          AIX/LAPI                        -
+   				 		   
+   LINUX          x86             RH,MDK          GNU,Intel*,PGI  y
+                  ppc             RH6.0,YD2.1     GNU
+   LINUX64        Alpha           RedHat 6.2      Compaq          -
+                  ia64            RedHat 7.2      Intel           -
+   				 		   
+   HPUX           hppa            HPUX 11.0                       y
+   HPUX64         hppa            HPUX 11.0                       -
+                  ia64            HPUX 11.0                       -
+   				 		   
+   WIN32          Intel x86       Windows98/NT    Compaq 
+   ----------------------------------------------------------------------
+   *Note: For Pentium IV, make FC=ifc _CPU=i786 to get optimized code (25% gain)
 
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
@@ -370,19 +381,13 @@ BUILDING WITH MPI:
         setenv LIBMPI -lmpich
      MPIPro: 
         setenv LIBMPI "-lmpipro -lpthread"
-     MVICH 1.0
-        setenv LIBMPI "-lmpich -lmpichfsup -lpthread"	
-     LAM version 6.3 
-        setenv MPI_LIB $LAMHOME/lib
-        setenv LIBMPI "-lmpi -ltstdio -ltrillium -largs -lt"
-        setenv MPI_INCLUDE $LAMHOME/include/
      LAM version 6.5 
         setenv MPI_LIB /usr/lib
         setenv LIBMPI "-lmpi -llam -lpthread"
         setenv MPI_INCLUDE /usr/include/
      MPICH/GM
       same as for MPICH, plus
-        setenv GM_HOME "location of GM software"
+        setenv GM_HOME /usr/local/gm-1.2/binary #location of GM software
         setenv GM_INCLUDE $GM_HOME/include
         setenv GM_LIB $GM_HOME/lib
         setenv ARMCI_NETWORK GM
@@ -395,8 +400,8 @@ BUILDING WITH MPI:
         setenv LIBELAN_WAITTYPE 200 
      HPUX
         setenv MPI_INCLUDE /opt/mpi/include
-        setenv LIBMPI -lmpi
         setenv MPI_LIB /opt/mpi/lib/pa20_64/
+        setenv LIBMPI -lmpi
      HPUX64
         setenv MPI_INCLUDE /opt/mpi/include
         setenv MPI_LIB /opt/mpi/lib/pa1.1/
@@ -415,15 +420,22 @@ BUILDING WITH MPI:
    To run with MPI, "parallel" should not be used.  The way 
    we usually run nwchem under MPI are the following:
      1) using mpirun:
-
+     
      mpirun -np 8 $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem h2o.nw
+     
+     NOTE: In some MPI implementation, NWChem fails to read the input
+     file argument (h2o.nw in the previous example). If this is the
+     case, you have to copy your input file in the working directory
+     as nwchem.nw.
 
      2) If you have all nodes connected via shared memory 
      and you have installed the ch_shmem version of MPICH, 
      you can do
 
      $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem -np 8 h2o.nw
-
+     
+     The previous NOTE about the input file argument applies to
+     this case, too.
 
 BUILDING WITH PYTHON:
 ---------------------
@@ -587,19 +599,24 @@ node3 4
 node4 2
 node4 4
 
+To run (IMPORTANT):
+mpirun.ch_gm --gm-use-shmem $NWCHEM_TOP/bin/LINUX/nwchem
+
 
 BUILDING AND RUNNING NWCHEM ON GIGANET CLUSTERS:
 ------------------------------------------------
 Before starting the NWChem compilation, the following environmental
 variables must be defined:
 
-ARMCI_NETWORK=VIA 
-
-
+ARMCI_NETWORK=VIA
 
 To run NWChem, you need to set the following environmental variable:
 
 MPI_COMM=VIA
+------------------------------------------------
+Note*: Giganet clusters can be configured with MPICH or MPI.
+       Please see the above notes "Building with MPI" for further details.
+
 
 
 BUILDING FOR WINDOWS:
