@@ -196,6 +196,7 @@ c
                   ictr = qsh(2,iqsh)
                    if(dogradient) then
                    else
+                      nq=nqmax
                    call grid_quadvc(cube_done,nwrbuf,
      ,                 aqbuf,nq,nq_out,
      ,                 ntot_cube,ictr,qxyz, qwght, 
