@@ -37,7 +37,7 @@ c     cpbe96
 c     xpbe96
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 24,numfunc=16)
+      parameter (num_dirs = 30,numfunc=16)
       character*10 dirs(num_dirs)
       character*255 test
 c
@@ -55,7 +55,9 @@ c
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
      &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 
      &           'vwn_5','vwn_1_rpa','hcth','becke97','becke97-1',
-     &           'cpbe96','xpbe96','gill96','xperdew91'/
+     &           'cpbe96','xpbe96','gill96','xperdew91',
+     ,     'xhcth','xbecke97','xbecke97-1',
+     ,     'chcth','cbecke97','cbecke97-1'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
@@ -82,7 +84,8 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-     ,      2100,2200,2300, 2400, 1999) ind
+     ,      2100,2200,2300, 2400, 
+     ,     2500, 2600, 2700, 2510, 2610, 2710,1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
@@ -235,8 +238,69 @@ c
          lcfac(13) = .true.
          nlcfac(13) = .true.
          cfac(13) = 1.0d0
-C       endif            
+c     
+c     HCTH for exchange 
+c     
+ 2500    continue
 c
+
+c     
+         lxfac(4) = .true.
+         nlxfac(4) = .true.
+         xfac(4) = 1.0d0
+
+c
+      goto 10
+c     
+c     HCTH for correlation
+c     
+ 2510 continue
+c
+
+c     
+         lcfac(13) = .true.
+         nlcfac(13) = .true.
+         cfac(13) = 1.0d0
+
+c
+      goto 10
+ 2600 continue
+c
+c     Becke97 X
+c
+        xfac(1) = 0.1943d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+        xfac(5) = 1.d0
+       lxfac(5) = .true.
+      nlxfac(5) = .true.
+      goto 10
+ 2610 continue
+c
+c     Becke97 C
+c
+        cfac(14) = 1.d0
+       lcfac(14) = .true.
+      nlcfac(14) = .true.
+      goto 10
+ 2700 continue
+c
+c     Becke97-1 X
+c
+        xfac(1) = 0.2100d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+        xfac(6) = 1.d0
+       lxfac(6) = .true.
+      nlxfac(6) = .true.
+      goto 10
+ 2710 continue
+c
+c     Becke97-1
+c
+        cfac(15) = 1.d0
+       lcfac(15) = .true.
+      nlcfac(15) = .true.
       goto 10
 c     
 c     lyp; LYP functional for correlation
@@ -880,6 +944,10 @@ c
      &       /,' [xpbe96] ',
      &       /,' [gill96] ',
      &       /,' [xperdew91] ',
+     &       /,' [cbecke97] ',
+     &       /,' [xbecke97] ',
+     &       /,' [cbecke97-1',
+     &       /,' [xbecke97-1',
      &       /,' [xhcth] ',
      &       /,' [chcth] ')
       call util_flush(6)
