@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.25 1999-05-26 05:36:51 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.26 1999-09-11 03:43:34 d3j191 Exp $
 c
       implicit none
 c
@@ -271,6 +271,7 @@ c
       qtot(1)=0.0d0
       qtot(2)=0.0d0
       qtot(3)=0.0d0
+      if(natm.gt.0) then
       if(util_print('files',print_default)) then
       write(lfnout,2000)
  2000 format(' Segment charges',t25,7x,'set 1',7x,'set 2',7x,'set 3',/)
@@ -357,6 +358,7 @@ c      endif
       write(lfnout,2002) qtot
  2002 format(t25,'------------------------------------',/,
      + ' Total charge',t25,3f12.6,/)
+      endif
       endif
 c
       do 11 i=1,nbnd
