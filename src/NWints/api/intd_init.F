@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.27 2000-02-04 01:07:23 mg201 Exp $
+c $Id: intd_init.F,v 1.28 2000-03-16 22:34:06 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -105,6 +105,7 @@ c
          int_mb(mybIm_a+nbas) = dk_fitbas
          nrbas = nrbas + 1
       endif
+      if (doug_kroll .or. dyall_mod_dir) call rel_init_con (rtdb)
       call intd_init_org(rtdb, nrbas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
      $     call errquit('int_init: ma_pop_stack mybm_a',0)
