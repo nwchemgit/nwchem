@@ -1,5 +1,5 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.3 1996-09-03 01:22:44 d3g681 Exp $
+C$Id: ga_it_orth.F,v 1.4 1996-09-19 19:00:50 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
 c     Form S - I and determine the error norm
 c     
          do i = ilo, ihi
-            call ga_acc(g_ms, i, i, i, i, -1.0d0, 1, 1.0d0)
+            call ga_acc(g_ms, i, i, i, i, mone, 1, one)
          enddo
 	 call ga_maxelt(g_ms, err)
 *         if ((ga_nodeid().eq.0))
@@ -97,7 +97,7 @@ c
          if (osym) then
             call ga_dscal(g_ms, mhalf)
             do i = ilo, ihi
-               call ga_acc(g_ms, i, i, i, i, 1.0d0, 1, 1.0d0)
+               call ga_acc(g_ms, i, i, i, i, one, 1, one)
             enddo
          else
             call ga_dscal(g_ms, mone)
