@@ -13,7 +13,7 @@ md
  isobar
  print step 1 stat 1
  update pairs 1 center 1 long 1 rdf 0
- record rest 1
+ record rest 0
  record prop 0 sync 1
  record coord 0 scoor 0
  record veloc 0 svelo 0
