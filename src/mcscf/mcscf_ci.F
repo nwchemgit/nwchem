@@ -3,8 +3,9 @@ c
 c   MCSCF Secular solution front-end
 c
       subroutine mcscf_cisolve( rtdb, geom, basis, nbf, nclosed,
-     $                          nact, nsym, orbsym, eps, g_h, g_coul,
-     $                          dm1, dm2, ociread, oprint, ociprint )
+     $                          nact, nsym, orbsym, e0, eps, g_h,
+     $                          g_coul, citol, ociread, oprint,
+     $                          ociprint, dm1, dm2, eci )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -15,26 +16,26 @@ c
 #include "detciP.fh"
 #include "detci.fh"
 #include "mcscfprof.fh"
-      integer rtdb
-      integer geom
-      integer basis
-      integer nbf
-      integer nclosed
-      integer nact
+c
+      integer rtdb, geom, basis
+      integer nbf, nclosed, nact
       integer nsym
       integer orbsym(nbf)
+      double precision eps(nbf)
+      double precision e0
       integer g_h
       integer g_coul
-      double precision eps(nbf)
-      double precision dm1(nact,nact)
-      double precision dm2(nact,nact,nact,nact)
+      double precision citol
       logical ociread
       logical oprint
       logical ociprint
+      double precision dm1(nact,nact)
+      double precision dm2(nact,nact,nact,nact)
+      double precision eci
 c
 #ifdef OLD_DAVIDSON
       integer mxworkvec
-      parameter(mxworkvec=12)
+      parameter(mxworkvec=16)
 #else
       integer mxworkvec
       parameter(mxworkvec=5)
@@ -45,7 +46,7 @@ c
       integer itmp(detci_maxelec_tot)
       integer nguesscfg
       double precision guess_coeff(6)
-      double precision ciener, citol
+      double precision ciener
       double precision acteps(detci_maxorb)
       double precision mxcnt
       integer maxiter
@@ -56,8 +57,8 @@ c
       integer l_eri, k_eri
       integer g_civec, g_wvec(mxworkvec)
       INTEGER J,II
-      character*10 vstr
-      character*10 civec_in
+      character*20 vstr
+      character*255 civec_in
       logical civec_saved
       logical odebugpr
 c
@@ -70,8 +71,7 @@ c
 c
       save hasprint
       data hasprint/0/
-      data citol/1.e-10/
-      data civec_in/'civec'/
+C      data civec_in/'civec'/
 c
 c
       call util_print_push
@@ -149,8 +149,13 @@ c   Can manually set the guess config. in the database
 c   otherwise generate guess via Aufbau rules with correct
 c   symmetry. Automatic
 c
+      call util_file_prefix('civec', civec_in)
       inquire(file=civec_in,exist=civec_saved)
-      if ((.not.(ociread)).or.(.not.(civec_saved))) then
+      if ((ociread).and.(civec_saved)) then
+        if (.not.(file_read_ga(civec_in,g_civec)))
+     $    call errquit('mcscf_ci: cannot read CI vector',0)
+      else
+        PRINT*,'      Guessing new CI vector     '
         if (rtdb_get(rtdb,'mcscf:guess',MT_INT,(nela+nelb),itmp)) then
           do i=1,(nela+nelb)
             guess_cfg(i) = itmp(i)
@@ -165,12 +170,11 @@ c
         guess_coeff(1) = 1.d0
         call detci_guess( nguesscfg, guess_cfg, guess_coeff,
      $                    g_civec, g_wvec(1) )
-        if (ga_nodeid().eq.0) write(6,222)
- 222    format(/,'Spin-adapted guess vector')
-        call detci_print(g_civec,1.d-2)
-      else
-        if (.not.(file_read_ga(civec_in,g_civec)))
-     $    call errquit('mcscf_ci: cannot read CI vector',0)
+        if (util_print('ci guess',print_high)) then
+          if (ga_nodeid().eq.0) write(6,222)
+ 222      format(/,'Spin-adapted guess vector')
+          call detci_print(g_civec,1.d-2)
+        endif
       endif
 c
 c   Davidson diag
@@ -178,13 +182,14 @@ c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidiag)
 #ifdef OLD_DAVIDSON
       call detci_dvddiag0( detci_sigma, detci_ciprecon, mxworkvec,
-     $                     maxiter, citol, ciener, g_wvec, g_civec,
+     $                     maxiter, citol, e0, ciener, g_wvec, g_civec,
      $                     oprint )
 #else
       call detci_dvddiag( detci_sigma, detci_ciprecon, maxiter,
      $                    citol, oprint, g_civec, g_wvec(1), g_wvec(2),
      $                    g_wvec(3), g_wvec(4), g_wvec(5), ciener )
 #endif
+      eci = e0 + ciener
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidiag)
 c
 c   Free work vectors ASAP
@@ -276,9 +281,15 @@ c
       integer coff, kk, klo, khi, n2
       integer l_t,k_t
       double precision xx
+      integer type, ncol, nrow
+      logical ojact
 c
 c
 c
+      call ga_inquire(g_coul, type, ncol, nrow )
+      ojact = (ncol.eq.(nact*nact))
+      if ((.not.(ojact)).and.(ncol.ne.(nbf*nbf)))
+     $  call errquit('mcscf_getmolocal: wrong J dimension',0)
       if (.not.ma_push_get(MT_DBL,(nact*nact),'t',l_t,k_t))
      $  call errquit('mcscf_getmolocal: cannot allocate',0)
       call dfill(ntij,0.d0,h1,1)
@@ -291,8 +302,13 @@ c
           ij = ijmap(i,j)
           do k=1,nact
             kk = (k-1)*nact
-            klo = coff + (k-1)*nbf + 1
-            khi = coff + (k-1)*nbf + nact
+            if (ojact) then
+              klo = (k-1)*nact + 1
+              khi = (k-1)*nact + nact
+            else
+              klo = coff + (k-1)*nbf + 1
+              khi = coff + (k-1)*nbf + nact
+            endif
             call ga_get(g_coul,klo,khi,gij,gij,dbl_mb(k_t+kk),1)
           enddo
           do k=1,nact

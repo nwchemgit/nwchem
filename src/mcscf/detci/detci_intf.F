@@ -121,26 +121,23 @@ c  Info print
 c     
       if ((iprint.gt.0).and.(ga_nodeid().eq.0)) then
         write(6,902) norb, nsym, civlen,
-     $               nela, nelb, nstra, nstrb,
-     $               nexa, nexb, nekla, neklb,
      $               cdetci_symstate,
      $               cdetci_spinadapt,
      $               cdetci_squant,
-     $               cdetci_eref
+     $               nela, nelb, nstra, nstrb,
+     $               nexa, nexb, nekla, neklb
  902   format(10x,'Active shells:',23x,i5,/,
      $        10x,'Irreps:',30x,i5,/,
-     $        10x,'CI vector length:',5x,i20,//,
+     $        10x,'CI vector length:',5x,i20,/,
+     $        10x,'State symmetry:',25x,i2,/,
+     $        10x,'Spin adaption:',27x,l1,/,
+     $        10x,'S quantum number:',15x,f10.3,//,
      $        37x,'Alpha',6x,'Beta',/,
      $        35x,2(7('-'),3x),/,
      $        10x,'Electrons:',12x,2i10,/,
      $        10x,'Strings:',14x,2i10,/,
      $        10x,'E_ij per string:',6x,2i10,/,
-     $        10x,'Strings per E_ij:',5x,2i10,//,
-     $        10x,'State symmetry:',8x,i5,/,
-     $        10x,'Spin adaption:',13x,l1,/,
-     $        10x,'S quantum number:',3x,f10.3,/,
-     $        10x,'Reference energy:',5x,f15.8)
-        PRINT*,'String segment length:', mseg
+     $        10x,'Strings per E_ij:',5x,2i10,/)
         call util_flush(6)
       endif
 c     

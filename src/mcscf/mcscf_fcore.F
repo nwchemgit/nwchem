@@ -30,6 +30,7 @@ c
 c  1e Hamiltononian
 c
        call moints_1e( nbf, basis, g_movecs, g_fcore)
+       
 c
 c  Inactive-active Coulomb interation
 c
@@ -109,3 +110,106 @@ c
 
 
            
+
+
+c
+c  Evaluate inactive Fock piece separately 
+c  (see mcscf_fock)
+c
+c
+       subroutine mcscf_ifock( geom, basis, nbf, nclosed, nact,
+     $                         oskel, tol2e, g_movecs, eone, etwo,
+     $                         ecore, g_ifock )
+       implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "util.fh"
+#include "geom.fh"
+       integer geom, basis                            ! [input] Geometry and basis handles
+       integer nbf                                    ! [input] Number of basis functions
+       integer nclosed                                ! [input] Number of closed shells
+       integer nact                                   ! [input] Number of open shells
+       logical oskel                                  ! [input] Symmetry toggle
+       double precision tol2e                         ! [input] Integral tolerance
+       integer g_movecs                               ! [input] MO coefficients
+       double precision eone, etwo, ecore             ! [output] Energy components
+       integer g_ifock                                ! [output] Inactive Fock matrix
+c
+       integer Msg_Ifock_Trace
+       parameter(Msg_Ifock_Trace=1976)
+c
+       integer nset
+       parameter(nset=1)
+c
+       integer g_cdens, g_tmp
+       double precision e2ii
+       integer i
+       double precision xx
+       integer iv_dens(2), iv_fock(2)
+       double precision jfac(2), kfac(2)
+       integer ga_create_atom_blocked
+       external ga_create_atom_blocked
+       data jfac/1.0d0, 1.d0/, kfac/-0.5d0, -0.5d0/
+c
+c
+c
+       g_tmp = ga_create_atom_blocked(geom, basis, 'temp1')
+       g_cdens = ga_create_atom_blocked(geom, basis, 'closed dens')
+       call ga_dgemm( 'n', 't', nbf, nbf, nclosed, 2.d0,
+     $                g_movecs, g_movecs, 0.d0, g_cdens )
+c
+c One-electron component
+c
+       call ga_zero(g_ifock)
+       call int_1e_ga( basis, basis, g_ifock, 'kinetic', oskel)
+       call int_1e_ga( basis, basis, g_ifock, 'potential', oskel)
+       if (oskel) call sym_symmetrize(geom, basis, .false., g_ifock)
+       eone = ga_ddot(g_ifock,g_cdens)
+c
+c Two-electron component of the AO Fock matrices
+c
+       call ga_zero(g_tmp)
+       iv_dens(1) = g_cdens
+       iv_fock(1) = g_tmp
+       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+     $               iv_dens, iv_fock )
+c
+c  Symmetrize Fock AO components
+c
+       if (oskel)
+     $    call sym_symmetrize(geom, basis, .false., g_tmp )
+       e2ii = ga_ddot(g_tmp,g_cdens)
+c
+c  MO integral contribution
+c
+       etwo = e2ii*0.5d0
+       if ((ga_nodeid().eq.0).and.
+     $     (util_print('energy trace',print_debug))) then
+         write(6,911) e2ii*0.5d0
+ 911     format(  'energy components  eii: ',f12.6)
+       endif
+c
+c  Inactive core energy
+c
+       call ga_dadd( 1.d0, g_tmp, 1.d0, g_ifock, g_cdens )
+       call two_index_transf( g_cdens, g_movecs, g_movecs,
+     $                       g_tmp, g_ifock )
+       ecore = 0.d0
+       do i=ga_nodeid()+1,nclosed,ga_nnodes()
+         call ga_get(g_ifock,i,i,i,i,xx,1)
+         ecore = ecore + 2.d0*xx
+       enddo
+       call ga_sync()
+       call ga_dgop(Msg_Ifock_Trace,ecore,1,'+')
+       ecore = ecore - 0.5d0*e2ii
+c
+c  Clean up
+c
+       if (.not.ga_destroy(g_tmp))
+     $   call errquit('mcscf_etr: cannot destroy',0)
+       if (.not.ga_destroy(g_cdens))
+     $   call errquit('mcscf_etr: cannot destroy',0)
+       return
+       end

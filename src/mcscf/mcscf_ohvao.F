@@ -3,8 +3,8 @@ c
 c
 c
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
-     $                               oskel, dm1, g_movecs, g_x, g_tmp,
-     $                               g_ax )
+     $                               tol2e, oskel, dm1, g_movecs,
+     $                               g_x, g_tmp, g_ax )
 #include "global.fh"
 #include "mafdecls.fh"
 #include "mcscfprof.fh"
@@ -14,6 +14,7 @@ c
        integer nbf                                  ! [input] Basis functions
        integer nclosed                              ! [input] Closed shells
        integer nact                                 ! [input] Active shells
+       double precision tol2e                       ! [input] Integral tolerance
        logical oskel                                ! [input] Symmetry selection
        double precision dm1(nact,nact)              ! [input] 1PDM
        integer g_movecs                             ! [input] MO coefficients
@@ -33,7 +34,6 @@ c
        parameter(nsets=6)
        integer iv_dens(nsets), iv_fock(nsets)
        double precision jfac(nsets),kfac(nsets)
-       double precision tol2e
 c
 c
        integer ga_create_atom_blocked
@@ -41,7 +41,6 @@ c
 c
        data jfac/6*1.d0/
        data kfac/6*-0.5d0/
-       data tol2e/1.d-12/
 c
 c
        if (omcscfprof) call pstat_on(ps_hv2eao)
@@ -76,7 +75,7 @@ c
        g_f6 = ga_create_atom_blocked( geom, basis, 'Fock 6')
 c
 c Inactive-Virtual "density"
-c                                               iv   t iv
+c                                               iv     iv t
 c                                              D  = C.X .C
 c
        call ga_matmul_patch( 'n', 't', 1.d0, 0.d0,
@@ -93,7 +92,7 @@ c
        call ga_copy( g_d1, g_d3 )
 c
 c Inactive-Virtual, Active-Virtual "density"    
-c                                               ,av   t av
+c                                               ,av     av   t
 c                                              D   = C.X .d.C
 c
        call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,

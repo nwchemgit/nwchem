@@ -19,7 +19,7 @@ c
       double precision hlp(1000000)
       integer i,j,nocc,nnocc
       logical odofock, odoao, odomo
-      data odofock, odoao, odomo/.true.,.false.,.false./
+      data odofock, odoao, odomo/.true.,.true.,.true./
 c     
       call dfill((orlen*orlen),0.d0,h,1)
       nocc = nclosed + nact

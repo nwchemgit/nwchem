@@ -181,8 +181,8 @@ c
 
 
        subroutine mcscf_hdiag_exact( geom, basis, nbf, nclosed, nact,
-     $                               oskel, pflg, lshift, dm1, dm2,
-     $                               g_coul, g_exch,
+     $                               tol2e, oskel, pflg, lshift,
+     $                               dm1, dm2, g_coul, g_exch,
      $                               g_movecs, g_ifock, g_afock,
      $                               g_gfock, g_hdiag )
        implicit none
@@ -190,6 +190,7 @@ c
 #include "mafdecls.fh"
        integer geom, basis
        integer nbf, nclosed, nact
+       double precision tol2e
        logical oskel
        integer pflg
        double precision lshift
@@ -213,7 +214,7 @@ c
          call ga_zero(g_x)
          call ga_put(g_x,i,i,1,1,xx,1)
          call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                     oskel, pflg, lshift, dm1, dm2,
+     $                     tol2e, oskel, pflg, lshift, dm1, dm2,
      $                     g_movecs, g_ifock, g_afock, g_gfock,
      $                     g_coul, g_exch, g_x, g_prod )
          call ga_get(g_prod,i,i,1,1,yy,1)

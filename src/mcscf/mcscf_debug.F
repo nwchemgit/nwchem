@@ -127,7 +127,7 @@ c$$$
          write(6,909) text
  909     format(/,a)
          write(6,910) (dbl_mb(k_tmp+i-1),i=1,vlen)
- 910     format(8F16.11)
+ 910     format(6F12.8)
          if (.not.ma_pop_stack(l_tmp))
      $     call errquit('ga_rowprint: cannot pop stack',0)
        endif
@@ -145,14 +145,14 @@ c$$$
       double precision dm2(n,n,n,n)
       double precision TOL
       integer i,j,k,l,ltop
-      data TOL/1.d-8/
+      data TOL/2.d-1/
       
       do i=1,n
-        do j=1,i
-          do k=1,i
+        do j=1,n
+          do k=1,n
             ltop = k
             if (k.gt.j) ltop = j
-            do l=1,ltop
+            do l=1,n
               if (abs(dm2(i,j,k,l)).gt.TOL) then
                 write(6,771) i,j,k,l,dm2(i,j,k,l)
  771            format(4i5,f18.10)
@@ -163,3 +163,34 @@ c$$$
       enddo
       return
       end
+
+
+
+
+
+      subroutine ga_print_x( g_a )
+      implicit none
+#include "global.fh"
+      integer g_a
+      integer type, n, m
+      integer dim
+      parameter(dim=40)
+      double precision xtmp(dim*dim)
+      integer chi, clo, i, j
+      
+      call ga_inquire(g_a, type, n, m )
+      if ((n*m).gt.(dim*dim)) return
+      call ga_get(g_a,1,n,1,n,xtmp,n)
+      chi = 0
+ 11   clo = chi + 1
+      chi = min((clo + 7),m)
+      do j=1,n
+        write(6,771) (xtmp((i-1)*n + j),i=clo,chi)
+ 771    format(8f12.6)
+      enddo
+      write(6,*)
+      if (chi.lt.n) goto 11
+      return
+      end
+
+      

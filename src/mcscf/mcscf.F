@@ -18,13 +18,10 @@ c
        integer nactel, nela, nelb, multip, orlen
        integer l_occ, k_occ, l_sym, k_sym
        integer l_evals, k_evals
-       integer l_eval2, k_eval2
        integer l_dm1, k_dm1, l_dm2, k_dm2
        integer l_tmp, k_tmp
        integer g_movecs, g_coul, g_exch
-       integer g_jact
        integer g_conj, g_gradold, g_hcore
-       integer g_afock, g_ifock, g_gfock
        integer g_grad, g_prod, g_x
        integer mo_lo, mo_hi
        integer i, j, iter, maxiter, nmixed, clo, chi
@@ -32,37 +29,54 @@ c
        integer blen
        double precision pfac
        double precision thresh, lshift0
-       double precision eone, etwo, energy, enrep, etrace
-       double precision tol2e, gnorm, xx
+       double precision eone, etwo, energy, enrep, etrace, ecore, eci
+       double precision tol2e, gnorm, gnrmv(100), gmon, xx
        double precision ttotal, torb, tci, ttmp
-       logical oconj
-       logical ocjrst
+       logical oe2approx, ostepci, oconj, ocanonical
+       logical ocjrst, ocjrst1, ocanon, ocirestart, ocirelax
+       logical oconverged
        logical oskel
-       logical oorbsolve
-       logical oprinfo
+       logical oprinfo, oprhigh
        logical ohalf
+       logical ocisolve, oorbsolve, ocilock
 c
 c---------------------
 c  Debugging variables
 c
        integer mclosed, mopen                             ! ROHF occupation
        integer g_fcv, g_fpv, g_fcp                        ! ROHF Fock matrices
+       integer g_afock, g_ifock, g_gfock
+       integer g_u, g_b, g_newgfock, g_tmp, g_tmp2
+       integer g_coul2, g_exch2, g_grad2
+       integer info
 
        integer hdim
        parameter(hdim=100)
        double precision crap(1000), hh(hdim*hdim)
        double precision scr(4*hdim), ev(hdim)
-       integer info
+       double precision edel4, edel, theta, gg1, gg2, edelF
+       double precision phi, xxstep, etgt, ezzz
+       double precision citol, cjgtol
+       double precision e0
+       integer iii
+       double precision phimin,phimax,phiinc
+C       data phimin,phimax,phiinc/-6.3d0,6.3d0,0.1d0/
+       data phimin,phimax,phiinc/1.0d0,1.0d0,0.2d0/
+      
 c---------------------
 c
        integer ga_create_atom_blocked, ga_create_JKblocked
        external ga_create_atom_blocked, ga_create_JKblocked
        integer mcscf_rohf_den2occ
        external mcscf_rohf_den2occ
+       double precision ga_trace_diag
+       external ga_trace_diag
 c
+       data ocisolve/.true./
        data oorbsolve/.true./
        data ohalf/.true./
        data blen/16/
+       data ocilock/.false./
 c
 c
 c
@@ -84,76 +98,93 @@ c
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
-     $      tol2e = 0.d0                                                   ! Redundant recovered later
+     $      tol2e = 1.d-12                                                   ! Redundant recovered later
+       if (.not.rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
+     $      oe2approx = .false.
 c
 c  Get electron and spin multiplicity (NB: for info only)
 c  Active elec and multiplicity must be set --- no defaults
 c
-      if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
+       if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
      $   call errquit('number of active electrons not set',0)
-      if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
+       if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
      $   call errquit('spin multiplicity not set',0)
-      nela = (nactel + multip - 1)/2
-      nelb = nactel - nela
-      if ((mod((nactel + multip - 1),2).ne.0).or.
+       nela = (nactel + multip - 1)/2
+       nelb = nactel - nela
+       if ((mod((nactel + multip - 1),2).ne.0).or.
      $    (nela.lt.0).or.(nelb.lt.0))
      $    call errquit('mcscf: incompatible elec and spin',0)
+       MOPEN = 2
+       MCLOSED = (NACTEL - MOPEN)/2
 c
 c  Get convergence info
 c
-      if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
-        if (.not.rtdb_get(rtdb,'scf:maxiter',MT_INT,1,maxiter))
+       if (.not.rtdb_get(rtdb,'mcscf:maxiter',MT_INT,1,maxiter)) then
+         if (.not.rtdb_get(rtdb,'scf:maxiter',MT_INT,1,maxiter))
      $     maxiter = 5
-      endif
-      if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
-     $     icgreset = 20
-      if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh)) then
-        if (.not.rtdb_get(rtdb,'scf:thresh',MT_DBL,1,thresh))
+       endif
+       if (.not.rtdb_get(rtdb,'mcscf:cgreset',MT_INT,1,icgreset))  
+     $   icgreset = 20
+       if (.not.rtdb_get(rtdb,'mcscf:thresh',MT_DBL,1,thresh)) then
+         if (.not.rtdb_get(rtdb,'scf:thresh',MT_DBL,1,thresh))
      $     thresh = 1.d-6
-      endif
-      if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
-        if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
-     $    lshift0 = 0.1d0
-      endif
+       endif
+       if (.not. rtdb_get(rtdb,'mcscf:lshift',MT_DBL,1,lshift0)) then
+         if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
+     $     lshift0 = 0.1d0
+       endif
+       if (.not.rtdb_get(rtdb,'mcscf:conjugacy',MT_LOG,1,oconj))
+     $      oconj = .true.
+       if (.not.rtdb_get(rtdb,'mcscf:stepci',MT_LOG,1,ostepci))
+     $      ostepci = .true.
+       if (.not.rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
+     $      citol = 1.d-8
+       if (.not. rtdb_get(rtdb,'mcscf:canonical',MT_LOG,1,ocanonical))
+     $      ocanonical = .true.
 c
 c  Profiling and statistics
 c
-      call mcscf_profile_init(rtdb)
+       call mcscf_profile_init(rtdb)
 c
 c  Print info
 c
-       if (oprinfo) then
-         write(6,900)
- 900     format(/,27x,14('='),/
-     $            28x,'Direct MCSCF',/
-     $            27x,14('='),/)
-         write(6,901) nbf, nclosed, nact, nactel, multip, orlen,
-     $                (nclosed*nvir),(nact*nvir),(nclosed*nact)
- 901     format(18x,35('-'),/,
-     $          20x,'Basis functions:',10x,i5,/,
-     $          20x,'Inactive shells:',10x,i5,/,
-     $          20x,'Active shells:',12x,i5,/,
-     $          20x,'Active electrons:',9x,i5,/,
-     $          20x,'Multiplicity:',13x,i5,/,
-     $          20x,'Orbital rotations:',8x,i5,/,
-     $          25x,'Inact - Virt',9x,i5,/,
-     $          25x,'Act - Virt',11x,i5,/,
-     $          25x,'Inact - Act',10x,i5,/,
-     $          18x,35('-'))
-         write(6,902) maxiter, thresh, icgreset, lshift0
- 902     format(/,18x,35('-'),/,
+       oprhigh = util_print('extra info',print_high)
+       if (oprinfo) write(6,900)
+ 900   format(/,27x,14('='),/
+     $          28x,'Direct MCSCF',/
+     $          27x,14('='),/)
+       if (oprinfo) write(6,901) nbf, nclosed, nact, nactel,
+     $                           multip, orlen
+       if (oprhigh) write(6,902) (nclosed*nvir),(nact*nvir),
+     $                           (nclosed*nact)
+ 901   format(18x,35('-'),/,
+     $        20x,'Basis functions:',10x,i5,/,
+     $        20x,'Inactive shells:',10x,i5,/,
+     $        20x,'Active shells:',12x,i5,/,
+     $        20x,'Active electrons:',9x,i5,/,
+     $        20x,'Multiplicity:',13x,i5,/,
+     $        20x,'Orbital rotations:',8x,i5)
+ 902   format(25x,'Inact - Virt',9x,i5,/,
+     $        25x,'Act - Virt',11x,i5,/,
+     $        25x,'Inact - Act',10x,i5,/)
+       if (oprinfo) write(6,903)
+ 903   format(18x,35('-'))
+       if (oprinfo) write(6,904) oe2approx, oconj, ostepci, ocanonical,
+     $                           maxiter, thresh, icgreset, lshift0
+ 904   format(/,18x,35('-'),/,
+     $          20x,'E2 extrapolation:',9x,l5,/,
+     $          20x,'Conjugacy:',16x,l5,/,
+     $          20x,'Micro CI relax:',11x,l5,/,
+     $          20x,'Canonical orbitals:',7x,l5,/,
      $          20x,'Maximum iterations:',7x,i5,/,
      $          20x,'Converge threshold:',e12.2,/,
      $          20x,'Conjugacy resets:',9x,i5,/,
      $          20x,'Initial levelshift:',f12.2,/,
      $          18x,35('-'))
-       endif
 c
 c  Create occupation and orbital energy vectors
 c
        if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
-     $     call errquit('mcscf: cannot allocate',0)
-       if (.not.ma_push_get(MT_DBL, nbf, 'mcscf eps', l_eval2, k_eval2))
      $     call errquit('mcscf: cannot allocate',0)
        if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
      $     call errquit('mcscf: cannot allocate',0)
@@ -180,12 +211,6 @@ c
      $   call errquit('mcscf: cannot allocate MO vectors',0)
        call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_movecs )
-       call dcopy(nbf, dbl_mb(k_evals), 1, dbl_mb(k_eval2), 1)
-
-       WRITE(6,550)
- 550   FORMAT(/,5x,'Orbital Energies')
-       WRITE(6,551) (DBL_MB(K_EVALS+I-1),I=1,NBF)
- 551   FORMAT(7F12.6)
 c
 c  Get orbital symmetries
 c 
@@ -195,10 +220,16 @@ c
      $                        int_mb(k_sym), nmixed )
        if (nmixed .ne. 0) call errquit(
      $   'mcscf: symmetry contamination in starting MOs', nmixed)
-       if ((util_print('orbital symmetry',print_default)).and.
-     $     (ga_nodeid().eq.0)) then
+c
+c  Print orbital info
+c
+       if (oprinfo) then
+         write(6,550)
+ 550     format(/,2x,'Starting Orbital Energies')
+         write(6,551) (dbl_mb(k_evals+i-1),i=1,nbf)
+ 551     format(7f12.6)
          write(6,887) 
- 887     format(/,'Orbital symmetry irreps')
+ 887     format(/,2x,'Orbital Symmetry Irreps')
          write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
  888     format(16i3)
        endif
@@ -214,7 +245,6 @@ c
        call ga_zero(g_conj)
        call ga_zero(g_gradold)
        pfac = 1.d0
-       oconj = .true.
        ocjrst = .false.
 c
 c   Allocate operator matrices
@@ -228,18 +258,19 @@ c
 c
 c   Initial 4-Index Tranformation
 c
-#ifdef APPROX_E2
-       g_jact = ga_create_JKblocked(noper,nbf,nbf,'Half Coulomb Oper')
-       call moints_mcscf_2x(basis, mo_lo, mo_hi, 1, nbf,
-     $                      g_movecs, g_coul, .true.,
-     $                      g_exch, .true., g_jact, .true.,
-     $                      blen )
-#else
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., blen )
-#endif
+c
+c   Initial core energy
+c
+       call dfill((nact*nact),0.d0,dbl_mb(k_dm1),1)
+       call dfill((nact*nact*nact*nact),0.d0,dbl_mb(k_dm2),1)
+       call mcscf_etrace( geom, basis, nbf, nclosed, nact,
+     $                    .false., oskel, tol2e, dbl_mb(k_dm1),
+     $                    dbl_mb(k_dm2), g_movecs, g_coul,
+     $                    eone, etwo, ecore )
 c
 c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -249,53 +280,92 @@ c
 c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
 c
+       cjgtol = 1.d-3
+       gnorm = 4.d0
        torb = 0.d0
        tci = 0.d0
+       e0 = ecore + enrep
        ttotal = util_cpusec()
+       ocanon = .false.
        do iter=1,maxiter
          if (oprinfo) write(6,996) iter
- 996     format(/,10x,'%%%%% Iteration ',i3,' %%%%%',/)
+ 996     format(///,10x,'%%%%% MacroIteration ',i3,' %%%%%',/)
 c
 c   CI solver
 c
-         call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                     g_coul, g_exch, g_hcore )
+         call mcscf_ifock( geom, basis, nbf, nclosed, nact,
+     $                     oskel, tol2e, g_movecs, eone, etwo,
+     $                     ecore, g_hcore )
+         e0 = ecore + enrep
+c$$$         call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+c$$$     $                     g_coul, g_exch, g_hcore )
          ttmp = util_cpusec()
+         ocirestart = (iter.ne.1).and.(.not.(ocanon))
+
+c$$$         IF (.NOT.(OCIRESTART)) WRITE(6,729) 
+c$$$ 729     FORMAT(/,80('='),/,'    New CI vector   ')
+c$$$         WRITE(6,991) (DBL_MB(K_EVALS+I-1),I=1,NBF)
+c$$$ 991     FORMAT(' %% ',6F12.6)
+
          if (omcscfprof) call pstat_on(ps_ci)
-         call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                       nsym, int_mb(k_sym), dbl_mb(k_evals),
-     $                       g_hcore, g_coul, dbl_mb(k_dm1),
-     $                       dbl_mb(k_dm2), (iter.ne.1),
-     $                       .true., .false. )
+         if (((iter.eq.1).or.(.not.(ocilock))).and.(ocisolve))
+     $     call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                         nsym, int_mb(k_sym), e0,
+     $                         dbl_mb(k_evals), g_hcore, g_coul, 
+     $                         citol, ocirestart, .true., .false.,
+     $                         dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+         if (oprinfo) write(6,882) eci
+ 882     format(/,11x,'>>>| CI energy:',7x,f22.12)
          if (omcscfprof) call pstat_off(ps_ci)
          tci = tci + util_cpusec() - ttmp
 c
-c   Orbital solver
+c   Conjugacy reset
 c
-         if ((oconj).and.((mod(iter,icgreset).eq.0).or.(ocjrst))) then
+         ocjrst1 = (ocjrst).or.(mod(iter,icgreset).eq.0).or.
+     $             ((gnorm.lt.cjgtol).and.(.not.(ocanonical)))
+         if ((oconj).and.(ocjrst1)) then
            call ga_zero(g_conj)
            call ga_zero(g_gradold)
-           pfac = 1.d0
+           cjgtol = gnorm*gnorm
          endif
+         ocjrst = ocjrst1
+c
+c   Microiterative CI relaxation
+c
+         ocirelax = ostepci.and.(gnorm.lt.5.d0)
+         if ((ostepci).and.(.not.(ocirelax)).and.
+     $       (oprinfo)) write(6,812)
+ 812     format('CI vector locked for microiterations')
+c
+c   Orbital solver
+c
          if (oorbsolve) then
            ttmp = util_cpusec()
            if (omcscfprof) call pstat_on(ps_orb)
+           ocanon = ocanonical.and.(mod((iter-1),10).eq.0)
            call mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                          oskel, int_mb(k_sym), dbl_mb(k_dm1),
-     $                          dbl_mb(k_dm2), g_coul, g_exch, g_jact,
-     $                          oconj, ocjrst, pfac, g_conj, g_gradold,
-     $                          g_hcore, eone, etwo, gnorm,
-     $                          dbl_mb(k_eval2), g_movecs )
+     $                          oskel, thresh, int_mb(k_sym),
+     $                          dbl_mb(k_dm1), dbl_mb(k_dm2), g_coul,
+     $                          g_exch, oconj, ocjrst, ocanon, ocirelax,
+     $                          g_conj, g_gradold, g_hcore, eone, etwo,
+     $                          gnorm, dbl_mb(k_evals), g_movecs,
+     $                          oconverged )
+           gnrmv(iter) =  gnorm
+           if (iter.gt.2) then
+             gmon = (gnrmv(iter)/gnrmv(iter-1))*
+     $              (gnrmv(iter-1)/gnrmv(iter-2))
+             if ((ga_nodeid().eq.0).and.
+     $         (util_print('monitor',print_high))) write(6,982) gmon
+ 982         format(/,20x,'Convergence monitor: ',f12.6)
+           endif
+           ocjrst = ocjrst.or.ocanon
            if (omcscfprof) call pstat_off(ps_orb)
            torb = torb + util_cpusec() - ttmp
          else
            if (oprinfo) write(6,221)
  221       format('Orbital solve skipped')
          endif
-         energy = eone + etwo + enrep
-         if (oprinfo) write(6,927) iter,energy,gnorm
- 927     format(//,10x,'####',i5,5x,f22.14,5x,e16.9)
-         if (gnorm.lt.thresh) goto 27
+         if (oconverged) goto 27
        enddo
 c
 c   End macroiteration loop
@@ -313,20 +383,45 @@ c
          write(6,930) torb, tci, ttotal
  930     format(5x,'== MCSCF Timing:',3(5x,f14.3),/)
        endif
+c
 C       GOTO 403
+       if ((oprinfo).and.(util_print('mo',print_default))) then
+         write(6,810)
+ 810     format(///,10x,'Canonical Orbitals and Eigenvalues')
+         if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
+     $                        l_tmp, k_tmp))
+     $        call errquit('mcscf: cannot allocate local MO',0)
+         call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
+     $               dbl_mb(k_tmp), nbf)
+         chi = 0
+ 32      clo = chi + 1
+         chi = min((clo + 7),(nact+nclosed))
+         write(6,*)
+         write(6,881) (dbl_mb(k_evals+i-1),i=clo,chi)
+         write(6,*)
+         do i=1,nbf
+           write(6,881) (dbl_mb(k_tmp+(j-1)*nbf+i-1),j=clo,chi)
+         enddo
+         if (chi.ne.(nact+nclosed)) goto 32
+         if (.not.ma_pop_stack(l_tmp))
+     $     call errquit('mcscf: cannot pop local MO',0)
+       endif
 c
 c  Solve CI for converged MOs
 c
-       call moints_build_2x( basis, ohalf, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
-       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                   g_coul, g_exch, g_hcore )
-       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
-     $                     g_hcore, g_coul, dbl_mb(k_dm1),
-     $                     dbl_mb(k_dm2), .true., .false., .false. )
+       if (.not.(ocilock)) then
+         call moints_build_2x( basis, ohalf, oskel,
+     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
+     $                         g_movecs, g_coul, .true.,
+     $                         g_exch, .true., blen )
+         call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $                     g_coul, g_exch, g_hcore )
+         call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                       nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
+     $                       g_hcore, g_coul, 
+     $                       citol, .true., .false., .false.,
+     $                       dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+       endif
 c
 c  Transform to natural orbitals
 c
@@ -367,16 +462,19 @@ c$$$     $                          dbl_mb(k_evals), g_movecs )
 c
 c  Solve CI for Natural Orbitals
 c
-       call moints_build_2x( basis, ohalf, oskel,
-     $                       mo_lo, mo_lo, mo_hi, 1, nbf,
-     $                       g_movecs, g_coul, .true.,
-     $                       g_exch, .true., blen )
-       call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
-     $                   g_coul, g_exch, g_hcore )
-       call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
-     $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
-     $                     g_hcore, g_coul, dbl_mb(k_dm1),
-     $                     dbl_mb(k_dm2), .false., .false., .true. )
+       if (.not.(ocilock)) then
+         call moints_build_2x( basis, ohalf, oskel,
+     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
+     $                         g_movecs, g_coul, .true.,
+     $                         g_exch, .true., blen )
+         call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
+     $                     g_coul, g_exch, g_hcore )
+         call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
+     $                       nsym, int_mb(k_sym), e0, dbl_mb(k_evals),
+     $                       g_hcore, g_coul, 
+     $                       citol, .false., .false., .true.,
+     $                       dbl_mb(k_dm1), dbl_mb(k_dm2), eci )
+       endif
 c
 c  Free temporaries
 c
@@ -408,12 +506,12 @@ c
 c  ------ End of regular MCSCF module      ------
 c  ------ Remainder are debugging sections ------
 c
-c
 c         Check energy trace
 c     
        call mcscf_etrace( geom, basis, nbf, nclosed, nact,
-     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
-     $                    g_movecs, g_coul, eone, etwo )
+     $                    .true., oskel, tol2e, dbl_mb(k_dm1),
+     $                    dbl_mb(k_dm2), g_movecs, g_coul,
+     $                    eone, etwo, ecore )
        etrace = eone + etwo + enrep
        if (util_print('trace energy',print_default)) then
          if (oprinfo) write(6,674) etrace
@@ -456,17 +554,10 @@ c
 c
 c  Regenerate MO integrals
 c
-#ifdef APPROX_E2
-       call moints_mcscf_2x(basis, mo_lo, mo_hi, 1, nbf,
-     $                      g_movecs, g_coul, .true.,
-     $                      g_exch, .true., g_jact, .true.,
-     $                      blen )
-#else
        call moints_build_2x( basis, ohalf, oskel,
      $                       mo_lo, mo_lo, mo_hi, 1, nbf,
      $                       g_movecs, g_coul, .true.,
      $                       g_exch, .true., blen )
-#endif
 c
 c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
@@ -484,17 +575,9 @@ c$$$ 773   format(/,10x,'Finite diff gradient norm:',e12.4,/)
 c
 c  MCSCF Fock matrices and gradient
 c
-#ifdef APPROX_E2
-       call mcscf_fock_z( geom, basis, nbf, nclosed, nact,
-     $                  oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
-     $                  g_movecs, g_jact, eone, etwo,
-     $                  g_ifock, g_afock, g_gfock )
-       call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
-       call ga_rowprint( ' ==== New Gradient ====', g_grad )
-#endif
        call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                  oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
-     $                  g_movecs, g_coul, eone, etwo,
+     $                  g_movecs, g_coul, eone, etwo, e0,
      $                  g_ifock, g_afock, g_gfock )
        call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
        if (util_print('final gradient',print_debug)) then
@@ -511,9 +594,151 @@ c
  676     format(20x,'Gradient norm:',e20.8)
        endif
 c
+c
+c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c         
-c        Explicit Hessian contruction and Eigenvalues Section
+c                      B Matrix Test Section
+c
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c
+c
+c   Make G matrix on disk 
+c   (doesn't work..yet)
+c
+c$$$       call makeJK( basis, nbf, nclosed, nact, g_movecs )
+c$$$       call mcscf_g( nbf, nclosed, nact, dbl_mb(k_dm1), dbl_mb(k_dm2),
+c$$$     $               g_ifock, g_afock )
+c
+c
+c
+c$$$       if (.not.ga_duplicate(g_coul, g_coul2, 'Coul Copy'))
+c$$$     $      call errquit('mcscf: cannot allocate Coulomb copy',0)
+c$$$       if (.not.ga_duplicate(g_exch, g_exch2, 'Exch Copy'))
+c$$$     $      call errquit('mcscf: cannot allocate Exch copy',0)
+c$$$       if (.not.ga_duplicate(g_grad, g_grad2, 'Grad Copy'))
+c$$$     $      call errquit('mcscf: cannot allocate Exch copy',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Unitary',nbf,1,g_u))
+c$$$     $      call errquit('mcscf: cannot allocate unitrary',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,1,g_tmp))
+c$$$     $      call errquit('mcscf: cannot allocate tmp',0) 
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp 2',nbf,1,g_tmp2))
+c$$$     $      call errquit('mcscf: cannot allocate tmp',0) 
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'B',nbf,1,g_b))
+c$$$     $      call errquit('mcscf: cannot allocate B',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'new G Fock',nbf,1,g_newgfock))
+c$$$     $      call errquit('mcscf: cannot allocate new GFock',0)
+c
+c  Step and generate U = exp(K) (2x2 rotation)
+c
+c$$$       call ga_zero(g_b)
+c$$$       iii = (nclosed+nact-1)*nvir + 1
+c$$$       do phi=phimin,phimax,phiinc
+c$$$         xxstep = sqrt((1.d0 - cos(phi)))
+c$$$         call ga_copy( g_coul, g_coul2 )
+c$$$         call ga_copy( g_exch, g_exch2 )
+c$$$         call ga_copy( g_grad, g_grad2 )
+c$$$         call ga_copy( g_grad2, g_x)
+c$$$         call ga_zero(g_u)
+c$$$         call theta2u( nbf, nclosed+nact, nclosed+nact+1, phi, g_u )
+         
+c$$$         PRINT*,'Unitrary transformation'
+c$$$         CALL GA_GET(G_U,1,NBF,1,NBF,CRAP,NBF)
+c$$$         CALL MOINTS_MATPRINT(NBF,NBF,CRAP)
+c
+c  Generate B (Hessian response)
+c
+c$$$         call ga_zero(g_b)
+c$$$         call mcscf_b( geom, basis, nbf, nclosed, nact, int_mb(k_sym),
+c$$$     $                 dbl_mb(k_dm1), dbl_mb(k_dm2), oskel, tol2e,
+c$$$     $                 g_movecs, g_ifock, g_afock, g_coul2, g_exch2,
+c$$$     $                 g_u, g_b )
+c
+c  ~    t
+c  A = U B
+c
+c$$$         call ga_dgemm( 't', 'n', nbf, nbf, nbf, 1.d0, g_b, g_u,
+c$$$     $                  0.d0, g_newgfock )
+c$$$         call mcscf_gfock2grad(nbf, nclosed, nact, g_newgfock,g_grad2)
+C         CALL GA_ROWPRINT('Approximate New Grad',g_grad2)
+c$$$         gnorm = sqrt(ga_ddot(g_grad2,g_grad2))
+c$$$         call ga_get(g_grad2,iii,iii,1,1,gg2,1)
+c
+c            t
+c  dE = tr( T (A + B) )
+c
+c$$$         call ga_zero(g_tmp)
+c$$$         do i=1+ga_nodeid(),nbf,ga_nnodes()
+c$$$           call ga_put(g_tmp,i,i,i,i,1.d0,1)
+c$$$         enddo
+c$$$         call ga_dadd( 1.d0, g_u, -1.d0, g_tmp, g_tmp )
+c$$$         edelF = ga_ddot( g_tmp, g_gfock )
+c$$$
+c$$$         call ga_transpose( g_b, g_tmp2 )
+c$$$         call ga_dadd( 1.d0, g_gfock, 1.d0, g_tmp2, g_newgfock )
+c$$$         call ga_transpose( g_newgfock, g_tmp2 )
+c$$$         edel4 = ga_ddot( g_tmp, g_tmp2 )
+c
+c  G operator code is broken!
+c
+c   (2)           t  ij
+c  e    =  sum  (T  G   T )
+c             ij           ij
+c
+c   (1)         t
+c  e    =  tr( T A )
+c
+c$$$         call ga_get(g_tmp,1,nbf,1,nbf,crap,nbf)
+c$$$         call mcscf_gt( nbf, nclosed, nact, crap, etgt )
+c$$$         ezzz = 2.d0*ga_ddot( g_tmp, g_gfock ) + etgt
+c
+c  Compute exact new gradient for comparison
+c
+c$$$         call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs, g_u,
+c$$$     $                  0.d0, g_newgfock )
+c$$$         call moints_build_2x( basis, ohalf, oskel,
+c$$$     $                         mo_lo, mo_lo, mo_hi, 1, nbf,
+c$$$     $                         g_newgfock, g_coul2, .true.,
+c$$$     $                         g_exch2, .true., blen )
+c$$$         call mcscf_fock( geom, basis, nbf, nclosed, nact,
+c$$$     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
+c$$$     $                    g_newgfock, g_coul2, eone, etwo, e0,
+c$$$     $                    g_u, g_tmp, g_tmp2 )
+c$$$         call mcscf_gfock2grad( nbf, nclosed, nact, g_tmp2, g_grad2 )
+c$$$         CALL GA_ROWPRINT('Exact New Grad',g_grad2)
+c$$$         gnorm = sqrt(ga_ddot(g_grad2,g_grad2))
+c$$$         edel = eone + etwo + enrep - energy
+c$$$         call ga_get(g_grad2,iii,iii,1,1,gg1,1)
+c$$$         write(6,939) ((phi*180.d0)/3.1415629d0),
+c$$$     $                 edel,edel4,ezzz,edelF,(edel4-edelF),etgt
+c$$$ 939     format('qqqq',f10.2,6e15.6)
+c$$$       enddo
+c
+c
+c
+c$$$       if (.not.ga_destroy(g_newgfock))
+c$$$     $   call errquit('mcscf: cannot destroy unitrary',0)
+c$$$       if (.not.ga_destroy(g_u))
+c$$$     $   call errquit('mcscf: cannot destroy unitrary',0)
+c$$$       if (.not.ga_destroy(g_tmp))
+c$$$     $   call errquit('mcscf: cannot destroy unitrary',0)
+c$$$       if (.not.ga_destroy(g_tmp2))
+c$$$     $   call errquit('mcscf: cannot destroy unitrary',0)
+c$$$       if (.not.ga_destroy(g_b))
+c$$$     $   call errquit('mcscf: cannot destroy B',0)
+c$$$       if (.not.ga_destroy(g_coul2))
+c$$$     $   call errquit('mcscf: cannot destroy coul copy',0)
+c$$$       if (.not.ga_destroy(g_exch2))
+c$$$     $   call errquit('mcscf: cannot destroy exch copy',0)
+c$$$       if (.not.ga_destroy(g_grad2))
+c$$$     $   call errquit('mcscf: cannot destroy grad copy',0)
+c
+c
+c
+c
+c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c         
+c      Explicit Hessian contruction and Eigenvalue Test Section
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
@@ -672,18 +897,12 @@ c
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ma_pop_stack(l_occ))
      $      call errquit('mcscf: cannot pop stack?',0)
-       if (.not.ma_pop_stack(l_eval2))
-     $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ma_pop_stack(l_evals))
      $      call errquit('mcscf: cannot pop stack?',0)
        if (.not.ga_destroy(g_exch))
      $      call errquit('mcscf: cannot destroy exchange',0)
        if (.not.ga_destroy(g_coul))
      $      call errquit('mcscf: cannot destroy Coulomb',0)
-#ifdef APPROX_E2
-       if (.not.ga_destroy(g_jact))
-     $      call errquit('mcscf: cannot destroy Jact',0)
-#endif
        if (.not.ga_destroy(g_movecs))
      $      call errquit('mcscf: cannot destroy MO vectors',0)
 c
@@ -798,9 +1017,10 @@ c
 C       INTEGER L_HD, K_HD
        integer l_hv, k_hv, l_hy, k_hy
        integer nvir, incr, xoff, i, j, ii, pflg
-       double precision xx, lshift
+       double precision xx, lshift, tol2e
        data pflg/2/
        data lshift/0.d0/
+       data tol2e/1.d-12/
 c
 c
 c
@@ -825,7 +1045,7 @@ c
            call ga_zero(g_x)
            call ga_put(g_x,ii,ii,1,1,xx,1)
            call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                       .false., pflg, lshift, dm1, dm2,
+     $                       tol2e, .false., pflg, lshift, dm1, dm2,
      $                       g_movecs, g_ifock, g_afock, g_gfock,
      $                       g_coul, g_exch, g_x, g_prod )
            call ga_get(g_prod,1,orlen,1,1,dbl_mb(k_hv),orlen)
@@ -841,7 +1061,7 @@ c
            call ga_zero(g_x)
            call ga_put(g_x,ii,ii,1,1,xx,1)
            call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                       .false., pflg, lshift, dm1, dm2,
+     $                       tol2e, .false., pflg, lshift, dm1, dm2,
      $                       g_movecs, g_ifock, g_afock, g_gfock,
      $                       g_coul, g_exch, g_x, g_prod )
            call ga_get(g_prod,1,orlen,1,1,dbl_mb(k_hv),orlen)
@@ -872,7 +1092,7 @@ c$$$       do i=1,orlen
 c$$$         call ga_zero(g_x)
 c$$$         call ga_put(g_x,i,i,1,1,xx,1)
 c$$$         call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-c$$$     $                     oskel, dm1, dm2, g_movecs,
+c$$$     $                     tol2e, oskel, dm1, dm2, g_movecs,
 c$$$     $                     g_ifock, g_afock, g_gfock,
 c$$$     $                     g_coul, g_exch, g_x, g_prod )
 c$$$         call ga_get(g_prod,i,i,1,1,dbl_mb(k_hd+i-1),1)
@@ -1051,8 +1271,3 @@ c
       endif
       return
       end
-
-
-
-
-

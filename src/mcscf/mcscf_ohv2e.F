@@ -1,13 +1,13 @@
 c
-c  $Id: mcscf_ohv2e.F,v 1.3 1996-02-15 23:39:59 rg240 Exp $
+c  $Id: mcscf_ohv2e.F,v 1.4 1996-06-17 18:59:06 rg240 Exp $
 c
 c Return the MCSCF 2e Hessian-vector product
 c
 c
        subroutine mcscf_hessv_2e( geom, basis, nbf, nclosed, nact,
-     $                            oskel, dm1, dm2, g_movecs, g_coul,
-     $                            g_exch, g_tmp1, g_tmp2, g_tmp3,
-     $                            g_x, g_ax )
+     $                            tol2e, oskel, dm1, dm2, g_movecs,
+     $                            g_coul, g_exch, g_tmp1, g_tmp2,
+     $                            g_tmp3, g_x, g_ax )
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -18,6 +18,7 @@ c
        integer nbf                                  ! [input] Basis functions
        integer nclosed                              ! [input] Closed shells
        integer nact                                 ! [input] Active shells
+       double precision tol2e                       ! [input] Integral tolerance
        logical oskel                                ! [input] Symmetry toggle
        double precision dm1(nact,nact)              ! [input] 1PDM
        double precision dm2(nact,nact,nact,nact)    ! [input] 2PDM
@@ -43,8 +44,9 @@ c
        call ga_zero( g_tmp3 )
        call ga_zero( g_tmp1 )
        call mcscf_vec2mat( nbf, nclosed, nact, 1.d0, g_x, 0.d0, g_tmp1 )
-       call mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact, oskel, 
-     $                         dm1, g_movecs, g_tmp1, g_tmp2, g_tmp3 )
+       call mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact, tol2e,
+     $                         oskel, dm1, g_movecs, g_tmp1, g_tmp2,
+     $                         g_tmp3 )
 c
 c
 c

@@ -64,9 +64,6 @@ c Convert the vector representation of the MCSCF
 c parameters to a (nbf x nbf) matrix representation
 c Accumulates into the matrix (does not copy!)
 c
-c
-c
-
        subroutine mcscf_vec2mat( nbf, nclosed, nact, a, g_v, b, g_m )
        implicit none
 #include "global.fh"
@@ -90,9 +87,6 @@ c
        voff = nclosed + nact + 1
        aoff = nclosed + 1
        aend = nclosed + nact
-c
-c
-c
        call ga_dadd_patch( a, g_v, 1, (nvir*nclosed), 1, 1,
      $                     b, g_m, voff, nbf, 1, nclosed,
      $                        g_m, voff, nbf, 1, nclosed )
@@ -121,8 +115,6 @@ c parameters to vector representation (complement of mcscf_vec2mat)
 c Accumulates into the vector (does not copy!)
 c
 c
-c
-
        subroutine mcscf_mat2vec( nbf, nclosed, nact, a, g_m, b, g_v )
        implicit none
 #include "global.fh"
@@ -147,9 +139,6 @@ c
        voff = nclosed + nact + 1
        aoff = nclosed + 1
        aend = nclosed + nact
-c
-c
-c
        xend = nvir*nclosed
        call ga_dadd_patch( a, g_m, voff, nbf, 1, nclosed,
      $                     b, g_v, 1, xend, 1, 1,
@@ -181,7 +170,6 @@ c
 c  Create closed and active AO densities from
 c  occupation numbers and 1-pdm in active space
 c
-
        subroutine mcscf_occ2dens( nbf, nclosed, nact, dm1,
      $                            g_movecs, g_cdens, g_adens )
        implicit none
@@ -288,6 +276,7 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "bas.fh"
+#include "geom.fh"
 #include "rtdb.fh"
 #include "sym.fh"
 c
@@ -318,8 +307,9 @@ C      integer nclosed, nact
       integer l_oph, k_oph
       integer l_v, k_v
       integer j, j1, j2, nn
+      integer nmo
       logical oskel, oprint, status, ovecs
-      double precision tol2e
+      double precision tol2e, charge, nuclear_charge
       double precision vphase
 c
 c     externals
@@ -335,13 +325,20 @@ c  Get misc info
 c
       oprint = (ga_nodeid().eq.0).and.
      $         (util_print('info',print_default))
-      if (.not. rtdb_get(rtdb, 'scf:tol2e',
-     $     MT_DBL, 1, tol2e)) tol2e = 1.0d-7
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e))
+     $    tol2e = 0.d0
       if (.not.rtdb_get(rtdb, 'scf:skeleton',MT_LOG, 1, oskel)) then
          oskel = sym_number_ops(geom) .gt. 0
       endif
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf_init: bas_name?', 0)
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
+     $     charge = 0.0d0
+      if (.not. geom_nuc_charge(geom, nuclear_charge))
+     $     call errquit('scf: geom_nuc_charge failed', 0)
+      nelec = nint(nuclear_charge - charge)
+      if (nelec .le. 0) call errquit
+     $     ('scf: negative no. of electrons ?', nelec)
 c
 c  Get filenames
 c
@@ -353,6 +350,9 @@ c
 c  Starting MO's determined from movecs_in string
 c
       call ga_zero(g_movecs)
+      call scf_lindep(rtdb, geom, basis, g_movecs, nmo)
+      if (nmo.ne.nbf)
+     $  call errquit('mcscf:linear dependent AO basis',0)
       if (movecs_in .eq. 'hcore' .or. movecs_in .eq. 'atomic') then
 c
 c  Hcore or atomic guess
@@ -360,10 +360,10 @@ c
          g_aodens = ga_create_atom_blocked(geom, basis, 'Guess density')
          call ga_zero(g_aodens)
          if (movecs_in .eq. 'atomic') then
-            call guess_dens(geom, basis, g_aodens)
+            call guess_dens(rtdb, geom, basis, g_aodens)
          endif
-         call rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf,
-     $                       tol2e, g_aodens, g_movecs, oskel)
+         call rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nbf,
+     $                       tol2e, g_aodens, g_movecs, oskel, evals )
          if (.not. ga_destroy(g_aodens)) call errquit
      $        ('scf_vectors_guess: destroy of density failed',0)
       else if (movecs_in .eq. 'project') then
@@ -629,7 +629,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.10 1996-04-12 00:09:29 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.11 1996-06-17 18:58:55 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -720,39 +720,66 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.10 1996-04-12 00:09:29 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.11 1996-06-17 18:58:55 rg240 Exp $
 c
-c Generate the High-spin ROHF 1-PDM & 2-PDM for 
-c partially occupied orbitals (trivially)
-c from occupation numbers
-c All other active orbital densities are zero
+c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
+c   partially occupied orbitals (trivially)
+c   from occupation numbers
+c   All other active orbital densities are zero
 c
-c For debugging purposes
+c   For debugging purposes
 c
 c
-       subroutine mcscf_rohf_modens( nopen, nact, dm1, dm2 )
+       subroutine mcscf_rohf_modens( nact, ndbl, nopen, dm1, dm2 )
        implicit none
-       integer nopen
        integer nact
+       integer ndbl
+       integer nopen
        double precision dm1(nact,nact)
        double precision dm2(nact,nact,nact,nact)
 c
-c
-       integer t,u
-c
-c
+       integer t,u,tt,uu,i,j
 c
        t = nact*nact
        call dfill(t,0.d0,dm1,1)
        t = t*t
        call dfill(t,0.d0,dm2,1)
        do t=1,nopen
-         dm1(t,t) = 1.d0
-         do u=1,t-1
-           dm2(t,t,u,u) = 0.5d0
-           dm2(u,u,t,t) = 0.5d0
-           dm2(t,u,t,u) = -0.5d0
-           dm2(u,t,u,t) = -0.5d0
+         tt = ndbl + t
+         dm1(tt,tt) = 1.d0
+         do u=1,nopen
+           if (u.ne.t) then
+             uu = ndbl + u
+             dm2(tt,tt,uu,uu) = 0.5d0
+C             dm2(tt,uu,uu,tt) = 0.5d0
+           endif
+         enddo
+       enddo
+       do i=1,ndbl
+         dm1(i,i) = 2.d0
+         dm2(i,i,i,i) = 1.d0
+         do j=1,i-1
+           dm2(i,i,j,j) = 2.d0
+           dm2(j,j,i,i) = 2.d0
+         enddo
+       enddo
+       do i=1,ndbl
+         do t=1,nopen
+           tt = ndbl + t
+           dm2(i,i,tt,tt) = 1.d0
+           dm2(tt,tt,i,i) = 1.d0
+         enddo
+       enddo
+       do i=1,ndbl
+         do j=1,ndbl
+           if (i.ne.j) dm2(i,j,j,i) = -1.d0
+         enddo
+       enddo
+       do i=1,ndbl
+         do t=1,nopen
+           tt = ndbl + t
+           dm2(i,tt,tt,i) = -0.5d0
+           dm2(tt,i,i,tt) = -0.5d0
          enddo
        enddo
 c
@@ -824,8 +851,6 @@ c
 c
 c
 c Fill a square matrix with a scalar diagonal patch
-c
-c
 c
        subroutine diagfill_patch( g_a, x, ilo, ihi )
        implicit none
@@ -1201,6 +1226,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "util.fh"
       integer rtdb
       integer geom
       integer basis
@@ -1213,6 +1239,7 @@ c
       logical olock
       integer g_tmp
       integer k_occ, l_occ, k_oldev, l_oldev
+      integer i
 c
 c
 c
@@ -1224,18 +1251,28 @@ c
      $  call errquit('mcscf_save_vecs: cannot allocate',0)
       if (.not.ma_push_get(MT_DBL, nbf,'tmp occ', l_occ, k_occ))
      $  call errquit('mcscf_save_vecs: cannot allocate',0)
+      call dfill(nbf,0.d0,dbl_mb(k_occ),1)                      ! quick hack!
 c
 c  Read in old vectors and occupations
-c
-      call mcscf_movecs_read( rtdb, basis, nbf, dbl_mb(k_occ),
-     $                       dbl_mb(k_oldev), g_tmp )
-      call dcopy(nbf, orbe, 1, dbl_mb(k_oldev), 1 )
-c
 c  Optionally lock movecs ordering with old vectors
 c
-
       if (olock) then
+        call mcscf_movecs_read( rtdb, basis, nbf, dbl_mb(k_occ),
+     $                          dbl_mb(k_oldev), g_tmp )
+        call dcopy(nbf, orbe, 1, dbl_mb(k_oldev), 1 )
         call movecs_lock(geom, basis, g_tmp, g_movecs, dbl_mb(k_oldev))
+      else
+        call dcopy(nbf, orbe, 1, dbl_mb(k_oldev), 1 )
+      endif
+c
+c  Info print
+c
+      if (util_print('save vectors',print_high).and.
+     $   (ga_nodeid().eq.0)) then
+        write(6,911) 
+ 911    format('Saved MO vectors  - orbital energies')
+        write(6,881) (dbl_mb(k_oldev+i-1),i=1,nbf)
+ 881    format(7f12.6)
       endif
 c
 c  Write out MOs
@@ -1253,3 +1290,86 @@ c
      $   call errquit('mcscf_save_vecs: cannot destroy',0)
       return
       end
+
+
+
+
+
+
+
+      subroutine sym_matrix_check( n, irreps, g_a, isym, tol, nmixed )
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"      
+      integer n
+      integer irreps(n)
+      integer g_a
+      integer isym
+      double precision tol
+      integer nmixed
+c
+      integer Msg_Sym_Matrix_Check
+      parameter(Msg_Sym_Matrix_Check=1210)
+      integer l_t, k_t
+      integer i, j
+c
+      integer mulx
+      mulx(i,j) = ieor((i-1),(j-1)) + 1
+c
+      if (.not.ma_push_get(MT_DBL, n, 'tmp', l_t, k_t))
+     $  call errquit('sym_matrix_check: cannot allocate',0)
+      nmixed = 0
+      do i=ga_nodeid()+1,n,ga_nnodes()
+        call ga_get(g_a, 1, n, i, i, dbl_mb(k_t), n)
+        do j=1,n
+          if ((mulx(irreps(i),irreps(j)).ne.isym).and.
+     $        (abs(dbl_mb(k_t+j-1)).gt.tol)) then
+            nmixed = nmixed + 1
+          endif
+        enddo
+      enddo
+      call ga_igop(Msg_Sym_Matrix_Check,nmixed,1,'+')
+
+      if (.not.ma_pop_stack(l_t))
+     $  call errquit('sym_matrix_check: failed pop stack',0)
+      return
+      end
+
+
+
+
+
+
+
+c
+c
+c   Construct 2x2 unitrary rotation
+c   of phi degrees between columns ii & jj
+c
+      subroutine theta2u( nbf, ii, jj, phi, g_u )
+      implicit none
+#include "global.fh"
+      integer nbf
+      integer ii, jj
+      double precision phi
+      integer g_u
+      double precision xx
+      integer i
+
+      call ga_zero(g_u)
+      do i=ga_nodeid()+1,nbf,ga_nnodes()
+        call ga_put(g_u,i,i,i,i,1.d0,1)
+      enddo
+      call ga_sync()
+      if (ga_nodeid().eq.0) then
+        xx = cos(phi)
+        call ga_put(g_u,ii,ii,ii,ii,xx,1)
+        call ga_put(g_u,jj,jj,jj,jj,xx,1)
+        xx = sin(phi)
+        call ga_put(g_u,ii,ii,jj,jj,xx,1)
+        call ga_put(g_u,jj,jj,ii,ii,-xx,1)
+      endif
+      call ga_sync()
+      return
+      end
+

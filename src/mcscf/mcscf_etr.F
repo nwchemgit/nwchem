@@ -4,8 +4,8 @@ c  This follows closely "mcscf_fock"
 c
 c
        subroutine mcscf_etrace( geom, basis, nbf, nclosed, nact,
-     $                          oskel, tol2e, dm1, dm2, g_movecs,
-     $                          g_coul, eone, etwo )
+     $                          oact, oskel, tol2e, dm1, dm2,
+     $                          g_movecs, g_coul, eone, etwo, ecore )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,19 +17,25 @@ c
        integer nbf                                    ! [input] Number of basis functions
        integer nclosed                                ! [input] Number of closed shells
        integer nact                                   ! [input] Number of open shells
+       logical oact                                   ! [input] Toggle include active space 
        logical oskel                                  ! [input] Symmetry toggle
        double precision tol2e                         ! [input] Integral tolerance
        double precision dm1(nact,nact)                ! [input] Active space 1PDM
        double precision dm2(nact,nact,nact,nact)      ! [input] Active space 2PDM
        integer g_movecs                               ! [input] MO coefficients
        integer g_coul                                 ! [input] Coulomb integrals
-       double precision eone, etwo                    ! [output] Energy components
+       double precision eone, etwo, ecore             ! [output] Energy components
 c
+       integer Msg_Ifock_Trace
+       parameter(Msg_Ifock_Trace=1976)
 c
        integer nset
        parameter(nset=1)
+c
        integer g_ifock, g_cdens, g_adens, g_tmp
        double precision e2ii, e2ia, e2ai, e2aa
+       integer i
+       double precision xx
        integer iv_dens(2), iv_fock(2)
        double precision jfac(2), kfac(2)
        integer ga_create_atom_blocked
@@ -53,7 +59,11 @@ c
        call int_1e_ga( basis, basis, g_tmp, 'kinetic', oskel)
        call int_1e_ga( basis, basis, g_tmp, 'potential', oskel)
        if (oskel) call sym_symmetrize(geom, basis, .false., g_tmp)
-       eone = ga_ddot(g_tmp,g_cdens) + ga_ddot(g_tmp,g_adens)
+       if (oact) then
+         eone = ga_ddot(g_tmp,g_cdens) + ga_ddot(g_tmp,g_adens)
+       else
+         eone = ga_ddot(g_tmp,g_cdens)
+       endif
 c
 c Two-electron component of the AO Fock matrices
 c
@@ -72,7 +82,11 @@ c
 c
 c  MO integral contribution
 c
-       e2aa = mcscf_act_ener( nbf, nclosed, nact, dm2, g_coul )
+       if (oact) then
+         e2aa = mcscf_act_ener( nbf, nclosed, nact, dm2, g_coul )
+       else
+         e2aa = 0.d0
+       endif
        etwo = (e2ii + e2ia + e2ai)*0.5d0 + e2aa
 
        if ((ga_nodeid().eq.0).and.
@@ -84,16 +98,30 @@ c
      $          /,'    eaa: ',f12.6)
        endif
 c
+c  Inactive core energy
+c
+       call ga_dadd( 1.d0, g_tmp, 1.d0, g_ifock, g_adens )
+       call two_index_transf( g_adens, g_movecs, g_movecs,
+     $                       g_tmp, g_ifock )
+       ecore = 0.d0
+       do i=ga_nodeid()+1,nclosed,ga_nnodes()
+         call ga_get(g_ifock,i,i,i,i,xx,1)
+         ecore = ecore + 2.d0*xx
+       enddo
+       call ga_sync()
+       call ga_dgop(Msg_Ifock_Trace,ecore,1,'+')
+       ecore = ecore - 0.5d0*e2ii
+c
 c  Clean up
 c
        if (.not.ga_destroy(g_tmp))
-     $   call errquit('mcscf_fock: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0)
        if (.not.ga_destroy(g_cdens))
-     $   call errquit('mcscf_fock: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0)
        if (.not.ga_destroy(g_adens))
-     $   call errquit('mcscf_fock: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0)
        if (.not.ga_destroy(g_ifock))
-     $   call errquit('mcscf_fock: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0)
        return
        end
 
@@ -182,13 +210,13 @@ c$$$c
 c$$$c  Clean up
 c$$$c
 c$$$       if (.not.ga_destroy(g_tmp))
-c$$$     $   call errquit('mcscf_fock: cannot destroy',0)
+c$$$     $   call errquit('mcscf_etr: cannot destroy',0)
 c$$$       if (.not.ga_destroy(g_cdens))
-c$$$     $   call errquit('mcscf_fock: cannot destroy',0)
+c$$$     $   call errquit('mcscf_etr: cannot destroy',0)
 c$$$       if (.not.ga_destroy(g_adens))
-c$$$     $   call errquit('mcscf_fock: cannot destroy',0)
+c$$$     $   call errquit('mcscf_etr: cannot destroy',0)
 c$$$       if (.not.ga_destroy(g_ifock))
-c$$$     $   call errquit('mcscf_fock: cannot destroy',0)
+c$$$     $   call errquit('mcscf_etr: cannot destroy',0)
 c$$$       return
 c$$$       end
 c$$$       

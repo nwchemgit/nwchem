@@ -1,5 +1,5 @@
        subroutine mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                         oskel, pflg, lshift, dm1, dm2,
+     $                         tol2e, oskel, pflg, lshift, dm1, dm2,
      $                         g_movecs, g_ifock, g_afock, g_gfock,
      $                         g_coul, g_exch, g_x, g_ax )
        implicit none
@@ -12,6 +12,7 @@ c
        integer nbf                                  ! [input] Basis functions
        integer nclosed                              ! [input] Closed shells
        integer nact                                 ! [input] Active shells
+       double precision tol2e                       ! [input] Integral tolerance
        logical oskel                                ! [input] Symmetry toggle
        integer pflg                                 ! [input] Hessian-type
        double precision lshift                      ! [input] Level-shift
@@ -51,9 +52,9 @@ c
 c
 c
        if (pflg.gt.1) then
-         call mcscf_hessv_2e( geom, basis, nbf, nclosed, nact, oskel,
-     $                        dm1, dm2, g_movecs, g_coul, g_exch, 
-     $                        g_tmp1, g_tmp2, g_tmp3,
+         call mcscf_hessv_2e( geom, basis, nbf, nclosed, nact, tol2e,
+     $                        oskel, dm1, dm2, g_movecs,
+     $                        g_coul, g_exch, g_tmp1, g_tmp2, g_tmp3,
      $                        g_x, g_ax )
        endif
 c

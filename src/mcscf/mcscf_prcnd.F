@@ -1,6 +1,7 @@
        subroutine mcscf_precond( geom, basis, nclosed, nact,
      $                           oskel, orbsym, tol2e, pflg,
-     $                           lshift, maxiter, dm1, dm2,
+     $                           lshift, maxiter, oprcndprint,
+     $                           dm1, dm2,
      $                           g_coul, g_exch, g_movecs,
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
@@ -21,6 +22,7 @@ c
        integer pflg                                     ! [input] Hessian-type selection
        double precision lshift                          ! [input] Level-shift
        integer maxiter                                  ! [input] Maximum iterations
+       logical oprcndprint                              ! [input] Print toggle
        double precision dm1(*), dm2(*)                  ! [input] 1- & 2-PDM                  
        integer g_coul, g_exch                           ! [input] Coulomb & exchange operators
        integer g_movecs                                 ! [input] MO vectors
@@ -28,7 +30,7 @@ c
        integer g_hdiag                                  ! [input] Hessian diagonal
        integer g_rhs                                    ! [input] Negative gradient (RHS)
        integer g_soln                                   ! [output] Solution
-       double precision acc                             ! [output] Solution accuracy
+       double precision acc                             ! [input/output] Solution accuracy
 c
 c
 c
@@ -67,7 +69,7 @@ c
        if (.not.ga_create(MT_DBL,vlen,1,'prod vector',1,1,g_axv))
      $    call errquit('mcscf_precond: failed to allocate',0)
        nbas = 0
-       if (ga_nodeid().eq.0) write(6,937) 
+       if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,937) 
  937   format(/,20x,'Iter',7x,'RNorm',8x,'Accuracy',5x,'DeltaSoln',2x,
      $        'Convg Rate',/,20x,59('-'))
 c
@@ -91,7 +93,7 @@ c
          nbas = nbas + 1
          basis_norm(nbas) = sqrt(ga_ddot(g_xv,g_xv))
          call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-     $                     oskel, pflg, lshift, dm1, dm2,
+     $                     tol2e, oskel, pflg, lshift, dm1, dm2,
      $                     g_movecs, g_ifock, g_afock, g_gfock,
      $                     g_coul, g_exch, g_xv, g_axv )
          call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
@@ -145,7 +147,7 @@ c
          pconvg = rnorm/bnorm
          ratio = rnorm/rnorm_old
          rnorm_old = rnorm
-         if (ga_nodeid().eq.0)
+         if ((oprcndprint).and.(ga_nodeid().eq.0))
      $     write(6,955) iter,rnorm,pconvg,deltasoln,ratio
  955     format(20x,i3,2x,3e14.3,f10.4)
          if (pconvg.lt.acc) goto 119
@@ -207,7 +209,7 @@ C         CALL GA_ROWPRINT( 'NEW BASIS', G_XV )
 c
 c Maximum iterations exhausted
 c
-       if (ga_nodeid().eq.0) write(6,961) 
+       if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,961) 
  961   format(/,30x,'Convergence not achieved')
        goto 120
 c
@@ -224,7 +226,7 @@ c$$$       CALL GA_DADD(1.D0,G_RHS,-1.D0,G_AXV,G_AXV)
 c$$$       PCONVG = SQRT(GA_DDOT(G_AXV,G_AXV))
 c$$$       WRITE(6,981) PCONVG
 c$$$ 981   FORMAT(/,30X,'SOLUTION ACCURACY:',E12.3)
-       if (ga_nodeid().eq.0) write(6,771)
+       if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,771)
  771   format(5x,'--- converged ---')
 c
 c

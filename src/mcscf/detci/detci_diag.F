@@ -38,7 +38,7 @@ c
       double precision ov(n3,n3)               ! Subspace overlap matrix 
       double precision ee(n3)                  ! Subspace eigenvalues
       double precision scr(nscr)
-      double precision rnorm, rnormscal, xx, eold
+      double precision rnorm, rnormscal, xx, eold, totale
       integer info, iter, nz
       REAL TX, TY
 c
@@ -230,7 +230,7 @@ c
 c Simple single root Davidson diag
 c
       subroutine detci_dvddiag0( mxv, precon, nw, maxiter, tol,
-     $                           eval, g_w, g_x, oprint )
+     $                           e0, eval, g_w, g_x, oprint )
       implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -240,6 +240,7 @@ c
       integer nw                              ! [input] vectors in workspace
       integer maxiter                         ! [input] max iterations
       double precision tol                    ! [input] convergence tolerance
+      double precision e0                     ! [input] reference energy
       double precision eval                   ! [output] solution eigenvalue
       integer g_w(nw)                         ! [scratch] workspace
       integer g_x                             ! [input/output] starting guess/soln. vector
@@ -256,7 +257,7 @@ c
       double precision b(mxsubsp*mxsubsp)
       double precision z(nz)
       integer mxbas, ibas, info, iter
-      double precision rnorm, rnormscal, xx, eold, tx
+      double precision rnorm, rnormscal, xx, eold, tx, energy
       integer i,j,ij
       logical odebugpr
 c
@@ -267,9 +268,12 @@ c  Initialize
 c
       odebugpr = (ga_nodeid().eq.0).and.
      $           (util_print('davidson',print_debug))
+      if ((ga_nodeid().eq.0).and.(oprint)) write(6,880)
+ 880  format(/,4x,'iter',10x,'energy',12x,'edelta',5x,'rnormscal',
+     $       6x,'time',/,3x,65('-'))
       tx = util_cpusec()
       iter = 0
-      eold = 0.d0
+      eold = e0
       mxbas = min((nw/2),mxsubsp)
       ibas = 1
       call ga_copy( g_x, g_w(1) )
@@ -303,13 +307,14 @@ c
 c
 c  Print info
 c
+
       rnorm = sqrt(ga_ddot(g_x,g_x))
       rnormscal = rnorm/sqrt(abs(e(1)))
       tx = util_cpusec() - tx
+      energy = e(1) + e0
       if ((ga_nodeid().eq.0).and.(oprint)) then
-        write(6,881) iter,e(1),(e(1)-eold),rnorm,rnormscal,
-     $               abs(b(ibas)),tx
- 881    format(i3,f20.14,4e12.2,3x,f10.2)
+        write(6,881) iter,energy,(energy-eold),rnormscal,util_cpusec()
+ 881    format(5x,i3,5x,f15.10,5x,2(d10.2,2x),f10.1)
         call util_flush(6)
       endif
       tx = util_cpusec()
@@ -346,7 +351,7 @@ c
       xx = sqrt( ga_ddot( g_w(ibas), g_w(ibas) ))
       call ga_dscal( g_w(ibas), (1.d0/xx) )
       call ga_zero( g_w(mxbas+ibas) )
-      eold = e(1)
+      eold = energy
       if (iter.lt.maxiter) goto 101
       ibas = ibas - 1
 c
