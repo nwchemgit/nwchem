@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.28 2000-02-04 01:22:42 mg201 Exp $
+C     $Id: ccsd_driver.F,v 2.29 2000-02-04 19:45:55 mg201 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -165,7 +165,7 @@ c
 c     
 c Initialise integrals and screening
 c
-       if (.not.int_normalize(basis,rtdb))
+       if (.not.int_normalize(rtdb,basis))
      &     call errquit('ccsd_driver: int_normalize failed',911)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)

@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.23 2000-02-04 01:23:49 mg201 Exp $
+* $Id: cphf_solve.F,v 1.24 2000-02-04 19:46:55 mg201 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -77,7 +77,7 @@ c !!! Hack to set up scftype properly for later code !!! ? need this?
 c      write(*,*)'*** cphf_solve: scftype ',scftype
 c     
       call scf_init(rtdb)
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      &    call errquit('cphf_solve: int_normalize failed',911)
       nbases = 1
       bases(1) = basis

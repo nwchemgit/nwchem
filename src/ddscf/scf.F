@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.61 2000-02-04 01:25:15 mg201 Exp $
+C$Id: scf.F,v 1.62 2000-02-04 19:48:05 mg201 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -156,7 +156,7 @@ c
          call util_flush(6)
       endif
 c
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      $           call errquit('scf:int_normalize failed', 0)
 c
 c     If input and output movecs are same then might be converged MOs

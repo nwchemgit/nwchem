@@ -5,7 +5,7 @@ c     BGJ - 8/98
 c
       logical function cphf_poliz(rtdb)
 *
-* $Id: cphf_poliz.F,v 1.12 2000-02-04 01:23:49 mg201 Exp $
+* $Id: cphf_poliz.F,v 1.13 2000-02-04 19:46:54 mg201 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -54,7 +54,7 @@ c
      $     call errquit('cphf_poliz: bas_create?', 0)
       if(.not.bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('cphf_poliz: no ao basis ', 0)
-      if (.not.int_normalize(basis,rtdb))
+      if (.not.int_normalize(rtdb,basis))
      $     call errquit('cphf_poliz: int_normalize failed ', 0)
       if (hf_job) then
          if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
