@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.15 1996-01-23 19:02:45 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.16 1996-01-31 02:24:29 d3g681 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -66,6 +66,11 @@ c
 c     In-core caching
 c
       if (ocache .and. (ibas.eq.bas1) .and. (jbas.eq.bas1)) then
+*         if (ga_nodeid().eq.0) then
+*           call ga_summarize(1)
+*           call util_flush(6)
+*         endif
+*         call ga_sync()
          call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
 	 return
       endif

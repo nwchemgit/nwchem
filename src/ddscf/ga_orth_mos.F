@@ -1,5 +1,5 @@
       subroutine ga_orthog_mos(basis, g_vecs)
-C$Id: ga_orth_mos.F,v 1.1 1995-12-13 01:25:19 d3g681 Exp $
+C$Id: ga_orth_mos.F,v 1.2 1996-01-31 02:24:28 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "global.fh"
@@ -12,14 +12,20 @@ c     Convenience routine that allocates temporary global memory,
 c     makes the overlap matrix and orthogonalizes the MOs in
 c     g_ves
 c
-      integer g_over, nbf
+      integer g_over, nbf, geom
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $  ('orthog mos: bas_numbf ', 0)
+     $  ('orthog mos: bas_numbf', 0)
+      if (.not. bas_geom(basis, geom)) call errquit
+     $  ('orthog mos: bas_geom?', 0)
 c
-      if (.not. ga_create(MT_DBL, nbf, nbf, 'orthog_mos:overlap',
-     $    nbf, 1, g_over)) call errquit
-     $    ('orthog_mos: failed to create overlap matrix', 0)
+*      if (.not. ga_create(MT_DBL, nbf, nbf, 'orthog_mos:overlap',
+*     $    nbf, 1, g_over)) call errquit
+*     $    ('orthog_mos: failed to create overlap matrix', 0)
+      g_over = ga_create_atom_blocked(geom, basis, 
+     $     'orthog_mos: overlap')
 c
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)

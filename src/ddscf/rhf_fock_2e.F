@@ -6,6 +6,8 @@ c     Convenience wrapper routine that computes the standard
 c     closed shell fock matrix from the input density matrix
 c     no questions asked.  It is only called from the initial
 c     guess routine with a superposition of atomic densities.
+c     Now also called from moints_full to generate an effective
+c     frozen-core hamiltonian
 c     
       integer geom, basis
       integer g_dens, g_fock    ! [input] handles

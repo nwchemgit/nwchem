@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.1 1995-12-13 01:25:30 d3g681 Exp $
+C$Id: movecs_proj.F,v 1.2 1996-01-31 02:24:30 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -44,6 +44,8 @@ c
       external drand
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 
       data   one,  zero,  mone ! Because of KSR2 bug?
      $     /1.0d0, 0.0d0, -1.0d0/
@@ -166,9 +168,10 @@ c
 
 *     Make and invert plain overlap
 
-      if (.not. ga_create(mt_dbl, nbf, nbf, 'Overlap',
-     $     1, 1, g_over)) call errquit
-     $     ('movecs_project: failed making overlap', 0)
+      g_over = ga_create_atom_blocked(geom, basis, 'Overlap')
+*      if (.not. ga_create(mt_dbl, nbf, nbf, 'Overlap',
+*     $     1, 1, g_over)) call errquit
+*     $     ('movecs_project: failed making overlap', 0)
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
 

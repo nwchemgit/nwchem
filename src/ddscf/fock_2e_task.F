@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.16 1996-01-22 18:33:31 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.17 1996-01-31 02:24:27 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -209,7 +209,7 @@ c
       integer klinfo(2,max_pair_t), nt_kl
 c
       integer max_q, max_at, max_p
-      parameter (max_q = 24001, max_at=20) ! For debug only
+      parameter (max_q = 5001, max_at=20) ! For debug only
       integer ijkl(max_q,4)
       double precision q4(max_q), q4_at(max_at,max_at,max_at,max_at)
       double precision denmax(max_at,max_at,max_at,max_at)
@@ -275,7 +275,7 @@ c
       if (.not. geom_ncent_unique(geom,ncent_unique)) 
      $     call errquit('ftx:geom?',0)
       max_p = dble(max_q*ncent)/dble(ncent_unique)
-*      if (oikjl) max_p = max_p*2
+      if (oikjl) max_p = max_p*2
       max_p = sqrt(dble(max_p))
 *      max_p = 109
 c      
@@ -474,10 +474,10 @@ c
          write(6,*) ijt, n_in_b, max_p
          if (n_in_b .le. max_p) then
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
-            write(6,*) ' setting end   ', nt_ij, ijt
+*            write(6,*) ' setting end   ', nt_ij, ijt
          else
             nt_ij = nt_ij + 1
-            write(6,*) ' setting start ', nt_ij, ijt
+*            write(6,*) ' setting start ', nt_ij, ijt
             ijinfo(1,nt_ij) = ijinfo(1,ijt)
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
             n_in_b = (ijinfo(2,ijt)-ijinfo(1,ijt)+1)
@@ -840,7 +840,7 @@ c
       double precision q4(*)
 c
       integer lenscr, leneri, lenlab
-      parameter (lenscr=3200000, leneri=200003) ! Eventually dynamic
+      parameter (lenscr=8200000, leneri=1200003) ! Eventually dynamic
       parameter (lenlab=4*leneri)
       integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
       integer k_i, k_j, k_k, k_l
