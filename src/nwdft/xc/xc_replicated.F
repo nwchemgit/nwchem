@@ -1,6 +1,7 @@
-      subroutine xc_rep_init(rtdb, geom, basis, nbf_ao,ipol,goforit)
+      subroutine xc_rep_init(rtdb, geom, basis, g_dens,
+     ,     nbf_ao,ipol,goforit)
 c
-C$Id: xc_replicated.F,v 1.4 2003-06-07 00:40:57 edo Exp $
+C$Id: xc_replicated.F,v 1.5 2003-06-07 22:36:42 edo Exp $
 c
       implicit none
 c      
@@ -15,6 +16,7 @@ c
       integer nbf_ao,ipol
       logical goforit
       integer geom,basis
+      integer g_dens(*)
 c
       integer xcrep_glob,ii
       logical xcreplicated_l,oprint
@@ -34,7 +36,12 @@ c
       if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      .     xcreplicated_l))
      &     xcreplicated_l=.false.
+      if(.not.xcreplicated_l) then
+         xcreplicated=.false.
+         return
+      endif
       if(xcreplicated_l) then
+         xcreplicated_l=.false.
          if(oldway) then
          nbf_ld=nbf_ao
 c     
@@ -69,28 +76,39 @@ c
                int_mb(k_map+nblock(1)+ii)=
      =              int_mb(k_map+procsmp+ii)
             enddo
-            xcreplicated_l=nga_create_irreg_config(MT_DBL, 2, dims,
-     .           'replicated xc GA',
-     .           int_mb(k_map),nblock,
-     .           plist, k_repxc(1))
-            call ga_print_distribution(k_repxc(1))
-            call ga_zero(k_repxc(1))
-            if(ipol.eq.2) then
-               xcreplicated_l=nga_create_irreg_config(MT_DBL, 2, dims,
+            do ii=1,ipol
+#ifdef GAIRREG
+               if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
      .              'replicated xc GA',
-     .              int_mb(k_map),nblock,
-     .              plist, k_repxc(2))
-               call ga_zero(k_repxc(2))
-            endif
+     .              int_mb(k_map),nblock,plist,k_repxc(ii))) goto 1984
+               if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+     .              'replicated DM GA',
+     .              int_mb(k_map),nblock,plist,g_repdm(ii))) goto 1984
+#else
+               nblock(1)=0
+               nblock(2)=0
+               if(.not.nga_create_config(MT_DBL, 2, dims,
+     .              'replicated xc GA',
+     .              nblock,plist, k_repxc(ii))) goto 1984
+               if(.not.nga_create_config(MT_DBL, 2, dims,
+     .              'replicated DM GA',
+     .              nblock,plist, g_repdm(ii))) goto 1984
+               call ga_copy(g_dens(ii),g_repdm(ii))
+#endif
+               call ga_print_distribution(k_repxc(ii))
+               call ga_zero(k_repxc(ii))
+            enddo
             if (.not.ma_pop_stack(l_map))
      &           call errquit('xc_rep_init: cannot pop stack',11)
 
          endif
          
       endif
+      xcreplicated_l=.true.
 c
 c     check if everyone is ok
 c
+ 1984 continue
       xcrep_glob=0
       if(xcreplicated_l) xcrep_glob=1
       call ga_igop(375,xcrep_glob,1, '+')
@@ -116,7 +134,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)
 c
-C$Id: xc_replicated.F,v 1.4 2003-06-07 00:40:57 edo Exp $
+C$Id: xc_replicated.F,v 1.5 2003-06-07 22:36:42 edo Exp $
 c
       implicit none
 c      
@@ -143,11 +161,15 @@ c
          else
             do i = 1, ipol
                call ga_merge_mirrored(k_repxc(i))
+#ifdef DEBUG
                call ga_print_distribution(k_repxc(1))
                call ga_print_distribution(g_vxc(1))
+#endif
                call ga_copy(k_repxc(i),
      &              g_vxc(i))
                if (.not.ga_destroy(k_repxc(i)))
+     &              call errquit('xc_rep_close: cannot gadestr',i)
+               if (.not.ga_destroy(g_repdm(i)))
      &              call errquit('xc_rep_close: cannot gadestr',i)
             enddo
          endif
