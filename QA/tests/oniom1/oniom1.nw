@@ -1,0 +1,79 @@
+echo
+
+start
+
+# This reproduces the two-layer ONIOM (MP2:HF) result for the reaction 
+# R-CH3 -> R-CH2 + H with R=CH3 using CH4 as the model from 
+# Dapprich, Komaromi, Byun, Morokuma and Frisch, J. Mol. Struct (Theochem)
+# 461-462 (1999) 1-21.
+
+#             Me-CH2       Me-Me           H         De(au)   De (kcal/mol)
+# b3lyp    -79.18506237 -79.85657567  -0.50225698   0.169257    106.2
+# hf       -78.62014157 -79.25170142  -0.49981792   0.131741     82.7
+# mp2      -78.90471636 -79.57165436  -0.49981792   0.167120    104.9
+# mp2:hf   -78.75522394 -79.42255966  -0.49981792   0.167518    105.1
+
+basis spherical
+  H library 6-311++G**
+  C library 6-311++G**
+end
+
+title "ONIOM Me-CH2"
+geometry autosym # Me-CH2 6-311++g** b3lyp geometry
+  H    -0.23429328     1.32498565     0.92634814
+  H    -0.23429328     1.32498565    -0.92634814
+  C    -0.13064265     0.77330370     0.00000000
+  H    -1.01618703    -1.19260361     0.00000000
+  H     0.49856072    -1.08196901    -0.88665533
+  H     0.49856072    -1.08196901     0.88665533
+  C    -0.02434414    -0.71063687     0.00000000
+end
+# These DFT options were used for the original geometry opt
+# but are not used for the test calculation.
+dft 
+  mult 2
+  xc b3lyp
+  convergence density 1e-6
+  grid fine
+  print low
+end
+scf
+  uhf
+  doublet
+  thresh 1e-6
+  semidirect memsize 12500000
+end
+mp2; freeze atomic; end
+
+oniom
+  high mp2
+  low  scf
+  model 3   3 7 0.724
+end
+
+task oniom
+
+title "ONIOM Me-Me"
+geometry #autosym # Me-Me 6-311++g** b3lyp geometry
+  H   -0.72023641     0.72023641    -1.16373235
+  H    0.98386124     0.26362482    -1.16373235
+  H   -0.26362482    -0.98386124    -1.16373235
+  C    0.00000000     0.00000000    -0.76537515
+  H    0.72023641    -0.72023641     1.16373235
+  H   -0.98386124    -0.26362482     1.16373235
+  H    0.26362482     0.98386124     1.16373235
+  C    0.00000000     0.00000000     0.76537515
+end
+scf
+  rhf
+  singlet
+end
+oniom
+  high mp2
+  low  scf
+  model 4   4 8 0.724
+end
+dft
+  mult 1
+end
+task oniom

@@ -1,0 +1,111 @@
+echo
+
+start
+
+# Test of two-layer ONIOM geometry optimization and unscaled frequencies
+# for acetaldehyde following
+# Dapprich, Komaromi, Byun, Morokuma and Frisch, J. Mol. Struct (Theochem)
+# 461-462 (1999) 1-21.
+
+# Vibrational frequencies and geometry are correctly reproduced.
+# See end for the correct output, or look in the paper.
+
+geometry # sto-3g optmized geometry
+  O     0.25977444     1.26351414    -0.32184727
+  H    -1.42512409     0.38186873     0.37668588
+  C    -0.38369252     0.28899452     0.02138351
+  H     0.11527688    -1.57028792     1.00746379
+  H    -0.46513157    -1.76803678    -0.64211149
+  H     1.17645788    -1.17137932    -0.35247229
+  C     0.15223603    -1.15091137     0.00543109
+end
+
+basis sto-3g
+  h library sto-3g
+  c library sto-3g
+  o library sto-3g
+end
+
+basis dunning 
+  h library "SV (Dunning-Hay)"
+  c library "SV (Dunning-Hay)"
+  o library "SV (Dunning-Hay)"
+end
+
+scf; thresh 1e-6; end
+dft; xc b3lyp; grid fine; convergence density 1e-6; end
+
+oniom 
+  print low 
+  high dft dunning
+  low  scf sto-3g
+  model 3  3 7 0.709
+end
+
+task oniom optimize
+
+task oniom freq
+
+eof
+
+      ----------------------
+      Optimization converged
+      ----------------------
+
+
+  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+  ---- ---------------- -------- -------- -------- -------- -------- --------
+@    3    -153.07526253 -3.4E-07  0.00004  0.00001  0.00059  0.00155   1277.5
+                                     ok       ok       ok       ok  
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value     Gradient
+      ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
+    1 Stretch                  1     3                       1.24238   -0.00004
+    2 Stretch                  2     3                       1.11098    0.00002
+    3 Stretch                  3     7                       1.53499    0.00001
+    4 Stretch                  4     7                       1.08706   -0.00001
+    5 Stretch                  5     7                       1.08708    0.00000
+    6 Stretch                  6     7                       1.08520    0.00000
+    7 Bend                     1     3     2               120.32500    0.00002
+    8 Bend                     1     3     7               123.79550   -0.00001
+    9 Bend                     2     3     7               115.87950   -0.00001
+   10 Bend                     3     7     4               110.01179    0.00000
+   11 Bend                     3     7     5               110.00746    0.00000
+   12 Bend                     3     7     6               110.27983    0.00000
+   13 Bend                     4     7     5               108.11592    0.00000
+   14 Bend                     4     7     6               109.19847    0.00000
+   15 Bend                     5     7     6               109.18699   -0.00001
+   16 Torsion                  1     3     7     4         120.49343    0.00000
+   17 Torsion                  1     3     7     5        -120.50798    0.00000
+   18 Torsion                  1     3     7     6          -0.01581   -0.00001
+   19 Torsion                  2     3     7     4         -59.49762    0.00000
+   20 Torsion                  2     3     7     5          59.50097    0.00001
+   21 Torsion                  2     3     7     6         179.99314    0.00000
+
+
+
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.26541918     1.23889726    -0.24183622
+    2 H                    1.0000    -1.44057284     0.36472845     0.46314530
+    3 C                    6.0000    -0.39418051     0.24630244     0.10914007
+    4 H                    1.0000     0.11625592    -1.61236834     1.09136038
+    5 H                    1.0000    -0.46431133    -1.81016914    -0.55853161
+    6 H                    1.0000     1.17231971    -1.20002451    -0.26875232
+    7 C                    6.0000     0.14834400    -1.18949738     0.09043566
+
+
+ Frequency         -4.56       -2.90       -0.99        0.63        0.90        5.09
+ Frequency        158.69      490.18      860.36      988.99     1253.16     1260.84
+ Frequency       1430.12     1691.24     1718.95     1804.87     1816.32     2955.64
+ Frequency       3563.75     3738.12     3762.54
