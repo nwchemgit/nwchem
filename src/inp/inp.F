@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.42 2003-10-17 22:55:17 carlfahl Exp $
+C$Id: inp.F,v 1.43 2003-10-21 22:48:34 edo Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -17,7 +17,7 @@ c
       data xblnk /' '/
 #if defined(DECOSF) || defined(SGITFP) || defined(SGI_N32) || defined(CRAY_T3E) || defined(HPUX) || defined(WIN32)
       data xtab  /'	'/      ! Tab ... no backslash necessary
-#elif defined(LINUX) && !defined(PGLINUX)
+#elif defined(LINUX) && !defined(PGLINUX) && !defined(XLFLINUX)
       data xtab  /9/            ! Tab ... g77 has trouble with escape sequence
 #else
       data xtab  /'\	'/      ! Tab ... note backslash for cpp
