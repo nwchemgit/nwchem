@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim,  acc_gauss)
 c
-C$Id: xc_signf.F,v 1.1 1999-03-05 05:10:29 edo Exp $
+C$Id: xc_signf.F,v 1.2 1999-03-05 06:42:11 edo Exp $
 c
       implicit none
 c      
@@ -20,7 +20,7 @@ c
 c
 c     Distance Squared between Sampling Points and Centers
 c
-      double precision zprim(*)
+      double precision zprim(*),acc_sigf
       integer ctr_quad ! atom where the grid is centered [input]
       integer icset, ictr, 
      &        ifirst, ilast, nprim,  iprimo
@@ -31,6 +31,7 @@ c
 c
 c
 c
+      acc_sigf=max(acc_gauss,24d0)
       mcenters_scr = 0
 c
       do ictr=1,mcenters
@@ -75,7 +76,7 @@ c
 c       Only include those basis functions that are "non-zero" for at least 
 c       one  point in the sampling set.
 c       
-        if (zmin*r_arg.lt.acc_gauss) then
+        if (zmin*r_arg.lt.acc_sigf) then
           mcenters_scr=mcenters_scr+1
           iandex(mcenters_scr)=ictr
           goto 2001
