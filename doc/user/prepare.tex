@@ -437,11 +437,18 @@ ignore
 \section{Appending to an existing topology file}
 
 \begin{verbatim}
-noe <integer isgm1> <string atom1> <integer isgm2> <string atom3> \
-  <real dist1> <real dist2> <real forc1> <real forc2> <real forc3>
+noe <string atom1> <string atom3> \
+  <real dist1> <real dist2>  <real dist3> <real forc1> <real forc2>
 \end{verbatim}
 
-This directive specifies a distance restraint.
+This directive specifies a distance restraint potential between atoms
+$atom1$ and $atom2$, with a harmonic function with force constant
+$forc1$ between $dist1$ and $dist2$, and a harmonic function with 
+force constant $forc2$ between $dist2$ and $dist3$. For distances
+shorter than $dist1$ or larger than $dist3$, a constant force is 
+applied such that force and energy are continuous at $dist1$
+and $dist3$, respectively. Distances are given in nm, force constants
+in kJ mol$^{-1}$ nm$^{-2}$.
 
 \begin{verbatim}
 select <integer isel> { <string atom1> }

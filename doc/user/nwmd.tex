@@ -378,6 +378,22 @@ where \verb+<isetp1>+ specifies the first perturbation parameter set and
 values for \verb+<isetp1>+ are 2 and 3. Legal value for \verb+<isetp2>+ is
 3, in which case \verb+<isetp1>+ can only be 2. If specified, \verb+<iset>+
 is automatically set to 1.
+
+\item
+\begin{verbatim}
+pmf
+\end{verbatim}
+specifies that any potential of mean force functions defined in the
+topology files are to be used.
+
+\item
+\begin{verbatim}
+distar
+\end{verbatim}
+specifies that any distance restraint functions defined in the
+topology files are to be used.
+
+
 \end{description}
 
 \section{Energy minimization algorithms}
@@ -467,7 +483,7 @@ decomp
 \end{verbatim}
 specifies that a free energy decomposition is to be carried out.
 Since free energy contributions are path dependent, results from a
-decomposition analysis can not be unambiguously interpreted, and
+decomposition analysis can no be unambiguously interpreted, and
 the default is not to perform this decomposition.
 
 \item
