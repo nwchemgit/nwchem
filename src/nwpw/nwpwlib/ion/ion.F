@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.35 2005-01-01 00:35:27 bylaska Exp $
+* $Id: ion.F,v 1.36 2005-01-25 22:32:03 bylaska Exp $
 *
 
 *     ***************************
@@ -1168,7 +1168,9 @@ c         eki1=0.5d0*eki1
       double precision sa1,sa2
 
 *     *** external functions ****
+      logical          control_rotation
       double precision control_time_step,ion_amass
+      external         control_rotation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1200,6 +1202,13 @@ c         eki1=0.5d0*eki1
      >                  dbl_mb(r1(1)),
      >                  dbl_mb(r0(1)))
 
+*     **** remove rotation? ***
+      if (.not.control_rotation()) 
+     > call ion_remove_rotation(h,nion,
+     >                          dbl_mb(r0(1)),
+     >                          dbl_mb(r1(1)),
+     >                          dbl_mb(r2(1)))
+
 *     **** make r0 the velocity - note that the velocity is deleted ****
 *     **** after an ion_shift call                                  ****
       do i=1,nion
@@ -1227,6 +1236,135 @@ c         eki1=0.5d0*eki1
       ke_count = ke_count + 1
 
 
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	   ion_remove_rotation 	*
+*     *				*
+*     ***************************
+
+      subroutine ion_remove_rotation(h,nion,r0,r1,r2)
+      implicit none
+      real*8 h
+      integer nion
+      real*8 r0(3,*)
+      real*8 r1(3,*)
+      real*8 r2(3,*)
+
+*     *** local variables ***
+      integer i,j,ii,ierr
+      real*8 v(3),temp(3),cm(3),tmass
+      real*8 Im(3,3),L(3),omega(3),L2,hinv
+
+*     *** external functions ****
+      double precision ion_amass
+      external         ion_amass
+
+
+*     *** center of mass ***
+      tmass = 0.0d0
+      cm(1) = 0.0d0
+      cm(2) = 0.0d0
+      cm(3) = 0.0d0
+      do ii=1,nion
+        tmass = tmass + ion_amass(ii)
+        cm(1) = cm(1) + ion_amass(ii)*r1(1,ii)
+        cm(2) = cm(2) + ion_amass(ii)*r1(2,ii)
+        cm(3) = cm(3) + ion_amass(ii)*r1(3,ii)
+      end do
+      cm(1) = cm(1)/tmass
+      cm(2) = cm(2)/tmass
+      cm(3) = cm(3)/tmass
+
+*     *** total angular momentum and inertia ***
+      L(1) = 0.0d0
+      L(2) = 0.0d0
+      L(3) = 0.0d0
+      do j=1,3
+      do i=1,3
+        Im(i,j) = 0.0d0
+      end do
+      end do
+      do ii=1,nion
+         temp(1) = r1(1,ii) - cm(1)
+         temp(2) = r1(2,ii) - cm(2)
+         temp(3) = r1(3,ii) - cm(3)
+         v(1) = h*(r2(1,ii) - r0(1,ii))
+         v(2) = h*(r2(2,ii) - r0(2,ii))
+         v(3) = h*(r2(3,ii) - r0(3,ii))
+         L(1) = L(1) + ion_amass(ii)*(temp(2)*v(3) - temp(3)*v(2))
+         L(2) = L(2) + ion_amass(ii)*(temp(3)*v(1) - temp(1)*v(3))
+         L(3) = L(3) + ion_amass(ii)*(temp(1)*v(2) - temp(2)*v(1))
+         do j=1,3
+         do i=1,3
+            Im(i,j) = Im(i,j) - ion_amass(ii)*temp(i)*temp(j)
+         end do
+         end do
+      end do
+      tmass = Im(1,1) + Im(2,2) + Im(3,3)
+      Im(1,1) = Im(1,1) - tmass
+      Im(2,2) = Im(2,2) - tmass
+      Im(3,3) = Im(3,3) - tmass
+      L2 = L(1)**2 + L(2)**2 + L(3)**2
+
+
+      if (L2 .gt. 1.0d-12) then
+
+*     *** angular velocities - I*omega = L ==> L<-omega  ***
+      call solve_3by3(Im,L,omega)
+
+
+*     *** remove rotation ***
+      hinv = 1.0d0/h
+      do ii=1,nion
+         temp(1) = r1(1,ii) - cm(1)
+         temp(2) = r1(2,ii) - cm(2)
+         temp(3) = r1(3,ii) - cm(3)
+         v(1) = (omega(2)*temp(3) - omega(3)*temp(2))
+         v(2) = (omega(3)*temp(1) - omega(1)*temp(3))
+         v(3) = (omega(1)*temp(2) - omega(2)*temp(1))
+         r2(1,ii) = r2(1,ii) - v(1)*hinv
+         r2(2,ii) = r2(2,ii) - v(2)*hinv
+         r2(3,ii) = r2(3,ii) - v(3)*hinv
+      end do
+      end if
+      return
+      end
+
+      subroutine solve_3by3(Im,L,omega)
+      implicit none
+      real*8 Im(3,3)
+      real*8 L(3)
+      real*8 omega(3)
+
+      real*8 a,b,c,d,e,f,o,p,q
+      real*8 af_de,aq_eo,ab_dd,ac_ee
+      real*8 z,y,x
+
+      a = Im(1,1)
+      b = Im(2,2)
+      c = Im(3,3)
+      d = Im(1,2)
+      e = Im(1,3)
+      f = Im(2,3)
+      o = L(1)
+      p = L(2)
+      q = L(3)
+
+      af_de = a*f-d*e
+      aq_eo = a*q-e*o
+      ab_dd = a*b-d*d
+      ac_ee = a*c-e*e
+
+      z = (af_de*(a*p-d*o)-ab_dd*aq_eo) / (af_de*af_de-ab_dd*ac_ee)
+      y = (aq_eo - z*ac_ee)/af_de
+      x = (o - d*y - e*z)/a
+
+      omega(1) = x 
+      omega(2) = y 
+      omega(3) = z 
       return
       end
 
@@ -1334,7 +1472,9 @@ c         eki1=0.5d0*eki1
       double precision vgx,vgy,vgz,smr
 
 *     *** external functions ****
+      logical          control_rotation
       double precision control_time_step,ion_amass
+      external         control_rotation
       external         control_time_step,ion_amass
 
       dt = control_time_step()
@@ -1364,6 +1504,13 @@ c         eki1=0.5d0*eki1
      >                  dbl_mb(r1(1)),
      >                  dbl_mb(r0(1)))
 
+*     **** remove rotation? ***
+      if (.not.control_rotation())
+     > call ion_remove_rotation(h,nion,
+     >                          dbl_mb(r0(1)),
+     >                          dbl_mb(r1(1)),
+     >                          dbl_mb(r2(1)))
+
 *     **** make r0 the velocity - note that the velocity is deleted ****
 *     **** after an ion_shift call                                  ****
       do i=1,nion
@@ -1390,34 +1537,6 @@ c         eki1=0.5d0*eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
 
-
-      return
-      end
-
-*     ***********************************
-*     *					*
-*     *    ion_angular_momentum_lmbda	*
-*     *					*
-*     ***********************************
-      subroutine ion_angular_momentum_lmbda()
-      implicit none
-
-#include "mafdecls.fh"
-#include "ion.fh"
-
-
-*     **** local variables ****
-      integer i
-      double precision scale,dt,h
-      double precision vgx,vgy,vgz,smr
-      real*8 lmb12,lmb13,lmb23
-
-*     *** external functions ****
-      double precision ion_amass
-      external         ion_amass
-
-
- 
 
       return
       end

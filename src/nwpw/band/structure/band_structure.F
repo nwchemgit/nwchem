@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.7 2004-12-21 16:58:35 bylaska Exp $
+* $Id: band_structure.F,v 1.8 2005-01-25 22:32:03 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -56,8 +56,8 @@
       logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      real*8  pathlength,dist,kold(3)
-      integer i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
+      real*8  pathlength,dist,kold(3),emin,emax
+      integer ii,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx,npoints
       integer mapping
       character*255 full_filename
 
@@ -597,8 +597,51 @@
         if (ispin.eq.2) close(59)
       end if
 
-
       if (taskid.eq.MASTER) call current_second(cpu3)
+
+*                |***************************|
+******************       DOS plotting        **********************
+*                |***************************|
+
+      if (flag.eq.1) then
+
+
+        if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+          npoints = 500
+        end if
+  
+        if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+           emin = 99999.0d0
+           do ii=1,(ne(1)+ne(2))*dosgrid(1)*dosgrid(2)*dosgrid(3)
+             if (dbl_mb(eigs_dos(1)+ii-1).lt.emin) 
+     >         emin = dbl_mb(eigs_dos(1)+ii-1)
+           end do
+           emin = emin - 0.1d0
+        end if
+  
+        if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+           emax = -99999.0d0
+           do ii=1,(ne(1)+ne(2))*dosgrid(1)*dosgrid(2)*dosgrid(3)
+             if (dbl_mb(eigs_dos(1)+ii-1).gt.emax) 
+     >         emax = dbl_mb(eigs_dos(1)+ii-1)
+           end do
+           emax = emax + 0.1d0
+        end if
+
+        call util_file_name('dos',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+          open(unit=58,file=full_filename,form='formatted')
+          call band_dos_generate(58,dosgrid,
+     >                           dbl_mb(eigs_dos(1)),ne(1),
+     >                           (1.0d0),
+     >                           npoints,emin,emax)
+          close(58)
+        end if
+      end if
+    
 
 *                |***************************|
 ******************         Epilogue          **********************
@@ -769,4 +812,574 @@
       band_structure = value
       return
       END
+
+**************** Definitions of Cubes and Tetrahedrons *****************
+*                                                                      *
+*                                                                      *
+*     (011)------------(111)                    ( 3 )------------( 7 ) *
+*       +                +                        +                +   *
+*      /.               /|                       /.               /|   *
+*     / .              / |                      / .              / |   *
+*    /  .             /  |                     /  .             /  |   *
+*   /   .            /   |                    /   .            /   |   *
+* (001)------------(101) |      <====>      ( 1 )------------( 5 ) |   *
+*   |   .            |   |                    |   .            |   |   *
+*   | (010)..........|.(110)                  | ( 2 )..........|.( 6 ) *
+*   |   .            |   /                    |   .            |   /   *
+*   |  .             |  /                     |  .             |  /    *
+*   | .              | /                      | .              | /     *
+*   |.               |/                       |.               |/      *
+*   +                +                        +                +       *
+* (000)------------(100)                    ( 0 )------------( 4 )     *
+*                                                                      *
+*                                                                      *
+* Algorithm to find diagaonals                                         *
+*                                                                      *
+*  Given a cube vertice d1                                             *
+*  then d2 = d1^(111) = d1^7                                           *
+*                                                                      *
+*   Where the cOR bit operator "^" is defined as follows:              *
+*      0^0 = 0                                                         *
+*      1^1 = 0                                                         *
+*      1^0 = 1                                                         *
+*      0^1 = 1                                                         *
+*                                                                      *
+* The four possible cube diagonals are                                 *
+*     (000) --- (111)                              (0, 7)              *
+*     (001) --- (110)           <====>  2-tuple    (1, 6)              *
+*     (010) --- (101)                   rep.       (2, 5)              *
+*     (011) --- (100)                              (3, 4)              *
+*                                                                      *
+* Given a 2-tuple (d1,d2) that defines the diagonal of the cube,       *
+* six tetrahedrons are defined, e.g.                                   *
+*                                                                      *
+*                      (111)                                           *
+*                     .  / .                                           *
+*                   .   /  .                                           *
+*                 .    /   .                                           *
+*                .    /   .                                            *
+*              .     /    .                                            *
+*             .    (101)  .                                            *
+*           .     /  |   .        <====> 4-tuple (0, 7, 4, 5)          *
+*          .    /    |   .               rep.                          *
+*        .    /      |   .                                             *
+*       .   /        |  .                                              *
+*     .   /          |  .                                              *
+*    .  /            |  .                                              *
+*  .  /              | .                                               *
+* (000)------------(100)                                               *
+*                                                                      *
+*                                                                      *
+* Algorithm to find the six tetradedrons                               *
+*                                                                      *
+*  Given the diagonals vertices d1 and d2 such that d2=d1^7, the six   * 
+*  tetradedrons (six 4-tuples) can be found using the following        *
+*  algorithm:                                                          *
+*                                                                      *
+*   shift(0) = (001) = 1                                               *
+*   shift(1) = (010) = 2                                               *
+*   shift(2) = (100) = 4                                               *
+*   tcount = 0                                                         *
+*   For i=0,2                                                          *
+*   For j=0,2                                                          *
+*     c1 = d1^shift(i)                                                 *
+*     c2 = c1^shift(j)                                                 *
+*     If (c1 != d1) and (c1 != d2) and (c2!=d1) and (c2!=d2) Then      *
+*       tetra(tcount) = (d1,d2,c1,c2)                                  *
+*       tcount = tcount + 1                                            *
+*     End If                                                           *
+*   End For                                                            *
+*   End For                                                            *
+*                                                                      *
+**************** Definitions of Cubes and Tetrahedrons *****************
+
+
+*     *********************************************
+*     *                                           *
+*     *            band_dos_generate              *
+*     *                                           *
+*     *********************************************
+
+      subroutine band_dos_generate(unit,dosgrid,eigs,neigs,
+     >                             sign,npoints,emin,emax)
+      implicit none
+      integer unit
+      integer dosgrid(3)
+      real*8 eigs(dosgrid(1),dosgrid(2),dosgrid(3),*)
+      integer neigs
+      real*8  sign
+      integer npoints
+      real*8 emin,emax
+
+*     **** local variables ****
+      integer i,j,k,ii,jj,kk,ncubes,ntetra,count
+      integer ishft,jshft,kshft
+      integer k1_d(4),k2_d(4),k3_d(4),k1_dd(4),k2_dd(4),k3_dd(4)
+      integer id,d1(4),d2(4)
+      integer itetra(4,6)
+      real*8  VT,VG
+      real*8  B(3,3),unitg(3,3),e,ecube(8),f,g,de
+      real*8  k1,k2,k3,kx,ky,kz,kkx,kky,kkz,r,rmax
+
+*     **** external functions ****
+      real*8   lattice_unitg,Dstates_Cube,Nstates_Cube
+      external lattice_unitg,Dstates_Cube,Nstates_Cube
+
+c      write(unit,*) "dosgrid:",dosgrid
+c      write(unit,*) "neigs:     ",neigs
+c      write(unit,*) "sign:      ",sign
+c      write(unit,*) "npoints:   ",npoints
+c      write(unit,*) "emin:      ", emin
+c      write(unit,*) "emax:      ", emax
+
+      do j=1,3
+      do i=1,3
+        B(i,j) = lattice_unitg(i,j)
+      end do  
+      end do  
+
+*     **** volume of reciprocal unit cell, VG ****
+      unitg(1,1) = B(2,2)*B(3,3) - B(3,2)*B(2,3)
+      unitg(2,1) = B(3,2)*B(1,3) - B(1,2)*B(3,3)
+      unitg(3,1) = B(1,2)*B(2,3) - B(2,2)*B(1,3)
+
+      unitg(1,2) = B(2,3)*B(3,1) - B(3,3)*B(2,1)
+      unitg(2,2) = B(3,3)*B(1,1) - B(1,3)*B(3,1)
+      unitg(3,2) = B(1,3)*B(2,1) - B(2,3)*B(1,1)
+
+      unitg(1,3) = B(2,1)*B(3,2) - B(3,1)*B(2,2)
+      unitg(2,3) = B(3,1)*B(1,2) - B(1,1)*B(3,2)
+      unitg(3,3) = B(1,1)*B(2,2) - B(2,1)*B(1,2)
+      VG = B(1,1)*unitg(1,1)
+     >   + B(2,1)*unitg(2,1)
+     >   + B(3,1)*unitg(3,1)
+      
+      ncubes = dosgrid(1)*dosgrid(2)*dosgrid(3)
+      ntetra = ncubes*6
+      VT = VG/dble(ntetra)
+
+c      write(unit,*) "VG:     ",VG
+c      write(unit,*) "number of cubes:",ncubes
+c      write(unit,*) "number of tetra:",ntetra
+c      write(unit,*) "VT:     ",VT
+c
+c      count = 0
+c      do k=0,dosgrid(3)-1
+c      do j=0,dosgrid(2)-1
+c      do i=0,dosgrid(1)-1
+c         count = count + 1
+c         k1 = (dble(i)/dble(dosgrid(1)))
+c         k2 = (dble(j)/dble(dosgrid(2)))
+c         k3 = (dble(k)/dble(dosgrid(3)))
+c         kx = k1*B(1,1) + k2*B(1,2) + k3*B(1,3)
+c         ky = k1*B(2,1) + k2*B(2,2) + k3*B(2,3)
+c         kz = k1*B(3,1) + k2*B(3,2) + k3*B(3,3)
+c         write(unit,*) i,j,k
+c         write(unit,3508) count,k1,k2,k3,kx,ky,kz
+c         write(unit,*)
+c      end do
+c      end do
+c      end do
+
+*     ********************************
+*     **** find shortest diagonal ****
+*     ********************************
+
+*     **** (000) ---- (111) ****
+      k1_d(1) = 0
+      k2_d(1) = 0
+      k3_d(1) = 0
+      k1_dd(1) = 1
+      k2_dd(1) = 1
+      k3_dd(1) = 1
+      d1(1) = 0
+      d2(1) = 7
+
+*     **** (001) ---- (110) ****
+      k1_d(2) = 1
+      k2_d(2) = 0
+      k3_d(2) = 0
+      k1_dd(2) = 0
+      k2_dd(2) = 1
+      k3_dd(2) = 1
+      d1(2) = 1
+      d2(2) = 6
+
+*     **** (010) ---- (101) ****
+      k1_d(3) = 0
+      k2_d(3) = 1
+      k3_d(3) = 0
+      k1_dd(3) = 1
+      k2_dd(3) = 0
+      k3_dd(3) = 1
+      d1(3) = 2
+      d2(3) = 5
+
+*     **** (011) ---- (100) ****
+      k1_d(4) = 1
+      k2_d(4) = 1
+      k3_d(4) = 0
+      k1_dd(4) = 0
+      k2_dd(4) = 0
+      k3_dd(4) = 1
+      d1(4) = 3
+      d2(4) = 4
+
+      id = 1
+      rmax = 9.99d9
+      do i=1,4
+         kx = k1_d(i)*B(1,1) + k2_d(i)*B(1,2) + k3_d(i)*B(1,3)
+         ky = k1_d(i)*B(2,1) + k2_d(i)*B(2,2) + k3_d(i)*B(2,3)
+         kz = k1_d(i)*B(3,1) + k2_d(i)*B(3,2) + k3_d(i)*B(3,3)
+
+         kkx = k1_dd(i)*B(1,1) + k2_dd(i)*B(1,2) + k3_dd(i)*B(1,3)
+         kky = k1_dd(i)*B(2,1) + k2_dd(i)*B(2,2) + k3_dd(i)*B(2,3)
+         kkz = k1_dd(i)*B(3,1) + k2_dd(i)*B(3,2) + k3_dd(i)*B(3,3)
+         r = (kx-kkx)**2 + (ky-kky)**2 + (kz-kkz)**2
+         !write(unit,*) "diagonal distance:",i,r,rmax
+         if (r.lt.rmax) then
+           rmax = r
+           id = i
+         end if
+      end do
+
+      !write(unit,*) "diagonal d1,d2 =",d1(id),d2(id)
+
+*     **** define six tetradrons - clunky but don't know defn of cOR in fortran ****
+      if (id.eq.1) then
+        itetra(1,1) = 0   +1
+        itetra(2,1) = 7   +1
+        itetra(3,1) = 1   +1
+        itetra(4,1) = 3   +1
+
+        itetra(1,2) = 0   +1
+        itetra(2,2) = 7   +1
+        itetra(3,2) = 1   +1
+        itetra(4,2) = 5   +1
+
+        itetra(1,3) = 0   +1
+        itetra(2,3) = 7   +1
+        itetra(3,3) = 2   +1
+        itetra(4,3) = 3   +1
+
+        itetra(1,4) = 0   +1
+        itetra(2,4) = 7   +1
+        itetra(3,4) = 2   +1
+        itetra(4,4) = 6   +1
+
+        itetra(1,5) = 0   +1
+        itetra(2,5) = 7   +1
+        itetra(3,5) = 4   +1
+        itetra(4,5) = 5   +1
+
+        itetra(1,6) = 0   +1
+        itetra(2,6) = 7   +1
+        itetra(3,6) = 4   +1
+        itetra(4,6) = 6   +1
+      else if (id.eq.2) then
+        itetra(1,1) = 1   +1
+        itetra(2,1) = 6   +1
+        itetra(3,1) = 0   +1
+        itetra(4,1) = 2   +1
+
+        itetra(1,2) = 1   +1
+        itetra(2,2) = 6   +1
+        itetra(3,2) = 0   +1
+        itetra(4,2) = 4   +1
+
+        itetra(1,3) = 1   +1
+        itetra(2,3) = 6   +1
+        itetra(3,3) = 3   +1
+        itetra(4,3) = 2   +1
+
+        itetra(1,4) = 1   +1
+        itetra(2,4) = 6   +1
+        itetra(3,4) = 3   +1
+        itetra(4,4) = 7   +1
+
+        itetra(1,5) = 1   +1
+        itetra(2,5) = 6   +1
+        itetra(3,5) = 5   +1
+        itetra(4,5) = 4   +1
+
+        itetra(1,6) = 1   +1
+        itetra(2,6) = 6   +1
+        itetra(3,6) = 5   +1
+        itetra(4,6) = 7   +1
+      else if (id.eq.3) then
+        itetra(1,1) = 2   +1
+        itetra(2,1) = 5   +1
+        itetra(3,1) = 3   +1
+        itetra(4,1) = 1   +1
+
+        itetra(1,2) = 2   +1
+        itetra(2,2) = 5   +1
+        itetra(3,2) = 3   +1
+        itetra(4,2) = 7   +1
+
+        itetra(1,3) = 2   +1
+        itetra(2,3) = 5   +1
+        itetra(3,3) = 0   +1
+        itetra(4,3) = 1   +1
+
+        itetra(1,4) = 2   +1
+        itetra(2,4) = 5   +1
+        itetra(3,4) = 0   +1
+        itetra(4,4) = 4   +1
+
+        itetra(1,5) = 2   +1
+        itetra(2,5) = 5   +1
+        itetra(3,5) = 6   +1
+        itetra(4,5) = 7   +1
+
+        itetra(1,6) = 2   +1
+        itetra(2,6) = 5   +1
+        itetra(3,6) = 6   +1
+        itetra(4,6) = 4   +1
+      else if (id.eq.4) then
+        itetra(1,1) = 3   +1
+        itetra(2,1) = 4   +1
+        itetra(3,1) = 2    +1
+        itetra(4,1) = 0   +1
+
+        itetra(1,2) = 3   +1
+        itetra(2,2) = 4   +1
+        itetra(3,2) = 2   +1
+        itetra(4,2) = 6   +1
+
+        itetra(1,3) = 3   +1
+        itetra(2,3) = 4   +1
+        itetra(3,3) = 1   +1
+        itetra(4,3) = 0   +1
+
+        itetra(1,4) = 3   +1
+        itetra(2,4) = 4   +1
+        itetra(3,4) = 1   +1
+        itetra(4,4) = 5   +1
+
+        itetra(1,5) = 3   +1
+        itetra(2,5) = 4   +1
+        itetra(3,5) = 7   +1
+        itetra(4,5) = 6   +1
+
+        itetra(1,6) = 3   +1
+        itetra(2,6) = 4   +1
+        itetra(3,6) = 7   +1
+        itetra(4,6) = 5   +1
+      end if
+
+
+c      do i=1,6
+c        write(unit,*) id,"tetra :",i,"(",(itetra(j,i),j=1,4),")"
+c      end do
+
+      de = (emax-emin)/dble(npoints-1)
+      do k=1,npoints
+        e = emin + (k-1)*de
+
+        f = 0.0d0
+        g = 0.0d0
+        do kk=1,dosgrid(3)
+        do jj=1,dosgrid(2)
+        do ii=1,dosgrid(1)
+          ishft = ii+1
+          jshft = jj+1
+          kshft = kk+1
+          if (ishft.gt.dosgrid(1)) ishft=1
+          if (jshft.gt.dosgrid(2)) jshft=1
+          if (kshft.gt.dosgrid(3)) kshft=1
+          do i=1,neigs
+            ecube(1) = eigs(ii,       jj,    kk, i)  ! (000)
+            ecube(2) = eigs(ishft,    jj,    kk, i)  ! (001)
+            ecube(3) = eigs(ii,    jshft,    kk, i)  ! (010)
+            ecube(4) = eigs(ishft, jshft,    kk, i)  ! (011)
+            ecube(5) = eigs(ii,       jj, kshft, i)  ! (100)
+            ecube(6) = eigs(ishft,    jj, kshft, i)  ! (101)
+            ecube(7) = eigs(   ii, jshft, kshft, i)  ! (110)
+            ecube(8) = eigs(ishft, jshft, kshft, i)  ! (111)
+           
+            f = f + Dstates_Cube(e,itetra,ecube)
+            g = g + Nstates_Cube(e,itetra,ecube)
+          end do
+        end do
+        end do
+        end do
+        f = f*(VT/VG)
+        g = g*(VT/VG)
+
+        write(unit,1310) e,f*sign,g
+      end do
+
+
+      return
+ 1310 FORMAT(3E15.5)
+ 3508 FORMAT(/' Brillouin zone point: ',i2,
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
+      end
+
+
+      real*8 function Dstates_Cube(e,itetra,ecube)
+      implicit none
+      real*8  e
+      integer itetra(4,6)
+      real*8  ecube(8)
+
+*     **** local variables ****
+      integer i,j,k
+      real*8 ds,etetra(4),swap
+
+      real*8   Dstates_Tetra
+      external Dstates_Tetra
+
+*     **** sum over 6 tetrahedrons ****
+      ds = 0.0d0
+      do k=1,6
+        etetra(1) = ecube(itetra(1,k))
+        etetra(2) = ecube(itetra(2,k))
+        etetra(3) = ecube(itetra(3,k))
+        etetra(4) = ecube(itetra(4,k))
+
+*       **** bubble sort ****
+        do j=1,3
+        do i=j+1,4
+          if (etetra(j).gt.etetra(i)) then
+            swap      = etetra(i)
+            etetra(i) = etetra(j)
+            etetra(j) = swap
+          end if
+        end do
+        end do
+        ds = ds + Dstates_Tetra(e,etetra)
+      end do
+
+      Dstates_cube = ds
+      return
+      end
+
+
+      real*8 function Dstates_Tetra(e,ee)
+      implicit none
+      real*8 e
+      real*8 ee(4)
+
+*     **** local variables ****
+      real*8 ds
+      real*8 e1,e2,e4
+      real*8 e21,e31,e41,e32,e42,e43
+
+      if ((ee(1).le.e).and.(e.lt.ee(2))) then
+        e1 = e-ee(1)
+        e21 = ee(2) - ee(1)
+        e31 = ee(3) - ee(1)
+        e41 = ee(4) - ee(1)
+        ds = 3.0d0*e1*e1/(e21*e31*e41)
+      else if ((ee(2).le.e).and.(e.lt.ee(3))) then
+        e2 = e-ee(2);
+        e21 = ee(2) - ee(1);
+        e31 = ee(3) - ee(1);
+        e41 = ee(4) - ee(1);
+        e32 = ee(3) - ee(2);
+        e42 = ee(4) - ee(2);
+        ds = (3.0d0*e21+6.0d0*e2-3.0d0*(e31+e42)*e2*e2/(e32*e42))
+     >       /(e31*e41)
+      else if ((ee(3).le.e).and.(e.lt.ee(4))) then
+        e4 = ee(4)-e;
+        e41 = ee(4) - ee(1);
+        e42 = ee(4) - ee(2);
+        e43 = ee(4) - ee(3);
+        ds = 3.0d0*e4*e4/(e41*e42*e43)
+      else
+        ds = 0.0d0
+      end if
+
+
+      Dstates_Tetra = ds
+      return
+      end
+      
+
+      real*8 function Nstates_Cube(e,itetra,ecube)
+      implicit none
+      real*8  e
+      integer itetra(4,6)
+      real*8  ecube(8)
+
+*     **** local variables ****
+      integer i,j,k
+      real*8 ds,etetra(4),swap
+
+      real*8   Nstates_Tetra
+      external Nstates_Tetra
+
+*     **** sum over 6 tetrahedrons ****
+      ds = 0.0d0
+      do k=1,6
+        etetra(1) = ecube(itetra(1,k))
+        etetra(2) = ecube(itetra(2,k))
+        etetra(3) = ecube(itetra(3,k))
+        etetra(4) = ecube(itetra(4,k))
+
+*       **** bubble sort ****
+        do j=1,3
+        do i=j+1,4
+          if (etetra(j).gt.etetra(i)) then
+            swap      = etetra(i)
+            etetra(i) = etetra(j)
+            etetra(j) = swap
+          end if
+        end do
+        end do
+        ds = ds + Nstates_Tetra(e,etetra)
+      end do
+
+      Nstates_cube = ds
+      return
+      end
+
+
+      real*8 function Nstates_Tetra(e,ee)
+      implicit none
+      real*8 e
+      real*8 ee(4)
+
+*     **** local variables ****
+      real*8 ds
+      real*8 e1,e2,e4
+      real*8 e21,e31,e41,e32,e42,e43
+
+      if ((ee(1).le.e).and.(e.lt.ee(2))) then
+        e1 = e-ee(1)
+        e21 = ee(2) - ee(1)
+        e31 = ee(3) - ee(1)
+        e41 = ee(4) - ee(1)
+        ds = e1*e1*e1/(e21*e31*e41)
+      else if ((ee(2).le.e).and.(e.lt.ee(3))) then
+        e2 = e-ee(2);
+        e21 = ee(2) - ee(1);
+        e31 = ee(3) - ee(1);
+        e41 = ee(4) - ee(1);
+        e32 = ee(3) - ee(2);
+        e42 = ee(4) - ee(2);
+        ds = (e21*e21 
+     >        + 3.0d0*e21*e2
+     >        + 3.0d0*e2*e2
+     >        - (e31+e42)*e2*e2*e2/(e32*e42))
+     >       /(e31*e41)
+      else if ((ee(3).le.e).and.(e.lt.ee(4))) then
+        e4 = ee(4)-e;
+        e41 = ee(4) - ee(1);
+        e42 = ee(4) - ee(2);
+        e43 = ee(4) - ee(3);
+        ds = 1.0d0 - e4*e4*e4/(e41*e42*e43)
+      else if (e.ge.ee(4)) then
+        ds = 1.0d0
+      else
+        ds = 0.0d0
+      end if
+
+
+      Nstates_Tetra = ds
+      return
+      end
 

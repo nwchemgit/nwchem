@@ -1,8 +1,14 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.5 2004-11-08 23:37:41 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.6 2005-01-25 22:32:04 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.5  2004/11/08 23:37:41  bylaska
+* Bug fix in pspw_hfx found by M. Hackler.
+* PBE0 has been implemented.
+*
+*  ........EJB
+*
 * Revision 1.4  2004/03/08 22:51:25  bylaska
 * Fractional occupation working in pspw with minimizer 4, steepest descent, and Car-Parrinello.
 *
@@ -78,7 +84,7 @@
 
 
 *     **** local variables ****
-      logical move
+      logical move,allow_translation
       integer n2ft3d,np
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
@@ -128,8 +134,8 @@
       external paw_mult_energy_atom_self
       external paw_mult_energy_atom_mult
 
-      logical  control_Nose
-      external control_Nose
+      logical  control_Nose,control_allow_translation
+      external control_Nose,control_allow_translation
       real*8   Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
 
@@ -164,6 +170,7 @@
       deltamm = 0.0d0
 
       field_exist = pspw_qmmm_found().or.pspw_charge_found()
+      allow_translation = control_allow_translation()
 
 
 
@@ -501,6 +508,12 @@
 
 *       **** remove ion forces using ion_FixIon ****
         call ion_FixIon(dbl_mb(fion(1)))
+
+        !**** center of mass constraint ****
+        if (.not.allow_translation) then
+          call remove_center_F_mass(dbl_mb(fion(1)))
+        end if
+
 
 
 *       *********************************

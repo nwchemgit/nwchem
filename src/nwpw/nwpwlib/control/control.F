@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.66 2005-01-04 01:02:08 edo Exp $
+* $Id: control.F,v 1.67 2005-01-25 22:32:03 bylaska Exp $
 *
 
 *     ***********************************
@@ -45,6 +45,11 @@
 
       call util_print_get_level(print_level)
       !write(*,*) "Print level is ",print_level
+
+*     **** get parallel mapping ****
+      if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
+         mapping = 1
+      end if
 
 
 *     **** cpsd: stuff ****
@@ -140,11 +145,11 @@
      *     call errquit(' control: rtdb_get failed ',0,0)
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
+
       if(.not.rtdb_get(rtdb,'cpsd:ecut',mt_dbl,1,ecut))
-     *     call errquit(' control: rtdb_get failed ',0,0)
+     >   ecut = 30.0d0
       if(.not.rtdb_get(rtdb,'cpsd:wcut',mt_dbl,1,wcut))
-     *     call errquit(' control: rtdb_get failed ',0,0)
-      write(0,*) ' wc ec ',wcut,ecut
+     >  wcut=ecut
       if(.not.rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut))
      *     call errquit(' control: rtdb_get failed ',0,0)
       if(.not.rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut))
@@ -153,6 +158,7 @@
      *     call errquit(' control: rtdb_get failed ',0,0)
       if(.not.rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
      *     call errquit(' control: rtdb_get failed ',0,0)
+
 
 
 *     **** cpmd code: stuff ****
@@ -279,6 +285,8 @@
       if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
+      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+     >  rotation = .true.
 
 c     do i=1,npsp
 c       id = 'cpmd:psp'//CHAR(i)
@@ -478,6 +486,9 @@ c     end do
 *     **** band: stuff ****
 
       else if (code.eq.5) then
+      !**** mapping 2 not implemented in band ****
+      mapping = 1  
+
       if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -710,6 +721,9 @@ c
       if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
+      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+     >  rotation = .true.
+
 *     **** get thermostat information ****
       value = value .and. rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose)
       value = value .and. rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
@@ -792,28 +806,34 @@ c     >                  1,output_wavefunction_filename)
          return
       end if
 
+*     **********************
 *     ***** cell: stuff ****
+*     **********************
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
       rtdb_ngrid = cell_name(1:l)//':ngrid'
       rtdb_boundry = cell_name(1:l)//':boundry'
 
            
+*     **** define unita and boundary ****
       if (.not.rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)) then
         call dcopy(9,0.0d0,0,unita,1)
-      end if
-
-      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
-        ngrid(1) = 32
-        ngrid(2) = 32
-        ngrid(3) = 32
       end if
 
       if (.not.rtdb_cget(rtdb,rtdb_boundry,1,boundry)) then
          boundry = 'periodic'
       end if
+      call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
 
-      call check_unita_for_default(rtdb,unita)
+
+*     **** define ngrid based on unita and ecut ****
+      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+         if (ecut.gt.5000.0d0) ecut = 30.0d0
+         call control_ngrid_default(rtdb,unita,ecut,mapping,ngrid)
+         !ngrid(1) = 32
+         !ngrid(2) = 32
+         !ngrid(3) = 32
+      end if
 
 
 *     **** set out of time variables ****
@@ -834,23 +854,159 @@ c     >                  1,output_wavefunction_filename)
 
 
 *     ***********************************
+*     *                                 *
+*     *    control_ngrid_default        *
+*     *                                 *
+*     ***********************************
+      subroutine control_ngrid_default(rtdb,unita,ecut,mapping,ngrid)
+      implicit none
+      integer rtdb
+      real*8 unita(3,3),ecut
+      integer mapping
+      integer ngrid(3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      real*8 unitg(3,3),omega
+      real*8 gx,gy,gz
+      real*8 xh,yh,zh
+      integer  control_set_ngrid
+      external control_set_ngrid
+
+      call get_cube(unita,unitg,omega)
+
+      gx = unitg(1,1)
+      gy = unitg(2,1)
+      gz = unitg(3,1)
+      xh = dsqrt(2.0d0*ecut/(gx*gx + gy*gy + gz*gz))+0.5d0
+
+      gx = unitg(1,2)
+      gy = unitg(2,2)
+      gz = unitg(3,2)
+      yh = dsqrt(2.0d0*ecut/(gx*gx + gy*gy + gz*gz))+0.5d0
+
+      gx = unitg(1,3)
+      gy = unitg(2,3)
+      gz = unitg(3,3)
+      zh = dsqrt(2.0d0*ecut/(gx*gx + gy*gy + gz*gz))+0.5d0
+
+      if (mapping.eq.2) then
+c        ngrid(1) = control_set_ngrid(2.0d0*xh,.true.)
+c        ngrid(2) = control_set_ngrid(2.0d0*yh,.false.)
+c        ngrid(3) = control_set_ngrid(2.0d0*zh,.false.)
+        ngrid(1) = control_set_ngrid(2.0d0*xh,.true.)
+        ngrid(2) = control_set_ngrid(2.0d0*yh,.true.)
+        ngrid(3) = control_set_ngrid(2.0d0*zh,.true.)
+      else
+        ngrid(1) = control_set_ngrid(2.0d0*xh,.true.)
+        ngrid(2) = control_set_ngrid(2.0d0*yh,.true.)
+        ngrid(3) = control_set_ngrid(2.0d0*zh,.true.)
+        if (ngrid(2).gt.ngrid(3)) then
+          ngrid(3) = ngrid(2)
+        else
+          ngrid(2) = ngrid(3)
+        end if
+      end if
+
+
+c*     *** write unita to rtdb  - should happen only once during a simulation ***
+c      if (.not.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+c        call errquit('cannot write ngrid to rtdb',0,0)
+c      end if
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *    control_set_ngrid            *
+*     *                                 *
+*     ***********************************
+*
+*     return n so that it is a multiple of 2,3,5,7 
+*
+      integer function control_set_ngrid(x,mult2)
+      implicit none
+      real*8 x
+      logical mult2
+
+*     **** local variables ****
+      integer n,nx,ntest
+      integer nf2,nf3,nf5,nf7
+
+      integer  factor_count2
+      external factor_count2
+
+*     **** find prime factors of nx ***
+      nx = (x+0.5d0)  !*** crude rounding
+      if ((mult2).and.(mod(nx,2).ne.0)) nx = nx+1
+
+      nf2 = factor_count2(nx,2)
+      nf3 = factor_count2(nx,3)
+      nf5 = factor_count2(nx,5)
+      nf7 = factor_count2(nx,7)
+      ntest = 2**nf2 * 3**nf3 * 5**nf5 * 7**nf7
+      do while  (nx .ne. ntest)
+        nx = nx + 1
+        if (mult2) nx = nx + 1
+        nf2 = factor_count2(nx,2)
+        nf3 = factor_count2(nx,3)
+        nf5 = factor_count2(nx,5)
+        nf7 = factor_count2(nx,7)
+        ntest = 2**nf2 * 3**nf3 * 5**nf5 * 7**nf7
+      end do
+
+      control_set_ngrid = nx
+      return 
+      end
+
+      integer function factor_count2(n,m)
+      implicit none
+      integer n,m
+      integer f,nn
+
+      nn = n;
+      f = 0
+      do while (mod(nn,m).eq.0)
+        f = f + 1
+        nn = nn/m
+      end do
+      factor_count2 = f
+      return
+      end
+
+
+
+
+
+*     ***********************************
 *     *					*
 *     *    check_unita_for_default	*
 *     *					*
 *     ***********************************
-      subroutine check_unita_for_default(rtdb,unita)
+      subroutine check_unita_for_default(rtdb,unita,rtdb_unita,
+     >                                   cell_name)
       implicit none
-#include "errquit.fh"
       integer rtdb
       real*8 unita(3,3)
+      character*30 rtdb_unita
+      character*30 cell_name
+      
+
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
-      logical value
-      integer geom
+      logical value,box_orient
+      integer geom,box_type,l
+      real*8  box_delta
+      character*30 rtdb_name
 
       value = (unita(1,1) .eq. 0.0d0).and.
      >        (unita(2,1) .eq. 0.0d0).and.
@@ -879,15 +1035,34 @@ c     >                  1,output_wavefunction_filename)
      >           (unita(2,3) .eq. 0.0d0).and.
      >           (unita(3,3) .eq. 1.0d0)
          if (value) then
-           unita(1,1) = 20.0d0
-           unita(2,1) =  0.0d0
-           unita(3,1) =  0.0d0
-           unita(1,2) =  0.0d0
-           unita(2,2) = 20.0d0
-           unita(3,2) =  0.0d0
-           unita(1,3) =  0.0d0
-           unita(2,3) =  0.0d0
-           unita(3,3) = 20.0d0
+           l = index(cell_name,' ') - 1
+           rtdb_name = cell_name(1:l)//':box_delta'
+           if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,box_delta))
+     >       box_delta = 5.0d0
+           rtdb_name = cell_name(1:l)//':box_type'
+           if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,box_type)) 
+     >       box_type = 0
+           rtdb_name = cell_name(1:l)//':box_orient'
+           if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+     >                       box_orient)) 
+     >       box_orient = .false.
+           call control_find_box(geom,box_type,box_orient,box_delta,
+     >                           unita)
+
+*          *** write unita to rtdb  - should happen only once during a simulation ***
+           if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)) then
+             call errquit('cannot write unita to rtdb',0,0)
+           end if
+
+           !unita(1,1) = 20.0d0
+           !unita(2,1) =  0.0d0
+           !unita(3,1) =  0.0d0
+           !unita(1,2) =  0.0d0
+           !unita(2,2) = 20.0d0
+           !unita(3,2) =  0.0d0
+           !unita(1,3) =  0.0d0
+           !unita(2,3) =  0.0d0
+           !unita(3,3) = 20.0d0
          end if
          value = geom_destroy(geom)
          if (.not. value) call errquit('cannot destroy geom',0,
@@ -897,6 +1072,208 @@ c     >                  1,output_wavefunction_filename)
 
       return
       end 
+
+*     ***********************************
+*     *					*
+*     *	      control_find_box		*
+*     *					*
+*     ***********************************
+      subroutine control_find_box(geom,box_type,orient,delta,unita)
+      implicit none
+      integer geom
+      integer box_type
+      logical orient
+      real*8 delta
+      real*8 unita(3,3)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     *** local variables ***
+      integer lwork
+      parameter (lwork=9)
+      double precision work(lwork)
+
+      integer ii,nion,ierr
+      integer rt(2),tt(2),qt(2),mt(2)
+      double precision q,rxyz(3),mtensor(3,3),frac(3),L1,L2,L3
+      double precision x,y,z,meig(3)
+      character*16     t
+      logical value
+
+*     **** external functions ****
+      logical   control_notqmmmq
+      external  control_notqmmmq
+
+      if (.not.geom_ncent(geom,nion)) then
+        call errquit('cannot load nion from geom',0,GEOM_ERR)
+      end if
+
+*     *** find principle axes wrt origin (0,0,0) ***
+       mtensor(1,1) = 1.0d0
+       mtensor(2,1) = 0.0d0
+       mtensor(3,1) = 0.0d0
+       mtensor(1,2) = 0.0d0
+       mtensor(2,2) = 1.0d0
+       mtensor(3,2) = 0.0d0
+       mtensor(1,3) = 0.0d0
+       mtensor(2,3) = 0.0d0
+       mtensor(3,3) = 1.0d0
+       if (orient) then
+         call dcopy(9,0.0d0,0,mtensor,1)
+         do ii=1,nion
+           value = geom_cent_get(geom,ii,t,rxyz,q)
+           if (.not.control_notqmmmq(t)) then
+            x =rxyz(1)
+            y =rxyz(2)
+            z =rxyz(3)
+            mtensor(1,1)=mtensor(1,1)+(y*y+z*z)
+            mtensor(2,1)=mtensor(2,1)- x*y
+            mtensor(1,2)=mtensor(2,1)
+            mtensor(3,1)=mtensor(3,1)- x*z
+            mtensor(1,3)=mtensor(3,1)
+            mtensor(2,2)=mtensor(2,2)+(x*x+z*z)
+            mtensor(3,2)=mtensor(3,2)- y*z
+            mtensor(2,3)=mtensor(3,2)
+            mtensor(3,3)=mtensor(3,3)+(x*x+y*y)
+           end if
+         end do
+ 
+c        **** longest dimension is along a1 ****
+         call DSYEV('V','U',3,mtensor,3,meig,work,lwork,ierr)
+
+c         !*** reorder eigenvectors - make longest dimesion along a3 ****
+c         x = mtensor(1,1)
+c         y = mtensor(2,1)
+c         z = mtensor(3,1)
+c         mtensor(1,1) = mtensor(1,3)
+c         mtensor(2,1) = mtensor(2,3)
+c         mtensor(3,1) = mtensor(3,3)
+c         mtensor(1,3) = x
+c         mtensor(2,3) = y
+c         mtensor(3,3) = z
+       end if
+
+*     *****************
+*     *** cubic box ***
+*     *****************
+      if (box_type.eq.0) then
+
+*     **** define L1 ***
+      L1 = 0.0d0
+      do ii=1,nion
+        if (.not.geom_cent_get(geom,ii,t,rxyz,q)) then
+          call errquit('cannot load center from geom',0,GEOM_ERR)
+        end if
+        if (.not.control_notqmmmq(t)) then
+           frac(1) = mtensor(1,1)*rxyz(1)
+     >             + mtensor(2,1)*rxyz(2)
+     >             + mtensor(3,1)*rxyz(3)
+           frac(2) = mtensor(1,2)*rxyz(1)
+     >             + mtensor(2,2)*rxyz(2)
+     >             + mtensor(3,2)*rxyz(3)
+           frac(3) = mtensor(1,3)*rxyz(1)
+     >             + mtensor(2,3)*rxyz(2)
+     >             + mtensor(3,3)*rxyz(3)
+           if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
+        end if
+      end do
+
+*     **** define unit cell ****
+      unita(1,1) = L1*mtensor(1,1)
+      unita(2,1) = L1*mtensor(2,1)
+      unita(3,1) = L1*mtensor(3,1)
+      unita(1,2) = L1*mtensor(1,2)
+      unita(2,2) = L1*mtensor(2,2)
+      unita(3,2) = L1*mtensor(3,2)
+      unita(1,3) = L1*mtensor(1,3)
+      unita(2,3) = L1*mtensor(2,3)
+      unita(3,3) = L1*mtensor(3,3)
+
+*     ************************
+*     *** orthorhombic box ***
+*     ************************
+      else if (box_type.eq.1) then
+
+*     **** define L1, L2, and L3 ****
+      L1 = 0.0d0
+      L2 = 0.0d0
+      L3 = 0.0d0
+      do ii=1,nion
+        if (.not.geom_cent_get(geom,ii,t,rxyz,q)) then
+          call errquit('cannot load center from geom',0,GEOM_ERR)
+        end if
+        if (.not.control_notqmmmq(t)) then
+           frac(1) = mtensor(1,1)*rxyz(1)
+     >             + mtensor(2,1)*rxyz(2)
+     >             + mtensor(3,1)*rxyz(3)
+           frac(2) = mtensor(1,2)*rxyz(1)
+     >             + mtensor(2,2)*rxyz(2)
+     >             + mtensor(3,2)*rxyz(3)
+           frac(3) = mtensor(1,3)*rxyz(1)
+     >             + mtensor(2,3)*rxyz(2)
+     >             + mtensor(3,3)*rxyz(3)
+           if ((frac(1)+delta).gt.( 0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)+delta).gt.( 0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)+delta).gt.( 0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
+           if ((frac(1)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(1)+delta)
+           if ((frac(2)-delta).lt.(-0.5*L2)) L2 = 2.0d0*(frac(2)+delta)
+           if ((frac(3)-delta).lt.(-0.5*L3)) L3 = 2.0d0*(frac(3)+delta)
+        end if
+      end do
+
+*     **** define unit cell ****
+      unita(1,1) = L1*mtensor(1,1)
+      unita(2,1) = L1*mtensor(2,1)
+      unita(3,1) = L1*mtensor(3,1)
+      unita(1,2) = L2*mtensor(1,2)
+      unita(2,2) = L2*mtensor(2,2)
+      unita(3,2) = L2*mtensor(3,2)
+      unita(1,3) = L3*mtensor(1,3)
+      unita(2,3) = L3*mtensor(2,3)
+      unita(3,3) = L3*mtensor(3,3)
+
+*     **** unknown box type ****
+      else
+        call errquit('invalid box_type',0,0)
+      end if
+      
+
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *   control_notqmmmq      *
+*     *                         *
+*     ***************************
+      logical function control_notqmmmq(string)
+      implicit none
+      character*16 string
+
+      logical qmmmq
+
+      qmmmq = .false.
+      if (index(string,'^').gt.0)   qmmmq = .true.
+      if (index(string,'x').eq.1)   qmmmq = .true.
+      if (index(string,'X').eq.1)   qmmmq = .true.
+      if (index(string,'bq').eq.1)  qmmmq = .true.
+      if (index(string,'Bq').eq.1)  qmmmq = .true.
+      if (index(string,'bQ').eq.1)  qmmmq = .true.
+      if (index(string,'BQ').eq.1)  qmmmq = .true.
+
+
+      control_notqmmmq = qmmmq
+      return
+      end
+
 
 
 *     ***********************************
@@ -910,6 +1287,21 @@ c     >                  1,output_wavefunction_filename)
 #include "control.fh"
 
       control_move = move
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         control_rotation        *
+*     *                                 *
+*     ***********************************
+      logical function control_rotation()
+      implicit none
+
+#include "control.fh"
+
+      control_rotation = rotation
       return
       end
 
@@ -2304,18 +2696,7 @@ c      end
       integer function control_mapping()
       implicit none
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      integer mapping
-
-      if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
-         mapping = 1
-      end if
+#include "control.fh"
 
       control_mapping = mapping
       return
