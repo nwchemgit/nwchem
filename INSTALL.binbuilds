@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.9 2003-09-18 00:43:51 edo Exp $
+$Id: INSTALL.binbuilds,v 1.10 2004-02-12 22:32:33 edo Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -56,3 +56,8 @@ F) Please note that the .nwchemrc does not handle the pseudopotential
    IMPORTANT: If you don't put the last slash ("/") after "data",
          nwchem will not be able to find the nwpw library files.
 
+On Win32 platforms, please use the following setting to pick the
+right basis set library
+   set NWCHEM_BASIS_LIBRARY=C:\....\libraries\
+where C:\....\libraries\ is the location of the directory the basis
+libraries (see not above for last slash)
