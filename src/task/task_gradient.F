@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.44 2004-10-09 00:20:05 marat Exp $
+* $Id: task_gradient.F,v 1.45 2004-10-19 21:53:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -62,7 +62,6 @@ c
      $           gradient))
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
-             write(*,*) "qmmm:gradient"
       else if (theory .ne. 'oniom' .or. numerical) then
          status = task_gradient_doit(rtdb,theory,energy, gradient)
       else
@@ -143,7 +142,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.44 2004-10-09 00:20:05 marat Exp $
+* $Id: task_gradient.F,v 1.45 2004-10-19 21:53:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
