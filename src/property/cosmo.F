@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.7 2004-07-29 16:50:52 bert Exp $
+* $Id: cosmo.F,v 1.8 2004-10-02 05:12:05 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -434,7 +434,7 @@ c
  9990 format(' -bem- from -octahedral-')
  9989 format(' -bem- from -icosahedral-')
  9988 format(' atomic radii = ',/,' --------------')
- 9987 format(i5,i5,f7.3)
+ 9987 format(i5,2f7.3)
  9986 format(' ...... end of -cosmo- initialization ......')
  9985 format(/)
  9984 format(' screen =  one              = ',f9.5)
