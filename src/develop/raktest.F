@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.39 1995-10-17 08:53:05 d3g681 Exp $
+c $Id: raktest.F,v 1.40 1995-10-30 20:59:26 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,132 +13,51 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300,00400,00500) raktask
+      goto (00100,00200,00300) raktask
 c
       write(6,*)' default raktest task '
-      call raktest0(rtdb)
+      write(6,*)' raktest check 3ctr nai'
+      call raktest_3ctr(rtdb)
       goto 00001
 c
-00100 write(6,*)' raktest task 1 gen_hess at'
-      call raktest1(rtdb)
+00100 write(6,*)' raktest task 1 stepper test'
+      call raktest_stpr(rtdb)
       goto 00001
-c
-00200 write(6,*)' raktest task 2 gen_hess opt/at'
-      call raktest2(rtdb)
-      goto 00001
-c
-00300 write(6,*)' raktest task 3 stepper test'
-      call raktest3(rtdb)
-      goto 00001
-00400 write(6,*)' raktest task 4 check intd_init'
+00200 write(6,*)' raktest task 2 check intd_init'
       call raktest_initd(rtdb)
       goto 00001
-00500 write(6,*)' raktest task 4 check int_init'
+00300 write(6,*)' raktest task 3 check int_init'
       call raktest_init(rtdb)
       goto 00001
 c
 00001 continue
       end
-      subroutine raktest0(rtdb)
-      implicit none
-c test0 "default raktest"
-#include "global.fh"
-      integer rtdb
-c::functions
-      logical gen_apphess_at
-      external gen_apphess_at
-c
-      double precision delta
-c
-#if defined(SUN)
-      real etime,tarray(2)
-      external etime
-#endif
-      real t1
-      t1 = 0.0
-c
-c      logical status
-c
-      if(ga_nodeid().eq.0) then
-        write(6,*) ' rak test'
-      endif
-      delta = 0.01d00
-#if defined(SUN)
-      t1 = etime(tarray)
-#endif
-      if(.not.gen_apphess_at(rtdb,delta)) call errquit
-     &    ('raktest:gen_apphess_at failed',911)
-#if defined(SUN)
-      t1 = etime(tarray) - t1 
-#endif
-      if(ga_nodeid().eq.0) then
-        write(6,'(1x,a,f8.2)')
-     &      'time for rak test',t1
-      endif
-      end
-      subroutine raktest2(rtdb)
-      implicit none
-c test0 "default raktest"
-#include "global.fh"
-      integer rtdb
-c::functions
-      logical gen_apphess_opt
-      external gen_apphess_opt
-c
-      double precision delta
-c
-#if defined(SUN)
-      real etime,tarray(2)
-      external etime
-#endif
-      real t1
-      t1 = 0.0
-c
-c      logical status
-c
-      if(ga_nodeid().eq.0) then
-        write(6,*) ' rak test'
-      endif
-      delta = 0.01d00
-#if defined(SUN)
-      t1 = etime(tarray)
-#endif
-      if(.not.gen_apphess_opt(rtdb,delta)) call errquit
-     &    ('raktest:2:gen_apphess_opt failed',911)
-#if defined(SUN)
-      t1 = etime(tarray) - t1 
-#endif
-      if(ga_nodeid().eq.0) then
-        write(6,'(1x,a,f8.2)')
-     &      'time for rak test 2',t1
-      endif
-      end
-      subroutine raktest1(rtdb)
-      implicit none
-      integer rtdb
-      call deriv3c(rtdb)
-      call deriv2c(rtdb)
-      end
-      subroutine deriv3c(rtdb)
+      subroutine raktest_3ctr(rtdb)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
 c
-      double precision ddot
-      external ddot
+      logical int_normalize
+      external int_normalize
 c
+c test hf3 nai type routines
       integer rtdb
-c
-      character*100 mo_basis, geom_name
-      integer basis, geom
-      integer nbf, nshells, nat
-      integer size2e, size2e_d
-      integer h2e3d,i2e3d, h2e3d_fd,i2e3d_fd
-      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
+      integer geom,basis, basis_id
+      integer nshell, memscr, membuf
+      integer h_scr, k_scr, h_buf, k_buf
+      integer ish, jsh, ucont
+      integer li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
+      integer lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
+      integer nint_out
       logical status
+      character*255 mo_basis, geom_name
 c
       if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
      &    mo_basis = 'ao basis'
@@ -146,875 +65,1089 @@ c
      &    geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('deriv3c: geom create error',911)
+     &    ('raktest_3ctr: geom create error',911)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('deriv3c: basis create error',911)
+     &    ('raktest_3ctr: basis create error',911)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('deriv3c: geom load ',911)
+     &    ('raktest_3ctr: geom load ',911)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('deriv3c: basis load ',911)
+     &    ('raktest_3ctr: basis load ',911)
 c
-      if(.not.bas_numbf(basis,nbf)) call errquit
-     &    ('deriv3c: bas_numbf failed',911)
-      if(.not.bas_numcont(basis,nshells)) call errquit
-     &       ('deriv3c:bas_numcont failed',911)
-      if(.not.geom_ncent(geom,nat)) call errquit
-     &       ('deriv3c:geom_ncent failed',911)
+      basis_id = basis + BASIS_HANDLE_OFFSET
+      nshell = ncont_tot_gb(basis_id)
+      if (.not.int_normalize(basis)) call errquit
+     &    ('raktest_3ctr: error normalizing ',911)
 c
-      size2e   = nbf*nbf*nbf
-      size2e_d = size2e*3*nat
-      write(6,*)' size2e   = ',size2e
-      write(6,*)' size2e_d = ',size2e_d
+      call int_init(rtdb,1,basis)
+      memscr = 100 000
+      membuf = 1000
+      if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
+     &    h_scr, k_scr)) call errquit
+     &    (' ma error 1',911)
+      if (.not.ma_push_get(mt_dbl,membuf,' buf ',
+     &    h_buf, k_buf)) call errquit
+     &    (' ma error 2',911)
 c
-      call intd_init(rtdb,1,basis)
-*      call int_normalize(basis)
-      call int_norm_2c(basis)
+      do ish = 1,nshell
+        do jsh = 1,ish
+          write(6,*)' ============= shells <',ish,'|',jsh,'>',
+     &        '==================== start =========='
+          write(6,*)' '
+          
+          ucont = ibs_cn2ucn(ish,basis_id)
+          Li      = infbs_cont(CONT_TYPE ,ucont,basis_id)
+          i_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
+          i_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
+          i_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
+          i_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
+          i_cent  = ibs_cn2ce(ish,basis_id)
+          i_geom  = ibs_geom(basis_id)
 c
-      if(.not.ma_set_error_print(.true.)) stop ' fuck 1'
-      if(.not.ma_verify_allocator_stuff()) stop ' fuck 2'
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d real',
-     &    h2e3d,i2e3d))
-     &    call errquit('deriv3c: ma fail 1',911)
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d fd',
-     &    h2e3d_fd,i2e3d_fd))
-     &    call errquit('deriv3c: ma fail 2',911)
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
-     &    hxyz,ixyz))
-     &    call errquit('deriv3c: ma fail 4',911)
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-      call int_mem_2e4c(nbuf,nscr)
-      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
-     &    hscr,iscr))
-     &    call errquit('deriv3c: ma fail 5',911)
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
-     &    hbuf,ibuf))
-     &    call errquit('deriv3c: ma fail 6',911)
-      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
-      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
-c
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d)     ,1)
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_fd)  ,1)
-      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
-      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
-      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
+          ucont = ibs_cn2ucn(jsh,basis_id)
+          Lj      = infbs_cont(CONT_TYPE ,ucont,basis_id)
+          j_prim  = infbs_cont(CONT_NPRIM,ucont,basis_id)
+          j_gen   = infbs_cont(CONT_NGEN ,ucont,basis_id)
+          j_iexp  = infbs_cont(CONT_IEXP ,ucont,basis_id)
+          j_icfp  = infbs_cont(CONT_ICFP ,ucont,basis_id)
+          j_cent  = ibs_cn2ce(ish,basis_id)
+          j_geom  = ibs_geom(basis_id)
+          
+          call hf1tmp(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &        dbl_mb(k_scr),dbl_mb(k_scr),dbl_mb(k_buf),membuf,
+     &        .false., .false., .true., .false., .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' i = c center '
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' j = c center '
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' i = c center swap'
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' j = c center swap'
+          call hf3pot(
+     &        coords(1,i_cent,i_geom),exndcf(i_iexp,basis_id),
+     &        exndcf(i_icfp,basis_id), i_prim, i_gen, Li,
+     &        coords(1,j_cent,j_geom),0.0d00, 1.0d00, 1, 1, 0,
+     &        coords(1,j_cent,j_geom),exndcf(j_iexp,basis_id),
+     &        exndcf(j_icfp,basis_id), j_prim, j_gen, Lj,
+     &        dbl_mb(k_buf), membuf, nint_out, .false.,
+     &        dbl_mb(k_scr), memscr)
+          write(6,*)' ============= shells <',ish,'|',jsh,'>',
+     &        '====================  end  =========='
+          write(6,*)' '
+        enddo
+      enddo
 c      
-c      
-      call build_3ed(dbl_mb(i2e3d),nat,size2e,nbf,nshells,
-     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
-      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
-      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
-      call build_3edfd(dbl_mb(i2e3d_fd),nat,size2e,nbf,
-     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
-     &    1.0d-05,basis,geom,nshells)
-      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e3d),1,dbl_mb(i2e3d_fd),1)
-c
-      call print_2d3c(dbl_mb(i2e3d),dbl_mb(i2e3d_fd),nbf,nat)
-c
-      write(6,*)
-      write(6,*)' 2e3c deriv diff norm ',
-     &    ddot(size2e_d,dbl_mb(i2e3d_fd),1,dbl_mb(i2e3d_fd),1)
-c
-      call intd_terminate()
-      status = ma_pop_stack(hbuf)
-      status = status.and.ma_pop_stack(hscr)
-      status = status.and.ma_pop_stack(hxyz)
-      status = status.and.ma_pop_stack(h2e3d_fd)
-      status = status.and.ma_pop_stack(h2e3d)
+      call int_terminate()
+      status = ma_pop_stack(h_buf)
+      status = status.and.ma_pop_stack(h_scr)
       if (.not.status) call errquit('pop failed',911)
       status = bas_destroy(basis)
       status = status.and.geom_destroy(geom)
       if (.not.status) call errquit('b/g destroy failed',911)
       end
-      subroutine build_3edfd(x2e3dfd,nat,size2e,nbf,scr,nscr,
-     &    buf,nbuf,xyz,delta,basis,geom,nshells)
-      implicit none
-#include "bas.fh"
-#include "geom.fh"
-#include "geomP.fh"
-      integer nat, size2e, nbf, nscr, nbuf, basis, geom, nshells
-      double precision x2e3dfd(nbf,nbf,nbf,3,nat)
-      double precision scr(nscr)
-      double precision buf(nbuf,2)
-      double precision xyz(3,nat)
-      double precision delta
-c
-      double precision scale
-      integer ish, ibflo, ibfhi, ibf
-      integer jsh, jbflo, jbfhi, jbf
-      integer ksh, kbflo, kbfhi, kbf
-      integer datom, dxyz
-      integer nint, icount
-      integer int_nint
-      external int_nint
-c
-c.. store original coords in xyz
-      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
-      scale = 1.0d00/(2.0d00*delta)
-c
-      do 00100 ish = 1,nshells
-        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &      call errquit('cn2bfr error',ish)
-        do 00200 jsh = 1,ish
-          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &        call errquit('cn2bfr error',jsh)
-          do 00300 ksh = 1,jsh
-            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
-     &          call errquit('cn2bfr error',ksh)
-            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
-            do 00400 datom = 1,nat
-              do 00500 dxyz = 1,3
-c... copy original coords in to coords array
-                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-c... add delta to coordinate
-                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)+delta
-                call int_2e3c(basis,ish,basis,jsh,ksh,
-     &              nscr,scr,nint,buf(1,1))
-c... copy original coords in to coords array
-                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-c... subtract delta to coordinate
-                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)-delta
-                call int_2e3c(basis,ish,basis,jsh,ksh,
-     &              nscr,scr,nint,buf(1,2))
-                call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
-                call dscal(nint,scale,buf(1,1),1)
-                icount = 0
-                do 00600 ibf = ibflo,ibfhi
-                  do 00700 jbf = jbflo,jbfhi
-                    do 00800 kbf = kbflo, kbfhi
-                      icount = icount + 1
-                      x2e3dfd(ibf,jbf,kbf,dxyz,datom) =
-     &                    buf(icount,1)
-00800               continue
-00700             continue
-00600           continue
-00500         continue
-00400       continue
-00300     continue
-00200   continue
-00100 continue
-c      
-c... copy original coords in to coords array
-      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-c
-      end
-      subroutine build_3ed(x2e3d,nat,size2e,nbf,nshells,
-     &    scr,nscr,buf,nbuf,basis,geom)
-      implicit none
-#include "bas.fh"
-      integer nat, size2e, nbf, nshells, nscr, nbuf, basis, geom
-      double precision x2e3d(nbf,nbf,nbf,3,nat)
-      double precision scr(nscr)
-      double precision buf(nbuf)
-c
-      integer idatom(4)
-      integer ish, ibflo, ibfhi, num_ibf, ibf
-      integer jsh, jbflo, jbfhi, num_jbf, jbf
-      integer ksh, kbflo, kbfhi, num_kbf, kbf
-      integer nint, icount, id, dxyz
-c
-      integer int_nint
-      external int_nint
-c
-      do 00100 ish = 1,nshells
-        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &      call errquit('cn2bfr error',ish)
-        num_ibf = ibfhi-ibflo+1
-        do 00200 jsh = 1,ish
-          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &        call errquit('cn2bfr error',jsh)
-          num_jbf = jbfhi-jbflo+1
-          do 00300 ksh = 1,jsh
-            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
-     &          call errquit('cn2bfr error',ksh)
-            num_kbf = kbfhi-kbflo+1
-            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
-            call intd_2e3c(basis,ish,basis,jsh,ksh,nscr,scr,(nint*3*4),
-     &          buf,idatom)
-            write(6,*)' idatom 2e3c',idatom
-            icount = 0
-            do 00400 id = 1,4
-              if (idatom(id).gt.0) then
-                do 00500 dxyz = 1,3
-                  do 00600 ibf = ibflo,ibfhi
-                    do 00700 jbf = jbflo,jbfhi
-                      do 00800 kbf = kbflo,kbfhi
-                        icount = icount + 1
-                        x2e3d(ibf,jbf,kbf,dxyz,idatom(id))=buf(icount)
-00800                 continue
-00700               continue
-00600             continue
-00500           continue
-              else
-                icount = icount + 3*num_ibf*num_jbf*num_kbf
-              endif
-00400       continue
-00300     continue
-00200   continue
-00100 continue
-c
-      end
-      subroutine deriv2c(rtdb)
-      implicit none
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "context.fh"
-#include "geom.fh"
-#include "bas.fh"
-c
-      double precision ddot
-      external ddot
-c
-      integer rtdb
-c
-      character*100 mo_basis, geom_name
-      integer basis, geom
-      integer nbf, nshells, nat
-      integer size2e, size2e_d
-      integer h2e2d,i2e2d, h2e2d_fd,i2e2d_fd, h2e2d_diff,i2e2d_diff
-      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
-      logical status
-c
-      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
-     &    mo_basis = 'ao basis'
-      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
-     &    geom_name = 'geometry'
-c
-      if(.not.geom_create(geom,geom_name))call errquit
-     &    ('deriv2c: geom create error',911)
-      if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('deriv2c: basis create error',911)
-c
-      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('deriv2c: geom load ',911)
-      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('deriv2c: basis load ',911)
-c
-      if(.not.bas_numbf(basis,nbf)) call errquit
-     &    ('deriv2c: bas_numbf failed',911)
-      if(.not.bas_numcont(basis,nshells)) call errquit
-     &       ('deriv2c:bas_numcont failed',911)
-      if(.not.geom_ncent(geom,nat)) call errquit
-     &       ('deriv2c:geom_ncent failed',911)
-c
-      size2e   = nbf*(nbf+1)/2
-      size2e_d = size2e*3*nat
-c
-      call intd_init(rtdb,1,basis)
-*      call int_normalize(basis)
-      call int_norm_2c(basis)
-c
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d real',
-     &    h2e2d,i2e2d))
-     &    call errquit('deriv2c: ma fail 1',911)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d fd',
-     &    h2e2d_fd,i2e2d_fd))
-     &    call errquit('deriv2c: ma fail 2',911)
-      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d diff',
-     &    h2e2d_diff,i2e2d_diff))
-     &    call errquit('deriv2c: ma fail 3',911)
-      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
-     &    hxyz,ixyz))
-     &    call errquit('deriv2c: ma fail 4',911)
-      call int_mem_2e4c(nbuf,nscr)
-      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
-     &    hscr,iscr))
-     &    call errquit('deriv2c: ma fail 5',911)
-      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
-     &    hbuf,ibuf))
-     &    call errquit('deriv2c: ma fail 6',911)
-c
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d)     ,1)
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_fd)  ,1)
-      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_diff),1)
-      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
-      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
-      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
-c      
-      call build_2ed(dbl_mb(i2e2d),nat,size2e,nbf,nshells,
-     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
-      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
-      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
-      call build_2edfd(dbl_mb(i2e2d_fd),nat,size2e,nbf,
-     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
-     &    1.0d-05,basis,geom,nshells)
-      call dcopy(size2e_d,dbl_mb(i2e2d_fd),1,dbl_mb(i2e2d_diff),1)
-      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e2d),1,dbl_mb(i2e2d_diff),1)
-c
-      call print_2d2c(dbl_mb(i2e2d),dbl_mb(i2e2d_fd),
-     &    dbl_mb(i2e2d_diff),size2e,nat)
-c
-      write(6,*)
-      write(6,*)' 2e2c deriv diff norm ',
-     &    ddot(size2e_d,dbl_mb(i2e2d_diff),1,dbl_mb(i2e2d_diff),1)
-c
-      call intd_terminate()
-      status = ma_pop_stack(hbuf)
-      status = status.and.ma_pop_stack(hscr)
-      status = status.and.ma_pop_stack(hxyz)
-      status = status.and.ma_pop_stack(h2e2d_diff)
-      status = status.and.ma_pop_stack(h2e2d_fd)
-      status = status.and.ma_pop_stack(h2e2d)
-      if (.not.status) call errquit('pop failed',911)
-      status = bas_destroy(basis)
-      status = status.and.geom_destroy(geom)
-      if (.not.status) call errquit('b/g destroy failed',911)
-      end
-      subroutine build_2ed(x2e2d,nat,size2e,nbf,nshells,
-     &    scr,nscr,buf,nbuf, basis, geom)
-      implicit none
-#include "bas.fh"
-      integer basis, geom
-      integer nat
-      integer size2e
-      integer nbf
-      integer nshells
-      double precision x2e2d(size2e,3,nat)
-      integer nscr, nbuf, idatom(2), id, dxyz, index
-      double precision scr(nscr),buf(nbuf)      
-c
-      integer ish, ibflo, ibfhi, num_ibf, ibf
-      integer jsh, jbflo, jbfhi, num_jbf, jbf
-      integer nint, icount
-      integer int_nint
-      external int_nint
-      integer min, max
-      intrinsic min,max
-      integer i,j,isym2
-      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
-c
-      do 00100 ish=1,nshells
-        do 00200 jsh=1,ish
-          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
-          call intd_2e2c(basis,ish,basis,jsh,nscr,scr,(nint*3*4),
-     &        buf,idatom)
-          write(6,*)' idatom 2e2c', idatom
-          if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &        call errquit('cn2bfr error',ish)
-          num_ibf = ibfhi-ibflo+1
-          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &        call errquit('cn2bfr error',ish)
-          num_jbf = jbfhi-jbflo+1
-          icount = 0
-          do 00300 id = 1,2
-            if (idatom(id).gt.0) then
-              do 00400 dxyz = 1,3
-                do 00500 ibf = ibflo,ibfhi
-                  do 00600 jbf = jbflo, jbfhi
-                    icount = icount + 1
-                    index = isym2(ibf,jbf)
-                    x2e2d(index,dxyz,idatom(id)) = buf(icount)
-00600             continue
-00500           continue
-00400         continue
-            else
-              icount = icount + 3*num_ibf*num_jbf
-            endif
-00300     continue
-00200   continue
-00100 continue
-      end
-      subroutine build_2edfd(x2e2d_fd,nat,size2e,nbf,
-     &    scr,nscr,buf,nbuf,xyz,delta,basis,geom,nshells)
-      implicit none
-#include "bas.fh"
-#include "geom.fh"
-#include "geomP.fh"
-c
-      integer nat,size2e,nbf, nscr, nbuf, basis, geom, nshells
-      double precision x2e2d_fd(size2e,3,nat)
-      double precision scr(nscr)
-      double precision buf(nbuf,2)
-      double precision xyz(3,nat)
-      double precision delta, scale
-      integer ish, ibf, ibflo, ibfhi
-      integer jsh, jbf, jbflo, jbfhi
-      integer nint, icount, index, datom, dxyz
-      integer int_nint
-      external int_nint
-      integer min, max
-      intrinsic min,max
-      integer i,j,isym2
-      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
-c
-c
-c.. store original coords in xyz
-      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
-      scale = 1.0d00/(2.0d00*delta)
-c
-      do 00100 ish = 1,nshells
-        do 00200 jsh = 1,ish
-          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
-          do 00300 datom = 1,nat
-            do 00400 dxyz = 1,3
-c... copy original coords in to coords array
-              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-c... add delta to coordinate
-              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) + delta
-              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,1))
-c... copy original coords in to coords array
-              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-c... subtract delta to coordinate
-              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) - delta
-              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,2))
-              call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
-              call dscal(nint,scale,buf(1,1),1)
-              icount = 0
-              if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &            call errquit('cn2bfr error',ish)
-              if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &            call errquit('cn2bfr error',ish)
-              do 00500 ibf = ibflo, ibfhi
-                do 00600 jbf = jbflo, jbfhi
-                  icount = icount+1
-                  index  = isym2(ibf,jbf)
-                  x2e2d_fd(index,dxyz,datom) = buf(icount,1)
-00600           continue
-00500         continue
-00400       continue
-00300     continue
-00200   continue
-00100 continue
-c      
-c... copy original coords in to coords array
-      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
-      end
-      subroutine print_2d3c(x2e3d,diff,nbf,nat)
-      implicit none
-      integer nbf,nat
-      double precision x2e3d(nbf,nbf,nbf,3,nat)
-      double precision diff(nbf,nbf,nbf,3,nat)
-c
-      double precision thresh
-      integer datom,dxyz, ibf,jbf,kbf
-      logical printit
-c
-      thresh = 1.0d-08
-c
-      do 00100 datom = 1, nat
-        do 00200 dxyz = 1,3
-          write(6,*)
-          write(6,*)' atom = ',datom,' xyz = ',dxyz
-          write(6,*)'--------------------------------------------------'
-          do 00300 ibf = 1,nbf
-            do 00400 jbf = 1,nbf
-              do 00500 kbf = 1,nbf
-                printit = abs(x2e3d(ibf,jbf,kbf,dxyz,datom)).gt.thresh
-                if (printit) then
-                  write(6,10000)ibf,jbf,kbf,datom,dxyz,
-     &                x2e3d(ibf,jbf,kbf,dxyz,datom),
-     &                diff(ibf,jbf,kbf,dxyz,datom)
-                endif
-00500         continue
-00400       continue
-00300     continue
-00200   continue
-00100 continue
-c
-10000 format('d2e3c <',i3,',',i3,',',i3,'|',i3,'|',i3,' > val =',
-     &    d20.10,' diff =',d20.10)
-c
-      end
-      subroutine print_2d2c(x2e2d,x2e2d_fd,diff,size2e,nat)
-      implicit none
-      integer size2e,nat
-      double precision x2e2d(size2e,3,nat)
-      double precision x2e2d_fd(size2e,3,nat)
-      double precision diff(size2e,3,nat)
-c
-      double precision thresh
-      integer datom,dxyz, index
-      logical printit
-c
-      thresh = 1.0d-08
-c
-      do 00100 datom = 1, nat
-        do 00200 dxyz = 1,3
-          write(6,*)
-          write(6,*)' atom = ',datom,' xyz = ',dxyz
-          write(6,*)'--------------------------------------------------'
-          do 00300 index = 1,size2e
-            printit = abs(x2e2d(index,dxyz,datom)).gt.thresh
-            printit = printit .or.
-     &          abs(x2e2d_fd(index,dxyz,datom)).gt.thresh
-            if (printit) then
-              write(6,10000)index,datom,dxyz,
-     &            x2e2d(index,dxyz,datom),
-     &            x2e2d_fd(index,dxyz,datom),
-     &            diff(index,dxyz,datom)
-            endif
-00300     continue
-00200   continue
-00100 continue
-c
-10000 format('d2e2c <',i5,'|',i3,'|',i3,' > val =',d20.10,
-     &    ' fd =',d20.10,' diff =',d20.10)
-c
-      end
-      logical function gen_apphess_at(rtdb,delta)
-      implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "geom.fh"
-#include "bas.fh"
-#include "rtdb.fh"
-#include "context.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "msgids.fh"
-c::functions
-c::passed
-      integer rtdb
-      double precision delta
-c::local
-      integer whoiam, master
-      integer geom
-      integer nat, rank_hess
-      integer basis
-      integer h_grad0, k_grad0 ! handle/index for central gradient
-      integer h_gradp, k_gradp ! handle/index for delta gradient
-      integer h_hess, k_hess ! handle/index for hessian matrix
-      integer iatom, ixyz
-      logical ignore_status
-      double precision xyz(3), chg
-      character*5 tmpname
-      character*16 tag_name
-      character*40 new_geom_name
-      character*255 mo_basis, fd_basis, mo_basis_ref
-c
-      whoiam = ga_nodeid()
-      master = 0
-      ignore_status = rtdb_parallel(.false.)
-      if (whoiam.eq.master) then
-c
-c.. create/load reference geometry
-        if (.not.geom_create(geom,'geometry')) call errquit
-     &      ('gen_apphess_at:geom_create failed?',1)
-        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
-c..  get the number of atoms
-        if (.not. geom_ncent(geom,nat)) call errquit
-     &      ('gen_apphess_at:geom_ncent failed?',3)
-c
-c.. copy reference geometry and store on rtdb
-        if (.not.
-     &      geom_rtdb_store(rtdb,geom,'reference'))
-     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
-c
-c.. determine what fd basis name is
-c
-        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
-     &      mo_basis = 'ao basis'
-        mo_basis_ref = mo_basis
-        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
-     &      fd_basis = 'fd basis'
-c
-c.. try to load "fd basis"
-c.. create basis handle
-        if(.not.bas_create(basis,fd_basis)) call errquit
-     &      ('gen_apphess_at: bas_create failed?',7)
-        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
-          continue
-        else
-c...  if fd basis not defined use current mo_basis
-          fd_basis = mo_basis
-        endif
-c
-c set "ao basis" to point to "fd basis"
-        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
-     &      ('gen_apphess_at: rtdb_cpu failed?',8)
-c
-        if (.not.(bas_destroy(basis))) call errquit
-     &      ('gen_apphess_at: bas_destroy failed?',9)
-        if (.not.(geom_destroy(geom))) call errquit
-     &      ('gen_apphess_at: geom_destroy failed?',9)
-c set "geometry" to "reference"
-        new_geom_name='reference'
-        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
-     &      call errquit
-     &        ('gen_apphess_at: rtdb_cput failed ?',911)
-      endif
-c all nodes work here 
-c
-c..      broadcast number of atoms
-c
-      call ga_brdcst(Msg_RAK+MSGINT, nat, mitob(1), 0)
-c
-      call ga_sync()
-c
-      ignore_status = rtdb_parallel(.true.)
-c      
-      call scf_gradient(rtdb)
-c
-      ignore_status = rtdb_parallel(.false.)
-c      
-      call ga_sync()
-      if (whoiam.eq.master) then
-        rank_hess = 3*nat
-        if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &      'cent nuclear gradient vector',
-     &      h_grad0,k_grad0)) call errquit
-     &      ('gen_apphess_at: ma_push_get failed?',10)
-        if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &      'delta nuclear gradient vector',
-     &      h_gradp,k_gradp)) call errquit
-     &      ('gen_apphess_at: ma_push_get failed?',11)
-        if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
-     &      'nuclear hessian matrix',
-     &      h_hess,k_hess)) call errquit
-     &      ('gen_apphess_at: ma_push_get failed?',12)
-c
-        call dfill((rank_hess*rank_hess),0.0d00,
-     &      dbl_mb(k_hess),1)
-c
-c.. get central gradient
-        if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
-     &      rank_hess,dbl_mb(k_grad0)))
-     &      call errquit('gen_apphess_at: rtdb_get failed',13)
-c
-      endif
-c
-c... all nodes doing work here
-      call ga_sync()
-      call util_flush(6)
-      do 00100 iatom = 1,nat
-        do 00200 ixyz = 1,3
-          if(whoiam.eq.master) then
-c... master node only
-            if (.not.geom_create(geom,'reference')) call errquit
-     &          ('gen_apphess_at:geom_create failed?',14)
-            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
-     &          call errquit
-     &          ('gen_apphess_at:geom_rtdb_load failed?',15)
-            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
-     &          call errquit
-     &          ('gen_apphess_at:geom_cent_get failed?',16)
-            xyz(ixyz) = xyz(ixyz) + delta
-            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
-     &          call errquit
-     &          ('gen_apphess_at:geom_cent_get failed?',17)
-c.. copy modified geometry and store on rtdb
-            write(tmpname,'(i3,1x,i1)')iatom,ixyz
-            new_geom_name = 'reference '//tmpname
-            if (.not.
-     &          geom_rtdb_store(rtdb,geom,new_geom_name))
-     &          call errquit
-     &          ('gen_apphess_at: geom_rtdb_store failed',19)
-            if (.not.geom_destroy(geom))
-     &          call errquit('gen_apphess_at: geom_destroy failed?',20)
-c set "geometry" to "reference atom/xyz"
-            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
-     &          call errquit
-     &          ('gen_apphess_at: rtdb_cput failed ?',911)
-          endif
-          call ga_sync()
-          ignore_status = rtdb_parallel(.true.)
-          call scf_gradient(rtdb)
-          ignore_status = rtdb_parallel(.false.)
-          call ga_sync()
-          if (whoiam.eq.master) then
-            if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
-     &          rank_hess,dbl_mb(k_gradp)))
-     &          call errquit('gen_apphess_at: rtdb_get failed',21)
-            call fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
-     &          dbl_mb(k_gradp),1.0d00,delta,nat,iatom,ixyz)
-          endif
-00200   continue
-00100 continue
-c
-      if (whoiam.eq.master) then
-        write(6,*)' finite difference hessian delta = ',delta
-        call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
-     &      rank_hess,rank_hess,1)
-        call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'hess_ascii')
-        write(6,*)' triangle hessian written to hess_ascii'
-        
-c.. redefine ao basis to it's original setting
-        if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
-     &      call errquit
-     &      ('gen_apphess_at: rtdb_cpu failed?',22)
-c set "geometry" to "geometry"
-            if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
-     &          call errquit
-     &          ('gen_apphess_at: rtdb_cput failed ?',911)
-c
-        if(.not.ma_pop_stack(h_hess)) call errquit
-     &      ('gen_apphess_at: ma_pop_stack(h_hess) failed?',27)
-        if(.not.ma_pop_stack(h_gradp)) call errquit
-     &      ('gen_apphess_at: ma_pop_stack(h_gradp) failed?',27)
-        if(.not.ma_pop_stack(h_grad0)) call errquit
-     &      ('gen_apphess_at: ma_pop_stack(h_grad0) failed?',27)
-
-      endif
-      call ga_sync()
-      ignore_status = rtdb_parallel(.true.)
-      gen_apphess_at = .true.
-      end
-      subroutine wrt_fd_from_sq(hess,rank_hess,filename)
-      implicit none
-c
-      integer rank_hess
-      double precision hess(rank_hess,rank_hess)
-      character*(*) filename
-c
-      integer i, j, lu
-c
-      lu = 69
-      open(unit=lu,file=filename,
-     &    form='formatted',
-     &    access='sequential',
-     &    status='unknown')
-c
-      do 00100 i = 1,rank_hess
-        do 00200 j = 1,i
-          write(lu,10000)hess(i,j)
-00200   continue
-00100 continue
-c
-10000 format(1x,1pd20.10)
-c
-      close(unit=lu,status='keep')
-c
-      end
-      subroutine fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
-     &    iatom_t,ixyz_t)
-      implicit none
-c::passed
-      integer nat
-      integer iatom_t, ixyz_t
-      double precision hess(3,nat,3,nat)
-      double precision gradm(3,nat)
-      double precision gradp(3,nat)
-      double precision delta, s_delta
-c::local
-      integer iatom,ixyz
-      double precision rdelta, value
-c
-c 
-c finite difference  [g(x+delta) - g(x-delta)]/(s_delta*delta) (s_delta = 2.0)
-c central difference [g(x+delta) - g(x)]/(s_delta*delta) (s_delta = 1.0)
-c 
-c
-      rdelta = 1.0d00/(s_delta*delta)
-      do 00100 iatom = 1,nat
-        do 00200 ixyz = 1,3
-          value = rdelta*(gradp(ixyz,iatom)-gradm(ixyz,iatom))
-          hess(ixyz_t,iatom_t,ixyz,iatom) = value
-          hess(ixyz,iatom,ixyz_t,iatom_t) = value
-00200   continue
-00100 continue
-c
-      end
-      logical function gen_apphess_opt(rtdb,delta)
-      implicit none
-c
-c function to generate approximate hessian
-c
-#include "bas.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "geom.fh"
-#include "rtdb.fh"
-#include "context.fh"
-      integer rtdb
-      double precision delta
-c
-      integer whoiam, master
-      logical ignore_status
-      integer geom,nat,basis
-      character*40 mo_basis,mo_basis_ref,fd_basis,new_geom_name
-      character*40 movecs_in_ref
-c
-      gen_apphess_opt=.false.
-      whoiam = ga_nodeid()
-      master = 0
-      ignore_status = rtdb_parallel(.false.)
-      if (whoiam.eq.master) then
-c
-c.. create/load reference geometry
-        if (.not.geom_create(geom,'geometry')) call errquit
-     &      ('gen_apphess_at:geom_create failed?',1)
-        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
-c..  get the number of atoms
-        if (.not. geom_ncent(geom,nat)) call errquit
-     &      ('gen_apphess_at:geom_ncent failed?',3)
-c
-c.. copy reference geometry and store on rtdb
-        if (.not.
-     &      geom_rtdb_store(rtdb,geom,'reference'))
-     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
-c
-c.. determine what fd basis name is
-c
-        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
-     &      mo_basis = 'ao basis'
-        mo_basis_ref = mo_basis
-        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
-     &      fd_basis = 'fd basis'
-c
-c.. try to load "fd basis"
-c.. create basis handle
-        if(.not.bas_create(basis,fd_basis)) call errquit
-     &      ('gen_apphess_at: bas_create failed?',7)
-        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
-          continue
-        else
-c...  if fd basis not defined use current mo_basis
-          fd_basis = mo_basis
-          write(6,*) ' fd basis is the ao basis This will be expensive'
-          call util_flush(6)
-        endif
-c
-c.. set "ao basis" to point to "fd basis"
-        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
-     &      ('gen_apphess_at: rtdb_cpu failed?',8)
-c... destroty basis and geom handles
-        if (.not.(bas_destroy(basis))) call errquit
-     &      ('gen_apphess_at: bas_destroy failed?',9)
-        if (.not.(geom_destroy(geom))) call errquit
-     &      ('gen_apphess_at: geom_destroy failed?',9)
-c set "geometry" to "reference"
-        new_geom_name='reference'
-        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
-     &      call errquit
-     &        ('gen_apphess_at: rtdb_cput failed ?',911)
-      endif
-c... store movecs initial state
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in_ref))
-     $     movecs_in_ref = 'atomic'
-c... set initial guess for fd basis to atomic
-      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, 'atomic'))
-     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
-c
-      ignore_status = rtdb_parallel(.true.)
-      call gen_apphess_at(rtdb,delta)
-      call scf_opt(rtdb)
-c
-c.. reset stepper so it knows to restart the calculation
-      call stpr_walk_reset
-      ignore_status = rtdb_parallel(.false.)
-c.. set "ao basis" to point to %val<mo_basis_ref
-      if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
-     &    call errquit ('gen_apphess_opt: rtdb_cput failed?',8)
-c
-c... reset input vectors option here to original guess if appropriate
-      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_in_ref))
-     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
-c
-      call scf_opt(rtdb)
-c
-      gen_apphess_opt = .true.
-      end
+*rak:      subroutine raktest0(rtdb)
+*rak:      implicit none
+*rak:c test0 "default raktest"
+*rak:#include "global.fh"
+*rak:      integer rtdb
+*rak:c::functions
+*rak:      logical gen_apphess_at
+*rak:      external gen_apphess_at
+*rak:c
+*rak:      double precision delta
+*rak:c
+*rak:#if defined(SUN)
+*rak:      real etime,tarray(2)
+*rak:      external etime
+*rak:#endif
+*rak:      real t1
+*rak:      t1 = 0.0
+*rak:c
+*rak:c      logical status
+*rak:c
+*rak:      if(ga_nodeid().eq.0) then
+*rak:        write(6,*) ' rak test'
+*rak:      endif
+*rak:      delta = 0.01d00
+*rak:#if defined(SUN)
+*rak:      t1 = etime(tarray)
+*rak:#endif
+*rak:      if(.not.gen_apphess_at(rtdb,delta)) call errquit
+*rak:     &    ('raktest:gen_apphess_at failed',911)
+*rak:#if defined(SUN)
+*rak:      t1 = etime(tarray) - t1 
+*rak:#endif
+*rak:      if(ga_nodeid().eq.0) then
+*rak:        write(6,'(1x,a,f8.2)')
+*rak:     &      'time for rak test',t1
+*rak:      endif
+*rak:      end
+*rak:      subroutine raktest2(rtdb)
+*rak:      implicit none
+*rak:c test0 "default raktest"
+*rak:#include "global.fh"
+*rak:      integer rtdb
+*rak:c::functions
+*rak:      logical gen_apphess_opt
+*rak:      external gen_apphess_opt
+*rak:c
+*rak:      double precision delta
+*rak:c
+*rak:#if defined(SUN)
+*rak:      real etime,tarray(2)
+*rak:      external etime
+*rak:#endif
+*rak:      real t1
+*rak:      t1 = 0.0
+*rak:c
+*rak:c      logical status
+*rak:c
+*rak:      if(ga_nodeid().eq.0) then
+*rak:        write(6,*) ' rak test'
+*rak:      endif
+*rak:      delta = 0.01d00
+*rak:#if defined(SUN)
+*rak:      t1 = etime(tarray)
+*rak:#endif
+*rak:      if(.not.gen_apphess_opt(rtdb,delta)) call errquit
+*rak:     &    ('raktest:2:gen_apphess_opt failed',911)
+*rak:#if defined(SUN)
+*rak:      t1 = etime(tarray) - t1 
+*rak:#endif
+*rak:      if(ga_nodeid().eq.0) then
+*rak:        write(6,'(1x,a,f8.2)')
+*rak:     &      'time for rak test 2',t1
+*rak:      endif
+*rak:      end
+*rak:      subroutine raktest1(rtdb)
+*rak:      implicit none
+*rak:      integer rtdb
+*rak:      call deriv3c(rtdb)
+*rak:      call deriv2c(rtdb)
+*rak:      end
+*rak:      subroutine deriv3c(rtdb)
+*rak:      implicit none
+*rak:#include "mafdecls.fh"
+*rak:#include "rtdb.fh"
+*rak:#include "context.fh"
+*rak:#include "geom.fh"
+*rak:#include "bas.fh"
+*rak:c
+*rak:      double precision ddot
+*rak:      external ddot
+*rak:c
+*rak:      integer rtdb
+*rak:c
+*rak:      character*100 mo_basis, geom_name
+*rak:      integer basis, geom
+*rak:      integer nbf, nshells, nat
+*rak:      integer size2e, size2e_d
+*rak:      integer h2e3d,i2e3d, h2e3d_fd,i2e3d_fd
+*rak:      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
+*rak:      logical status
+*rak:c
+*rak:      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+*rak:     &    mo_basis = 'ao basis'
+*rak:      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
+*rak:     &    geom_name = 'geometry'
+*rak:c
+*rak:      if(.not.geom_create(geom,geom_name))call errquit
+*rak:     &    ('deriv3c: geom create error',911)
+*rak:      if(.not.bas_create(basis,mo_basis))call errquit
+*rak:     &    ('deriv3c: basis create error',911)
+*rak:c
+*rak:      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
+*rak:     &    ('deriv3c: geom load ',911)
+*rak:      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
+*rak:     &    ('deriv3c: basis load ',911)
+*rak:c
+*rak:      if(.not.bas_numbf(basis,nbf)) call errquit
+*rak:     &    ('deriv3c: bas_numbf failed',911)
+*rak:      if(.not.bas_numcont(basis,nshells)) call errquit
+*rak:     &       ('deriv3c:bas_numcont failed',911)
+*rak:      if(.not.geom_ncent(geom,nat)) call errquit
+*rak:     &       ('deriv3c:geom_ncent failed',911)
+*rak:c
+*rak:      size2e   = nbf*nbf*nbf
+*rak:      size2e_d = size2e*3*nat
+*rak:      write(6,*)' size2e   = ',size2e
+*rak:      write(6,*)' size2e_d = ',size2e_d
+*rak:c
+*rak:      call intd_init(rtdb,1,basis)
+*rak:*      call int_normalize(basis)
+*rak:      call int_norm_2c(basis)
+*rak:c
+*rak:      if(.not.ma_set_error_print(.true.)) stop ' fuck 1'
+*rak:      if(.not.ma_verify_allocator_stuff()) stop ' fuck 2'
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d real',
+*rak:     &    h2e3d,i2e3d))
+*rak:     &    call errquit('deriv3c: ma fail 1',911)
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:      if (.not.ma_push_get(mt_dbl,size2e_d,'2e3c d fd',
+*rak:     &    h2e3d_fd,i2e3d_fd))
+*rak:     &    call errquit('deriv3c: ma fail 2',911)
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
+*rak:     &    hxyz,ixyz))
+*rak:     &    call errquit('deriv3c: ma fail 4',911)
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:      call int_mem_2e4c(nbuf,nscr)
+*rak:      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
+*rak:     &    hscr,iscr))
+*rak:     &    call errquit('deriv3c: ma fail 5',911)
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
+*rak:     &    hbuf,ibuf))
+*rak:     &    call errquit('deriv3c: ma fail 6',911)
+*rak:      write(6,*)' stack available ',ma_inquire_stack(mt_dbl)
+*rak:      write(6,*)' heap  available ',ma_inquire_heap(mt_dbl)
+*rak:c
+*rak:      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d)     ,1)
+*rak:      call dfill(size2e_d, 0.0d00,dbl_mb(i2e3d_fd)  ,1)
+*rak:      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
+*rak:      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
+*rak:      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
+*rak:c      
+*rak:c      
+*rak:      call build_3ed(dbl_mb(i2e3d),nat,size2e,nbf,nshells,
+*rak:     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
+*rak:      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
+*rak:      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
+*rak:      call build_3edfd(dbl_mb(i2e3d_fd),nat,size2e,nbf,
+*rak:     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
+*rak:     &    1.0d-05,basis,geom,nshells)
+*rak:      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e3d),1,dbl_mb(i2e3d_fd),1)
+*rak:c
+*rak:      call print_2d3c(dbl_mb(i2e3d),dbl_mb(i2e3d_fd),nbf,nat)
+*rak:c
+*rak:      write(6,*)
+*rak:      write(6,*)' 2e3c deriv diff norm ',
+*rak:     &    ddot(size2e_d,dbl_mb(i2e3d_fd),1,dbl_mb(i2e3d_fd),1)
+*rak:c
+*rak:      call intd_terminate()
+*rak:      status = ma_pop_stack(hbuf)
+*rak:      status = status.and.ma_pop_stack(hscr)
+*rak:      status = status.and.ma_pop_stack(hxyz)
+*rak:      status = status.and.ma_pop_stack(h2e3d_fd)
+*rak:      status = status.and.ma_pop_stack(h2e3d)
+*rak:      if (.not.status) call errquit('pop failed',911)
+*rak:      status = bas_destroy(basis)
+*rak:      status = status.and.geom_destroy(geom)
+*rak:      if (.not.status) call errquit('b/g destroy failed',911)
+*rak:      end
+*rak:      subroutine build_3edfd(x2e3dfd,nat,size2e,nbf,scr,nscr,
+*rak:     &    buf,nbuf,xyz,delta,basis,geom,nshells)
+*rak:      implicit none
+*rak:#include "bas.fh"
+*rak:#include "geom.fh"
+*rak:#include "geomP.fh"
+*rak:      integer nat, size2e, nbf, nscr, nbuf, basis, geom, nshells
+*rak:      double precision x2e3dfd(nbf,nbf,nbf,3,nat)
+*rak:      double precision scr(nscr)
+*rak:      double precision buf(nbuf,2)
+*rak:      double precision xyz(3,nat)
+*rak:      double precision delta
+*rak:c
+*rak:      double precision scale
+*rak:      integer ish, ibflo, ibfhi, ibf
+*rak:      integer jsh, jbflo, jbfhi, jbf
+*rak:      integer ksh, kbflo, kbfhi, kbf
+*rak:      integer datom, dxyz
+*rak:      integer nint, icount
+*rak:      integer int_nint
+*rak:      external int_nint
+*rak:c
+*rak:c.. store original coords in xyz
+*rak:      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
+*rak:      scale = 1.0d00/(2.0d00*delta)
+*rak:c
+*rak:      do 00100 ish = 1,nshells
+*rak:        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+*rak:     &      call errquit('cn2bfr error',ish)
+*rak:        do 00200 jsh = 1,ish
+*rak:          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+*rak:     &        call errquit('cn2bfr error',jsh)
+*rak:          do 00300 ksh = 1,jsh
+*rak:            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+*rak:     &          call errquit('cn2bfr error',ksh)
+*rak:            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
+*rak:            do 00400 datom = 1,nat
+*rak:              do 00500 dxyz = 1,3
+*rak:c... copy original coords in to coords array
+*rak:                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:c... add delta to coordinate
+*rak:                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)+delta
+*rak:                call int_2e3c(basis,ish,basis,jsh,ksh,
+*rak:     &              nscr,scr,nint,buf(1,1))
+*rak:c... copy original coords in to coords array
+*rak:                call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:c... subtract delta to coordinate
+*rak:                coords(dxyz,datom,geom)=coords(dxyz,datom,geom)-delta
+*rak:                call int_2e3c(basis,ish,basis,jsh,ksh,
+*rak:     &              nscr,scr,nint,buf(1,2))
+*rak:                call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
+*rak:                call dscal(nint,scale,buf(1,1),1)
+*rak:                icount = 0
+*rak:                do 00600 ibf = ibflo,ibfhi
+*rak:                  do 00700 jbf = jbflo,jbfhi
+*rak:                    do 00800 kbf = kbflo, kbfhi
+*rak:                      icount = icount + 1
+*rak:                      x2e3dfd(ibf,jbf,kbf,dxyz,datom) =
+*rak:     &                    buf(icount,1)
+*rak:00800               continue
+*rak:00700             continue
+*rak:00600           continue
+*rak:00500         continue
+*rak:00400       continue
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:c      
+*rak:c... copy original coords in to coords array
+*rak:      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:c
+*rak:      end
+*rak:      subroutine build_3ed(x2e3d,nat,size2e,nbf,nshells,
+*rak:     &    scr,nscr,buf,nbuf,basis,geom)
+*rak:      implicit none
+*rak:#include "bas.fh"
+*rak:      integer nat, size2e, nbf, nshells, nscr, nbuf, basis, geom
+*rak:      double precision x2e3d(nbf,nbf,nbf,3,nat)
+*rak:      double precision scr(nscr)
+*rak:      double precision buf(nbuf)
+*rak:c
+*rak:      integer idatom(4)
+*rak:      integer ish, ibflo, ibfhi, num_ibf, ibf
+*rak:      integer jsh, jbflo, jbfhi, num_jbf, jbf
+*rak:      integer ksh, kbflo, kbfhi, num_kbf, kbf
+*rak:      integer nint, icount, id, dxyz
+*rak:c
+*rak:      integer int_nint
+*rak:      external int_nint
+*rak:c
+*rak:      do 00100 ish = 1,nshells
+*rak:        if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+*rak:     &      call errquit('cn2bfr error',ish)
+*rak:        num_ibf = ibfhi-ibflo+1
+*rak:        do 00200 jsh = 1,ish
+*rak:          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+*rak:     &        call errquit('cn2bfr error',jsh)
+*rak:          num_jbf = jbfhi-jbflo+1
+*rak:          do 00300 ksh = 1,jsh
+*rak:            if (.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+*rak:     &          call errquit('cn2bfr error',ksh)
+*rak:            num_kbf = kbfhi-kbflo+1
+*rak:            nint = int_nint(basis,ish,basis,jsh,basis,ksh,basis,0)
+*rak:            call intd_2e3c(basis,ish,basis,jsh,ksh,nscr,scr,(nint*3*4),
+*rak:     &          buf,idatom)
+*rak:            write(6,*)' idatom 2e3c',idatom
+*rak:            icount = 0
+*rak:            do 00400 id = 1,4
+*rak:              if (idatom(id).gt.0) then
+*rak:                do 00500 dxyz = 1,3
+*rak:                  do 00600 ibf = ibflo,ibfhi
+*rak:                    do 00700 jbf = jbflo,jbfhi
+*rak:                      do 00800 kbf = kbflo,kbfhi
+*rak:                        icount = icount + 1
+*rak:                        x2e3d(ibf,jbf,kbf,dxyz,idatom(id))=buf(icount)
+*rak:00800                 continue
+*rak:00700               continue
+*rak:00600             continue
+*rak:00500           continue
+*rak:              else
+*rak:                icount = icount + 3*num_ibf*num_jbf*num_kbf
+*rak:              endif
+*rak:00400       continue
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:      end
+*rak:      subroutine deriv2c(rtdb)
+*rak:      implicit none
+*rak:#include "mafdecls.fh"
+*rak:#include "rtdb.fh"
+*rak:#include "context.fh"
+*rak:#include "geom.fh"
+*rak:#include "bas.fh"
+*rak:c
+*rak:      double precision ddot
+*rak:      external ddot
+*rak:c
+*rak:      integer rtdb
+*rak:c
+*rak:      character*100 mo_basis, geom_name
+*rak:      integer basis, geom
+*rak:      integer nbf, nshells, nat
+*rak:      integer size2e, size2e_d
+*rak:      integer h2e2d,i2e2d, h2e2d_fd,i2e2d_fd, h2e2d_diff,i2e2d_diff
+*rak:      integer hxyz,ixyz,nbuf,nscr,hscr,iscr,hbuf,ibuf
+*rak:      logical status
+*rak:c
+*rak:      if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+*rak:     &    mo_basis = 'ao basis'
+*rak:      if (.not.context_rtdb_match(rtdb,'geometry',geom_name))
+*rak:     &    geom_name = 'geometry'
+*rak:c
+*rak:      if(.not.geom_create(geom,geom_name))call errquit
+*rak:     &    ('deriv2c: geom create error',911)
+*rak:      if(.not.bas_create(basis,mo_basis))call errquit
+*rak:     &    ('deriv2c: basis create error',911)
+*rak:c
+*rak:      if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
+*rak:     &    ('deriv2c: geom load ',911)
+*rak:      if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
+*rak:     &    ('deriv2c: basis load ',911)
+*rak:c
+*rak:      if(.not.bas_numbf(basis,nbf)) call errquit
+*rak:     &    ('deriv2c: bas_numbf failed',911)
+*rak:      if(.not.bas_numcont(basis,nshells)) call errquit
+*rak:     &       ('deriv2c:bas_numcont failed',911)
+*rak:      if(.not.geom_ncent(geom,nat)) call errquit
+*rak:     &       ('deriv2c:geom_ncent failed',911)
+*rak:c
+*rak:      size2e   = nbf*(nbf+1)/2
+*rak:      size2e_d = size2e*3*nat
+*rak:c
+*rak:      call intd_init(rtdb,1,basis)
+*rak:*      call int_normalize(basis)
+*rak:      call int_norm_2c(basis)
+*rak:c
+*rak:      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d real',
+*rak:     &    h2e2d,i2e2d))
+*rak:     &    call errquit('deriv2c: ma fail 1',911)
+*rak:      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d fd',
+*rak:     &    h2e2d_fd,i2e2d_fd))
+*rak:     &    call errquit('deriv2c: ma fail 2',911)
+*rak:      if (.not.ma_push_get(mt_dbl,size2e_d,'2e2c d diff',
+*rak:     &    h2e2d_diff,i2e2d_diff))
+*rak:     &    call errquit('deriv2c: ma fail 3',911)
+*rak:      if (.not.ma_push_get(mt_dbl,(3*nat),'xyzbuf',
+*rak:     &    hxyz,ixyz))
+*rak:     &    call errquit('deriv2c: ma fail 4',911)
+*rak:      call int_mem_2e4c(nbuf,nscr)
+*rak:      if (.not.ma_push_get(mt_dbl,nscr,'scratch',
+*rak:     &    hscr,iscr))
+*rak:     &    call errquit('deriv2c: ma fail 5',911)
+*rak:      if (.not.ma_push_get(mt_dbl,(2*nbuf),'buffer scratch',
+*rak:     &    hbuf,ibuf))
+*rak:     &    call errquit('deriv2c: ma fail 6',911)
+*rak:c
+*rak:      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d)     ,1)
+*rak:      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_fd)  ,1)
+*rak:      call dfill(size2e_d, 0.0d00,dbl_mb(i2e2d_diff),1)
+*rak:      call dfill(nscr,     0.0d00,dbl_mb(iscr)      ,1)
+*rak:      call dfill(2*nbuf,   0.0d00,dbl_mb(ibuf)      ,1)
+*rak:      call dfill((3*nat),  0.0d00,dbl_mb(ixyz)      ,1)
+*rak:c      
+*rak:      call build_2ed(dbl_mb(i2e2d),nat,size2e,nbf,nshells,
+*rak:     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,basis,geom)
+*rak:      call dfill(nscr,      0.0d00,dbl_mb(iscr)      ,1)
+*rak:      call dfill(2*nbuf,    0.0d00,dbl_mb(ibuf)      ,1)
+*rak:      call build_2edfd(dbl_mb(i2e2d_fd),nat,size2e,nbf,
+*rak:     &    dbl_mb(iscr),nscr,dbl_mb(ibuf),nbuf,dbl_mb(ixyz),
+*rak:     &    1.0d-05,basis,geom,nshells)
+*rak:      call dcopy(size2e_d,dbl_mb(i2e2d_fd),1,dbl_mb(i2e2d_diff),1)
+*rak:      call daxpy(size2e_d,-1.0d00,dbl_mb(i2e2d),1,dbl_mb(i2e2d_diff),1)
+*rak:c
+*rak:      call print_2d2c(dbl_mb(i2e2d),dbl_mb(i2e2d_fd),
+*rak:     &    dbl_mb(i2e2d_diff),size2e,nat)
+*rak:c
+*rak:      write(6,*)
+*rak:      write(6,*)' 2e2c deriv diff norm ',
+*rak:     &    ddot(size2e_d,dbl_mb(i2e2d_diff),1,dbl_mb(i2e2d_diff),1)
+*rak:c
+*rak:      call intd_terminate()
+*rak:      status = ma_pop_stack(hbuf)
+*rak:      status = status.and.ma_pop_stack(hscr)
+*rak:      status = status.and.ma_pop_stack(hxyz)
+*rak:      status = status.and.ma_pop_stack(h2e2d_diff)
+*rak:      status = status.and.ma_pop_stack(h2e2d_fd)
+*rak:      status = status.and.ma_pop_stack(h2e2d)
+*rak:      if (.not.status) call errquit('pop failed',911)
+*rak:      status = bas_destroy(basis)
+*rak:      status = status.and.geom_destroy(geom)
+*rak:      if (.not.status) call errquit('b/g destroy failed',911)
+*rak:      end
+*rak:      subroutine build_2ed(x2e2d,nat,size2e,nbf,nshells,
+*rak:     &    scr,nscr,buf,nbuf, basis, geom)
+*rak:      implicit none
+*rak:#include "bas.fh"
+*rak:      integer basis, geom
+*rak:      integer nat
+*rak:      integer size2e
+*rak:      integer nbf
+*rak:      integer nshells
+*rak:      double precision x2e2d(size2e,3,nat)
+*rak:      integer nscr, nbuf, idatom(2), id, dxyz, index
+*rak:      double precision scr(nscr),buf(nbuf)      
+*rak:c
+*rak:      integer ish, ibflo, ibfhi, num_ibf, ibf
+*rak:      integer jsh, jbflo, jbfhi, num_jbf, jbf
+*rak:      integer nint, icount
+*rak:      integer int_nint
+*rak:      external int_nint
+*rak:      integer min, max
+*rak:      intrinsic min,max
+*rak:      integer i,j,isym2
+*rak:      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+*rak:c
+*rak:      do 00100 ish=1,nshells
+*rak:        do 00200 jsh=1,ish
+*rak:          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
+*rak:          call intd_2e2c(basis,ish,basis,jsh,nscr,scr,(nint*3*4),
+*rak:     &        buf,idatom)
+*rak:          write(6,*)' idatom 2e2c', idatom
+*rak:          if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+*rak:     &        call errquit('cn2bfr error',ish)
+*rak:          num_ibf = ibfhi-ibflo+1
+*rak:          if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+*rak:     &        call errquit('cn2bfr error',ish)
+*rak:          num_jbf = jbfhi-jbflo+1
+*rak:          icount = 0
+*rak:          do 00300 id = 1,2
+*rak:            if (idatom(id).gt.0) then
+*rak:              do 00400 dxyz = 1,3
+*rak:                do 00500 ibf = ibflo,ibfhi
+*rak:                  do 00600 jbf = jbflo, jbfhi
+*rak:                    icount = icount + 1
+*rak:                    index = isym2(ibf,jbf)
+*rak:                    x2e2d(index,dxyz,idatom(id)) = buf(icount)
+*rak:00600             continue
+*rak:00500           continue
+*rak:00400         continue
+*rak:            else
+*rak:              icount = icount + 3*num_ibf*num_jbf
+*rak:            endif
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:      end
+*rak:      subroutine build_2edfd(x2e2d_fd,nat,size2e,nbf,
+*rak:     &    scr,nscr,buf,nbuf,xyz,delta,basis,geom,nshells)
+*rak:      implicit none
+*rak:#include "bas.fh"
+*rak:#include "geom.fh"
+*rak:#include "geomP.fh"
+*rak:c
+*rak:      integer nat,size2e,nbf, nscr, nbuf, basis, geom, nshells
+*rak:      double precision x2e2d_fd(size2e,3,nat)
+*rak:      double precision scr(nscr)
+*rak:      double precision buf(nbuf,2)
+*rak:      double precision xyz(3,nat)
+*rak:      double precision delta, scale
+*rak:      integer ish, ibf, ibflo, ibfhi
+*rak:      integer jsh, jbf, jbflo, jbfhi
+*rak:      integer nint, icount, index, datom, dxyz
+*rak:      integer int_nint
+*rak:      external int_nint
+*rak:      integer min, max
+*rak:      intrinsic min,max
+*rak:      integer i,j,isym2
+*rak:      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+*rak:c
+*rak:c
+*rak:c.. store original coords in xyz
+*rak:      call dcopy((3*nat),coords(1,1,geom),1,xyz,1)
+*rak:      scale = 1.0d00/(2.0d00*delta)
+*rak:c
+*rak:      do 00100 ish = 1,nshells
+*rak:        do 00200 jsh = 1,ish
+*rak:          nint = int_nint(basis,ish,basis,jsh,basis,0,basis,0)
+*rak:          do 00300 datom = 1,nat
+*rak:            do 00400 dxyz = 1,3
+*rak:c... copy original coords in to coords array
+*rak:              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:c... add delta to coordinate
+*rak:              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) + delta
+*rak:              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,1))
+*rak:c... copy original coords in to coords array
+*rak:              call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:c... subtract delta to coordinate
+*rak:              coords(dxyz,datom,geom) = coords(dxyz,datom,geom) - delta
+*rak:              call int_2e2c(basis,ish,basis,jsh,nscr,scr,nint,buf(1,2))
+*rak:              call daxpy(nint,-1.0d00,buf(1,2),1,buf(1,1),1)
+*rak:              call dscal(nint,scale,buf(1,1),1)
+*rak:              icount = 0
+*rak:              if (.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+*rak:     &            call errquit('cn2bfr error',ish)
+*rak:              if (.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+*rak:     &            call errquit('cn2bfr error',ish)
+*rak:              do 00500 ibf = ibflo, ibfhi
+*rak:                do 00600 jbf = jbflo, jbfhi
+*rak:                  icount = icount+1
+*rak:                  index  = isym2(ibf,jbf)
+*rak:                  x2e2d_fd(index,dxyz,datom) = buf(icount,1)
+*rak:00600           continue
+*rak:00500         continue
+*rak:00400       continue
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:c      
+*rak:c... copy original coords in to coords array
+*rak:      call dcopy((3*nat),xyz,1,coords(1,1,geom),1)
+*rak:      end
+*rak:      subroutine print_2d3c(x2e3d,diff,nbf,nat)
+*rak:      implicit none
+*rak:      integer nbf,nat
+*rak:      double precision x2e3d(nbf,nbf,nbf,3,nat)
+*rak:      double precision diff(nbf,nbf,nbf,3,nat)
+*rak:c
+*rak:      double precision thresh
+*rak:      integer datom,dxyz, ibf,jbf,kbf
+*rak:      logical printit
+*rak:c
+*rak:      thresh = 1.0d-08
+*rak:c
+*rak:      do 00100 datom = 1, nat
+*rak:        do 00200 dxyz = 1,3
+*rak:          write(6,*)
+*rak:          write(6,*)' atom = ',datom,' xyz = ',dxyz
+*rak:          write(6,*)'--------------------------------------------------'
+*rak:          do 00300 ibf = 1,nbf
+*rak:            do 00400 jbf = 1,nbf
+*rak:              do 00500 kbf = 1,nbf
+*rak:                printit = abs(x2e3d(ibf,jbf,kbf,dxyz,datom)).gt.thresh
+*rak:                if (printit) then
+*rak:                  write(6,10000)ibf,jbf,kbf,datom,dxyz,
+*rak:     &                x2e3d(ibf,jbf,kbf,dxyz,datom),
+*rak:     &                diff(ibf,jbf,kbf,dxyz,datom)
+*rak:                endif
+*rak:00500         continue
+*rak:00400       continue
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:10000 format('d2e3c <',i3,',',i3,',',i3,'|',i3,'|',i3,' > val =',
+*rak:     &    d20.10,' diff =',d20.10)
+*rak:c
+*rak:      end
+*rak:      subroutine print_2d2c(x2e2d,x2e2d_fd,diff,size2e,nat)
+*rak:      implicit none
+*rak:      integer size2e,nat
+*rak:      double precision x2e2d(size2e,3,nat)
+*rak:      double precision x2e2d_fd(size2e,3,nat)
+*rak:      double precision diff(size2e,3,nat)
+*rak:c
+*rak:      double precision thresh
+*rak:      integer datom,dxyz, index
+*rak:      logical printit
+*rak:c
+*rak:      thresh = 1.0d-08
+*rak:c
+*rak:      do 00100 datom = 1, nat
+*rak:        do 00200 dxyz = 1,3
+*rak:          write(6,*)
+*rak:          write(6,*)' atom = ',datom,' xyz = ',dxyz
+*rak:          write(6,*)'--------------------------------------------------'
+*rak:          do 00300 index = 1,size2e
+*rak:            printit = abs(x2e2d(index,dxyz,datom)).gt.thresh
+*rak:            printit = printit .or.
+*rak:     &          abs(x2e2d_fd(index,dxyz,datom)).gt.thresh
+*rak:            if (printit) then
+*rak:              write(6,10000)index,datom,dxyz,
+*rak:     &            x2e2d(index,dxyz,datom),
+*rak:     &            x2e2d_fd(index,dxyz,datom),
+*rak:     &            diff(index,dxyz,datom)
+*rak:            endif
+*rak:00300     continue
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:10000 format('d2e2c <',i5,'|',i3,'|',i3,' > val =',d20.10,
+*rak:     &    ' fd =',d20.10,' diff =',d20.10)
+*rak:c
+*rak:      end
+*rak:      logical function gen_apphess_at(rtdb,delta)
+*rak:      implicit none
+*rak:#include "mafdecls.fh"
+*rak:#include "global.fh"
+*rak:#include "geom.fh"
+*rak:#include "bas.fh"
+*rak:#include "rtdb.fh"
+*rak:#include "context.fh"
+*rak:#include "tcgmsg.fh"
+*rak:#include "msgtypesf.h"
+*rak:#include "msgids.fh"
+*rak:c::functions
+*rak:c::passed
+*rak:      integer rtdb
+*rak:      double precision delta
+*rak:c::local
+*rak:      integer whoiam, master
+*rak:      integer geom
+*rak:      integer nat, rank_hess
+*rak:      integer basis
+*rak:      integer h_grad0, k_grad0 ! handle/index for central gradient
+*rak:      integer h_gradp, k_gradp ! handle/index for delta gradient
+*rak:      integer h_hess, k_hess ! handle/index for hessian matrix
+*rak:      integer iatom, ixyz
+*rak:      logical ignore_status
+*rak:      double precision xyz(3), chg
+*rak:      character*5 tmpname
+*rak:      character*16 tag_name
+*rak:      character*40 new_geom_name
+*rak:      character*255 mo_basis, fd_basis, mo_basis_ref
+*rak:c
+*rak:      whoiam = ga_nodeid()
+*rak:      master = 0
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:      if (whoiam.eq.master) then
+*rak:c
+*rak:c.. create/load reference geometry
+*rak:        if (.not.geom_create(geom,'geometry')) call errquit
+*rak:     &      ('gen_apphess_at:geom_create failed?',1)
+*rak:        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+*rak:     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
+*rak:c..  get the number of atoms
+*rak:        if (.not. geom_ncent(geom,nat)) call errquit
+*rak:     &      ('gen_apphess_at:geom_ncent failed?',3)
+*rak:c
+*rak:c.. copy reference geometry and store on rtdb
+*rak:        if (.not.
+*rak:     &      geom_rtdb_store(rtdb,geom,'reference'))
+*rak:     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
+*rak:c
+*rak:c.. determine what fd basis name is
+*rak:c
+*rak:        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+*rak:     &      mo_basis = 'ao basis'
+*rak:        mo_basis_ref = mo_basis
+*rak:        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+*rak:     &      fd_basis = 'fd basis'
+*rak:c
+*rak:c.. try to load "fd basis"
+*rak:c.. create basis handle
+*rak:        if(.not.bas_create(basis,fd_basis)) call errquit
+*rak:     &      ('gen_apphess_at: bas_create failed?',7)
+*rak:        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+*rak:          continue
+*rak:        else
+*rak:c...  if fd basis not defined use current mo_basis
+*rak:          fd_basis = mo_basis
+*rak:        endif
+*rak:c
+*rak:c set "ao basis" to point to "fd basis"
+*rak:        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
+*rak:     &      ('gen_apphess_at: rtdb_cpu failed?',8)
+*rak:c
+*rak:        if (.not.(bas_destroy(basis))) call errquit
+*rak:     &      ('gen_apphess_at: bas_destroy failed?',9)
+*rak:        if (.not.(geom_destroy(geom))) call errquit
+*rak:     &      ('gen_apphess_at: geom_destroy failed?',9)
+*rak:c set "geometry" to "reference"
+*rak:        new_geom_name='reference'
+*rak:        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+*rak:     &      call errquit
+*rak:     &        ('gen_apphess_at: rtdb_cput failed ?',911)
+*rak:      endif
+*rak:c all nodes work here 
+*rak:c
+*rak:c..      broadcast number of atoms
+*rak:c
+*rak:      call ga_brdcst(Msg_RAK+MSGINT, nat, mitob(1), 0)
+*rak:c
+*rak:      call ga_sync()
+*rak:c
+*rak:      ignore_status = rtdb_parallel(.true.)
+*rak:c      
+*rak:      call scf_gradient(rtdb)
+*rak:c
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:c      
+*rak:      call ga_sync()
+*rak:      if (whoiam.eq.master) then
+*rak:        rank_hess = 3*nat
+*rak:        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+*rak:     &      'cent nuclear gradient vector',
+*rak:     &      h_grad0,k_grad0)) call errquit
+*rak:     &      ('gen_apphess_at: ma_push_get failed?',10)
+*rak:        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+*rak:     &      'delta nuclear gradient vector',
+*rak:     &      h_gradp,k_gradp)) call errquit
+*rak:     &      ('gen_apphess_at: ma_push_get failed?',11)
+*rak:        if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
+*rak:     &      'nuclear hessian matrix',
+*rak:     &      h_hess,k_hess)) call errquit
+*rak:     &      ('gen_apphess_at: ma_push_get failed?',12)
+*rak:c
+*rak:        call dfill((rank_hess*rank_hess),0.0d00,
+*rak:     &      dbl_mb(k_hess),1)
+*rak:c
+*rak:c.. get central gradient
+*rak:        if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+*rak:     &      rank_hess,dbl_mb(k_grad0)))
+*rak:     &      call errquit('gen_apphess_at: rtdb_get failed',13)
+*rak:c
+*rak:      endif
+*rak:c
+*rak:c... all nodes doing work here
+*rak:      call ga_sync()
+*rak:      call util_flush(6)
+*rak:      do 00100 iatom = 1,nat
+*rak:        do 00200 ixyz = 1,3
+*rak:          if(whoiam.eq.master) then
+*rak:c... master node only
+*rak:            if (.not.geom_create(geom,'reference')) call errquit
+*rak:     &          ('gen_apphess_at:geom_create failed?',14)
+*rak:            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at:geom_rtdb_load failed?',15)
+*rak:            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at:geom_cent_get failed?',16)
+*rak:            xyz(ixyz) = xyz(ixyz) + delta
+*rak:            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at:geom_cent_get failed?',17)
+*rak:c.. copy modified geometry and store on rtdb
+*rak:            write(tmpname,'(i3,1x,i1)')iatom,ixyz
+*rak:            new_geom_name = 'reference '//tmpname
+*rak:            if (.not.
+*rak:     &          geom_rtdb_store(rtdb,geom,new_geom_name))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at: geom_rtdb_store failed',19)
+*rak:            if (.not.geom_destroy(geom))
+*rak:     &          call errquit('gen_apphess_at: geom_destroy failed?',20)
+*rak:c set "geometry" to "reference atom/xyz"
+*rak:            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at: rtdb_cput failed ?',911)
+*rak:          endif
+*rak:          call ga_sync()
+*rak:          ignore_status = rtdb_parallel(.true.)
+*rak:          call scf_gradient(rtdb)
+*rak:          ignore_status = rtdb_parallel(.false.)
+*rak:          call ga_sync()
+*rak:          if (whoiam.eq.master) then
+*rak:            if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
+*rak:     &          rank_hess,dbl_mb(k_gradp)))
+*rak:     &          call errquit('gen_apphess_at: rtdb_get failed',21)
+*rak:            call fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
+*rak:     &          dbl_mb(k_gradp),1.0d00,delta,nat,iatom,ixyz)
+*rak:          endif
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:      if (whoiam.eq.master) then
+*rak:        write(6,*)' finite difference hessian delta = ',delta
+*rak:        call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+*rak:     &      rank_hess,rank_hess,1)
+*rak:        call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'hess_ascii')
+*rak:        write(6,*)' triangle hessian written to hess_ascii'
+*rak:        
+*rak:c.. redefine ao basis to it's original setting
+*rak:        if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
+*rak:     &      call errquit
+*rak:     &      ('gen_apphess_at: rtdb_cpu failed?',22)
+*rak:c set "geometry" to "geometry"
+*rak:            if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
+*rak:     &          call errquit
+*rak:     &          ('gen_apphess_at: rtdb_cput failed ?',911)
+*rak:c
+*rak:        if(.not.ma_pop_stack(h_hess)) call errquit
+*rak:     &      ('gen_apphess_at: ma_pop_stack(h_hess) failed?',27)
+*rak:        if(.not.ma_pop_stack(h_gradp)) call errquit
+*rak:     &      ('gen_apphess_at: ma_pop_stack(h_gradp) failed?',27)
+*rak:        if(.not.ma_pop_stack(h_grad0)) call errquit
+*rak:     &      ('gen_apphess_at: ma_pop_stack(h_grad0) failed?',27)
+*rak:
+*rak:      endif
+*rak:      call ga_sync()
+*rak:      ignore_status = rtdb_parallel(.true.)
+*rak:      gen_apphess_at = .true.
+*rak:      end
+*rak:      subroutine wrt_fd_from_sq(hess,rank_hess,filename)
+*rak:      implicit none
+*rak:c
+*rak:      integer rank_hess
+*rak:      double precision hess(rank_hess,rank_hess)
+*rak:      character*(*) filename
+*rak:c
+*rak:      integer i, j, lu
+*rak:c
+*rak:      lu = 69
+*rak:      open(unit=lu,file=filename,
+*rak:     &    form='formatted',
+*rak:     &    access='sequential',
+*rak:     &    status='unknown')
+*rak:c
+*rak:      do 00100 i = 1,rank_hess
+*rak:        do 00200 j = 1,i
+*rak:          write(lu,10000)hess(i,j)
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:10000 format(1x,1pd20.10)
+*rak:c
+*rak:      close(unit=lu,status='keep')
+*rak:c
+*rak:      end
+*rak:      subroutine fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
+*rak:     &    iatom_t,ixyz_t)
+*rak:      implicit none
+*rak:c::passed
+*rak:      integer nat
+*rak:      integer iatom_t, ixyz_t
+*rak:      double precision hess(3,nat,3,nat)
+*rak:      double precision gradm(3,nat)
+*rak:      double precision gradp(3,nat)
+*rak:      double precision delta, s_delta
+*rak:c::local
+*rak:      integer iatom,ixyz
+*rak:      double precision rdelta, value
+*rak:c
+*rak:c 
+*rak:c finite difference  [g(x+delta) - g(x-delta)]/(s_delta*delta) (s_delta = 2.0)
+*rak:c central difference [g(x+delta) - g(x)]/(s_delta*delta) (s_delta = 1.0)
+*rak:c 
+*rak:c
+*rak:      rdelta = 1.0d00/(s_delta*delta)
+*rak:      do 00100 iatom = 1,nat
+*rak:        do 00200 ixyz = 1,3
+*rak:          value = rdelta*(gradp(ixyz,iatom)-gradm(ixyz,iatom))
+*rak:          hess(ixyz_t,iatom_t,ixyz,iatom) = value
+*rak:          hess(ixyz,iatom,ixyz_t,iatom_t) = value
+*rak:00200   continue
+*rak:00100 continue
+*rak:c
+*rak:      end
+*rak:      logical function gen_apphess_opt(rtdb,delta)
+*rak:      implicit none
+*rak:c
+*rak:c function to generate approximate hessian
+*rak:c
+*rak:#include "bas.fh"
+*rak:#include "mafdecls.fh"
+*rak:#include "global.fh"
+*rak:#include "geom.fh"
+*rak:#include "rtdb.fh"
+*rak:#include "context.fh"
+*rak:      integer rtdb
+*rak:      double precision delta
+*rak:c
+*rak:      integer whoiam, master
+*rak:      logical ignore_status
+*rak:      integer geom,nat,basis
+*rak:      character*40 mo_basis,mo_basis_ref,fd_basis,new_geom_name
+*rak:      character*40 movecs_in_ref
+*rak:c
+*rak:      gen_apphess_opt=.false.
+*rak:      whoiam = ga_nodeid()
+*rak:      master = 0
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:      if (whoiam.eq.master) then
+*rak:c
+*rak:c.. create/load reference geometry
+*rak:        if (.not.geom_create(geom,'geometry')) call errquit
+*rak:     &      ('gen_apphess_at:geom_create failed?',1)
+*rak:        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+*rak:     &      ('gen_apphess_at:geom_rtdb_load failed?',2)
+*rak:c..  get the number of atoms
+*rak:        if (.not. geom_ncent(geom,nat)) call errquit
+*rak:     &      ('gen_apphess_at:geom_ncent failed?',3)
+*rak:c
+*rak:c.. copy reference geometry and store on rtdb
+*rak:        if (.not.
+*rak:     &      geom_rtdb_store(rtdb,geom,'reference'))
+*rak:     &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
+*rak:c
+*rak:c.. determine what fd basis name is
+*rak:c
+*rak:        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+*rak:     &      mo_basis = 'ao basis'
+*rak:        mo_basis_ref = mo_basis
+*rak:        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+*rak:     &      fd_basis = 'fd basis'
+*rak:c
+*rak:c.. try to load "fd basis"
+*rak:c.. create basis handle
+*rak:        if(.not.bas_create(basis,fd_basis)) call errquit
+*rak:     &      ('gen_apphess_at: bas_create failed?',7)
+*rak:        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+*rak:          continue
+*rak:        else
+*rak:c...  if fd basis not defined use current mo_basis
+*rak:          fd_basis = mo_basis
+*rak:          write(6,*) ' fd basis is the ao basis This will be expensive'
+*rak:          call util_flush(6)
+*rak:        endif
+*rak:c
+*rak:c.. set "ao basis" to point to "fd basis"
+*rak:        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
+*rak:     &      ('gen_apphess_at: rtdb_cpu failed?',8)
+*rak:c... destroty basis and geom handles
+*rak:        if (.not.(bas_destroy(basis))) call errquit
+*rak:     &      ('gen_apphess_at: bas_destroy failed?',9)
+*rak:        if (.not.(geom_destroy(geom))) call errquit
+*rak:     &      ('gen_apphess_at: geom_destroy failed?',9)
+*rak:c set "geometry" to "reference"
+*rak:        new_geom_name='reference'
+*rak:        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+*rak:     &      call errquit
+*rak:     &        ('gen_apphess_at: rtdb_cput failed ?',911)
+*rak:      endif
+*rak:c... store movecs initial state
+*rak:      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+*rak:     $     movecs_in_ref = 'atomic'
+*rak:c... set initial guess for fd basis to atomic
+*rak:      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, 'atomic'))
+*rak:     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
+*rak:c
+*rak:      ignore_status = rtdb_parallel(.true.)
+*rak:      call gen_apphess_at(rtdb,delta)
+*rak:      call scf_opt(rtdb)
+*rak:c
+*rak:c.. reset stepper so it knows to restart the calculation
+*rak:      call stpr_walk_reset
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:c.. set "ao basis" to point to %val<mo_basis_ref
+*rak:      if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
+*rak:     &    call errquit ('gen_apphess_opt: rtdb_cput failed?',8)
+*rak:c
+*rak:c... reset input vectors option here to original guess if appropriate
+*rak:      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+*rak:     &     call errquit ('gen_apphess_opt: rtdb_cput failed?',911)
+*rak:c
+*rak:      call scf_opt(rtdb)
+*rak:c
+*rak:      gen_apphess_opt = .true.
+*rak:      end
 *rak:      subroutine size_integ(rtdb,geom_name, basis_name)
 *rak:      implicit none
 *rak:#include "geom.fh"
@@ -3520,7 +3653,7 @@ c
 *rak:00200   continue
 *rak:00100 continue
 *rak:      end
-      subroutine raktest3(rtdb)
+      subroutine raktest_stpr(rtdb)
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -3538,19 +3671,19 @@ c
 c
       if (ga_nodeid().eq.0)  then
         if (.not. geom_create(geom, 'geometry'))
-     &         call errquit('raktest3: geom_create?', 911)
+     &         call errquit('raktest_stpr: geom_create?', 911)
         if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &         call errquit('raktest3: no geometry ', 911)
+     &         call errquit('raktest_stpr: no geometry ', 911)
 c get number of atoms = nat
         if (.not. geom_ncent(geom,nat))
-     &      call errquit('raktest3: geom_ncent?',911)
+     &      call errquit('raktest_stpr: geom_ncent?',911)
         if (.not. geom_destroy(geom))
-     &      call errquit('raktest3: geom_destroy?',911)
+     &      call errquit('raktest_stpr: geom_destroy?',911)
         if (.not.
      &         MA_Push_Get(MT_DBL,(3*nat),'stpr fake gradient',
      &         h_grad,k_grad))
      &         call errquit
-     &         ('raktest3: allocation for gradient failed?',911)
+     &         ('raktest_stpr: allocation for gradient failed?',911)
         dbl_mb((k_grad+   0)) =  -0.008697D00
         dbl_mb((k_grad+   1)) =  -0.004076D00
         dbl_mb((k_grad+   2)) =   0.004591D00
@@ -3850,19 +3983,19 @@ c get number of atoms = nat
 c put scf:converged = logical true
         if (.not. rtdb_put(rtdb,'scf:converged', MT_LOG, 1, flag))
      &      call errquit
-     &      ('raktest3: failed to read converged in rtdb', 911)
+     &      ('raktest_stpr: failed to read converged in rtdb', 911)
 c put scf:energy   =  real value
         if (.not. rtdb_put(rtdb,'scf:energy', MT_DBL, 1, energy))
      &      call errquit
-     &      ('raktest3: failed to read energy in rtdb', 911)
+     &      ('raktest_stpr: failed to read energy in rtdb', 911)
 c put scf:gradients = 3*nat reals
         if (.not. rtdb_put(rtdb, 'scf:gradients', MT_DBL, 
      &       (3*nat),dbl_mb(k_grad)))
      &      call errquit
-     &        ('raktest3: reading gradients failed',911)
+     &        ('raktest_stpr: reading gradients failed',911)
 c free memory
         if (.not. ma_pop_stack(h_grad))
-     &      call errquit('raktest3: pop failed')
+     &      call errquit('raktest_stpr: pop failed')
       endif
       call ga_sync()
       call ga_sync()
@@ -3972,3 +4105,558 @@ c
 c
       end
 
+      Subroutine hf1mkrtmp(Axyz,Bxyz,Cxyz,zan,ncenters,
+     &                  alpha,Pxyz,RS,PC,ff,R,
+     &                  R0,R0C,IJK,NPP,Lp,Lp3,CENTER)
+
+      Implicit real*8 (a-h,o-z)
+      Implicit integer (i-n)
+
+      Logical CENTER
+
+      Parameter (PI=3.1415926535898D0,PI4=4.D0/PI)
+
+c--> Cartesian Coordinates
+
+      Dimension Axyz(3),Bxyz(3)
+
+c--> Nuclear Cartesian Coordinates & Charges
+
+      Dimension Cxyz(3,ncenters),zan(ncenters)
+
+c--> Exponents
+
+      Dimension alpha(2,NPP)
+
+c--> Auxiliary Function Integrals & Index
+
+      Dimension R0(NPP,Lp3),R0C(ncenters,NPP,Lp3),IJK(0:Lp,0:Lp,0:Lp)
+
+c--> Scratch Space
+
+      Dimension Pxyz(3,NPP),RS(NPP),PC(NPP,3),ff(2,NPP),R(NPP,0:Lp,Lp3)
+
+c
+c Define the auxiliary function integrals necessary to compute the nuclear
+c attraction integrals (NAIs). These integrals are scaled by an appropriate
+c factor, RS, defined as
+c
+c         / a + b \ 1/2
+c   RS = | ------- |
+c         \  PI/4 /
+c
+c The scale factor for the Hermite expansion coefficients is assumed to be
+c
+c         /   PI  \ 3/2     /   a b   __2 \
+c   ES = | ------- |    EXP| - -----  AB   |
+c         \ a + b /         \  a + b      /
+c
+c Therefore,
+c
+c            2 PI        /   a b   __2 \
+c   ES RS = -------  EXP| - -----  AB   |
+c            a + b       \  a + b      /
+c
+c******************************************************************************
+
+      do 100 mp = 1,NPP
+        do 100 j = 1,Lp3
+          R0(mp,j) = 0.D0
+  100 continue
+
+      do 110 mp = 1,NPP
+
+c Define the center "P".
+
+       a = alpha(1,mp)
+       b = alpha(2,mp)
+
+       f1 = a/(a+b)
+       f2 = b/(a+b)
+
+       Pxyz(1,mp) = f1*Axyz(1) + f2*Bxyz(1)
+       Pxyz(2,mp) = f1*Axyz(2) + f2*Bxyz(2)
+       Pxyz(3,mp) = f1*Axyz(3) + f2*Bxyz(3)
+
+c Define the scaling factor.
+
+       RS(mp) = sqrt((a+b)*PI4)
+
+  110 continue
+
+c Sum over all centers.
+
+      do 150 ic = 1,ncenters
+
+c Define factors necessary to compute incomplete gamma function and the
+c auxiliary functions.
+
+       do 120 m = 1,NPP
+
+        alpha_t = alpha(1,m) + alpha(2,m)
+
+        ff(1,m) = RS(m)
+        ff(2,m) = -2.D0*alpha_t
+
+        PCx = Pxyz(1,m) - Cxyz(1,ic)
+        PCy = Pxyz(2,m) - Cxyz(2,ic)
+        PCz = Pxyz(3,m) - Cxyz(3,ic)
+
+        R(m,0,1) = alpha_t*(PCx**2 + PCy**2 + PCz**2)
+
+        PC(m,1) = PCx
+        PC(m,2) = PCy
+        PC(m,3) = PCz
+
+  120  continue
+
+c Evaluate the incomplete gamma function.
+
+       call igamma(R,NPP,Lp)
+
+c Define the initial auxiliary functions (i.e., R000j, j=1,Lr).
+
+       do 135 j = 0,Lp
+        do 130 m = 1,NPP
+         R(m,j,1) = ff(1,m)*R(m,j,1)
+         ff(1,m) = ff(1,m)*ff(2,m)
+  130   continue
+  135  continue
+
+c Recursively build the remaining auxiliary functions (i.e., RIJKj, j=0).
+
+       call hfmkr(R,IJK,PC,NPP,Lp,Lp3)
+
+c Transfer to R0 array.
+
+       if( CENTER )then
+        do 141 n = 1,Lp3
+         do 140 m = 1,NPP
+          R0C(ic,m,n) = -zan(ic)*R(m,0,n)
+          R0(m,n) = R0(m,n) + R0C(ic,m,n)
+  140    continue
+  141   continue
+       else
+        do 146 n = 1,Lp3
+         do 145 m = 1,NPP
+c*          R0(m,n) = R0(m,n) - zan(ic)*R(m,0,n)
+          R0C(ic,m,n) = R(m,0,n)
+  145    continue
+  146   continue
+       end if
+
+  150 continue
+
+      end
+      Subroutine hf1tmp(Axyz,Aprims,Acoefs,NPA,NCA,La,
+     &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
+     &               Cxyz,zan,ncenters,
+     &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
+     &               DryRun,W0,maxW0)
+
+      Implicit real*8 (a-h,o-z)
+      Implicit integer (i-n)
+
+      Logical O2I,KEI,NAI,canAB
+
+      Logical GenCon,DryRun
+
+c--> Cartesian Coordinates, Primitives & Contraction Coefficients
+
+      Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
+      Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
+
+c--> Nuclear Cartesian Coordinates & Charges
+
+      Dimension Cxyz(3,ncenters),zan(ncenters)
+
+c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
+
+      Dimension bO2I(Nint),bKEI(Nint),bNAI(Nint)
+
+c--> Scratch Space.
+
+      Dimension W0(maxW0)
+#if defined(INT_TIMING)
+#include "int_tim.fh"
+#include "pstat.fh"
+#endif
+c
+c Compute the overlap, kinetic energy, and nuclear attraction integrals for 
+c two shells of contracted Gaussians functions. This driver is NOT capable of 
+c evaluating integral derivatives.
+c
+c******************************************************************************
+#if defined(INT_TIMING)
+      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_on(intt_arr(intt_hf1))
+#endif
+#if defined(INTDEBUG)
+      write(6,*)' inside hf1 '
+      write(6,*)' npa,nca,la = ',npa,nca,la
+      write(6,*)' npb,ncb,lb = ',npb,ncb,lb
+      write(6,*)' ncenters   = ',ncenters
+      write(6,*)' NINT       = ',nint
+      write(6,*)' maxW0      = ',maxw0
+      write(6,*)' <canAB:DryRun>-<',canab,':',dryrun,'>'
+      write(6,*)' <o2i:kei:nai>-<',o2i,':',kei,':',nai,'>'
+      write(6,'(a,3(2x,1pd20.10))')' Axyz =',Axyz
+      write(6,'(a,3(2x,1pd20.10))')' Bxyz =',Bxyz
+      write(6,'(a,100(3(2x,1pd20.10/)))')' Cxyz =',Cxyz
+      do iiii = 1,npa
+        write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &         'Aprims:Acoeffs:(',iiii,') =',Aprims(iiii),
+     &         Acoefs(iiii,1)
+      enddo
+      do iiii = 1,npb
+        write(6,'(a,i3,a,2(2x,1pd20.10))')
+     &         'Bprims:Bcoeffs:(',iiii,') =',Bprims(iiii),
+     &         Bcoefs(iiii,1)
+      enddo
+#endif
+*      if (.not.dryrun) then
+*        call hf_print('hf1: a shell',axyz,aprims,acoefs,npa,nca,la)
+*        call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
+*      endif
+      MXD = 0
+      if (KEI) KEI = .false.
+      if (O2I) O2I = .false.
+
+c Determine whether general or segmented contraction is used.
+
+      NCP = NCA*NCB
+
+      GenCon = NCP.ne.1
+
+      if( GenCon )then
+       write(*,*) 'HF1: Not yet ready for general contraction.'
+       stop
+      end if
+
+c To determine all the Hermite expansion coefficients required to evaluate
+c the kinetic energy integrals, increment the angular momenta by one.
+
+      if( KEI )then
+       Li = 1
+      else
+       Li = 0
+      end if
+
+c Define the angular momentum of the overlap distribution.
+
+      Lp = La + Lb
+
+c Increment "Lp" to account for the order of differentiation.
+
+      Lp = Lp + MXD
+
+c Define the accumulated number of angular momentum functions <= Lp.
+
+      Lp3 = ((Lp+1)*(Lp+2)*(Lp+3))/6
+
+c Define the prefactor of the overlap distribution "P".
+
+c Assign pointers to scratch space.
+ 
+      i_ALPHAp = 1
+      i_IPAIRp = i_ALPHAp + 2*(NPA*NPB)
+      i_left   = i_IPAIRp + 2*(NPA*NPB) - 1
+ 
+      i_ESp   = (maxW0+1) - 3*(NPA*NPB)
+      i_right = i_ESp
+ 
+      if( i_left.ge.i_right )then
+ 
+       write(*,*) 'HF1:  Insufficient scratch space.'
+       write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
+       write(*,*) '       allocated ',maxW0
+ 
+       write(*,*) 'From the left '
+       write(*,*) 'ALPHAp:  ',i_ALPHAp
+       write(*,*) 'IPAIRp:  ',i_IPAIRp
+       write(*,*) 'From the right '
+       write(*,*) 'ESp   :  ',i_ESp
+ 
+       stop
+ 
+      end if
+ 
+      if( DryRun )then
+
+       MaxMem = i_left + (maxW0 - (i_right-1))
+       NPP = NPA*NPB
+
+      else
+
+       call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
+     &            Bxyz,Bprims,Bcoefs,NPB,NCB,
+     &            GenCon,W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ESp),NPP)
+
+      end if
+
+      if (npp.eq.0) then
+        if (O2I) call dfill(Nint,0.0d00,bO2I,1)
+        if (KEI) call dfill(Nint,0.0d00,bKEI,1)
+        if (NAI) call dfill(Nint,0.0d00,bNAI,1)
+        return
+      endif
+c Define the Hermite linear expansion coefficients.
+
+c Assign pointers to scratch space.
+
+      lprod = ((La+Li)+(Lb+Li)+1)*((La+Li)+1)*((Lb+Li)+1)
+
+      i_Ep   = i_IPAIRp + 2*(NPA*NPB)
+      i_pf   = i_Ep     + 3*NPP*(MXD+1)*lprod
+      i_left = i_pf     + 2*NPP - 1
+
+      if( i_left.ge.i_right )then
+
+       write(*,*) 'HF1:  Insufficient scratch space.'
+       write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
+       write(*,*) '       allocated ',maxW0
+
+       write(*,*) 'From the right '
+       write(*,*) 'ALPHAp:  ',i_ALPHAp
+       write(*,*) 'IPAIRp:  ',i_IPAIRp
+       write(*,*) 'Ep    :  ',i_Ep
+       write(*,*) 'pf    :  ',i_pf
+       write(*,*) 'From the left '
+       write(*,*) 'ESp   :  ',i_ESp
+
+       stop
+
+      end if
+
+      if( DryRun )then
+
+       MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
+
+      else
+
+       do 100 nd = 0,MXD
+        call hfmke(Axyz,Bxyz,W0(i_ALPHAp),W0(i_ESp),W0(i_Ep),W0(i_pf),
+     &             nd,NPP,MXD,La+Li,Lb+Li)
+  100  continue
+
+      end if
+       
+c Compute the 2-center overlap integrals, <a|S|b>.
+
+      if( O2I )then
+        if( .not. DryRun )then
+          call hf2oi(W0(i_Ep),bO2I,Nint,NPP,La,Lb,Li,canAB)
+        end if
+      end if
+
+c Compute kinetic energy integrals, <a|T|b>.
+
+      if( KEI )then
+
+c Assign pointers to scratch space.
+
+       i_Ti  = i_Ep + 3*NPP*(MXD+1)*lprod
+       i_top = i_Ti + NPP - 1
+
+       if( i_top.gt.maxW0 )then
+
+        write(*,*) 'HF1:  Insufficient scratch space.'
+        write(*,*) '       needed    ',i_top
+        write(*,*) '       allocated ',maxW0
+
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp
+        write(*,*) 'Ep    :  ',i_Ep
+        write(*,*) 'Ti    :  ',i_Ti
+
+        stop
+
+       end if
+
+       if( DryRun )then
+
+        MaxMem = max( MaxMem, i_top )
+
+       else
+
+        call hfkei(W0(i_ALPHAp),W0(i_Ep),bKEI,W0(i_Ti),
+     &             Nint,NPP,La,Lb,Li,canAB)
+       end if
+
+      end if
+       
+c Compute nuclear attraction integrals, <a|V|b>.
+
+      if( NAI )then
+
+c Define the auxiliary function integrals.
+
+c Assign scratch space.
+
+       i_R0  = i_Ep  + 3*NPP*(MXD+1)*lprod
+       i_IJK = i_R0  + NPP*Lp3*ncenters
+       i_P   = i_IJK + (Lp+1)**3
+       i_RS  = i_P   + NPP*3
+       i_PC  = i_RS  + NPP
+       i_ff  = i_PC  + NPP*3
+       i_Rj  = i_ff  + NPP*2
+       i_top = i_Rj  + NPP*(Lp+1)*Lp3 - 1
+
+       if( i_top.gt.maxW0 )then
+
+        write(*,*) 'HF1:  Insufficient scratch space.'
+        write(*,*) '       needed    ',i_top
+        write(*,*) '       allocated ',maxW0
+
+        write(*,*) 'ALPHAp:  ',i_ALPHAp 
+        write(*,*) 'IPAIRp:  ',i_IPAIRp
+        write(*,*) 'Ep    :  ',i_Ep
+        write(*,*) 'R0    :  ',i_R0
+        write(*,*) 'IJK   :  ',i_IJK
+        write(*,*) 'P     :  ',i_P
+        write(*,*) 'RS    :  ',i_RS
+        write(*,*) 'PC    :  ',i_PC
+        write(*,*) 'ff    :  ',i_ff
+        write(*,*) 'Rj    :  ',i_Rj
+
+        stop
+
+       end if
+
+       if( DryRun )then
+
+        MaxMem = max( MaxMem, i_top )
+
+       else
+
+        call hf1mkrtmp(Axyz,Bxyz,Cxyz,zan,ncenters,
+     &              W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
+     &              W0(i_Rj),W0(i_R0),W0(i_R0),W0(i_IJK),
+     &              NPP,Lp,Lp3,.FALSE.)
+
+        call hfnaitmp(W0(i_Ep),W0(i_R0),W0(i_IJK),bNAI,
+     &             Nint,NPP,La,Lb,Li,Lp,Lp3,canAB,ncenters)
+
+       end if
+
+      end if
+
+c Return the maximum amount of scratch space required by a "dry run".
+
+      if( DryRun ) maxW0 = MaxMem
+#if defined(INT_TIMING)
+      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_off(intt_arr(intt_hf1))
+#endif
+c
+      end
+      Subroutine hfnaitmp(E,R0,IJK,Vab,Nint,NPP,
+     &    La,Lb,Li,Lp,Lp3,canAB,ncenters)
+
+      Implicit real*8 (a-h,o-z)
+      Implicit integer (i-n)
+
+      Logical canAB
+
+c--> Hermite Linear Expansion Coefficients
+
+      Dimension E(3,NPP,0:((La+Li)+(Lb+Li)),0:(La+Li),0:(Lb+Li))
+
+c--> Auxiliary Function Integrals & Index
+
+      Dimension R0(ncenters,NPP,Lp3),IJK(0:Lp,0:Lp,0:Lp)
+
+c--> Nuclear Attraction Integrals
+
+      Dimension Vab(Nint)
+
+c--> Scratch Space
+
+      Dimension Nxyz(3)
+c
+c Compute the nuclear attraction integrals.
+c
+c     formula:
+c           __
+c           \    Ia,Ib    Ja,Jb    Ka,Kb
+c     Vab = /  Ex     * Ey     * Ez     * R
+c           --   Ip       Jp       Kp      Ip,Jp,Kp
+c        Ip,Jp,Kp
+c
+c******************************************************************************
+
+c Initialize the block of NAIs.
+
+      do 10 nn = 1,Nint
+       Vab(nn) = 0.D0
+   10 continue
+
+c Define the number of shell components on each center.
+
+      La2 = ((La+1)*(La+2))/2
+      Lb2 = ((Lb+1)*(Lb+2))/2
+
+c      loop over centers
+      do 23456 icic = 1,ncenters
+c Loop over shell components.
+
+      nn = 0
+
+      do 50 ma = 1,La2
+
+c Define the angular momentum indices for shell "A".
+
+       call getNxyz(La,ma,Nxyz)
+
+       Ia = Nxyz(1)
+       Ja = Nxyz(2)
+       Ka = Nxyz(3)
+
+       if( canAB )then
+        mb_limit = ma
+       else
+        mb_limit = Lb2
+       end if
+
+       do 40 mb = 1,mb_limit
+
+c Define the angular momentum indices for shell "B".
+
+        call getNxyz(Lb,mb,Nxyz)
+
+        Ib = Nxyz(1)
+        Jb = Nxyz(2)
+        Kb = Nxyz(3)
+
+        nn = nn + 1
+
+        do 30 Ip = 0,Ia+Ib
+        do 30 Jp = 0,Ja+Jb
+        do 30 Kp = 0,Ka+Kb
+
+         np = IJK(Ip,Jp,Kp)
+
+         do 20 mp = 1,NPP
+          Vab(nn) = Vab(nn) + (E(1,mp,Ip,Ia,Ib)*
+     &                         E(2,mp,Jp,Ja,Jb)*
+     &                         E(3,mp,Kp,Ka,Kb))*R0(icic,mp,np)
+   20    continue
+
+   30   continue
+
+   40  continue
+
+   50 continue
+
+      write(6,*)'==================================================',
+     &    '=============================='
+      write(6,*)' for center ',icic,' modified V is '
+      do inn = 1,nn
+        if (abs(Vab(inn)).gt.1.0d-07) then
+          write(6,*)' Vab(',inn,' ) =',vab(inn),' of ',nn
+        endif
+      enddo
+      write(6,*)'==================================================',
+     &    '=============================='
+23456 continue
+      end
