@@ -9,14 +9,15 @@ c.... texas common block -- start
       common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
 c.... -- end
 c
-      par(2) = new_thresh2
+*.... Krys will remove this dependency
       par(1) = new_thresh1
-c
+      par(2) = new_thresh2
       par(26) = new_thresh1
 c
+      call setup_thresh(new_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.4 1995-11-29 02:14:24 d3e129 Exp $
+c $Id: texas_face.F,v 1.5 1995-12-20 22:45:32 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -608,8 +609,11 @@ c
       time_pr2sm=0.d0
       call timepr(zero)
 c------------------------------pnl time--------------------------
-      do 10 i=1,30
-   10 par(i)=0.0           
+* par(1), par(2) and par(26) set in texas_set_accy now
+*...old      do 10 i=1,30
+      do 10 i=3,30
+        if (i.ne.26) par(i)=0.0           
+   10 continue
 c
       do 20 i=1,4
    20 nsy(i)=0

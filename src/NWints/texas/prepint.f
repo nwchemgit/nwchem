@@ -1,4 +1,4 @@
-c $Id: prepint.f,v 1.1 1995-10-30 20:57:47 d3e129 Exp $
+c $Id: prepint.f,v 1.2 1995-12-20 22:45:31 d3e129 Exp $
       subroutine prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,
      *                    lcore,nsym,maxprice,scftype)
 c
@@ -92,7 +92,7 @@ c
 c----------------------------------------------------------
 c set up integral threshold :
 c
-      call setup_thres(eps)  
+*      call setup_thres(eps)   now done in texas_set_accy
 c
 c     epsx=eps
 c     eps1=one/eps
