@@ -1,9 +1,12 @@
-C$Id: util_sgroup.fh,v 1.1 2004-11-29 21:37:17 edo Exp $
+C$Id: util_sgroup.fh,v 1.2 2004-11-30 01:32:33 edo Exp $
 	integer maxgroups
 	parameter(maxgroups=512)
 	integer grouplist(maxgroups)! sgroup handle
 	integer mygroup
 	integer ngroups
 	logical sgactive
+        character*256 rtdb_fname
 	common /sgroup/ grouplist,
      *	  ngroups, mygroup,sgactive
+	common /sgroupchr/rtdb_fname
+

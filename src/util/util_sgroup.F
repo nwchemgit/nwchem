@@ -1,12 +1,29 @@
-C$Id: util_sgroup.F,v 1.2 2004-11-29 22:30:20 edo Exp $
-      logical function util_sgstart()
+C$Id: util_sgroup.F,v 1.3 2004-11-30 01:32:33 edo Exp $
+      logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
+#include "rtdb.fh"
 #include "util_sgroup.fh"
 cedo#define GOSMP 1
+      integer rtdb
+c
       integer nprocs, nsize, midproc, proclist(1000)
       integer i
+      character*256 grtdbname
+c
+c     preliminary rtdb cloning
+c
+      if (.not. rtdb_getfname(rtdb, rtdb_fname)) call 
+     *     errquit('rtdb_fname call failed',0,0)
+      if (.not. rtdb_close(rtdb, 'keep')) call errquit(
+     *     ' failed to close rtdb for sg ',0,0)
+#ifdef GOSMP
+      ngroups=ga_cluster_nnodes()
+#else
+      ngroups=2
+#endif
+      call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
 c
 c    Create groups
 c   
@@ -59,18 +76,20 @@ c
       endif
 #endif
       sgactive=util_sgstart
+      call util_pname0(rtdb_fname,grtdbname,mygroup,ngroups)
+      if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
+     (     (' rtdb_open old failed ',0,0)
       write(0,*) ga_nodeid(),' of group',mygroup,
-     *     'active = ',sgactive
+     *     'active = ',sgactive, 'rtdbname ',grtdbname
       return
       end
-      subroutine util_sgend(rtdb,rtdb_name)
+      subroutine util_sgend(rtdb)
       implicit none
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
       integer rtdb
-      character*(*) rtdb_name
 c
       if(sgactive) then
          write(0,*) ga_nodeid(),' deleting cloned rtdb '
@@ -82,33 +101,35 @@ c
 c
 c     reopen world rtdb
 c
-      if (.not. rtdb_open(rtdb_name, 'old', rtdb))
+      if (.not. rtdb_open(rtdb_fname, 'old', rtdb))
      $     call errquit('sgend: rtdb_open old failed ', 0, 0)
       
       return
       end
-      subroutine util_sgrtdb(rtdb,rtdbname)
+      subroutine util_sgrtdb(rtdb,rtdbname,grtdbname)
       implicit none
       integer rtdb
-      character*(*) rtdbname
+      character*(*) rtdbname,grtdbname
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
-      character*256 grtdbname
       integer ii
+      logical ortdbstate,ortdbstate2
 c
-      ii=mygroup
       write(luout,*) 'util_sgrtdb start'
-      call util_pname0(rtdbname,grtdbname,ii,ngroups)
+      do ii=1,ngroups
+         call util_pname0(rtdbname,grtdbname,ii,ngroups)
 c     
 c     creates rtdb file grtdbname=rtdbname.ii
 c     
-      if(.not.rtdb_clone(rtdb,grtdbname))
-     .     call errquit('oo ',0,0)
+         ortdbstate=rtdb_parallel(.true.)
+         write(0,*) ' rtdb clone',rtdb,grtdbname
+         if(.not.rtdb_clone(rtdb,grtdbname))
+     .        call errquit('oo ',0,0)
+         ortdbstate2=rtdb_parallel(ortdbstate)
+      enddo
       call ga_sync()
-      if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
-     (     (' rtdb_open old failed ',0,0)
       return
       end
       subroutine util_sggosmp()
