@@ -1,6 +1,6 @@
       subroutine qhop_alloc
 c
-c $Id: qhop_final.F,v 1.3 2003-08-12 11:33:33 d3j191 Exp $
+c $Id: qhop_final.F,v 1.4 2003-08-12 16:57:52 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
       mxseq=30
       maxpar=10000
       mxar=mxseq*30
+      maxhv=4
 c
 c     allocate memory for parameter arrays
 c
