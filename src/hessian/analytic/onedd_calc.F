@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.3 1999-12-29 23:31:18 windus Exp $
+c $Id: onedd_calc.F,v 1.4 2000-01-04 00:54:30 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,g_rhs,nrhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -149,8 +149,6 @@ c
                       do ip1 = if1, il1
                         do ip2 = if2, il2
                           dE = dE + dens(ip1,ip2)*Ibuf(ic)
-c                         write(6,*) 'dens,Ibuf,ip1,ip2,ic ',
-c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
                           ic = ic + 1
                         enddo
                       enddo
@@ -178,8 +176,6 @@ c
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * Ibuf(ic)
-c                         write(6,*) 'dens,Ibuf,ip1,ip2,ic ',
-c    *        dens(ip1,ip2),Ibuf(ic),ip1,ip2,ic
                         ic = ic + 1
  30                   continue
  31                 continue
@@ -197,14 +193,14 @@ c
                 do i = 1, 2
                 do j = 1, i
                   if (i.eq.1) then
-                    at1 = iat1
-                  else
-                    at1 = iat2
-                  endif
-                  if (j.eq.1) then
                     at2 = iat1
                   else
                     at2 = iat2
+                  endif
+                  if (j.eq.1) then
+                    at1 = iat1
+                  else
+                    at1 = iat2
                   endif
                   do icart2 = 1, 3
                   do icart1 = 1, 3
@@ -217,8 +213,7 @@ c
                     enddo
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE+dE
                     dE = dE * qfac
-                    if ((at1.eq.at2).and.(i.eq.j).and.
-     *                  (icart1.eq.icart2)) then
+                    if (i.eq.j) then
                       Hxy(icart1,at1,icart2,at2) =
      *                 Hxy(icart1,at1,icart2,at2) + dE
                     else
