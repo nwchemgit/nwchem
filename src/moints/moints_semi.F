@@ -197,7 +197,7 @@ c     WAIO on top of EAF
 
 
 c
-c  $Id: moints_semi.F,v 1.34 1997-04-25 23:16:11 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.35 1997-05-05 22:55:44 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -388,9 +388,13 @@ c
 c
 c  ------- Old stuff
 c
+#ifdef NEW_AOBLOCK       
+       status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
+#else
        ngrp = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
        call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
+#endif
 c
 c  Generate locator and reverse map
 c
@@ -446,13 +450,15 @@ c
 c  Call the real stuff
 c
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
-     $                     oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                     polo, pohi, pvlo, pvhi, ocoul, oexch,
-     $                     osym, oblk, kunit, junit, int_mb(k_shmap),
-     $                     blen, ngrp, int_mb(k_gmap),
-     $                     int_mb(k_gloc), nnbf, int_mb(k_iopass),
-     $                     int_mb(k_rlen), g_movecs, g_jbuf,
-     $                     g_kbuf )
+     $                   oseglo, oseghi, olo, ohi, vlo, vhi,
+     $                   polo, pohi, pvlo, pvhi, ocoul, oexch,
+     $                   osym, oblk, kunit, junit, int_mb(k_shmap),
+     $                   ngrp, int_mb(k_glo), int_mb(k_ghi),
+     $                   int_mb(k_bfmap), int_mb(k_rbfmap),
+     $                   blen, int_mb(k_gmap), int_mb(k_gloc), 
+     $                   nnbf, int_mb(k_iopass),
+     $                   int_mb(k_rlen), g_movecs, g_jbuf,
+     $                   g_kbuf )
 c
 c  Clean up
 c
@@ -509,8 +515,9 @@ c
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
      $                           polo, pohi, pvlo, pvhi,
      $                           ocoul, oexch, osym, oblk,
-     $                           kunit, junit, shmap, blen,
-     $                           ngrp, gmap, gloc, nnbf, iopass,
+     $                           kunit, junit, shmap, 
+     $                           ngrp, glo, ghi, bfmap, rbfmap,
+     $                           blen, gmap, gloc, nnbf, iopass,
      $                           rlen, g_movecs, g_jbuf, g_kbuf )
        implicit none
 #include "tcgmsg.fh"
@@ -542,9 +549,13 @@ c
        logical oblk                           ! [input] Toggle AO integral blocking
        integer junit, kunit                   ! [input] Unit numbers for IO
        integer shmap(nsh)                     ! [input] Map for shells
-       integer blen                         ! [input] Blocksize
        integer ngrp                           ! [input] Number of groups of shells
-       integer gmap(*)                        ! [input] Map of shell-group
+       integer glo(*)                         ! [input] Group lower shell bound
+       integer ghi(*)                         ! [input] Group upper shell bound
+       integer bfmap(nbf)                     ! [input] BF map: orig --> new
+       integer rbfmap(nbf)                    ! [input] Reverse bf map: new --> orig
+       integer blen                           ! [input] Blocksize
+       integer gmap(4,ngrp)                   ! [input] Old AOBLOCK shell map
        integer gloc(nbf*nbf)                  ! [input] bf -> GA memory map
        integer nnbf                           ! [input] Number of screened basf pairs <= (nbf*(nbf+1))/2
        integer iopass(0:*)                    ! [input] IO pass for each task
@@ -560,19 +571,20 @@ c
        integer ibflo, ibfhi, jbflo, jbfhi
        integer kbflo, kbfhi, lbflo, lbfhi
        integer kshlo, kshhi, lshlo, lshhi
-       integer kblen, lblen, kb, lb
+       integer kblen, lblen
+       integer kgr, lgr
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
-       integer l_mo, k_mo
+       integer l_mo, k_mo, l_xmo, k_xmo
        integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2
-       integer bsize
+       integer iz, jz, kz, bsize
        integer mem2, max2e, jopass, iocnt
        integer num_nodes, ploop, next
        double precision scale, schw_ij
        double precision tpass, tio, ttmp, nwrbytes, iorate
-       logical status
+       logical st
 c
        integer gr_len
        external gr_len
@@ -587,41 +599,41 @@ c$$$       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
 c$$$ 221   FORMAT('ME:',I5,5X,' V-RANGE:',2I3,5X,' O-RANGE:',2I3)
 c
 c  Local MO coefficients
-c
-       status = ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
-       call ga_get(g_movecs,1,nbf,1,vhi,dbl_mb(k_mo),nbf)
-c
-c  Integrals allocation
+c  Integrals and temporary arrays sizes
 c
        call int_mem_2e4c(max2e, mem2)
-       status = ma_push_get(MT_DBL, max2e,'moints: buf', l_eri, k_eri)
-       status = ma_push_get(MT_DBL, mem2, 'moints: scr', l_iscr, k_iscr)
-c
-c  Temporary partially-transformed arrays
-c     
        bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
        n_ssbb1 = max((nmo1*nmo1),n_ssbb)
        n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
        n_hlp2 = maxbfsh*maxbfsh*nmo2
        n_ssni = maxbfsh*maxbfsh*nbf*nmo1
-       status = ma_push_get(MT_DBL,n_ssbb1,'ssbb block',l_ssbb,k_ssbb)
-       status = ma_push_get(MT_DBL,n_ssbb,'ssbbt block',l_ssbbt,k_ssbbt)
-       status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
-       status = ma_push_get(MT_DBL,n_hlp2,'hlp2 block',l_hlp2,k_hlp2)
-       status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
-       if (.not.(status)) call errquit
+       st=ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
+       st=st.and.ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo)
+       st=st.and.ma_push_get(MT_DBL, max2e,'ibuf', l_eri, k_eri)
+       st=st.and.ma_push_get(MT_DBL, mem2, 'int scr', l_iscr, k_iscr)
+       st=st.and.ma_push_get(MT_DBL,n_ssbb1,'ssbb blk',l_ssbb,k_ssbb)
+       st=st.and.ma_push_get(MT_DBL,n_ssbb,'ssbbt',l_ssbbt,k_ssbbt)
+       st=st.and.ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
+       st=st.and.ma_push_get(MT_DBL,n_hlp2,'hlp2 blk',l_hlp2,k_hlp2)
+       st=st.and.ma_push_get(MT_DBL,n_ssni,'ssni blk',l_ssni,k_ssni)
+       if (.not.(st)) call errquit
      $      ('moints_semi: cannot allocate local memory',0)
+       call ga_get(g_movecs,1,nbf,1,vhi,dbl_mb(k_mo),nbf)
+#ifdef NEW_AOBLOCK
+       call row_exch( nbf, vhi, rbfmap, dbl_mb(k_mo), dbl_mb(k_xmo) )
+#else
+       call dcopy((nbf*vhi), dbl_mb(k_mo), 1, dbl_mb(k_xmo), 1)
+#endif
+
+c     
 c
 c Initialize
 c
        ploop = 0
        jopass = 1
-*       iocnt = ma_sizeof(MT_INT,(10+nnbf+mod(nnbf,2)),MT_DBL) + 1    ! start counting from initial segment
-c       write(6,*) ' old iocnt', iocnt
        iocnt = ma_sizeof(MT_INT,12,MT_DBL) + 
-     $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
-c       write(6,*) ' new iocnt', iocnt
+     $         ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
        next = nxtval(num_nodes)
        tio = 0.d0
        nwrbytes = 0.d0
@@ -633,8 +645,8 @@ c
          do jsh0=1,ish0
            ish = max(shmap(ish0),shmap(jsh0))
            jsh = min(shmap(ish0),shmap(jsh0))
-           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-           status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+           st = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+           st = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
            ilen = ibfhi - ibflo + 1
            jlen = jbfhi - jbflo + 1
            schw_ij = schwarz_shell(ish,jsh)
@@ -681,12 +693,40 @@ c
 c  Half-tranformed Integral generation
 c
                call dfill((ilen*jlen*nbf*nmo1),0.d0,dbl_mb(k_ssni),1)
-               do kb=1,ngrp
-                 call gr_sh_idx(ngrp,gmap,kb,kshlo,kshhi)
-                 kblen = gr_len(ngrp,gmap,kb,kbflo,kbfhi)
-                 do lb=1,kb
-                   call gr_sh_idx(ngrp,gmap,lb,lshlo,lshhi)
-                   lblen = gr_len(ngrp,gmap,lb,lbflo,lbfhi)
+#ifdef NEW_AOBLOCK
+               do kgr=1,ngrp
+                 kshlo = glo(kgr)
+                 kshhi = ghi(kgr)
+                 st = bas_cn2bfr(basis,shmap(kshlo),iz,kz)
+                 st = bas_cn2bfr(basis,shmap(kshhi),kz,jz)
+                 kbflo = rbfmap(iz)
+                 kbfhi = rbfmap(jz)
+                 kblen = kbfhi - kbflo + 1
+                 do lgr=1,kgr
+                   lshlo = glo(lgr)
+                   lshhi = ghi(lgr)
+                   st = bas_cn2bfr(basis,shmap(lshlo),iz,kz)
+                   st = bas_cn2bfr(basis,shmap(lshhi),kz,jz)
+                   lbflo = rbfmap(iz)
+                   lbfhi = rbfmap(jz)
+                   lblen = lbfhi - lbflo + 1
+                   call moints_gblk( basis, ish, jsh,
+     $                               kshlo, kshhi, lshlo, lshhi,
+     $                               shmap, rbfmap,
+     $                               schw_ij, tol2e, osym, oblk,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               dbl_mb(k_ssbb) )
+
+#else
+               do kgr=1,ngrp
+                 call gr_sh_idx(ngrp,gmap,kgr,kshlo,kshhi)
+                 kblen = gr_len(ngrp,gmap,kgr,kbflo,kbfhi)
+                 do lgr=1,kgr
+                   call gr_sh_idx(ngrp,gmap,lgr,lshlo,lshhi)
+                   lblen = gr_len(ngrp,gmap,lgr,lbflo,lbfhi)
                   call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
      $                               max2e, dbl_mb(k_eri),
@@ -694,7 +734,8 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb), osym, oblk )
-                   if (lb.ne.kb) then
+#endif
+                   if (lgr.ne.kgr) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt))
@@ -702,31 +743,33 @@ c
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 1.d0,
      $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbbt), dbl_mb(k_mo),
+     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
-
                    else
                      call moints_trf1( nbf, oseglo, oseghi,
      $                                 ilen, jlen, kbflo, kbfhi,
      $                                 lbflo, lbfhi, 0.5d0,
      $                                 dbl_mb(k_ssbb),
-     $                                 dbl_mb(k_ssbb), dbl_mb(k_mo),
+     $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
                    endif
                  enddo
                enddo
+
                if (ocoul)
      $           call moints_trf2Ky( nbf, oseglo, oseghi, olo, ohi,
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               gloc, dbl_mb(k_ssni),
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                               dbl_mb(k_mo), g_jbuf )
+     $                               dbl_mb(k_xmo), g_jbuf )
                if (oexch)
      $           call moints_trf2Ky( nbf, oseglo, oseghi, vlo, vhi,
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               gloc, dbl_mb(k_ssni),
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                               dbl_mb(k_mo), g_kbuf )
+     $                               dbl_mb(k_xmo), g_kbuf )
+
+
                next = nxtval(num_nodes)
 c
 c  End parallel task
@@ -792,8 +835,8 @@ c
 c 
 c  Complete in-core section
 c
-c$$$       status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
-c$$$       status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp2,k_hlp2)
+c$$$       st = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
+c$$$       st = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp2,k_hlp2)
 c$$$       call moints_trf34Ky( nbf, ostart, olo, ohi,
 c$$$     $                      vlo, vhi, nnbf, int_mb(k_rloc),
 c$$$     $                      dbl_mb(k_hlp), dbl_mb(k_hlp2),
@@ -805,6 +848,8 @@ c$$$     $     call errquit('moints: failed to pop', l_hlp)
 c
 c
 c
+       if (.not. ma_pop_stack(l_xmo))
+     $     call errquit('moints: failed to pop', l_xmo)
        if (.not. ma_pop_stack(l_mo))
      $     call errquit('moints: failed to pop', l_mo)
 c
@@ -866,6 +911,7 @@ c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
       enddo
       return
       end
+
 
 
 
@@ -1310,7 +1356,7 @@ c
        call int_mem_2e4c(imax2e, imem2)
        memi = nsh + 4*ngrp + nbf*nbf + nsh*(nsh+1) +
      $        2*ga_nnodes() + (nbf*(nbf+1))/2
-       memd = nbf*nbf + imax2e + imem2 + 
+       memd = 2*nbf*nbf + imax2e + imem2 + 
      $        maxbfsh*maxbfsh*bsize*bsize +
      $        max((nocc*nocc),(maxbfsh*maxbfsh*bsize*bsize)) +
      $        max((bsize*maxbfsh*maxbfsh*nocc),(maxbfsh*nbf)) +
