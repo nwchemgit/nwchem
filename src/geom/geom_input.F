@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.160 2003-07-29 21:21:36 edo Exp $
+C     $Id: geom_input.F,v 1.161 2003-07-30 22:32:57 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -8,6 +8,7 @@ C     $Id: geom_input.F,v 1.160 2003-07-29 21:21:36 edo Exp $
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
+#include "util.fh"
       integer rtdb              ! [input]
 c     
       character*255 field       ! for character input
@@ -48,9 +49,11 @@ c     .                           and for forcing symmetry
       logical found_au2ang_conv
       double precision ang2au, au2ang
       integer atn, isys, fcent
+      integer k_coordsym,l_coordsym,nops
+      logical usesymmol
       character*16 format, nucmodel
-      logical geom_zmtmak
-      external geom_zmtmak
+      logical geom_zmtmak,geom_symmol
+      external geom_zmtmak,geom_symmol
       external geom_data        ! What is this?
       external geom_impose_initial_values_on_q
 c     
@@ -95,7 +98,7 @@ c
       oautosym = .true.         ! Default is try -autosym-
       found_cart = .false.      ! Default is no cartesians in zmat
       osymmetry = .false.
-      oprint_sym = .false.
+      oprint_sym=util_print('autosym symmetry information',print_high)
       include_bqbq = .false.
       oadjust = .false.
       ocenter = .true.
@@ -416,9 +419,12 @@ c     set autosym off.  Note the the threquiv variable is set first by the
 c     autosym directive and thenreset by the symmetry directive input if 
 c     either of them is given.
 c     
+         if(.not.rtdb_get(rtdb,'geom:symmol',mt_log,1,
+     $        usesymmol)) usesymmol=.false.
          if(ncenter.eq.1) oautosym=.false.
          if (oautosym.and.osymmetry) then
             oautosym=.false.
+            usesymmol=.false.
             write(luout,*) 'Turning off AUTOSYM since'
             write(luout,*) 'SYMMETRY directive was detected!'
             write(luout,*)
@@ -433,8 +439,19 @@ c
             if (.not. geom_vel_get(geom, velocities))
      $        call errquit('geom_input: geom_vel_get failed', 0)
             ncenter_before_auto = ncenter
-            call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
-     $           threquiv,groupname,velocities)
+            if(usesymmol) then
+               if (.not. ma_push_get(mt_dbl,3*ncenter,'coords',
+     $              l_coordsym,k_coordsym))
+     $              call errquit('geominput: ma', 0)
+               usesymmol=geom_symmol(geom,tags,dbl_mb(k_coordsym),
+     $              groupname,nops)
+               call dcopy(3*ncenter,dbl_mb(k_coordsym),1,coords,1)
+               if(.not.ma_pop_stack(l_coordsym)) call errquit(' o',0)
+            endif
+            if(.not.usesymmol) then
+               call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
+     $              threquiv,groupname,velocities)
+            endif
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
      $              call errquit('geom_input: geom_cart_set failed', 0)
@@ -454,7 +471,8 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
          nata=ncenter
-         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv)
+         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv,nops,
+     &        usesymmol)
 c     
 c     Check that if we used autosym that we ended up with the 
 c     same no. of atoms ... if we don't then autosym and nwchemsym
