@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.18 2001-09-28 15:45:44 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.19 2001-10-18 04:06:49 d3j191 Exp $
 c
       implicit none
 c
@@ -39,6 +39,12 @@ c
       character*6 atyp1,atyp2,atyp3,atyp4,btyp1,btyp2,btyp3,btyp4
       character*1 qtm
       real*8 rmass,p1,p2,p3,p4,pt1,pt2,pt3,pt4
+c
+      integer mask(3)
+c
+      mask(1)=4
+      mask(2)=2
+      mask(3)=1
 c
       length=index(filpar,' ')-1
       open(unit=lfnpar,file=filpar(1:length),form='formatted',
@@ -235,8 +241,10 @@ c
       if(atyp1.eq.'      ') goto 1
       if(atyp2.eq.'      ') goto 1
       do 10 i=1,nbnd
-      if(lbnd(3,i).le.0.and.lbnd(4,i).eq.0) then
+c      if(lbnd(3,i).le.0.and.lbnd(4,i).eq.0) then
+      if(lbnd(3,i).le.0) then
       do 11 j=1,3
+      if(iand(mask(j),lbnd(4,i)).eq.0) then
       btyp1(1:5)=catm(1+j,lbnd(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lbnd(2,i))(1:5)
       if((atyp1.eq.btyp1.and.atyp2.eq.btyp2).or.
@@ -244,6 +252,7 @@ c
       rbnd(j*2-1,i)=p1
       rbnd(j*2,i)=p2
       lbnd(3,i)=-(ior(iabs(lbnd(3,i)),2**(j-1)))
+      endif
       endif
    11 continue
       endif
@@ -276,8 +285,10 @@ c
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
       do 13 i=1,nang
-      if(lang(4,i).le.0.and.lang(5,i).eq.0) then
+c      if(lang(4,i).le.0.and.lang(5,i).eq.0) then
+      if(lang(4,i).le.0) then
       do 14 j=1,3
+      if(iand(mask(j),lang(5,i)).eq.0) then
       btyp1(1:5)=catm(1+j,lang(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lang(2,i))(1:5)
       btyp3(1:5)=catm(1+j,lang(3,i))(1:5)
@@ -286,6 +297,7 @@ c
       rang(j*2-1,i)=p1
       rang(j*2,i)=p2
       lang(4,i)=-(ior(iabs(lang(4,i)),2**(j-1)))
+      endif
       endif
    14 continue
       endif
@@ -322,8 +334,10 @@ c
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
       do 16 i=1,ndih
-      if(ldih(5,i).le.0.and.ldih(6,i).eq.0) then
+c      if(ldih(5,i).le.0.and.ldih(6,i).eq.0) then
+      if(ldih(5,i).le.0) then
       do 17 j=1,3
+      if(iand(mask(j),ldih(6,i)).eq.0) then
       btyp1(1:5)=catm(1+j,ldih(1,i))(1:5)
       btyp2(1:5)=catm(1+j,ldih(2,i))(1:5)
       btyp3(1:5)=catm(1+j,ldih(3,i))(1:5)
@@ -340,6 +354,7 @@ c
       rdih(ldih(6+j,i),2*j-1,i)=p1 
       rdih(ldih(6+j,i),2*j,i)=p2 
       ldih(5,i)=-(ior(iabs(ldih(5,i)),2**(j-1)))
+      endif
       endif
    17 continue
       endif
@@ -380,8 +395,10 @@ c
       if(atyp1.eq.'      ') goto 1
       if(atyp4.eq.'      ') goto 1
       do 19 i=1,nimp
-      if(limp(5,i).le.0.and.limp(6,i).eq.0) then
+c      if(limp(5,i).le.0.and.limp(6,i).eq.0) then
+      if(limp(5,i).le.0) then
       do 20 j=1,3
+      if(iand(mask(j),limp(6,i)).eq.0) then
       btyp1(1:5)=catm(1+j,limp(1,i))(1:5)
       btyp2(1:5)=catm(1+j,limp(2,i))(1:5)
       btyp3(1:5)=catm(1+j,limp(3,i))(1:5)
@@ -461,6 +478,7 @@ c
       rimp(2*j-1,i)=ifnd*p1 
       rimp(2*j,i)=p2 
       limp(5,i)=-(ior(iabs(limp(5,i)),2**(j-1)))
+      endif
       endif
 c
    20 continue
