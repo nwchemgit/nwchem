@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.261 1998-07-17 16:02:20 d3g681 Exp $
+# $Id: makefile.h,v 1.262 1998-08-10 10:45:54 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -577,7 +577,7 @@ ifeq ($(TARGET),SGITFP)
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
 
-  FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
+  FOPTIONS = -d8 -i8 -mips4 -align64 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 -64
 
 #optimization flags for R8000 (IP21)
