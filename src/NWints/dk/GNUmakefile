@@ -1,9 +1,9 @@
 
-# $Id: GNUmakefile,v 1.12 1999-12-16 17:03:04 windus Exp $
+# $Id: GNUmakefile,v 1.13 2002-04-26 22:15:43 bert Exp $
 
      OBJ_OPTIMIZE = bas_create_uncont.o ga_extra.o int_1edk_ga.o \
                     dk_input.o dkdiv_energy.o int_pxvp_ga.o \
-                    rel_input.o
+                    rel_input.o int_1edkso_ga.o
 
      LIBRARY = libnwints.a
 
