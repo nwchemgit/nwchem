@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.45 2000-04-26 23:29:10 edo Exp $
+c     $Id: dft_main0d.F,v 1.46 2000-05-09 16:52:34 edo Exp $
 c     
       implicit none
 c
@@ -119,7 +119,6 @@ c
      &            ' old XC READ miss; constructing new matrix. '
                endif
             endif
-cedo            call ga_sync
             call ga_brdcst(Msg_XC_Ex, lmiss, mitob(1), 0)
          endif
          if (lmiss.eq.1) then
@@ -138,8 +137,10 @@ c
      &                          nbf_xc, 0, g_oi)) 
      &         call errquit('dft_main0d: error creating g_oi',0)
             call ga_zero(g_oi)
-            call int_1e_ga(xc_bas_han, XC_bas_han,
+            call int_1e_ga(xc_bas_han, xc_bas_han,
      .           g_oi, 'overlap', oskel)
+            if (oskel)call sym_symmetrize(
+     (           geom, xc_bas_han, .false., g_oi)
 #if defined(PARALLEL_DIAG)
             call ga_chol(g_oi, g_xcinv, info)
 #else 
