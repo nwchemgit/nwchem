@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.5 2003-06-05 22:10:26 edo Exp $
+C$Id: ga_atom_blk.F,v 1.6 2003-06-05 22:16:53 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,7 +43,7 @@ c
      &     call errquit('xc_rep_init: cannot chop stack',1)
 c
       end
-      subroutine function util_atom_blocked(max_nproc,
+      subroutine util_atom_blocked(max_nproc,
      ,     geom, basis, map, nblock)
       implicit none
 #include "mafdecls.fh"
