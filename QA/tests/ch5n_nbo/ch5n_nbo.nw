@@ -24,10 +24,9 @@ end
 
 task SCF energy
 
-nbo
- $nbo $end
- $del delete 1 element 9 24 $end
+property
+ nbofile 
 end
 
-task nbo 
+task property 
 
