@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.24 1995-06-29 16:21:39 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1995-10-10 06:05:01 d3g681 Exp $
 
 include config/makefile.h
 
@@ -107,3 +107,8 @@ ifneq ($(EXCLUDED_SUBDIRS),)
 	   $(RM) -r $$dir; \
 	done
 endif
+
+depend:	
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+	done

@@ -16,9 +16,10 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.53 1995-07-30 07:51:33 d3e129 Exp $
+c     $Id: nwchem.F,v 1.54 1995-10-10 06:05:02 d3g681 Exp $
 c
       character*255 input_filename
+      double precision total_wall, total_cpu
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -26,6 +27,11 @@ c
 #ifdef PARALLEL_DIAG
       call mxpara(junk)
 #endif
+c
+c     Initialize timers so they are relative to job start
+c
+      total_wall = -util_wallsec()
+      total_cpu  = -util_cpusec()
 c
 c     Only process 0 opens the input file 
 c     (note that ga_nodeid() does not work yet!)
@@ -123,16 +129,25 @@ c
 c
 c     Print memory and other info
 c
+      call ga_sync()
       if (ga_nodeid() .eq. 0) then
          if (util_print('ga summary', print_default))
      $        call ga_summarize(0)
          if (util_print('ma summary', print_default))
      $        call ma_summarize_allocated_blocks()
-         if (util_print('ma stats', print_default))
+         if (util_print('ma stats', print_high))
      $        call ma_print_stats()
          if (util_print('version', print_debug))
      $        call util_version
+         if (util_print('total time', print_low)) then
+            total_wall = total_wall + util_wallsec()
+            total_cpu  = total_cpu  + util_cpusec()
+            write(6,1) total_cpu, total_wall
+ 1          format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
+            call util_flush(6)
+         endif
       endif
+      call ga_sync()
 c
 c     Tidy up the global memory
 c
