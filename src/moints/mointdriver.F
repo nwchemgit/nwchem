@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.43 1996-02-16 06:37:50 rg240 Exp $
+C$Id: mointdriver.F,v 1.44 1996-07-11 21:23:08 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -160,8 +160,8 @@ c
 c
 c Initialise integrals and screening
 c
-       call int_init(rtdb,1, basis)
        call int_normalize(basis)
+       call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
 c Maximum number of operator matrices we can allocate

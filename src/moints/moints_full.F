@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.7 1996-07-08 17:37:26 rg240 Exp $
+C     $Id: moints_full.F,v 1.8 1996-07-11 21:23:11 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -190,8 +190,8 @@ c
 c
 c     Initialise integrals and screening
 c     
-      call int_init(rtdb, 1, basis)
       call int_normalize(basis)
+      call int_init(rtdb, 1, basis)
       call schwarz_init(geom,basis)
 c     
 c     Maximum number of operator matrices we can allocate

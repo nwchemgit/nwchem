@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.20 1996-05-14 18:03:25 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.21 1996-07-11 21:23:06 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -188,8 +188,8 @@ c
 c
 c Initialise integrals and screening
 c
-       call int_init(rtdb,1, basis)
        call int_normalize(basis)
+       call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
 c Maximum number of operator matrices we can allocate
