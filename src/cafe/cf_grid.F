@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.14 2002-11-10 12:25:42 d3j191 Exp $
+c $Id: cf_grid.F,v 1.15 2002-12-20 19:50:01 bert Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -108,7 +108,7 @@ c
       do 2 iwa=1,mwa
       do 3 iwm=1,nwmloc
       indx=indx+1
-      k0=int(yw(iwm,3,iwa))-1
+      k0=int(yw(iwm,3,iwa))-morder
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
@@ -154,7 +154,7 @@ c
       if(isolvo.eq.0) then
       do 7 isa=1,nsaloc
       indx=indx+1
-      k0=int(ys(isa,3))-1
+      k0=int(ys(isa,3))-morder
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
@@ -459,7 +459,7 @@ c
       fx=zero
       fy=zero
       fz=zero
-      k0=int(yw(iwm,3,iwa))-1
+      k0=int(yw(iwm,3,iwa))-morder
       do 4 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
@@ -506,7 +506,7 @@ c
       fx=zero
       fy=zero
       fz=zero
-      k0=int(ys(isa,3))-1
+      k0=int(ys(isa,3))-morder
       do 8 ith3=1,morder
       k0=k0+1
       k=k0+1+(ngz-isign(ngz,k0))/2
