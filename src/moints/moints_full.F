@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.1 1996-01-26 22:00:40 d3g681 Exp $
+C     $Id: moints_full.F,v 1.2 1996-01-31 23:34:04 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,15 +25,15 @@ c
       character*255 title_vecs, basis_vecs
       integer nbf_vecs, nmo(2), nsets
       integer k_occ, l_occ, k_evals, l_evals, g_vecs, k_g, l_g
-      integer k_irs, l_irs
+      integer k_irs, l_irs, k_map, l_map
       integer g_mofock, g_aofock, g_aodens, g_tmp, g_hcore
       integer i, nmixed
       integer nbf, nsh, lo, hi
       integer nact, nacttri
       integer occ_frozen, vir_frozen
       integer noper, oseg_lo, oseg_hi, npass, blen, max_noper
-      integer g_coul
-      logical osym, oprint,  ohalf, omemprint
+      integer g_coul, nsym(8), sym_lo(8), sym_hi(8)
+      logical osym, oprint,  ohalf, omemprint, osymblock
       double precision tpass, efzc, eone, etwo
       double precision tol2e, tol_out
       character*7 algo
@@ -58,7 +58,8 @@ c     Print settings
 c     
       call util_print_push()
       call util_print_rtdb_load(rtdb,'moints')
-      oprint = util_print('information',print_default)
+      oprint = util_print('information',print_default) .and.
+     $     ga_nodeid().eq.0
       omemprint = util_print('memory',print_high)
 c     
 c     Basis and geometry
@@ -97,6 +98,8 @@ c
      $     call errquit('moints: failed to alloc occs ',nbf)
       if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_irs, k_irs))
      $     call errquit('moints: failed to alloc irs ',nmo)
+      if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_map, k_map))
+     $     call errquit('moints: failed to alloc map ',nmo)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
      $     1, 1, g_vecs)) call errquit('rohf_nr_solve: ga_cre grad', 0)
       if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
@@ -114,6 +117,8 @@ c
      $     blen)) blen = 10
       if (.not. rtdb_get(rtdb,'fourindex:osym',MT_LOG,1,
      $     osym)) osym = (sym_number_ops(geom) .gt. 0) 
+      if (.not. rtdb_get(rtdb,'fourindex:osymblock',MT_LOG,1,
+     $     osymblock)) osymblock = .false.
       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $     algo = 'twofold'
       if (.not.rtdb_cget(rtdb,'fourindex:moints file',1,moints_file))
@@ -158,7 +163,7 @@ c
 c     
 c     Print info
 c     
-      if ((ga_nodeid().eq.0).and.(oprint)) then
+      if (oprint) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
@@ -172,6 +177,7 @@ c
  976        format(10x,'Twofold algorithm used')
          endif
          write(6,966) nbf,nsh,nmo(1),nact,lo,hi,blen,noper,npass,
+     $        osym, osymblock,
      $        moints_file(1:inp_strlen(moints_file))
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
@@ -181,6 +187,8 @@ c
      $        10x,'Block length:',23x,i5,/,
      $        10x,'Number of operator matrices in core:',i5,/,
      $        10x,'Number of passes:',19x,i5,/,
+     $        10x,'Use symmetry:    ',23x,l1,/,
+     $        10x,'Symmetry block MOs:',21x,l1,/,
      $        10x,'MO integrals file:',18x,a)
          write(6,9661) movecs_in(1:inp_strlen(movecs_in)),
      $        title_vecs(1:inp_strlen(title_vecs))
@@ -191,20 +199,53 @@ c
          call moints_open(moints_unit, moints_file)
       endif
 c
-c     Symmetrize the MOs
+c     Symmetrize the MOs and reblock as requested
 c
-      if (osym) then
+      if (osym .or. osymblock) then
          call sym_movecs_adapt(basis,1.d-9,g_vecs,int_mb(k_irs),nmixed)
          if (nmixed .ne. 0) call errquit
      $        ('moints: MOs are symmetry contaminated',0)
-         write(6,*) '          Symmetry of active orbitals '
-         write(6,*)
-         write(6,222) (int_mb(k_irs+i-1),i=lo,hi)
- 222     format(40i2)
-         write(6,*)
+         if (oprint) then
+            write(6,*) '          Symmetry of input active orbitals '
+            write(6,*)
+            write(6,222) (int_mb(k_irs+i-1),i=lo,hi)
+ 222        format(40i2)
+            write(6,*)
+            call util_flush(6)
+         endif
          do i = 1, nmo(1)
             int_mb(k_irs+i-1) = int_mb(k_irs+i-1) - 1
          enddo
+      endif
+c
+c     Keep track of where the MOs will end up
+c
+      do i = lo, hi
+         int_mb(k_map+i-1) = i
+      enddo
+      if (osymblock) then
+         call moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
+     $        int_mb(k_irs), int_mb(k_map), dbl_mb(k_occ),
+     $        nsym, sym_lo, sym_hi)
+         if (oprint) then
+            write(6,31) nsym
+ 31         format(/10x, 'Output MOs are blocked by symmetry: ', 8i3)
+            call util_flush(6)
+         endif
+      else
+      endif
+      if (oprint) then
+         write(6,*)
+         write(6,*) '          Map from input to output MO order'
+         write(6,*) 
+         if (nbf .lt. 100) then
+            write(6,223) (i,int_mb(k_map+i-1)-lo+1,i=lo,hi)
+ 223        format(10(i2,'->',i2,2x))
+         else
+            write(6,224) (i,int_mb(k_map+i-1)-lo+1,i=lo,hi)
+ 224        format(9(i3,'->',i3,2x))
+         endif
+         call util_flush(6)
       endif
 c
 c     Two index transformation of effective core hamiltonian
@@ -245,7 +286,7 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          write(6,712) tpass, efzc
- 712     format(/10x,'Time for two-index transform:',5x,f8.1/
+ 712     format(/10x,'Time for two-index transform:',5x,f8.1,'s'/
      $           10x,'Effective frozen-core energy:',3x,f19.10/)
          call util_flush(6)
       endif
@@ -289,8 +330,6 @@ c
       npass = npass + 1
       oseg_lo = oseg_hi + 1
       oseg_hi = moints_occrange( noper, lo, oseg_lo, hi )
-      write(6,*) ' oseg_lo, oseg_hi, lo, hi '
-      write(6,*)  oseg_lo, oseg_hi, lo, hi 
 c     
 c     J & K build routines
 c     
@@ -342,6 +381,8 @@ c
      $     ('moints: ga destroy failed ',0)
       if (.not. ma_pop_stack(l_g))
      $     call errquit('moints: ma failed',0)
+      if (.not. ma_pop_stack(l_map))
+     $     call errquit('moints: ma failed',0)
       if (.not. ma_pop_stack(l_irs))
      $     call errquit('moints: ma failed',0)
       if (.not. ma_pop_stack(l_occ))
@@ -378,18 +419,13 @@ c
 c
       ij = 1
       do i = oseg_lo, oseg_hi
-         write(6,*) ' i ', i, irs(i)
          do j = lo, i
-            write(6,*) '     j ', j, irs(j)
             call ga_get(g_coul, 1, nact2, ij, ij, g, 1)
-            call output(g, 1, nact, 1, nact, nact, nact, 1)
             do k = lo, i
-               write(6,*) '         k ', k, irs(k)
                ltop = k
                if (k .eq. i) ltop = j
                do l = lo, ltop
                   if (abs(g(l,k)) .gt. tol2e) then
-                     write(6,*) '             l ', l, irs(l)
                      if (osym) then
                         ijkl = ieor(ieor(irs(i),irs(j)),
      $                       ieor(irs(k),irs(l)))
@@ -482,34 +518,56 @@ c
 c
       end
       subroutine moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
-     $     irs, map, work)
+     $     irs, map, nsym, work, nsym, sym_lo, sym_hi)
       implicit none
 #include "global.fh"
-      integer g_vecs
-      integer nbf
-      integer lo, hi
-      integer irs(*)
-      integer map(*)
-      double precision work(*)
+      integer g_vecs            ! [input] GA handle to vectors
+      integer nbf               ! [input]
+      integer lo, hi            ! [input] Range of vectors to sort
+      integer irs(*)            ! [input/output] Symmetry of orbitals
+      integer map(*)            ! [input/output] Mapping indices
+      integer work(*)           ! [scratch] Length nbf
+      integer nsym(0:7)         ! [output] No. of MOs in each sym in range
+      integer sym_lo(0:7)       ! [output] First MO in each sym
+      integer sym_hi(0:7)       ! [output] Last MO in each sym
 c
-c     sort the MO vectors in the range (lo:hi) by symmetry
-c     returning in map(i), i=lo,hi the new number of the original
-c     ith MO.
+c     !! irs(*) assumed to be in the range 0,..,7
+c
+c     sort the MO vectors in the range (lo:hi) by symmetry.
+c
+c     map(lo:hi) returns the map from input to output orbtials
 c     
+c     irs(lo:hi) are permuted to reflect the output order
+c
+c     nsym(sym)=sym_hi(sym)-sym_lo(sym)+1 return no. and range of orbitals
+c     in a given symmetry (sym=0,...,7)
+c
+c     If there are no orbtials in a symmetry then you will get
+c     sym_hi(sym)=sym_lo(sym)-1 which will form a null do-loop
+c
+
 c     generate map
 c     
       integer i, isym, n, g_tmp
 c
       n = lo-1
       do isym = 0, 7
+         nsym(isym) = 0
+         sym_lo(isym)=n+1
          do i = lo, hi
             if (irs(i).eq.isym) then
                n = n + 1
+               nsym(isym) = nsym(isym) + 1
                map(i) = n
+               work(map(i)) = irs(i) ! Reorder the actual symmetries
             endif
          enddo
+         sym_hi(isym)=sym_lo(isym)+nsym(isym)-1
       enddo
-      if (n .ne. (hi-lo+1)) call errquit('moints: bad map?',0)
+      if (n .ne. hi) call errquit('moints: bad map?',0)
+      do i = lo, hi
+         irs(i) = work(i)
+      enddo
 c
 c     Sort the vectors
 c
@@ -523,5 +581,12 @@ c
       enddo
 c
       if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0)
+c
+      write(6,*) ' nsym ', nsym
+      write(6,*) '   lo ', sym_lo
+      write(6,*) '   hi ', sym_hi
+c
+      call ga_print(g_vecs)
+
 c
       end
