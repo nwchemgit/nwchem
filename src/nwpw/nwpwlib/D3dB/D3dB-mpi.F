@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.7 2004-05-24 18:05:07 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.8 2005-02-02 07:54:11 bylaska Exp $
 *
 
 #ifdef MPI
@@ -644,6 +644,99 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_SumAll             *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+
+#include "mpif.h"
+
+
+      integer MASTER
+      parameter (MASTER=0)
+      integer msglen,mpierr
+      real*8 sumall,sumt
+
+c     msglen = 8
+      msglen = 1
+
+      sumt = sum
+
+      call MPI_REDUCE(sumt,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
+      call MPI_BCAST(sumall,msglen,MPI_DOUBLE_PRECISION,
+     >               MASTER,MPI_COMM_WORLD,mpierr)
+
+      sum = sumall
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_Vector_SumAll      *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_Vector_SumAll(n,sum)
+c     implicit none
+      integer n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "mpif.h"
+#include "errquit.fh"
+
+
+
+      logical value
+      integer MASTER
+      parameter (MASTER=0)
+      integer msglen
+
+*     **** temporary workspace ****
+      integer sumall(2),np
+
+
+      call Parallel_np(np)
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+
+
+      call MPI_REDUCE(sumt,dbl_mb(sumall(1)),msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,MASTER,MPI_COMM_WORLD,mpierr)
+      call MPI_BCAST(dbl_mb(sumall(1)),msglen,
+     >               MPI_DOUBLE_PRECISION,
+     >               MASTER,MPI_COMM_WORLD,mpierr)
+
+
+
+      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
 #endif
 
 
