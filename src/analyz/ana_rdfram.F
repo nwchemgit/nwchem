@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.20 2001-02-21 23:46:16 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.21 2001-03-23 17:28:27 d3j191 Exp $
 c
       implicit none
 c
@@ -174,7 +174,7 @@ c
       integer imol(msa),nw
 c
       integer i,j,k,nmol,ncount
-      real*8 xc(3),dx
+      real*8 xc(3),dx,factor
 c
       real*8 boxh(3)
 c
@@ -242,6 +242,30 @@ c
     8 continue
     7 continue
     5 continue
+      if(nwa.gt.0.and.nw.gt.0) then
+      factor=one/dble(nwa)
+      do 9 i=1,nw
+      xc(1)=zero
+      xc(2)=zero
+      xc(3)=zero
+      do 10 j=1,nwa
+      xc(1)=xc(1)+xw(i,j,1)
+      xc(2)=xc(2)+xw(i,j,2)
+      xc(3)=xc(3)+xw(i,j,3)
+   10 continue
+      xc(1)=xc(1)*factor
+      xc(2)=xc(2)*factor
+      xc(3)=xc(3)*factor
+      do 11 k=1,3
+      dx=zero
+      if(xc(k).lt.-boxh(k)) dx=box(k)
+      if(xc(k).gt.boxh(k)) dx=-box(k)
+      do 12 j=1,nwa
+      xw(i,j,k)=xw(i,j,k)+dx
+   12 continue
+   11 continue
+    9 continue
+      endif
 c
       return
       end
