@@ -9,9 +9,7 @@
 #include "util.fh"
 #include "sym.fh"
 c
-c
        integer rtdb
-c
 c
        integer geom, basis
        integer nbf, nclosed, nvir, nact
@@ -40,22 +38,23 @@ c
        logical oorbsolve
        logical oprinfo
 c
+c---------------------
 c  Debugging variables
 c
        integer mclosed, mopen                             ! ROHF occupation
        integer g_fcv, g_fpv, g_fcp                        ! ROHF Fock matrices
-       double precision crap(1000), hh(100000)
-       integer ssiz
-       parameter(ssiz=1000)
-       double precision scr(ssiz), ev(ssiz)
+
+       integer hdim
+       parameter(hdim=100)
+       double precision crap(1000), hh(hdim*hdim)
+       double precision scr(4*hdim), ev(hdim)
        integer info
-c
+c---------------------
 c
        integer ga_create_atom_blocked, ga_create_JKblocked
        external ga_create_atom_blocked, ga_create_JKblocked
        integer mcscf_rohf_den2occ
        external mcscf_rohf_den2occ
-c
 c
 c
        data osym/.true./
@@ -261,12 +260,19 @@ C           PRINT*,'=== Conjugacy Reset ==='
  927     format(//,10x,'####',i5,5x,f20.12,5x,e12.5)
          if (gnorm.lt.thresh) goto 27
        enddo
-c
-c  Convert to natural orbital representation
-c
  27    continue
-       write(6,928)
- 928   format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
+       if (ga_nodeid().eq.0) then
+         if (gnorm.lt.thresh) then
+           write(6,928)
+ 928       format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
+         else
+           write(6,929)
+ 929       format(//,5x,'--- maximum iterations reached ---')
+         endif
+       endif
+c
+c  Transform to natural orbitals
+c
        call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                        dbl_mb(k_occ), g_movecs )
        if (ga_nodeid().eq.0) then
@@ -307,7 +313,7 @@ c
      $                     dbl_mb(k_dm1), dbl_mb(k_dm2), .false.,
      $                     .true. )
 c
-c  Cleanup
+c  Free temporaries
 c
        if (.not.ga_destroy(g_hcore))
      $      call errquit('mcscf: cannot destroy 1e hamiltonian',0)
@@ -316,28 +322,40 @@ c
        if (.not.ga_destroy(g_gradold))
      $      call errquit('mcscf: cannot destroy old gradient',0)
 c
+c  Print 1-pdm and 2-pdm
+c 
+       if (util_print('density matrix',print_debug)) then
+         if (ga_nodeid().eq.0) then
+           write(6,671)
+ 671       format(/,'<<<<<<< 1pdm density matrix >>>>>>>>>')
+           call moints_matprint( nact, nact, dbl_mb(k_dm1) )
+           write(6,672)
+ 672       format(/,'<<<<<<< 2pdm density matrix >>>>>>>>>')
+           call mcscf_twopdm_print(nact,dbl_mb(k_dm2))
+           write(6,673)
+ 673       format(/,'<<<<<<< symm. 2pdm density matrix >>>>>>>>>')
+           call mcscf_symmetrize_2pdm( nact, dbl_mb(k_dm2), crap )
+           call mcscf_twopdm_print(nact,crap)
+         endif
+       endif
+c
+c  Energy trace routine
+c     
+       call mcscf_etrace( geom, basis, nbf, nclosed, nact,
+     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
+     $                    g_movecs, g_coul, eone, etwo )
+       energy = eone + etwo + enrep
+       if (util_print('trace energy',print_default)) then
+         if (ga_nodeid().eq.0) write(6,674) energy
+ 674     format(/,20x,'<<<<<<<< trace energy: ',f20.10,' >>>>>>>',/)
+       endif
 c
 c
-c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c                         MCSCF -> ROHF Test Section
-c
-c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-c
-c  ROHF occupation
-c
-c$$$       call mcscf_occ2int( nbf, dbl_mb(k_occ), mclosed, mopen )
-c$$$       write(6,903) mclosed, mopen
-c$$$ 903   format(' ROHF Occupation',6x,'(closed):',i3,5x,'(open):',i3)
-c
-c  Trivial ROHF density matrix 
-c
-c$$$       call mcscf_rohf_modens(mopen,nact,dbl_mb(k_dm1),dbl_mb(k_dm2))
-c
-c
-c
+c  ------ End of regular MCSCF module      ------
+c  ------ Remainder are debugging sections ------
 c
 
+c
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c         
@@ -374,34 +392,6 @@ c
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                   g_coul, g_exch, g_afock )
 c
-c  Print 1-PDM
-c 
-       if (util_print('density matrix',print_debug)) then
-         if (ga_nodeid().eq.0) then
-           write(6,671)
- 671       format(/,'<<<<<<< 1pdm density matrix >>>>>>>>>')
-           call moints_matprint( nact, nact, dbl_mb(k_dm1) )
-           write(6,672)
- 672       format(/,'<<<<<<< 2pdm density matrix >>>>>>>>>')
-           call mcscf_twopdm_print(nact,dbl_mb(k_dm2))
-           write(6,673)
- 673       format(/,'<<<<<<< symm. 2pdm density matrix >>>>>>>>>')
-           call mcscf_symmetrize_2pdm( nact, dbl_mb(k_dm2), crap )
-           call mcscf_twopdm_print(nact,crap)
-         endif
-       endif
-c
-c  Energy trace routine
-c     
-       call mcscf_etrace( geom, basis, nbf, nclosed, nact,
-     $                    oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
-     $                    g_movecs, g_coul, eone, etwo )
-       energy = eone + etwo + enrep
-       if (util_print('trace energy',print_default)) then
-         if (ga_nodeid().eq.0) write(6,674) energy
- 674     format(/,20x,'<<<<<<<< trace energy: ',f20.10,' >>>>>>>',/)
-       endif
-c
 c  Finite difference gradient
 c
 c$$$       call mcscf_fdiff_grad( geom, basis, nbf, nclosed, nact,
@@ -412,7 +402,7 @@ c$$$       gnorm = sqrt(ga_ddot(g_grad,g_grad))
 c$$$       write(6,773) gnorm
 c$$$ 773   format(/,10x,'Finite diff gradient norm:',e12.4,/)
 c
-c  All MCSCF Fock matrices
+c  MCSCF Fock matrices and gradient
 c
        call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                  oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2),
@@ -421,8 +411,7 @@ c
        call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
        call mcscf_vsymm_chk( nbf, nclosed, nact, int_mb(k_sym),
      $                       g_grad, .true., .true., xx)
-
-       call ga_rowprint( ' ==== Gradient ====', g_grad )
+c$$$       call ga_rowprint( ' ==== Gradient ====', g_grad )
        gnorm = sqrt(ga_ddot(g_grad,g_grad))
        energy = eone + etwo + enrep
        if (ga_nodeid().eq.0) then
@@ -441,20 +430,22 @@ c        Explicit Hessian contruction and Eigenvalues Section
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
-       call makeJK( basis, nbf, nclosed, nact, g_movecs )
-       call dfill((orlen*orlen),0.d0,hh,1)
-       call hmat( nbf, nclosed, nact, orlen, dbl_mb(k_dm1),
-     $            dbl_mb(k_dm2), g_ifock, g_afock, g_gfock,
-     $            g_coul, g_exch, hh)
+       if (orlen.le.hdim) then
+         call makeJK( basis, nbf, nclosed, nact, g_movecs )
+         call dfill((orlen*orlen),0.d0,hh,1)
+         call hmat( nbf, nclosed, nact, orlen, dbl_mb(k_dm1),
+     $              dbl_mb(k_dm2), g_ifock, g_afock, g_gfock,
+     $              g_coul, g_exch, hh)
 
-       write(6,951) 
- 951   format('Hessian diagonal')
-       write(6,222) (hh((i-1)*orlen+i),i=1,orlen)
- 222   format(10f12.6)
-       call dsyev( 'V', 'L', orlen, hh, orlen, ev, scr, ssiz, info )
-       write(6,953)
- 953   format('Hessian eigenvalues')
-       write(6,222) (ev(i),i=1,orlen)
+         write(6,951) 
+ 951     format('Hessian diagonal')
+         write(6,222) (hh((i-1)*orlen+i),i=1,orlen)
+ 222     format(10f12.6)
+         call dsyev('V','L',orlen,hh,orlen,ev,scr,(4*hdim),info)
+         write(6,953)
+ 953     format('Hessian eigenvalues')
+         write(6,222) (ev(i),i=1,orlen)
+       endif
 c
 c
 c  Make explicit Hessian matrix from vector products
@@ -467,34 +458,19 @@ c$$$     $                      g_gfock, g_coul, g_exch, g_x, g_prod,
 c$$$     $                      hh )
 c
 c
- 666   continue
-c
 c  Finite difference Hessian
 c
-
 c$$$       call mcscf_fdiff_hess( geom, basis, nbf, nclosed, nact,
 c$$$     $                        oskel, tol2e, dbl_mb(k_dm1),
 c$$$     $                        dbl_mb(k_dm2), g_movecs, g_coul,
 c$$$     $                        g_grad )
 c
-c  Single call to Hessian vector product
-c
-c$$$       call mcscf_hessv( geom, basis, nbf, nclosed, nact,
-c$$$     $                   oskel, dbl_mb(k_dm1), dbl_mb(k_dm2),
-c$$$     $                   g_movecs, g_ifock, g_afock, g_gfock,
-c$$$     $                   g_coul, g_exch, g_grad, g_prod )
-c$$$       call ga_rowprint( '==== Product ====', g_prod )
-c
-c
-c Free Coulomb and exchange operators
+c  Free temporaries for debugging section
 c
        if (.not.ga_destroy(g_exch))
      $      call errquit('rohf_head: cannot destroy exchange',0)
        if (.not.ga_destroy(g_coul))
      $      call errquit('rohf_head: cannot destroy Coulomb',0)
-c
-c Free MCSCF Gradient vectors and Fock matrices
-c
        if (.not.ga_destroy(g_grad))
      $      call errquit('rohf_head: cannot destroy gradient',0)
        if (.not.ga_destroy(g_prod))
@@ -515,23 +491,31 @@ c              ROHF Test Section
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
+c  ROHF occupation and trivial density
+c
+c$$$       call mcscf_occ2int( nbf, dbl_mb(k_occ), mclosed, mopen )
+c$$$       write(6,903) mclosed, mopen
+c$$$ 903   format(' ROHF Occupation',6x,'(closed):',i3,5x,'(open):',i3)
+c$$$       call mcscf_rohf_modens(mopen,nact,dbl_mb(k_dm1),dbl_mb(k_dm2))
+c
+c
 c  Allocate MCSCF Gradient vectors
 c
-       if (.not.ga_create(MT_DBL,orlen,1,'Gradient',1,1,g_grad))
-     $      call errquit('rohf_head: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Product',1,1,g_prod))
-     $      call errquit('rohf_head: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Arg vec',1,1,g_x))
-     $      call errquit('rohf_head: cannot allocate',0)
+c$$$       if (.not.ga_create(MT_DBL,orlen,1,'Gradient',1,1,g_grad))
+c$$$     $      call errquit('rohf_head: cannot allocate',0)
+c$$$       if (.not.ga_create(MT_DBL,orlen,1,'Product',1,1,g_prod))
+c$$$     $      call errquit('rohf_head: cannot allocate',0)
+c$$$       if (.not.ga_create(MT_DBL,orlen,1,'Arg vec',1,1,g_x))
+c$$$     $      call errquit('rohf_head: cannot allocate',0)
 c
 c  Fock build and 1e-Hessian vector product
 c
-       if (.not.ga_create(MT_DBL,nbf,nbf,'CV Fock',nbf,1,g_fcv))
-     $      call errquit('mcscf: cannot allocate active Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'PV Fock',nbf,1,g_fpv))
-     $      call errquit('mcscf: cannot allocate active Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'CP Fock',nbf,1,g_fcp))
-     $      call errquit('mcscf: cannot allocate active Fock',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CV Fock',nbf,1,g_fcv))
+c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'PV Fock',nbf,1,g_fpv))
+c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CP Fock',nbf,1,g_fcp))
+c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
 c
 c  ROHF Gradient
 c
@@ -567,23 +551,23 @@ c$$$     $                 g_fcp, g_prod )
 c
 c  Deallocate stuff
 c
-       if (.not.ga_destroy(g_fcv))
-     $      call errquit('mcscf: cannot destroy MO vectors',0)
-       if (.not.ga_destroy(g_fpv))
-     $      call errquit('mcscf: cannot destroy MO vectors',0)
-       if (.not.ga_destroy(g_fcp))
-     $      call errquit('mcscf: cannot destroy MO vectors',0)
-       if (.not.ga_destroy(g_grad))
-     $      call errquit('mcscf: cannot destroy gradient',0)
-       if (.not.ga_destroy(g_prod))
-     $      call errquit('mcscf: cannot destroy product',0)
-       if (.not.ga_destroy(g_x))
-     $      call errquit('mcscf: cannot destroy product',0)
+c$$$       if (.not.ga_destroy(g_fcv))
+c$$$     $      call errquit('mcscf: cannot destroy MO vectors',0)
+c$$$       if (.not.ga_destroy(g_fpv))
+c$$$     $      call errquit('mcscf: cannot destroy MO vectors',0)
+c$$$       if (.not.ga_destroy(g_fcp))
+c$$$     $      call errquit('mcscf: cannot destroy MO vectors',0)
+c$$$       if (.not.ga_destroy(g_grad))
+c$$$     $      call errquit('mcscf: cannot destroy gradient',0)
+c$$$       if (.not.ga_destroy(g_prod))
+c$$$     $      call errquit('mcscf: cannot destroy product',0)
+c$$$       if (.not.ga_destroy(g_x))
+c$$$     $      call errquit('mcscf: cannot destroy product',0)
 c
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c         
-c              Cleanup
+c              Final Cleanup
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
@@ -667,8 +651,6 @@ c
      $     ('scf: negative no. of electrons ?', nelec)
       if (abs(nuclear_charge - charge - dble(nelec)) .gt. 1.0d-8)
      $     call errquit('mcscf: charge neglected?', 0)
-       write(6,882) nelec
- 882   format('rohf: got electrons info',i5)
        call util_flush(6)
 
 c
