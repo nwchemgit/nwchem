@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.24 2003-01-15 02:19:36 edo Exp $
+* $Id: create_contour.F,v 1.25 2003-01-15 18:41:59 edo Exp $
 *
       Implicit None
 *
@@ -58,8 +58,8 @@
      &     lbas_cset_info, ibas_cset_info,
      &     ldocset, idocset
       integer ii,ioffg
-      integer nxtval,next
-      external nxtval
+      integer nxtask,next,icount
+      external nxtask
 
             
 
@@ -203,8 +203,10 @@ c
       Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
       ii=-1
       ioffg=1-ngrpp
+      call ga_sync
+      icount=10
 C
-      next=nxtval(nodes)
+      next=nxtask(nodes,icount)
  122  ioffg=ioffg+ngrpp
       ii=ii+1
       if(ii.ne.next) goto 122
@@ -212,7 +214,7 @@ C
          If (DeBug ) Then
             write(luout,14)  me,ii,
      ,           ioffg,ngrpp,ngrid
- 14         format(' me= ',i3,' step# ',i3,' offset: ',i7,
+ 14         format(' me= ',i3,' step# ',i5,' offset: ',i7,
      .           ' stride ',i7, ' end ',i7)
          endif
          Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),
@@ -272,7 +274,7 @@ c
      &        mbf,int_mb(k_ibf))
       End If
  123  continue
-      next=nxtval(nodes)
+      next=nxtask(nodes,icount)
       goto 122
       endif
 
@@ -281,7 +283,7 @@ c
      .  Call errquit('C_C: Failed to deallocate xyz',0)
 *
 *---- Put values into the global array and synchronize
-      next=nxtval(-nodes)
+      next=nxtask(-nodes,icount)
       call ga_dgop(1964,values,ngrid,'+')
  9999 Continue
       if(.not.ma_free_heap(l_tags)) then
@@ -339,12 +341,9 @@ c
       Do iPoint = 1, nPoint
          Values(iPoint) = ddot(mBF,Chi(iPoint,1),nPoint,Vector,1)
 *        Write(*,'(d10.4)')Values(iPoint)
-      End Do
+      enddo
 *
-      Call GA_Sync
-*
-*---- Normal termination
-      Return
+      return
       End
       subroutine dplot_nobq(mcenters,tags,iniz,ifin,rchi)
       implicit none
