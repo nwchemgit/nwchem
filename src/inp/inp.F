@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.24 1996-07-26 16:28:49 d3g681 Exp $
+C$Id: inp.F,v 1.25 1996-08-06 05:34:53 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -302,6 +302,16 @@ c
       inp_eof = oswit
 c
       end
+      subroutine inp_clear_err()
+      implicit none
+#include "inpP.fh"
+c
+c     Clear error conditions and messages
+c
+      ierrpos = -1
+      errmsg = ' '
+c
+      end
       subroutine inp_errout
       implicit none
 #include "inpP.fh"
@@ -337,8 +347,8 @@ c
 c
 c     Write out the current input line
 c
-      write(iwrite,50) ia(1:iwidth)
-50    format(1x,a)
+      write(iwrite,50) input_line, ia(1:iwidth)
+50    format(1x,i5,': ',a)
 c
       end
       logical function inp_a(a)
@@ -680,7 +690,6 @@ c
       character*(*) z(nz)
       logical ocase
       character*1024 tmp
-      integer length
       integer inp_strlen
       logical inp_read, inp_a, inp_compare
       external inp_read, inp_a, inp_compare, inp_strlen
@@ -729,8 +738,6 @@ c     3) ignores continutation lines, comments, quotes etc.
 c     4) Still attempts to track line numbers EOF.
 c
 c     Only called from inside the basis set input routine?
-c
-      integer length
 c
       inp_search_fast = .false.
       length = max(3,inp_strlen(z)) ! 3 for EOF/eof detection
