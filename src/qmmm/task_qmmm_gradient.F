@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.6 2004-12-02 01:45:32 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.7 2004-12-03 19:06:12 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -311,15 +311,24 @@ c     local variables
       integer i_c
       integer h_cl,i_cl
       integer i_ai
-      integer il,iq
-      double precision l0
+      integer il,iq,ih
+      double precision l_qh,l_ql
       double precision rh(3)
       double precision rq(3)
       double precision rl(3)
+      double precision rql(3)
+      double precision fh(3)
+      double precision fq(3)
+      double precision fh_rql
+      double precision a,b
       character*32 pname
 
       double precision qmmm_geom_distance
       external qmmm_geom_distance
+
+      double precision ddot
+      external ddot
+
 
       pname = "qmmm_link_forces"
 
@@ -362,7 +371,7 @@ c     --------------------------
 c
 c     get coordinates of mm link atoms
 c     -------------------------------
-      call mm_set_solute_coord_quant(nlink,
+      call mm_get_solute_coord_quant(nlink,
      &                   .true.,
      &                   int_mb(i_ai+nqm-nlink),
      &                   dbl_mb(i_cl))
@@ -371,16 +380,29 @@ c
 c     loop over link atom pairs
 c     -------------------------
       do i=1,nlink
-        il = int_mb(i_lp+2*(i-1))
+        ih = int_mb(i_lp+2*(i-1))
         iq = int_mb(i_lp+2*(i-1)+1)
+        il = ih-nqm+nlink
         do k=1,3
-           rh(k) = dbl_mb(i_c+(il-1)*3+k-1)
-           rq(k) = dbl_mb(i_c+(iq-1)*3+k-1)
+           fh(k)  = g(k,ih)
+           rh(k)  = dbl_mb(i_c+(ih-1)*3+k-1)
+           rq(k)  = dbl_mb(i_c+(iq-1)*3+k-1)
+           rl(k)  = dbl_mb(i_cl+(il-1)*3+k-1)
+           rql(k) = rq(k)-rl(k)
         end do
-        l0=qmmm_geom_distance(rh,rq)
-        write(*,*) "link pair distance",il,iq,l0
+        l_qh=qmmm_geom_distance(rh,rq)
+        l_ql=qmmm_geom_distance(rl,rq)
+        fh_rql = ddot(3,fh,1,rql,1)
+        a = 1.0d0 - l_qh/l_ql
+        b = fh_rql*l_qh/l_ql**3
+        do k=1,3
+          fq(k) = fh(k)*a + rql(k)*b
+          g(k,iq) = g(k,iq) + fq(k)
+        end do
+        write(*,*) "forces on link bond",iq,ih
+        write(*,*) (fq(k),k=1,3)
       end do
-
+    
       if(.not.ma_pop_stack(h_cl))
      + call errquit( pname//'Failed to deallocate memory for cl',
      + 3*nlink, MA_ERR)

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.37 2004-12-02 00:20:27 marat Exp $
+c $Id: qmmm_geom.F,v 1.38 2004-12-03 19:06:12 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -124,7 +124,6 @@ c        end do
 c        call cons_info_fixed_atoms(namespace,irtdb)
 c        call cons_activate(namespace,irtdb)
       end if
-
 
       if(ga_nodeid().eq.0) then
         write(*,*) "list of active atoms"
