@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.42 1999-06-04 04:44:20 d3e129 Exp $
+#$Id: GNUmakefile,v 1.43 1999-06-08 00:47:02 d3h325 Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -10,7 +10,7 @@
 	   memory_def.o \
 	   speech_input.o
 
-     HEADERS = ../global/src/types.f2c.h
+#     HEADERS = ../global/src/types.f2c.h
 
 include ../config/makefile.h
 
