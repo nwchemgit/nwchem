@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.2 2003-02-04 01:33:42 marat Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.3 2003-02-08 03:38:35 bylaska Exp $
 *
 !**************************************************
 !
@@ -29,8 +29,13 @@
       tot_ntype = paw_basis_tot_ntype()
       ok = my_alloc(mt_int,tot_ntype,"i_comp_charge_matrix",
      >              i_comp_charge_matrix)
-      ok = my_alloc(mt_int,tot_ntype,"s_comp_charge_matrix",
-     >              i_comp_charge_matrix)
+      ok = ok.and.
+     >     my_alloc(mt_int,tot_ntype,"s_comp_charge_matrix",
+     >              s_comp_charge_matrix)
+      if (.not.ok)
+     > call errquit(
+     >  "init_paw_comp_charge_matrix: out of heap memory",0)
+
   
       !*** determine matrix size ***
       matr_size = 0
@@ -51,6 +56,9 @@
 
       ok = my_alloc(mt_dbl,matr_size,"comp_charge_matrix",
      >              comp_charge_matrix)
+      if (.not.ok)
+     > call errquit(
+     >  "init_paw_comp_charge_matrix: out of heap memory",1)
   
       do it=1,tot_ntype
     
@@ -70,6 +78,28 @@
 
       return
       end !subroutine init_paw_comp_charge_matrix
+
+      subroutine  end_paw_comp_charge_matrix()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_basis.fh"
+#include "paw_comp_charge_matrix.fh"
+#include "paw_utils.fh"
+#include "paw_ma.fh"
+
+      !*** local variables ***
+      logical ok
+
+      ok =        my_dealloc(i_comp_charge_matrix)
+      ok = ok.and.my_dealloc(s_comp_charge_matrix)
+      ok = ok.and.my_dealloc(comp_charge_matrix)
+      if (.not.ok)
+     > call errquit(
+     >  "end_paw_comp_charge_matrix: error freeing heap",0)
+
+      return
+      end !subroutine end_paw_comp_charge_matrix
 
 !*************************************************
 !
