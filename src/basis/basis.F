@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.68 1997-04-25 00:41:24 d3e129 Exp $
+c $Id: basis.F,v 1.69 1997-05-17 03:19:31 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -225,27 +225,53 @@ c and the associated mapping arrays.
 c
       implicit none
 #include "mafdecls.fh"
+#include "basdeclsP.fh"
 #include "basP.fh"
 #include "bas_exndcf_dec.fh"
+#include "ecp_decP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
 c::functions used
 c::bas
       logical bas_check_handle
       logical gbs_map_clear
+      logical geom_ncent
+      logical ecp_get_num_elec
       external gbs_map_clear
       external bas_check_handle
+      external geom_ncent
+      external ecp_get_num_elec
 c::passed
       integer basisin ![input] basis set handle to be destroyed
 c::local
+      integer i, nat, num_elec
+      integer geom
       integer basis
       integer h_tmp
 c
 #include "bas_exndcf_sfn.fh"
+#include "ecp_sfnP.fh"
 c
       bas_do_destroy = bas_check_handle(basisin,'bas_do_destroy')
       if (.not. bas_do_destroy) return
 
       basis = basisin + Basis_Handle_Offset 
 
+c
+c must restore active geometry data appropriately
+      geom = ibs_geom(basis)
+      if (active(geom)) then
+        if (Is_ECP(basis)) then
+          if (.not.geom_ncent(geom,nat))
+     &        call errquit('bas_do_destroy:geom_ncent failed',911)
+          do i = 1,nat
+            if (ecp_get_num_elec(basisin,tags(i,geom),num_elec)) then
+              charge(i,geom) = charge(i,geom) + dble(num_elec)
+            endif
+          enddo
+        endif
+      endif
+c
       if(.not.gbs_map_clear(basisin)) then
         write(6,*)' error clearing map '
         bas_do_destroy = .false.
@@ -268,9 +294,8 @@ c
       exndcf(H_exndcf ,basis) = 0
       exndcf(K_exndcf ,basis) = 0
       exndcf(SZ_exndcf,basis) = 0
-      bas_do_destroy = .true.
 c
-      return
+      bas_do_destroy = .true.
       end
 *.....................................................................
       logical function bas_check_handle(basisin,msg)
@@ -924,6 +949,7 @@ c
 *.....................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
+#include "stdio.fh"
 #include "inp.fh"
 c::functions
       logical  bas_rtdb_do_load, bas_get_ecp_name, bas_set_ecp_name
@@ -955,12 +981,13 @@ c
      &    return
       if (.not.bas_get_ecp_name(basisin,ecp_name)) call errquit
      &    ('bas_rtdb_load: bas_get_ecp_name failed',911)
+
       if (ecp_name .eq. '  ') then
         ecp_name = 'ecp basis'
-        if (.not.bas_set_ecp_name(basisin,ecp_name)) call errquit
-     &      ('bas_rtdb_load: bas_set_ecp_name failed',911)
       endif
+
       status = bas_name_exist_rtdb(rtdb,ecp_name)
+
       if (status) then
 *
 * ecp_name is on rtdb so load it
@@ -972,21 +999,28 @@ c
         endif
 
         status_ecp_load = bas_rtdb_do_load(rtdb,geom,ecpid,ecp_name)
-        if (.not.status_ecp_load) then
-          call errquit
-     &        ('bas_rtdb_load: bas_rtdb_do_load failed for ecpid',911)
-        endif
+        if (status_ecp_load) then
+*.... everything is okay
+          if (.not.bas_set_ecp_name(basisin,ecp_name)) call errquit
+     &        ('bas_rtdb_load: bas_set_ecp_name failed',911)
 
-        status_ecp = bas_set_ecp_handle(basisin,ecpid)
-        if (.not.status_ecp) then
-          call errquit
-     &        ('bas_rtdb_load: bas_set_ecp_handle failed',911)
-        endif
+          status_ecp = bas_set_ecp_handle(basisin,ecpid)
+          if (.not.status_ecp) then
+            call errquit
+     &          ('bas_rtdb_load: bas_set_ecp_handle failed',911)
+          endif
         
-        status_ecp_ph = ecp_set_parent_handle(ecpid,basisin)
-        if (.not.status_ecp_ph) then
-          call errquit
-     &        ('bas_rtdb_load: ecp_set_parent_handle failed',911)
+          status_ecp_ph = ecp_set_parent_handle(ecpid,basisin)
+          if (.not.status_ecp_ph) then
+            call errquit
+     &          ('bas_rtdb_load: ecp_set_parent_handle failed',911)
+          endif
+        else
+*... ecp exists but is not used by current geometry so destroy it !
+          if (.not.bas_do_destroy(ecpid)) then
+            write(luout,*)' unused ecp basis failed to be destroyed'
+            call errquit('bas_rtdb_load: bas_do_destroy failed',911)
+          endif
         endif
       endif
       end
@@ -1147,20 +1181,23 @@ c compute internal information and geobas maps
 c
       bas_rtdb_do_load = bas_geobas_build(basisin)
 c
-c Add zero exponent S function for sp code, incore only
+c Add zero exponent S function for sp code/texas interface, 
+*     incore information only
 c
-      k_tmp = infbs_head(HEAD_EXCFPTR,basis)
-      infbs_cont(CONT_TYPE, 0,basis) = 0
-      infbs_cont(CONT_NPRIM,0,basis) = 1
-      infbs_cont(CONT_NGEN, 0,basis) = 1
-      infbs_cont(CONT_TAG,  0,basis) = -1
-      k_tmp = k_tmp + 1
-      infbs_cont(CONT_IEXP, 0,basis) = k_tmp
-      dbl_mb(mb_exndcf(k_tmp,basis)) = 0.0d00
-      k_tmp = k_tmp + 1
-      infbs_cont(CONT_ICFP, 0,basis) = k_tmp
-      dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
-      infbs_head(HEAD_EXCFPTR,basis) = k_tmp
+      if (bas_rtdb_do_load) then
+        k_tmp = infbs_head(HEAD_EXCFPTR,basis)
+        infbs_cont(CONT_TYPE, 0,basis) = 0
+        infbs_cont(CONT_NPRIM,0,basis) = 1
+        infbs_cont(CONT_NGEN, 0,basis) = 1
+        infbs_cont(CONT_TAG,  0,basis) = -1
+        k_tmp = k_tmp + 1
+        infbs_cont(CONT_IEXP, 0,basis) = k_tmp
+        dbl_mb(mb_exndcf(k_tmp,basis)) = 0.0d00
+        k_tmp = k_tmp + 1
+        infbs_cont(CONT_ICFP, 0,basis) = k_tmp
+        dbl_mb(mb_exndcf(k_tmp,basis)) = 1.0d00
+        infbs_head(HEAD_EXCFPTR,basis) = k_tmp
+      endif
       end
 *.....................................................................
       logical function bas_geobas_build(basisin)
@@ -1195,6 +1232,7 @@ c::local
       character*2  symbol
       logical status
       logical foundit
+      logical found_any
       logical is_bq
       integer int_dummy, num_elec
       integer h_tmp, k_tmp
@@ -1303,6 +1341,7 @@ c
         write(6,*)' nat max = ',nat_mx
         call errquit ('bas_geobas_build: nat.gt.nat_mx',911)
       endif
+      found_any = .false.
       do 00100 i=1,nat
         foundit = .false.
 *before match_tags:        do 00101 j = 1,infbs_head(HEAD_NTAGS,basis)
@@ -1315,6 +1354,7 @@ c
         if (bas_match_tags(tags(i,geom),basisin,j)) then
           int_mb(mb_ibs_ce2uce(i,basis)) = j
           foundit = .true.
+          found_any = .true.
           goto 00102
         endif
         if (.not. foundit .and. .not. Is_ECP(basis)) then
@@ -1323,7 +1363,7 @@ c
             if (ga_nodeid().eq.0)
      &          write(6,10) tags(i,geom)(1:inp_strlen(tags(i,geom))),
      $          element(1:inp_strlen(element)),
-     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
+     $          bs_name(basis)(1:len_bs_name(basis))
  10         format(/' ERROR: geometry tag ',a,' (',a,
      &          ') is an atom ',
      $          'but has no functions in basis "',a,'"'/
@@ -1339,7 +1379,7 @@ c
             if (ga_nodeid().eq.0 .and.(.not.is_bq))
      &          write(6,11) i,
      &          tags(i,geom)(1:inp_strlen(tags(i,geom))),
-     $          bs_name(basis)(1:inp_strlen(bs_name(basis)))
+     $          bs_name(basis)(1:len_bs_name(basis))
  11         format(/'WARNING: geometry tag ',i4, ' ', a,
      $          ' not found in basis "',a,'"'/)
             int_mb(mb_ibs_ce2uce(i,basis)) = 0
@@ -1348,6 +1388,21 @@ c
         endif
 00102   continue
 00100 continue
+*
+      if (.not.found_any) then
+        if (Is_ECP(basis)) then
+          bas_geobas_build = .false.
+          return
+        else
+          if (ga_nodeid().eq.0) then
+            write(luout,*)' none of the geometry tags matched any ',
+     &          'basis set tag in the basis "',
+     &          bs_name(basis)(1:len_bs_name(basis)),
+     &          '"'
+          endif
+          call errquit('bas_geobas_build: fatal error',911)
+        endif
+      endif
 c
 c build total # of contractions 
 c      
@@ -1605,9 +1660,10 @@ c
       if (Is_ECP(basis)) then
 * if ECP basis must modify geometry data appropriately
         do i = 1,nat
+          oecpcent(i,geom)=.false.
           if (ecp_get_num_elec(basisin,tags(i,geom),num_elec)) then
             oecpcent(i,geom) = .true.
-            charge(i,geom) = charge(i,geom) - num_elec
+            charge(i,geom) = charge(i,geom) - dble(num_elec)
           endif
         enddo
         erep_save = erep(geom)
