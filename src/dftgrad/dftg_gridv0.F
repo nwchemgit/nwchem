@@ -4,24 +4,24 @@ c     routine a wrapper for the more general routine
 c
 c     BGJ - 8/98
 c
-      Subroutine dftg_gridv0(rtdb, iga_dens, force, natom, oactive,
+      Subroutine dftg_gridv0(rtdb, iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cntoce, cntobfr,
      &                       cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.1 2000-03-22 03:02:16 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.2 2000-03-30 03:07:30 edo Exp $
 c
       implicit none      
 c
       integer rtdb
-      integer natom
+      integer natoms
       integer nactive
-      logical oactive(natom)
+      logical oactive(natoms)
       integer iga_dens(2)
-      double precision force(3*natom)
+      double precision force(3*natoms)
       integer cntoce(*), cntobfr(*), cetobfr(*)
       double precision rdens_atom(*)
 c
-      call dftgh_gridv0(rtdb, iga_dens, force, 0d0, 0, 1, natom,
+      call dftgh_gridv0(rtdb, iga_dens, force, 0d0, 0, 1, natoms,
      &                  oactive, nactive, rdens_atom, cntoce, cntobfr,
      &                  cetobfr)
 c
@@ -32,19 +32,19 @@ c
 c     Generalized to do XC gradient and hessian
 c
       Subroutine dftgh_gridv0(rtdb, iga_dens, force, hess, g_rhs,
-     &                        calc_type, natom, oactive, nactive,
+     &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cntoce, cntobfr, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.1 2000-03-22 03:02:16 edo Exp $
+c $Id: dftg_gridv0.F,v 1.2 2000-03-30 03:07:30 edo Exp $
 c     
       implicit none      
 c
       integer rtdb
-      integer natom
+      integer natoms
       integer nactive
-      logical oactive(natom)
+      logical oactive(natoms)
       integer iga_dens(2)
-      double precision Force(3*natom), hess(3*natom,3*natom)
+      double precision Force(3*natoms), hess(3*natoms,3*natoms)
       integer g_rhs(*)          ! [input] handles for CPKS RHS mats
       integer calc_type         ! [input] 1 = XC gradient
                                 !         2 = XC hessian
@@ -65,8 +65,8 @@ c
 c
 c
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
-     &        cetobfr(2,natom)
-      double precision rdens_atom(ipol*natom*natom)
+     &        cetobfr(2,natoms)
+      double precision rdens_atom(ipol*natoms*natoms)
       logical LResult, GRAD, GRADCHI, HESSCHI, DER3CHI
       logical xc_chkgrad
       external xc_chkgrad
@@ -86,8 +86,12 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat, lDmat, iDmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags
-      logical do_force, do_hess, do_cpks_r,grid_on_file
+      logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
+      integer lzzz,  izzz, lff, iff, lppp, ippp
+      integer libf_ao, iibf_ao,k_curatoms,l_curatoms
+      integer lrchi_atom, irchi_atom,
+     &        lrdelchi_atom, irdelchi_atom
       integer nxtask
       external nxtask
 c     
@@ -139,16 +143,16 @@ c      write(6,*)'*** dftgh_quadv0, hesschi der3chi =',hesschi,der3chi
 c
       npol = (ipol*(ipol+1))/2
 c
-      nxyz = 3*natom
+      nxyz = 3*natoms
 c
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
      &   call errquit('dftg_gridv0: cannot allocate xyz',0)
-      if (.not.MA_Push_Get(MT_Dbl,natom,'charge',lcharge,icharge))
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'charge',lcharge,icharge))
      &   call errquit('dftg_gridv0: cannot allocate charge',0)
-      if (.not.MA_Push_Get(MT_Byte,natom*16,'tags',ltags,itags))
+      if (.not.MA_Push_Get(MT_Byte,natoms*16,'tags',ltags,itags))
      &   call errquit('dftg_gridv0: cannot allocate tags',0)
 c
-      LResult = geom_cart_get(geom, natom, byte_mb(itags), 
+      LResult = geom_cart_get(geom, natoms, byte_mb(itags), 
      &          dbl_mb(ixyz), dbl_mb(icharge))
 c
       if (.not.ma_pop_stack(ltags))
@@ -159,7 +163,7 @@ c
 c     get max dimens of atom block
 c     
       max_at_bf = 0
-      do iatom = 1, natom
+      do iatom = 1, natoms
          if (.not. bas_ce2bfr(AO_bas_han, iatom, ilo, ihi))
      &      call errquit('dftg_gridv0: bas_ce2bfr failed', iatom)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
@@ -193,20 +197,20 @@ c
       if (.not.MA_Push_get(mt_dbl,n_per_rec,'qwght',lqwght,iqwght))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
       nd_qwght = 1
-      if (ldew)nd_qwght = 3*n_per_rec*natom
+      if (ldew)nd_qwght = 3*n_per_rec*natoms
       if (.not.MA_Push_get(mt_dbl,nd_qwght,'qwght',ld_qwght,id_qwght))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
       nd_func=1
       if (ldew) nd_func=n_per_rec
       if (.not.MA_Push_get(mt_dbl,nd_func,'func',lfunc,ifunc))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
-      if (.not.MA_Push_get(mt_dbl,natom,'rq0',lrq0,irq0))
+      if (.not.MA_Push_get(mt_dbl,natoms,'rq0',lrq0,irq0))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',12)
-      if (.not.MA_Push_get(mt_dbl,natom*n_per_rec,'rq',lrq,irq))
+      if (.not.MA_Push_get(mt_dbl,natoms*n_per_rec,'rq',lrq,irq))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
-      if (.not.MA_Push_get(mt_int,natom,'atom list',lniz,iniz))
+      if (.not.MA_Push_get(mt_int,natoms,'atom list',lniz,iniz))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
-      if (.not.MA_Push_get(mt_int,natom,'atom nbf',lfin,ifin))
+      if (.not.MA_Push_get(mt_int,natoms,'atom nbf',lfin,ifin))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
       if (.not.MA_Push_Get(MT_Dbl,NXprim,'expo',lexpo,iexpo))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
@@ -252,12 +256,34 @@ c     !!! Appears that this array is never used !!! ask Jeff !!!
 c
 c     stuff for neighbours list
 c
-      if (.not.MA_Push_Get(MT_int,natom,'iandex',landex,iandex))
+      if (.not.MA_Push_Get(MT_int,natoms,'iandex',landex,iandex))
      &   call errquit(' exiting in quadvxc0: insuff stack',77)
-      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
-     &     grid_on_file))then
-         grid_on_file = .false.
-      endif
+c
+c
+c     allocate scratch array for grid compression
+c
+      if (.not. MA_Push_Get(MT_Int, nbf_ao, 'ibf_ao',
+     &     libf_ao, iibf_ao))call errquit
+     &     (' exiting in dftg_gridv0: insuff stack',9)
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'rchi_atom',
+     &     lrchi_atom,irchi_atom))
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
+     &     lrdelchi_atom,irdelchi_atom))call errquit
+     &     ('dftg_gridv0: cannot allocate rdelchi_atom',0)
+      if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'PPPP', lppp, 
+     &     ippp))call errquit
+     &     (' dftg_gridv0: not enough stack',13)
+c         
+c !!! BGJ - probably don't need to allocate some of this if .not.do_force
+      if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'F', lff, iff))
+     &     call errquit(' dftg_gridv0: not enough stack',13)
+      if (.not. MA_Push_Get(mt_dbl, 3*nbf_ao, 'zzz', lzzz, 
+     &     izzz))call errquit
+     &     (' dftg_gridv0: not enough stack',13)
+      if (.not.MA_push_get(MT_INT, natoms, 'curatoms',
+     &     l_curatoms, k_curatoms)) call
+     &     errquit('dftg_gridv0a: cant allocate curatoms',1)
 c
       call dftg_gridv0a(rtdb, iga_dens,
      &                   ncoef_max, NXprim, max_at_bf,
@@ -271,13 +297,14 @@ c
      &                   dbl_mb(iBmat), dbl_mb(iDmat),
      &                   dbl_mb(iFmat), dbl_mb(iPmat), 
      &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
+     ,     int_mb(iibf_ao),int_mb(k_curatoms),
+     ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
+     ,     dbl_mb(iff),dbl_mb(izzz),
      &                   force, hess, g_rhs, do_force, do_hess,
-     &                   do_cpks_r, natom, oactive, nactive,
-     &                   rdens_atom, cntoce, cntobfr, cetobfr)
-      if (.not.ma_pop_stack(landex))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
-      if (.not.ma_pop_stack(lhh))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
+     &                   do_cpks_r, natoms, oactive, nactive,
+     &                   rdens_atom,  cntobfr, cetobfr)
+      if (.not.ma_chop_stack(lhh))
+     &   call errquit('dftg_gridv0: cannot chop stack',1)
       if (do_hess .or. do_cpks_r) then
          if (.not.ma_pop_stack(lDmat))
      &      call errquit('dftg_gridv0: cannot pop stack',0)
@@ -306,7 +333,7 @@ c
          write(LuOut,'(a,f20.10)')' integrated electron density:  ',
      &                            rho_int
          write(LuOut,'(a,i20)')' no. of quad. points/center :  ',
-     &                         nqtot/natom
+     &                         nqtot/natoms
          write(LuOut,*)
       end if
 c
