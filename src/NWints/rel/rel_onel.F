@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.9 2000-04-24 20:10:03 mg201 Exp $
+C $Id: rel_onel.F,v 1.10 2000-04-26 17:46:52 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -80,8 +80,12 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       integer n_ab      ! number of integrals
       integer n_cartp_a ! cartesian components for l_A+1
       integer n_cartp_b ! cartesian components for l_B+1
+      integer n_allp_b  ! n_cartp_b*n_cont_b
+      integer n_allp_a  ! n_cartp_a*n_cont_a
       integer n_cartm_a ! cartesian components for l_A-1
       integer n_cartm_b ! cartesian components for l_B-1
+      integer n_allm_b  ! n_cartm_b*n_cont_b
+      integer n_allm_a  ! n_cartm_a*n_cont_a
       integer n_intpp   ! number of integrals for l_A+1,l_B+1
       integer n_intpm   ! number of integrals for l_A-1,l_B+1
       integer n_intmp   ! number of integrals for l_A+1,l_B-1
@@ -117,21 +121,19 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       if (.not.(do_nw .or. do_hnd)) call errquit
      &    ('rel_onel: can''t do NW or HONDO integrals',99)
 *
+      debug_gen = .not.DryRun
       if (debug_gen) then
         write (LuOut,*)
-        write (LuOut,*) 'rel_onel:'
-        write (LuOut,*) 'l_A',l_A
-        write (LuOut,*) 'n_prim_A',n_prim_A
-        write (LuOut,*) 'n_cont_A',n_cont_A
-        write (LuOut,*) 'l_B',l_B
-        write (LuOut,*) 'n_prim_B',n_prim_B
-        write (LuOut,*) 'n_cont_B',n_cont_B
+        write (LuOut,*) 'rel_onel: ibug =',ibug
+        write (LuOut,*) 'l_A,n_prim_A,n_cont_A',l_A,n_prim_A,n_cont_A
+        write (LuOut,*) 'l_B,n_prim_B,n_cont_B',l_B,n_prim_B,n_cont_B
         if (do_hnd) then
           write (LuOut,*) 'Using HONDO integrals'
         else if (do_nw) then
           write (LuOut,*) 'Using NWChem integrals'
         end if
       end if
+      debug_gen = .false.
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
@@ -287,10 +289,14 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       n_cartp_b = n_cart_b+l_B+2
       n_cartm_a = n_cart_a-l_A-1
       n_cartm_b = n_cart_b-l_B-1
-      n_intpp = n_cartp_a*n_cartp_b*n_cont_ab
-      n_intpm = n_cartm_a*n_cartp_b*n_cont_ab
-      n_intmp = n_cartp_a*n_cartm_b*n_cont_ab
-      n_intmm = n_cartm_a*n_cartm_b*n_cont_ab
+      n_allp_a = n_cartp_a*n_cont_A
+      n_allp_b = n_cartp_b*n_cont_B
+      n_allm_a = n_cartm_a*n_cont_A
+      n_allm_b = n_cartm_b*n_cont_B
+      n_intpp = n_allp_a*n_allp_b
+      n_intpm = n_allm_a*n_allp_b
+      n_intmp = n_allp_a*n_allm_b
+      n_intmm = n_allm_a*n_allm_b
       i_xca = 1
       i_xcb = i_xca+n_prim_A*n_cont_A
       i_pp = i_xcb+n_prim_B*n_cont_B
@@ -320,7 +326,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in rel_onel',99)
         k = i_xca-1
-        do j = 1,n_cont_a
+        do j = 1,n_cont_A
           do i = 1,n_prim_A
             scr(k+i) = zeta_A(i)*coefS_A(i,j)
           end do
@@ -331,7 +337,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           do i = 1,n_prim_B
             scr(k+i) = zeta_B(i)*coefS_B(i,j)
           end do
-          k = k+n_prim_A
+          k = k+n_prim_B
         end do
       end if
       doS = .false.
@@ -358,6 +364,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
         if (debug_addresses) 
      &      write (luout,*) '++:memscr,max_mem = ',memscr,max_mem
         memscr = lscr-i_scr+1
+      else if (debug_arrays) then
+        call ecp_matpr (scr(i_pp),1,n_allp_b,1,n_allp_a,
+     &      1,n_allp_b,1,n_allp_a,'V(la+1,lb+1)','E',120,6)
       end if
 *
 *         Calculate integrals for l_A-1, l_B+1
@@ -367,7 +376,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           call hnd_stvint(
      &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,
      &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,
-     &        Cxyz,zan,nat,S,T,scr(i_pm),n_intpp,doS,doT,doV,
+     &        Cxyz,zan,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
      &        scr(i_scr),memscr)
         else if (do_nw) then
           call hf1(
@@ -381,6 +390,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           if (debug_addresses) 
      &        write (luout,*) '-+:memscr,max_mem = ',memscr,max_mem
           memscr = lscr-i_scr+1
+        else if (debug_arrays) then
+          call ecp_matpr (scr(i_pm),1,n_allp_b,1,n_allm_a,
+     &        1,n_allp_b,1,n_allp_a,'V(la-1,lb+1)','E',120,6)
         end if
       end if
 *
@@ -405,6 +417,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           if (debug_addresses) 
      &        write (luout,*) '+-:memscr,max_mem = ',memscr,max_mem
           memscr = lscr-i_scr+1
+        else if (debug_arrays) then
+          call ecp_matpr (scr(i_mp),1,n_allm_b,1,n_allp_a,
+     &        1,n_allm_b,1,n_allp_a,'V(la+1,lb-1)','E',120,6)
         end if
 *     
 *         Calculate integrals for l_A-1, l_B-1
@@ -428,6 +443,9 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
             if (debug_addresses) 
      &          write (luout,*) '--:memscr,max_mem = ',memscr,max_mem
             memscr = lscr-i_scr+1
+          else if (debug_arrays) then
+            call ecp_matpr (scr(i_mm),1,n_allm_b,1,n_allm_a,
+     &          1,n_allm_b,1,n_allm_a,'V(la+1,lb-1)','E',120,6)
           end if
         end if
       end if
