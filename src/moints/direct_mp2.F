@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.33 1997-03-25 18:02:48 d3e129 Exp $
+C$Id: direct_mp2.F,v 1.34 1997-03-26 20:19:04 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -35,7 +35,7 @@ c
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
        logical oprint, osym, status, omemprint
-       logical ohalf, oblk, odisk
+       logical ohalf, oblk, odisk, oaoreuse, oaokeep
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
        character*7 algo
@@ -50,6 +50,8 @@ c
        external moints_numoper
        integer moints_occrange
        external moints_occrange
+       logical moints_aodisk_init
+       external moints_aodisk_init
        logical scf
        external scf
        logical int_normalize
@@ -116,6 +118,12 @@ c Check disk caching enabled
 c
        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
      $                   1, odisk)) odisk = .false.
+       if (.not.rtdb_get(rtdb,'fourindex:aoreuse', MT_LOG,
+     $                   1, oaoreuse)) oaoreuse = .false.
+       if (.not.rtdb_get(rtdb,'fourindex:aokeep', MT_LOG,
+     $                   1, oaokeep)) oaokeep = .false.
+       if (.not.moints_aodisk_init( odisk, oaoreuse ))
+     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -301,13 +309,13 @@ c
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
-     $                        blen, oblk, odisk )
+     $                        blen, oblk )
        else
          call moints_build_2x(basis, ohalf, osym, occ_lo,
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
-     $                        blen, oblk, odisk )
+     $                        blen, oblk )
        endif
 c
 c Evaluate and store pair energies
@@ -330,6 +338,18 @@ c
 c End multipass loop
 c
        if (oseg_hi.lt.occ_hi) goto 22
+       CALL GA_ZERO(G_EXCH)
+       CALL MOINTS_BUILD_2X(BASIS, OHALF, OSYM, OCC_LO,
+     $                      OSEG_LO, OSEG_HI,
+     $                      VIR_LO, VIR_HI, G_VECS,
+     $                      G_COUL, .FALSE., G_EXCH, .TRUE.,
+     $                      BLEN, OBLK )
+       CALL MOINTS_E2PAIR( NOCC, OCC_LO, OSEG_LO, OSEG_HI, NMO2,
+     $                     NMO2, NBF, G_EXCH, DBL_MB(K_EVALS),
+     $                     G_EPAIR )
+
+
+       call moints_aodisk_close( oaokeep )
 c
 c Print statistics
 c

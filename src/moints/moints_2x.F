@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.23 1997-03-25 01:33:47 rg240 Exp $
+c  $Id: moints_2x.F,v 1.24 1997-03-26 20:19:06 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -26,7 +26,7 @@ c
      $                            g_movecs,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen, oblk, odisk )
+     $                            blen, oblk )
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -50,7 +50,6 @@ c
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
        logical oblk                           ! Toggle blocked AO ints
-       logical odisk                          ! Toggle AO ints disk caching
 c
 c  Local variables
 c
@@ -133,9 +132,9 @@ c
           endif
        endif
 c
-c  Initialize AO disk caching
+c  Perpare AO disk caching
 c       
-       if (odisk) call moints_aodisk_init()
+       call moints_aodisk_prep()
 c
 c  Local MO coefficients
 c
@@ -420,7 +419,7 @@ c$$$               endif
        next = moints_nxttask(-num_nodes)
        tsynch = util_cpusec() - tsynch
        thalf = util_cpusec() - thalf
-       if (odisk) call moints_aodisk_close()
+       call moints_aodisk_tidy()
 
 c
 c  Clean-up

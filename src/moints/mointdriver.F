@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.56 1997-03-25 18:02:50 d3e129 Exp $
+C$Id: mointdriver.F,v 1.57 1997-03-26 20:19:05 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -37,7 +37,7 @@ c
        integer i, j, ij, ii, ipass
        integer lmemreq, gmem, mxrlen, nvir
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
-       logical oblk, odisk
+       logical oblk, odisk, oaoreuse, oaokeep
        double precision emp2, e2pair
        double precision tpass, tmp2
        double precision tol2e
@@ -57,6 +57,8 @@ c
        external moints_lmem
        logical int_normalize
        external int_normalize
+       logical moints_aodisk_init
+       external moints_aodisk_init
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.false./
@@ -93,6 +95,12 @@ c Check disk caching enabled
 c
        if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
      $                   1, odisk)) odisk = .false.
+       if (.not.rtdb_get(rtdb,'fourindex:aoreuse', MT_LOG,
+     $                   1, oaoreuse)) oaoreuse = .false.
+       if (.not.rtdb_get(rtdb,'fourindex:aokeep', MT_LOG,
+     $                   1, oaokeep)) oaokeep = .false.
+       if (.not.moints_aodisk_init( odisk, oaoreuse ))
+     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -286,13 +294,13 @@ c
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk, odisk )
+     $                         blen, oblk )
        else
          call moints_build_2x( basis,  ohalf, osym, occ_lo,
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk, odisk )
+     $                         blen, oblk )
        endif
 c
 c Evaluate and store pair energies
@@ -313,6 +321,7 @@ c
 c
 c End multipass loop
 c
+       call moints_aodisk_close( oaokeep )
        if (util_print('statistics',print_high))
      $   call moints_stats_print(algo)
 c
