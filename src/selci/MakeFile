@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.7 2003-04-07 23:49:52 windus Exp $	
+#	$Id: MakeFile,v 1.8 2003-04-08 00:05:28 windus Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -26,7 +26,7 @@ UOBJ =         $(OBJDIR)\iprtri.obj \
                $(OBJDIR)\bserch.obj \
                $(OBJDIR)\popcnt32.obj \
                $(OBJDIR)\readh.obj \
-               $(OBJDIR)\renorm.obj \
+               $(OBJDIR)\selci_renorm.obj \
                $(OBJDIR)\sread.obj \
                $(OBJDIR)\swrite.obj \
                $(OBJDIR)\pkcon.obj \
