@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.66 2004-07-27 19:33:11 bert Exp $
+C$Id: cdft.fh,v 1.67 2004-10-02 22:51:24 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -11,7 +11,7 @@ c     variables related to "tolerances" input,
 c     variables related to "grid" input, and
 c     other misc variables.
 c
-      character*255 title
+      character*256 title
       character*16 grtagin
       character*10 gridtype
       character*8 whichssw
@@ -45,7 +45,7 @@ c
      ,     g_sic_dens(2), aux_ik, g_s12m,g_s12p
 c
       parameter(numfunc=30)
-      character*255 movecs_in, movecs_out
+      character*256 movecs_in, movecs_out
       character*8 movecs_guess
       common /cdft/
 c
