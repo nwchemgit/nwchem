@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.103 1995-02-24 18:14:54 rg240 Exp $
+# $Id: makefile.h,v 1.104 1995-03-17 19:59:12 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -215,36 +215,43 @@ ifeq ($(TARGET),CRAY-T3D)
 # Requires single-precision BLAS
 # CRAY-T3D cross-compiled on YMP (atw)
 #
-      CORE_SUBDIRS_EXTRA = blas lapack 
-                  RANLIB = @echo
-               MAKEFLAGS = -j 4
-                 INSTALL = @echo $@ is built
-           OUTPUT_OPTION = 
+   CORE_SUBDIRS_EXTRA =	blas lapack 
+               RANLIB = @echo
+            MAKEFLAGS = -j 2
+              INSTALL = @echo $@ is built
+        OUTPUT_OPTION = 
 
-                      FC = /mpp/bin/cf77 
-                     CPP = /mpp/lib/cpp -P  -N
-                FOPTIONS = -Wf"-dp" -Ccray-t3d
-                COPTIONS = -Tcray-t3d
-               FOPTIMIZE = -O scalar3
-               COPTIMIZE = -O
-               LDOPTIONS = 
-                 DEFINES = -DCRAY_T3D
+                   FC = /mpp/bin/new/cf77 
+                  CPP = /mpp/lib/cpp -P  -N
+             FOPTIONS = -Wf"-dp" -Ccray-t3d
+             COPTIONS = -Tcray-t3d
+            FOPTIMIZE = -O scalar3
+            COPTIMIZE = -O
+            LDOPTIONS = 
+              DEFINES = -DCRAY_T3D
 
-                  LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
-                           -Drdahead=on \
-                           -Dbin=inp/inp.o,basis/basisP.o \
-                           -Dbin=ddscf/rhf_fock_2e_a.o \
-                           -Dbin=ddscf/scf_pstat.o \
-                           -Dbin=NWints/api/int_init.o \
-                           -L$(LIBDIR) 
+               LINK.f = /mpp/bin/mppldr $(LDOPTIONS) \
+			-Drdahead=on \
+			-Dbin=NWints/api/int_init.o \
+			-Dbin=NWints/int/defNxyz.o \
+			-Dbin=basis/basis.o \
+			-Dbin=basis/basisP.o \
+			-Dbin=ddscf/rhf_fock_2e_a.o \
+			-Dbin=ddscf/scf_pstat.o \
+			-Dbin=ddscf/fock_2e_a.o \
+			-Dbin=geom/geom.o \
+			-Dbin=inp/inp.o \
+			-Dbin=util/ga_iter_project.o \
+			-Dbin=util/file_prefix.o \
+			-L$(LIBDIR) 
 
-               CORE_LIBS = -lglobal \
-                           -lpeigs \
-                           -ltcgmsg \
-                           -llapack \
-                           -lblas
+            CORE_LIBS = -lglobal \
+			-lpeigs \
+			-ltcgmsg \
+			-llapack \
+			-lblas
 
-               EXPLICITF = TRUE
+            EXPLICITF = TRUE
 endif
 
 
