@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.9 2001-10-02 21:52:34 windus Exp $
+c $Id: oned_calc.F,v 1.10 2001-10-03 23:49:52 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -120,6 +120,7 @@ c
                    lo(1) = atx
                    hi(1) = atx
                    call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
+                   ic = ic + nint
                  enddo
                 endif   ! doV and doT
 

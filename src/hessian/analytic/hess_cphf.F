@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.26 2001-10-02 21:52:34 windus Exp $
+C $Id: hess_cphf.F,v 1.27 2001-10-03 23:49:52 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -25,8 +25,9 @@ c
       integer g_wax(nw_max_atom*3)
       integer g_aa(nw_max_atom*3)
       integer g_tmp, g_tmp2, g_sol
-c temp variable
+c temp variables
       integer g_rhs_x(200), alo(3), ahi(3), blo(2), bhi(2)
+c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
       logical hf_job, oprint, ocphfprint
@@ -260,7 +261,7 @@ c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis.
 c First read in ds/dx to g_rhs(ind)
 c
-      call sx_read(g_rhs_x,nc,num,sx_dra_handle)
+      call sx_read_orig(g_rhs_x,nc,num,sx_dra_handle)
 c
 c This is not correct for UHF (need to figure out which orbitals to
 c use for this case)
@@ -556,10 +557,14 @@ c
 c Get the solution off of disk, put it into appropriate shape and then 
 c combine it with the wax matrices to get final contribution to hessian.
 c
-      if(.not.ga_create(MT_DBL,nvirt(ndns),nocc(ndns),'g_tmp2',
+      write(6,*) 'going into the g_tmp2 create'
+      call flush(6)
+      if(.not.ga_create(MT_DBL,nvirt(1),nocc(1),'g_tmp2',
      $   0,0,g_tmp2))
      $   call errquit('hess_cphf:could not alloc tmp2 array',555) 
-      if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_sol',
+      write(6,*) 'going into the g_sol create'
+      call flush(6)
+      if(.not.ga_create(MT_DBL,nocc(1),nvirt(1),'g_sol',
      $   0,0,g_sol))
      $   call errquit('hess_cphf:could not alloc sol array',555) 
       index = 1
@@ -613,10 +618,6 @@ c
       do ind = 1, ndens*nc
         if (.not.ga_destroy(g_wax(ind))) call errquit
      $    ('cannot destroy g_wax ',ind)
-      enddo
-      do j = 1, ndens*n3xyz
-        if (.not.ga_destroy(g_rhs_x(j)))
-     *    call errquit('hess_cphf: problem destroying g_rhs_x',j)
       enddo
 c
       return
