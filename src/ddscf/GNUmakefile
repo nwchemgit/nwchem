@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.29 1995-04-06 21:59:35 d3g681 Exp $
+# $Id: GNUmakefile,v 1.30 1995-04-11 19:01:55 rg240 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -29,7 +29,7 @@
         rohf_fock2grad.o        scf_movecs.o \
         rohf_hessv_1e.o         rohf_hessv_2e.o \
         rohf_dens.o             movecs_fix_phase.o \
-        dabsmax.o               uhf.o
+        uhf.o
 
 
 
