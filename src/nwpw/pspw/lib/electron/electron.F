@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.35 2004-11-11 19:54:57 bylaska Exp $
+* $Id: electron.F,v 1.36 2004-11-13 02:22:06 bylaska Exp $
 *
 
 
@@ -1192,7 +1192,7 @@ c    >                     hmlt(shift+1))
 
 
 *     **** local variables ****
-      integer ms,index1,index1r
+      integer ms,index1,index1r,index2
 
 *     **** external functions ****
       integer  control_version
@@ -1206,6 +1206,7 @@ c    >                     hmlt(shift+1))
       end if 
       index1  = (n-1)*nfft3d  
       index1r = 2*index1
+      index2  = (n-1)*npack1
 
 *     ******************
 *     **** get Hpsi ****
@@ -1214,21 +1215,21 @@ c    >                     hmlt(shift+1))
      >  call psi_Horb(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             psi_k(index1+1),
+     >             psi_k(index2+1),
      >             dbl_mb(  psi_r(1)+index1r),
-     >             dcpl_mb(Hpsi_k(1)+index1))
+     >             dcpl_mb(Hpsi_k(1)+index2))
 
       if (control_version().eq.4)
      >  call psi_Horbv4(ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
-     >             psi_k(index1+1),
+     >             psi_k(index2+1),
      >             dbl_mb(  psi_r(1)+index1r),
-     >             dcpl_mb(Hpsi_k(1)+index1))
+     >             dcpl_mb(Hpsi_k(1)+index2))
 
       call Pack_c_SMul(1,(-1.0d0),
-     >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
-     >                 dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+     >                 dcpl_mb(Hpsi_k(1)+index2),
+     >                 dcpl_mb(Hpsi_k(1)+index2))
 
       return
       end
@@ -1651,7 +1652,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_get_vall(vall_out)
       implicit none
-      real*8 vall_out
+      real*8 vall_out(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -1669,7 +1670,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_set_vall(vall_in)
       implicit none
-      real*8 vall_in
+      real*8 vall_in(*)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"

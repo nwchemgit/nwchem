@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.16 2003-10-17 22:56:03 carlfahl Exp $
+* $Id: cpsp.F,v 1.17 2004-11-13 02:22:05 bylaska Exp $
 *
 
 #define TCGMSG
@@ -657,6 +657,120 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
 
       return 
       end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	 	 cpsp_v_nonlocal_orb  	*
+*     *					*
+*     ***********************************
+
+      subroutine cpsp_v_nonlocal_orb(nb,psi1,psi2)
+      implicit none
+      integer    nb
+      complex*16 psi1(*)
+      complex*16 psi2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsp_common.fh"
+
+
+*     *** local variables ***
+      integer nfft3d,npack1,npack,nbrill
+      integer ii,ia,l
+      real*8  omega
+      complex*16 cxr,zsw1
+      integer exi(2),vtmp(2)
+      logical value
+
+*     **** external functions ****
+      logical  is_sORd
+      integer  ion_nion,ion_katm,brillioun_nbrillioun
+      real*8   lattice_omega
+      external is_sORd
+      external ion_nion,ion_katm,brillioun_nbrillioun
+      external lattice_omega
+
+      call nwpw_timing_start(6)
+      
+*     **** allocate local memory ****
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
+      nbrill = brillioun_nbrillioun()
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
+      if (.not.value) 
+     > call errquit('cpsp_v_nonlocal_orb:pushing stack',0,MA_ERR)
+
+
+      omega = lattice_omega()
+
+      do ii=1,ion_nion()
+        ia=ion_katm(ii)
+
+           call Cram_npack(nb,npack)
+           call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
+           call cstrfac_k(ii,nb,cxr)
+           call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+
+
+*       **** structure factor and local pseudopotential ****
+
+        do l=1,int_mb(lmmax(1)+ia-1)
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (is_sORd(l,int_mb(lmax(1)+ia-1),
+     >                   int_mb(locp(1)+ia-1))
+     >        ) then
+
+              call Cram_rc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(vtmp(1)))
+
+*          *** current function is p or f ****
+           else
+              call Cram_irc_Mul(nb,dbl_mb(vnl(1)+(l-1)*npack1
+     >                           +(nb-1)*npack1*lmmax_max
+     >                           +(ia-1)*npack1*lmmax_max*nbrill),
+     >                        dcpl_mb(exi(1)),
+     >                        dcpl_mb(vtmp(1)))
+           end if
+
+*         **** do kleinman-bylander multiplication ****
+          call Cram_cc_zdot(nb,psi1,dcpl_mb(vtmp(1)),zsw1)
+
+
+          zsw1 = dconjg(zsw1)
+          zsw1 = zsw1
+     >           /(omega*dbl_mb(vnlnrm(1)
+     >                         +(l-1)+(ia-1)*lmmax_max))
+          call Cram_cc_zaxpy(nb,(-zsw1),dcpl_mb(vtmp(1)),psi2) 
+        end do
+
+      end do
+
+      value =           MA_pop_stack(vtmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) 
+     > call errquit('cpsp_v_nonlocal_orb:popping stack',3,MA_ERR)
+
+      call nwpw_timing_end(6)
+
+      return 
+      end
+
+
 
 
 

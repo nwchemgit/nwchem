@@ -50,7 +50,7 @@
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
-        call psp_generator_auto(atom,lmax,locp,rlocal)
+        call psp_generator_auto(1,atom,lmax,locp,rlocal)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.15 2004-02-01 19:01:43 bylaska Exp $
+* $Id: cpsi.F,v 1.16 2004-11-13 02:22:05 bylaska Exp $
 *
 
 
@@ -81,6 +81,31 @@
      >           dbl_mb(rho1_all(1)),1)
       return
       end
+
+
+
+*     ***************************
+*     *                         *
+*     *         c_rho_1to2      *
+*     *                         *
+*     ***************************
+      subroutine c_rho_1to2()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+      call dcopy(2*nfft3d,
+     >           dbl_mb(rho1(1)),1,
+     >           dbl_mb(rho2(1)),1)
+
+      call dcopy(2*nfft3d,
+     >           dbl_mb(rho1_all(1)),1,
+     >           dbl_mb(rho2_all(1)),1)
+      return
+      end
+
 
 *     ***************************
 *     *				*

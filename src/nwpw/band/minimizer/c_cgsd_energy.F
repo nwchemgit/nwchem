@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.9 2004-02-01 19:01:44 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.10 2004-11-13 02:22:06 bylaska Exp $                       
 *
 
 *     ***************************
@@ -120,9 +120,7 @@ c      call cphafac_k()
 
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
-           write(*,*) "minimizer 5"
-           stop
-           !call c_bybminimize(E,deltae,deltac,.false.,1)
+           call c_bybminimize(E,deltae,deltac,bfgscount,.false.,1)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.

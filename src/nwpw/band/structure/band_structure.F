@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.3 2004-03-15 15:17:40 bylaska Exp $
+* $Id: band_structure.F,v 1.4 2004-11-13 02:22:06 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -53,6 +53,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
+      integer mapping
   
 
 
@@ -99,8 +100,8 @@
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize
       external cpsp_semicore,psi_filefind,cpsi_initialize
-      real*8   c_cgsd_energy
-      external c_cgsd_energy
+      real*8   c_cgsd_noit_energy
+      external c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
@@ -111,6 +112,8 @@
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
       external pspw_reformat_c_wvfnc
+      integer  control_mapping
+      external control_mapping
     
 
 
@@ -153,6 +156,9 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
+      mapping = control_mapping()
+
+
 
 
       ierr = 0 
@@ -168,7 +174,7 @@
 
 
 *     **** initialize C3dB data structure ****
-      call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3))
+      call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
 
 
@@ -201,13 +207,43 @@
 
 *     **** initialize ke,and coulomb data structures ****
       call cstrfac_init()
-      !call cke_init()
+      call cke_init()
       call c_coulomb_init()
       call c_ewald_init()
+
 
 *     **** set up phase factors at the current geometry  ****
       call cphafac()
       call cphafac_k()
+
+
+*     **** read in wavefunctions and initialize psi ****
+      if (.not.psi_filefind()) then
+        call cpsi_new()
+        newpsi = .true.
+
+      else
+        newpsi = .false.
+
+*       **** convert from pspw format to band format ****
+        vers = psi_get_version()
+        if ((vers.eq.3).or.(vers.eq.4)) then
+           nbrillioun = brillioun_nbrillioun()
+           newpsi = .true.
+           if (taskid.eq.MASTER) then
+             value= pspw_reformat_c_wvfnc(1)
+           end if
+        end if
+      end if
+      value = cpsi_initialize()
+
+
+
+*     **** electron and geodesic data structures ****
+      call c_electron_init()
+      call c_geodesic_init()
+      call linesearch_init()
+
 
 
 
@@ -312,6 +348,8 @@
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
+      EV = c_cgsd_noit_energy()
+      if (taskid.eq.MASTER) write(luout,1600) EV
 
 
       if (taskid.eq.MASTER) call current_second(cpu3)
@@ -321,8 +359,12 @@
 *                |***************************|
 
       
+*     **** write wavefunctions to file and finalize psi ****
+      call cpsi_finalize()
 
 *     **** deallocate heap memory ****
+      call c_electron_finalize()
+      call c_geodesic_finalize()
       call c_ewald_end()
       call cstrfac_end()
       call c_coulomb_end()

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.58 2004-11-10 23:05:31 bylaska Exp $
+* $Id: control.F,v 1.59 2004-11-13 02:22:06 bylaska Exp $
 *
 
 *     ***********************************
@@ -551,6 +551,21 @@ c
       value = value.and.
      >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
 
+*     **** set Kohn-Sham scf parameters ***
+      if (.not. rtdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
+     >   ks_alpha = 0.25d0
+      if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
+     >                  mt_int,1,scf_algorithm))
+     >   scf_algorithm = 0
+
+*     **** set maxit_orb maxit_orbs ***
+      if (.not.rtdb_get(rtdb,
+     >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
+     >  maxit_orb = 5
+      if (.not.rtdb_get(rtdb,
+     >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
+     >  maxit_orbs = 0
+
 
 *     **** paw_sd: stuff ****
       else if (code.eq.6) then
@@ -609,6 +624,8 @@ c
      >        rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity)
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin)
+
+
 
 
 *     **** paw_cpmd: stuff ****

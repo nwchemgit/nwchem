@@ -1,9 +1,10 @@
 *
-* $Id: task_band.F,v 1.1 2003-12-02 19:41:44 bylaska Exp $
+* $Id: task_band.F,v 1.2 2004-11-13 02:22:04 bylaska Exp $
 *
 
       logical function task_band(rtdb)
       implicit none
+
 #include "inp.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -17,14 +18,15 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 1)
+      parameter (num_dirs = 2)
       character*30 dirs(num_dirs)
       character*255 test
-      data dirs / 'structure' /
+      data dirs / 'structure',
+     >            'noit_energy' /
 
 c     *** define external functions ****
-      logical  band_structure
-      external band_structure
+      logical  band_structure,band_noit_energy
+      external band_structure,band_noit_energy
 c
 c
       value = .false.
@@ -36,7 +38,7 @@ c
 c
 c
 c
-      goto ( 100 ) ind
+      goto ( 100, 200 ) ind
       call errquit('task band: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -50,6 +52,17 @@ c
       end if
       value = rtdb_parallel(.true.)
       value = band_structure(rtdb)
+      call ga_sync()
+      goto 9999
+c
+c  noit_energy - debug
+c
+ 200  if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> BAND Parallel Module - noit_energy <<<<"
+      end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = band_noit_energy(rtdb)
       call ga_sync()
       goto 9999
 

@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.12 2004-11-08 23:37:40 bylaska Exp $
+* $Id: c_electron.F,v 1.13 2004-11-13 02:22:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -47,6 +47,9 @@
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'vc',vc(2),vc(1))
       value = value.and.
+     >        MA_alloc_get(mt_dcpl,2*nfft3d,
+     >                     'vall',vall(2),vall(1))
+      value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'xcp',xcp(2),xcp(1))
       value = value.and.
@@ -81,6 +84,8 @@
      >        MA_free_heap(psi_r(2))
       value = value.and.
      >        MA_free_heap(vl(2))
+      value = value.and.
+     >        MA_free_heap(vall(2))
       value = value.and.
      >        MA_free_heap(vc(2))
       value = value.and.
@@ -128,6 +133,46 @@
       call c_electron_gen_densities(psi_k,dn,dng,dnall)
       call c_electron_gen_scf_potentials(dn,dng,dnall)
       call c_electron_gen_Hpsi_k(psi_k)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         c_electron_run_orb        *
+*     *                                 *
+*     ***********************************
+      subroutine c_electron_run_orb(nb,i,psi_k)
+      implicit none
+      integer    nb,i
+      complex*16 psi_k(*)
+
+      call c_electron_gen_psi_r_orb(nb,i,psi_k)
+      call c_electron_gen_Hpsi_k_orb(nb,i,psi_k)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *    c_electron_get_gradient_orb  *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_get_gradient_orb(nb,i,Horb)
+      implicit none
+      integer nb,i
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+      call Cram_c_Copy(nb,
+     >                 dcpl_mb(Hpsi_k(1)
+     >                        +(i-1)*npack1
+     >                        +(nb-1)*(ne(1)+ne(2))*npack1),
+     >                 Horb)
+
       return
       end
 
@@ -592,6 +637,59 @@
       return
       end
 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     c_electron_gen_Hpsi_k_orb   *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_Hpsi_k_orb(nb,n,psi_k)
+      implicit none
+      integer nb,n
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+
+*     **** local variables ****
+      integer ms,index1,index2
+
+      if (n.le.ne(1)) then
+        ms=1
+      else
+        ms=2
+      end if
+      index1  = (n-1)*nfft3d  + (nb-1)*(ne(1)+ne(2))*nfft3d
+      index2  = (n-1)*npack1  + (nb-1)*(ne(1)+ne(2))*npack1
+
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      call cpsi_Horb(nb,ispin,ms,
+     >              dcpl_mb(psi_r(1)),
+     >              dcpl_mb(vall(1)),
+     >              psi_k(index2+1),
+     >              dcpl_mb( psi_r(1)+index1),
+     >              dcpl_mb(Hpsi_k(1)+index2))
+
+
+      call Cram_c_SMul(nb,(-1.0d0),
+     >                 dcpl_mb(Hpsi_k(1)+index2),
+     >                 dcpl_mb(Hpsi_k(1)+index2))
+
+      return
+      end
+
+
+
+
+
+
 *     *******************************
 *     *				    *
 *     *	    c_electron_gen_psi_r    *
@@ -617,6 +715,36 @@ c     >                  psi_k,
 c     >                  dcpl_mb(psi_r(1)))
       call Stfl_gh_fftb(ispin,ne,npack1,nfft3d,neall,nbrill,
      >                  psi_k,dcpl_mb(psi_r(1)))
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *     c_electron_gen_psi_r_orb    *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_psi_r_orb(nb,n,psi_k)
+      implicit none
+      integer    nb,n
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer shiftk,shiftr
+
+      shiftk =        1 + (n-1)*npack1 + (nb-1)*(ne(1)+ne(2))*npack1
+      shiftr = psi_r(1) + (n-1)*nfft3d + (nb-1)*(ne(1)+ne(2))*nfft3d
+
+      call Cram_c_Copy(nb,psi_k(shiftk),
+     >                    dcpl_mb(shiftr))
+
+      call Cram_c_unpack(nb, dcpl_mb(shiftr))
+      call C3dB_cr_fft3b(1,  dcpl_mb(shiftr))
 
       return
       end
@@ -709,6 +837,91 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
      &       MA_ERR)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        c_electron_gen_vall      *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_vall()
+      implicit none
+
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer ms
+      real*8 scal2
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+*     **** add up k-space potentials, vall = scal2*vl + vc  ****
+      call Cram_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                         dcpl_mb(vall(1)))
+      call Cram_cc_Sum(0,dcpl_mb(vall(1)),
+     >                   dcpl_mb(vc(1)),
+     >                   dcpl_mb(vall(1)))
+
+*     **** fourier transform k-space potentials ****
+      call Cram_c_unpack(0,dcpl_mb(vall(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+
+*     **** add xcp to vall ****
+      do ms=ispin,1,-1
+        call C3dB_rc_Sum(1,
+     >                   dbl_mb(xcp(1)+(ms-1)*nfft3d),
+     >                   dcpl_mb(vall(1)),
+     >                   dcpl_mb(vall(1)+(ms-1)*nfft3d))
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        c_electron_get_vall        *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_get_vall(vall_out)
+      implicit none
+      complex*16 vall_out(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+      call dcopy(2*nfft3d,dcpl_mb(vall(1)),1,vall_out,1)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        c_electron_set_vall        *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_set_vall(vall_in)
+      implicit none
+      complex*16 vall_in(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+      call dcopy(2*nfft3d,vall_in,1,dcpl_mb(vall(1)),1)
+      return
+      end
+
+
 
 
 

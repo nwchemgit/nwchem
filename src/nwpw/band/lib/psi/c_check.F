@@ -211,7 +211,7 @@
             call Cram_cc_zdot(nb,psi(1,k),psi(1,j),wc)
             wc = -wc
             call Cram_cc_zaxpy(nb,wc,psi(1,k),psi(1,j))
-            call Cram_cc_zdot(nb,psi(1,k),psi(1,j),wc)
+            !call Cram_cc_zdot(nb,psi(1,k),psi(1,j),wc)
          end do
       end do
 

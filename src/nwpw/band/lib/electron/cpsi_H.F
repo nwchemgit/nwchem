@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.5 2003-10-17 22:56:05 carlfahl Exp $
+* $Id: cpsi_H.F,v 1.6 2004-11-13 02:22:05 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -128,3 +128,114 @@
       call nwpw_timing_end(12)
       return
       end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *             cpsi_Horb              *
+*     *                                   *
+*     *************************************
+*
+*  This routine calculates
+*
+*       Hpsi_k = KE*psi_k + Vnl*psi_k + + FFT[(vall+xcp)*psi_r]
+*
+*  where vall = iFFT[Vl+Vc]
+*
+*   Entry - ispin,ne            - spin and number of electrons in each spin
+*           ms,n                - spin and electron number
+*           psi_k,psi_r         - orbitals in k-space and r-space
+*           vall                  - local +external fields+coulomb in r-space
+*           xcp                 - xc potential in r-space
+*   Exit - Hpsi_k - gradient in k-space
+*
+      subroutine cpsi_Horb(nb,ispin,ms,
+     >                 psi_r,
+     >                 vall,
+     >                 orb_k,orb_r,
+     >                 Horb_k)
+      implicit none
+      integer    nb,ispin,ms
+      complex*16 psi_r(*)
+      complex*16 vall(*)
+      complex*16 orb_k(*)
+      complex*16 orb_r(*)
+      complex*16 Horb_k(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+*     **** local variables ****
+      integer nne(2)
+      integer nx,ny,nz
+      real*8  scal1,fion(3,1)
+
+*     **** tempory space ****
+      integer nfft3d
+      integer vpsi(2)
+      logical value
+
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      call C3dB_nfft3d(1,nfft3d)
+      call nwpw_timing_start(12)
+      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (.not. value)
+     >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
+      call nwpw_timing_end(12)
+
+
+      scal1 = 1.0d0/dble(nx*ny*nz)
+
+*     ************************************************
+*     **** add kinetic energy - Horb_k = Ke*orb_k ****
+*     ************************************************
+      call cke_orb(nb,orb_k,Horb_k)
+
+*     *********************************************************
+*     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
+*     *********************************************************
+      call cpsp_v_nonlocal_orb(nb,orb_k,Horb_k)
+
+
+*     **************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
+*     **************************************************
+
+*     **** vpsi_r = (vall_r)*orb_r ****
+      call C3dB_cc_Mul(1,vall(1+(ms-1)*nfft3d),
+     >                   orb_r,
+     >                   dcpl_mb(vpsi(1)))
+
+
+*     **** put vpsi_r in k-space ****
+      call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+      call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
+
+*     **** add to Horb_k ****
+      call Cram_cc_daxpy(nb,(-scal1),
+     >                   dcpl_mb(vpsi(1)),
+     >                   Horb_k)
+
+
+      call nwpw_timing_start(12)
+      value = .true.
+      value = value.and.MA_pop_stack(vpsi(2))
+      if (.not.value)
+     >  call errquit('psi_Horb: popping stack',1, MA_ERR)
+      call nwpw_timing_end(12)
+
+      return
+      end
+
+

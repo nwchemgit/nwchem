@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.5 2003-10-17 22:56:10 carlfahl Exp $
+* $Id: cke.F,v 1.6 2004-11-13 02:22:05 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -106,6 +106,32 @@ c     real*8 G(nfft3d,3)
 
       return 
       end
+
+
+
+      subroutine cke_orb(nb,orb1,orb2)
+      implicit none
+      integer    nb
+      complex*16 orb1(*)
+      complex*16 orb2(*)
+
+#include "mafdecls.fh"
+#include "cke_common.fh"
+
+*     **** local variables ****
+      integer npack1
+
+      call Cram_max_npack(npack1)
+      call Cram_rc_Mul(nb,
+     >                 dbl_mb(tg_indx+(nb-1)*npack1),
+     >                 orb1,
+     >                 orb2)
+      return 
+      end
+
+
+
+
 
       subroutine cke_ave(ispin,ne,psi1,ave)
       implicit none

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.30 2004-05-05 19:33:49 bylaska Exp $
+* $Id: band_minimizer.F,v 1.31 2004-11-13 02:22:06 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -13,7 +13,6 @@
 
       logical function band_minimizer(rtdb,flag)
       implicit none
-#include "errquit.fh"
       integer rtdb
       integer flag
 
@@ -21,6 +20,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 
 
       
@@ -54,7 +54,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
-      integer mapping
+      integer mapping,minimizer
   
 
 
@@ -101,8 +101,8 @@
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize
       external cpsp_semicore,psi_filefind,cpsi_initialize
-      real*8   c_cgsd_energy
-      external c_cgsd_energy
+      real*8   c_cgsd_energy,c_cgsd_noit_energy
+      external c_cgsd_energy,c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
@@ -113,8 +113,12 @@
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
       external pspw_reformat_c_wvfnc
-      integer  control_mapping
-      external control_mapping
+      integer  control_mapping,control_minimizer
+      external control_mapping,control_minimizer
+      integer  control_minimizer,control_scf_algorithm
+      external control_minimizer,control_scf_algorithm
+      real*8   control_ks_alpha
+      external control_ks_alpha
     
 
 
@@ -163,7 +167,8 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       nwave = 0
-      mapping = control_mapping()
+      minimizer = control_minimizer()
+      mapping   = control_mapping()
 
 
       ierr = 0 
@@ -346,6 +351,17 @@
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
+         if (minimizer.eq.5) then
+           write(6,1291)
+           write(6,1292)
+           if (control_scf_algorithm().eq.0)
+     >       write(6,1293) "simple mixing"
+           if (control_scf_algorithm().eq.1)
+     >       write(6,1293) "Anderson mixing"
+           if (control_scf_algorithm().eq.2)
+     >       write(6,1293) "Johnson-Pulay mixing"
+           write(6,1294) control_ks_alpha()
+         end if
          write(luout,1300)
          call util_flush(luout)
       end if
@@ -362,7 +378,11 @@
 
 
 *     **** calculate energy ****
-      EV= c_cgsd_energy(newpsi)
+      if (flag.eq.-1) then
+        EV= c_cgsd_noit_energy(newpsi)
+      else
+        EV= c_cgsd_energy(newpsi)
+      end if
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(luout,1600) EV
@@ -396,9 +416,11 @@
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       value = rtdb_put(rtdb,'band:energy',mt_dbl,1,EV)
+      if (flag.gt.-1) then
       value = value.and.
      >        rtdb_put(rtdb,'band:dipole',mt_dbl,
      >                 3,dipole)
+      end if
       if (.not. value) 
      > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
 
@@ -595,6 +617,10 @@
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
+ 1291 FORMAT(/' Kohn-Sham scf parameters:')
+ 1292 FORMAT(5X, ' Kohn-Sham algorithm  = conjugate gradient')
+ 1293 FORMAT(5X, ' scf algorithm        = ',A)
+ 1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

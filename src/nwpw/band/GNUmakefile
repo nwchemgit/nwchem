@@ -1,10 +1,11 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-12-02 19:16:46 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2004-11-13 02:22:04 bylaska Exp $
 #
       SUBDIRS = minimizer structure kbpp makepsi lib
 
 		OBJ_OPTIMIZE = 	task_band.o \
 				band_energy.o \
+				band_noit_energy.o \
 				band_gradient.o 
 
           OBJ = band_input.o
