@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.45 2002-12-27 17:45:00 d3k958 Exp $
+C$Id: vectors.F,v 1.46 2002-12-28 20:33:59 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -578,6 +578,7 @@ c
 #include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c
 c     In the database may be an entry 'reorder' which is a list
 c     containing the new ordering of the atoms. The MO blocks over each atom's
@@ -645,12 +646,12 @@ c  find nbf for each atom
 c  ----------------------
 c
       if (ga_nodeid().eq.0) then
-         call util_print_centered(6,'Reordering MO coeffs on atoms',25,
+         call util_print_centered(LuOut,'Reordering MO coeffs on atoms',25,
      $        .true.)
-         write(6,*) 
-         write(6,101) 'old','new','old','new'
-         write(6,102) 'atom#','atom#','basis range','basis range'
-         write(6,*) '-------------------------------------------------'
+         write(LuOut,*) 
+         write(LuOut,101) 'old','new','old','new'
+         write(LuOut,102) 'atom#','atom#','basis range','basis range'
+         write(LuOut,*) '-------------------------------------------------'
       endif
 c
       int_mb(k_batm) = 0
@@ -688,7 +689,7 @@ c
         end_to = start_to + int_mb(k_batm+j-1) - 1
 
         if (ga_nodeid().eq.0.and.set.eq.1) then
-        write(6,103) i,j,start_from,end_from,start_to,end_to
+        write(LuOut,103) j,i,start_from,end_from,start_to,end_to
         endif
 c
         call ga_copy_patch('N',g_vecs(set),start_from,end_from,1,dim2,
@@ -696,8 +697,6 @@ c
 c
         start_to = start_to + int_mb(k_batm+j-1)
        enddo ! nat
-c
-            if (oprint) call util_flush(6)
 c
       call ga_copy(g_temp, g_vecs(set))
 c
