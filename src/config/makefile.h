@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.356 2001-04-27 01:28:49 edo Exp $
+# $Id: makefile.h,v 1.357 2001-04-27 17:39:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1138,10 +1138,10 @@ ifeq ($(FC),pgf77)
   DEFINES   += -DPGLINUX
 # added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
   FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
-ifeq ($(_CPU),586)
+ifeq ($(_CPU),i586)
   FOPTIONS  += -tp p5  
 endif
-ifeq ($(_CPU),686)
+ifeq ($(_CPU),i686)
  FOPTIONS  += -tp p6
 endif
   FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144,prefetch
@@ -1150,13 +1150,13 @@ endif
   MAKEFLAGS += FC=pgf77
 else
  ifeq ($(FC),ifc)
-  FOPTIONS   =  -align  -132  -mp -w
-  FOPTIMIZE = -O3 -prefetch -rcd -unroll 
-ifeq ($(_CPU),586)
+  FOPTIONS   =  -align  -132  -mp -w 
+FOPTIMIZE = -O3 -prefetch -rcd -unroll 
+ifeq ($(_CPU),i586)
   FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
 endif
-ifeq ($(_CPU),686)
-  FOPTIMIZE +=  -tpp6 -xiMK # this are for PentiumIII
+ifeq ($(_CPU),i686)
+  FOPTIMIZE +=  -tpp6 -xiMK   # this are for PentiumIII
 endif
   DEFINES   += -DIFCLINUX
  else
@@ -1164,8 +1164,8 @@ endif
          FC  = g77
   FOPTIONS   = -fno-second-underscore 
   FOPTIMIZE  =  -O2  -malign-double -finline-functions 
-  FOPTIMIZE  +=  -march=i$(_CPU)
-  COPTIONS   = -Wall -m486 -malign-double 
+  FOPTIMIZE  +=  -march=$(_CPU)
+  COPTIONS   = -Wall -march=$(_CPU) -malign-double 
   COPTIMIZE  = -g -O2
 # Most Linux distributions are using EGCS
 #
@@ -1195,7 +1195,7 @@ ifeq ($(FC),pgf77)
  EXTRA_LIBS += -lm
 else
 ifeq ($(FC),ifc)
-  LDOPTIONS = -g
+  LDOPTIONS = -O
      LINK.f = ifc $(LDFLAGS)
      EXTRA_LIBS = -lPEPCF90 -lF90 -limf -lm
 else
