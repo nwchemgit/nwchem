@@ -1,4 +1,3 @@
-
 ***********************************************************************
 *                      cpmdv5-mpi  (MPI code)                         *
 *                                                                     *
@@ -14,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.3 2001-10-21 14:42:37 bylaska Exp $
+* $Id: cpmdv5.F,v 1.4 2001-10-26 02:28:26 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -129,11 +128,11 @@
       real*8   control_rti,control_rte,ion_rion
       real*8   ion_vion,ion_com_ke,ion_ke
       real*8   ion_Temperature,ion_com_Temperature
-      real*8   Waterpsp_Temperature
+      real*8   pspw_qmmm_Temperature
       external control_rti,control_rte,ion_rion
       external ion_vion,ion_com_ke,ion_ke
       external ion_Temperature,ion_com_Temperature
-      external Waterpsp_Temperature
+      external pspw_qmmm_Temperature
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
@@ -142,11 +141,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  Waterpsp_nwater
+      integer  pspw_qmmm_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external Waterpsp_nwater
+      external pspw_qmmm_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -156,8 +155,8 @@
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  control_Nose,control_Mulliken,Waterpsp_found
-      external control_Nose,control_Mulliken,Waterpsp_found
+      logical  control_Nose,control_Mulliken,pspw_qmmm_found
+      external control_Nose,control_Mulliken,pspw_qmmm_found
 
       real*8   control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
@@ -331,7 +330,7 @@
       call ion_init_FixIon(rtdb)
 
 *     **** initialize QM/MM ****
-      call Waterpsp_init(rtdb)
+      call pspw_qmmm_init(rtdb)
 
 
 
@@ -387,7 +386,7 @@
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,1181)
          write(6,1192) (I,ion_aname(I),
@@ -395,7 +394,7 @@
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call Waterpsp_Print2(6)
+         call pspw_qmmm_Print2(6)
 
 
          write(6,1220) ne(1),ne(ispin),' (fourier space)'
@@ -746,7 +745,7 @@
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,1421)
          write(6,1192) (I,ion_aname(I),
@@ -754,7 +753,7 @@
          write(6,1200) vcx,vcy,vcz
          write(6,1210) vgx,vgy,vgz
 
-         call Waterpsp_Print2(6)
+         call pspw_qmmm_Print2(6)
 
          write(6,*)
          write(6,1320) en(1),en(ispin),' (real space)'
@@ -766,10 +765,17 @@
          write(6,1471) E(3),E(3)/n2(ispin)
          write(6,1472) ion_ke(),ion_ke()/ion_nion()
 
-         if (Waterpsp_found()) then
-            write(6,1701) E(12),E(12)/ion_nion()
-            write(6,1702) E(13)
+
+         if (pspw_qmmm_found()) then
+            write(6,1700)
+            write(6,1701)
+            write(6,1702) E(11)
+            write(6,1703) E(12)
+            write(6,1704) E(13)
+            write(6,1705) E(14)
+            write(6,1706) E(15)
          end if
+
 
          if (control_Nose()) then
            write(6,1473) E(9),E(9)/n2(ispin)
@@ -782,11 +788,11 @@
 *       **** write out Temperatures ****
          write(6,1491) eke
          eki0 = ion_Temperature()
-         if (Waterpsp_found()) then
-            eki1 = Waterpsp_Temperature()
-            sum = ion_nion() + 3.0d0*Waterpsp_nwater() - 2.0d0
+         if (pspw_qmmm_found()) then
+            eki1 =pspw_qmmm_Temperature()
+            sum = ion_nion() + pspw_qmmm_nion() - 2.0d0
             eki0 = eki0*((ion_nion()-2.0d0)/sum)
-     >           + eki1*((3*Waterpsp_nwater()-2.0d0)/sum)
+     >           + eki1*((pspw_qmmm_nion()-2.0d0)/sum)
          end if
          write(6,1480) eki0
          write(6,1490) ion_com_Temperature()
@@ -825,7 +831,7 @@
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
 *     **** write geometry to rtdb ****
-      call Waterpsp_write(rtdb)
+      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 *     **** deallocate heap memory ****
@@ -840,7 +846,7 @@
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
-      call Waterpsp_end()
+      call pspw_qmmm_end()
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))
@@ -1008,9 +1014,14 @@
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
- 1700 FORMAT(/' water-elc energy    :',E19.10,' (',E15.5,'/electron)')
- 1701 FORMAT( ' water-ion energy    :',E19.10,' (',E15.5,'/ion)')
- 1702 FORMAT( ' water-water energy  :',E19.10)
+
+ 1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
+ 1701 FORMAT( ' --------------------------')
+ 1702 FORMAT( ' QM/MM energy           :',E19.10)
+ 1703 FORMAT( ' MM/MM energy           :',E19.10)
+ 1704 FORMAT( ' MM Polarization energy :',E19.10)
+ 1705 FORMAT( ' MM Vibration energy    :',E19.10)
+ 1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

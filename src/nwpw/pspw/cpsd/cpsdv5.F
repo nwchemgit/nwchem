@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.5 2001-10-23 16:41:39 bylaska Exp $
+* $Id: cpsdv5.F,v 1.6 2001-10-26 02:28:26 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -140,10 +140,10 @@
       external     control_boundry
 
       logical      pspw_SIC,pspw_SIC_relaxed
-      logical      psp_semicore,control_Mulliken,Waterpsp_found
+      logical      psp_semicore,control_Mulliken,pspw_qmmm_found
       real*8       psp_rcore,psp_ncore,psp_rlocal
       external     pspw_SIC,pspw_SIC_relaxed
-      external     psp_semicore,control_Mulliken,Waterpsp_found
+      external     psp_semicore,control_Mulliken,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
 
 *                            |************|
@@ -306,7 +306,7 @@
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
-      call Waterpsp_init(rtdb)
+      call pspw_qmmm_init(rtdb)
 
 
 
@@ -362,7 +362,7 @@
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
          write(6,1230)
@@ -566,13 +566,13 @@
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,*)
          write(6,1320) en(1),en(ispin),' (real space)'
 
          write(6,1430) E(1),E(1)/ion_nion()
-         if (Waterpsp_found()) then
+         if (pspw_qmmm_found()) then
             write(6,1431) 
             write(6,1432) 
             write(6,1433) (E(1)-E(11)-E(12)-E(13)-E(14)-E(15)),
@@ -594,7 +594,7 @@
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
  
-         if (Waterpsp_found()) then
+         if (pspw_qmmm_found()) then
             write(6,1700) 
             write(6,1701) 
             write(6,1702) E(11) 
@@ -652,7 +652,7 @@
       call psi_write(ispin,ne,dcpl_mb(psi2(1)))
  
 *     **** write geometry to rtdb ****
-      call Waterpsp_write(rtdb)
+      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 
@@ -670,7 +670,7 @@
       call ion_end_FixIon()
       call pspw_end_SIC()
       call pspw_end_APC()
-      call Waterpsp_end()
+      call pspw_qmmm_end()
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))

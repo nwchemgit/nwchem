@@ -20,6 +20,7 @@
       integer ispin,ne(2),nemax
       integer psi2(2),dn(2),psir(2)
       real*8  cpu1,cpu2
+      real*8  position_tolerance
 
 *     **** external functions ****
       logical      control_read
@@ -67,10 +68,19 @@
          call util_flush(6)
       end if
 
+*     **** get position_tolerance ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >               mt_dbl,1,position_tolerance))
+     >      position_tolerance = 0.0d0
+
+
+*     **** read control file ****
       value = control_read(4,rtdb)
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
+
 
       if ((np.gt.(control_ngrid(3)))) then
         if (taskid.eq.MASTER)
@@ -125,6 +135,7 @@
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
+         write(6,1225) position_tolerance
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
@@ -205,6 +216,7 @@
  1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1225 FORMAT(/' position tolerance = ',E12.6)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1241 FORMAT(5x,' lattice: a1=<',3f8.3,' >')
@@ -442,8 +454,9 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *     **** geometry variables ****
       integer geom1
       character*16 t
-      integer nion
+      integer nion,nion2
       real*8 q,rxyz(3)
+      real*8 position_tolerance
 
 *     **** lattice variables ****
       integer np1,np2,np3
@@ -491,23 +504,43 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >           + lattice_unita(i,3) )/2.0d0
       end do
 
+*     **** get position_tolerance and nion2 = nion+special_positions ****
+      if (.not.
+     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >               mt_dbl,1,position_tolerance))
+     >      position_tolerance = 0.0d0
+
+      nion2 = nion
+      do i=1,nion
+         value = geom_cent_get(geom1,i,t,rxyz,q)
+         if (.not. value) call errquit('reading geometry',0)
+         call special_position_count(position_tolerance,
+     >                                   rxyz,nion2)
+      end do
+
+
       if (taskid.eq.MASTER) then
          orb_flag = 1
          if (number.gt.0) orb_flag = -1
 
-         write(unit_id,'(I5,3F12.6)') orb_flag*nion,r0
+         write(unit_id,'(I5,3F12.6)') orb_flag*nion2,r0
          write(unit_id,'(I5,3F12.6)') np1,ua(1,1),ua(2,1),ua(3,1)
          write(unit_id,'(I5,3F12.6)') np2,ua(1,2),ua(2,2),ua(3,2)
          write(unit_id,'(I5,3F12.6)') np3,ua(1,3),ua(2,3),ua(3,3)
       end if
 
 
+
+
 *     **** write geometry ****
       do i=1,nion
          value = geom_cent_get(geom1,i,t,rxyz,q)
          if (.not. value) call errquit('reading geometry',0)
-         if (taskid.eq.MASTER)
-     >     WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+         if (taskid.eq.MASTER) then
+           WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+           call special_position_tolerance(position_tolerance,
+     >                                   unit_id,q,rxyz)
+         end if
       end do
 
 *     **** write orbital header ****
@@ -548,3 +581,186 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
       return
       end 
+
+
+      subroutine special_position_tolerance(position_tolerance,
+     >                                      unit,q,r2)
+      implicit none
+      real*8  position_tolerance
+      integer unit
+      real*8  q
+      real*8  r2(3)
+
+*     **** Local variables defined ****
+      real*8  fa1,fa2,fa3
+      real*8  a(3,3),b(3,3),volume
+      integer i,j
+      real*8 rxyz(3)
+
+*      **** external functions ****
+       real*8   lattice_unita
+       external lattice_unita
+
+*     ***** Determine the unit lattice vectors and distances ******
+      do j=1,3
+      do i=1,3
+        a(i,j) = lattice_unita(i,j)
+      end do
+      end do
+
+      b(1,1) = a(2,2)*a(3,3) - a(3,2)*a(2,3)
+      b(2,1) = a(3,2)*a(1,3) - a(1,2)*a(3,3)
+      b(3,1) = a(1,2)*a(2,3) - a(2,2)*a(1,3)
+      b(1,2) = a(2,3)*a(3,1) - a(3,3)*a(2,1)
+      b(2,2) = a(3,3)*a(1,1) - a(1,3)*a(3,1)
+      b(3,2) = a(1,3)*a(2,1) - a(2,3)*a(1,1)
+      b(1,3) = a(2,1)*a(3,2) - a(3,1)*a(2,2)
+      b(2,3) = a(3,1)*a(1,2) - a(1,1)*a(3,2)
+      b(3,3) = a(1,1)*a(2,2) - a(2,1)*a(1,2)
+      volume = a(1,1)*b(1,1)
+     >       + a(2,1)*b(2,1)
+     >       + a(3,1)*b(3,1)
+
+      volume = 1.0d0/volume
+      call dscal(9,volume,b,1)
+
+*      *** Break the Ion positions into the a1, a2, and a3 components ***
+       fa1 =  b(1,1) * r2(1)
+     >     +  b(2,1) * r2(2)
+     >     +  b(3,1) * r2(3)
+
+       fa2 =  b(1,2) * r2(1)
+     >     +  b(2,2) * r2(2)
+     >     +  b(3,2) * r2(3)
+
+       fa3 =  b(1,3) * r2(1)
+     >     +  b(2,3) * r2(2)
+     >     +  b(3,3) * r2(3)
+
+ 
+       if ((fa1+position_tolerance) .GT. (0.5d0)) THEN
+         rxyz(1) = r2(1) - lattice_unita(1,1)
+         rxyz(2) = r2(2) - lattice_unita(2,1)
+         rxyz(3) = r2(3) - lattice_unita(3,1)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+       if ((fa1-position_tolerance) .LT. (-0.5d0)) THEN
+         rxyz(1) = r2(1) + lattice_unita(1,1)
+         rxyz(2) = r2(2) + lattice_unita(2,1)
+         rxyz(3) = r2(3) + lattice_unita(3,1)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+       if ((fa2+position_tolerance) .GT. (0.5d0)) THEN
+         rxyz(1) = r2(1) - lattice_unita(1,2)
+         rxyz(2) = r2(2) - lattice_unita(2,2)
+         rxyz(3) = r2(3) - lattice_unita(3,2)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+       if ((fa2-position_tolerance) .LT. (-0.5d0)) THEN
+         rxyz(1) = r2(1) + lattice_unita(1,2)
+         rxyz(2) = r2(2) + lattice_unita(2,2)
+         rxyz(3) = r2(3) + lattice_unita(3,2)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+
+       if ((fa3+position_tolerance) .GT. (0.5d0)) THEN
+         rxyz(1) = r2(1) - lattice_unita(1,3)
+         rxyz(2) = r2(2) - lattice_unita(2,3)
+         rxyz(3) = r2(3) - lattice_unita(3,3)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+       if ((fa3-position_tolerance) .LT. (-0.5d0)) THEN
+         rxyz(1) = r2(1) + lattice_unita(1,3)
+         rxyz(2) = r2(2) + lattice_unita(2,3)
+         rxyz(3) = r2(3) + lattice_unita(3,3)
+         WRITE(unit,'(I5,4F12.6)') int(q),q,rxyz
+       end if
+
+      return
+      end
+
+      subroutine special_position_count(position_tolerance,
+     >                                  r2,count)
+      implicit none
+      real*8  position_tolerance
+      real*8  r2(3)
+      integer count
+
+*     **** Local variables defined ****
+      real*8  fa1,fa2,fa3
+      real*8  a(3,3),b(3,3),volume
+      integer i,j
+
+*      **** external functions ****
+       real*8   lattice_unita
+       external lattice_unita
+
+*     ***** Determine the unit lattice vectors and distances ******
+      do j=1,3
+      do i=1,3
+        a(i,j) = lattice_unita(i,j)
+      end do
+      end do
+
+      b(1,1) = a(2,2)*a(3,3) - a(3,2)*a(2,3)
+      b(2,1) = a(3,2)*a(1,3) - a(1,2)*a(3,3)
+      b(3,1) = a(1,2)*a(2,3) - a(2,2)*a(1,3)
+      b(1,2) = a(2,3)*a(3,1) - a(3,3)*a(2,1)
+      b(2,2) = a(3,3)*a(1,1) - a(1,3)*a(3,1)
+      b(3,2) = a(1,3)*a(2,1) - a(2,3)*a(1,1)
+      b(1,3) = a(2,1)*a(3,2) - a(3,1)*a(2,2)
+      b(2,3) = a(3,1)*a(1,2) - a(1,1)*a(3,2)
+      b(3,3) = a(1,1)*a(2,2) - a(2,1)*a(1,2)
+      volume = a(1,1)*b(1,1)
+     >       + a(2,1)*b(2,1)
+     >       + a(3,1)*b(3,1)
+
+      volume = 1.0d0/volume
+      call dscal(9,volume,b,1)
+
+*      *** Break the Ion positions into the a1, a2, and a3 components ***
+       fa1 =  b(1,1) * r2(1)
+     >     +  b(2,1) * r2(2)
+     >     +  b(3,1) * r2(3)
+
+       fa2 =  b(1,2) * r2(1)
+     >     +  b(2,2) * r2(2)
+     >     +  b(3,2) * r2(3)
+
+       fa3 =  b(1,3) * r2(1)
+     >     +  b(2,3) * r2(2)
+     >     +  b(3,3) * r2(3)
+
+ 
+       if ((fa1+position_tolerance) .GT. (0.5d0)) THEN
+         count = count+1
+       end if
+
+       if ((fa1-position_tolerance) .LT. (-0.5d0)) THEN
+         count = count + 1
+       end if
+
+       if ((fa2+position_tolerance) .GT. (0.5d0)) THEN
+         count = count + 1
+       end if
+
+       if ((fa2-position_tolerance) .LT. (-0.5d0)) THEN
+         count = count + 1
+       end if
+
+
+       if ((fa3+position_tolerance) .GT. (0.5d0)) THEN
+         count = count + 1
+       end if
+
+       if ((fa3-position_tolerance) .LT. (-0.5d0)) THEN
+         count = count + 1
+       end if
+
+      return
+      end

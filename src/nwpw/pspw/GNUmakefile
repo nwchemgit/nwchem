@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.3 2001-08-30 17:17:58 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2001-10-26 02:28:24 bylaska Exp $
 #
       SUBDIRS = lib kbpp makepsi cpsd cgsd fractional analysis \
-                cell_optimize water_pseudopotential dplot
+                cell_optimize qmmm dplot
 
 
           OBJ = task_pspw.o \

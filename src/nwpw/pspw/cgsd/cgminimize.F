@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.3 2001-10-21 14:42:35 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -35,9 +35,12 @@ c      complex*16 G1(nfft3d,nemax)
 
       logical value
       integer neall,npack1
+      real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+
+
+
 
 *     **** external functions ****
-      logical  Waterpsp_found
       integer  control_it_in,psi_ne,control_version
       real*8   control_tole,control_tolc
       real*8   psi_geodesic_energy
@@ -53,7 +56,6 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external Waterpsp_found
       external control_it_in,psi_ne,control_version
       external control_tole,control_tolc
       external psi_geodesic_energy
@@ -68,6 +70,23 @@ c      complex*16 G1(nfft3d,nemax)
       external ewald_e,ion_ion_e
       external psi_1eorbit
       external linesearch
+
+*     ***** QM/MM external functions ****
+      logical  pspw_qmmm_found
+      real*8   pspw_qmmm_Energy_ionMM
+      real*8   pspw_qmmm_Energy_QMMM
+      real*8   pspw_qmmm_Energy_MMMM
+      real*8   pspw_qmmm_Energy_pol
+      real*8   pspw_qmmm_Energy_vib
+      real*8   pspw_qmmm_Energy_cav
+      external pspw_qmmm_found
+      external pspw_qmmm_Energy_ionMM
+      external pspw_qmmm_Energy_QMMM
+      external pspw_qmmm_Energy_MMMM
+      external pspw_qmmm_Energy_pol
+      external pspw_qmmm_Energy_vib
+      external pspw_qmmm_Energy_cav
+
 
        
   
@@ -241,10 +260,27 @@ c     call dng_2to1()
       E(8)  = psi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-      if (Waterpsp_found()) then
-         call Waterpsp_Energy_ion(E(12))
-         call Waterpsp_Energy_Water(E(13))
-         E(1) = E(1) + E(12) + E(13)
+      if (pspw_qmmm_found()) then
+
+*        **** get QM/MM  energies ****
+         e_ionmm = pspw_qmmm_Energy_ionMM()
+         e_qmmm  = pspw_qmmm_Energy_QMMM()
+         e_mmmm  = pspw_qmmm_Energy_MMMM()
+         e_pol   = pspw_qmmm_Energy_pol()
+         e_vib   = pspw_qmmm_Energy_vib()
+         e_cav   = pspw_qmmm_Energy_cav()
+
+         E(1) = E(1) + e_ionmm
+     >               + e_qmmm
+     >               + e_mmmm
+     >               + e_pol
+     >               + e_vib
+     >               + e_cav
+         E(11) = e_qmmm
+         E(12) = e_mmmm
+         E(13) = e_pol
+         E(14) = e_vib
+         E(15) = e_cav
       end if
 
       value = MA_free_heap(G1(2))

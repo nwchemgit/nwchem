@@ -1,6 +1,6 @@
       subroutine pspw_dplot_input(rtdb)
 c
-c $Id: pspw_dplot_input.F,v 1.1 2001-08-30 00:42:45 edo Exp $
+c $Id: pspw_dplot_input.F,v 1.2 2001-10-26 02:28:27 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -10,11 +10,12 @@ c
       integer rtdb
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 4)
+      parameter (num_dirs = 5)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
      >            'orbital',
+     >            'position_tolerance',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -29,15 +30,17 @@ c
 
       logical value
       integer ind               ! Index of matched directive
-      integer number,count,ia
-      integer      name1_len,name2_len
-      character*30 name1,name2
-      character*30 filename
-      character*30 wavefunction_filename
+      integer       number,count,ia
+      integer       name1_len,name2_len
+      character*30  name1,name2
+      character*30  filename
+      character*30  wavefunction_filename
       character*255 test
+      real*8        position_tolerance
 c
 c
 *     *** initializations ****
+      position_tolerance=0.001d0
       call util_file_prefix('movecs',wavefunction_filename)
       ia    = ICHAR('a')
       count = 0
@@ -58,7 +61,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 
+      goto ( 100,  200, 300, 400,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind)
@@ -147,12 +150,24 @@ c
      >     'pspw_dplot_input: rtdb_put failed for orbital', 0)
 
       goto 10
+c     
+c position_tolerance
+c     
+*     **** read position_tolerance ****
+ 400  if (.not. inp_f(position_tolerance))
+     >   call errquit(
+     >       'pspw_dplot_input: failed to read position tolerance', 0)
+
+      goto 10
 
  9999 continue
 
       ind = index(wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'pspw_dplot:wavefunction_filename',
      >                    1,wavefunction_filename(1:ind))
+      value = value.and.
+     >         rtdb_put(rtdb,'pspw_dplot:position_tolerance',
+     >                  mt_dbl,1,position_tolerance)
       if (.not.value)
      >     call errquit(
      >     'pspw_dplot_input: rtdb_put failed for vector', 0)

@@ -1068,9 +1068,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       integer r_grid(2)
 
 *     **** external functions *****
-      logical  Waterpsp_found
+      logical  pspw_qmmm_found
       integer  control_version
-      external Waterpsp_found
+      external pspw_qmmm_found
       external control_version
 
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
@@ -1101,10 +1101,10 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
          call v_lr_local(dbl_mb(r_grid(1)),
      >                   dbl_mb(vl_lr(1)))
 
-*        **** generate Waterpsp potential ****
-         if (Waterpsp_found()) then
+*        **** generate QM/MM potential ****
+         if (pspw_qmmm_found()) then
            n2ft3d = 2*nfft3d
-           call Waterpsp_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
+           call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
      >                                     dbl_mb(vl_lr(1)))
          end if
 

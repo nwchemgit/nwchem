@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-10-21 14:42:38 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-10-26 02:28:28 bylaska Exp $
 #
- SUBDIRS = 
+ SUBDIRS = pspw_LJ pspw_Q
  OBJ_OPTIMIZE = \
+				pspw_qmmm_input.o \
                 pspw_qmmm.o
 
       OBJ =

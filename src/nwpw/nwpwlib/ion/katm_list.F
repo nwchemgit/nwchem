@@ -3,9 +3,10 @@
 *     *    set_katm_list    *
 *     *                     *
 *     ***********************
-      subroutine set_katm_list(nion,aname_function,
+      subroutine set_katm_list(tag,nion,aname_function,
      >                         nkatm,katm,natm,atom)
       implicit none
+      integer tag
       integer nion
       character*2 aname_function
       external    aname_function
@@ -17,6 +18,7 @@
       integer i,ka
       integer atom_list(2)
       character*2 aname
+      character*20 rtdb_name
 
       integer     pspw_compare_atom
       external    pspw_compare_atom
@@ -36,7 +38,8 @@
            call pspw_insert_atom(aname,nkatm,byte_mb(atom_list(1)))
          end if
       end do
-      value = MA_alloc_get(mt_byte,(2*nkatm),'atom',atom(2),atom(1))
+      rtdb_name = 'atom'//CHAR(tag+ICHAR('a'))
+      value = MA_alloc_get(mt_byte,(2*nkatm),rtdb_name,atom(2),atom(1))
       if (.not. value) call errquit('out of heap memory',0)
       call pspw_copy_atom(nkatm,byte_mb(atom_list(1)),
      >                          byte_mb(atom(1)))
@@ -45,9 +48,11 @@
       if (.not. value) call errquit('popping stack memory',0)
 
 *     **** define katm, and natm ****
-      value = MA_alloc_get(mt_int,(nion),'katm',katm(2),katm(1))
+      rtdb_name = 'katm'//CHAR(tag+ICHAR('a'))
+      value = MA_alloc_get(mt_int,(nion),rtdb_name,katm(2),katm(1))
+      rtdb_name = 'natm'//CHAR(tag+ICHAR('a'))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatm),'natm',natm(2),natm(1))
+     >        MA_alloc_get(mt_int,(nkatm),rtdb_name,natm(2),natm(1))
       if (.not. value) call errquit('out of heap memory',0)
 
       do i=1,nkatm

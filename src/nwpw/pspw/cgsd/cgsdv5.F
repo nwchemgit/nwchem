@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.4 2001-10-21 14:42:36 bylaska Exp $
+* $Id: cgsdv5.F,v 1.5 2001-10-26 02:28:25 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -97,11 +97,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  Waterpsp_nwater
+      integer  pspw_qmmm_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external Waterpsp_nwater
+      external pspw_qmmm_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -111,9 +111,9 @@
       external     psp_semicore
       external     psp_rcore,psp_ncore,psp_rlocal
 
-      logical  psi_initialize, psi_finalize, Waterpsp_found
+      logical  psi_initialize, psi_finalize, pspw_qmmm_found
       integer  psi_ispin,psi_ne,electron_count,linesearch_count
-      external psi_initialize, psi_finalize, Waterpsp_found
+      external psi_initialize, psi_finalize, pspw_qmmm_found
       external psi_ispin,psi_ne,electron_count,linesearch_count
       real*8   cgsd_energy
       external cgsd_energy
@@ -222,7 +222,7 @@
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
-      call Waterpsp_init(rtdb)
+      call pspw_qmmm_init(rtdb)
 
       call linesearch_init()
 
@@ -273,7 +273,7 @@ c         ENDIF
          write(6,1200) cx,cy,cz
          write(6,1210) gx,gy,gz
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          write(6,1230)
@@ -337,7 +337,7 @@ c     end if
 
 *     ****  calculate gradient ***
       nion = ion_nion()
-      if (Waterpsp_found()) nion = nion + 3*Waterpsp_nwater()
+      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
@@ -388,7 +388,7 @@ c     end if
 *     **** calculate Mulliken Populations ***
 
 *     **** write geometry to rtdb ****
-      call Waterpsp_write(rtdb)
+      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
@@ -406,7 +406,7 @@ c     end if
       call Pack_end()
       call G_end()
       call pspw_end_APC()
-      call Waterpsp_end()
+      call pspw_qmmm_end()
       call ion_end()
       call psp_end()
       call D3dB_end(1)

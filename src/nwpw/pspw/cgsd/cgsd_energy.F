@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.4 2001-10-26 02:28:25 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -21,14 +21,14 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
       real*8  E(20)
 
 *     **** external functions ****
-      logical     psp_semicore,Waterpsp_found
-      character*2 psp_atom,ion_aname
+      logical     psp_semicore,pspw_qmmm_found
+      character*2 ion_aname
       integer     control_it_in, control_it_out
       integer     ion_nion,ion_katm,psi_ne,psi_ispin
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,ion_amass
-      external psp_semicore,Waterpsp_found
-      external psp_atom,ion_aname
+      external psp_semicore,pspw_qmmm_found
+      external ion_aname
       external control_it_in, control_it_out
       external ion_nion,ion_katm,psi_ne,psi_ispin
       external control_tole,control_tolc
@@ -116,7 +116,7 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
          write(6,1200) CX,CY,CZ
          write(6,1210) GX,GY,GZ
 
-         call Waterpsp_Print(6)
+         call pspw_qmmm_Print(6)
 
          write(6,*)
          write(6,1320) en(1),en(psi_ispin()),' (real space)'
@@ -127,7 +127,7 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
          write(6,1470) E(5),E(5)/ion_nion()
 
          write(6,1480) E(6),E(6)/neall
-         if (Waterpsp_found()) then
+         if (pspw_qmmm_found()) then
             write(6,1491) E(7),E(7)/neall
          else
             write(6,1490) E(7),E(7)/neall
@@ -138,10 +138,16 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
 
-         if (Waterpsp_found()) then
-            write(6,1701) E(12),E(12)/ion_nion()
-            write(6,1702) E(13)
+        if (pspw_qmmm_found()) then
+            write(6,1700)
+            write(6,1701)
+            write(6,1702) E(11)
+            write(6,1703) E(12)
+            write(6,1704) E(13)
+            write(6,1705) E(14)
+            write(6,1706) E(15)
          end if
+
 
          write(6,1500)
          NN=psi_ne(1)-psi_ne(2)
@@ -191,16 +197,21 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
  1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
- 1491 FORMAT( ' K.S. Vl+Vwater      :',E19.10,' (',E15.5,'/electron)')
+ 1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
  1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1700 FORMAT(/' water-elc energy    :',E19.10,' (',E15.5,'/electron)')
- 1701 FORMAT(/' water-ion energy    :',E19.10,' (',E15.5,'/ion)')
- 1702 FORMAT( ' water-water energy  :',E19.10)
+
+ 1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
+ 1701 FORMAT( ' --------------------------')
+ 1702 FORMAT( ' QM/MM energy           :',E19.10)
+ 1703 FORMAT( ' MM/MM energy           :',E19.10)
+ 1704 FORMAT( ' MM Polarization energy :',E19.10)
+ 1705 FORMAT( ' MM Vibration energy    :',E19.10)
+ 1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
       end
 
 *     *******************************
@@ -217,27 +228,29 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
       integer MASTER
       parameter (MASTER=0)
       integer i,k,taskid,nion
-      integer i1,i2,i3
+      integer i1
       real*8  GG
       real*8  fmx,fmy,fmz
       real*8  fmx2,fmy2,fmz2
 
 *     **** external functions ****
-      logical     psp_semicore,Waterpsp_found,control_allow_translation
-      character*2 psp_atom
+      logical     psp_semicore,pspw_qmmm_found
+      logical     control_allow_translation
+      character*2 ion_aname,pspw_qmmm_aname
       integer     ion_katm,ion_nion,control_version
-      integer     Waterpsp_nwater
-      real*8      ion_rion,Waterpsp_rwater
-      external psp_semicore,Waterpsp_found,control_allow_translation
-      external psp_atom
+      integer     pspw_qmmm_nion
+      real*8      ion_rion,pspw_qmmm_rion
+      external psp_semicore,pspw_qmmm_found
+      external control_allow_translation
+      external ion_aname,pspw_qmmm_aname
       external ion_katm,ion_nion,control_version
-      external Waterpsp_nwater
-      external ion_rion,Waterpsp_rwater
+      external pspw_qmmm_nion
+      external ion_rion,pspw_qmmm_rion
 
 
       allow_translation = control_allow_translation()
       nion = ion_nion()
-      if (Waterpsp_found()) nion = nion + 3*Waterpsp_nwater()
+      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
 
       call dcopy(3*nion,0.0d0,0,G1,1)
 
@@ -246,9 +259,9 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
 
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
-      if (Waterpsp_found()) then
-         call Waterpsp_Fion(G1)
-         call rho_1Fwater(G1(1,ion_nion()+1))
+      if (pspw_qmmm_found()) then
+         call pspw_qmmm_Fion(G1)
+         call rho_1Fmm(G1(1,ion_nion()+1))
       end if
 
       if (.not.allow_translation) then
@@ -276,31 +289,25 @@ c     $Id: cgsd_energy.F,v 1.3 2001-10-21 14:42:36 bylaska Exp $
         write(6,1304)
         write(6,1410)
         write(6,1420)
-        write(6,1190)(i,psp_atom(ion_katm(I)),
+        write(6,1190)(i,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
-        if (Waterpsp_found()) then
-          do i=1,Waterpsp_nwater()
-            i1 = ion_nion() + 3*(i-1) + 1
-            i2 = i1+1
-            i3 = i1+2
-            write(6,1190) i1,'O^',(Waterpsp_rwater(K,1,i),K=1,3)
-            write(6,1190) i2,'H^',(Waterpsp_rwater(K,2,i),K=1,3)
-            write(6,1190) i3,'H^',(Waterpsp_rwater(K,3,i),K=1,3)
+        if (pspw_qmmm_found()) then
+          do i=1,pspw_qmmm_nion()
+            i1 = ion_nion() + i
+            write(6,1190) i1,pspw_qmmm_aname(i),
+     >                    (pspw_qmmm_rion(K,i),K=1,3)
           end do
         end if
 
         write(6,1421)
-        write(6,1190)(i,psp_atom(ion_katm(I)),
+        write(6,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
-        if (Waterpsp_found()) then
-          do i=1,Waterpsp_nwater()
-            i1 = ion_nion() + 3*(i-1) + 1
-            i2 = i1+1
-            i3 = i1+2
-            write(6,1190) i1,'O^',(G1(K,i1),K=1,3)
-            write(6,1190) i2,'H^',(G1(K,i2),K=1,3)
-            write(6,1190) i3,'H^',(G1(K,i3),K=1,3)
+        if (pspw_qmmm_found()) then
+          do i=1,pspw_qmmm_nion()
+            i1 = ion_nion() + i
+            write(6,1190) i1,pspw_qmmm_aname(i),
+     >                    (G1(K,i1),K=1,3)
           end do
         end if
 

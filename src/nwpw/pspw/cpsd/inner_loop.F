@@ -19,7 +19,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
 *
-* $Id: inner_loop.F,v 1.5 2001-10-21 14:42:38 bylaska Exp $
+* $Id: inner_loop.F,v 1.6 2001-10-26 02:28:26 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -48,7 +48,9 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
-      real*8  e_elc_water,e_ion_water,e_water_water,deltawater
+      real*8  deltamm
+      real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+
 
 
 *     **** MA local variables ****
@@ -72,12 +74,12 @@ c     real*8     fion(3,natmx)
       integer npack0
 
 *     ***** external functions ****
-      logical  control_move,psp_semicore,Waterpsp_found
+      logical  control_move,psp_semicore
       logical  pspw_SIC,pspw_SIC_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
-      external control_move,psp_semicore,Waterpsp_found
+      external control_move,psp_semicore
       external pspw_SIC,pspw_SIC_relaxed
       external ion_nion,control_gga
       external control_time_step,control_fake_mass,ion_dti
@@ -86,6 +88,23 @@ c     real*8     fion(3,natmx)
       external control_version
       real*8   ion_ion_e
       external ion_ion_e
+
+*     ***** QM/MM external functions ****
+      logical  pspw_qmmm_found
+      real*8   pspw_qmmm_Energy_ionMM
+      real*8   pspw_qmmm_Energy_QMMM
+      real*8   pspw_qmmm_Energy_MMMM
+      real*8   pspw_qmmm_Energy_pol
+      real*8   pspw_qmmm_Energy_vib
+      real*8   pspw_qmmm_Energy_cav
+      external pspw_qmmm_found
+      external pspw_qmmm_Energy_ionMM
+      external pspw_qmmm_Energy_QMMM
+      external pspw_qmmm_Energy_MMMM
+      external pspw_qmmm_Energy_pol
+      external pspw_qmmm_Energy_vib
+      external pspw_qmmm_Energy_cav
+
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -110,7 +129,7 @@ c     real*8     fion(3,natmx)
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
-      deltawater = 0.0d0
+      deltamm = 0.0d0
 
 
       call current_second(tim1)
@@ -187,7 +206,7 @@ c     real*8     fion(3,natmx)
       do it=1,it_in
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         if (move) call ion_shift()
-        if ((move).and.(Waterpsp_found())) call Waterpsp_shift()
+        if ((move).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -303,9 +322,9 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                      dbl_mb(xce(1)))
         end if
      
-*       **** generate Waterpsp potential ****
-        if (Waterpsp_found()) then
-            call Waterpsp_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
+*       **** generate QM/MM potential ****
+        if (pspw_qmmm_found()) then
+            call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
      >                                      dbl_mb(vlr_l(1)))
         end if
 
@@ -356,13 +375,13 @@ c          call mask_C(1,psi2(1,n))
               call semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
            end if
 
-*          **** Waterpsp update ****
-           if (Waterpsp_found()) then
-              call Waterpsp_Update(0,n2ft3d,dbl_mb(r_grid(1)),
+*          **** QM/MM update ****
+           if (pspw_qmmm_found()) then
+              call pspw_qmmm_Update(0,n2ft3d,dbl_mb(r_grid(1)),
      >                                       dbl_mb(rho(1)),
      >                                       dv,dt,
      >                                       dbl_mb(fion(1)),
-     >                                       deltawater)
+     >                                       deltamm)
            end if
 
 *          **** remove ion forces using ion_FixIon ****
@@ -514,18 +533,27 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
       E(9) = 2.0d0*ehartr
       E(10) = pxc
 
-      if (Waterpsp_found()) then
+      if (pspw_qmmm_found()) then
 
-*        **** get the ion-water and water-water energies ****
-         call Waterpsp_Energy_ion(e_ion_water)
-         call Waterpsp_Energy_Water(e_water_water)
+*        **** get QM/MM  energies ****
+         e_ionmm = pspw_qmmm_Energy_ionMM()
+         e_qmmm  = pspw_qmmm_Energy_QMMM()
+         e_mmmm  = pspw_qmmm_Energy_MMMM()
+         e_pol   = pspw_qmmm_Energy_pol()
+         e_vib   = pspw_qmmm_Energy_vib()
+         e_cav   = pspw_qmmm_Energy_cav()
 
-         E(1) = E(1) + e_ion_water + e_water_water
-         E(11) = e_ion_water
-         E(12) = e_water_water
-         E(13) = 0.0d0
-         E(14) = 0.0d0
-         E(15) = 0.0d0
+         E(1) = E(1) + e_ionmm 
+     >               + e_qmmm
+     >               + e_mmmm
+     >               + e_pol
+     >               + e_vib
+     >               + e_cav
+         E(11) = e_qmmm
+         E(12) = e_mmmm
+         E(13) = e_pol
+         E(14) = e_vib
+         E(15) = e_cav
       end if
 
 *     **** SIC corrections ****
@@ -570,7 +598,7 @@ c         fion(3,i) = (r2(3,i) - r1(3,i))/ion_dti(i)
 c     end do
 
 *     *** deltar ***
-      deltar = deltawater
+      deltar = deltamm
       if (move) then
         do i=1,ion_nion()
            sum = dsqrt( dbl_mb(fion(1)+(i-1)*3  )**2 

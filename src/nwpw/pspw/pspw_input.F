@@ -1,6 +1,6 @@
       subroutine pspw_input(rtdb)
 c
-c $Id: pspw_input.F,v 1.1 2001-08-30 00:22:02 edo Exp $
+c $Id: pspw_input.F,v 1.2 2001-10-26 02:28:24 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -28,7 +28,7 @@ c
      >            'cartesian_to_fractional:',
      >            'analysis',
      >            'cell_optimize',
-     >            'water_pseudopotential',
+     >            'qmmm',
      >            'dplot',
      >            'end'/
 c
@@ -147,9 +147,9 @@ c
       goto 10
 
 c
-c water_pseudopotential
+c qmmm
 c
- 1500 call water_pseudopotential_input(rtdb) 
+ 1500 call pspw_qmmm_input(rtdb) 
       goto 10
 
 c

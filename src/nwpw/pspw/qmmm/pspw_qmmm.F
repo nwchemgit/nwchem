@@ -109,6 +109,7 @@
          if (rtdb_ma_get(rtdb, 'pspw:qmmm_frag', ma_type,
      >        h_nfrag, h_hndl)) then
 
+
            if (.not.MA_get_index(h_hndl,h_indx))
      >      call errquit(
      >      'pspw_qmmm_init: ma_get_index failed for qmmm_frag',911)
@@ -141,15 +142,15 @@
 *        ***** set indx_from_frag,size_frag, and shake_frag ****
          call set_indx_from_frag(h_nfrag,int_mb(h_indx),
      >                           max_frag_length,nfrag,
-     >                           size_frag,
-     >                           indx_from_frag,
-     >                           shake_frag)
+     >                           int_mb(size_frag(1)),
+     >                           int_mb(indx_from_frag(1)),
+     >                           int_mb(shake_frag(1)))
 
 *        **** set frag_from_indx ****
          call set_frag_from_indx(max_frag_length,nfrag,
-     >                           size_frag,
-     >                           indx_from_frag,
-     >                           frag_from_indx)
+     >                           int_mb(size_frag(1)),
+     >                           int_mb(indx_from_frag(1)),
+     >                           int_mb(frag_from_indx(1)))
 
 *        **** set dsqm_frag ****
          call set_dsqm_frag(max_frag_length,nfrag,
@@ -158,14 +159,21 @@
      >                      dbl_mb(r1(1)),
      >                      dbl_mb(dsqm_frag(1)))
 
+
 *       **** free h_array ****
         value = MA_free_heap(h_hndl)
         if (.not.value) call errquit('cannot free heap memory',0)
 
 *       **** set katm_list: nkatm, katm, natm, atom ****
-        call set_katm_list(nion,pspw_qmmm_aname,
+        call set_katm_list(2,nion,pspw_qmmm_aname,
      >                     nkatm,katm,natm,atom)
 
+
+     
+
+*       ***** initialize Model, LJ, Pol, VIB, and CAV ****
+        call pspw_LJ_init(rtdb)
+        call pspw_Q_init(rtdb)
       end if
 
       return
@@ -178,7 +186,8 @@
       subroutine set_max_frag_length_and_nfrag(nh,h_array,
      >                                         max_frag_length,nfrag)      
       implicit none
-      integer nh,h_array
+      integer nh
+      integer h_array(*)
       integer max_frag_length,nfrag
 
       integer h,last
@@ -558,7 +567,9 @@
         value = value.and.MA_free_heap(katm(2))
         if (.not.value) call errquit('cannot free heap memory',0)
 
-        if (qmmm_type.eq.1) call Model_Potential_end()
+c       if (qmmm_type.eq.1) call Model_Potential_end()
+        call pspw_LJ_end()
+        call pspw_Q_end()
       end if
 
 
@@ -665,8 +676,8 @@
       return
 
  1180 FORMAT(/' position of MM ions (au): ')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass=',F6.3)
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass=',F6.3,
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3)
+ 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,
      >      ' fragment:',2I6)
       end
 
@@ -829,10 +840,10 @@
       if (nion.gt.0) then
 
 *         **** Model Potential ****
-          if (qmmm_type.eq.1)
-     >      call Model_Potential_Generate_V(nion,dbl_mb(r1(1)),
-     >                                      n2ft3d,rgrid,Vqm)
-
+c         if (qmmm_type.eq.1)
+c    >      call Model_Potential_Generate_V(nion,dbl_mb(r1(1)),
+c    >                                      n2ft3d,rgrid,Vqm)
+c
 *         **** Model Charge ****
 c          if (qmmm_type.eq.2)
 c     >      call Model_Charge_Generate_V(nion,dbl_mb(r1(1)),
@@ -841,6 +852,28 @@ c     >                                   n2ft3d,rgrid,Vqm)
 
       return
       end
+
+*     **********************************
+*     *                                *
+*     *        pspw_qmmm_Update        *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_Update(algorithm,
+     >                           n2ft3d,rgrid,rho,dv,
+     >                           dt,fion,deltawater)
+      implicit none
+      integer algorithm
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 dv
+      real*8 dt
+      real*8 fion(3,*)
+      real*8 deltawater
+
+      return
+      end
+
 
 *     **********************************
 *     *	                               *
@@ -859,9 +892,12 @@ c     >                                   n2ft3d,rgrid,Vqm)
 
 ****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
+*     **** external functions ****
+      real*8   pspw_Q_Energy_IonMM
+      external pspw_Q_Energy_IonMM
 
 
-      pspw_qmmm_Energy_ionMM = 0.0d0
+      pspw_qmmm_Energy_ionMM = pspw_Q_Energy_IonMM()
       return
       end
 
@@ -883,6 +919,128 @@ c     >                                   n2ft3d,rgrid,Vqm)
 ****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
 
-      pspw_qmmm_Energy_QMMM = 0.0d0
+*     **** external functions ****
+      real*8   pspw_LJ_Energy_IonMM
+      external pspw_LJ_Energy_IonMM
+
+      pspw_qmmm_Energy_QMMM = pspw_LJ_Energy_IonMM()
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *     pspw_qmmm_Energy_MMMM      *
+*     *                                *
+*     **********************************
+
+*  This function returns the electrostatic
+* and Lenard-Jones (LJ) dispersion and repulsion 
+* energy between the QM subsystem and the MM subsystem.
+
+      real*8 function pspw_qmmm_Energy_MMMM()
+      implicit none
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+*     **** external functions ****
+      real*8   pspw_LJ_Energy_MM,pspw_Q_Energy_MM
+      external pspw_LJ_Energy_MM,pspw_Q_Energy_MM
+
+      pspw_qmmm_Energy_MMMM = pspw_LJ_Energy_MM()
+     >                      + pspw_Q_Energy_MM()
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *     pspw_qmmm_Energy_pol       *
+*     *                                *
+*     **********************************
+
+*  This function returns the polarization energy
+* of the MM subsystem.
+
+      real*8 function pspw_qmmm_Energy_pol()
+      implicit none
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_Energy_pol = 0.0d0
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *     pspw_qmmm_Energy_vib       *
+*     *                                *
+*     **********************************
+
+*  This function returns the vibration energy
+* of the MM subsystem.
+
+      real*8 function pspw_qmmm_Energy_vib()
+      implicit none
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_Energy_vib = 0.0d0
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *     pspw_qmmm_Energy_cav       *
+*     *                                *
+*     **********************************
+
+*  This function returns the polarization energy
+* of the MM subsystem.
+
+      real*8 function pspw_qmmm_Energy_cav()
+      implicit none
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_Energy_cav = 0.0d0
+      return
+      end
+
+
+*     **********************************
+*     *                                *
+*     *        pspw_qmmm_Fion          *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_Fion(fion)
+      implicit none
+      real*8 fion(3,*)
+      return
+      end
+     
+*     **********************************
+*     *                                *
+*     *        pspw_qmmm_Fmm           *
+*     *                                *
+*     **********************************
+      subroutine pspw_qmmm_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
+      implicit none
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 dv
+      real*8 f_mm(3,*)
+
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.2 2001-10-17 23:48:11 bylaska Exp $
+* $Id: center.f,v 1.3 2001-10-26 02:28:22 bylaska Exp $
 *
 
       subroutine center_geom(cx,cy,cz)
@@ -140,18 +140,18 @@
 
 *     **** local variables ****
       integer nion
-      integer i,i1,i2,i3
+      integer i,i1
       real*8 am
 
 *     **** external functions ****
-      logical  Waterpsp_found
-      integer  Waterpsp_nwater
+      logical  pspw_qmmm_found
+      integer  pspw_qmmm_nion
       integer  ion_nion
-      real*8   ion_amass
-      external Waterpsp_found
-      external Waterpsp_nwater
+      real*8   ion_amass,pspw_qmmm_amass
+      external pspw_qmmm_found
+      external pspw_qmmm_nion
       external ion_nion
-      external ion_amass
+      external ion_amass,pspw_qmmm_amass
 
       nion = ion_nion()
       gx=0.0d0
@@ -164,23 +164,14 @@
         gz=gz+ion_amass(i)*F(3,i)
         am=am+ion_amass(i)
       end do
-      if (Waterpsp_found()) then
-         do i=1,Waterpsp_nwater()
-            i1 = nion + 3*(i-1)+1
-            i2 = i1+1
-            i3 = i1+2
-            gx = gx + (16*1822.89d0)*F(1,i1)
-            gy = gy + (16*1822.89d0)*F(2,i1)
-            gz = gz + (16*1822.89d0)*F(3,i1)
-            am=am+(16*1822.89d0)
-            gx = gx + (1 *1822.89d0)*F(1,i2)
-            gy = gy + (1 *1822.89d0)*F(2,i2)
-            gz = gz + (1 *1822.89d0)*F(3,i2)
-            am=am+(1*1822.89d0)
-            gx = gx + (1 *1822.89d0)*F(1,i3)
-            gy = gy + (1 *1822.89d0)*F(2,i3)
-            gz = gz + (1 *1822.89d0)*F(3,i3)
-            am=am+(1*1822.89d0)
+      if (pspw_qmmm_found()) then
+         do i=1,pspw_qmmm_nion()
+            i1 = nion + i
+            gx = gx + pspw_qmmm_amass(i)*F(1,i1)
+            gy = gy + pspw_qmmm_amass(i)*F(2,i1)
+            gz = gz + pspw_qmmm_amass(i)*F(3,i1)
+            am=am+pspw_qmmm_amass(i)
+
          end do
       end if
       gx=gx/am

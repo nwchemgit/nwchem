@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.1 2001-08-30 17:56:11 bylaska Exp $
+* $Id: xyz.F,v 1.2 2001-10-26 02:28:22 bylaska Exp $
 *
       implicit none 
 
@@ -77,19 +77,19 @@
       integer taskid,i
 
 *     **** external functions ***
-      character*2 psp_atom
-      integer     ion_nion, ion_katm,Waterpsp_nwater
+      character*2 ion_aname
+      integer     ion_nion, pspw_qmmm_nion
       real*8      ion_rion, ion_vion
-      external    psp_atom
-      external    ion_nion, ion_katm,Waterpsp_nwater
+      external    ion_aname
+      external    ion_nion, pspw_qmmm_nion
       external    ion_rion, ion_vion
 
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
-         write(18,110) (ion_nion()+3*Waterpsp_nwater())
+         write(18,110) (ion_nion()+pspw_qmmm_nion())
          do i=1,ion_nion()
-            write(18,111) psp_atom(ion_katm(i)),
+            write(18,111) ion_aname(i),
      >                  ion_rion(1,i)*AACONV,
      >                  ion_rion(2,i)*AACONV,
      >                  ion_rion(3,i)*AACONV,
@@ -97,7 +97,7 @@
      >                  ion_vion(2,i)*AACONV,
      >                  ion_vion(3,i)*AACONV
          end do
-         call Waterpsp_PrintXYZ(18)
+         call pspw_qmmm_PrintXYZ(18)
          call util_flush(18)
       end if
   110 format(I5/)

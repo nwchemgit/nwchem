@@ -419,12 +419,12 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *									*
-*     *		rho_1Fwater					*
+*     *		rho_1Fmm					*
 *     *									*
 *     ***********************************
-      subroutine rho_1Fwater(Fwater)
+      subroutine rho_1Fmm(F_mm)
       implicit none
-      real*8 Fwater(*)
+      real*8 F_mm(*)
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -465,7 +465,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
-     >     'rho_1Fwater: out of stack memory',0)
+     >     'rho_1Fmm: out of stack memory',0)
 
 
 *     **** Get r_grid and rho ****
@@ -474,16 +474,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                   dbl_mb(rho1(1)+(ispin-1)*n2ft3d),
      >                   dbl_mb(rho(1)))
 
-*     **** Now calculate Fwater ****
-      call Waterpsp_Fwater(n2ft3d,dbl_mb(r_grid(1)),
+*     **** Now calculate F_mm ****
+      call pspw_qmmm_Fmm(n2ft3d,dbl_mb(r_grid(1)),
      >                            dbl_mb(rho(1)),
-     >                            dv,Fwater)
+     >                            dv,F_mm)
 
 *     **** Pop memory ****
       value =           MA_pop_stack(rho(2))
       value = value.and.MA_pop_stack(r_grid(2))
       if (.not. value) call errquit(
-     >     'rho_1Fwater: error popping stack memory',0)
+     >     'rho_1Fmm: error popping stack memory',0)
 
       return
       end

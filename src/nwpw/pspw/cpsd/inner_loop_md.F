@@ -20,7 +20,7 @@
      >                      hml,lmd,
      >                      Hpsi,psi_r)
 *
-* $Id: inner_loop_md.F,v 1.2 2001-10-17 23:48:14 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.3 2001-10-26 02:28:26 bylaska Exp $
 *
       implicit none
       logical    verlet
@@ -50,7 +50,7 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
-      real*8  e_elc_water,e_ion_water,e_water_water
+      real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
 *     **** MA local variables ****
@@ -74,21 +74,41 @@ c     real*8     fion(3,natmx)
 
 *     ***** external functions ****
       integer  ion_nion,control_gga
-      real*8   ion_ke,ion_ion_e,Waterpsp_ke
+      real*8   ion_ke,ion_ion_e
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
       external ion_nion,control_gga
-      external ion_ke,ion_ion_e,Waterpsp_ke
+      external ion_ke,ion_ion_e
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,coulomb_e,ewald_e
       logical  psp_semicore
       external psp_semicore
       integer  control_version
       external control_version
-      logical  control_Nose,Waterpsp_found
-      external control_Nose,Waterpsp_found
+      logical  control_Nose
+      external control_Nose
       real*8   Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
+
+*     ***** QM/MM external functions ****
+      logical  pspw_qmmm_found
+      real*8   pspw_qmmm_ke
+      real*8   pspw_qmmm_Energy_ionMM
+      real*8   pspw_qmmm_Energy_QMMM
+      real*8   pspw_qmmm_Energy_MMMM
+      real*8   pspw_qmmm_Energy_pol
+      real*8   pspw_qmmm_Energy_vib
+      real*8   pspw_qmmm_Energy_cav
+      external pspw_qmmm_found
+      external pspw_qmmm_ke
+      external pspw_qmmm_Energy_ionMM
+      external pspw_qmmm_Energy_QMMM
+      external pspw_qmmm_Energy_MMMM
+      external pspw_qmmm_Energy_pol
+      external pspw_qmmm_Energy_vib
+      external pspw_qmmm_Energy_cav
+
+
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -197,7 +217,7 @@ c     real*8     fion(3,natmx)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
         if (nose)   call Nose_Shift()
-        if ((verlet).and.(Waterpsp_found())) call Waterpsp_shift()
+        if ((verlet).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -308,9 +328,9 @@ c     real*8     fion(3,natmx)
      >                      dbl_mb(xce(1)))
         end if
      
-*       **** generate Waterpsp potential ****
-        if (Waterpsp_found()) then
-            call Waterpsp_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
+*       **** generate QM/MM potential ****
+        if (pspw_qmmm_found()) then
+            call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
      >                                      dbl_mb(vlr_l(1)))
         end if
 
@@ -377,9 +397,9 @@ c     real*8     fion(3,natmx)
               call Pack_cc_daxpy(1,2.0d0,psi1(1,n),psi2(1,n))
              end do
 
-*            **** Waterpsp Verlet update ****
-             if (Waterpsp_found()) then
-                call Waterpsp_Update(2,n2ft3d,dbl_mb(r_grid(1)),
+*            **** QM/MM Verlet update ****
+             if (pspw_qmmm_found()) then
+                call pspw_qmmm_Update(2,n2ft3d,dbl_mb(r_grid(1)),
      >                                       dbl_mb(rho(1)),
      >                                       dv,dt,
      >                                       dbl_mb(fion(1)),
@@ -398,9 +418,9 @@ c     real*8     fion(3,natmx)
               call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            end do
 
-*          **** Waterpsp Newton update ****
-           if (Waterpsp_found()) then
-              call Waterpsp_Update(1,n2ft3d,dbl_mb(r_grid(1)),
+*          **** QM/MM Newton update ****
+           if (pspw_qmmm_found()) then
+              call pspw_qmmm_Update(1,n2ft3d,dbl_mb(r_grid(1)),
      >                                       dbl_mb(rho(1)),
      >                                       dv,dt,
      >                                       dbl_mb(fion(1)),
@@ -525,16 +545,6 @@ c     real*8     fion(3,natmx)
       exc = exc*dv
       pxc = pxc*dv
 
-*     *********************************
-*     ******** Waterpsp energies ******
-*     *********************************
-      if (Waterpsp_found()) then
-*        **** get the ion-water energy ****
-         call Waterpsp_Energy_ion(e_ion_water)
-
-*        **** get the water-water energy ****
-         call Waterpsp_Energy_Water(e_water_water)
-      end if
 
 
         
@@ -562,12 +572,30 @@ c     real*8     fion(3,natmx)
       E(7) = exc
       E(8) = eion
 
-      if (Waterpsp_found()) then
-         E(2) = E(2) + e_ion_water + e_water_water
-         E(4) = E(4) + Waterpsp_ke()
-         E(12) = e_ion_water
-         E(13) = e_water_water
+*     ******** QM/MM energies ******
+      if (pspw_qmmm_found()) then
+         e_ionmm = pspw_qmmm_Energy_ionMM()
+         e_qmmm  = pspw_qmmm_Energy_QMMM()
+         e_mmmm  = pspw_qmmm_Energy_MMMM()
+         e_pol   = pspw_qmmm_Energy_pol()
+         e_vib   = pspw_qmmm_Energy_vib()
+         e_cav   = pspw_qmmm_Energy_cav()
+
+         E(2) = E(2) + e_ionmm
+     >               + e_qmmm
+     >               + e_mmmm
+     >               + e_pol
+     >               + e_vib
+     >               + e_cav
+         E(4) = E(4) + pspw_qmmm_ke()
+         E(11) = e_qmmm
+         E(12) = e_mmmm
+         E(13) = e_pol
+         E(14) = e_vib
+         E(15) = e_cav
       end if
+
+
 
       if (nose) then
         E(9) = Nose_e_energy()

@@ -6,7 +6,7 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.4 2001-10-23 16:41:37 bylaska Exp $
+* $Id: ion.F,v 1.5 2001-10-26 02:28:22 bylaska Exp $
 *
       implicit none
 
@@ -247,7 +247,8 @@
      >          geom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
      >                                   dbl_mb(rt(1) + 3*nion2),
      >                                   dbl_mb(qt(1) +   nion2))
-        value = value.and.geom_masses_set(geom3,nion3,dbl_mb(mt(1)))
+        value = value.and.geom_masses_set(geom3,nion3,
+     >                                   dbl_mb(mt(1) +   nion2))
       end if
 
       call dcopy(nion1,0.0d0,0,dbl_mb(rt(1)),1)
@@ -295,10 +296,6 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion),'katm',katm(2),katm(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,(nkatm),'natm',natm(2),natm(1))
-      value = value.and.
      >       MA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
       if (.not. value) call errquit('out of heap memory',0)
 
@@ -311,7 +308,7 @@
       end do
 
 *     **** define atom list: nkatm,katm,natm,atom ****
-      call set_katm_list(nion,ion_aname,nkatm,katm,natm,atom)
+      call set_katm_list(1,nion,ion_aname,nkatm,katm,natm,atom)
 
       if (control_frac_coord()) then
          if (taskid.eq.MASTER) then

@@ -1,5 +1,5 @@
 *
-* $Id: incell1.f,v 1.1 2001-08-30 17:56:10 bylaska Exp $
+* $Id: incell1.f,v 1.2 2001-10-26 02:28:22 bylaska Exp $
 *
 
       subroutine incell1(ni,r2)
@@ -139,3 +139,4 @@
 
       return
       end
+

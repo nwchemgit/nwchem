@@ -1,0 +1,6 @@
+*     ***** pspw_Q common block ****************************************
+      integer q_mm(2)
+      integer q_ion(2)
+      common / pspw_Q /   q_mm,		! MM  Electrostatic parameters
+     >                    q_ion 	! Ion Electrostatic parameters
+*     ******************************************************************

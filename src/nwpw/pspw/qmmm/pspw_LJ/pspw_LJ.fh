@@ -1,0 +1,8 @@
+*     ***** pspw_LJ common block ************************************
+      integer sigma_mm(2),epsilon_mm(2)
+      integer sigma_ion(2),epsilon_ion(2)
+      common / pspw_LJ /   sigma_mm,		! MM  LJ parameters
+     >                     epsilon_mm,		! MM  LJ parameters
+     >                     sigma_ion,		! Ion LJ parameters
+     >                     epsilon_ion		! Ion LJ parameters
+*     ******************************************************************
