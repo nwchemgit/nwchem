@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.67 2000-04-28 20:06:01 edo Exp $
+# $Id: DEFS,v 1.68 2000-04-28 20:07:25 edo Exp $
 #
 #======================================================================
 #
@@ -376,9 +376,9 @@ peigs_CPU  = ALPHA
 peigs_COMM = TCGMSG
 peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
 peigs_CODEOBJ = DBLE
-peigs_CC  += -std -D${peigs_CPU} -DSTD_DBL -D_fastmath -g -DDECOSF -tune ev6 -arch ev6 
-#peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DALPHA
-peigs_FC += -O4 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune ev6 -arch ev6
+peigs_CC  += -D${peigs_CPU}  -DSTD_DBL -O3 -DDECOSF -tune host -arch host
+peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -arch host
+#peigs_FC += -g -D${CPU}  -DSTD_DBL  -D$(peigs_COMM) -DDECOSF
 endif
 
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
@@ -392,7 +392,7 @@ ifeq ($(peigs_TARGET),CYGNUS)
 peigs_CC += -DLINUX
 peigs_CPP += -DLINUX
 endif
-peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_CC +=  -D${peigs_CPU} -DSTD_DBL -D_FASTMATH -O4 -DDECOSF -tune ev6 -arch ev6 
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
