@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.8 1999-05-19 20:16:16 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.9 1999-07-14 22:43:03 d3j191 Exp $
 c
       implicit none
 c
@@ -381,7 +381,7 @@ c
       miss=miss+1
       if(util_print('coordinates',print_none)) then
       write(lfnout,9998) i
- 9998 format('Coordinates missing for atom ',i5)
+ 9998 format(' Coordinates missing for atom ',i5)
       endif
       endif
       endif
