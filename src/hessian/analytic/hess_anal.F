@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.16 2002-05-06 22:37:25 windus Exp $
+C $Id: hess_anal.F,v 1.17 2002-07-07 00:40:44 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -102,6 +102,17 @@ c
         if(.not.task_energy(rtdb)) call errquit 
      *    ('hess_anal: energy failure', 555)
         if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
+      endif
+c
+c  2nd check to see if we should fail the calculation because
+c  the code can't handle it.
+c
+      if (.not. hess_check(rtdb)) then
+        write(LuOut,*) 'The Analytic Hessian code cannot run ',
+     *    'calculations with ECPs, open shell DFT, or charge ',
+     *    'fitted DFT'
+        write(LuOut,*) 'Please use the numerical option'
+        return
       endif
 c
 c     initialize hessian variables
