@@ -4,13 +4,11 @@ C     geom_num_core -- return the number of orbitals considered to be
 C     in the "core" in a system
 C
 C SYNOPSIS
-      Logical Function Geom_Num_Core(Geom, NCore)
+      Logical Function Geom_Num_Core(rtdb, Geom, module, NCore)
 *
-* $Id: geom_numcore.F,v 1.5 1999-10-26 21:25:54 mg201 Exp $
+* $Id: geom_numcore.F,v 1.6 2003-02-20 01:12:46 mhackler Exp $
 *
       Implicit NONE
-      Integer Geom     ! [in]  Geometry handle
-      Integer NCore    ! [out] Number of orbitals considered core
 C
 C DESCRIPTION
 C     Determines the number of core orbitals in a system based on the
@@ -27,16 +25,34 @@ C
 C INCLUDE FILES
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
 C 
 C EXTERNAL ROUTINES
       Logical Geom_Check_Handle, Geom_Tag_to_Element
       External Geom_Check_Handle, Geom_Tag_to_Element
+
+      Logical rtdb_get
+      External rtdb_get
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer I, AtNr ! Atomic number
       Character*2 Sy  ! Atomic symbol
       Character*16 El ! Element name
       Logical Is_At   ! Is this tag an atom or something else?
+      
+      Integer num_elem
+      Integer tagfrz(60)
+      Integer numfrz(60)
+      Integer Geom     ! [in]  Geometry handle
+      Integer NCore    ! [out] Number of orbitals considered core
+      Integer rtdb     ! [in]  Runtime database handle
+      Integer tag
+      character*(*) module
+      character*80 key 
+      character*20 space
+      Integer mlen
 C
 C PRIVATE DATA
       Integer PerTbl(NElements)
@@ -56,6 +72,35 @@ C
      $   32*27,             ! Cs-Rn,                +5s4d5p
      $   23*43/             ! Fr-Mt,                      +6s4f5d6p
 C
+      
+      
+      space = 'number tag elements'
+      key = ' '
+      mlen = inp_strlen(module) 
+      write (key, '(a,'':'',a,'':'',a)') module(1:mlen),
+     $    space(1:inp_strlen(space)), 'freeze by atoms'
+
+      if(rtdb_get(rtdb, key, mt_int, 1, num_elem)) then
+          
+          space = 'tag freeze'
+          key = ' '
+          write (key, '(a,'':'',a,'':'',a)') module(1:mlen),
+     $        space(1:inp_strlen(space)), 'freeze by atoms' 
+      
+          if(rtdb_get(rtdb, key, mt_int, num_elem, tagfrz)) then
+            space = 'num freeze'
+            write (key, '(a,'':'',a,'':'',a)') module(1:mlen),
+     $        space(1:inp_strlen(space)), 'freeze by atoms'
+            
+             if(rtdb_get(rtdb, key, mt_int, num_elem, numfrz)) then
+              do i = 1, num_elem
+                tag = tagfrz(i)
+                PerTbl(tag) = numfrz(i)
+              enddo
+            endif
+          endif
+       endif  
+
       Geom_Num_Core = Geom_Check_Handle(Geom, 'Geom_Num_Core') 
       If ( .NOT. Geom_Num_Core) Return
 C
