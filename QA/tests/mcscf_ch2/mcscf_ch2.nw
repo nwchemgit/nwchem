@@ -1,0 +1,32 @@
+echo
+start ch2
+
+title "CASSCF for CH2 1A1 - 3B1 splitting at the 3B1 geometry"
+
+geometry units au
+  C    0   0     0
+  H    0  1.87  -0.82
+  symmetry c2v
+end
+
+basis
+  C library 6-31g**
+  H library 6-31g**
+end
+
+task scf
+
+mcscf
+  active  6
+  actelec 6
+  state   3B1
+end
+
+task mcscf optimize
+
+mcscf
+  state  1A1
+end
+
+task mcscf
+
