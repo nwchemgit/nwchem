@@ -8,7 +8,6 @@
 		mcscf_etr.o \
 		mcscf_fcore.o \
 	        mcscf_fock.o \
-		mcscf_fdiff.o \
 		mcscf_hdiag.o \
 		mcscf_ohv.o \
 		mcscf_ohv1e.o \
@@ -18,9 +17,8 @@
 		mcscf_orb.o \
 		mcscf_prcnd.o \
 		mcscf_debug.o \
-                mcscf_input.o \
-		linesrch.o \
-		hmat.o
+                mcscf_input.o
+
 
       LIBRARY =	libmcscf.a
 
