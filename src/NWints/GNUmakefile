@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.11 1994-06-09 09:46:36 d3e129 Exp $
+# $Id: GNUmakefile,v 1.12 1994-06-11 00:41:56 d3e129 Exp $
 
 LIBRARY = libnwints.a
 
@@ -14,7 +14,8 @@ API_OBJ = ./api/int_init.o ./api/exact_mem.o ./api/int_mem.o \
           ./api/int_2e3c.o ./api/int_2e2c.o ./api/int_l2e3c.o \
           ./api/int_l2e2c.o ./api/int_1e3ov.o ./api/int_l1e3ov.o \
           ./api/int_hf1sp.o ./api/int_nint.o \
-          ./api/intd_1eov.o ./api/intd_1eh1.o ./api/intd_2e4c.o
+          ./api/intd_1eov.o ./api/intd_1eh1.o ./api/intd_2e4c.o \
+          ./api/intd_init.o ./api/exactd_mem.o
 
 INT_OBJ = ./int/defNxyz.o ./int/getNxyz.o ./int/hf1.o ./int/hf1mke3.o \
           ./int/hf1mkr.o ./int/hf1set3.o ./int/hf2.o ./int/hf2mkr.o \
