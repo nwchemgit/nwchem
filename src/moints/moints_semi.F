@@ -1,5 +1,5 @@
 c
-c  $Id: moints_semi.F,v 1.5 1995-11-10 23:45:21 rg240 Exp $
+c  $Id: moints_semi.F,v 1.6 1995-11-27 07:48:15 og845 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -1198,6 +1198,7 @@ c
       double precision dunits
       integer nunits
       integer i2dmap
+      integer i
       common/crayunits/nunits,dunits(10),i2dmap(10)
       
       do i=1,8
