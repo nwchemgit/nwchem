@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.74 2000-03-21 23:12:03 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.75 2000-03-27 19:17:12 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -567,14 +567,14 @@ c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
-     &   icoord))call errquit('dft_rdinput: failed to alloc 
-     &   coordinates',0)
+     &   icoord))call errquit(
+     .     'dft_rdinput: failed to alloc coordinates',0)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
-     &   icharge))call errquit('dft_rdinput: failed to alloc 
-     &   charges',0)
+     &   icharge))call errquit(
+     .     'dft_rdinput: failed to alloc charges',0)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
-     &   ltags, itags))call errquit('dft_rdinput: failed to alloc 
-     &   center tags',0)
+     &   ltags, itags))call errquit(
+     .     'dft_rdinput: failed to alloc center tags',0)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
