@@ -422,7 +422,9 @@ II-1 & i5     & segment number, except\\
      &        &  0: identifies solvent, has to be last segment\\
      &        & -1: identifies a break in the chain\\
      &        & -2: identifies end of a molecule\\
-     &        & -3: identifies end of the sequence file\\
+     &        & -3: identifies end of a molecule fraction\\
+     &        & -4: identifies end of the solute section\\
+     &        & -5: identifies end of the sequence file\\
 II-2 & a10    & segment name, last character will be determined from chain\\
 II-3 & i5     & link segment 1, if blank previous segment in chain\\
 II-4 & i3     & link atom, if blank link atom 2\\
@@ -958,13 +960,16 @@ pair lists are regenerated.
 \item
 Updating the simulation volume center
 \begin{verbatim}
-[update [center <i nfcntr>]]
+[update [center <i nfcntr> [fraction <i idscb(1:5)>]]]
 \end{verbatim}
 where {\bf nfcntr} is the frequency in molecular dynamics steps in 
 which the center of geometry of the solute(s) is translated to the
-center of the simulation volume. This translation is implemented
-such that it has no effect on any aspect of the simulation. The
-default is 0.
+center of the simulation volume. The solute fractions determining the
+solutes that will be centered are specified by the keyword 
+{\bf fraction} and the vector {\bf idscb}, with a maximum of 5 entries.
+This translation is implemented such that it has no effect on any 
+aspect of the simulation. The default is not to center, i.e. nfcntr is
+0. The default fraction used to center solute is 1.
 \item
 Periodic removal of center of mass motion is specified by the
 following keyword.
