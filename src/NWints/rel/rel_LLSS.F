@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.5 2000-02-03 20:29:26 mg201 Exp $
+C $Id: rel_LLSS.F,v 1.6 2000-05-27 18:07:46 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for
@@ -210,13 +210,18 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &    Dxyz,zeta_D,scr(i_xcd),NPD,NCD,l_D+1,
      &    scr(i_pp),n_intpp,canAB,canCD,canPQ,
      &    DryRun,scr(i_scr),memscr)
-      if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+      if (DryRun) then
+        max_mem = max(max_mem,i_scr+memscr-1)
+      else if (debug_arrays) then
+        call ecp_matpr(scr(i_pp),1,n_intpp,1,1,
+     &      1,n_intpp,1,1,'++ ints','E',120,6)
+      end if
 *
 *         Calculate integrals for l_C-1, l_D+1
 *
       if (l_C .gt. 0) then
         memscr = lscr-i_scr+1
-        if (debug_gen) write (LuOut,*) 'calling hf2 -+'
+        if (debug_gen) write (LuOut,*) 'calling hf2 +-'
         call hf2(
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -224,14 +229,19 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Dxyz,zeta_D,scr(i_xcd),NPD,NCD,l_D+1,
      &      scr(i_pm),n_intpm,canAB,canCD,canPQ,
      &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+        else if (debug_arrays) then
+          call ecp_matpr(scr(i_pm),1,n_intpm,1,1,
+     &        1,n_intpm,1,1,'+- ints','E',120,6)
+        end if
       end if
 *
 *         Calculate integrals for l_C+1, l_D-1
 *
       if (l_D .gt. 0) then
         memscr = lscr-i_scr+1
-        if (debug_gen) write (LuOut,*) 'calling hf2 +-'
+        if (debug_gen) write (LuOut,*) 'calling hf2 -+'
         call hf2(
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B,
@@ -239,7 +249,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Dxyz,zeta_D,coef_D,NPD,NCD,l_D-1,
      &      scr(i_mp),n_intmp,canAB,canCD,canPQ,
      &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+        else if (debug_arrays) then
+          call ecp_matpr(scr(i_mp),1,n_intmp,1,1,
+     &        1,n_intmp,1,1,'-+ ints','E',120,6)
+        end if
 *
 *         Calculate integrals for l_C-1, l_D-1
 *
@@ -253,7 +268,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &        Dxyz,zeta_D,coef_D,NPD,NCD,l_D-1,
      &        scr(i_mm),n_intmm,canAB,canCD,canPQ,
      &        DryRun,scr(i_scr),memscr)
-          if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+          if (DryRun) then
+            max_mem = max(max_mem,i_scr+memscr-1)
+          else if (debug_arrays) then
+            call ecp_matpr(scr(i_mm),1,n_intmm,1,1,
+     &          1,n_intmm,1,1,'-- ints','E',120,6)
+          end if
         end if
       end if
 *
