@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.28 1999-09-02 17:31:18 edo Exp $
+c     $Id: dft_main0d.F,v 1.29 1999-10-22 18:53:17 edo Exp $
 c     
       implicit none
 c
@@ -52,6 +52,8 @@ c
       oprint_time = util_print('dft timings', print_high)
       oprint_ioinfo = util_print('io info', print_debug)
       call schwarz_init(geom, AO_bas_han)
+      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 2000000) ! Cache if < 2MB/node
+     $     call int_1e_cache_ga(AO_bas_han, oskel)
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
 c     
@@ -206,17 +208,17 @@ c
 c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
 *ga:1:0
-!         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
-!     &                       0, nbf_cd, g_2ceri)) 
-!     &      call errquit('dft_main0d: error creating g_2ceri',0)
-      g_2ceri = ga_create_atom_blocked(geom, CD_bas_han, 'CD2cer')
+         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
+     &                       0, nbf_cd, g_2ceri)) 
+     &      call errquit('dft_main0d: error creating g_2ceri',0)
+!      g_2ceri = ga_create_atom_blocked(geom, CD_bas_han, 'CD2cer')
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri, geom)
 *ga:1:0
-!         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-!     &                        0, nbf_cd,g_cdinv)) 
-!     &      call errquit('dft_main0d: error creating g_cdinv',0)
-      g_cdinv = ga_create_atom_blocked(geom, CD_bas_han, 'CD2ceriv')
+         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
+     &                        0, nbf_cd,g_cdinv)) 
+     &      call errquit('dft_main0d: error creating g_cdinv',0)
+!      g_cdinv = ga_create_atom_blocked(geom, CD_bas_han, 'CD2ceriv')
          call ga_zero(g_cdinv)
          lmiss = 1
 c         if (lmiss.eq.1) then
