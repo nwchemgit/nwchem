@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.8 2000-01-12 06:06:55 d3j191 Exp $
+c $Id: cf_shake.F,v 1.9 2000-01-28 20:42:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -420,6 +420,12 @@ c
       if(ibnd(isb,2).eq.igan(j)) jsa=j
     3 continue
 c
+      rsx1=xs(isa,1)-xs(jsa,1)
+      rsx2=xs(isa,2)-xs(jsa,2)
+      rsx3=xs(isa,3)-xs(jsa,3)
+      rbnd(isb,1)=sqrt(rsx1*rsx1+rsx2*rsx2+rsx3*rsx3)
+      rbnd(isb,2)=zero
+c
       if(iand(isdt(isa),mfixed).ne.lfixed.and.
      + iand(isdt(jsa),mfixed).ne.lfixed) then
 c
@@ -428,9 +434,6 @@ c
       wsai=one/wgt(isat(isa),iset)
       wsaj=one/wgt(isat(jsa),iset)
       w=wsai+wsaj
-      rsx1=xs(isa,1)-xs(jsa,1)
-      rsx2=xs(isa,2)-xs(jsa,2)
-      rsx3=xs(isa,3)-xs(jsa,3)
       rsi1=bs-rsx1**2-rsx2**2-rsx3**2
       if(abs(rsi1).gt.dmax) then
       dmax=abs(rsi1)
