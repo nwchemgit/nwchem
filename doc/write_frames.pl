@@ -1,4 +1,4 @@
-#!/bin/env perl
+#!/msrc/apps/bin/perl
 #
 # New frames code to eat latex2html output and write a frames document
 #
@@ -6,12 +6,12 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.3 1998-04-29 23:52:31 d3e129 Exp $
+# $Id: write_frames.pl,v 1.4 1999-08-02 23:18:29 d3e129 Exp $
 #
 # remove nwchem banner stuff 3/23/98
 #
-@INC = ("/dfs/apps/perl/lib","/usr/lib/perl5");
-use File::Copy;
+@INC = ("/msrc/apps/perl-5.005/lib/5.00502","/usr/lib/perl5");
+require File::Copy;
 
 if (($ARGV[0] eq "") || ($ARGV[1] eq "")) {
     print "Usage: write_frames.pl document_name title_string\n";
@@ -76,7 +76,7 @@ if (!(open(FHTMLSEARCH,">$document/$document.search.html"))){
     die "write_frames.pl: could not open $document/$document.search.html for writing\n";
 }
 if (!(open(FSEARCH,"$document.search"))){
-    die "write_frames.pl: could not open $document.search for reading\n";
+    die "write_frames.pl: could not open $document.search for reading(1)\n";
 }
 print FHTMLSEARCH "<HTML>\n<HEAD>\n<TITLE> $title Search Window</TITLE>\n";
 print FHTMLSEARCH "<BASE TARGET=\"main\">\n";
@@ -98,7 +98,7 @@ if (!(open(FHTMLCONT,">$document/contents.html"))){
     die "write_frames.pl: could not open $document/contents.html for writing\n";
 }
 if (!(open(FCONT,"$document/node2.html"))){
-    die "write_frames.pl: could not open $document/node2.html for reading\n";
+    die "write_frames.pl: could not open $document/node2.html for reading(2)\n";
 }
 print FHTMLCONT "<HTML>\n<HEAD>\n<TITLE><B>Contents of $title </B></TITLE>\n";
 print FHTMLCONT "<BASE TARGET=\"main\">\n</HEAD>\n";
@@ -118,14 +118,22 @@ close(FHTMLCONT);
 close(FCONT);
 # fix No Title
 chdir $document;
-$tmp = tmp..$$;
+$tmp = "tmp_$$";
+#print "tmp is $tmp \n";
 foreach $file (`ls -1 *.html`) {
-#    print "file: $file\n";
+    chop($file);
     if (-e "$tmp") {unlink $tmp || die "could not delete $tmp\n";}
-    copy($file,$tmp);
+#    print "file: <: $file :>\n";
+#    print "tmp is <: $tmp :> \n";
+    $result_cp = ` /bin/cp $file $tmp `;
+# perl copy seems to be broke ??
+#    copy($file,$tmp);
+#    $result_ls = `ls -l $tmp `;
+#    print $result_ls;
+#    exit;
     $Ofile = '>' . $file;
     open(FO,$Ofile) || die " could not open $Ofile for writting \n";
-    open(FI,$tmp)   || die " could not open $tmp for reading \n";
+    open(FI,$tmp)   || die " could not open $tmp for reading(3) \n";
     while (<FI>) {
 	if (/No Title/) {
 	    $line = chop();
