@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.4 1995-03-31 01:45:40 d3g681 Exp $
+c $Id: stpr_partit.F,v 1.5 1995-12-12 20:18:43 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -33,7 +33,7 @@ c
       LPRINT = util_print('partition', print_debug)
       oprint = util_print('information', print_default)
 c
-*debug:      call stpr_datestamp(6,'partit: start')
+*debug:      call stpr_datestp(6,'partit: start')
       AUCM = 2.194746D+05
 *debug:      LPRINT = .TRUE.
       IF (MWC) THEN
@@ -103,7 +103,7 @@ C
    25   CONTINUE
    35 CONTINUE
       ENDIF
-*debug:      call stpr_datestamp(6,'partit: after tran-vec form')
+*debug:      call stpr_datestp(6,'partit: after tran-vec form')
 C
 C     Construct rotation unit vectors; store in next 3 columns of VC.
 C
@@ -136,7 +136,7 @@ C
    55   CONTINUE
    65 CONTINUE
       ENDIF
-*debug:      call stpr_datestamp(6,'partit: after rot-vec form')
+*debug:      call stpr_datestp(6,'partit: after rot-vec form')
 C
 C     Normalize initial vectors
 C
@@ -166,7 +166,7 @@ C   66   CONTINUE
 C
 C     Schmidt orthogonalize the constraint vectors.
 C
-*debug:      call stpr_datestamp(6,'partit: after rot/tran-vec norm')
+*debug:      call stpr_datestp(6,'partit: after rot/tran-vec norm')
       NEXTER = 1
       IRED = 0
       DO 130 I=2,6
@@ -257,13 +257,13 @@ C
         END IF
   210 CONTINUE
   220 CONTINUE
-*debug:      call stpr_datestamp(6,'partit: after ortho/norm vecs ')
+*debug:      call stpr_datestp(6,'partit: after ortho/norm vecs ')
       NINTER = NAT3 - NEXTER
 C
 C     Form the internal hessian matrix first in a scratch array
 C     and than move to HESS.
 C
-*debug:      call stpr_datestamp(6,'partit: b4 internal hess form')
+*debug:      call stpr_datestp(6,'partit: b4 internal hess form')
 #define PHASE2
 #if defined(OLDIFORM)      
       DO 260 M=1,NINTER
@@ -328,7 +328,7 @@ C
 250     CONTINUE
 260   CONTINUE
 #endif
-*debug:      call stpr_datestamp(6,'partit: after internal hess form')
+*debug:      call stpr_datestp(6,'partit: after internal hess form')
       call dfill(NAT3TR,0.0d00,HESS,1)
       DO 270 I = 1,NAT3TR
 C
@@ -336,7 +336,7 @@ C       Zap any elements with absolute value less than 1.D-12
 C
         IF(DABS(SCRSYM(I)).GT.1.D-12) HESS(I) = SCRSYM(I)
   270 CONTINUE
-*debug:      call stpr_datestamp(6,'partit: after internal hess zap')
+*debug:      call stpr_datestp(6,'partit: after internal hess zap')
 *debug:      write(6,*)'hess stpr_partit after zap', nat3tr
 *debug:      do i=1,nat3tr
 *debug:        if (abs(hess(i)).gt.1.0d-5)
@@ -355,7 +355,7 @@ C
   280   CONTINUE
   290 CONTINUE
       call dfill(NAT3,0.0d00,GRAD,1)
-*debug:      call stpr_datestamp(6,'partit: after internal grad form')
+*debug:      call stpr_datestp(6,'partit: after internal grad form')
       DO 300 I = 1,NINTER
 C
 C       Zap any elements with absolute value less than 1.D-12
@@ -373,9 +373,9 @@ C
 *debug:        if (abs(hess(i)).gt.1.0d-5)
 *debug:     &      write(6,*)' hess (',i,') =',hess(i)
 *debug:      enddo
-*debug:      call stpr_datestamp(6,'partit: before jacobi')
+*debug:      call stpr_datestp(6,'partit: before jacobi')
       CALL stpr_sjacobi(NAT3,NINTER,HESS,HIEIGS,SCRSQ,IERR)
-*debug:      call stpr_datestamp(6,'partit: after  jacobi')
+*debug:      call stpr_datestp(6,'partit: after  jacobi')
 *debug:      write(6,*)'hess stpr_partit after jacobi',nat3tr
 *debug:      do i=1,nat3tr
 *debug:        if (abs(hess(i)).gt.1.0d-5)
@@ -731,7 +731,7 @@ C
           WRITE(6,*)'  You are in the streambed. '
         ENDIF
       ENDIF
-*debug:      call stpr_datestamp(6,'partit: end')
+*debug:      call stpr_datestp(6,'partit: end')
       RETURN
  1000 FORMAT('  Eigenvector : ',I2,/,
      &       1X,(3(2X,F12.7)))

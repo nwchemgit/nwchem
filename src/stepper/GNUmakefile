@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 1995-11-27 02:18:58 d3g681 Exp $
+# $Id: GNUmakefile,v 1.18 1995-12-12 20:18:41 d3e129 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -13,7 +13,7 @@
                  stpr_setmass.o    stpr_stepcor.o \
                  stpr_stepper.o    stpr_sumstc.o     stpr_tprntd.o  \
                  stpr_uprcase.o    stpr_wlkchk.o     stpr_wrtsq.o   \
-                 stpr_walk.o       scf_optimize.o    stpr_datestamp.o \
+                 stpr_walk.o       scf_optimize.o    stpr_datestp.o \
                  distang.o         dft_optimize.o    \
                  stpr_gen_apphess_at.o \
                  stpr_gen_hess_at.o \
