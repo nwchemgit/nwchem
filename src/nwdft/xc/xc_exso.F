@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.8 2000-05-08 20:10:16 zzhang Exp $
+C$Id: xc_exso.F,v 1.9 2000-05-08 21:44:49 zzhang Exp $
 c
       implicit none
 c      
@@ -53,8 +53,8 @@ c
      $        call errquit('allocation of fock matrix',nao)
          if (.not. ma_push_get(mt_dbl,nao,'dens',l_dens,k_dens))
      $        call errquit('allocation of dens matrix',nao)
-         call jan_all_ao_integrals
-     &        (rtdb,ao_bas_han,nao,'mulliken',dbl_mb(k_aoint))
+c         call jan_all_ao_integrals
+c     &        (rtdb,ao_bas_han,nao,'mulliken',dbl_mb(k_aoint))
       endif
 c         
 c******************************************************************************
@@ -68,7 +68,7 @@ c     parts of Kab. Kba is obtained from Kab by the Hermitian property.
 c     
       oprint_intermediate_xc = util_print('intermediate XC matrix',
      $     print_debug)
-c      oprint_intermediate_xc = .true. 
+      oprint_intermediate_xc = .true. 
       oprint_time = util_print('dft timings', print_high)
 c      Exc(1)=0.d0
 c      Exc(2)=0.d0
