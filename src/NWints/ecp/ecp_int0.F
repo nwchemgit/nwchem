@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.7 1998-04-01 02:27:49 mg201 Exp $
+C $Id: ecp_int0.F,v 1.8 1998-04-03 01:40:39 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -180,7 +180,8 @@ C $Id: ecp_int0.F,v 1.7 1998-04-01 02:27:49 mg201 Exp $
 *       Cartesian integrals.
 *
           wa = n_l
-          wb = (pi+pi)/wa
+          wa = pi/wa
+          wb = wa+wa
           if (debug_addresses) write (LuOut,*) 'n_l,n_na,n_x',
      &        n_l,n_na,n_x
           i_ang = i_tmp+n_l*n_na
@@ -208,31 +209,50 @@ C $Id: ecp_int0.F,v 1.7 1998-04-01 02:27:49 mg201 Exp $
               i = i+n_ang
             end if
 *
-*         z spin-orbit potential 
+*         spin-orbit potentials 
 *
-            if (n_x .ne. 1) then
+            if ((n_x .ne. 1) .and. (l_c .gt. 0)) then
               j = i
+              wc = l_c
+              wa = wa/wc
+              wb = wb/wc
+*
+*           multiply by two for s.l, delete these lines for sigma.l
+*
+*              wa = wa+wa
+*              wb = wb+wb
+*
+*           z spin-orbit potential 
+*
               do m = -l_c,l_c
                 j = j+l_c+l_c
                 tmp(j) = m
                 tmp(j) = tmp(j)*wb
               end do
 *
-*         y,x spin-orbit potentials
+*           y,x spin-orbit potentials
 *
               i = i+n_ang
-              j = i+n_ang-1
+              j = i+n_ang+l_c+l_c-1
               do m = -l_c,l_c-1
                 wc = (l_c-m)*(l_c+m+1)
-                if ((m .gt. 0) .or. (m .lt. -1)) wc = wc*half
-                wc = sqrt(wc)*wb
-                i = i+1
-                tmp(i) = wc
-                i = i+l_c+l_c
-                tmp(i) = -wc
-                i = i+1
+                wc = sqrt(wc)*wa
+                if ((m .eq. 0) .or. (m .eq. -1)) wc = wc+wc
+                if (m .ge. 0) wc = -wc
+                if (m .eq. -1) then
+                  i = i+n_l+1
+                else
+                  i = i+1
+                  tmp(i) = -wc
+                  i = i+l_c+l_c
+                  tmp(i) = wc
+                  i = i+1
+                end if
+                tmp(j) = wc
                 j = j+l_c+l_c
-                tmp(j) = -wc
+                if ((m .lt. -1) .or. (m .gt. 0)) then
+                  tmp(j+2) = wc
+                end if
               end do
             end if
 *
@@ -257,6 +277,7 @@ C $Id: ecp_int0.F,v 1.7 1998-04-01 02:27:49 mg201 Exp $
      &            'Assembled integrals','E',78,4)
               if ((j .eq. 1) .and. (n_x .eq. 4)) 
      &            i_Q_int = i_Q_int+ncab
+              i = i+n_ang
             end do
           end if
         else
