@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.52 2000-04-13 20:22:54 d3j191 Exp $
+c $Id: md_start.F,v 1.53 2000-04-14 19:58:31 d3j191 Exp $
 c
       implicit none
 c
@@ -566,6 +566,7 @@ c
       igmass=0
       lowmcr=0
       noone=0
+      npolit=0
 c
       nwarn=0
       nform=0

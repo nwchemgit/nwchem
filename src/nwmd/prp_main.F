@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.32 2000-04-11 19:38:31 d3j191 Exp $
+c $Id: prp_main.F,v 1.33 2000-04-14 19:58:31 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,8 @@ c
       return
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
-     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot)
+     + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
+     + npolit)
 c
       implicit none
 c
@@ -40,7 +41,7 @@ c
       real*8 epot,epotw,epotsw,epots,vol,ekin,etot
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
-      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
+      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm)
 c
       integer i,j,k,it
@@ -131,6 +132,7 @@ c
       p(8)=dble(nssl)
       p(9)=dble(nshitw)
       p(10)=dble(nshits)
+      p(11)=dble(npolit)
       p(33)=zero
       p(34)=zero
       if(me.eq.0) then

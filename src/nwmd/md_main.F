@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.71 2000-04-13 20:22:54 d3j191 Exp $
+c $Id: md_main.F,v 1.72 2000-04-14 19:58:31 d3j191 Exp $
 c
       implicit none
 c
@@ -87,7 +87,8 @@ c
 c
       call prp_proper(0,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
       call prp_print()
 c
@@ -265,7 +266,8 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
       epsd=epot
       epsdw=epotw
@@ -350,7 +352,8 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -462,7 +465,8 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
       ecgnew=epot
       eqrs=epot
@@ -694,7 +698,8 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
       ecg2=epot
       epcgw=epotw
@@ -773,7 +778,8 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
 c
       dxmax=zero
       dxwmax=zero
@@ -933,7 +939,8 @@ c
       call md_newton()
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
       call md_server
       call timer_stop(1)
     1 continue
@@ -948,7 +955,8 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
@@ -1068,7 +1076,8 @@ c
 c
       call prp_proper(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot)
+     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
+     + npolit)
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
 c
@@ -1616,13 +1625,22 @@ c
 c
       call cf_comw(xw,xwm,jwfr,jwto)
 c
-      call forces(lself,lpbcs,xw,xwm,fw,zw,dbl_mb(i_rtos),
-     + iwl(1,lwdyn),int_mb(i_iwz),
-     + iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),fs,dbl_mb(i_zs),
+      if(ipolt.eq.0) then
+      call forces(lself,lpbcs,xw,xwm,fw,zw,dbl_mb(i_rtos),iwl(1,lwdyn),
+     + int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,dbl_mb(i_xsm),fs,
+     + dbl_mb(i_zs),isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),
+     + isl(1,lsfrc),isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),
+     + isl(1,lsct3),int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
+     + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
+      else
+      call forcep(lself,lpbcs,xw,xwm,fw,dbl_mb(i_pw),dbl_mb(i_pwp),zw,
+     + dbl_mb(i_rtos),iwl(1,lwdyn),int_mb(i_iwz),iwfr,iwto,jwfr,jwto,xs,
+     + dbl_mb(i_xsm),fs,dbl_mb(i_ps),dbl_mb(i_psp),dbl_mb(i_zs),
      + isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),isl(1,lsgrp),isl(1,lsfrc),
      + isl(1,lsmol),isl(1,lssss),isl(1,lsct1),isl(1,lsct2),isl(1,lsct3),
      + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
      + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
+      endif
 c
       call sp_accfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
@@ -1656,7 +1674,7 @@ c
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
 c
       logical lself,local,lpbcs
-      integer npolit,ibbl,nbbl,lhandl
+      integer ibbl,nbbl,lhandl
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer i,j,k
       real*8 pmax
@@ -1714,6 +1732,7 @@ c
       npolit=0
       call sp_nbbl(nbbl)
    11 continue
+      npolit=npolit+1
 c
 c     copy fields from previous iteration
 c     -----------------------------------
@@ -1801,12 +1820,14 @@ c
 c
       if(np.gt.0) call ga_dgop(mrg_d06,pmax,1,'max')
 c
-      write(*,'(7f12.6)') pmax,(pw(1,j,1,1),j=1,3),(pw(1,j,1,2),j=1,3)
+      do 333 i=1,nwmloc
+      if(iwl(i,1).eq.1) then
+      write(*,'(f12.6,2i5,6f12.6)') pmax,iwl(i,1),npolit,
+     + (pw(i,j,1,1),j=1,3),(pw(i,j,1,2),j=1,3)
+      endif
+  333 continue
 c
       if(pmax.gt.ptol) goto 11
-c
-c     if not converged goto 11
-c
 c
       return
       end
@@ -1948,7 +1969,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.71 2000-04-13 20:22:54 d3j191 Exp $
+c $Id: md_main.F,v 1.72 2000-04-14 19:58:31 d3j191 Exp $
 c
       implicit none
 c
