@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau)
 c
-c     $Id: xc_eval_fnl.F,v 1.42 2003-04-10 17:49:33 sohirata Exp $
+c     $Id: xc_eval_fnl.F,v 1.43 2003-04-14 20:50:59 sohirata Exp $
 c
       implicit none
 c
@@ -373,7 +373,7 @@ c     (xc functional and functional 2nds are unchanged)
 c
       if (cs00) then
          call xc_cs00(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol, 
-     &   delta_ac)
+     &   delta_ac, e_homo)
       else if (lb94) then
          call xc_lb94(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol)
       endif

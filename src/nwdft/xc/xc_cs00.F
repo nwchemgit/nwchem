@@ -2,15 +2,15 @@
 !ocl scalar
 #endif
       Subroutine xc_cs00(tol_rho, fac, rho, delrho, 
-     &                      Amat, nq, ipol, shift)
+     &                      Amat, nq, ipol, delta, e_homo)
 c
-C$Id: xc_cs00.F,v 1.1 2003-04-10 17:49:33 sohirata Exp $
+C$Id: xc_cs00.F,v 1.2 2003-04-14 20:50:58 sohirata Exp $
 c
       implicit none
 c      
 #include "dft2drv.fh"
 c
-      double precision tol_rho, fac, shift
+      double precision tol_rho, fac, delta, shift
       integer nq, ipol
 c
 c     Charge Density
@@ -38,8 +38,17 @@ c
       integer n
       double precision arcsinh, p1, p2
       double precision rho13, rho43, gamma, x, g, gdenom
-c
+      double precision e_homo
       arcsinh(x)=log(x+dsqrt(1d0+x*x))
+c
+c     Zhan-Nichols-Dixon shift
+c     CAUTION: this shift works only with B3LYP/aug-cc-pVTZ+
+c
+      if (delta.gt.1.0d90) then
+         shift = -0.2332D0 * e_homo + 0.0116D0
+      else
+         shift = delta
+      endif
 c
       if (ipol.eq.1) then
 c
