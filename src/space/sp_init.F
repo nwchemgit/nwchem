@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi)
 c
 c
-c $Id: sp_init.F,v 1.65 2000-05-12 14:55:47 d3j191 Exp $
+c $Id: sp_init.F,v 1.66 2000-05-12 14:58:17 d3j191 Exp $
 c
       implicit none
 c
@@ -2291,7 +2291,7 @@ c
       character*255 fil
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
 c
-      integer i,j,k,node,npp,nbl,mbblp,nbytes
+      integer i,j,k,node,npp,nbl,nbytes
       integer npxp,npyp,npzp,nbxp,nbyp,nbzp
       character*13 string
 c
