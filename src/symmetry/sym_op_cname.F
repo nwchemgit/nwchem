@@ -1,6 +1,6 @@
       subroutine sym_op_class_name(op_type, order, power, direction,
      $     group_name, class)
-C$Id: sym_op_cname.F,v 1.1 1995-12-13 01:28:31 d3g681 Exp $
+C$Id: sym_op_cname.F,v 1.2 1998-04-06 22:13:37 d3g681 Exp $
       implicit none
 #include "inp.fh"
 c     
@@ -86,9 +86,15 @@ c
                endif
             else if (group_name(1:1).eq.'O') then
 c     
-c     C2 known problem group 
+c     C2 normal to x/y/z axes, C2' imbetween
 c     
-               write(6,*) ' sym_op_class_name: incomplete c2'
+               if (abs(direction(1)-1.0d0).le.1d-3 .or.
+     $             abs(direction(2)-1.0d0).le.1d-3 .or.
+     $             abs(direction(3)-1.0d0).le.1d-3) then
+                  class = 'c2'
+               else
+                  class = 'c2'''
+               endif
             endif
          endif
       else if (op_type .eq. 'improper rotation') then
@@ -130,7 +136,16 @@ c
      $           group_name(3:3) .eq. 'd') then
             class = 'si.d'
          else if (group_name(1:2) .eq. 'Oh') then
-            write(6,*) ' sym_op_class_name: Oh incomplete mirror', 0
+c
+c     sigmah normal to axes, sigmad between
+c
+            if (abs(direction(1)-1.0d0).le.1d-3 .or.
+     $           abs(direction(2)-1.0d0).le.1d-3 .or.
+     $           abs(direction(3)-1.0d0).le.1d-3) then
+               class = 'si.h'
+            else
+               class = 'si.d'
+            endif
          else if (abs(direction(3)-1.0d0) .lt. 1.0d-6) then
             class = 'si.h'
          else 
