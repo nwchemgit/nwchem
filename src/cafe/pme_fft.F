@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.17 2002-06-05 14:22:20 d3j191 Exp $
+c $Id: pme_fft.F,v 1.18 2003-04-23 22:59:38 edo Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -42,7 +42,7 @@ c
 c
 c     brand name 3d-fft routines
 c
-#if defined(ESSL)
+#if defined(ESSL) && defined(LAPI)
       if(itype.gt.1) then
       ip(1)=1
       ip(2)=1
