@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.143 2000-03-16 00:06:26 edo Exp $
+c     $Id: dft_scf.F,v 1.144 2000-03-17 00:29:14 edo Exp $
 c     
       implicit none
 c
@@ -56,7 +56,7 @@ c
       double precision lamda, p_lamda, dif_lamda, lamda_old,
      &                 Ecoul_aux(2)
 c
-      integer test_sic, condfukui, l_degen, i_degen(2), isp, j_d,
+      integer test_sic, condfukui, l_degen, i_degen(2), isp,
      &        tot_oc
       double precision totsic, homo_test, start
 cc    Jorge Garza/End
@@ -66,7 +66,7 @@ cc    Jorge Garza/End
       integer finest            ! CMM
       integer natoms, nTotEl
       integer l_occ, k_occ
-      integer i, j, iw
+      integer i, j
       integer me, nproc
       integer g_tmp, g_fockt, g_s, g_wght, g_xyz,g_nq
       integer nheap, nstack
@@ -89,7 +89,7 @@ cc    Jorge Garza/End
       double precision ecoul, ecore
       double precision pp, delta
       double precision anucl_charg, anel
-      double precision nocab(2), onempp
+      double precision  onempp
       double precision etnew, tol2e, tol2e_sleazy,tdots
 c     convergence declarations
       double precision rlshift_input, rlshift_def
@@ -333,7 +333,7 @@ c
 c     
 c        find - (minimum)amount local available memory on all nodes
 c     
-         call ga_sync
+cedo         call ga_sync
          avail = MA_inquire_avail(mt_dbl)
          call ga_igop(msg_min_stack_avail, avail, 1, 'min')
 c     
@@ -987,7 +987,7 @@ c
          endif
          goto 2000
       endif
-      call ga_sync
+cedo      call ga_sync
       rms(1) = 0.d0
       rms(2) = 0.d0
       homo_lumo_gap = 200.0d0
@@ -1024,7 +1024,8 @@ c
      &           icall, nfock, nbf_ao, geom, 
      &           ao_bas_han, g_fock, g_dens(ispin), 
      &           g_tmp, g_svecs, isvals, diising, 
-     &           nodiis,int_mb(k_gdiis),nbf_ao_mxnbf_ce)
+     &           nodiis,int_mb(k_gdiis),nbf_ao_mxnbf_ce,lkeeps,
+     .           g_s12m,g_s12p)
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
@@ -1040,12 +1041,15 @@ c
 #endif
 c
          g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
+         if(.not.lkeeps) then
 c     
-c        Put s-1/2 in g_scr.
+c     Put s-1/2 in g_scr.
 c     
-         iw = 2
-         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                   g_tmp, iw)
+            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+     &           g_tmp, 2)
+         else
+            call ga_copy(g_s12m,g_scr)
+         endif
 c     
 c        Transform Fock matrix.
 c     
@@ -1070,9 +1074,13 @@ c           back-transform, and shift the current Fock matrix
 c     
 c           Use S^+1/2 * old movecs (as a transform).
 c     
-            iw = 3
-            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_tmp,  iw)
+            if(.not.lkeeps) then
+               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs,
+     .              g_scr,  g_tmp,  3)
+            else
+               call ga_copy(g_s12p,g_scr)
+            endif
+                  
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), zero, g_tmp)
             call ga_copy(g_tmp,  g_movecs(ispin))
@@ -1133,9 +1141,12 @@ c
 c     
 c           Put S^-1/2 back in g_scr (use g_fock as temp scr).
 c     
-            iw = 2
-            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &                      g_fock, iw)
+            if(.not.lkeeps) then
+               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, 
+     .              g_scr, g_fock, 2)
+            else
+               call ga_copy(g_s12m,g_scr)
+            endif
 c     
 c           Put old-movecs back.
 c     
@@ -1249,7 +1260,7 @@ c
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           nbf_ao_mxnbf_ce)
+     ,           nbf_ao_mxnbf_ce,lkeeps,g_s12m,g_s12p)
             icall(1) = 0
             icall(2) = 0
             endif
@@ -1335,7 +1346,7 @@ c
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &   call errquit('dft_scf: movec_write failed', 0)
 c     
-      call ga_sync
+cedo      call ga_sync
 c     
       if (me .eq. 0.and.oprint_eval)then
          if (util_print('intermediate evals', print_default))then
@@ -1395,7 +1406,7 @@ c
       if (ipol.eq.2)then
          call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       endif
-      call ga_sync
+cedo      call ga_sync
 c     
 c     Check for SCF convergence.
 c     
@@ -1429,7 +1440,7 @@ c            nstdis=1
 c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
 c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
 c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-c     &                       diising, nodiis)
+c     &                       diising, nodiis,lkeeps,g_s12m,g_s12p)
 c            icall(1) = 0
 c            icall(2) = 0
 c         endif
@@ -1444,7 +1455,7 @@ c
      &                       nbf_ao, geom, ao_bas_han, g_fock, 
      &                       g_dens(1), g_tmp, g_svecs, isvals, 
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           nbf_ao_mxnbf_ce)
+     ,           nbf_ao_mxnbf_ce,lkeeps,g_s12m,g_s12p)
             icall(1) = 0
             icall(2) = 0
          endif
@@ -1755,7 +1766,7 @@ c
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
      &                      0)
-      call ga_sync()
+cedo      call ga_sync()
 c     
 c     Shut down DIIS.
 c     
@@ -1764,7 +1775,7 @@ c
          call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
      &                    nbf_ao, geom, ao_bas_han, g_fock, g_dens(1), 
      &                    g_tmp, g_svecs, isvals, diising, nodiis,
-     .        int_mb(k_gdiis),nbf_ao_mxnbf_ce)
+     .        int_mb(k_gdiis),nbf_ao_mxnbf_ce,lkeeps,g_s12m,g_s12p)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111)
       endif
@@ -1884,6 +1895,12 @@ c
       endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
+      if(lkeeps) then
+      if (.not. ga_destroy(g_s12p)) call errquit
+     &   ('dft_scf: could not destroy g_s12p', 0)
+      if (.not. ga_destroy(g_s12m)) call errquit
+     &   ('dft_scf: could not destroy g_s12m', 0)
+      endif
 c
       call fock_2e_tidy(rtdb)
 c     

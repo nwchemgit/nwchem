@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ispin, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
      &                       g_tmp, g_svecs, isvals, diis, nodiis,
-     .     g_diis,nbf_ao_mxnbf_ce)
+     .     g_diis,nbf_ao_mxnbf_ce,keeps,g_s12m,g_s12p)
 c
-C$Id: diis_driver.F,v 1.17 2000-03-16 00:06:27 edo Exp $
+C$Id: diis_driver.F,v 1.18 2000-03-17 00:29:14 edo Exp $
 c
       implicit none
 c      
@@ -27,7 +27,6 @@ c
 c
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "stdio.fh"
 #include "msgids.fh"
 c
@@ -35,13 +34,13 @@ c
 #include "timer.fh"
 #endif
 c
-      integer g_fsm12, g_s12p, me, nproc, iw, lenp
+      integer g_s12m, g_s12p, me, nproc, lenp,g_tmp2,g_rr
       integer lfwght, ifwght
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      logical diis, nodiis
+      logical diis, nodiis,keeps
       double precision avail, dw_agg_avail
       integer n_n2_objs,i,l_up,k_up,l_down,k_down,nn2
       double precision one, zero
@@ -129,19 +128,40 @@ c
 c       
 c     Construct a temporary global array.
 c       
-      g_fsm12 = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp2')
+      g_tmp2=ga_create_atom_blocked(geom, AO_bas_han, 'gtmp2')
+      if(.not.keeps) then
+         g_s12m=ga_create_atom_blocked(geom, AO_bas_han, 'gs12m')
+c
+c     get s-1/2
+c
+         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_s12m, 
+     .        g_tmp,2)
+      endif
 c
 c     Mat mult Fock * s-1/2
 c
-      iw = 2
-      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_fsm12,
-     &                 iw)
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock,g_tmp,zero,g_fsm12)
-      g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp3')
-      iw = 3
-      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_s12p, 
-     &                 iw)
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock,g_s12m,zero,g_tmp)
+      if(.not.keeps) then
+         if (.not. ga_destroy(g_s12m)) call errquit
+     &        ('diis_driver: could not destroy g_s12m', 0)
+      endif
+
 c
+c     get s+1/2
+c
+      if(.not.keeps) then
+         g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'gs12p')
+         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs,  g_s12p, 
+     .     g_tmp2, 3)
+      endif
+c
+c     Mat mult S+1/2*P (transp)
+c
+      call ga_dgemm('N','T',nbf,nbf,nbf,one,g_s12p,g_dens,zero,g_tmp2)
+      if(.not.keeps) then
+         if (.not. ga_destroy(g_s12p)) call errquit
+     &        ('diis_driver: could not destroy g_s12p', 0)
+      endif
 #if defined(DFT_TIMER)
       call dft_second(tp2)
       subsect(1) = '  s12   '
@@ -149,13 +169,14 @@ c
       call dft_second(tp1)
 #endif
 c
-c     Mat mult S+1/2*P (transp)
-c
-      call ga_dgemm('N','T',nbf,nbf,nbf,one,g_tmp,g_dens,zero,g_s12p)
-c
 C     Mat mult (S+*P(transp))(transp)*(F*S-)
 c
-      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p,g_fsm12,zero,g_tmp)
+      g_rr = ga_create_atom_blocked(geom, AO_bas_han, 'grr')
+      call ga_dgemm('N','N',nbf,nbf,nbf,one,g_tmp2,g_tmp,zero,g_rr)
+      call ga_copy(g_rr,g_tmp)
+      if (.not. ga_destroy(g_rr)) call errquit
+     &     ('diis_driver: could not destroy g_rr', 0)
+      
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -163,12 +184,7 @@ c
       call tcllct(t_sub(1,2),tp2,tp1)
       call dft_second(tp1)
 #endif
-c
-c     Destroy temp globals.
-c
-      if (.not. ga_destroy(g_s12p)) call errquit
-     &   ('diis_driver: could not destroy g_s12p', 0)
-c
+c     
       nn2=nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_dbl,nn2,'ablock',l_up,k_up))
      &   call errquit('xc_quadv0: cant allocate atblock',22)
@@ -176,17 +192,15 @@ c
      &   call errquit('xc_quadv0: cant allocate atblock',33)
 c
       call diis_refvec(g_tmp,
-     .     dbl_mb(k_up),dbl_mb(k_down),g_fsm12)
-      if (.not. ga_destroy(g_fsm12)) call errquit
-     &   ('diis_driver: could not destroy g_fsm12', 0)
+     .     dbl_mb(k_up),dbl_mb(k_down),g_tmp2)
+
+      if (.not. ga_destroy(g_tmp2)) call errquit
+     &     ('diis_driver: could not destroy g_tmp2', 0)
 c
       if (.not.ma_pop_stack(l_down))
      &   call errquit('diis_driver: cannot pop stack',0)
       if (.not.ma_pop_stack(l_up))
      &   call errquit('diis_driver: cannot pop stack',0)
-c
-cedo      call ga_sync
-c
 c
 c     Compute Pulays B matrix.
 c

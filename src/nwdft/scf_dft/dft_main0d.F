@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.32 2000-03-16 00:06:26 edo Exp $
+c     $Id: dft_main0d.F,v 1.33 2000-03-17 00:29:13 edo Exp $
 c     
       implicit none
 c
@@ -34,7 +34,7 @@ c
       double precision Enuc, Etold
       integer iter
       integer iVxc_opt, lmiss, ivcoul_opt
-      integer isvals, lsvals, iw, idum, i
+      integer isvals, lsvals,  idum, i
       double precision toll_s
       logical dft_scf,l1ecache
       external dft_scf
@@ -116,7 +116,7 @@ c
      &            ' old XC READ miss; constructing new matrix. '
                endif
             endif
-            call ga_sync
+cedo            call ga_sync
             call ga_brdcst(Msg_XC_Ex, lmiss, mitob(1), 0)
          endif
          if (lmiss.eq.1) then
@@ -161,7 +161,7 @@ c
             else
                call dft_invdiag(geom, XC_bas_han, g_oi, g_xcinv, nbf_xc)
             endif
-            call ga_sync
+cedo            call ga_sync
             if (.not. ga_destroy(g_oi)) call errquit
      &         ('dft_main0d: could not destroy g_oi', 0)
             if (me.eq.0.and.IOLGC) then
@@ -171,7 +171,7 @@ c
      &         (' dft_main0d; dft_invio - abnormal write of XC ', 0)
             endif
          endif
-         call ga_sync
+cedo         call ga_sync
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
@@ -180,7 +180,7 @@ c
 c
 c     Done with XC setup stuff
 c
-      call ga_sync
+cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -279,7 +279,7 @@ c                  call errquit(' temp stop this should not happen',0)
                  call ga_print(g_2ceri)
                endif
             endif
-            call ga_sync
+cedo            call ga_sync
 c         endif
          if (IOLGC) then
 c            call gadest(g_cdinv)
@@ -289,12 +289,12 @@ c            call gadest(g_2ceri)
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0)
          endif
-         call ga_sync
+cedo         call ga_sync
       endif
 c
 c     Done with CD setup stuff
 c
-      call ga_sync
+cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -342,7 +342,7 @@ c
       if(me.eq.0) call ffflush(ltime)
 #endif
 c     
-      call ga_sync
+cedo      call ga_sync
       g_evecs(1) = ga_create_atom_blocked(geom, AO_bas_han, 
      &                                    'alpha evecs')
       call ga_zero(g_evecs(1))
@@ -363,13 +363,26 @@ c
       g_fock = ga_create_atom_blocked(geom, AO_bas_han, 'fock matrix')
       call ga_zero(g_fock)
       g_vxc(1) = g_fock
+c      lkeeps=.false.
+c
+c     keeps hardwired right now ... better something smarter
+c
+      lkeeps=.true.
+      if(lkeeps) then
+c
+c     get s-12 and s+12
+c
+         call diis_gets12pm(geom,ao_bas_han,toll_s,dbl_mb(isvals), 
+     ,        g_svecs,g_s12m, g_s12p)
+         call ga_copy(g_s12m,g_evecs(1))
+      else
 c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
-      iw = 2
-      g_tmp = g_s
-      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
-     &                g_tmp,  iw)
+         g_tmp = g_s
+         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
+     &        g_tmp,  2)
+      endif
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (CDFIT)then
@@ -431,7 +444,7 @@ c
      &   ('dft_main0d: could not destroy g_svecs', 0)
       if(l1ecache) call int_1e_uncache_ga()
       call schwarz_tidy
-      call ga_sync
+cedo      call ga_sync
 c     
 #if defined(DFT_TIMER)
 Cedo      if (oprint_time) then
