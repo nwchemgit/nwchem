@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.11 1996-10-16 00:38:25 vg038 Exp $
+C$Id: util_print.F,v 1.12 1997-04-06 21:01:07 d3g681 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -59,6 +59,14 @@ c
       endif
 c     
       end
+      subroutine util_print_get_level(level)
+      implicit none
+#include "printcommon.fh"
+      integer level
+c
+      level = print_level(depth)
+c
+      end
       subroutine util_print_set_level(level)
       implicit none
 #include "printcommon.fh"
@@ -76,7 +84,11 @@ c
          call errquit('util_print_push: too deep',depth)
       else
          depth = depth + 1
-         print_level(depth) = print_default
+*  Next line for no inheritance
+*         print_level(depth) = print_default
+*  This line for inheritance
+         print_level(depth) = print_level(depth-1)
+*
          n_print(depth) = 0
          n_no_print(depth) = 0
          oprint_print(depth) = .false.
@@ -158,7 +170,7 @@ c
      $     ':noprint'
  1    format(a,a)
 c     
-      call util_print_set_level(print_default)
+***      call util_print_set_level(print_default)
       do i = 1, maxnames1
          buf(i) = ' '
       enddo

@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.7 1997-03-04 06:07:09 d3e129 Exp $
+C$Id: ga_it_lsolve.F,v 1.8 1997-04-06 21:01:05 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -141,9 +141,10 @@ c
 c     Use g_b to hold the product vector to save space ... keep b where
 c     the current solution vector would live in g_x
 c
-         call ga_copy_patch('n', 
-     $        g_b, 1, n, 1, 1, 
-     $        g_x, 1, n, nsub, nsub) 
+         call ga_mat_to_vec(g_b, 1, n, 1, 1, g_x, 1, nsub, 1.0d0, '=')
+*         call ga_copy_patch('n', 
+*     $        g_b, 1, n, 1, 1, 
+*     $        g_x, 1, n, nsub, nsub) 
 c     
          call ga_zero(g_b)
          call product(prod_acc, g_soln, g_b)
@@ -151,30 +152,35 @@ c
 c     Copy the product into the array of product vectors, b back to g_b
 c     and the current trial vector back into the array of trial vectors
 c     
-         call ga_copy_patch('n', 
-     $        g_b, 1, n, 1, 1, 
-     $        g_p, 1, n, nsub, nsub) 
-         call ga_copy_patch('n', 
-     $        g_x, 1, n, nsub, nsub,
-     $        g_b, 1, n, 1, 1)
-         call ga_copy_patch('n', 
-     $        g_soln, 1, n, 1, 1, 
-     $        g_x, 1, n, nsub, nsub) 
+         call ga_mat_to_vec(g_b, 1, n, 1, 1, g_p, 1, nsub, 1.0d0, '=')
+*         call ga_copy_patch('n', 
+*     $        g_b, 1, n, 1, 1, 
+*     $        g_p, 1, n, nsub, nsub) 
+         call ga_mat_to_vec(g_x, 1, n, nsub, nsub, g_b, 1, 1,1.0d0,'=')
+*         call ga_copy_patch('n', 
+*     $        g_x, 1, n, nsub, nsub,
+*     $        g_b, 1, n, 1, 1)
+         call ga_mat_to_vec(g_soln, 1, n, 1, 1, g_x, 1, nsub,1.0d0,'=')
+*         call ga_copy_patch('n', 
+*     $        g_soln, 1, n, 1, 1, 
+*     $        g_x, 1, n, nsub, nsub) 
 c
 c     Now have nsub vectors and products in g_x and g_p
 c     and the rhs back in g_b. Form the reduced space matrices
 c
-         do i = 1, nsub
-            do j = 1, i
-               aa(j,i) = ga_ddot_patch(
-     $              g_p, 'n', 1, n, i, i, 
-     $              g_p, 'n', 1, n, j, j)
-               aa(i,j) = aa(j,i)
-            end do
-            bb(i) = ga_ddot_patch(
-     $           g_p, 'n', 1, n, i, i,
-     $           g_b, 'n', 1, n, 1, 1)
-         end do
+         call ga_local_mdot(n, nsub, nsub, aa, maxdim, g_p, g_p)
+         call ga_local_mdot(n, nsub, 1,    bb, nsub,   g_p, g_b)
+*         do i = 1, nsub
+*            do j = 1, i
+*               aa(j,i) = ga_ddot_patch(
+*     $              g_p, 'n', 1, n, i, i, 
+*     $              g_p, 'n', 1, n, j, j)
+*               aa(i,j) = aa(j,i)
+*            end do
+*            bb(i) = ga_ddot_patch(
+*     $           g_p, 'n', 1, n, i, i,
+*     $           g_b, 'n', 1, n, 1, 1)
+*         end do
          if (odebug .and. ga_nodeid().eq.0) then
             write(6,*) ' ga_iter_lsolve: Reduced space matrix '
             call output(aa, 1, nsub, 1, nsub, maxdim, nsub, 1)

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.70 1997-03-24 02:00:37 gg502 Exp $
+# $Id: GNUmakefile,v 1.71 1997-04-06 21:01:06 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -62,6 +62,7 @@ endif
 	      banner.o util_print.o util_version.o \
               mk_fit_xf.o \
               int_2c_ga.o \
+              ga_local_mdot.o \
               util_cpusec.o util_wallsec.o \
 	      gather.o scatter.o \
 	      ga_trace_dg.o \
