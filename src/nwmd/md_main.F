@@ -11,13 +11,13 @@ c     -------------
 c
       call md_sp()
 c
-      elseif(ntype.eq.2) then
+      elseif(ntype.eq.1) then
 c     energy minimization
 c     -------------------
 c
       call md_em()
 c
-      elseif(ntype.eq.1) then
+      elseif(ntype.eq.2) then
 c     molecular dynamics
 c     ------------------
 c
@@ -52,6 +52,126 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      llong=ltwin
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     periodic boundary conditions
+c
+      call md_fold(int_mb(i_iw),int_mb(i_is),
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     atom redistribution
+c
+      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + int_mb(i_is),nsaloc)
+c
+      if(msdit.gt.0) call md_stdesc()
+      if(mcgit.gt.0) call md_congra()
+c
+      return
+      end
+      subroutine md_stdesc()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+c
+      real*8 epot,epsd,dxf,dxmax
+c
+      isdit=1
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme,epot)
+      print*,'epot0=',epot
+c
+      epsd=epot
+      dxf=0.001d0
+      mdstep=0
+c
+    1 continue
+c
+      call cf_emstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+     + dbl_mb(i_yw),dbl_mb(i_fw),dbl_mb(i_vw),nwmloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),dbl_mb(i_vs),nsaloc,dxf)
+c
+c     shake
+c
+      call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
+c
+      isdit=isdit+1
+c
+      lpair=mod(isdit,nfpair).eq.0
+      llong=(mod(isdit,nflong).eq.0.or.lpair).and.ltwin
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme,epot)
+      print*,'epott=',epot
+c
+c     if energy goes up restore coordinates and forces
+c
+      if(epot.gt.epsd.and.isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
+c
+      call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
+     + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
+     + dbl_mb(i_vs),nsaloc)
+c
+      dxf=half*dxf
+      goto 1
+      endif
+c
+      epsd=epot
+c
+      if(mod(isdit,nfqrs).eq.0)
+     + call sp_wrtrst(lfnqrs,filqrs,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+c
+c     print to output
+      print*,'epsd =',epsd
+c
+      dxf=1.2d0*dxf
+c
+      if(dxmax.gt.dxsdmx.and.isdit.lt.msdit) goto 1
+
+      return
+      end
+      subroutine md_congra()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+c
+c
       return
       end
       subroutine md_md()
@@ -70,11 +190,17 @@ c
 c     data gathering
 c
       do 2 iequi=kdacq+1,mdacq
+c
       call md_newton()
+c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),epme)
+c
       if(mod(mdstep,nfrest).eq.0)
-     + call sp_wrtrst(lfnrst,filrst,dbl_mb(i_xw),dbl_mb(i_vw))
+     + call sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+c
     2 continue
 c
       return
@@ -94,6 +220,8 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+c
+      real*8 dxmax
 c
       mdstep=mdstep+1
       stime=stime+tstep
@@ -148,7 +276,7 @@ c
 c     shake
 c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
-     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is))
+     + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
 c     center of mass coordinates
 c
@@ -163,38 +291,59 @@ c
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_zs),nsaloc,box)
+     + dbl_mb(i_zs),nsaloc,box,pres,temp,tempw,temps)
+c
+c     update decomposition module
+c
+      call sp_update(me,vlat,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),dbl_mb(i_vw),nwmloc,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
 c
       return
       end
-      subroutine md_shake(xw,yw,iwl,xs,ys,isl)
+      subroutine md_shake(xw,yw,iwl,xs,ys,isl,dmax)
 c
       implicit none
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
 c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),xs(msa,3),ys(msa,3)
       integer iwl(mwm,miw2),isl(msa,mis2)
+      real*8 dmax
 c
-      integer lhandl,ibbl,iwfr,iwto,isfr,isto
+      integer i,j,lhandl,ibbl,iwfr,iwto,isfr,isto
       logical lself
 c
-      if(nwmloc.gt.0)
-     + call cf_shakew(xw,yw,iwl(1,lwgmn),iwl(1,lwdyn),nwmloc)
+      dmax=zero
+c
+      if(nwmloc.gt.0) then
+      call cf_shakew(xw,yw,iwl(1,lwgmn),iwl(1,lwdyn),nwmloc)
+      do 1 j=1,nwa
+      do 2 i=1,nwmloc
+      dmax=max(dmax,(xw(i,1,j)-yw(i,1,j))**2+
+     + (xw(i,2,j)-yw(i,2,j))**2+(xw(i,3,j)-yw(i,3,j))**2)
+    2 continue
+    1 continue
+      endif
 c
       if(nsaloc.gt.0) then
       call sp_nbbl(nbbl)
-      do 1 ibbl=1,nbbl
-c
+      do 3 ibbl=1,nbbl
       call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
-c
       if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
      + isl(1,lsdyn),isfr,isto)
-c
-    1 continue
-c
+    3 continue
+      do 4 i=1,nsaloc
+      dmax=max(dmax,(xs(i,1)-ys(i,1))**2+(xs(i,2)-ys(i,2))**2+
+     + (xs(i,3)-ys(i,3))**2)
+    4 continue
       endif
+c
+      dmax=sqrt(dmax)
+      call ga_dgop(mrg_d45,dmax,1,'max')
 c
       return
       end

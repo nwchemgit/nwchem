@@ -9,7 +9,6 @@ c
 c
       integer iout,iprp,nwm,msfi,nsfi,mpei,nf1,nf2,nf3
       logical lcf,lsp,ltwn,lpol,lpme
-      character*10 date,time
 c
       integer i,j,it
 c
@@ -170,11 +169,17 @@ c
       pronam(it+3)='Energy solute     intra-Lennard-Jones       kJ/mol'
       pronam(it+4)='Energy solute    -solvent polarization      kJ/mol'
       pronam(it+5)='Energy solute    -solvent Coulombic         kJ/mol'
+      lp(it+5)=nwm.gt.0
       pronam(it+6)='Energy solute    -solvent Lennard-Jones     kJ/mol'
+      lp(it+6)=nwm.gt.0
       pronam(it+7)='Energy solute     bonds                     kJ/mol'
+      lp(it+7)=.true.
       pronam(it+8)='Energy solute     angles                    kJ/mol'
+      lp(it+8)=.true.
       pronam(it+9)='Energy solute     proper dihedrals          kJ/mol'
+      lp(it+9)=.true.
       pronam(it+10)='Energy solute     improper dihedrals        kJ/mol'
+      lp(it+10)=.true.
       pronam(it+11)='Energy solute     external field            kJ/mol'
       pronam(it+12)='Energy solute     reaction field            kJ/mol'
       pronam(it+13)='Energy solute     Coulombic                 kJ/mol'
@@ -252,17 +257,7 @@ c
       tsumt=zero
       t2sumt=zero
 c
-c     output
-c
-      if(me.eq.0) then
-      call swatch(date,time)
-      write(lfnout,1000) date,time
- 1000 format(/,' MOLECULAR DYNAMICS TIME STEP INFORMATION',T110,2A10,//,
-     + '    Time      Temp    Pres      Volume Tscalw Tscals  Pscal ',
-     + '   U(Cou)    U(L-J)      U(pot)     U(kin)     U(tot) ',/,
-     + '    ps         K      Pa        nm**3              ',
-     + '   kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol ')
-      endif
+      lhdr=.false.
 c
       return
       end

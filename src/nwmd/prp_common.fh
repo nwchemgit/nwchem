@@ -1,15 +1,16 @@
 c
-      real*8 zero,tiny
+      real*8 zero,tiny,one
       parameter(zero=0.0d0)
       parameter(tiny=1.0d-10)
+      parameter(one=1.0d0)
 c
       integer me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,nfprop
 c
       common/prp_dim/me,np,lfnout,lfnprp,nsf,msf,mpe,nfoutp,nfstat,
      + nfprop
 c
-      logical lcafe,lspac,ltwin
-      common/prp_log/lcafe,lspac,ltwin
+      logical lcafe,lspac,ltwin,lhdr
+      common/prp_log/lcafe,lspac,ltwin,lhdr
 c
       character*50 pronam(250)
       common/prp_txt/pronam

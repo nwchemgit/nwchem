@@ -113,7 +113,6 @@ c
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
 c
-      print*,'MD start completed'
       return
       end
       subroutine md_inp()
@@ -296,6 +295,7 @@ c
 c     md defaults
 c
       stime=zero
+      mdstep=0
       tstep=0.001d0
       kequi=0
       mequi=0
@@ -828,7 +828,7 @@ c
       endif
 c
       if(operat.eq.'optimize'.or.operat.eq.'OPTIMIZE') then
-      ntype=2
+      ntype=1
       if(nfrest.gt.0) nfqrs=nfrest
       nfcoor=0
       nfscoo=0
@@ -837,7 +837,7 @@ c
       endif
 c
       if(operat.eq.'dynamics'.or.operat.eq.'DYNAMICS') then
-      ntype=1
+      ntype=2
       mdtype=iset
       if(isetp1.eq.2) mdtype=4
       if(isetp1.eq.3) mdtype=5
@@ -846,7 +846,7 @@ c
       endif
 c
       if(operat.eq.'thermodynamics'.or.operat.eq.'THERMODYNAMICS') then
-      ntype=1
+      ntype=3
       mdtype=7
       if(iforw.eq.0) mdtype=10
       endif
@@ -922,12 +922,12 @@ c     routine md_chckin performs a check of selected input
 c
 c     MCTI initializations
 c
-      if(mdtype.ge.7.and.ntype.eq.1.and.mrun.eq.0) mrun=maxlam
-      if(mdtype.ge.7.and.ntype.eq.1.and.nffree.lt.0) nffree=1
-      if(mdtype.ge.7.and.ntype.eq.1.and.nfoutp.lt.0) nfoutp=1
-      if(mdtype.ge.7.and.ntype.eq.1.and.nfstat.lt.0) nfstat=1
-      if(mdtype.ge.7.and.ntype.eq.1.and.ldacq.eq.0) ldacq=mdacq
-      if(mdtype.ge.7.and.ntype.eq.1.and.macfl.le.mdacq) macfl=mdacq+1
+      if(mdtype.ge.7.and.ntype.eq.3.and.mrun.eq.0) mrun=maxlam
+      if(mdtype.ge.7.and.ntype.eq.3.and.nffree.lt.0) nffree=1
+      if(mdtype.ge.7.and.ntype.eq.3.and.nfoutp.lt.0) nfoutp=1
+      if(mdtype.ge.7.and.ntype.eq.3.and.nfstat.lt.0) nfstat=1
+      if(mdtype.ge.7.and.ntype.eq.3.and.ldacq.eq.0) ldacq=mdacq
+      if(mdtype.ge.7.and.ntype.eq.3.and.macfl.le.mdacq) macfl=mdacq+1
       if(mdtype.ge.7.and.maxlam.le.1)
      + call errquit('Number of MCTI ensembles too small:',maxlam)
 c
@@ -970,11 +970,11 @@ c
 c
 c     determine when never comes
 c
-      if(ntype.eq.1) then
+      if(ntype.eq.3) then
       never=mequi+mdacq+1
       if(mrun.gt.0) never=mrun*(mequi+mdacq)+1
       else 
-      if(ntype.eq.2) then
+      if(ntype.eq.1) then
       never=msdit+mcgit+1
       else
       never=99999
