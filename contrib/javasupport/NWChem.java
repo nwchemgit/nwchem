@@ -1,4 +1,4 @@
-// $Id: NWChem.java,v 1.5 1999-08-02 18:15:13 d3e129 Exp $
+// $Id: NWChem.java,v 1.6 1999-08-02 19:44:45 d3e129 Exp $
 
 import java.net.Socket;
 import java.io.*;
@@ -31,6 +31,8 @@ public NWChem() {
 	super("NWChem support");
 	
 /***************The menubar currently has only an "Exit" button***********/
+	super.setBackground(new Color(202,225,255));
+	super.setForeground(new Color(139,0,0));
 	MenuBar mb = new MenuBar();
 	Menu fileMenu = new Menu("File");
 	fileMenu.add(new MenuItem("Exit "));
@@ -430,7 +432,7 @@ try {
 
 
     public static void main(String args[]) {
-	new NWChem();
+	NWChem NWC = new NWChem();
 	}
 
 
