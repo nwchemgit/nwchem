@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.61 2000-03-07 22:30:30 d3j191 Exp $
+c $Id: sp_init.F,v 1.62 2000-03-14 22:50:18 d3j191 Exp $
 c
       implicit none
 c
@@ -2354,7 +2354,7 @@ c
       return
  9998 continue
       if(me.eq.0) write(*,8000)
- 8000 format(/,' Unable to pickup previous box pair list')
+ 8000 format(/,' Unable to pickup previous box pair list',/)
       sp_rrest=.false.
       return
  9999 continue
