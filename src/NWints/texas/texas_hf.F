@@ -399,6 +399,7 @@ c
       common /bl_txs_add/ ntxs_bl_scr 
 c
       common /memor1/ npard,mxsize,nblock1,nblock1_back
+      common /memor11/ mxpair
       common /memor1b/ nbl2
 c
       common /pnl001/ ispec,ijpres2,klpres2, ijblock,klblock,iqorder
@@ -486,8 +487,9 @@ c and available size of integral's buffer (leri):
 c (maximum sizes calculated in blksizer (spec_block.f) )
 c
       call memo1_int(nsupblk,isbl_part)
-      call supblks_split(bl,bl(mxsize),leri,inx, bl(nblock1),nbl2,
-     *        bl(isblqrts),bl(isblpoint),
+      call supblks_split(bl,bl(mxsize),bl(mxpair),
+     *                   leri,inx, bl(nblock1),nbl2,
+     *                   bl(isblqrts),bl(isblpoint),
      *        bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
 c---------------------------------------------------------
 c calculate the size of the request and split it if needed
@@ -867,14 +869,17 @@ c
 c copy  from local bl() as defined in texas_face :
 c
       common /memor1_R/ npard_R,mxsize_R,nblock1_R,nblock1_back_R
+      common /memor11_R/ mxpair_R
 c
 c to pnl :
 c
       common /memor1/ npard,mxsize,nblock1,nblock1_back
+      common /memor11/ mxpair
 c
 c and for corresp. sizes :
 c
       common /memor1_S/ npard_S,mxsize_S,nblock1_S,nblock1_back_S
+      common /memor11_S/ mxpair_S
 c
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nXXX,nganz(35),lopt(30)
@@ -893,6 +898,7 @@ c-------------------------------
 c
       call memo1_int(npard_S ,npard)
       call memo1_int(mxsize_S,mxsize)
+      call memo1_int(mxpair_S,mxpair)
       call memo1_int(nblock1_S,nblock1)
       call memo1_int(nblock1_back_S,nblock1_back)
 c-------------------------------
@@ -900,6 +906,7 @@ c copy data :
 c
       call tfer_i(bltxs(npard_R), blscr(npard), npard_S )
       call tfer_i(bltxs(mxsize_R),blscr(mxsize), mxsize_S )
+      call tfer_i(bltxs(mxpair_R),blscr(mxpair), mxpair_S )
       call tfer_i(bltxs(nblock1_R),blscr(nblock1), nblock1_S )
       call tfer_i
      *    (bltxs(nblock1_back_R),blscr(nblock1_back), nblock1_back_S )
@@ -933,7 +940,8 @@ c
 c
       end
 c=====================================================================
-      subroutine supblks_split(bl,maxsize,leri,inx, nblock1,nbl2,
+      subroutine supblks_split(bl,maxsize,maxpair,
+     *                         leri,inx, nblock1,nbl2,
      *                         isbl_q,isbl_point,
      *                         ijpres2,klpres2,isbl_s,isbl_part)
 c--------------------------------------------------------------------
@@ -941,8 +949,6 @@ c this routine is called for every new PNL request i.e when
 c more_int=.false.
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
-c this is maximum pairs allowed ; must be: maxpar.le.limpair
-      common /max_pairs/ maxpar   
       common /intlim/ limxmem,limblks,limpair
 c
 c output from uniq_pairs_1 call:
@@ -950,8 +956,7 @@ c
       common /map4uniq/ nij_uniqe, ij_uniqe_p, map_ij,    
      *                  nkl_uniqe, kl_uniqe_p, map_kl 
 c
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
-      dimension maxsize(*)
+      dimension maxsize(*),maxpair(*)
       dimension inx(12,*),nblock1(*)
       dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
       dimension ijpres2(*),klpres2(*)  ! dimension nquart
@@ -998,9 +1003,9 @@ c
 c
 c split each super-block in parts if its current pnl-size is greater 
 c than maximum-size allowed or number of pairs exceeds allowed limit
-c (maxpar)
 c
                maxm_size=maxsize(isupb)
+               maxm_pair=maxpair(isupb)
 c
                ipoint=isbl_point(isupb)
 c
@@ -1009,7 +1014,7 @@ c
                call retmem(2)    ! release allocations in uniq_pairs_1
 c              output nij_uniqe & nkl_uniqe in  common /map4uniq/ 
 c
-               if(nij_uniqe.le.maxpar .and. nkl_uniqe.le.maxpar) then
+              if(nij_uniqe.le.maxm_pair.and.nkl_uniqe.le.maxm_pair) then
                   if(isbl_size.gt.maxm_size) then
                      nparts=isbl_size/maxm_size
                      nrem  =mod(isbl_size,maxm_size)
@@ -1017,22 +1022,14 @@ c
                      isbl_part(isupb)=nparts
                      maxsize(isupb)=maxm_size
                   endif
-               else
-                  maxm_size=min(maxm_size,maxpar)
+              else
+                  maxm_size=min(maxm_size,maxm_pair)
                   nparts=isbl_size/maxm_size
                   nrem  =mod(isbl_size,maxm_size)
                   if(nrem.gt.0) nparts=nparts+1
                   isbl_part(isupb)=nparts
                   maxsize(isupb)=maxm_size
-               endif
-ctest
-c              if(isupb.eq.13) then
-c                write(6,*)' block=13;  max-size=',maxm_size
-c                call print_pairs(ijpres2,klpres2,
-c    *                            isbl_size,isbl_q,ipoint)
-c                write(6,*)'nparts=',nparts,' maxsize()=',maxsize(isupb)
-c              endif
-ctest
+              endif
             endif
    10    continue
 c---------------------------------------------------------
@@ -1064,6 +1061,10 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c
          itotal=0
+         itotal1=0
+         itotal2=0
+         itotal3=0
+         itotal4=0
          isplit=0
          integrals=0
          ipoint=0
@@ -1076,8 +1077,10 @@ c
          nparts=isbl_part(isupb)
          if(isbl_size.eq.0) go to 60
 ctest
-cc       write(6,*)'block=',isupb,' size=',isbl_size,' nparts=',nparts
+ccc      write(6,*)'block=',isupb,' size=',isbl_size,' nparts=',nparts
 ctest
+c
+           itotal=itotal+1
 c
            iq1=isbl_q(ipoint+1)
            ijcs1=ijpres2(iq1)
@@ -1096,19 +1099,21 @@ c
            if(nparts.eq.1) then
               integ=integ1*isbl_size
               if((integrals+integ).gt.leri) then
-                 itotal=itotal+1
                  isplit=isplit+1
                  integrals=integ
                  isbl_split(isplit)=isupb
+                 itotal1=itotal1+1
               else
+                 itotal2=itotal2+1
                  integrals=integrals+integ
               endif
            else 
 c  splitting inside of one super-block : force splitting :
               integrals=leri
-              itotal=itotal+nparts
               isplit=isplit+1
               isbl_split(isplit)=isupb
+              itotal3=itotal3+1 
+              itotal4=itotal4+nparts
            endif
 c
            ipoint=ipoint+isbl_size
@@ -1119,18 +1124,13 @@ c
          isbl_split(isplit+1)=isblast+1
 c
 c---------------------------------------------------------
-         npart_pnl=npart_pnl+itotal+1    
-c---------------------------------------------------------
-ccc   if( isplit.gt.0 ) then
-ccc    if(ncall_pnl.eq.3) then
-c         write(6,*)'FROM REQUEST_SPLIT : isplit=',isplit+1
-c         write(6,*)'pnl-request no=',ncall_pnl,' size=',nqrtpnl,
-c    *              ' split into ',itotal+1,' pieces'
-ccc  *              ' split into ',isplit+1,' pieces'
-c         write(6,66)(isbl_split(ii),ii=0,isplit+1)
-c 66      format(' isbl_split(ii)=',i3)
-ccc    endif
-ccc   endif
+ccccc    write(8,*)'itot 1,2,3,4=',itotal1,itotal2,itotal3,itotal4
+         if(itotal2.eq.itotal) then    ! everything in one piece
+            npieces=1
+         else
+            npieces=itotal - itotal3 + itotal4
+         endif
+         npart_pnl=npart_pnl+npieces
 c---------------------------------------------------------
       end
 c=====================================================================

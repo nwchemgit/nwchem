@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.39 1997-06-19 18:20:31 pg481 Exp $
+c $Id: texas_face.F,v 1.40 1997-06-20 10:15:54 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1410,7 +1410,6 @@ c
       maxme2_dyna= maxme2_dyna/intsize + 4
 c------------------------------------------------
 c memory reserved in uniq_pairs: two allocations
-c napr(ibl) and npar(kbl)
 c
       maxme3=2*(maxpar/intsize + 1)
 c------------------------------------------------
@@ -1458,6 +1457,7 @@ c
         write(8,*)' '
         write(8,*)' -------------------------------------------'
         write(8,*)' TOTAL SCRATCH SIZE FOR TEXAS  :',maxmem_tot
+        write(8,*)' ...........................................'
         write(8,*)' minimum scratch size for txs  :',minmem_tot
         write(8,*)' minimum memory for 1ij,1kl,1q :',max_111   
         write(8,*)' -------------------------------------------'
@@ -1816,7 +1816,8 @@ c
       mem1=ncs+1     ! for nblock1(ncs+1)
       mem2=nbl2      ! for npar(nbl2)
       mem3=nbl4      ! for mxsize(nbl4)
-      mem4=ncs       ! for nblock1_back(ncs)
+      mem4=nbl4      ! for mxpair(nbl4)
+      mem5=ncs       ! for nblock1_back(ncs)
 c
 c-------------------------------------------------------
       if(intsize.gt.1) then
@@ -1824,11 +1825,12 @@ c-------------------------------------------------------
          mem2 = mem2/intsize +1
          mem3 = mem3/intsize +1
          mem4 = mem4/intsize +1
+         mem5 = mem5/intsize +1
       endif
 c-------------------------------------------------------
 c total memory :
 c
-      memory2= mem1+mem2+mem3+mem4
+      memory2= mem1+mem2+mem3+mem4+mem5
 c-------------------------------------------------------
       if(iprint.gt.0) then
 c 
