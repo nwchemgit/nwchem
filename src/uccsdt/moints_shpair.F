@@ -605,6 +605,51 @@ c$$$         call errquit('uccsdt_triples_get_list: bad list', list)
 c$$$      end if
 c
       end
+      subroutine uccsdt_triples_moints_init()
+      implicit none
+#include "cuccsdtP.fh"
+#include "util.fh"
+#include "eaf.fh"
+c
+      integer availkw
+      integer util_scratch_dir_avail_for_me
+      character*255 filename
+c
+      availkw = util_scratch_dir_avail_for_me()/8
+      write(6,*) ' AVAILKW ', availkw , 1.1d0*dble(nbf)**4/(4000d0*nir)
+      if (availkw .gt. 1.1d0*dble(nbf)**4/(4000d0*nir)) then
+         call util_file_name('.trpao', .true., .true., filename)
+         if (eaf_open(filename, eaf_rw, aoints_file) .ne. 0) call
+     $        errquit('uccsdt_triples: failed to open ao file',0)
+         aoints_file_read = .false. 
+         aoints_file_write = .true.
+      else
+         aoints_file = -1
+         aoints_file_read = .false.
+         aoints_file_write = .false.
+      end if
+c
+      end
+      subroutine uccsdt_triples_moints_tidy()
+      implicit none
+#include "cuccsdtP.fh"
+#include "util.fh"
+#include "eaf.fh"
+c
+      character*255 filename
+c
+      if (aoints_file .ne. -1) then
+         if (eaf_close(aoints_file) .ne. 0) call errquit
+     $        ('uccsdt_triples: failed to close aoints file',0)
+         call util_file_name('.trpao', .true., .true., filename)
+         if (eaf_delete(filename) .ne. 0) call errquit
+     $        ('uccsdt_triples: failed to delete aoints file',0)
+      end if
+      aoints_file = -1
+      aoints_file_read = .false.
+      aoints_file_write = .false.
+c
+      end
       subroutine uccsdt_triples_moints()
       implicit none
 #include "cuccsdtP.fh"
@@ -671,6 +716,18 @@ c     ublockdim = max. no. of basis functions in a shell block
 c     maxsh  = max. no. of shells in a shell block
 c     shmaxbf= max. no of functions in a shell
 c
+c     SYMMETRY IS USED TO REDUCE THE FLOP COUNT BUT IT SHOULD
+c     ALSO BE USED TO REDUCE THE MEMORY REQUIRED.  NEED TO ADJUST
+c     THE GLOBAL ARRAY SO THAT IT STORES SYMMETRY UNIQUE USH ONLY.
+c
+c     !!! IF BUFFERING ON FILE NEED TO USE SAME TASK DISTRIBUTION
+c     !!! AFTER FIRST PASS WRITING THE FILE AND ALSO THE SAME
+c     !!! BLOCKING FACTORS FOR THE AO INTEGRALS ... THIS IS NOT
+c     !!! YET BEING DONE.
+c
+      if (aoints_file_write .and. nproc.gt.1) call errquit
+     $     ('moints_triples: see comments above here!!', 0)
+c
       if (.not. bas_nbf_cn_max(basis, shmaxbf)) call errquit
      $     ('uccsdt: bas_nbf_cn_max?', 0)
       do maxdim = nbf, 1, -1
@@ -693,6 +750,8 @@ c
       end do
       call errquit('moints_shpair_one_index: insufficient memory',0)
  10   continue
+c
+      call moints_aoblock_rewind()
 c
       do ublk = 1, nshblock
          ushlo = shlist(1,ublk)
@@ -1280,6 +1339,11 @@ c
 c
 *      call ma_summarize_allocated_blocks()
 c
+      if (aoints_file_write) then
+         aoints_file_write = .false.
+         aoints_file_read  = .true.
+      end if
+c
       end
       subroutine moints_triples_final(
      $     oblocke, e_sym, 
@@ -1557,7 +1621,6 @@ c
       double precision g1(nbf,ilo1:ihi1,vlo:vhi,ulo:uhi)
       double precision g2(nbf,ilo2:ihi2,vlo:vhi,ulo:uhi)
 c     .                         ! [output] g(w,i,v,u,iset) = (wi|vu)
-c
 c     (wi|vu) = sum(l=1,nbf) (wl|vu) Cli
 c
 c     For given AO shells ush & vsh return in g all integrals with one 
@@ -1577,7 +1640,7 @@ c     Could add the use of symmetry but in initial application the
 c     symmetry is being handled by using unique ush.
 c
       integer idim1, idim2, udim, vdim
-      integer nsh, nbf
+      integer nsh
       integer wshlo, wshhi, lshlo, lshhi
       integer wlo, whi, llo, lhi, junk, l_work, k_work, lenwork
       integer avail_ma, need, wblk, lblk
@@ -1702,25 +1765,31 @@ c     .                         ! [output] g(w,i,v,u,iset) = (wi|vu)
       double precision ints(llo:lhi,wlo:whi,vlo:vhi,ulo:uhi)
 c
       integer u, v, idim1, idim2, wdim, ldim
-c      
-c     Form in ints(l,w,v,u) the integrals (lw|vu) with l<=w
-c
-      call moints_aoblock(
-     $     basis, oskel,
-     $     lshlo, lshhi, llo, lhi,
-     $     wshlo, wshhi, wlo, whi,
-     $     vsh, vsh, vlo, vhi,
-     $     ush, ush, ulo, uhi,
-     $     tol,
-     $     ints)
-c
-c     Now have all of the AO integrals ... transform as necessary.
-c     Since we are restricting w>=l we have to do l->i and w->i.
+      integer aodim
+      logical moints_aoblock_read
 c
       idim1 = ihi1 - ilo1 + 1
       if (nset .eq. 2) idim2 = ihi2 - ilo2 + 1
       wdim = whi - wlo + 1
       ldim = lhi - llo + 1
+      aodim = ldim*wdim*(vhi-vlo+1)*(uhi-ulo+1)
+c      
+c     Form in ints(l,w,v,u) the integrals (lw|vu) with l<=w
+c
+      if (.not. moints_aoblock_read(ush,vsh,aodim,ints)) then
+         call moints_aoblock(
+     $        basis, oskel,
+     $        lshlo, lshhi, llo, lhi,
+     $        wshlo, wshhi, wlo, whi,
+     $        vsh, vsh, vlo, vhi,
+     $        ush, ush, ulo, uhi,
+     $        tol,
+     $        ints)
+         call moints_aoblock_write(ush,vsh,aodim,ints)
+      endif
+c
+c     Now have all of the AO integrals ... transform as necessary.
+c     Since we are restricting w>=l we have to do l->i and w->i.
 c
       do u = ulo, uhi
          do v = vlo, vhi
@@ -2097,3 +2166,73 @@ c
       ok = iok .eq. 0
 c
       end
+      subroutine moints_aoblock_rewind()
+      implicit none
+#include "cuccsdtP.fh"
+c
+      aoints_file_offset = 0.0d0
+c
+      end
+      logical function moints_aoblock_read(ush,vsh,aodim,ints)
+      implicit none
+#include "cuccsdtP.fh"
+#include "eaf.fh"
+      integer ush, vsh, aodim
+      double precision ints(aodim)
+c
+      integer err
+      character*80 msg
+c
+c     Needs logic adding to 
+c     .  check that the correct data is being read 
+c     .  compress the data
+c     .  use a GA instead of a file if there is room
+c
+      if (aoints_file_read) then
+c
+*         write(6,*) ' READING  ', ush, vsh, aoints_file_offset, aodim
+c
+         err = eaf_read(aoints_file,aoints_file_offset,ints,8*aodim) 
+         if (err .ne. 0) then
+            call eaf_errmsg(err, msg)
+            write(6,*) ' !!!! EAF error ', msg
+            call errquit('moints_aoblock_read: eaf_read?', 0)
+         end if
+         aoints_file_offset = aoints_file_offset + 8*aodim
+         moints_aoblock_read = .true.
+      else
+         moints_aoblock_read = .false.
+      end if
+c
+      end
+      subroutine moints_aoblock_write(ush,vsh,aodim,ints)
+      implicit none
+#include "cuccsdtP.fh"
+#include "eaf.fh"
+      integer ush, vsh, aodim
+      double precision ints(aodim)
+c
+      integer err
+      character*80 msg
+c
+c     Needs logic adding to 
+c     .  enable a check that the correct data is being read 
+c     .  compress the data
+c     .  use a GA instead of a file if there is room
+c
+      if (aoints_file_write) then
+c
+*         write(6,*) ' WRITING ', ush, vsh, aoints_file_offset, aodim
+c
+         err = eaf_write(aoints_file,aoints_file_offset,ints,8*aodim) 
+         if (err .ne. 0) then
+            call eaf_errmsg(err, msg)
+            write(6,*) ' !!!! EAF error ', msg
+            call errquit('moints_aoblock_write: eaf_read?', 0)
+         end if
+         aoints_file_offset = aoints_file_offset + 8*aodim
+      end if
+c
+      end
+
+         

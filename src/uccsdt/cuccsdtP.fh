@@ -69,17 +69,22 @@ c
 c
       double precision eps(nw_max_nbf,1:2) ! Eigenvalues for each spin
 c
+      integer aoints_file       ! EAF file handle for AO integrals
+      logical aoints_file_read, aoints_file_write
+      double precision aoints_file_offset
+c
       common /cuccsdt/ 
 c
 c     doubles
 c
-     $     eps,
+     $     eps, aoints_file_offset,
 c
 c     integers
 c
      $     basis, geom, g_movecs, k_movecs, l_movecs,
      $     nsh, nbf, nmo, nact, nir, nc, no, nv, nc_sym, no_sym, nv_sym, 
-     $     c_sym, o_sym, v_sym, map, ocheck,
+     $     c_sym, o_sym, v_sym, map, ocheck, 
+     $     aoints_file, aoints_file_read, aoints_file_write, 
 c
      $     asuper, bsuper, csuper, 
      $     asuper_spin, csuper_spin,

@@ -7,6 +7,8 @@ c
       integer sh_uq_op(8,nw_max_shells), bf_uq_op(8,nw_max_nbf)
       integer sh_n_uq, bf_n_uq     
       integer sh_uq(nw_max_shells), bf_uq(nw_max_nbf) 
+      integer sh_nat(2,nw_max_shells), bf_nat(2,nw_max_nbf)
+      integer sh_uq_bf(4,nw_max_shells)
       double precision char_tab(8,0:7)
       integer bf_per_ir(0:7)
       integer bf_per_ir_cum(0:7)
@@ -14,9 +16,10 @@ c
       character*8 zir(0:7)
       integer so_uq_to_lab(2,0:7,nw_max_nbf)
       integer so_lab1(3,nw_max_nbf)
-      integer so_lab2(0:7,nw_max_nbf)
+      integer so_lab2(nw_max_nbf)
       common /cbassym/ sh_op_map, bf_op_map, bf_phase, sh_n_uq_op, 
      $     bf_n_uq_op, sh_uq_op, bf_uq_op, sh_n_uq, bf_n_uq, sh_uq, 
+     $     sh_nat, bf_nat, sh_uq_bf,
      $     bf_uq, char_tab, bf_per_ir, bf_per_ir_cum, bf_so_ir,
      $     so_uq_to_lab, so_lab1, so_lab2
       common /ccbassym/zir

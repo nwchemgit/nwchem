@@ -1,0 +1,9 @@
+c
+c     19th entry for measuring timing overhead
+c
+      double precision flops(19)
+      double precision times(19)
+      double precision calls(19)
+      double precision enter
+      common /cflopstrp/flops, times, calls, enter
+      

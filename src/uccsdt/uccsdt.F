@@ -60,6 +60,24 @@ c
      $     l_irs_b, k_irs_b, k_irs(2), l_work, k_work
       integer i, ispin, lo, hi, ir
       character*4 uline(8)
+c$$$c
+c$$$c     For debug
+c$$$c
+c$$$      integer
+c$$$     $     ishuqlo, ishuqhi, ioff(nw_max_nbf), 
+c$$$     $     irange(2,0:7), 
+c$$$     $     jshuqlo, jshuqhi, joff(nw_max_nbf,0:7),
+c$$$     $     jrange(2,0:7),
+c$$$     $     kshuqlo, kshuqhi, koff(nw_max_nbf,0:7), 
+c$$$     $     krange(2,0:7),
+c$$$     $     lshuqlo, lshuqhi, loff(nw_max_nbf,0:7), 
+c$$$     $     lrange(2,0:7),
+c$$$     $     lenij(0:7), lenkl(0:7), leng, symkloff(0:7)
+c$$$      double precision g(100000)
+c$$$c     
+c$$$c     end debug
+c$$$c
+
 c
       logical int_normalize
       external int_normalize
@@ -152,6 +170,7 @@ c
      $     sh_uq_op, bf_uq_op,
      $     sh_n_uq, bf_n_uq,
      $     sh_uq, bf_uq,
+     $     sh_nat, bf_nat, sh_uq_bf,
      $     char_tab, 
      $     bf_per_ir, bf_per_ir_cum,
      $     bf_so_ir,
@@ -422,6 +441,46 @@ c
          end if
       end if
 c
+c$$$c$$$      call soints_sovecs(nbf,nmo,dbl_mb(k_movecs(1)))
+c$$$c$$$      stop 
+c$$$c
+c$$$c     Test the SO integral code
+c$$$c
+c$$$      do lshuqlo = 1, sh_n_uq, 4
+c$$$         lshuqhi = min(sh_n_uq,lshuqlo+4-1)
+c$$$         do kshuqlo = 1, lshuqlo, 4
+c$$$            kshuqhi = min(sh_n_uq,kshuqlo+4-1)
+c$$$            do jshuqlo = 1, sh_n_uq, 4
+c$$$               jshuqhi = min(sh_n_uq,jshuqlo+4-1)
+c$$$               do ishuqlo = 1, jshuqlo, 4
+c$$$                  ishuqhi = min(sh_n_uq,ishuqlo+4-1)
+c$$$
+c$$$                  write(6,*) ishuqlo, jshuqlo, kshuqlo, lshuqlo
+c$$$
+c$$$                  call soints_block_info(basis, nbf,
+c$$$     $                 ishuqlo, ishuqhi, ioff, irange, 
+c$$$     $                 jshuqlo, jshuqhi, joff, jrange,
+c$$$     $                 kshuqlo, kshuqhi, koff, krange,
+c$$$     $                 lshuqlo, lshuqhi, loff, lrange,
+c$$$     $                 lenij, lenkl, symkloff, leng)
+c$$$                  if (leng .gt. 100000) call errquit('leng',0)
+c$$$c
+c$$$                  call soints_block(basis, nbf,
+c$$$     $                 ishuqlo, ishuqhi, ioff, irange, 
+c$$$     $                 jshuqlo, jshuqhi, joff, jrange,
+c$$$     $                 kshuqlo, kshuqhi, koff, krange,
+c$$$     $                 lshuqlo, lshuqhi, loff, lrange,
+c$$$     $                 .false., 
+c$$$     $                 1d-12, g)
+c$$$
+c$$$c
+c$$$               end do
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c$$$c
+c$$$      write(6,*) ' SOINTS seem OK'
+c
       end
       subroutine uccsdt_tidy(rtdb)
       implicit none
@@ -485,6 +544,7 @@ c     $     int_bcik(5000),
 c     $     int_acik(5000)
 c     
 c      double precision int_buf(5000), t_buf(5000), w(100000)
+      double precision tmpr(20*20*20*20)
       integer btop, ctop, ktop, vlo, vhi, olo, ohi,
      $        vlo_ck, vhi_ck, olo_ck, ohi_ck
       integer lentbuf, l_tbuf, k_tbuf
@@ -624,8 +684,8 @@ c
      $                       sym3(syma,symb,symc))
                         if (test_sym .eq. 0) then
                            if (next .eq. count) then
-                              write(6,*) ga_nodeid(), ' doing ',
-     $                             iblk, jblk, kblk, ablk, bblk, cblk
+*                              write(6,*) ga_nodeid(), ' doing ',
+*     $                             iblk, jblk, kblk, ablk, bblk, cblk
                               call util_flush(6)
                               if (oprint) write(6,*)
      $                             'TSB:kblk, klo, khi, symk ',
@@ -773,7 +833,7 @@ c
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
      $                                klo, khi,
-     $                                spin, spinck)
+     $                                spin, spinck, tmpr)
                               end if
 c     
                               spine = spinck
@@ -1281,7 +1341,7 @@ c
      $                          int_acik(a,c,i,k)
 c
                         if (spin .eq. spinck) then
-                          v = v +
+                          v = v 
      $                        + t1(c,i)*
      $                          int_abjk(a,b,j,k)
      $                        - t1(c,j)*
@@ -1363,7 +1423,7 @@ c
       logical oprint, oprint_more
       integer maxsh, wblockdim, ublockdim
       integer a1, a2, c1, c2, numasuper, numcsuper, 
-     $     a_block_max, c_block_max, e_block_max
+     $     a_block_max, c_block_max
       integer numasuper_best, numcsuper_best, npass_best
       double precision avail_ma, avail_ga, ga_max, ma_max,
      $     ma_moints, ga_moints, ma_list, ga_list, ma_wv,
@@ -1658,8 +1718,8 @@ c
 c     For debug set them to something sensible and then
 c     recompute their actual values.
 c
-      oblock_max = 15
-      vblock_max = 15
+      oblock_max = 20
+      vblock_max = 20
 c
 c     Sub-block the 'a' super-block ... sub-blocks will be restricted
 c     to orbitals of the same symmetry whereas super-blocks can contain
@@ -2355,8 +2415,6 @@ c
       integer nasuper, ncsuper  ! No. of super blocks for current spin case
       integer a_super_block(2,max_nsuper_block) ! Super block info
       integer c_super_block(2,max_nsuper_block)
-      integer l_t2aa, l_t2ab, l_t2bb, l_t1a, l_t1b
-      integer k_t2aa, k_t2ab, k_t2bb, k_t1a, k_t1b
       integer l_ttemp, k_ttemp
       integer noa, nob, nva, nvb
 c     
@@ -2366,18 +2424,18 @@ c
 c     For debug purposes generate the full list of Dirac integrals
 c     in a common block
 c     
-      if (.not. ma_push_get(mt_dbl, nbf*nbf, 'most', l_most, k_most))
-     $     call errquit('memory for most?',nbf*nbf)
-      if (.not. ma_push_get(mt_dbl, nbf**4, 'moint', l_moint, k_moint))
-     $     call errquit('memory for moint?',nbf**4)
-      call util_transpose(dbl_mb(k_movecs(1)),nbf,
-     $     dbl_mb(k_most),nbf,nbf,nbf)
-      call jan_full_transform_noinit(
-     $     rtdb, basis, 
-     $     nbf, nbf, nbf, nbf,
-     $     nbf, nbf, nbf, nbf,
-     $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
-     $     dbl_mb(k_moint), 'Dirac')
+c$$$      if (.not. ma_push_get(mt_dbl, nbf*nbf, 'most', l_most, k_most))
+c$$$     $     call errquit('memory for most?',nbf*nbf)
+c$$$      if (.not. ma_push_get(mt_dbl, nbf**4, 'moint', l_moint, k_moint))
+c$$$     $     call errquit('memory for moint?',nbf**4)
+c$$$      call util_transpose(dbl_mb(k_movecs(1)),nbf,
+c$$$     $     dbl_mb(k_most),nbf,nbf,nbf)
+c$$$      call jan_full_transform_noinit(
+c$$$     $     rtdb, basis, 
+c$$$     $     nbf, nbf, nbf, nbf,
+c$$$     $     nbf, nbf, nbf, nbf,
+c$$$     $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
+c$$$     $     dbl_mb(k_moint), 'Dirac')
 c     
 c     For debug purposes generate the full list of t1 and t2 amplitudes
 c
@@ -2431,6 +2489,10 @@ c
 c     debug: temp zero t1a
 c
 c      call dfill (nva*noa, 0.0d0, dbl_mb(k_t1a), 1)
+c
+c
+      call uccsdt_triples_moints_init()
+      call uccsdt_flops_init()
 c
 c     Loop over the four spin cases
 c     
@@ -2495,19 +2557,22 @@ c
             total = total + energy(spina, spinc)
          end do
       end do
-c     
+c
       if (ga_nodeid() .eq. 0) then
          write(6,77) total
  77      format(//' The total (T) energy is ', f20.12,//)
       end if
+c
+      call uccsdt_triples_moints_tidy()
+      call uccsdt_flops_print()
 c     
       if (.not. ma_pop_stack(l_t2ab)) call errquit('t2ab?',0)
       if (.not. ma_pop_stack(l_t2bb)) call errquit('t2bb?',0)
       if (.not. ma_pop_stack(l_t2aa)) call errquit('t2aa?',0)
       if (.not. ma_pop_stack(l_t1b)) call errquit('t1b?',0)
       if (.not. ma_pop_stack(l_t1a)) call errquit('t1a?',0)
-      if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
-      if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
+*      if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
+*      if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
 c     
       end
       subroutine sym_map_amps_t1(
@@ -2551,22 +2616,24 @@ c     $     call errquit('x',1)
       double precision t2(nbf, nbf, nbf, nbf)
       double precision t_buf(nbf, nbf, nbf, nbf)
       integer v1, v2, o1, o2
+      integer vv2, oo1, oo2
       integer spin1, spin2
       call dfill(nbf**4, 0.0d0, t_buf, 1)
       call dcopy(nbf**4, t2, 1, t_buf, 1)
       call dfill(nbf**4, 0.0d0, t2, 1)
-      do v1 = 1, nbf
-         do v2 = 1, nbf
-            do o1 = 1, nbf
-               do o2 = 1, nbf
+      do o2 = 1, nbf
+         oo2 = map(o2,spin2)
+         do o1 = 1, nbf
+            oo1 = map(o1,spin1)
+            do v2 = 1, nbf
+               vv2 = map(v2,spin2)
+               do v1 = 1, nbf
 c
 c            write(6,*)' v1, v2, map(v1,spin1), map(v2,spin2): ',
 c     &                  v1, v2, map(v1,spin1), map(v2,spin2)
 c            write(6,*)' o1, o2, map(o1,spin1), map(o2,spin2): ',
 c     &                  o1, o2, map(o1,spin1), map(o2,spin2)
-                  t2(map(v1,spin1),map(v2,spin2),
-     &               map(o1,spin1),map(o2,spin2)) = 
-     &                             t_buf(v1,v2,o1,o2)
+                  t2(map(v1,spin1),vv2,oo1,oo2) = t_buf(v1,v2,o1,o2)
 c
                end do
             end do
@@ -2575,4 +2642,72 @@ c
 c      if (.not. ma_verify_allocator_stuff())
 c     $     call errquit('x',2)
       return
+      end
+      subroutine uccsdt_flops_init()
+      implicit none
+#include "cflopsP.fh"
+c
+      call dfill(19, 0d0, flops, 1)
+      call dfill(19, 0d0, times, 1)
+      call dfill(19, 0d0, calls, 1)
+c
+      end
+      subroutine uccsdt_flops_print()
+      implicit none
+#include "cflopsP.fh"
+#include "util.fh"
+c
+      double precision overhead, start, mflops, used
+      integer ntime, i, j
+c
+c     Estimate the timing overhead
+c
+      start = util_cpusec()
+      ntime = 0
+      do i = 1, 100
+         do j = 1, 1000
+            call uccsdt_flops_enter()
+            call uccsdt_flops_exit(19,0d0)
+         end do
+         ntime = ntime + 100
+         overhead = util_cpusec() - start
+         if (overhead .gt. 1.0d0) goto 10
+      enddo
+ 10   overhead = overhead / dble(ntime)
+      write(6,1) overhead
+ 1    format(//,'Triples kernel performance information ',//,
+     $     ' Timing overhead = ', 1p,d9.1,'s per call',/)
+c
+      write(6,4) 
+ 4    format(' Routine   Calls     FLOPs     Time     MFLOP/s',/,
+     $       ' -------  -------  --------  --------  --------')
+      do i = 1, 18
+         used = times(i) - calls(i)*overhead
+         if (used .gt. 0d0) then
+            mflops = 1d-6*flops(i)/used
+            write(6,2) i, calls(i), flops(i), used, mflops
+ 2          format(1x,i5,2x,f9.0, 1x, 1p, d9.1, 0p, 1x, f9.2, 1x, f9.2)
+         end if
+      end do
+c
+      end
+      subroutine uccsdt_flops_enter()
+      implicit none
+#include "cflopsP.fh"
+#include "util.fh"
+c
+      enter = util_cpusec()
+c
+      end
+      subroutine uccsdt_flops_exit(i, flopcount)
+      implicit none
+#include "cflopsP.fh"
+#include "util.fh"
+      integer i
+      double precision flopcount
+c
+      times(i) = times(i) + util_cpusec() - enter
+      flops(i) = flops(i) + flopcount
+      calls(i) = calls(i) + 1
+c
       end
