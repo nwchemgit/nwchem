@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
-     ,     nbf_ao,ipol,goforit)
+     ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.6 2003-06-09 03:53:18 edo Exp $
+C$Id: xc_replicated.F,v 1.7 2003-06-09 19:10:29 edo Exp $
 c
       implicit none
 c      
@@ -15,6 +15,7 @@ c
 #include "stdio.fh"
       integer nbf_ao,ipol
       logical goforit
+      logical dograd ! true if just gradient (not energy)
       integer geom,basis
       integer g_dens(*)
 c
@@ -78,7 +79,8 @@ c
             enddo
             do ii=1,ipol
 #ifdef GAIRREG
-               if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
+               if(.not.dograd)
+     .              if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
      .              'replicated xc GA',
      .              int_mb(k_map),nblock,plist,k_repxc(ii))) goto 1984
                if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
@@ -87,9 +89,11 @@ c
 #else
                nblock(1)=0
                nblock(2)=0
-               if(.not.nga_create_config(MT_DBL, 2, dims,
-     .              'replicated xc GA',
-     .              nblock,plist, k_repxc(ii))) goto 1984
+               if(.not.dograd) then
+                  if(.not.nga_create_config(MT_DBL, 2, dims,
+     .                 'replicated xc GA',
+     .                 nblock,plist, k_repxc(ii))) goto 1984
+               endif
                if(.not.nga_create_config(MT_DBL, 2, dims,
      .              'replicated DM GA',
      .              nblock,plist, g_repdm(ii))) goto 1984
@@ -131,12 +135,16 @@ c
             write(luout,*) ' not enough memory for xcreplicated '
          endif
       endif
+#ifdef DEBUG
+      call ga_summarize(1)
+      call ma_summarize_allocated_blocks()
+#endif
       return
       end
 
-      logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)
+      logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.6 2003-06-09 03:53:18 edo Exp $
+C$Id: xc_replicated.F,v 1.7 2003-06-09 19:10:29 edo Exp $
 c
       implicit none
 c      
@@ -146,6 +154,7 @@ c
 #include "global.fh"
 #include "dftpara.fh"
       integer g_vxc(2),ipol,nbf_ao
+      logical dograd ! true if just gradient (not energy)
 c
       integer i
 c
@@ -162,19 +171,25 @@ c
          xc_rep_close=ma_chop_stack(l_repxc(1))
          else
             do i = 1, ipol
-               call ga_merge_mirrored(k_repxc(i))
-#ifdef DEBUG
-               call ga_print_distribution(k_repxc(1))
-               call ga_print_distribution(g_vxc(1))
-#endif
-               call ga_copy(k_repxc(i),
-     &              g_vxc(i))
-               if (.not.ga_destroy(k_repxc(i)))
-     &              call errquit('xc_rep_close: cannot gadestr',i)
+               if(.not.dograd) then
+                  call ga_merge_mirrored(k_repxc(i))
+                  call ga_copy(k_repxc(i),
+     &                 g_vxc(i))
+                  if (.not.ga_destroy(k_repxc(i)))
+     &                 call errquit('xc_rep_close: cannot gadestr',i)
+                  endif
                if (.not.ga_destroy(g_repdm(i)))
      &              call errquit('xc_rep_close: cannot gadestr',i)
             enddo
          endif
+c
+c     avoid getting things out of control
+c
+      xcreplicated=.false.
+#ifdef DEBUG
+      call ga_summarize(1)
+      call ma_summarize_allocated_blocks()
+#endif
       endif
       return
       end

@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.37 2003-06-07 22:36:39 edo Exp $
+C$Id: grid_quadv0.F,v 1.38 2003-06-09 19:10:29 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -286,7 +286,7 @@ c
       Ec=0d0
       call ga_sync()
       call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,
-     &     nbf_ao,ipol,do_scf.and.(.not.l3d))
+     &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
       
       if(grid_written) then
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
@@ -347,7 +347,7 @@ c
      &        call errquit('gridv0: pop stack failed.',1)
       endif
 c     
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc)) call
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
      .     errquit(' gridquadv0: xcrepclose failed ',0)
       
       if (.not.ma_chop_stack(lqxyz))

@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.12 2003-02-20 18:00:36 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.13 2003-06-09 19:10:26 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.12 2003-02-20 18:00:36 edo Exp $
+c $Id: dftg_gridv0.F,v 1.13 2003-06-09 19:10:26 edo Exp $
 c     
       implicit none      
 c
@@ -67,9 +67,9 @@ c
       integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
       logical GRAD, GRADCHI, HESSCHI, DER3CHI
-      logical xc_chkgrad
-      external xc_chkgrad
-      
+      logical xc_chkgrad,xc_rep_close
+      external xc_chkgrad,xc_rep_close
+           
       logical ldew, oprint
       double precision eps
       parameter(eps=1.d-8)
@@ -410,6 +410,8 @@ c
       if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
      &     (' exiting in dftg_gridv0: insuff stack',12)
+      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,
+     &     nbf_ao,ipol,do_force)
       
 c
       call dftg_gridv0a(iga_dens,ldew,
