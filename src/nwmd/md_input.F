@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.56 2002-02-28 23:38:17 d3j191 Exp $
+c $Id: md_input.F,v 1.57 2002-03-02 00:09:19 d3j191 Exp $
 c
       implicit none
 c
@@ -938,19 +938,19 @@ c
       endif
 c
       if(inp_compare(.false.,'once',item)) then
-      ivopt=iand(ivopt,1)
+      ivopt=ior(ivopt,1)
       goto 900
       endif
 c
       if(inp_compare(.false.,'first',item).or.
      + inp_compare(.false.,'initial',item)) then
-      ivopt=iand(ivopt,2)
+      ivopt=ior(ivopt,2)
       goto 900
       endif
 c
       if(inp_compare(.false.,'last',item).or.
      + inp_compare(.false.,'final',item)) then
-      ivopt=iand(ivopt,4)
+      ivopt=ior(ivopt,4)
       goto 900
       endif
 c
