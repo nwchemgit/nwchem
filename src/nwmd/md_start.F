@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.83 2000-10-06 19:43:55 d3j191 Exp $
+c $Id: md_start.F,v 1.84 2000-10-10 16:04:10 d3j191 Exp $
 c
       implicit none
 c
@@ -724,6 +724,8 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',42)
       if(.not.rtdb_get(irtdb,'md:nfcntr',mt_int,1,nfcntr))
      + call errquit('md_rtdbin: rtdb_get failed',43)
+      if(.not.rtdb_get(irtdb,'md:icentr',mt_int,1,icentr))
+     + call errquit('md_rtdbin: rtdb_get failed',43)
       if(.not.rtdb_get(irtdb,'md:nfanal',mt_int,1,nfanal))
      + call errquit('md_rtdbin: rtdb_get failed',43)
       if(.not.rtdb_get(irtdb,'md:nfslow',mt_int,1,nfslow))
@@ -1397,6 +1399,8 @@ c
  1017 format(' Frequency removal overall motion ',t55,i5)
       write(lfnout,1018) nfcntr
  1018 format(' Frequency solute centering ',t55,i5)
+      if(icentr.eq.1) write(lfnout,1818)
+ 1818 format(' Centering in z-direction only')
       write(lfnout,1009) nfoutp
  1009 format(' Frequency printing step information ',t55,i5)
       write(lfnout,1010) nfstat

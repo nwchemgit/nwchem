@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.33 2000-10-06 19:43:55 d3j191 Exp $
+c $Id: md_input.F,v 1.34 2000-10-10 16:04:10 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
-      integer itload,ihess,latom,icomm,nfanal,iport,iguide
+      integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
@@ -1011,7 +1011,12 @@ c
       endif
       if(inp_compare(.false.,'center',item)) then
       if(.not.inp_i(nfcntr)) call errquit('md_input: error center',20)
+      icentr=3
       if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'zonly',item)) then
+      icentr=1
+      if(.not.inp_a(item)) goto 1
+      endif
       if(inp_compare(.false.,'fraction',item)) then
       nscb=0
   802 continue
@@ -1362,6 +1367,8 @@ c
       if(.not.rtdb_put(irtdb,'md:nflong',mt_int,1,nflong))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfcntr',mt_int,1,nfcntr))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:icentr',mt_int,1,icentr))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfanal',mt_int,1,nfanal))
      + call errquit('md_input: rtdb_put failed',0)
