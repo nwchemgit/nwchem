@@ -164,6 +164,21 @@ Operations:
   return the symbol, full name and atomic number.
 
 
+  logical function geom_nuc_charge(geom, total_charge)
+  integer geom              ! [input]
+  double precision total_charge ! [output]
+
+     return the sum of the nuclear charges
+
+
+
+  logical function geom_nuc_rep_energy(geom, energy)
+  integer geom              ! [input]
+  double precision energy   ! [output]
+
+     return the effective nuclear repulsion energy
+
+
 
   The following are not yet fully implemented or designed
 

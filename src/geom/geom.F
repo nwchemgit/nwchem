@@ -903,3 +903,36 @@ c
       call geom_compute_values(geom)
 c
       end
+      logical function geom_nuc_rep_energy(geom, energy)
+#include "geomP.fh"
+      integer geom              ! [input]
+      double precision energy   ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+c
+c     return the effective nuclear repulsion energy etc.
+c
+      geom_nuc_rep_energy = geom_check_handle(geom)
+      if (.not. geom_nuc_rep_energy) return
+      energy = erep(geom)
+c
+      end
+      logical function geom_nuc_charge(geom, total_charge)
+#include "geomP.fh"
+      integer geom              ! [input]
+      double precision total_charge ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+      integer i
+c
+c     return the sum of the nuclear charges
+c
+      geom_nuc_charge = geom_check_handle(geom)
+      if (.not. geom_nuc_charge) return
+c
+      total_charge = 0.0d0
+      do i = 1, ncenter(geom)
+         total_charge = total_charge + charge(i,geom)
+      enddo
+c
+      end

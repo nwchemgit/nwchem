@@ -18,6 +18,8 @@
       logical geom_print
       logical geom_tag_to_element
       logical geom_charge_center
+      logical geom_nuc_charge
+      logical geom_nuc_rep_energy
 c
       external geom_check_handle
       external geom_check_cent
@@ -39,3 +41,5 @@ c
       external geom_print
       external geom_tag_to_element
       external geom_charge_center
+      external geom_nuc_charge
+      external geom_nuc_rep_energy
