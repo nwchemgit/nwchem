@@ -1,7 +1,11 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.1 1995-06-28 17:46:14 rg240 Exp $
+        $Id: INSTALL,v 1.2 1995-06-29 20:00:24 d3g681 Exp $
+
+
+  DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
+                                       ----
 
 
 1)  The compilation will only work with "GNU" make as the
@@ -10,8 +14,10 @@
 
 
 2)  Set the environment variable, NWCHEM_TOP, to the
-    directory where *this* file lives. 
+    directory where *this* file lives, e.g.
+
        % setenv NWCHEM_TOP /home/adrian/nwchem
+
     All the following directions assume that the current
     working directory is $NWCHEM/src.
 
@@ -34,20 +40,12 @@
 
     Set the environment variable, NWCHEM_TARGET, to the
     symbolic name that matches your target platform, e.g.
+
        % setenv NWCHEM_TARGET PARAGON
 
-
-4)  Run the precision conversion according to the Precision
-    column above for your target. This is necessary to match 
-    BLAS routine names to vendor-supplied libraries.
-    For double:
-       % make sngl_to_dble
-    For single:
-       % make dble_to_sngl
-
-
-5)  Choose which functionality you want from the list of
-    supported modules:
+4)  Configure to build the modules you need.  As a first shot
+    build everything, and if you start running out of memory
+    you can exclude modules.  Choose one or more from
 
         Name        Description
         -------------------------------------
@@ -61,14 +59,29 @@
         ccsd        CCSD & CCSD(T)
         -------------------------------------
 
-    Set the environment variable, NWCHEM_MODULES, to the
-    list of modules and run the configure make, e.g.
-       % setenv NWCHEM_MODULES "ddscf ccsd"
-       % make nwchem_config
+    To configure to build everything use the command
+
+       % cd $NWCHEM_TOP/src
+       % make nwchem_config NWCHEM_MODULES=all
+
+5)  Run the precision conversion according to the Precision
+    column above for your target. This is necessary only 
+    on machines where 64 bit is single precision in order 
+    to match BLAS routine names to vendor-supplied libraries
+    (or if converting back from such source into the standard
+    of 64 bit is double precision).
+
+    For 64 bit single precision source
+
+       % make dbl_to_sngl
 
 
-6)  Finally, compile and link:
-       % make
+6)  Make any missing directories
+
+       % make directories
+
+7)  Finally, compile and link:
+       % make >& make.log
     This should install the executables and libraries
     into platform-specific subdirectories in the directory
     tree. For example, if the target platform equals PARAGON
@@ -76,3 +89,4 @@
 
 	$NWCHEM_TOP/bin/PARAGON          (executables)
         $NWCHEM_TOP/lib/PARAGON          (libraries)
+
