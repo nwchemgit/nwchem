@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.66 2001-11-11 01:21:46 bylaska Exp $
+C     $Id: input_parse.F,v 1.67 2001-12-20 18:51:16 d3k958 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -97,6 +97,8 @@ c
                call md_input(rtdb)
             else if (inp_compare(.false.,test,'esp')) then
                call esp_input(rtdb)
+            else if (inp_compare(.false.,test,'et')) then
+               call et_input(rtdb)
             else if (inp_compare(.false.,test,'analysis')) then
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'analyze')) then
