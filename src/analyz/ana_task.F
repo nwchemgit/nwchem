@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.86 2002-07-23 21:07:25 d3j191 Exp $
+c $Id: ana_task.F,v 1.87 2002-07-23 21:13:21 d3j191 Exp $
 c
       implicit none
 c
@@ -1428,47 +1428,66 @@ c
 #include "ana_params.fh"
 c
       character*16 sgmnam(nsa)
-      character*11 atomi,atomj
+      character*11 atom(4)
       integer i,j
 c
       write(lfnana,1000) nbnds,nangs,ntors,nimps
  1000 format(4i10)
 c
       do 1 i=1,nbnds
-      if(ibnds(i,1,2).eq.0) then
-      write(atomi,'(a5,a,a5)') sgmnam(ibnds(i,1,1))(12:16),':',
-     + sgmnam(ibnds(i,1,1))(6:10)
+      do 11 j=1,2
+      if(ibnds(i,j,2).eq.0) then
+      write(atom(j),'(a5,a,a5)') sgmnam(ibnds(i,1,1))(12:16),':',
+     + sgmnam(ibnds(i,j,1))(6:10)
       else
-      write(atomi,'(i5,a,a5)') nsgm+ibnds(i,1,1),':',
-     + wnam(ibnds(i,1,2))(6:10)
+      write(atom(j),'(i5,a,a5)') nsgm+ibnds(i,j,1),':',
+     + wnam(ibnds(i,j,2))(6:10)
       endif
-      if(ibnds(i,2,2).eq.0) then
-      write(atomj,'(a5,a,a5)') sgmnam(ibnds(i,2,1))(12:16),':',
-     + sgmnam(ibnds(i,2,1))(6:10)
-      else
-      write(atomj,'(i5,a,a5)') nsgm+ibnds(i,2,1),':',
-     + wnam(ibnds(i,2,2))(6:10)
-      endif
+   11 continue
 c
-      write(lfnana,1001) atomi,atomj
- 1001 format(a10,'-',a10)
+      write(lfnana,1001) (atom(j),j=1,2)
+ 1001 format(a11,'-',a11)
     1 continue
 c
       do 2 i=1,nangs
-      write(lfnana,1002) (sgmnam(iangs(i,j,1))(13:16),
-     + sgmnam(iangs(i,j,1))(6:10),j=1,3)
- 1002 format(2(a4,':',a5,' - '),a4,':',a5)
+      do 21 j=1,3
+      if(iangs(i,j,2).eq.0) then
+      write(atom(j),'(a5,a,a5)') sgmnam(iangs(i,1,1))(12:16),':',
+     + sgmnam(iangs(i,j,1))(6:10)
+      else
+      write(atom(j),'(i5,a,a5)') nsgm+iangs(i,j,1),':',
+     + wnam(iangs(i,j,2))(6:10)
+      endif
+   21 continue
+      write(lfnana,1002) (atom(j),j=1,3)
+ 1002 format(a11,'-',a11,'-',a11)
     2 continue
 c
       do 3 i=1,ntors
-      write(lfnana,1003) (sgmnam(itors(i,j,1))(13:16),
-     + sgmnam(itors(i,j,1))(6:10),j=1,4)
- 1003 format(3(a4,':',a5,' - '),a4,':',a5)
+      do 31 j=1,4
+      if(itors(i,j,2).eq.0) then
+      write(atom(j),'(a5,a,a5)') sgmnam(itors(i,1,1))(12:16),':',
+     + sgmnam(itors(i,j,1))(6:10)
+      else
+      write(atom(j),'(i5,a,a5)') nsgm+itors(i,j,1),':',
+     + wnam(itors(i,j,2))(6:10)
+      endif
+   31 continue
+      write(lfnana,1003) (atom(j),j=1,4)
+ 1003 format(a11,'-',a11,'-',a11,'-',a11)
     3 continue
 c
       do 4 i=1,nimps
-      write(lfnana,1003) (sgmnam(iimps(i,j,1))(13:16),
-     + sgmnam(iimps(i,j,1))(6:10),j=1,4)
+      do 41 j=1,4
+      if(iimps(i,j,2).eq.0) then
+      write(atom(j),'(a5,a,a5)') sgmnam(iimps(i,1,1))(12:16),':',
+     + sgmnam(iimps(i,j,1))(6:10)
+      else
+      write(atom(j),'(i5,a,a5)') nsgm+iimps(i,j,1),':',
+     + wnam(iimps(i,j,2))(6:10)
+      endif
+   41 continue
+      write(lfnana,1003) (atom(j),j=1,4)
     4 continue
 c
       return
