@@ -43,7 +43,8 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147] \
+     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147]\
+      [h402] [becke97gga1] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -168,6 +169,7 @@ has the same effect.
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147] \
+      [h402] [becke97gga1] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -425,6 +427,8 @@ These options can be invoked by specifying any of the following input lines,
    xc hcth
    xc h120
    xc h147
+   xc h402
+   xc becke97gga1
 \end{verbatim}
 
 The keyword \verb+beckehandh+ specifies that the exchange-correlation energy will be
@@ -505,12 +509,14 @@ cpbe96     &          &   $\star$     &  $\star$  &        &[7]\\
 hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
 h120       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
 h147       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
+h402       & $\star$    &   $\star$     &  $\star$  &        &[19]\\
 \hline                                                  
 beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
 b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
 becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
+becke97gga1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[18]\\
 becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
 pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
 \hline
@@ -549,6 +555,8 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 \item  H.L.Schmider and A.D.~Becke, J.~Chem.~Phys.~{\bf 108},
 9624 1998). \\
 \item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
+\item  A.J.Cohen and N.C. Handy, Chem. Phys. Lett. {\bf 316}, 160 (2000).\\
+\item   A.D.Boese,  N.C.Handy  J. Chem. Phys., submitted (2000). \\
 \end{enumerate}
 }
 %\end{table}
