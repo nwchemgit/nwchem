@@ -1,5 +1,5 @@
 /*
- $Id: tresid.c,v 1.7 1999-11-04 22:41:37 d3g270 Exp $
+ $Id: tresid.c,v 1.8 1999-11-04 23:12:21 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -191,6 +191,8 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
 
 /*
   printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
+*/
+  /*
   for ( j = 0; j < *n; j++ )
     printf(" d[%d] = %g \n", j, d[j]);
   for ( j = 0; j < *n; j++ )
