@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.188 2001-10-05 20:39:43 edo Exp $
+c     $Id: dft_scf.F,v 1.189 2001-10-05 22:27:12 edo Exp $
 c     
       implicit none
 c
@@ -35,7 +35,7 @@ c
 #endif
       Logical movecs_write, movecs_converged
       External movecs_write, movecs_converged
-      external function dft_lindep
+      external dft_lindep
       integer dft_lindep
 c
       integer  ga_create_atom_blocked
@@ -146,7 +146,6 @@ c
 c     ----- cosmo -----
 c
       logical odbug
-      logical osome
       logical ocosmo
       logical ogas_phase
       logical osol_phase
@@ -156,7 +155,7 @@ c
       external dft_cosmoe,dft_cosmoadde
 
 
-      integer itype_wfn,g_focks(2)
+      integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,g_xij,
      ,     ncanorg
 c
@@ -255,7 +254,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
      .     call errquit('dftscf: lost toll_s ',0)
       nmo(1)=dft_lindep(nbf_ao,toll_s,
-     .     svals,.true.,luout)
+     .     svals,me.eq.0,luout)
       if (ipol.eq.1)then
 c     
 c        noc(1) = No. of electrons alpha

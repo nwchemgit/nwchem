@@ -1,9 +1,9 @@
-      subroutine dft_canorg(toll_s, nmo, svals, g_svecs, g_xij)
+      subroutine dft_canorg( nmo, svals, g_svecs, g_xij)
 c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.2 2001-10-05 20:39:43 edo Exp $
+c     $Id: dft_canorg.F,v 1.3 2001-10-05 22:27:12 edo Exp $
 c     
       implicit none
 c
@@ -14,14 +14,11 @@ c
 c
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
-#include "stdio.fh"
 #include "cdft.fh"
-#include "rtdb.fh"
 c     
       integer me, nproc, i
       integer ltmpm, itmpm,ndep
-      double precision toll_s, aaz
+      double precision aaz
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -36,20 +33,14 @@ c
       call ga_zero(g_xij)
       do i = me+1, nmo, nproc
          aaz = svals(i+ndep)
-!         if (aaz.ge.toll_s)  then
-            call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
-            aaz = 1.d0/sqrt(aaz)
-            call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-            call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
-!         else
-!            call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
-!            call dfill(nbf_ao,0d0,dbl_mb(itmpm),1)
-!            call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
-!         endif
+         call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
+         aaz = 1.d0/sqrt(aaz)
+         call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
+         call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
       enddo
       if(.not.MA_Pop_Stack(ltmpm)) call errquit(
-     . 'failed popstack in dftcanorg ',0)
-c
+     .     'failed popstack in dftcanorg ',0)
+c     
       return
       end
       integer function dft_lindep(nbf,toll_s,svals,oprint,luout)
@@ -80,7 +71,7 @@ c
          write(luout,'(A,i5,A)') ' WARNING : Found ',nbf-nmo,
      /        ' linear dependencies '
          write(luout,11) ' S eigenvalue threshold:',toll_s
- 11      format(A,1pe18.7)
+ 11      format(A,1pe16.5)
          write(luout,11) ' Smallest S eigenvalue :',smin
          write(luout,11) ' Largest  S eigenvalue :',smax
          write(luout,*)

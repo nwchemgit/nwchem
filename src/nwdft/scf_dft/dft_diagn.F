@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.3 2001-10-05 20:39:43 edo Exp $
+c     $Id: dft_diagn.F,v 1.4 2001-10-05 22:27:12 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -26,12 +26,12 @@ c
       integer nmo ! [out]
 c
       integer me,j,nproc,g_fockt,g_xij,g_movecst
-      integer  ga_create_atom_blocked,info
+      integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-      integer i,ncanorg,g_vecstt
+      integer ncanorg,g_vecstt
       double precision fjj
-      external function dft_lindep
       integer dft_lindep
+      external dft_lindep
 c     
 c     Level shifting is implemented here (similarity 
 c     transformation before standard eigensolver).  Note,
@@ -52,7 +52,7 @@ c
 c     get xij through canonical orthog
 c
       if(ncanorg.eq.0) then
-         call dft_canorg(toll_s, nmo, svals, g_svecs, g_xij)
+         call dft_canorg(nmo, svals, g_svecs, g_xij)
          ncanorg=1
        endif
 c
