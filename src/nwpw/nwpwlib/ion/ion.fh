@@ -1,0 +1,14 @@
+
+*     **** ion common block ****
+      integer     nion,nkatm
+      integer     r2(2),r1(2),r0(2)
+      integer     katm(2),natm(2),atom(2)
+      integer     dti(2)
+      common / ION / r2,r1,r0,  ! ion positions and velocities
+     >              katm,       ! katm list, integer katm(nion)
+     >              natm,		! natm list, integer natm(nkatm)
+     >              atom,       ! character*2 atom(nkatm)
+     >              nion,		! number of ions
+     >              nkatm,		! number of kinds of ions
+     >              dti			! Verlet/steepest descent alpha
+

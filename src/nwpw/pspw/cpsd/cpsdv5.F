@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.4 2001-10-21 14:42:37 bylaska Exp $
+* $Id: cpsdv5.F,v 1.5 2001-10-23 16:41:39 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -110,14 +110,14 @@
       real*8      lattice_unitg
       integer     ewald_ncut,ewald_nshl3d,psp_npsp
       integer     psp_lmmax,psp_lmax,psp_locp
-      character*2 psp_atom,ion_aname
+      character*2 psp_atom,ion_aname,ion_atom
       external    psp_zv,psp_rc,ewald_rcut,ion_amass
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg
       external    ewald_ncut,ewald_nshl3d,psp_npsp
       external    psp_lmmax,psp_lmax,psp_locp
-      external    psp_atom,ion_aname
+      external    psp_atom,ion_aname,ion_atom
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -129,10 +129,12 @@
  
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
-      integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
+      integer  control_ngrid,pack_nwave
+      integer  ion_nion,ion_natm,ion_katm,ion_nkatm
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
-      external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
+      external control_ngrid,pack_nwave
+      external  ion_nion,ion_natm,ion_katm,ion_nkatm
 
       character*12 control_boundry
       external     control_boundry
@@ -346,7 +348,7 @@
            write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          end do
          write(6,1160)
-         write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
+         write(6,1170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
          write(6,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then

@@ -41,8 +41,10 @@
       double precision q
       character*16 t
 
-      integer  control_version
-      external control_version
+      character*2 pspw_qmmm_aname
+      integer     control_version
+      external    pspw_qmmm_aname
+      external    control_version
 
 
 *     *************************
@@ -159,6 +161,10 @@
 *       **** free h_array ****
         value = MA_free_heap(h_hndl)
         if (.not.value) call errquit('cannot free heap memory',0)
+
+*       **** set katm_list: nkatm, katm, natm, atom ****
+        call set_katm_list(nion,pspw_qmmm_aname,
+     >                     nkatm,katm,natm,atom)
 
       end if
 
@@ -291,6 +297,9 @@
       end
 
 
+
+
+
 *     **********************************
 *     *	                               *
 *     *        pspw_qmmm_write         *
@@ -332,6 +341,78 @@
         if (.not. value) call errquit('error writing qmmmgeometry', 0)
       end if
 
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_nkatm        *
+*     *                                *
+*     **********************************
+      integer function pspw_qmmm_nkatm()
+      implicit none
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+ 
+      pspw_qmmm_nkatm = nkatm
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_katm        *
+*     *                                *
+*     **********************************
+      integer function pspw_qmmm_katm(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+ 
+      pspw_qmmm_katm = int_mb(katm(1)+i-1)
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_natm        *
+*     *                                *
+*     **********************************
+      integer function pspw_qmmm_natm(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+ 
+      pspw_qmmm_natm = int_mb(natm(1)+i-1)
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_atom        *
+*     *                                *
+*     **********************************
+      character*2 function pspw_qmmm_atom(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      character*2 aname
+
+      call pspw_copy_atom(1,byte_mb(atom(1)+2*(i-1)),aname)
+      pspw_qmmm_atom = aname
       return
       end
 
@@ -386,6 +467,46 @@
       return
       end
 
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_frag         *
+*     *	                               *
+*     **********************************
+      integer function pspw_qmmm_frag(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_frag = int_mb(frag_from_indx(1)+2*(i-1))
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *   pspw_qmmm_different_frag     *
+*     *	                               *
+*     **********************************
+      logical function pspw_qmmm_different_frag(i,j)
+      implicit none
+      integer i,j
+
+#include "mafdecls.fh"
+
+****** pspw_qmmm common block ****
+#include "pspw_qmmm.fh"
+
+      integer mi,mj
+      mi = int_mb(frag_from_indx(1)+2*(i-1))
+      mj = int_mb(frag_from_indx(1)+2*(j-1))
+      pspw_qmmm_different_frag = ((mi.eq.0).or.(mj.eq.0).or.(mi.ne.mj))
+      return
+      end
+
+
 
 *     **********************************
 *     *	                               *
@@ -432,6 +553,9 @@
         value = value.and.MA_free_heap(dsqm_frag(2))
         value = value.and.MA_free_heap(size_frag(2))
         value = value.and.MA_free_heap(shake_frag(2))
+        value = value.and.MA_free_heap(atom(2))
+        value = value.and.MA_free_heap(natm(2))
+        value = value.and.MA_free_heap(katm(2))
         if (.not.value) call errquit('cannot free heap memory',0)
 
         if (qmmm_type.eq.1) call Model_Potential_end()

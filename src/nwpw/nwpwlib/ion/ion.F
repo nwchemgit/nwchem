@@ -6,7 +6,7 @@
 *     ***************************
       subroutine ion_end()
 *
-* $Id: ion.F,v 1.3 2001-10-21 14:42:33 bylaska Exp $
+* $Id: ion.F,v 1.4 2001-10-23 16:41:37 bylaska Exp $
 *
       implicit none
 
@@ -22,6 +22,7 @@
       value = value.and.MA_free_heap(r0(2))
       value = value.and.MA_free_heap(katm(2))
       value = value.and.MA_free_heap(natm(2))
+      value = value.and.MA_free_heap(atom(2))
       value = value.and.MA_free_heap(dti(2))
       if (.not. value) call errquit('ion_end:free heap ',0)
 
@@ -174,20 +175,20 @@
       common / pspwqmm/ mmexist
 
 *     *** local variables ***
-      integer     i,j,geom1,geom2,geom3,nion1,nion2,nion3
+      integer     i,geom1,geom2,geom3,nion1,nion2,nion3
       integer rt(2),tt(2),qt(2),mt(2)
       double precision q,dt,vgx,vgy,vgz,rxyz(3)
       character*16     t
-      logical value,found
+      logical value
 
       integer MASTER,taskid
       parameter (MASTER=0)
 
 *     **** external functions ****
-      character*2 psp_atom
-      integer     psp_npsp,control_code
-      external    psp_atom
-      external    psp_npsp,control_code
+      character*2 ion_aname
+      integer     control_code
+      external    ion_aname
+      external    control_code
       
       logical          control_frac_coord,parsecarrot
       double precision control_time_step,ion_amass
@@ -197,7 +198,6 @@
       external         control_rti
 
       call Parallel_taskid(taskid)
-      nkatm=psp_npsp()
 
 *     *******************************************************
 *     **** seperate ions from molecular pseudopotentials ****
@@ -274,8 +274,6 @@
       if (.not. value) call errquit('popping stack',0)
 
 
-
-
 *     **************************
 *     **** read in ion data ****
 *     **************************
@@ -307,29 +305,13 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
-      do j=1,nkatm
-         int_mb(natm(1)+j-1) = 0
-      end do
-
       do i=1,nion
          value = geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
-
-         found = .false.
-         do j=1,nkatm
-            if (t(1:2) .eq. psp_atom(j)) then
-                found = .true.
-                int_mb(katm(1)+i-1) = j
-                int_mb(natm(1)+j-1) = int_mb(natm(1)+j-1) + 1
-            end if
-         end do
-         if (.not. found) then
-            if (taskid.eq.MASTER) then
-               write(*,*) "Error in ion_init:",
-     >            " Formatted pseudopotential not found for ",t
-            end if
-         end if
-
+         if (.not. value) call errquit('error reading ions',0)
       end do
+
+*     **** define atom list: nkatm,katm,natm,atom ****
+      call set_katm_list(nion,ion_aname,nkatm,katm,natm,atom)
 
       if (control_frac_coord()) then
          if (taskid.eq.MASTER) then
@@ -342,7 +324,6 @@
       call incell1(nion,dbl_mb(r1(1)))
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
-
 
 
 *     **** define dti ****
@@ -389,12 +370,16 @@ c     call ion_shift()
          end do
          eki1=0.5d0*eki1
 
+
+
+
       end if
 
 
       ion_init = value
       return
       end
+
 
 *     ***************************
 *     *							*
@@ -601,11 +586,10 @@ c     call ion_shift()
       end
 
 *     ***************************
-*     *				*
-*     *		ion_nion	*
-*     *				*
+*     *							*
+*     *		ion_nion			*
+*     *							*
 *     ***************************
-
       integer function ion_nion()
       implicit none
 
@@ -616,11 +600,26 @@ c     call ion_shift()
       return
       end
 
+*     ***************************
+*     *							*
+*     *		ion_nkatm			*
+*     *							*
+*     ***************************
+      integer function ion_nkatm()
+      implicit none
+
+***** ion common block ****
+#include "ion.fh"
+
+      ion_nkatm = nkatm
+      return
+      end
+
 
 *     ***************************
-*     *				*
-*     *		ion_katm	*
-*     *				*
+*     *							*
+*     *		ion_katm			*
+*     *							*
 *     ***************************
 
       integer function ion_katm(i)
@@ -637,11 +636,10 @@ c     call ion_shift()
       end
 
 *     ***************************
-*     *				*
-*     *		ion_natm	*
-*     *				*
+*     *							*
+*     *		ion_natm			*
+*     *							*
 *     ***************************
-
       integer function ion_natm(i)
       implicit none
       integer i
@@ -654,6 +652,27 @@ c     call ion_shift()
       ion_natm = int_mb(natm(1)+i-1)
       return
       end
+
+*     ***************************
+*     *							*
+*     *		ion_atom			*
+*     *							*
+*     ***************************
+      character*2 function ion_atom(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+
+***** ion common block ****
+#include "ion.fh"
+      character*2 aname
+
+      call pspw_copy_atom(1,byte_mb(atom(1)+2*(i-1)),aname)
+      ion_atom = aname
+      return
+      end
+
 
 *     ***************************
 *     *				*
@@ -1149,10 +1168,10 @@ c     call ion_shift()
 
 
 *     **** external functions ****
-      character*2 psp_atom
+      character*2 ion_aname
       integer  ion_nion,ion_katm
       real*8   ion_rion
-      external psp_atom
+      external ion_aname
       external ion_nion,ion_katm
       external ion_rion
 
@@ -1166,7 +1185,7 @@ c     **** ouput xyz format ****
         write(unit,*) ion_nion()
         write(unit,*) 
         do ii=1,ion_nion()
-           WRITE(unit,1205) psp_atom(ion_katm(ii)),
+           WRITE(unit,1205) ion_aname(ii),
      >                   ion_rion(1,ii)*0.529177d0,
      >                   ion_rion(2,ii)*0.529177d0,
      >                   ion_rion(3,ii)*0.529177d0
@@ -1206,10 +1225,10 @@ c     **** ouput xyz format ****
 
 
 *     **** external functions ****
-      character*2 psp_atom
+      character*2 ion_aname
       integer  ion_nion,ion_katm
       real*8   ion_rion,lattice_unita
-      external psp_atom
+      external ion_aname
       external ion_nion,ion_katm
       external ion_rion,lattice_unita
 
@@ -1291,7 +1310,7 @@ c     **** ouput xyz format ****
            frac(3) = b(1,3)*ion_rion(1,ii)
      >             + b(2,3)*ion_rion(2,ii)
      >             + b(3,3)*ion_rion(3,ii)
-           WRITE(unit,1250) psp_atom(ion_katm(ii)),frac
+           WRITE(unit,1250) ion_aname(ii),frac
 
         end do
       end if
