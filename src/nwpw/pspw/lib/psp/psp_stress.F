@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.8 2003-10-17 22:57:38 carlfahl Exp $
+* $Id: psp_stress.F,v 1.9 2003-10-31 23:02:20 bylaska Exp $
 *
 
 
@@ -557,7 +557,7 @@
 
 *     **** read in semicore density block ****
       if (semicore) then
-         write(*,*) "reading in semicore block"   !debug
+         !write(*,*) "reading in semicore block"   !debug
          call D3dB_t_read(1,5,tmp2,tmp)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,dncore)
