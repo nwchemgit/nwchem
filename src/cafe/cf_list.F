@@ -18,8 +18,6 @@ c
       integer iwm,jwm,iwmfr,iwfr,iwmto,iwto,jwmfr,jwfr,jwmto,jwto
       integer ilist,nlist,mpairs,npairs
 c
-      integer npww
-c
       iwmfr=iwfr
       if(lself) then
       lwwin(nlocw,1)=0
@@ -34,9 +32,6 @@ c
       jwmfr=jwfr
       jwmto=jwto
       endif
-c
-      npww=1
-      if(rlong.gt.rshrt) npww=2
 c
 c      maxlst=mavail*niperw
       npairs=0
@@ -84,7 +79,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist+4*nlocw.gt.maxlst) then
 c      messg='listww : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 5 ilist=1,nlist
@@ -109,7 +104,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist+4*nlocw.gt.maxlst) then
 c      messg='listww : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 13 ilist=1,nlist
@@ -128,7 +123,7 @@ c
       subroutine cf_lsw(lpbc,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,
      + iwfr,iwto,ndim,mpairs,npairs,lswjpt,lswin,lswj,list,rwx,rw)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -145,11 +140,8 @@ c
       integer iwmfr,iwfr,iwmto,iwto,isafr,isfr,isato,isto,maxlst
       integer mpairs,npairs,isa,iwm,nlist,ilist,isa0,iisa,inswl,i
 c
-      integer nswl,nswi1,nswi2,npsw
+      integer nswl,nswi1,nswi2
       logical lpbc
-c
-      npsw=1
-      if(rlong.gt.rshrt) npsw=2
 c
 c     this subroutine evaluates the solute-solvent pairlist
 c
@@ -171,7 +163,7 @@ c
       rwx(iwm,2)=xs(isa,2)-xwm(iwm,2)
       rwx(iwm,3)=xs(isa,3)-xwm(iwm,3)
     3 continue
-      if(lpbc) call arg_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
+      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
       do 8 iwm=iwmfr,iwmto
       rw(iwm)=rwx(iwm,1)**2+rwx(iwm,2)**2+rwx(iwm,3)**2
     8 continue
@@ -207,7 +199,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listsw : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 5 ilist=1,nlist
@@ -232,7 +224,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listsw : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 8005 ilist=1,nlist
@@ -265,7 +257,7 @@ c
       rwx(iwm,2)=xs(isa,2)-xwm(iwm,2)
       rwx(iwm,3)=xs(isa,3)-xwm(iwm,3)
    11 continue
-      if(lpbc) call arg_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
+      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
       do 13 iwm=iwmfr,iwmto
       rw(iwm)=rwx(iwm,1)**2+rwx(iwm,2)**2+rwx(iwm,3)**2
    13 continue
@@ -341,7 +333,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listsw : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 19 ilist=1,nlist
@@ -368,7 +360,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listsw : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 8019 ilist=1,nlist
@@ -426,11 +418,6 @@ c
       integer nlist0,isa0,iisa,isglob,ipss,jsglob,nlist,leq,nssl0
       integer inssl,i
 c
-      integer npss
-c
-      npss=1
-      if(rlong.gt.rshrt) npss=2
-c
 c     this subroutine evaluates the solute-solute pairlist
 c
 c      maxlst=2*mavail
@@ -457,7 +444,7 @@ c
       rwx(jsa,2)=xs(isa,2)-xs(jsa,2)
       rwx(jsa,3)=xs(isa,3)-xs(jsa,3)
     2 continue
-      if(lpbc) call arg_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
+      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
       do 3 jsa=jsafr,jsato
       rw(jsa)=rwx(jsa,1)**2+rwx(jsa,2)**2+rwx(jsa,3)**2
     3 continue
@@ -537,7 +524,7 @@ c      if(isglob.eq.jdsx(jsx)) goto 10
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist1+nlist2.gt.maxlst) then
 c      messg='listss : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist1-nlist2
       do 11 ilist=1,nlist1
@@ -581,7 +568,7 @@ c
       rwx(jsa,2)=xs(isa,2)-xs(jsa,2)
       rwx(jsa,3)=xs(isa,3)-xs(jsa,3)
    16 continue
-      if(lpbc) call arg_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
+      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
       do 17 jsa=jsafr,jsato
       rw(jsa)=rwx(jsa,1)**2+rwx(jsa,2)**2+rwx(jsa,3)**2
    17 continue
@@ -833,7 +820,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listss : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       leq=0
 c
@@ -851,7 +838,7 @@ c
      + call errquit('Insufficient memory for pairlist',0)
 c      if(npairs+nlist.gt.maxlst) then
 c      messg='listss : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
 c      maxlst=maxlst-nlist
       do 61 ilist=1,nlist
@@ -883,7 +870,7 @@ c
       subroutine cf_lsb(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idb,nsb,nbonds,mbonds,nconst,lbonds,itemp)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -935,7 +922,7 @@ c
      + call errquit('Insufficient memory for bond list',0)
 c      if(nbonds.gt.maxbnd) then
 c      messg='listsb : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       lbonds(nbonds)=isb
       endif
@@ -969,7 +956,7 @@ c
       subroutine cf_lsh(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idh,nsh,nangls,mangls,nconst,langls,itemp)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1030,7 +1017,7 @@ c
      + call errquit('Insufficient memory for angle list',0)
 c      if(nangls.gt.maxang) then
 c      messg='listsh : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       langls(nangls)=ish
       endif
@@ -1071,7 +1058,7 @@ c
       subroutine cf_lsd(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idd,nsd,ndihes,mdihes,nconst,ldihes,itemp)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1134,7 +1121,7 @@ c
      + call errquit('Insufficient memory for torsion list',0)
 c      if(ndihes.gt.maxdih) then
 c      messg='listsd : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       ldihes(ndihes)=isd
       endif
@@ -1180,7 +1167,7 @@ c
       subroutine cf_lso(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + ido,nso,nimprs,mimprs,nconst,limprs,itemp)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1243,7 +1230,7 @@ c
      + call errquit('Insufficient memory for improper list',0)
 c      if(nimprs.gt.maximp) then
 c      messg='listso : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       limprs(nimprs)=iso
       endif
@@ -1289,7 +1276,7 @@ c
       subroutine cf_lst(lself,iga,idt,istemp,isfr,isto,jsfr,jsto,
      + idtn,nst,nthird,mthird,lthird,itemp)
 c
-c $Id: cf_list.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.2 1999-02-17 03:33:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1338,7 +1325,7 @@ c      if(nthird.gt.mthird)
 c     + call errquit('Insufficient memory for third neighbor list',0)
 cc      if(nthird.gt.maxthi) then
 cc      messg='listst : Abort: Enlarge memory'
-cc      call arg_logend
+cc      call cf_logend
 cc      endif
 c      lthird(nthird)=ist
 c      write(*,'(3i5)') ist,idtn(ist,1),idtn(ist,2)
@@ -1360,7 +1347,7 @@ c
      + call errquit('Insufficient memory for third neighbor list',0)
 c      if(nthird.gt.maxthi) then
 c      messg='listst : Abort: Enlarge memory'
-c      call arg_logend
+c      call cf_logend
 c      endif
       lthird(nthird)=ist
       endif

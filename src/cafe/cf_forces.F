@@ -359,10 +359,10 @@ c     solute bond forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
-c     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
-c     + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-c     + xs,fs,esb,esp,lpbc)
+      call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
+     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
+     + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
+     + xs,fs,esb,esp,lpbc)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -372,10 +372,10 @@ c     solute angle forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fsh(npairs,int_mb(lptr+1),mht(2),mhp(2),
-c     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
-c     + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-c     + xs,fs,esh,esp,lpbc,lupden)
+      call cf_fsh(npairs,int_mb(lptr+1),mht(2),mhp(2),
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
+     + xs,fs,esh,esp,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -385,10 +385,10 @@ c     solute torsion forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fsd(npairs,int_mb(lptr+1),mdt(2),mdp(2),
-c     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
-c     + max(isto,jsto),msa,isga,ismf,isdt,
-c     + xs,fs,esd,esp,lpbc,lupden)
+      call cf_fsd(npairs,int_mb(lptr+1),mdt(2),mdp(2),
+     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
+     + max(isto,jsto),msa,isga,ismf,isdt,
+     + xs,fs,esd,esp,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -398,10 +398,10 @@ c     solute improper dihedral forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fso(npairs,int_mb(lptr+1),mdt(2),mdp(2),
-c     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
-c     + max(isto,jsto),msa,isga,ismf,isdt,
-c     + xs,fs,eso,esp,lpbc,lupden)
+      call cf_fso(npairs,int_mb(lptr+1),mdt(2),mdp(2),
+     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
+     + max(isto,jsto),msa,isga,ismf,isdt,
+     + xs,fs,eso,esp,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -411,10 +411,10 @@ c     solute third neighbor forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-c      call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
-c     + dbl_mb(i_vdw),dbl_mb(i_chg),
-c     + max(isto,jsto),msa,isat,isga,isml,isdt,isq2,
-c     + xs,fs,esp,essl,essq,essr,lpbc)
+      call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
+     + dbl_mb(i_vdw),dbl_mb(i_chg),
+     + max(isto,jsto),msa,isat,isga,isml,isdt,isq2,
+     + xs,fs,esp,essl,essq,essr,lpbc)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1

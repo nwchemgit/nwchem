@@ -1,5 +1,5 @@
 #
-OBJ_OPTIMIZE=cf_f.o\
+OBJ_OPTIMIZE=cf_d.o cf_f.o\
              cf_finish.o\
              cf_forces.o\
              cf_init.o\

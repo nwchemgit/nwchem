@@ -1,12 +1,18 @@
-      subroutine cf_start()
+      subroutine cf_start(lfntop,filtop)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "global.fh"
 c
+      integer lfntop
+      character*(*) filtop
+c
       me=ga_nodeid()
       np=ga_nnodes()
+c
+      if(me.eq.0) write(*,1000)
+ 1000 format('CAFE Classical Atomic Forces and Energies')
 c
       nbs=0
       mscr=0
@@ -20,6 +26,8 @@ c
       maxl=0
 c
       twopi=8.0d0*atan(1.0d0)
+c
+      call cf_rdtop(lfntop,filtop)
 c
       return
       end
@@ -634,6 +642,15 @@ c
       lpww=1
       lpsw=1
       lpss=1
+c
+      npww=1
+      npsw=1
+      npss=1
+      if(rlong.gt.rshrt) then
+      npww=2
+      npsw=2
+      npss=2
+      endif
 c
       mgc=1
       mgl=1

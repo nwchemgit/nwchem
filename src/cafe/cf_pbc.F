@@ -1,6 +1,6 @@
       subroutine cf_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: cf_pbc.F,v 1.1 1999-02-16 17:54:20 d3j191 Exp $
+c $Id: cf_pbc.F,v 1.2 1999-02-17 03:33:27 d3j191 Exp $
 c
       implicit none
 c

@@ -4,7 +4,7 @@
      + f,fi,fj,facu)
 c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
       implicit none
 c
@@ -449,10 +449,8 @@ c
 c
       return
       end
-      subroutine cf_fsw(xs,xsm,fs,zs,
-     + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,
-     + xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
+      subroutine cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,isq1,
+     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,eswl,eswq,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,isrx,list)
@@ -462,7 +460,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
       implicit none
 c
@@ -1135,7 +1133,7 @@ c
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,jsal,jmal,jfal,isrx)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
       implicit none
 c
@@ -2011,7 +2009,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,esb,esp,lpbc)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2287,7 +2285,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,esh,esp,lpbc,lupden)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute angles
 c
@@ -2546,7 +2544,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,esd,esp,lpbc,lupden)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2873,7 +2871,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,eso,esp,lpbc,lupden)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3185,7 +3183,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,esp,essl,essq,essr,lpbc)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3501,7 +3499,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.F,v 1.1 1999-02-16 17:54:17 d3j191 Exp $
+c $Id: cf_f.F,v 1.2 1999-02-17 03:33:25 d3j191 Exp $
 c
       implicit none
 c

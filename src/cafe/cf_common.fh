@@ -80,7 +80,7 @@ c
       integer npbtyp,nbxtyp,iqmmm,lstype,ipert1,ipert2,ip1(24),ip2(24)
       integer ithint,ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
       integer iewald,ith(24),lpww,lpsw,lpss,issscl,ngrsw,ngrss,nrwrec
-      integer isolvo
+      integer isolvo,npww,npsw,npss
       real*8 box(3),boxh(3),vlat(3,3),vlati(3,3),rshrt,rlong,rrest,
      + rqmmm,rshrt2,rlong2,rrest2,rqmmm2,deriv(24,2),ep1(2),ep2(2),
      + dfrdf,ewwl(2),zw(3,2),rffww,ewwr(2),drdf,ealpha,ewwq(2),rdfvol
@@ -95,6 +95,6 @@ c
      + ewb,ewh,ewd,ewo,ewl,ewq,ewp,
      + npbtyp,nbxtyp,iqmmm,lstype,ipert1,ipert2,ip1,ip2,ithint,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,iewald,ith,lpww,lpsw,
-     + lpss,issscl,ngrsw,ngrss,nrwrec,isolvo,
+     + lpss,issscl,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,
      + llist,lpair
 
