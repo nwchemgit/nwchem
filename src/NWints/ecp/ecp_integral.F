@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.19 2004-04-27 22:03:02 bert Exp $
+C $Id: ecp_integral.F,v 1.20 2004-07-22 16:31:41 edo Exp $
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.
@@ -164,7 +164,7 @@ c:tex-\end{verbatim}
         max_type1 = 0
         max_type2 = 0
       else
-        call dfill (n_intt*n_blk,zero,ecp_ints,1)
+        call dcopy (n_intt*n_blk,zero,0,ecp_ints,1)
         if (debug_addresses) write (LuOut,*) 'memscr =',memscr
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in ecp_integral',99, MEM_ERR)
@@ -235,7 +235,7 @@ C     &        'zeta_C','E',81,5)
 C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
 C        end if
-        if (.not.DryRun) call dfill (n_intt*n_blk,zero,scr,1)
+        if (.not.DryRun) call dcopy (n_intt*n_blk,zero,0,scr,1)
         i_zeta = ind_z(-1,i)
         i_coef = ind_c(-1,i)
         if ((i_c_A .eq. i_c_C) .and. (i_c_B .eq. i_c_C)) then

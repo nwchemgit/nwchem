@@ -1,5 +1,5 @@
 c
-c $Id: hnd_tvd_ij.F,v 1.5 2004-07-21 16:24:36 bert Exp $
+c $Id: hnd_tvd_ij.F,v 1.6 2004-07-22 16:31:41 edo Exp $
 c
 c Modified from HONDO
 c
@@ -154,7 +154,7 @@ c
       double precision axi, ayi, azi, csi, cpi, cdi, cfi, cgi
       double precision tx, aa, aa1, dum, fac, csj, cpj, cdj, cfj, cgj
       double precision ax, ay, az, dum1, dum2, pij
-      integer ni, nj, lit, Nxyz, nroots
+      integer ni, nj, lit, Nxyz
       integer maxi, litder, ljt, maxj 
       integer ljtder, ljtmod, ig, jg, ij, i, j, ix, iy, iz
       integer jx, jy, jz, kat, znuc, iroot

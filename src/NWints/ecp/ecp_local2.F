@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.7 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_local2.F,v 1.8 2004-07-22 16:31:41 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -253,7 +253,8 @@ C $Id: ecp_local2.F,v 1.7 2003-10-17 22:53:51 carlfahl Exp $
 *
 *      Evaluate radial integrals
 *
-        call dfill(n_ab*n_rad,zero,tmp(i_Q_int),1)
+!        call dfill(n_ab*n_rad,zero,tmp(i_Q_int),1)
+        call dcopy(n_ab*n_rad,zero,0,tmp(i_Q_int),1)
         call ecp_locint1 (p_min,p_max,l_c,n_prim_a,n_prim_b,n_coef_c,
      &      n_prim_c,coef_c,tmp(i_ai),tmp(i_gam),tmp(i_alp),tmp(i_pre),
      &      tol,n_ab,n_abc,n_rad,tmp(i_tmp),tmp(i_ind),tmp(i_Qabc),
@@ -266,7 +267,8 @@ C $Id: ecp_local2.F,v 1.7 2003-10-17 22:53:51 carlfahl Exp $
         i = 0
         i_n = i_inta
         do i_b = 1,n_prim_b
-          call dfill(n_nb*n_pbas_a,zero,tmp(i_intp),1)
+!          call dfill(n_nb*n_pbas_a,zero,tmp(i_intp),1)
+          call dcopy(n_nb*n_pbas_a,zero,0,tmp(i_intp),1)
           i_m = i_intp
           do i_a = 1,n_prim_a
 *
@@ -300,7 +302,7 @@ C $Id: ecp_local2.F,v 1.7 2003-10-17 22:53:51 carlfahl Exp $
 *
               i_c = i_ca
               i_q = i_Q_int+i
-              call dfill(n_n,zero,tmp(i_p),1)
+              call dcopy(n_n,zero,0,tmp(i_p),1)
               do n = 0,l_p
                 do l = n,0,-2
                   ll1 = l+l+1

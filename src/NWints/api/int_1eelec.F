@@ -1,4 +1,4 @@
-c $Id: int_1eelec.F,v 1.1 2004-07-21 16:13:46 bert Exp $
+c $Id: int_1eelec.F,v 1.2 2004-07-22 16:31:41 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eelec}
@@ -45,7 +45,7 @@ c:tex-\begin{verbatim}
       integer lelec                ! [input] length of elec buffer
       double precision elec(lelec) ! [output] elec integrals
       integer nder    ! [input] nder of integral
-      double precision xyzpt(3,npts) ! [input] points where integral is calculated
+      double precision xyzpt(3,*) ! [input] points where integral is calculated
       integer npts    ! [input] number of points where integral is calculated
 c:tex-\end{verbatim}
 c::local

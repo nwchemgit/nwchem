@@ -1,4 +1,4 @@
-C $Id: ecp_local0.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_local0.F,v 1.4 2004-07-22 16:31:41 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local0 (mem_max,DryRun,
@@ -162,7 +162,7 @@ C $Id: ecp_local0.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
 *
 *       Set up angular overlap matrix
 *
-            call dfill (n_ang,zero,tmp(i_ang),1)
+            call dcopy (n_ang,zero,0,tmp(i_ang),1)
             call dfill (n_l,wb,tmp(i_ang),n_l+1)
             tmp(i_ang+2*l_c*(l_c+1)) = wb+wb
 *

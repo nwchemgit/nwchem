@@ -1,4 +1,4 @@
-C $Id: ecp_cart_xpd.F,v 1.1 2003-10-17 22:09:29 carlfahl Exp $
+C $Id: ecp_cart_xpd.F,v 1.2 2004-07-22 16:31:41 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_cart_xpd (n,n_n,n_all,X,Y,Z,xn,yn,zn,tmp,coef,
@@ -71,7 +71,6 @@ C $Id: ecp_cart_xpd.F,v 1.1 2003-10-17 22:09:29 carlfahl Exp $
 *   Loop over components of original cartesian
 *
         ind_n = 0
-        call dcopy(n_n*n_n,zero,0,tmp,1)
         do i = n,0,-1
           ii = i*(i+1)/2+1
           do j = n-i,0,-1
@@ -90,17 +89,17 @@ C $Id: ecp_cart_xpd.F,v 1.1 2003-10-17 22:09:29 carlfahl Exp $
                 do b = m-a,0,-1
                   c = m-a-b
                   ind_m = ind_m+1
-                  if (j .ge. b) then
+                  tmp(ind_n,ind_m) = 0d0
+                  if (j .ge. b.and.k.ge.c) then
                     jfac = binomial(jj+b)
                     jfac = jfac*yn(j-b)
-                    if (k .ge. c) then
-                      kfac = binomial(kk+c)
-                      kfac = kfac*zn(k-c)
-                      tmp(ind_n,ind_m) = ifac*jfac*kfac
-                    end if
+                    kfac = binomial(kk+c)
+                    kfac = kfac*zn(k-c)
+                    tmp(ind_n,ind_m) = ifac*jfac*kfac
                   end if
                 end do
               else
+                 call dcopy(m-a+1,zero,0,tmp(ind_n,ind_m+1),n_n)
                 ind_m = ind_m+m-a+1
               end if
             end do

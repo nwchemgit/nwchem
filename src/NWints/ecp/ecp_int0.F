@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.11 2003-10-17 22:53:51 carlfahl Exp $
+C $Id: ecp_int0.F,v 1.12 2004-07-22 16:31:41 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -201,7 +201,7 @@ C $Id: ecp_int0.F,v 1.11 2003-10-17 22:53:51 carlfahl Exp $
 *
 *       Set up angular overlap/spin-orbit matrix
 *
-            call dfill (n_ang*n_x,zero,tmp(i_ang),1)
+            call dcopy (n_ang*n_x,zero,0,tmp(i_ang),1)
 *
 *         scalar potential
 *

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvint.F,v 1.6 2004-07-21 16:24:36 bert Exp $
+c $Id: hnd_stvint.F,v 1.7 2004-07-22 16:31:41 edo Exp $
 c
 c Modified from HONDO
 c
@@ -97,7 +97,7 @@ c
       double precision xv, yv, zv, dij
       integer lit, ljt, maxi, maxj, ljtmod, jg
       integer ijx, ijy, ijz,ij, i, j
-      integer ni, nj, i1, i2, j1, j2, ig, ic, iroot, nroots
+      integer ni, nj, i1, i2, j1, j2, ig, ic, iroot
       integer ix, iy, iz, jx, jy, jz, Nxyz
       logical some
       common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,

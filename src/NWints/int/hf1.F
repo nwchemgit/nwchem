@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nints,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.20 2003-10-17 22:54:02 carlfahl Exp $
+c $Id: hf1.F,v 1.21 2004-07-22 16:31:41 edo Exp $
       Implicit none
       integer NPA,NCA,La,NPB,NCB,Lb,ncenters,Nints,maxW0
       logical O2I,KEI,NAI,canAB
@@ -78,10 +78,10 @@ c******************************************************************************
         write(LuOut,*)' j_ngen ',ncb
         write(LuOut,*)' int_hf1: lstv',Nints
         write(LuOut,*)' int_hf1: lscr',maxW0
-        call dfill(maxW0,0.0d00,W0,1)
-        if (O2I) call dfill(Nints,0.0d00,bO2I,1)
-        if (KEI) call dfill(Nints,0.0d00,bKEI,1)
-        if (NAI) call dfill(Nints,0.0d00,bNAI,1)
+        call dcopy(maxW0,0d0,0,W0,1)
+        if (O2I) call dcopy(Nints,0d0,0,bO2I,1)
+        if (KEI) call dcopy(Nints,0d0,0,bKEI,1)
+        if (NAI) call dcopy(Nints,0d0,0,bNAI,1)
 *debug_ma:        call MA_summarize_allocated_blocks()
 *debug_ma:        write(LuOut,*)' int_hf1: ma verify 1-b4'
 *debug_ma:        status = ma_verify_allocator_stuff()
@@ -172,9 +172,9 @@ c Zero out the integrals. Return if screening test gives no pairs
 
       if (.not.DryRun) then
         nintlocal = La2*Lb2*nca*ncb
-        if (O2I) call dfill(nintlocal,0.0d00,bO2I,1)
-        if (KEI) call dfill(nintlocal,0.0d00,bKEI,1)
-        if (NAI) call dfill(nintlocal,0.0d00,bNAI,1)
+        if (O2I) call dcopy(nintlocal,0d0,0,bO2I,1)
+        if (KEI) call dcopy(nintlocal,0d0,0,bKEI,1)
+        if (NAI) call dcopy(nintlocal,0d0,0,bNAI,1)
         if (NPP.eq.0) return
       end if
 

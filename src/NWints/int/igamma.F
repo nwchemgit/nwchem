@@ -1,5 +1,5 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.11 2003-01-06 20:51:36 edo Exp $
+c $Id: igamma.F,v 1.12 2004-07-22 16:31:41 edo Exp $
 
       Implicit none
       integer n
@@ -20,11 +20,39 @@ c******************************************************************************
       integer m
       parameter(faci=1d0/1.128379167096d0)
 c
+      if(l.eq.0) then
+        do  m = 1,N
+           call fm(fj(m,0),0,ftex)
+           fj(m,0)=ftex(0)*faci
+        enddo
+      elseif(l.eq.1) then
+        do  m = 1,N
+           call fm(fj(m,0),1,ftex)
+           fj(m,0)=ftex(0)*faci
+           fj(m+N,0)=ftex(1)*faci
+        enddo
+      elseif(l.eq.2) then
+        do  m = 1,N
+           call fm(fj(m,0),2,ftex)
+           fj(m,0)=ftex(0)*faci
+           fj(m+N,0)=ftex(1)*faci
+           fj(m+N+N,0)=ftex(2)*faci
+        enddo
+      elseif(l.eq.3) then
+        do  m = 1,N
+           call fm(fj(m,0),3,ftex)
+           fj(m,0)=ftex(0)*faci
+           fj(m+N,0)=ftex(1)*faci
+           fj(m+N+N,0)=ftex(2)*faci
+           fj(m+N+N+N,0)=ftex(3)*faci
+        enddo
+      else
       do  m = 1,N
          call fm(fj(m,0),l,ftex)
          call dcopy(l+1,ftex,1,fj(m,0),N)
       enddo
-      call dscal(N*(L+1),faci,fj(1,0),1)
+         call dscal(N*(L+1),faci,fj(1,0),1)
+      endif
       return
       end
       Subroutine igammao(Fj,N,L)

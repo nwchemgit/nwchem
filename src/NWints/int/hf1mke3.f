@@ -1,7 +1,7 @@
 C$PRAGMA SUN OPT=2
       Subroutine hf1mke3(Axyz,Bxyz,Cxyz,alpha,G,GT,ABC2I,E,
      &                   NABC,La,Lb,Lc)
-c $Id: hf1mke3.f,v 1.4 2000-05-05 20:37:09 edo Exp $
+c $Id: hf1mke3.f,v 1.5 2004-07-22 16:31:41 edo Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -63,7 +63,7 @@ c******************************************************************************
 c Initialize the Hermite expansion coefficients.
 
       isz_e = NABC*3*(La+Lb+Lc+1)*(La+1)*(Lb+1)*(Lc+1)
-      call dfill(isz_e,0.0d00,E,1)
+      call dcopy(isz_e,0d0,0,E,1)
 c Define E(Ip,Ia,Ib,Ic) for Ip=0, Ia=0, Ib=0, Ic=0.
 
       do 100 m = 1,NABC

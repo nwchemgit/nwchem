@@ -1,5 +1,5 @@
       Subroutine hfkei(alpha,E,Tab,Ti,Nints,NPP,La,Lb,Li,canAB)
-c $Id: hfkei.f,v 1.5 2000-05-02 19:47:55 mg201 Exp $
+c $Id: hfkei.f,v 1.6 2004-07-22 16:31:41 edo Exp $
 
       Implicit none
 
@@ -45,7 +45,6 @@ c******************************************************************************
   
 c Initialize the block of KEIs.
 
-      call dfill(Nints,0.0d00,Tab,1)
 
 c Define the number of shell components on each center.
 
@@ -89,6 +88,7 @@ c Define the angular momentum indices for shell "B".
           dkb = dble(kb)
 
           nn = nn + 1
+          tab(nn)=0d0
   
 c Build Tx.
 

@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.8 2000-05-22 17:29:28 mg201 Exp $
+c $Id: hfnai.f,v 1.9 2004-07-22 16:31:41 edo Exp $
       
       Implicit none
       
@@ -42,7 +42,7 @@ c******************************************************************************
 
 c Initialize the block of NAIs.
       
-      call dfill(Nints,0.0d00,Vab,1)
+!      call dcopy(Nints,0d0,0,Vab,1)
       
 c Define the number of shell components on each center.
       
@@ -149,6 +149,7 @@ c--> Local variables
 
       integer ma,mb,mp,np, ica,icb,icb_limit,ipa,ipb
       integer Ia,Ja,Ka, Ib,Jb,Kb, Ip,Jp,Kp
+      integer npp1
 c
 c Compute the nuclear attraction integrals.
 c
@@ -163,7 +164,7 @@ c******************************************************************************
 
 c Initialize the block of NAIs.
 
-      call dfill(La2*Lb2*nca*ncb,0.0d00,Vab,1)
+      call dcopy(La2*Lb2*nca*ncb,0d0,0,Vab,1)
 
 c Loop over shell components.
 
@@ -186,8 +187,8 @@ c Define the angular momentum indices for shell "B".
           Ib = Nxyz(1)
           Jb = Nxyz(2)
           Kb = Nxyz(3)
-
-          call dfill(NPP,0.0d00,VabP,1)
+          npp1=(ia+ib+1)*(ja+jb+1)*(ka+kb+1)
+          call dcopy(npp1,0d0,0,VabP,1)
           do Ip = 0,Ia+Ib
             do Jp = 0,Ja+Jb
               do Kp = 0,Ka+Kb
@@ -207,7 +208,7 @@ c Define the angular momentum indices for shell "B".
 
 c Contract over B shell
 
-          call dfill(NCB*NPA,0.0d00,VabH,1)
+          call dcopy(NCB*NPA,0d0,0,VabH,1)
           do icb = 1,NCB
             do mp = 1,NPP
               ipa = ipairp(1,mp)

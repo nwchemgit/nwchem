@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlfd_ij.F,v 1.6 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_hlfd_ij.F,v 1.7 2004-07-22 16:31:41 edo Exp $
 c
 c Modified from HONDO integral code
 c
@@ -103,7 +103,7 @@ c
       double precision dxvdj, dyvdj, dzvdj
       double precision ddxvdi, ddyvdi, ddzvdi
       double precision ddxvdj, ddyvdj, ddzvdj
-      integer ni, nj, iroot, Nxyz, nroots
+      integer ni, nj, iroot, Nxyz
       integer lit, maxi, ljt,maxj
       integer ig, jg, ij, i, j, ix, iy, iz, jx, jy, jz
       integer litder, ljtder

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlf_ij.F,v 1.4 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_hlf_ij.F,v 1.5 2004-07-22 16:31:41 edo Exp $
 c
 c Modified from HONDO
 c
@@ -100,7 +100,7 @@ c
       double precision pi212, aax, aay, aaz, znuc
       double precision uu, u2, u4, ww, w2, w4, tt, xv, yv, zv
       double precision dxv, dyv, dzv, ddxv, ddyv, ddzv
-      integer ni, nj, iroot, Nxyz, nroots
+      integer ni, nj, iroot, Nxyz
       integer lit,maxi, ljt, maxj
       integer ig, jg, ij, i, j, ix, iy, iz, jx, jy, jz
       dimension   xv(Li+1,Lj+1,*),  yv(Li+1,Lj+1,*),  zv(Li+1,Lj+1,*)

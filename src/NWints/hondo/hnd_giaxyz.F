@@ -2,7 +2,7 @@
      1                  ng,nmax,mmax,nimax,njmax,nkmax,nlmax,
      2                  dij,dkl)
 c
-c $Id: hnd_giaxyz.F,v 1.1 2004-07-21 16:24:35 bert Exp $
+c $Id: hnd_giaxyz.F,v 1.2 2004-07-22 16:31:41 edo Exp $
 c
       implicit none 
 #include "nwc_const.fh"
@@ -18,7 +18,7 @@ c
       double precision   gnm(ng,nmax,mmax)
       double precision   dij(ng), dkl(ng)
 c
-      integer nk,nl,n,ig,m,n,ni,lkj,nj,lk,maxi
+      integer nk,nl,n,ig,m,ni,lkj,nj,lk,maxi
 c
 c     ----- g(n,k,l) -----
 c

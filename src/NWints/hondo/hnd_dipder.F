@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dipder.F,v 1.3 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_dipder.F,v 1.4 2004-07-22 16:31:41 edo Exp $
 c
 c  Modified from the HONDO dipole integral code
 c
@@ -89,7 +89,7 @@ c
       integer ni, nj
       integer ijx, ijy, ijz, ix, iy, iz, jx, jy, jz
       integer nder, lit, ljt, litder, ljtder
-      integer maxi, maxj, nroots
+      integer maxi, maxj
       integer ig, jg, ij, i, j
       double precision zero, one
       double precision rln10, tol
