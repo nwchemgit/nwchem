@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.16 2004-05-24 13:47:08 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.17 2004-05-24 14:50:03 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -98,14 +98,80 @@
 
 
 
-      if ((np.gt.(control_ngrid(3)))) then
-        if (taskid.eq.MASTER)
-     >     write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   control_ngrid(3),')'
-         call util_flush(6)
-         call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
+
+      !**** Make sure ngrid is consistent with mapping ***
+      if (mapping.eq.1) then
+        if ((np.gt.ngrid(3)).or.(ngrid(2).ne.ngrid(3))) then
+          if (taskid.eq.MASTER) then
+            write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...ngrid(3)=',
+     >                   ngrid(3),')'
+           write(6,*) ' and ngrid(2) == ngrid(3), ',
+     >                ' ngrid(2)=',ngrid(2),
+     >                ' ngrid(3)=',ngrid(3)
+          end if
+          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
+        end if
+        if (mod(ngrid(1),2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',ngrid(1)
+          end if
+          call errquit('PSPW:Bad grid',ngrid(1), INPUT_ERR)
+        end if
+
+
       end if
+      if (mapping.eq.2) then
+        if (np.gt.(ngrid(2)*ngrid(3))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > ngrid(2)*ngrid(3)'
+           write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   ngrid(2)*ngrid(3),')'
+          end if
+          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
+        end if
+        if (np.gt.((ngrid(1)/2+1)*ngrid(2))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(2)'
+           write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (ngrid(1)/2+1)*ngrid(2),')'
+          end if
+          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
+        end if
+        if (np.gt.((ngrid(1)/2+1)*ngrid(3))) then
+          if (taskid.eq.MASTER) then
+           write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
+     >                ' (ngrid(1)/2+1)*ngrid(2),',
+     >                ' (ngrid(1)/2+1)*ngrid(3))'
+           write(6,*) 'Error: np > (ngrid(1)/2+1)*ngrid(3)'
+           write(6,*) 'Error: the number of processors must ',
+     >                 ' be in the range ( 1 ...',
+     >                   (ngrid(1)/2+1)*ngrid(3),')'
+          end if
+          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
+        end if
+        if (mod(ngrid(1),2).ne.0) then
+          if (taskid.eq.MASTER) then
+           write(6,*)
+     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
+           write(6,*) 'Error: ngrid(1)=',ngrid(1)
+          end if
+          call errquit('PSPW:Bad grid',ngrid(1), INPUT_ERR)
+        end if
+
+      end if
+
+
 
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
