@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.5 2004-12-02 00:20:27 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.6 2004-12-02 01:45:32 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -129,6 +129,8 @@ c     calculate gradients from qm
 
 c     add on classical contributions
       call daxpy(3*nqm,1.0d0,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
+      
+      call qmmm_link_forces(ntot,dbl_mb(i_g))
 
 c     push final gradients onto qm module
       call qmmm_push_qm_grad_qm(rtdb,3*nqm,dbl_mb(i_g))
@@ -289,6 +291,99 @@ c
      &    0, MA_ERR)
 
 
+
+      end
+
+      subroutine qmmm_link_forces(nt,g)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+      integer nt
+      double precision g(3,nt)
+c     local variables
+      integer nqm
+      integer nlink
+      integer i,k
+      integer i_lp
+      integer i_c
+      integer h_cl,i_cl
+      integer i_ai
+      integer il,iq
+      double precision l0
+      double precision rh(3)
+      double precision rq(3)
+      double precision rl(3)
+      character*32 pname
+
+      double precision qmmm_geom_distance
+      external qmmm_geom_distance
+
+      pname = "qmmm_link_forces"
+
+      if(qmmm_print_debug())
+     >   write(*,*) "in "//pname
+
+      nlink = qmmm_get_nlink()
+
+c
+c     nothing to do if no links
+c     -------------------------
+      if(nlink.eq.0) return
+
+      nqm = qmmm_get_nqm()
+
+c
+c     nothing to do if links are not hydrogens
+c     ----------------------------------------
+      if(.not.qmmm_h_link()) return
+
+
+      if(.not.ma_push_get(mt_dbl,3*nlink,'cl',h_cl,i_cl))
+     + call errquit( pname//'Failed to allocate memory for cl',
+     + 3*nlink, MA_ERR)
+
+
+c
+c     get pointer to index of link pairs
+c     ----------------------------------
+      i_lp = qmmm_get_i_lai()
+
+c
+c     get pointer to global index
+c     ---------------------------
+      i_ai   = qmmm_get_i_ai()
+c
+c     get pointer to coord array
+c     --------------------------
+      i_c   = qmmm_get_i_c()
+c
+c     get coordinates of mm link atoms
+c     -------------------------------
+      call mm_set_solute_coord_quant(nlink,
+     &                   .true.,
+     &                   int_mb(i_ai+nqm-nlink),
+     &                   dbl_mb(i_cl))
+
+c
+c     loop over link atom pairs
+c     -------------------------
+      do i=1,nlink
+        il = int_mb(i_lp+2*(i-1))
+        iq = int_mb(i_lp+2*(i-1)+1)
+        do k=1,3
+           rh(k) = dbl_mb(i_c+(il-1)*3+k-1)
+           rq(k) = dbl_mb(i_c+(iq-1)*3+k-1)
+        end do
+        l0=qmmm_geom_distance(rh,rq)
+        write(*,*) "link pair distance",il,iq,l0
+      end do
+
+      if(.not.ma_pop_stack(h_cl))
+     + call errquit( pname//'Failed to deallocate memory for cl',
+     + 3*nlink, MA_ERR)
 
       end
  
