@@ -34,7 +34,7 @@ void FATR ga_access_callback_release_(g_a, ilo, ihi, jlo, jhi,
   hi[0]=*ihi;
   hi[1]=*jhi;
   nga_access_ptr(g_a,lo,hi,&ptr,ld);
-  if (callback(g_a,ilo,ihi,jlo,jhi,ptr,&ld[0],arg1,arg2,arg3,arg3,arg5,arg6,arg7))
+  if (callback(g_a,ilo,ihi,jlo,jhi,ptr,&ld[0],arg1,arg2,arg3,arg4,arg5,arg6,arg7))
     nga_release_update_(g_a, lo, hi);
   else
     nga_release_(g_a, lo, hi);
