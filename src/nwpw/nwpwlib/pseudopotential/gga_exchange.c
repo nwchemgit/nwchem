@@ -1,5 +1,5 @@
 /*
- $Id: gga_exchange.c,v 1.1 2001-08-30 16:58:35 bylaska Exp $
+ $Id: gga_exchange.c,v 1.2 2002-02-13 19:13:56 edo Exp $
    gga_exchange.c - 6/9/95
    author - Eric Bylaska
 
@@ -12,7 +12,6 @@
 
 */
 #include	<stdio.h>
-#include        <math.h>
 #include        "loggrid.h"
 #include	"gga_exchange.h"
 

@@ -1,7 +1,6 @@
 /* xpansion2.c
    Author - Eric Bylaska 
 */
-#include	<math.h>
 #include	<stdio.h>
 #include	"loggrid.h"
 #include	"pred_cor.h"

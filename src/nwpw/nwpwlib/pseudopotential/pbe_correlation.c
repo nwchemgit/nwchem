@@ -1,7 +1,6 @@
 /* pbe_correlation.c
    Author - Eric Bylaska
 */
-#include	<math.h>
 #include	"loggrid.h"
 #include	"pbe_correlation.h"
 

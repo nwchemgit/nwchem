@@ -3,7 +3,6 @@
 */
 
 #include	<stdio.h>
-#include	<math.h>
 #ifndef WIN32
 #include	<strings.h>
 #endif

@@ -1,5 +1,5 @@
 /*
- $Id: schrodin.c,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id: schrodin.c,v 1.2 2002-02-13 19:13:56 edo Exp $
    Schrodinger.c - 6/9/95
    author     - Eric Bylaska
 
@@ -9,7 +9,6 @@
 */
 
 #include <stdio.h>
-#include <math.h>
 
 #include "loggrid.h"
 #include "pred_cor.h"

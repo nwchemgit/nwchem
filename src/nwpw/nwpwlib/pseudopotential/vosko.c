@@ -1,10 +1,9 @@
 /*
- $Id: vosko.c,v 1.1 2001-08-30 16:58:38 bylaska Exp $
+ $Id: vosko.c,v 1.2 2002-02-13 19:13:57 edo Exp $
    vosko.c
    Author - Eric Bylaska
 */
 
-#include	<math.h>
 #include	"loggrid.h"
 #include	"vosko.h"
 

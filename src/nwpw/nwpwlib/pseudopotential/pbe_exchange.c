@@ -9,7 +9,6 @@
 
 */
 #include	<stdio.h>
-#include        <math.h>
 #include        "loggrid.h"
 #include	"pbe_exchange.h"
 

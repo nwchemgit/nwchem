@@ -1,12 +1,11 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.2 2001-10-31 21:10:35 windus Exp $
+   $Id: psp1d.c,v 1.3 2002-02-13 19:13:56 edo Exp $
 */
 
 #include	<stdio.h>
 #include        <stdlib.h>
 #include	<string.h>
-#include	<math.h>
 
 #include	"name.h"
 #include	"get_word.h"

@@ -1,10 +1,9 @@
 /*
- $Id: pspsolve.c,v 1.6 2002-01-04 23:20:00 bylaska Exp $
+ $Id: pspsolve.c,v 1.7 2002-02-13 19:13:56 edo Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include "typesf2c.h"
 #include "name.h"
 #include "loggrid.h"

@@ -1,7 +1,6 @@
 /* perdew_wang.c
    Author - Eric Bylaska
 */
-#include	<math.h>
 #include	"loggrid.h"
 #include	"perdew_wang.h"
 

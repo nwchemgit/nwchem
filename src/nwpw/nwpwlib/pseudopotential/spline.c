@@ -1,12 +1,11 @@
 /*
- $Id: spline.c,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id: spline.c,v 1.2 2002-02-13 19:13:57 edo Exp $
    spline.c -
     Taken from Numerical recipies, with slight modifications as
 suggested by hamman's code.
 */
 #include	<stdio.h>
 #include	<string.h>
-#include	<math.h>
 
 #include	"get_word.h"
 #include	"grids.h"

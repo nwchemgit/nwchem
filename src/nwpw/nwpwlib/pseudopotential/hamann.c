@@ -3,7 +3,6 @@
 */
 
 #include        <stdio.h>
-#include	<math.h>
 #include	"loggrid.h"
 #include	"schrodin.h"
 #include	"dft.h"

@@ -1,9 +1,8 @@
 /*
- $Id: perdew_zunger.c,v 1.1 2001-08-30 16:58:36 bylaska Exp $
+ $Id: perdew_zunger.c,v 1.2 2002-02-13 19:13:56 edo Exp $
    perdew_zunger.c
    Author - Eric Bylaska
 */
-#include	<math.h>
 #include	"loggrid.h"
 #include	"perdew_zunger.h"
 

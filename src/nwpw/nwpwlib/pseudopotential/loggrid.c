@@ -1,5 +1,5 @@
 /*
- $Id: loggrid.c,v 1.1 2001-08-30 16:58:36 bylaska Exp $
+ $Id: loggrid.c,v 1.2 2002-02-13 19:13:56 edo Exp $
    LogGrid.c - 6/9/95
    author - Eric Bylaska
 
@@ -16,7 +16,6 @@ with the grid points defined by:
 */
 
 #include        <stdio.h>
-#include        <math.h>
 #include	"grids.h"
 #include	"pred_cor.h"
 #include        "loggrid.h"

@@ -2,7 +2,6 @@
    Author - Eric Bylaska
 */
 #include	<stdio.h>
-#include	<math.h>
 #include	"loggrid.h"
 #include	"generate_rho_semicore.h"
 #include        "gaussj.h"
