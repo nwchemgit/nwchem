@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.220 1997-03-18 10:05:42 d3e129 Exp $
+# $Id: makefile.h,v 1.221 1997-03-19 00:01:36 d3h449 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -713,6 +713,7 @@ endif
               -brename:.dtrsv_,.dtrsv \
               -brename:.dsymv_,.dsymv \
               -brename:.dznrm2_,.dznrm2 \
+              -brename:.lsame_,.lsame \
               -brename:.zaxpy_,.zaxpy \
               -brename:.zcopy_,.zcopy \
               -brename:.zdotc_,.zdotc \
@@ -745,13 +746,13 @@ endif
 
 ifeq ($(TARGET),SP1)
 #
-    CORE_SUBDIRS_EXTRA = peigs lapack
+    CORE_SUBDIRS_EXTRA = peigs lapack blas
          FC = mpxlf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 25 --no-print-directory
+  MAKEFLAGS = -j 7 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -767,13 +768,14 @@ ifeq ($(TARGET),SP1)
   COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
 #endif
+
     DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
 #
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack
+  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack -lblas
 
 ifndef NOPIOFS
 # see inside chemio/elio
@@ -781,10 +783,11 @@ ifndef NOPIOFS
 endif
 
    USE_ESSL = YES
+#   USE_BLAS = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
 # renames not needed for 4.1.  Still are for 3.2.
- CORE_LIBS += -lessl -lpesslp2 -lblacsp2 -lesslp2
+ CORE_LIBS += -lpesslp2 -lblacsp2 -lesslp2
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \
@@ -798,6 +801,9 @@ ifdef USE_ESSL
 #	      -brename:.dpotrf_,.dpotrf \
 #	      -brename:.dpotri_,.dpotri \
 #	      -brename:.idamax_,.idamax 
+ifdef USE_BLAS
+ CORE_LIBS += -lblas -brename:.xerbla_,.xerbla -brename:.lsame_,.lsame
+endif
 
 else
     CORE_SUBDIRS_EXTRA += blas
