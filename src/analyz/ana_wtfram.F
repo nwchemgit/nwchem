@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.37 2001-01-18 23:54:57 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.38 2001-03-12 15:27:18 bjohnson Exp $
 c
       implicit none
 c
@@ -43,7 +43,7 @@ c
       if(fmt.eq.'eci') write(iunit,'(a)') 'End'
       close(unit=iunit)
       icopf=icopf+1
-      call ana_wthdr(lfncop,fmtcop,byte_mb(i_snam),tag,isel)
+      call ana_wthdr(lfncop,fmtcop,byte_mb(i_snam),tag,isel,.false.)
       endif
       endif
 c
@@ -53,7 +53,7 @@ c
       if(fmt.eq.'eci') write(iunit,'(a)') 'End'
       close(unit=iunit)
       isupf=isupf+1
-      call ana_wthdr(lfnsup,fmtsup,byte_mb(i_snam),tag,isel)
+      call ana_wthdr(lfnsup,fmtsup,byte_mb(i_snam),tag,isel,.false.)
       endif
       endif
 c
