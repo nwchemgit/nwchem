@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.32 2003-04-10 20:58:20 d3k958 Exp $
+* $Id: util_legal.F,v 1.33 2003-04-11 16:12:14 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003                                *
@@ -176,7 +176,7 @@ c
      + ' S. Hirata,'/,
      + 12x,'L. Pollack, D. M. A. Smith, T. P. Straatsma, T. L. Windus,',
      + ' R. J. Harrison,',/, 
-     + 12x,'J. Nieplocha, V. Tipparaju, M. Kumar,',/,
+     + 12x,'J. Nieplocha, V. Tipparaju, M. Krishnan,',/,
      + 12x,'E. Brown, G. Cisneros, M. Dupuis, G. I. Fann,', 
      + ' H. Fruchtl,',/,
      + 12x,'J. Garza, K. Hirao, R. Kendall, J. A. Nichols, ',
@@ -184,13 +184,13 @@ c
      + 12x,'M. Valiev, K. Wolinski,',/,
      + 12x,'J. Anchell, D. Bernholdt, P. Borowski, T. Clark,',
      + ' D. Clerc,',/,
-     + 12x,'H. Dachsel, M. Deegan, K. Dyall, D. Elwood, ',
+     + 12x,'H. Dachsel, M. Deegan, K. Dyall, D. Elwood,',
      + ' E. Glendening,',/,
      + 12x,'M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,',
      + ' R. Kobayashi,',/,
      + 12x,'R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,',
      + ' T. Nakajima,',/,
-     + 12x,' S. Niu, M. Rosing, G. Sandrone,  M. Stave, H. Taylor,',
+     + 12x,'S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,',
      + ' G. Thomas,',/, 
      + 12x,'J. van Lenthe, A. Wong, and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
