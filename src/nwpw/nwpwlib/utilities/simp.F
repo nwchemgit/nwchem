@@ -1,3 +1,8 @@
+*
+* $Id: simp.F,v 1.2 2002-01-14 21:06:26 bylaska Exp $
+*
+      
+
       double precision function simp(n,y,h)
       implicit none
       integer n

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2001-11-30 00:56:03 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2002-01-14 21:06:27 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \
@@ -17,7 +17,7 @@
 
 	  OBJ = 
 
-      LIBRARY = libnwpwlib.a
+      LIBRARY = libpspw.a
 
     USES_BLAS = setup_kbpp.f integrate_kbppv3.f integrate_kbpp_orb.F
 

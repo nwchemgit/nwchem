@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-11-11 01:29:09 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2002-01-14 21:06:29 bylaska Exp $
 #
  SUBDIRS = pspw_LJ pspw_Q model_potential
  OBJ_OPTIMIZE = \
@@ -9,7 +9,7 @@
       OBJ =
 
 
-      LIBRARY = libnwpwlib.a
+      LIBRARY = libpspw.a
 
     USES_BLAS = 
   LIB_DEFINES =

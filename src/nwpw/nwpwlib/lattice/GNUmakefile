@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2001-12-12 02:42:26 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2002-01-14 21:06:26 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -11,8 +11,7 @@
 			balance.o \
 			G_init.o \
 			strfac.o \
-			cstrfac.o \
-            dipole.o
+			cstrfac.o 
 
 
 
@@ -20,7 +19,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = lattice.f pack.F G_init.F dipole.F
+    USES_BLAS = lattice.f pack.F G_init.F
 
   LIB_DEFINES = 
 

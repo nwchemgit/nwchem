@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2001-12-13 03:49:53 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2002-01-14 21:06:25 bylaska Exp $
 #
  SUBDIRS = shake
 
@@ -12,7 +12,6 @@
             ion.o \
 			katm_list.o \
             fcoord.o \
-			ewald.o \
 			seperate_molpsp.o \
 			seperate_pointcharge.o
 
@@ -21,7 +20,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = ion.F fcoord.f ewald.F
+    USES_BLAS = ion.F fcoord.f 
 
   LIB_DEFINES = 
 

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.9 2002-01-14 19:03:36 bylaska Exp $
+* $Id: cpsp.F,v 1.10 2002-01-14 21:06:25 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1026,12 +1026,12 @@ c       close(11)
       parameter(MASTER=0)
 
 *     **** external functions ****
-      logical      pspw_filefind
+      logical      nwpw_filefind
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita
       character*12 control_boundry
       character*2  ion_atom
-      external     pspw_filefind
+      external     nwpw_filefind
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita
       external     control_boundry
@@ -1065,7 +1065,7 @@ c       close(11)
        found = .false.
        do while (.not.found)
 
-         if (pspw_filefind(fname)) then
+         if (nwpw_filefind(fname)) then
             call cpsp_read(fname,
      >                  version,
      >                  ngp,unita,

@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.10 2002-01-07 02:05:37 bylaska Exp $
+# $Id: GNUmakefile,v 1.11 2002-01-14 21:06:26 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
+			nwpw_filefind.o \
 			nwpw_scratch.o \
             cpmd_properties.o \
  			pair_dist.o \

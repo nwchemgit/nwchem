@@ -27,11 +27,11 @@
       integer      control_version
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita,brillioun_k
-      logical      kbpp_band, pspw_filefind
+      logical      kbpp_band, nwpw_filefind
       external     control_version
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita,brillioun_k
-      external     kbpp_band, pspw_filefind
+      external     kbpp_band, nwpw_filefind
 
       value  = .true.
 
@@ -48,7 +48,7 @@
       formatted_filename = element(1:l)//'.cpp'
 
 *     **** generate one-dimensional pseudopotential file ****
-      if (.not.pspw_filefind(psp_filename)) then
+      if (.not.nwpw_filefind(psp_filename)) then
         call psp_generator_auto(atom,lmax,locp,rlocal)
 
 *     **** get lmax,locp,and rlocal from rtdb ****

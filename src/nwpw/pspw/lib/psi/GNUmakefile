@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.6 2001-12-31 22:52:59 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2002-01-14 21:06:28 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
 
  OBJ_OPTIMIZE = \
+			dipole.o \
 			check.o \
             psi.o \
             psi_spin2.o \
@@ -25,7 +25,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi.F geodesic.F Grassman.F
+    USES_BLAS = psi.F geodesic.F Grassman.F dipole.F
 
   LIB_DEFINES = 
 

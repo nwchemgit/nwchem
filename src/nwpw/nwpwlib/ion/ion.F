@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.9 2001-12-13 03:49:53 bylaska Exp $
+* $Id: ion.F,v 1.10 2002-01-14 21:06:26 bylaska Exp $
 *
 
 *     ***************************
@@ -49,7 +49,7 @@
       common / ION2/ geom
 
       logical mmexist
-      common / pspwqmm/ mmexist
+      common / ion_qmmm/ mmexist
 
 *     **** local variables ****
       integer i
@@ -490,6 +490,20 @@ c     call ion_shift()
       eki0_out = eki0
       eki1_out = eki1
 
+      return
+      end
+*     ***************************
+*     *							*
+*     *		ion_mmexist			*
+*     *							*
+*     ***************************
+      logical function ion_mmexist()
+      implicit none
+
+      logical mmexist
+      common / ion_qmmm/ mmexist
+
+      ion_mmexist = mmexist
       return
       end
 

@@ -1,19 +1,17 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-01-14 21:06:28 bylaska Exp $
+# $Id: GNUmakefile,v 1.1 2002-01-14 21:06:28 bylaska Exp $
 #
+ SUBDIRS =
 
  OBJ_OPTIMIZE = \
-            coulomb.o \
-			coulomb2.o \
-			coulomb_screened.o
-
+            ewald.o
 
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = coulomb.F coulomb2.F
+    USES_BLAS = ewald.F
 
   LIB_DEFINES = 
 

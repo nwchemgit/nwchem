@@ -1,5 +1,5 @@
 *     
-* $Id: seperate_pointcharge.F,v 1.1 2001-11-29 02:00:40 bylaska Exp $
+* $Id: seperate_pointcharge.F,v 1.2 2002-01-14 21:06:26 bylaska Exp $
 *     
 
 *     ***************************
@@ -16,7 +16,7 @@
 #include "geom.fh"
 
       logical mmexist
-      common / pspwcharge / mmexist
+      common / ion_charge / mmexist
 
 *     *** local variables ***
       integer     i,geom1,geom2,geom3,nion1,nion2,nion3
@@ -152,7 +152,7 @@
 #include "geom.fh"
 
       logical mmexist
-      common / pspwcharge / mmexist
+      common / ion_charge / mmexist
 
 *     **** local variables ****
       integer i,geom1,geom2,geom3,nion1,nion2,nion3,rt(2)

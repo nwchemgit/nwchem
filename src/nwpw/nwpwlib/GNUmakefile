@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.14 2001-12-17 23:31:13 bylaska Exp $
+# $Id: GNUmakefile,v 1.15 2002-01-14 21:06:25 bylaska Exp $
 #
-      SUBDIRS = Parallel D3dB C3dB control lattice io ion psp pseudopotential utilities unitcell brillouin_zone fractional aorbs linesearch timing
+      SUBDIRS = Parallel D3dB C3dB control lattice io ion pseudopotential utilities unitcell brillouin_zone fractional linesearch timing
                 
 
           OBJ = 

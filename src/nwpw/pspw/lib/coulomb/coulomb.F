@@ -1,7 +1,7 @@
 
       subroutine coulomb_init()
 *
-* $Id: coulomb.F,v 1.1 2001-08-30 00:24:28 edo Exp $
+* $Id: coulomb.F,v 1.2 2002-01-14 21:06:28 bylaska Exp $
 *
       implicit none 
 
@@ -118,8 +118,6 @@ c     real*8 vc(nfft3d)
 
 
 *     **** common block used for coulomb.f ****
-*     real*8 vc(nfft3d)
-*     common / vc_block / vc
       integer vc_indx,vc_hndl
       common / vc_block / vc_indx,vc_hndl
 
@@ -210,7 +208,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.1 2001-08-30 00:24:28 edo Exp $
+* $Id: coulomb.F,v 1.2 2002-01-14 21:06:28 bylaska Exp $
 *
       implicit none 
       complex*16 dng(*)

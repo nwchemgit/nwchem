@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.11 2001-11-29 02:00:41 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.12 2002-01-14 21:06:29 bylaska Exp $
 c
 
 ***********************************************************
@@ -35,8 +35,6 @@ c
 ****** pspw_qmmm common block ****
 #include "pspw_qmmm.fh"
 
-      logical mmexist
-      common / pspwqmm/ mmexist
 
 *     **** local variables ****
       logical value
@@ -45,8 +43,10 @@ c
       double precision q
       character*16 t
 
+      logical     ion_mmexist
       character*2 pspw_qmmm_aname
       integer     control_version
+      external    ion_mmexist
       external    pspw_qmmm_aname
       external    control_version
 
@@ -54,7 +54,7 @@ c
 *     *************************
 *     **** read in MM data ****
 *     *************************
-      if (mmexist) then
+      if (ion_mmexist()) then
     
 *        **** Model potential is the default, qmmm_type = 1 ****
          if (.not.
