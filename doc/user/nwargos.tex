@@ -1,4 +1,4 @@
-\label{sec:NWargos}
+\label{sec:nwARGOS}
 \newcommand{\mc}[3]{\multicolumn{#1}{#2}{#3}}
 \newcommand{\vb}[1]{\mbox{\verb.#1.}}
 \newcommand{\none}{\multicolumn{2}{|c|}{ }}
@@ -24,7 +24,7 @@
 \section{Introduction}
 
 \subsection{Spacial decomposition}
-\nwargos\  is the \nwchem\  module for molecular dynamics
+\nwargos\ is the \nwchem\  module for molecular dynamics
 simulations of macromolecules and solutions. The module is a parallel
 implementation of \argos, a vectorized molecular dynamics
 package developed by T.P.Straatsma at the University of Houston.
@@ -235,15 +235,15 @@ option to select which database files are scanned.
 \label{sec:nwaforcefields}
 Force fields supported by \nwargos\ are
 \begin{center}
-\begin{tabular}{lll}
+\begin{tabular}{ll}
 \hline
-Keyword      & Force field   & Current status \\
-{\tt amber}  & AMBER4.0      & att, par, sgm  \\
-{\tt charmm} & CHARMM        & att, par       \\
-{\tt cvff}   & CVFF          & att, par       \\
-{\tt gromos} & GROMOS87      & att, par       \\
-{\tt oplsa}  & OPLS/AMBER3.0 & att, par       \\
-{\tt oplsg}  & OPLS/GROMOS87 & att, par       \\
+Keyword      & Force field   \\
+{\tt amber}  & AMBER4.0      \\
+{\tt charmm} & CHARMM        \\
+{\tt cvff}   & CVFF          \\
+{\tt gromos} & GROMOS87      \\
+{\tt oplsa}  & OPLS/AMBER3.0 \\
+{\tt oplsg}  & OPLS/GROMOS87 \\
 \hline
 \end{tabular}
 \end{center}  
@@ -254,11 +254,7 @@ interactions that need to be considered in a molecular simulation.
 The format of the fragment files is described in Table \ref{tbl:nwafrag}
 
 \begin{table}[htbp]
-
-\label{tbl:nwafrag}
-
-\center
-
+\begin{center}
 \begin{tabular}{lll}
 \hline\hline
 Card & Format & Description \\ \hline
@@ -300,8 +296,8 @@ connectivity} \\
 III-1-1  & 16i5   & connectivity, duplication allowed\\ 
 \hline\hline
 \end{tabular}
-
-\caption{The format of NWArgos fragment files.}
+\caption{The format of \nwargos\ fragment files.\label{tbl:nwafrag}}
+\end{center}
 \end{table}
 
 \section{Creating segment files}
@@ -333,10 +329,7 @@ parameter set 2 to parameter set 3.  The format of a segment is
 described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseg1}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
@@ -353,15 +346,12 @@ I-2-4 & i5     & number of proper dihedrals in the segment\\
 I-2-5 & i5     & number of improper dihedrals in the segment\\
 \hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 1 of 6.}
+\caption{\nwargos\ segment file format, table 1 of 6.\label{tbl:nwaseg1}}
+\end{center}
 \end{table}
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseg2}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -406,15 +396,12 @@ II-2-5  & f12.6  & atomic partial charge in e, set 3\\
 II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
 \hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 2 of 6.}
+\caption{\nwargos\ segment file format, table 2 of 6.\label{tbl:nwaseg2}}
+\end{center}
 \end{table}
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseg3}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -436,16 +423,12 @@ III-2-5 & f12.6  & bond length in nm, set 3\\
 III-2-6 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 3 of 6.}
-
+\caption{\nwargos\ segment file format, table 3 of 6.\label{tbl:nwaseg3}}
+\end{center}
 \end{table}
 
 \begin{table}
-\center
-
-\label{tbl:nwaseg4}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -467,16 +450,12 @@ IV-2-5 & f12.6  & angle in radians, set 3\\
 IV-2-6 & e12.5  & angle force constant in kJ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 4 of 6.}
-
+\caption{\nwargos\ segment file format, table 4 of 6.\label{tbl:nwaseg4}}
+\end{center}
 \end{table}
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseg5}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -502,15 +481,12 @@ V-2-8 & f12.6  & proper dihedral in radians, set 3\\
 V-2-9 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 5 of 6.}
+\caption{\nwargos\ segment file format, table 5 of 6.\label{tbl:nwaseg5}}
+\end{center}
 \end{table}
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseg6}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
@@ -533,9 +509,8 @@ VI-2-5 & f12.6  & improper dihedral in radians, set 3\\
 VI-2-6 & e12.5  & improper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 \hline\hline
 \end{tabular*}
-
-\caption{NWArgos segment file format, table 6 of 6.}
-
+\caption{\nwargos\ segment file format, table 6 of 6.\label{tbl:nwaseg6}}
+\end{center}
 \end{table}
 
 
@@ -544,10 +519,7 @@ A sequence file describes a molecular system in terms of segments. The
 file format is given in Table \ref{tbl:nwaseq}
 
 \begin{table}[htbp]
-\center
-
-\label{tbl:nwaseq}
-
+\begin{center}
 \begin{tabular*}{150mm}{p{12mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
@@ -584,8 +556,8 @@ II-1-1 & i5     & link segment 10\\
 II-1-2 & i3     & link atom in link segment 10\\
 \hline\hline
 \end{tabular*}
-
-\caption{The NWArgos sequence file format.}
+\caption{The \nwargos\ sequence file format.\label{tbl:nwaseq}}
+\end{center}
 \end{table}
 
 \section{Creating topology files}
@@ -1071,7 +1043,7 @@ value given will also be used for \verb+<tlssha>+. The default tolerance
 is 0.001 for both.
 \item
 \begin{verbatim}
-  noshake {solvent || solute}
+  noshake (solvent || solute)
 \end{verbatim}
 disables SHAKE and treats the bonded interaction according to the
 force field.
@@ -1369,12 +1341,15 @@ is resizing boxes on a node, and {\tt pairs} redistributes the
 box-box interactions over nodes.
 \item
 The distribution of the available nodes over the three Cartesian
-dimensions is performed automatically such that, $npx*npy*npz=np$
-and $npx<=npy<=npz$, where $npx$, $npy$ and $npz$ are the nodes in the
-x, y and z dimension respectively, and $np$ is the number of nodes
+dimensions is performed automatically such that, 
+\verb+<npx>+$*$\verb+<npy>+$*$\verb+<npz>+=\verb+<np>+
+and \verb+<npx>+$<=$\verb+<npy>+$<=$\verb+<npz>+, 
+where \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are the nodes in the
+x, y and z dimension respectively, and \verb+<np>+ is the number of nodes
 allocated for the calculation. Where more than one combination
-of $npx$, $npy$ and $npz$ are possible, the combination is chosen with
-the minimum value of $npx+npy+npz$. To change the default setting
+of \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are possible, the 
+combination is chosen with the minimum value of 
+\verb+<npx>+$+$\verb+<npy>+$+$\verb+<npz>+. To change the default setting
 the following optional input option is provided.
 \begin{verbatim}
   nodes <integer npx> <integer npy> <integer npz>
@@ -1390,42 +1365,51 @@ the following keyword.
 \begin{verbatim}
   boxes <integer nbx> <integer nby> <integer nbz>
 \end{verbatim}
+where \verb+<nbx>+, \verb+<nby>+ and \verb+<nbz>+ are the number of
+boxes in x, y and z direction, respectively.
 If the number of boxes in a dimension is less than the number of
 processors in that dimension, the number of boxes is set to the number
 of processors.
 \item
 In rare events the amount of memory set aside per node is insufficient
-leading to aborts because {\tt mwm} or {\tt msa} is too small. Jobs
-may be restarted with additional space allocated by
+to hold all atomic coordinates assigned to that node. This leads to 
+executation aborts with the message that {\tt mwm} or {\tt msa} is too
+small. Jobs may be restarted with additional space allocated by
 \begin{verbatim}
   extra <integer madbox>
 \end{verbatim}
 where \verb+<madbox>+ is the number of additional boxes that are allocated
-on each node. The default for \verb+<madbox>+ is 6. In some cases \verb+<madbox>+
-can be reduced to 4 if memory usage is a concern. Values of 2 or less
-will almost certainly result in memory shortage.
+on each node. The default for \verb+<madbox>+ is 6. 
+In some cases \verb+<madbox>+ can be reduced to 4 if memory usage is a
+concern. Values of 2 or less will almost certainly result in memory 
+shortage.
 \item
-The maximum number of solvent molecules on a single node can be set with
+The maximum number of solvent molecules on a single node can also be
+set explicitly with
 \begin{verbatim}
- mwm <integer mwmreq>
+  mwm <integer mwmreq>
 \end{verbatim}
-where \verb+mwmreq+ is the maximum number of solvent molecules per
-node, unless the value given is less than the computed number.
+where \verb+<mwmreq>+ is the maximum number of solvent molecules per
+node for which memory will be allocated, unless the value given is 
+less than the computed number.
 \item
-The maximum number of solute atoms on a single node can be set with
+The maximum number of solute atoms on a single node can be set
+explicitly with
 \begin{verbatim}
- msa <integer msareq>
+  msa <integer msareq>
 \end{verbatim}
-where \verb+mwmreq+ is the maximum number of solute atoms per
-node, unless the value given is less than the computed number.
+where \verb+<mwmreq>+ is the maximum number of solute atoms per
+node for which memory will be allocated, unless the value given is
+less than the computed number.
 \item
 To limit the allocated amount of memory used by the molecular dynamics
 module,
 \begin{verbatim}
   memory <integer memlim>
 \end{verbatim}
-where $memlim$ is the amount of memory allocated by the module in
-kB. Per default all available memory is allocated.
+where \verb+<memlim>+ is the amount of memory allocated by the module in
+kB. Per default all available memory is allocated. Use of this command
+is necessary for QM/MM simulations.
 %\item
 %For development purposes debug information can be written to the debug
 %file with extension {\bf dbg} with
