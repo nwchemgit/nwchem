@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2000-10-23 20:10:47 d3j191 Exp $
+# $Id: GNUmakefile,v 1.2 2000-10-23 21:13:28 d3j191 Exp $
 #
 
- OBJ_OPTIMIZE =  qmmm_main.o
+ OBJ_OPTIMIZE =  qmmm_input.o qmmm_main.o
 
 LIBRARY=libqmmm.a
 
