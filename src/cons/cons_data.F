@@ -1,4 +1,4 @@
-c $Id: cons_data.F,v 1.2 2004-04-02 22:04:12 marat Exp $
+c $Id: cons_data.F,v 1.3 2004-09-21 19:12:09 marat Exp $
       subroutine cons_set_namespace(namespace)
       implicit none
 #include "errquit.fh"
@@ -9,15 +9,15 @@ c
       cons_name = namespace
       end
 c
-      subroutine cons_get_namespace(namespace)
-      implicit none
-#include "errquit.fh"
-#include "cons_data.fh"
-      character*(*) namespace
+c      subroutine cons_get_namespace(namespace)
+c      implicit none
+c#include "errquit.fh"
+c#include "cons_data.fh"
+c      character*(*) namespace
+cc     
+c      namespace=cons_name
+c      end
 c     
-      namespace=cons_name
-      end
-     
       function cons_get_h_c()
       implicit none
 #include "cons_data.fh"
@@ -149,5 +149,26 @@ c      cons_get_i_c = i_c
       integer n
       n=nhb
       return
+      end
+
+      function cons_get_irtdb()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cons_data.fh"
+      integer cons_get_irtdb
+      cons_get_irtdb = cons_irtdb
+
+      return
+      end
+
+      subroutine cons_set_irtdb(artdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cons_data.fh"
+      integer artdb
+      cons_irtdb = artdb
+
       end
 

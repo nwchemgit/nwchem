@@ -1,5 +1,5 @@
 *
-* $Id: cons_data.fh,v 1.6 2004-04-21 00:47:46 edo Exp $
+* $Id: cons_data.fh,v 1.7 2004-09-21 19:12:09 marat Exp $
 *
 
       integer max_fixed_atoms
@@ -17,6 +17,7 @@
       integer nhb
       integer h_ijhb,h_khb,h_rhb
       integer h_fpos,i_fpos
+      integer cons_irtdb
 
       common /cons_data/ 
      &                   cons_oprint_default,
@@ -24,5 +25,6 @@
      &                   h_ijhb,h_khb,h_rhb,
      &                   h_fpos,i_fpos,
      &                   h_c,
+     &                   cons_irtdb,
      &                   cons_name
 
