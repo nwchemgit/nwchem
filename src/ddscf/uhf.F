@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.44 1997-05-14 01:26:29 d3g681 Exp $
+C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -199,7 +199,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.44 1997-05-14 01:26:29 d3g681 Exp $
+C     $Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -488,7 +488,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.44 1997-05-14 01:26:29 d3g681 Exp $
+C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -579,7 +579,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.44 1997-05-14 01:26:29 d3g681 Exp $
+c     $Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1065,7 +1065,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.44 1997-05-14 01:26:29 d3g681 Exp $
+C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1298,14 +1298,14 @@ c
             call util_print_centered(6,
      $           'Mulliken analysis of the total density', 20,.true.)
          endif
-         call mull_pop(geom, basis, g_dens, g_over)
+         call mull_pop(geom, basis, g_dens, g_over, 'total')
 c
          if (ga_nodeid() .eq. 0) then
             write(6,*)
             call util_print_centered(6,
      $           'Mulliken analysis of the alpha density', 20,.true.)
          endif
-         call mull_pop(geom, basis, g_adens, g_over)
+         call mull_pop(geom, basis, g_adens, g_over, 'alpha')
 c     
          if (nbeta .gt. 0) then
             if (ga_nodeid() .eq. 0) then
@@ -1314,7 +1314,17 @@ c
      $              'Mulliken analysis of the beta density', 
      $              20,.true.)
             endif
-            call mull_pop(geom, basis, g_bdens, g_over)
+            call mull_pop(geom, basis, g_bdens, g_over, 'beta')
+c
+            if (ga_nodeid() .eq. 0) then
+               write(6,*)
+               call util_print_centered(6,
+     $              'Mulliken analysis of the spin density', 
+     $              20,.true.)
+            endif
+            call ga_dadd(1.0d0, g_adens, -1.0d0, g_bdens, g_adens)
+            call mull_pop(geom, basis, g_adens, g_over, 'spin')
+            call ga_dadd(1.0d0, g_adens,  1.0d0, g_bdens, g_adens)
          endif
       endif
 c

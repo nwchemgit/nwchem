@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.25 1997-05-14 01:26:28 d3g681 Exp $
+C$Id: rohf.F,v 1.26 1997-05-19 19:10:53 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -215,7 +215,7 @@ c
             call util_print_centered(6,
      $           'Mulliken analysis of the total density', 20,.true.)
          endif
-         call mull_pop(geom, basis, g_cdens, g_over)
+         call mull_pop(geom, basis, g_cdens, g_over, 'total')
 c     
          if (nopen .gt. 0) then
             if (ga_nodeid() .eq. 0) then
@@ -224,7 +224,7 @@ c
      $              'Mulliken analysis of the open-shell density', 
      $              20,.true.)
             endif
-            call mull_pop(geom, basis, g_odens, g_over)
+            call mull_pop(geom, basis, g_odens, g_over, 'open shell')
          endif
       endif
 c     

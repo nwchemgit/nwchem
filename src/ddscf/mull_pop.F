@@ -1,11 +1,13 @@
-      Subroutine mull_pop( geom, basis, iga_dens,iga_s)
+      Subroutine mull_pop( geom, basis, iga_dens,iga_s, string)
 
-C$Id: mull_pop.F,v 1.11 1997-04-25 00:00:48 d3g681 Exp $
+C$Id: mull_pop.F,v 1.12 1997-05-19 19:10:52 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
       integer iga_dens           ! dens. mat GA handle
       integer iga_ps             ! product   GA handle
+      character*(*) string      ! Identifier for ecce output
+                                ! total/open/alpha/beta/mp2/ccsd/...
 
       integer natoms,nshells
       integer lPSmat,iPSmat,lqatom,iqatom,lqshell,iqshell
@@ -53,7 +55,7 @@ c
       call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,
      &     iga_dens,iga_s,0.d0,iga_PS)
       call mull_calc(basis,natoms, nshells,max_at_bf2,iga_PS,
-     &     dbl_mb(iqatom),dbl_mb(iqshell),dbl_mb(iPSmat))
+     &     dbl_mb(iqatom),dbl_mb(iqshell),dbl_mb(iPSmat), string)
       
       call ga_sync
 
@@ -73,13 +75,20 @@ c
 c
 c
       Subroutine mull_calc(basis, natoms, nshells,max_at_bf2,iga_PS,
-     &     qatom,qshell,PSmat)
+     &     qatom,qshell,PSmat, string)
 
       Implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "stdio.fh"
+#include "msgids.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
       integer basis
       integer natoms,nshells
       integer iga_PS             ! product   GA handle
-
       integer ifirst,ilast,nbf_at,max_at_bf2
       integer ish1,ish2,ish,nn,iat,mu
       integer me,nproc, geom
@@ -88,14 +97,10 @@ c
       character*2 symbol
       character*16 tag
       character*32 element
+      character*80 buf
+      character*(*) string
+      integer lbuf
       integer atn
-#include "geom.fh"
-#include "bas.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-#include "stdio.fh"
-#include "msgids.fh"
-#include "mafdecls.fh"
 c     
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -128,10 +133,10 @@ c
       call ga_dgop(Msg_Mull2,qshell,nshells,'+')
       if(me.eq.0) then
         write(LuOut,1)
-    1   format(/'  Atom     Charge   Shell Charges')
+    1   format(/'    Atom       Charge   Shell Charges')
         write(luout,11)
- 11     format( ' -------   ------   -------------------------------',
-     $       '---------------------------')
+ 11     format( ' -----------   ------   -----------------------------',
+     $       '--------------------------')
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &         call errquit(' exiting in mull_pop',4)
@@ -139,22 +144,26 @@ c
           if (.not. geom_cent_get(geom, iat, tag, coord, qnuc)) 
      $         call errquit('mull_pop: geom_cent_tag failed',0)
 c
-*     cannot subtract effective nuclear charge here since don't 
-*     know if we are doing the total or a partial density
-*          qatom(iat) = qnuc - qatom(iat)
-c
           if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $         symbol = 'X'
           if (ish2.ge.ish1) then
-             write(LuOut,2) iat,symbol,qatom(iat),
+             write(LuOut,2) iat,symbol,nint(qnuc),qatom(iat),
      &            (qshell(ish),ish=ish1,ish2)
- 2           format(1x,i4,1x,a2,1x,f8.2,1x,25(f6.2))
+ 2           format(1x,i4,1x,a2,i4,1x,f8.2,1x,25(f6.2))
           endif
         enddo
       endif
 c
-      call ecce_print1('mulliken atomic charges', mt_dbl, qatom, natoms)
-      call ecce_print1('mulliken shell charges', mt_dbl, qshell,nshells)
+      buf = ' '
+      write(buf,'(a,a)') string(1:inp_strlen(string)), 
+     $     ' mulliken atomic charges'
+      lbuf = inp_strlen(buf)
+      call ecce_print1(buf(1:lbuf), mt_dbl, qatom, natoms)
+      buf = ' '
+      write(buf,'(a,a)') string(1:inp_strlen(string)), 
+     $     ' mulliken shell charges'
+      lbuf = inp_strlen(buf)
+      call ecce_print1(buf(1:lbuf), mt_dbl, qshell,nshells)
       call ga_sync
 
       return
