@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.8 2003-03-06 01:46:40 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.9 2003-03-21 23:41:13 bylaska Exp $
 c
 
 !**************************************************
@@ -334,7 +334,7 @@ c
               indx  = matrx_ptr + (b-1)*basis_nbasis + (a-1)
               do mb=-lb,lb
                  s = s + 1
-                 if (mb.eq.ma) then
+                 if ((mb.eq.ma).and.(la.eq.lb)) then
                    do j=1,ne
                      pv(j,r+ii_shift)
      >                 = pv(j,r+ii_shift)
@@ -349,6 +349,28 @@ c
 
         ii_shift = ii_shift+nbasis
       end do !*ii*
+
+      return
+      end
+
+
+!**************************************************
+!       Name: paw_overlap_matrix_ptr
+!
+!       Purpose:
+!
+!       Created:        2/10/2002
+!**************************************************
+      integer function paw_overlap_matrix_ptr(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "paw_overlap_matrix.fh"
+
+      paw_overlap_matrix_ptr 
+     >   = overlap_matrix(1) 
+     >  + int_mb(i_overlap_matrix(1)+ia-1)
 
       return
       end

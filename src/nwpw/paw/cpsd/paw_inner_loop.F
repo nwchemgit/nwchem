@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.33 2003-03-15 02:14:44 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.34 2003-03-21 23:41:13 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.33  2003/03/15 02:14:44  bylaska
+* orthonormalization checking fixed to work with forces...EJB
+*
 * Revision 1.32  2003/03/15 01:47:43  bylaska
 * steepest descent loop has been modified for the inclusion of forces....
 * Lagrange Multipliers require a recalculation of the phase factors
@@ -53,7 +56,7 @@
      >                      psi1,psi2,dn,
      >                      dn_cmp_smooth,
      >                      it_in,E,deltae,deltac,deltar,
-     >                      hml,lmd,
+     >                      hml,lmd,lmd1,first_iteration,
      >                      psi_r,Hpsi)
       implicit none
       integer    ispin,ne(2)
@@ -65,7 +68,9 @@
       integer    it_in
       real*8     E(*)
       real*8     deltae,deltac,deltar
-      real*8     hml(2*nemax*nemax),lmd(2*nemax*nemax)
+      real*8     hml(2*nemax*nemax)
+      real*8     lmd(2*nemax*nemax),lmd1(2*nemax*nemax)
+      logical    first_iteration
 
 *     **** very big workspace variables ****
       real*8     psi_r(2*nfft3d,nemax)
@@ -224,7 +229,8 @@
 *       **** shift wavefunction and atoms ****
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         if (move) call ion_shift()
-        !if (move) call phafac()
+        if (move) call phafac()
+        if (move) call paw_set_mult_energy_coeff()
 
         call nwpw_timing_start(11)
 *       *******************
@@ -427,8 +433,131 @@
 *       *********************
          if (move) then
 
+           call paw_mult_pw_force(dcpl_mb(vh(1)),
+     >                            dcpl_mb(vcomp(1)),
+     >                            dbl_mb(fion(1)))
+
+           write(*,*)
+           write(*,*) " pw force:"
+           write(*,*) " fpw1:",dbl_mb(fion(1)),
+     >                         dbl_mb(fion(1)+1),
+     >                         dbl_mb(fion(1)+2)
+           write(*,*) " fpw2:",dbl_mb(fion(1)   +3),
+     >                         dbl_mb(fion(1)+1 +3),
+     >                         dbl_mb(fion(1)+2 +3)
+           write(*,*) " fpw3:",dbl_mb(fion(1)   +6),
+     >                         dbl_mb(fion(1)+1 +6),
+     >                         dbl_mb(fion(1)+2 +6)
+           write(*,*)
+           write(*,*)
+
            call paw_force_solve(psi1,dbl_mb(fion(1))) 
-           !call paw_force_weights_write(67)
+
+           call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
+           call paw_force_mult(dbl_mb(ftest(1))) 
+           write(*,*)
+           write(*,*) " mult force:"
+           write(*,*) " fmult1:",dbl_mb(ftest(1)),
+     >                           dbl_mb(ftest(1)+1),
+     >                           dbl_mb(ftest(1)+2)
+           write(*,*) " fmult2:",dbl_mb(ftest(1)   +3),
+     >                           dbl_mb(ftest(1)+1 +3),
+     >                           dbl_mb(ftest(1)+2 +3)
+           write(*,*) " fmult3:",dbl_mb(ftest(1)   +6),
+     >                           dbl_mb(ftest(1)+1 +6),
+     >                           dbl_mb(ftest(1)+2 +6)
+           write(*,*)
+           write(*,*)
+
+*           *** compute hamiltonian matrix if first iteration ****
+           if (first_iteration) then
+             n = ne(1)
+             nn = n*n
+             do ms=1,ispin
+                do ii=n1(ms),n2(ms)
+                  i = ii-n1(ms)
+                  index = (i+1) + i*n + (ms-1)*nn
+                  call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,ii),sum)
+ 
+                  hml(index) =  -sum
+                  do jj=ii+1,n2(ms)
+                     j = jj-n1(ms)
+                     index  = (i+1) + j*n + (ms-1)*nn
+                     indext = (j+1) + i*n + (ms-1)*nn
+                     call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,jj),sum)
+ 
+                     hml(index)  =  -sum
+                     hml(indext) =  -sum
+                  end do 
+                end do
+             end do
+             if (np.gt.1)  call D3dB_Vector_SumAll((ispin*nn),hml)
+             call dcopy(2*nemax*nemax,hml,1,lmd1,1)
+             call dcopy(2*nemax*nemax,hml,1,lmd,1)
+             first_iteration = .false.
+           end if
+
+           call dcopy(2*nemax*nemax,lmd,1,dbl_mb(tmp_L(1)),1)
+           call dscal(2*nemax*nemax,2.0d0,dbl_mb(tmp_L(1)),1)
+           call daxpy(2*nemax*nemax,-1.0d0,lmd1,1,dbl_mb(tmp_L(1)),1)
+           call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(fion(1))) 
+
+
+*     **** write out lambda matrix ****
+      n = ne(1)
+      nn = n*n
+         write(*,*)
+         write(*,*)
+         do ms=1,ispin
+            do i=n1(ms),n2(ms)
+               ii = i-n1(ms)
+               do j=n1(ms),n2(ms)
+                  jj = j-n1(ms)
+                  index = (ii+1) + jj*n +(ms-1)*nn
+                  write(*,1340) ms,ii+1,jj+1,
+     >                           hml(index),
+     >                           dbl_mb(tmp_L(1)+index-1)
+               end do
+            end do
+         end do
+         write(*,*)
+         write(*,*)
+ 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+*     **** write out lambda matrix ****
+
+
+
+
+
+           call dcopy(3*natmx,0.0d0,0,dbl_mb(ftest(1)),1)
+           call paw_force_constraint(dbl_mb(tmp_L(1)),dbl_mb(ftest(1))) 
+           write(*,*)
+           write(*,*) " constraint force:"
+           write(*,*) " fcons1:",dbl_mb(ftest(1)),
+     >                           dbl_mb(ftest(1)+1),
+     >                           dbl_mb(ftest(1)+2)
+           write(*,*) " fcons2:",dbl_mb(ftest(1)   +3),
+     >                           dbl_mb(ftest(1)+1 +3),
+     >                           dbl_mb(ftest(1)+2 +3)
+           write(*,*) " fcons3:",dbl_mb(ftest(1)   +6),
+     >                           dbl_mb(ftest(1)+1 +6),
+     >                           dbl_mb(ftest(1)+2 +6)
+           write(*,*)
+           write(*,*)
+
+           write(*,*)
+           write(*,*) " total force:"
+           write(*,*) " f1:",dbl_mb(fion(1)),
+     >                           dbl_mb(fion(1)+1),
+     >                           dbl_mb(fion(1)+2)
+           write(*,*) " f2:",dbl_mb(fion(1)   +3),
+     >                           dbl_mb(fion(1)+1 +3),
+     >                           dbl_mb(fion(1)+2 +3)
+           write(*,*) " f3:",dbl_mb(fion(1)   +6),
+     >                           dbl_mb(fion(1)+1 +6),
+     >                           dbl_mb(fion(1)+2 +6)
+           write(*,*)
+           write(*,*)
 
 
 *          **** remove ion forces using ion_FixIon ****
@@ -451,6 +580,7 @@
           call paw_ovlp_S(n2(ispin),psi1,psi_r)
 
           if (move) call phafac2()
+          call dcopy(2*nemax*nemax,lmd,1,lmd1,1)
           call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
@@ -482,6 +612,8 @@
       call nwpw_timing_start(10)
       call Parallel_np(np)
 
+      if (move) call phafac() !*** reset phase factors to r1 ***
+
 *     *** get orbital energies ****
       n = ne(1)
       nn = n*n
@@ -489,7 +621,6 @@
          do ii=n1(ms),n2(ms)
            i = ii-n1(ms)
            index = (i+1) + i*n + (ms-1)*nn
-c           call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,ii),sum)
            call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,ii),sum)
 
            hml(index) =  -sum
@@ -497,7 +628,6 @@ c           call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,ii),sum)
               j = jj-n1(ms)
               index  = (i+1) + j*n + (ms-1)*nn
               indext = (j+1) + i*n + (ms-1)*nn
-c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
               call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,jj),sum)
 
               hml(index)  =  -sum
@@ -629,16 +759,6 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
        E(1) = E(1) + E(i)
       end do
       
-c      E(2) = eorbit
-c      E(3) = ehartr_pw
-c      E(4) = exc
-c      E(5) = eion
-c      E(6) = eke
-c      E(7) = elocal
-c      E(8) = enlocal
-c      E(9) = 2.0d0*ehartr_pw
-c      E(10) = pxc
-
 
 
 *     **** set convergence variables ****

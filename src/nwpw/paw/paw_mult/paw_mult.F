@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.22 2003-03-11 17:56:03 bylaska Exp $
+* $Id: paw_mult.F,v 1.23 2003-03-21 23:41:13 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2003/03/11 17:56:03  bylaska
+* rcut algorithm has been reinstated....EJB
+*
 * Revision 1.21  2003/03/05 23:16:32  bylaska
 * Commented out write statements and other minor fixes.....
 * self-consistent loop looks like it is working.....
@@ -391,8 +394,7 @@
          !**** Define QYlm ****
          mult_l = paw_basis_mult_l(ia)
          jj     = int_mb(i_paw_qlm(1)+ii-1)
-         !write(*,*) "Qlm(0):",ii,dcpl_mb(paw_qlm(1)+jj)
-         sum = sum + dble(dcpl_mb(paw_qlm(1)+jj))
+         sum    = sum + dble(dcpl_mb(paw_qlm(1)+jj))
          kk     = 0
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
          do l=0,mult_l
@@ -438,9 +440,6 @@
 
       end do !*ii*
 
-      !write(*,*) "Qtotal:",sum*dsqrt(16.0d0*datan(1.0d0))
-      sum = 2*dbl_mb(paw_q00(1)) + dbl_mb(paw_q00(1)+1)
-      !write(*,*) "Qcore :",sum*dsqrt(16.0d0*datan(1.0d0))
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(QYlm(2))
@@ -450,6 +449,153 @@
 
       return
       end
+
+
+!**************************************************
+!
+!       Name: paw_mult_pw_force
+!
+!       Purpose: returns 
+!           Sum(G) (i*G*vh(G)*ncmp^a(G)+i*G*vcmp(G)*n_cmp_smooth^a(G))
+!
+!       Created:        2/16/2003
+!**************************************************
+      subroutine paw_mult_pw_force(vh,vcmp,fion)
+      implicit none
+      complex*16 vh(*)
+      complex*16 vcmp(*)
+      real*8     fion(3,*)
+
+#include "mafdecls.fh"
+#include "paw_mult_data.fh"
+#include "paw_comp_charge_data.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !**** local variables ***
+      logical ok
+      integer i,ia,ii,jj,kk,l,m,nion,npack0,nfft3d,mult_l
+      integer exi(2),QYlm(2),ncmp(2),ncmp_smooth(2)
+      integer xtmp(2),Gx(2),Gy(2),Gz(2),G(3)
+      real*8  fx,fy,fz,omega
+
+      !*** external functions
+      integer  G_indx
+      real*8   lattice_omega
+      external G_indx
+      external lattice_omega
+
+
+      omega = lattice_omega()
+
+      !**** allocate stack memory ****
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
+      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'ncmp',ncmp(2),ncmp(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,
+     >     'ncmp_smooth',ncmp_smooth(2),ncmp_smooth(1))
+      ok = ok.and.
+     >       MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+      ok = ok.and.
+     >       MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+      ok = ok.and.
+     >       MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+      ok = ok.and.
+     >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+      if (.not.ok)
+     > call errquit(
+     >  'paw_mult_pw_force: out of stack memory',0)
+
+      !**** define Gx,Gy and Gz in packed space ****
+      G(1)  = G_indx(1)
+      G(2)  = G_indx(2)
+      G(3)  = G_indx(3)
+      call D3dB_t_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+      call D3dB_t_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+      call D3dB_t_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+      call Pack_t_pack(0,dbl_mb(Gx(1)))
+      call Pack_t_pack(0,dbl_mb(Gy(1)))
+      call Pack_t_pack(0,dbl_mb(Gz(1)))
+
+
+      nion = ion_nion()
+      do ii=1,nion
+         ia = ion_katm(ii)
+
+         !**** Define QYlm ****
+         mult_l = paw_basis_mult_l(ia)
+         jj     = int_mb(i_paw_qlm(1)+ii-1)
+         kk     = 0
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
+         do l=0,mult_l
+         do m=-l,l
+           call Pack_cc_zaxpy(0,
+     >               dcpl_mb(paw_qlm(1)+jj),
+     >               dcpl_mb(g_lm(1)+(kk)*npack0),
+     >               dcpl_mb(QYlm(1)))
+           jj = jj + 1
+           kk = kk + 1
+         end do
+         end do
+
+         !**** Multiply by Structure Factor ****
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_cc_Mul(0,
+     >                    dcpl_mb(exi(1)),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(QYlm(1)))
+
+
+         !**** add up ncmp_smooth^ii  ****
+         call Pack_tc_Mul(0,
+     >                    dbl_mb(gk_smooth(1)),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(ncmp_smooth(1)))
+
+         !**** add up ncmp^ii ***
+         call Pack_tc_Mul(0,
+     >                    dbl_mb(gk(1)+(ia-1)*npack0),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(ncmp(1)))
+          do i=1,npack0
+             dbl_mb(xtmp(1)+i-1)
+     >          = dimag(vh(i))* dble(dcpl_mb(ncmp(1)+i-1))
+     >          - dble(vh(i))*dimag(dcpl_mb(ncmp(1)+i-1))
+     >          + dimag(vcmp(i))* dble(dcpl_mb(ncmp_smooth(1)+i-1))
+     >          - dble(vcmp(i))*dimag(dcpl_mb(ncmp_smooth(1)+i-1))
+          end do
+
+         call Pack_tt_dot(0,dbl_mb(Gx(1)),dbl_mb(xtmp(1)),fx)
+         call Pack_tt_dot(0,dbl_mb(Gy(1)),dbl_mb(xtmp(1)),fy)
+         call Pack_tt_dot(0,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),fz)
+         fion(1,ii) = fion(1,ii) + fx*omega
+         fion(2,ii) = fion(2,ii) + fy*omega
+         fion(3,ii) = fion(3,ii) + fz*omega
+
+      end do !*ii*
+
+      !**** deallocate stack memory ****
+      ok =        MA_pop_stack(Gz(2))
+      ok = ok.and.MA_pop_stack(Gy(2))
+      ok = ok.and.MA_pop_stack(Gx(2))
+      ok = ok.and.MA_pop_stack(xtmp(2))
+      ok = ok.and.MA_pop_stack(ncmp_smooth(2))
+      ok = ok.and.MA_pop_stack(ncmp(2))
+      ok = ok.and.MA_pop_stack(QYlm(2))
+      ok = ok.and.MA_pop_stack(exi(2))
+      if (.not.ok)
+     >  call errquit('paw_mult_pw_force: error popping stack',1)
+
+      return
+      end
+
+
+
 
 !**************************************************
 !

@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.8 2003-03-19 00:11:47 marat Exp $
+* $Id: paw_force.F,v 1.9 2003-03-21 23:41:13 bylaska Exp $
 *
 
 !**************************************************
@@ -69,18 +69,6 @@
      >                           "paw_force_wz_u",paw_force_wz_u)
       value = value.and.my_alloc(mt_dcpl,paw_force_w_size,
      >                           "paw_force_wz_d",paw_force_wz_d)
-
-      value = value.and.my_alloc(mt_dbl,nion,
-     >                           "paw_force_fx_atom",paw_force_fx_atom)
-      value = value.and.my_alloc(mt_dbl,nion,
-     >                           "paw_force_fy_atom",paw_force_fy_atom)
-      value = value.and.my_alloc(mt_dbl,nion,
-     >                           "paw_force_fz_atom",paw_force_fz_atom)
-
-      value = value.and.my_alloc(mt_dbl,nion*3,
-     >                           "paw_force_f_mult",paw_force_f_mult)
-
-      write(*,*) "paw_force init",paw_force_f_mult(3)
 
       if (.not.value) call errquit('paw_force_init: alloc heap',1)
 
@@ -243,29 +231,6 @@ c     *** compute force overlap coefficients ***
      >              *dconjg(dcpl_mb(paw_force_cz_s(1)+i2)))
       end do     
 
-c      write(*,*)
-c      write(*,*) "paw force coefficients1:"
-c      nlmii = 0
-c      do ni=1,nion
-c        ia = ion_katm(ni)
-c        nbasis = paw_basis_nbasis(ia)
-c        do i=1,nbasis
-c          li = paw_basis_orb_l(i,ia)
-c          do mi = -li,li
-c           nlmii = nlmii + 1
-c           do n=1,neall
-c             indx_coeff = (nlmii-1)*neall + (n-1)
-c             write(*,*) i,mi,ni,n
-c             write(*,*) dcpl_mb(paw_force_cx_u(1)+indx_coeff),
-c     >                  dcpl_mb(paw_force_cy_u(1)+indx_coeff),        
-c     >                  dcpl_mb(paw_force_cz_u(1)+indx_coeff)        
-c           end do
-c           end do
-c        end do
-c      end do 
-
-
-
 
       value = value.and.MA_pop_stack(Gz(2))
       value = value.and.MA_pop_stack(Gy(2))
@@ -305,20 +270,20 @@ c     *** calculate weights ***
               wx_tmp = wx_tmp 
      >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >                *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
-     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >                *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+     >                *dcpl_mb(coeff(1)+indx_coeff1)
              
               wy_tmp = wy_tmp 
      >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
-     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(paw_force_cy_u(1)+indx_coeff))
+     >                *dcpl_mb(coeff(1)+indx_coeff1)
              
               wz_tmp = wz_tmp 
      >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
-     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(paw_force_cz_u(1)+indx_coeff))
+     >                *dcpl_mb(coeff(1)+indx_coeff1)
              
            end do
            dcpl_mb(paw_force_wx_u(1)+ii) = wx_tmp*occup
@@ -337,20 +302,20 @@ c           !*** this loop is not computed when ispin=1 ***
              wx_tmp = wx_tmp 
      >              + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >               *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
-     >              + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >               *dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+     >              + dconjg(dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+     >               *dcpl_mb(coeff(1)+indx_coeff1)
              
               wy_tmp = wy_tmp 
      >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
-     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >                *dcpl_mb(paw_force_cy_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(paw_force_cy_u(1)+indx_coeff))
+     >                *dcpl_mb(coeff(1)+indx_coeff1)
              
               wz_tmp = wz_tmp 
      >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
      >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
-     >               + dconjg(dcpl_mb(coeff(1)+indx_coeff))
-     >                *dcpl_mb(paw_force_cz_u(1)+indx_coeff1)
+     >               + dconjg(dcpl_mb(paw_force_cz_u(1)+indx_coeff))
+     >                *dcpl_mb(coeff(1)+indx_coeff1)
  
            end do
            dcpl_mb(paw_force_wx_d(1)+ii) = wx_tmp*occup
@@ -371,16 +336,8 @@ c           !*** this loop is not computed when ispin=1 ***
       end do
 
       call paw_force_atom(fion)
-      call paw_force_mult( dbl_mb(paw_force_f_mult(1)))
+      call paw_force_mult(fion)
 
-      write(*,*) "paw multipole force",paw_force_f_mult(3)
-      do ii=1,paw_force_f_mult(3)
-
-        write(*,*) dbl_mb(paw_force_f_mult(1)+ii-1)
-      
-      end do
-      
-      
 
       return
       end
@@ -489,6 +446,7 @@ c     > dcpl_mb(gop_d(1)+in-1),
 c     > dcpl_mb(paw_force_wx_u(1)+in-1)
 c      end do
 
+
       nion = ion_nion()
       do in=1,nion
         ia = ion_katm(in)
@@ -521,28 +479,183 @@ c      end do
      >             dcpl_mb(paw_force_wz_d(1)+i_w+ii-1)     
         end do
 
-        dbl_mb(paw_force_fx_atom(1)+in-1)=-dble(tmp_fx)
-        dbl_mb(paw_force_fy_atom(1)+in-1)=-dble(tmp_fy)
-        dbl_mb(paw_force_fz_atom(1)+in-1)=-dble(tmp_fz)
+        !dbl_mb(paw_force_fx_atom(1)+in-1)=-dble(tmp_fx)
+        !dbl_mb(paw_force_fy_atom(1)+in-1)=-dble(tmp_fy)
+        !dbl_mb(paw_force_fz_atom(1)+in-1)=-dble(tmp_fz)
 
         fion(1,in) = fion(1,in) - dble(tmp_fx)
-        fion(1,in) = fion(2,in) - dble(tmp_fy)
+        fion(2,in) = fion(2,in) - dble(tmp_fy)
         fion(3,in) = fion(3,in) - dble(tmp_fz)
+
+        write(*,*) "  fatom",in,-dble(tmp_fx),
+     >                          -dble(tmp_fy),
+     >                          -dble(tmp_fz)
 
       end do
 
-
-       write(*,*) "atomic force"
-       do in=1,nion
-  
-         write(*,*) in, 
-     >             dbl_mb(paw_force_fx_atom(1)+in-1),
-     >             dbl_mb(paw_force_fy_atom(1)+in-1),
-     >             dbl_mb(paw_force_fz_atom(1)+in-1)
-       end do
-  
       return
       end
+
+!**************************************************
+!
+!	Name: paw_force_constraint
+!
+!	Purpose: 
+!
+!	Created:	8/07/2002
+!**************************************************
+      subroutine paw_force_constraint(lmbda,fion)
+      implicit none
+      real*8 lmbda(*)
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "paw_force_data.fh"
+#include "paw_proj.fh"
+#include "paw_ovlp.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !**** local variables ****
+      integer ii,ia,ms,n,m,a,b,ispin,n1(2),n2(2),nn,nion
+      integer nbasis,basis_nbasis,i_nbasis
+      integer la,ma,lb,mb,nlm1,nlm2,mlmbda,nlmbda
+      integer matrix_ptr,overlap_ptr,ne_u,ne_d,neall
+      integer indx_coeff1,indx_coeff,indx_lmbda
+      integer coeff(4)
+      real*8  occup,wx_tmp,wy_tmp,wz_tmp
+
+      !**** local variables ****
+      integer  paw_overlap_matrix_ptr
+      external paw_overlap_matrix_ptr
+
+
+      call paw_ovlp_c_ptr(coeff)
+
+c     *** number of electrons ***
+      ne_u  = paw_ne_up()
+      ne_d  = paw_ne_down()
+      neall = paw_ne_total()
+
+      ispin = paw_ispin()
+      n1(1) = 1
+      n2(1) = ne_u
+      n1(2) = ne_u + 1
+      n2(2) = ne_u + ne_d
+      nn    = ne_u*ne_u
+      occup = 1.0d0
+      if (ispin.eq.1) occup = 2.0d0
+
+      nion     = ion_nion()
+      i_nbasis = 0
+      do ii=1,nion
+        ia           = ion_katm(ii)
+        nbasis       = paw_proj_nbasis(ia)
+        basis_nbasis = paw_basis_nbasis(ia)
+        matrix_ptr   = paw_overlap_matrix_ptr(ia)
+        
+        nlm1 = 0
+        do a=1,basis_nbasis
+         la=paw_basis_orb_l(a,ia)
+         do ma=-la,la
+          nlm1 = nlm1+1
+
+          nlm2 = 0
+          do b=1,basis_nbasis
+           lb=paw_basis_orb_l(b,ia)
+           do mb=-lb,lb
+            nlm2 = nlm2+1
+         
+            if ((mb.eq.ma).and.(la.eq.lb)) then
+
+            overlap_ptr = matrix_ptr + (b-1)*basis_nbasis + (a-1)
+            wx_tmp = 0.0d0
+            wy_tmp = 0.0d0
+            wz_tmp = 0.0d0
+            do ms=1,ispin
+            do n=n1(ms),n2(ms)
+             indx_coeff  = (i_nbasis+nlm1- 1)*neall + (n-1)
+             nlmbda      = n-n1(ms)
+             do m=n1(ms),n2(ms)
+              indx_coeff1 = (i_nbasis+nlm2-1)*neall + (m-1)
+              mlmbda      = m-n1(ms)
+              indx_lmbda = 1 + (mlmbda) + (nlmbda)*ne_u +(ms-1)*nn
+  
+              wx_tmp = wx_tmp
+     >         + (  dble( dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
+     >            + dimag(dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
+     >            + dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+     >             *dble( dcpl_mb(coeff(1)         +indx_coeff1))
+     >            + dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+     >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
+     >           )*lmbda(indx_lmbda)
+
+             wy_tmp = wy_tmp
+     >         + (  dble( dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dble( dcpl_mb(paw_force_cy_u(1)+indx_coeff1))
+     >            + dimag(dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dimag(dcpl_mb(paw_force_cy_u(1)+indx_coeff1))
+     >            + dble( dcpl_mb(paw_force_cy_u(1)+indx_coeff))
+     >             *dble( dcpl_mb(coeff(1)         +indx_coeff1))
+     >            + dimag(dcpl_mb(paw_force_cy_u(1)+indx_coeff))
+     >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
+     >           )*lmbda(indx_lmbda)
+
+             wz_tmp = wz_tmp
+     >         + (  dble( dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dble( dcpl_mb(paw_force_cz_u(1)+indx_coeff1))
+     >            + dimag(dcpl_mb(coeff(1)         +indx_coeff))
+     >             *dimag(dcpl_mb(paw_force_cz_u(1)+indx_coeff1))
+     >            + dble( dcpl_mb(paw_force_cz_u(1)+indx_coeff))
+     >             *dble( dcpl_mb(coeff(1)         +indx_coeff1))
+     >            + dimag(dcpl_mb(paw_force_cz_u(1)+indx_coeff))
+     >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
+     >           )*lmbda(indx_lmbda)
+
+
+
+c       write(*,*) "wx_tmp:",n,m,a,ma,b,mb,
+c    >           (  dble( dcpl_mb(coeff(1)         +indx_coeff))
+c    >             *dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
+c    >            + dimag(dcpl_mb(coeff(1)         +indx_coeff))
+c    >             *dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff1))
+c    >            + dble( dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+c    >             *dble( dcpl_mb(coeff(1)         +indx_coeff1))
+c    >            + dimag(dcpl_mb(paw_force_cx_u(1)+indx_coeff))
+c    >             *dimag(dcpl_mb(coeff(1)         +indx_coeff1))
+c    >           )*lmbda(indx_lmbda)
+c      write(*,*)  dcpl_mb(paw_force_cx_u(1)+indx_coeff),
+c    >             dcpl_mb(paw_force_cx_u(1)+indx_coeff1)
+c      write(*,*)  dcpl_mb(coeff(1) +indx_coeff),
+c    >             dcpl_mb(coeff(1) +indx_coeff1)
+c      write(*,*)  lmbda(indx_lmbda)
+c      write(*,*)
+
+
+             end do !*m*
+            end do !*n*
+            end do !*ms*
+ 
+            fion(1,ii) = fion(1,ii) + occup*wx_tmp*dbl_mb(overlap_ptr)
+            fion(2,ii) = fion(2,ii) + occup*wy_tmp*dbl_mb(overlap_ptr)
+            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
+            end if !*ma.eq.mb.and.la.eq.lb*
+
+           end do !*mb*
+          end do !*lb*
+
+         end do !*ma*
+        end do !*la*
+
+        i_nbasis = i_nbasis + nbasis
+      end do !*ii*
+
+      return
+      end
+
+
 
 !**************************************************
 !
@@ -588,11 +701,11 @@ c      end do
 
       nion = ion_nion()
 
-      do in=1,nion
-      do k=1,3
-        f_mult(k,in) = 0.0d0
-      end do
-      end do
+      !do in=1,nion
+      !do k=1,3
+      !  f_mult(k,in) = 0.0d0
+      !end do
+      !end do
 
       do in=1,nion
       ra(1)   = ion_rion(1,in)
@@ -749,9 +862,6 @@ c      end do
       value = value.and.my_dealloc(paw_force_wz_u)
       value = value.and.my_dealloc(paw_force_wz_d)
 
-      value = value.and.my_dealloc(paw_force_fx_atom)
-      value = value.and.my_dealloc(paw_force_fy_atom)
-      value = value.and.my_dealloc(paw_force_fz_atom)
 c
       if (.not.value) call errquit('paw_force_end: dealloc heap',0)
       return

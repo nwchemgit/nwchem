@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.55 2003-03-15 02:14:44 bylaska Exp $
+* $Id: paw_sd.F,v 1.56 2003-03-21 23:41:13 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2003/03/15 02:14:44  bylaska
+* orthonormalization checking fixed to work with forces...EJB
+*
 * Revision 1.54  2003/03/15 01:47:43  bylaska
 * steepest descent loop has been modified for the inclusion of forces....
 * Lagrange Multipliers require a recalculation of the phase factors
@@ -76,6 +79,7 @@
       integer npack1
 
 *     **** electronic variables ****
+      logical first_iteration
       integer ispin,icharge
       integer ne(2),n1(2),n2(2),nemax
       real*8  r_charge
@@ -97,7 +101,7 @@
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
 *     real*8  lmd(2*nemax*nemax)
-      integer eig(2),hml(2),lmd(2)
+      integer eig(2),hml(2),lmd(2),lmd1(2)
 
 
 
@@ -256,6 +260,7 @@
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
+      first_iteration = .true.
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
@@ -323,6 +328,10 @@
      >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
+      value = value.and.
+     >     MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd1',lmd1(2),lmd1(1))
+      call dcopy(2*nemax*nemax,0.0d0,0,dbl_mb(lmd(1)), 1)
+      call dcopy(2*nemax*nemax,0.0d0,0,dbl_mb(lmd1(1)),1)
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
@@ -503,7 +512,8 @@
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
      >             dbl_mb(dn(1)),dbl_mb(dn_cmp_smooth(1)),
      >             it_in,E,deltae,deltac,deltar,
-     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
+     >             dbl_mb(hml(1)),
+     >             dbl_mb(lmd(1)),dbl_mb(lmd1(1)),first_iteration,
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)))
        
          if (taskid.eq.MASTER) then 
@@ -513,7 +523,7 @@
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
             if (taskid.eq.MASTER) 
      >       write(6,*) ' *** Energy going up.  iteration terminated.'
-            go to 2
+            !go to 2
          end if
          deltae = dabs(deltae)
          if ((deltae.le.control_tole()).and.
@@ -768,6 +778,7 @@ c         write(6,1498) virial
       value = value.and.MA_free_heap(eig(2))
       value = value.and.MA_free_heap(hml(2))
       value = value.and.MA_free_heap(lmd(2))
+      value = value.and.MA_free_heap(lmd1(2))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
       if (.not. value) call errquit('paw_sd:error freeing heap',2)
