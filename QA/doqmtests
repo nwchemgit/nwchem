@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.5 2000-06-08 23:35:20 bert Exp $
+# $Id: doqmtests,v 1.6 2000-06-15 16:20:39 windus Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -8,6 +8,8 @@ runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
 runtests.unix h2o_dk u_sodft 
 
 #---   small tests that should fail!
+echo ' '
+echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 runtests.unix oh2
 #---   medium tests
 runtests.unix dft_feco5 
