@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.142 2001-11-14 23:49:28 edo Exp $
+# $Id: GNUmakefile,v 1.143 2001-11-14 23:50:59 edo Exp $
 
 include ../config/makefile.h
 
@@ -115,7 +115,7 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DINTEGER_1=byte
 endif
 
-       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o ga_it2.o
+       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o 
 
    LIB_TARGETS = testsolve testecce
 
@@ -168,7 +168,7 @@ endif
               bgj.fh bgj_common.fh nwc_const.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
