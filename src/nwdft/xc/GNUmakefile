@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.33 1996-07-26 16:34:56 d3g681 Exp $
+# $Id: GNUmakefile,v 1.34 1996-09-26 20:53:20 d3j191 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -36,7 +36,6 @@ include ../../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(xc_fitv.o):	../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xc_tabcd.o):	$(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_rhogen.o):	$(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_quadv1.o):	$(INCDIR)/util.fh ../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
@@ -45,4 +44,5 @@ $(LIBRARY_PATH)(xc_quadv0.o):	$(INCDIR)/util.fh ../include/timer.fh $(INCDIR)/tc
 $(LIBRARY_PATH)(xc_lebedev.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xc_getv.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(xc_get2oi.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(xc_fitv.o):	../include/timer.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(xc_beckew.o):	$(INCDIR)/bas_staticP.fh 

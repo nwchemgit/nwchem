@@ -20,10 +20,10 @@ c  output: correlation contribution (alfc) to the spin stiffness
       integer n
       double precision vcup,vcdn,comm,eczet,fz,ecrs,z4,rs,
      ,     rho13
-
+      parameter (pi=3.1415926535897932385d0)
+c
       data gam,fzz/0.5198421d0,1.709921d0/
       data thrd,thrd4/0.333333333333d0,1.333333333333d0/
-      parameter (pi=3.1415926535897932385d0)
 C
 C
 C
