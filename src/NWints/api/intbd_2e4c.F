@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.4 1997-06-26 19:42:56 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.5 1997-06-27 21:42:28 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -53,7 +53,7 @@ c
      &      num_q-num_q_start+1,
      &      q4(num_q_start), use_q4,
      &      roff,roff,roff,roff,.false.,
-     &      eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
+     &      eri,(12*l_erilab), ilab, jlab, klab, llab, nint, .true.,
      &      more_ints_txs, scr, lscr, zerotol,'der1_int')
         intbd_2e4c = more_ints_txs
       else
@@ -152,8 +152,8 @@ c
       nint_s = nint_s*(lhi-llo+1)       ! l partial block size
 *......
 
-      if ((nint_s*12).gt.l_erilab) then
-        write(luout,*)' nint_s*12 = ',(nint_s)*12
+      if (nint_s.gt.l_erilab) then
+        write(luout,*)' nint_s    = ',nint_s
         write(luout,*)' l_erilab  = ',l_erilab
         call errquit(' intbd_nw_2e4c: buffer size too small ',911)
       endif
