@@ -9,11 +9,11 @@
 	      moints_mp2.o
 
 
-OBJ_OPTIMIZE = moints_trf1idx.o 
+OBJ_OPTIMIZE = moints_trf1indx.o 
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F moints_trf1idx.F
+  USES_BLAS = moints.F moints_trf1indx.F
 
 LIB_DEFINES = 
 
