@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.48 1996-06-27 22:43:41 d3g681 Exp $
+C$Id: geom.F,v 1.49 1996-07-14 18:13:34 gutowski Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -396,6 +396,16 @@ c
       active(geom) = .true.
       geom_rtdb_load = .true.
 c
+c setup geometry related stuff particular to the dimension of the system
+c
+      if (isystype(geom) .eq. 3) then
+         call geom_3d(geom)
+      elseif(isystype(geom).eq.2) then
+         call geom_2d(geom)
+      elseif(isystype(geom).eq.1) then
+         call geom_1d(geom)
+      endif
+c
 *      do node = 0, ga_nnodes()-1
 *         call ga_sync
 *         if (ga_nodeid() .eq. node) then
@@ -463,11 +473,9 @@ c
 c
       erep(geom) = e
 c
-      if (isystype(geom) .eq. 3) then
-         call geom_3d(geom)
+      if(isystype(geom).eq.0) then
+         call sym_init_inv_op(geom)
       endif
-c
-      call sym_init_inv_op(geom)
 c
       end
       logical function geom_include_bqbq(geom)
@@ -747,9 +755,11 @@ c
         do j = 1, 3
            amatrix(j,i,geom) = 0.0d0
            amatrix_inv(j,i,geom) = 0.0d0
+           bmatrix(j,i,geom) = 0.0d0
         end do
         amatrix(i,i,geom) = 1.0d0
         amatrix_inv(i,i,geom) = 1.0d0
+        bmatrix(i,i,geom) = 1.0d0
       end do
 c
       end
@@ -1064,11 +1074,14 @@ c
          call errquit('geom_print: unknown system type', isystype(geom))
       end if
 c
-      buf = ' '
-      write(buf,1) 
-     $     csys(1:inp_strlen(csys)),
-     $     names(geom)(1:lenn(geom)), 
-     $     trans(geom)(1:lent(geom))
+c do this for molecules only
+c
+      if(isystype(geom).eq.0) then
+         buf = ' '
+         write(buf,1) 
+     $        csys(1:inp_strlen(csys)),
+     $        names(geom)(1:lenn(geom)), 
+     $        trans(geom)(1:lent(geom))
  1    format(a,' "',a,'" -> "',a,'"')
       write(6,*)
       write(6,*)
@@ -1078,35 +1091,37 @@ c
  2    format(' Units of output coordinates = ', a)
       if (include_bqbq(geom))
      $     write(6,*) ' Include Bq-Bq interactions'
-      if (isystype(geom) .eq. 3) then
-         write(6,21) 
-     $        volume_direct(geom),
-     $        (lattice_vectors(i,geom),i=1,3),
-     $        (lattice_angles(i,geom),i=1,3),
-     $        (recip_lat_vectors(i,geom),i=1,3),
-     $        (recip_lat_angles(i,geom),i=1,3)
- 21      format(
-     $        ' Direct space cell volume (angstrom^3)   ', f12.6/
-     $        ' Lattice vectors (angstrom)              ', 3f12.6/
-     $        ' Lattice angles (degrees)                ', 3f12.6/
-     $        ' Reciprocal lattice vectors (angs^-1)    ', 3f12.6/
-     $        ' Reciprocal lattice angles (degrees)     ', 3f12.6/)
-c
-         write(6,*) ' Crystallographic to cartesian (angstrom) matrix'
-         write(6,*)
-         write(6,22) ((amatrix(i,j,geom)/angstrom_to_au,j=1,3),i=1,3)
- 22      format(3(5x,3f12.6/))
-c
-         write(6,*) ' Cartesian (angstrom) to crystallographic matrix'
-         write(6,*)
-         write(6,22)((amatrix_inv(i,j,geom)*angstrom_to_au,j=1,3),i=1,3)
-c
-         write(6,*) ' Metric matrix (angstrom^2) for the direct lattice'
-         write(6,*)
-         write(6,22)((metric_matrix(i,j,geom),j=1,3),
-     $        i=1,3)
-c
       endif
+c      if (isystype(geom) .eq. 3) then
+c         write(6,21) 
+c     $        volume_direct(geom),
+c     $        (lattice_vectors(i,geom),i=1,3),
+c     $        (lattice_angles(i,geom),i=1,3),
+c     $        (recip_lat_vectors(i,geom),i=1,3),
+c     $        (recip_lat_angles(i,geom),i=1,3)
+c 21      format(
+c     $        ' Direct space cell volume (angstrom^3)   ', f12.6/
+c     $        ' Lattice vectors (angstrom)              ', 3f12.6/
+c     $        ' Lattice angles (degrees)                ', 3f12.6/
+c     $        ' Reciprocal lattice vectors (angs^-1)    ', 3f12.6/
+c     $        ' Reciprocal lattice angles (degrees)     ', 3f12.6/)
+cc
+c         write(6,*) ' Crystallographic to cartesian (angstrom) matrix'
+c         write(6,*)
+c         write(6,22) ((amatrix(i,j,geom)/angstrom_to_au,j=1,3),i=1,3)
+c 22      format(3(5x,3f12.6/))
+cc
+c         write(6,*) ' Cartesian (angstrom) to crystallographic matrix'
+c         write(6,*)
+c         write(6,22)((amatrix_inv(i,j,geom)*angstrom_to_au,j=1,3),i=1,3)
+cc
+c         write(6,*) ' Metric matrix (angstrom^2) for the direct lattice'
+c         write(6,*)
+c         write(6,22)((metric_matrix(i,j,geom),j=1,3),
+c     $        i=1,3)
+c
+c      endif
+      if(isystype(geom).eq.0) then
       write(6,*)
 c
       write(6,3) 
@@ -1130,6 +1145,7 @@ c
      $        (tmp(i),i=1,3)
  4       format(' ',i4,' ',a16,' ',f10.6,3f15.8)
       end do
+      endif
 c
 c     Only print out the masses for unique tags ... the structure
 c     should actually only store the data for unique tags.
@@ -1253,7 +1269,7 @@ c
      $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
      $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
      $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protactinium', 'Uranium', 'Neptunium',
+     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
      $     'Nobelium', 'Lawrencium'/
@@ -1566,6 +1582,24 @@ c
       do i=1,3
         do j=1,3
           amat(i,j)=amatrix(i,j,geom)
+        end do
+      end do
+      end
+      logical function geom_bmatrix_get(geom,bmat)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom,i,j               ! [input]
+      double precision bmat(3,3)     ! [output]
+      logical geom_check_handle
+      external geom_check_handle
+
+      geom_bmatrix_get = geom_check_handle(geom, 'geom_bmatrix_get')
+      if (.not. geom_bmatrix_get) return
+c
+      do i=1,3
+        do j=1,3
+          bmat(i,j)=bmatrix(i,j,geom)
         end do
       end do
       end

@@ -65,6 +65,10 @@ c     amatrix(1:3,1:3,1:max_geom) = matrix that transforms atomic fractional
 c                                   coords. to a Cartesian system in bohr.  This matrix
 c                                   is the unit matrix for molecular systems.
 c
+c     bmatrix(1:3,1:3,1:max_geom) = matrix that transforms reciprocal lattice vectors
+c                                   to a Cartesian system (a.u.).  This matrix
+c                                   is the unit matrix for molecular systems.
+c
 c     amatrix_inv(1:3,1:3,1:max_geom) = used to transform from atomic Cartesian
 c                                  coords. to fractional coordinates & can be used
 c                                  to resolve the scalar lattice vectors into their
@@ -98,7 +102,7 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
-C$Id: geomP.fh,v 1.12 1995-12-27 19:53:02 d3e129 Exp $
+C$Id: geomP.fh,v 1.13 1996-07-14 18:13:38 gutowski Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)
@@ -113,7 +117,7 @@ c
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
      $     recip_lat_angles, sym_ops, angstrom_to_au,
-     $     geom_mass      
+     $     geom_mass,bmatrix
       common/cgeometry/
      $     coords(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
@@ -127,6 +131,7 @@ c
      $     recip_lat_vectors(1:3,1:max_geom),
      $     recip_lat_angles(1:3,1:max_geom),
      $     amatrix(3,3,max_geom),
+     $     bmatrix(3,3,max_geom),
      $     amatrix_inv(3,3,max_geom),
      $     sym_ops(max_sym_ops*3,4,max_geom),
      $     metric_matrix(3,3,max_geom),

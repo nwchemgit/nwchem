@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.24 1995-12-27 19:53:03 d3e129 Exp $
+C     $Id: geom_input.F,v 1.25 1996-07-14 18:13:39 gutowski Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -236,7 +236,7 @@ c
      $           f10.8/)
             call dscal(3*ncenter, scale, coords, 1)
          end if
-      else if (isys .eq. 3) then
+      else if (isys .gt. 0) then
          if (scale .ne. 1.0d0) call errquit
      $        ('geom_input: specified units for fractional coords', 0)
       else
@@ -372,10 +372,10 @@ c
    30 if(isystype(geom).eq.3) then
         call geom_3d(geom)
         status = geom_set_user_units(geom,'fractional')
-c      elseif (isystype(geom).eq.2) then
-c        call geom_2d(geom)
-c      elseif (isystype(geom).eq.1) then
-c        call geom_1d(geom)
+      elseif (isystype(geom).eq.2) then
+        call geom_2d(geom)
+      elseif (isystype(geom).eq.1) then
+        call geom_1d(geom)
       end if
       return
       end

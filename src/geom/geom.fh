@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.17 1996-01-22 18:44:18 d3g681 Exp $
+C$Id: geom.fh,v 1.18 1996-07-14 18:13:37 gutowski Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -25,6 +25,7 @@ cnew ones
       logical geom_systype_get
       logical geom_latang_get
       logical geom_amatrix_get
+      logical geom_bmatrix_get
       logical geom_amatinv_get
       logical geom_recipvec_get
       logical geom_recipang_get
@@ -71,6 +72,7 @@ cnew ones
       external geom_systype_get
       external geom_latang_get
       external geom_amatrix_get
+      external geom_bmatrix_get
       external geom_amatinv_get
       external geom_recipvec_get
       external geom_recipang_get
