@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.173 2004-07-16 14:03:42 edo Exp $
+C     $Id: geom_input.F,v 1.174 2004-09-30 00:37:16 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -5940,7 +5940,7 @@ c
        ctheta=CMPLX(COS(THETA),SIN(THETA))
         DO IAT=1,NAT
            PRPAXS=.FALSE.
-           DO JAT=IAT,NAT
+           DO JAT=1,NAT
               IF(atmlab(JAT).EQ.atmlab(IAT)) THEN
                  QDUMI=CMPLX(C2(I,IAT),C2(J,IAT))*ctheta
                  QDUMJ=CMPLX(C2(I,JAT),C2(J,JAT))
