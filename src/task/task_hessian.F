@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.19 2003-02-20 02:04:50 bert Exp $
+* $Id: task_hessian.F,v 1.20 2003-02-20 17:16:50 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -35,8 +35,8 @@ c     the numerical derivative routine (not true in my case at the time).
 c
       logical stpr_gen_hess_at
       external stpr_gen_hess_at
-      logical  scf,hess_anal
-      external scf,hess_anal
+      logical  scf,hess_anal,hess_check
+      external scf,hess_anal,hess_check
 c
       integer ecce_old_print, ecce_junk_print
       logical status, ignore, numerical, analytic
