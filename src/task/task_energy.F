@@ -6,6 +6,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer rtdb
 c
 c     Fortran does not like recursive calls, so for ease of coding
@@ -46,10 +47,8 @@ c
          endif
       endif
       if(rtdb_get(rtdb, 'harm_cons', mt_log, 1, status)) then
-        write(6,*) "found constraints"
+        if(ga_nodeid().eq.0) write(luout,*) "found constraints"
         call cons_add_energy(rtdb,energy)
-      else
-         write(6,*) "inot found constraints"
       end if
 
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
@@ -83,7 +82,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.33 2004-01-28 17:56:11 marat Exp $
+* $Id: task_energy.F,v 1.34 2004-01-29 18:13:26 edo Exp $
 *
       implicit none
 #include "errquit.fh"
