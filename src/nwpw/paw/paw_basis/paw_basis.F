@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.28 2004-12-27 22:52:50 edo Exp $
+* $Id: paw_basis.F,v 1.29 2004-12-30 04:37:56 bylaska Exp $
 *
 
 !**************************************************
@@ -352,13 +352,13 @@ c     !*** set core charges ***
 !**************************************************
       subroutine paw_basis_exist_check()
       implicit none
+
 #include "rtdb.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical oldmode
       logical found
       integer ia,lmax,locp
       character*2 atom
@@ -366,38 +366,26 @@ c     !*** set core charges ***
       real*8        sum,rlocal
 
 *     **** external functions ****
+      logical     nwpw_filefind
       character*2 ion_atom
       integer     ion_nkatm
+      external    nwpw_filefind
       external    ion_atom
       external    ion_nkatm
 
-      call Parallel_taskid(taskid)
-      oldmode =  rtdb_parallel(.false.)
-cedo      if (taskid.eq.MASTER) then
       do ia = 1, ion_nkatm()
-       call ion_atom_plus_suffix(ia,'_basis',fname)
-       call util_file_name_resolve(fname, .false.)
+        call ion_atom_plus_suffix(ia,'_basis',fname)
 
-       inquire(file=fname,exist=found)
-       if (.not.found) then
-
-*         **** generate one-dimensional pseudopotential file ****
+*       **** generate one-dimensional paw basis file ****
+        if (.not.nwpw_filefind(fname)) then
           atom = ion_atom(ia)
           call psp_generator_auto(2,atom,lmax,locp,rlocal)
-
-c*         *** find location of library file ***
-c          atom = ion_atom(ia)
-c          call nwpw_libfile(2,libfile,atom)
-c
-c*         *** copy library file to fname ***
-c          call util_file_copy(libfile,fname)
-      
-       end if
+        end if
 
       end do
-cedo      end if
+
       call ga_sync()
-      oldmode =  rtdb_parallel(oldmode)
+
       !*** sync - hack ***
       !sum = 1.0d0
       !call D3dB_SumAll(sum)
