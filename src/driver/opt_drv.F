@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.23 1997-04-19 02:09:46 d3g681 Exp $
+C$Id: opt_drv.F,v 1.24 1997-04-19 18:48:43 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -948,7 +948,6 @@ c
 c parameters read from rtdb
 c prefix:energy (later) rohf and uhf
 c
-      integer nat                ! number of atoms
 c      character*255 name         ! name buffer for rtdb context never used
 c      character*255 title        ! title buffer never used
 c      double precision energy    ! energy (scf, rohf, uhf)
@@ -1155,7 +1154,6 @@ C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
 c      LOGICAL   DRIVER_OPT_GET_HESS
-      LOGICAL   STATUS
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -1163,6 +1161,8 @@ C
       PARAMETER (MXCOOR=1500)
       CHARACTER*255 OPT_HESS_FIL
       CHARACTER*8   ERRMSG
+      logical DRIVER_OPT_PUT_HESS
+      external DRIVER_OPT_PUT_HESS
       LOGICAL OUT
       LOGICAL SOME
       COMMON/HND_IOFILE/IR,IW
@@ -1259,7 +1259,8 @@ C
 *         IF(.NOT.STATUS) THEN
 *            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
 *         ENDIF
-         STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
+         if (.not. DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR))
+     $        call errquit('hnd_hess_init: put hess?',ncoor*ncoor)
       ENDIF
       CALL GA_SYNC()
 C
