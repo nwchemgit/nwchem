@@ -1,0 +1,435 @@
+Release Notes for NWChem version 3.2.1 
+
+NWChem Known Bugs in version 3.2.1
+
+* Texas integrals do not function properly on the CRAY T3E.  
+
+* Properties module does not work with spherical basis sets.
+
+Previous NWChem Known Bugs in version 3.2
+
+* This is fixed in version 3.2.1. MP2 gradients: MP2 gradients are
+known to give wrong results.
+
+* Direct MP2 optimizations: MP2 optimizations that are performed with
+the direct option can have problems with CPHF convergence.  In this
+case, the user is advised to use the default options which is a
+semi-direct calculation.  It is always best to use the default
+algorithms and parameters in NWChem, until they do not work for your
+particular case.  Machine specific changes to the defaults are
+continually being added to NWChem.
+
+* Texas integrals with high angular momentum and large exponents: This
+is fixed in version 3.2.1.  There were multiple instabilities found in
+various recursions in the algorithms used in the Texas integral code
+(and in many other codes).  All but one has been resolved.  NWChem now
+checks for the possibility of this last instability and automatically
+turns the Texas integral code off when necessary.  User's should not
+turn off the Texas integral code by default (except on the T3E).  In
+3.2, integrals that were calculated using the Texas integral package
+had errors when calculating integrals with high angular momentum and
+large exponents.  This showed up, for example, when the cc-pVTZ basis
+set has been used.
+
+
+* Message mismatch or job hanging: These messages will occasionally be
+observed on NWMPP1 especially when running CCSD calculations.  These
+are errors that happen sporadically and are being worked on.  If you
+experience either of these problems, please send your bug report using
+the correct channel listed in the Reporting Problems with NWChem page.
+This will help us in the determination of the problem.  Note that the
+message mismatch is generally found in the MPL version of NWChem on
+NWMPP1 and the job hanging is generally found in the LAPI version.  If
+you experience a problem with one version, you might want to try the
+other version.  On NWMPP1, the binaries are:
+
+/u/nwchem/bin/nwchem -> LAPI version
+/u/nwchem/bin/nwchem.mpl -> MPL version 
+
+* start, restart, and continue in the title:  When the words start,
+restart, and continue appear at the beginning of the title, NWChem
+erroneously picks them up when scanning for start, restart, and
+continue directives.  The work around is to not use these words at the
+beginning of the title.
+
+
+* CCSD(T) energies are unstable on the IBMSP: CCSD(T) energies are
+unstable on the IBMSP using either the LAPI or the MPL version.  Error
+that the user will see are ga_mismatch or jobs that just hang.  We are
+working with IBM to solve this problem. 
+
+NWChem Frequently Asked Questions
+
+* Where is the NWChem home page?  
+  http://www.emsl.pnl.gov:2080/docs/nwchem/nwchem.html
+
+* Where is the User's Manual?
+  http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/index.html
+
+* Where is the Programmer's Manual?
+  http://www.emsl.pnl.gov:2080/docs/nwchem/doc/prog/index.html
+
+* How do I submit a job on NWMPP1?
+ -Check out the "Running NWChem" subsection in the LoadLeveler
+  Description at MSCF page:
+  http://www.emsl.pnl.gov:2080/mscf/hardware/hpcc/loadl_configuration.html
+ -Use llnw on NWMPP1
+ -There is an nqenw for running on the NERSC T3E as well.  
+
+* Is there any on-line training available?</font>
+  The slides from the NWChem / Ecce Tutorial workshop, March
+  23-25, 1998 are now available.
+  http://www.emsl.pnl.gov:2080/mscf/training/tutorial/index.html
+
+* How do I get a better initial Hessian than the default diagonal or
+  internal hessian for an optimization?
+  The easiest method is to calculate a Hessian at a lower level of
+  theory and basis set and then read that Hessian in for the geometry
+  optimization.  The key to doing this is to include INHESS 1 in
+  DRIVER or STEPPER.  An example of how to do this is:
+
+--- example start --------------------------------------------------------------
+start h2o_optimization
+
+title; H2O optimization using a better initial Hessian
+
+geometry units angstroms
+  O       0.0  0.0  0.0
+  H       0.0  0.0  1.0
+  H       0.0  1.0  0.0
+end
+
+basis
+  H library sto-3g
+  O library sto-3g
+end
+
+scf
+  print low
+end
+
+task scf freq
+
+basis
+  H library 6-31g**
+  O library 6-31g**
+end
+
+driver
+  inhess 1
+  print medium
+end
+
+task scf optimize
+--- example end ----------------------------------------------------------------
+
+* I am having problems getting my initial guess correct when I use
+  ECPs.  What can I do to get good starting orbitals?
+ -The atomic initial guess currently does not work correctly in all
+  cases with the presence of ECPs.  A good method to use is
+  independently converging fragments with ECPs.  More details on how
+  to do this can be found in the User's Manual.
+  http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/index.html
+ -Remember that you can (and SHOULD!) look at your initial orbitals by
+  putting the line: 
+	print "initial vectors"
+  into the SCF block of your input deck.  If the order isn't correct,
+  you can use the "swap" directive to change the order of the
+  orbitals.  For example:
+	vectors atomic swap 173 175 174 176 output end.movecs
+  will cause the orbitals 173 - 175 to be swapped to 175, 176, 173 and
+  174.  Note that the swaps are pairwise: first 173 and 175 are
+  swapped, then the the current orbitals 174 and 176 are swapped.
+  More information on initial orbitals can be obtained in the User's
+  Manual.
+
+Changes additions to functionality in NWChem (from the CVS log
+ information)
+
+* More robust QA test cases (Courtesy of our users and in particular
+  Dave Feller and John Nicholas; Thanks guys!)
+
+* Java Reporting tool developed by Danielle Farrar went into
+  production.  This tool is for use by all EMSL users/Collaborators 
+  and the specific point of contact at our distributed sites.  It
+  requires Java 1.1.x and allows users to browse for input, output,
+  and error files that are attached to the email sent to the support
+  staff.  This eliminates "cutting" and "pasting" of this information.
+
+* "nqenw" a tool to submit jobs to NQE specific to NERSC.  Operates like
+  "llnw" on NWMPP1 at EMSL.
+
+* modifications were made to default DFT parameters for more
+  robust/stable operation and energies/gradients.
+
+* new input style "lst" for geometries added. 
+  See http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/index.html
+
+* Several basis sets and ECPs (including large and small core
+  Stuttgart) where added to the NWChem library.
+ 
+* bug in frozen core determination in MP2 was fixed. 
+
+* an integrated preparation module "prepar" for the MD code was
+  included.  This eliminates the necessity for nwtop, nwrst, nwsgm in
+  previous releases of NWChem. 
+
+* Job Identification numbers for NQE and LoadLeveler are now reported
+  in the NWChem output file.
+
+* The integral API was modified to pre-determine if the last Texas
+  instability exists in a given basis set and turns Texas integrals
+  off if necessary. The Texas integral interface now uses better logic
+  for determining whether to use Texas 93 or Texas 95 routes.
+
+* Default Integral accuracy for radial cutoff in the API was tightened. 
+  (standard 10**-15, high 10**-30)
+ 
+* The integral API was extended to handle the required functionality
+  for periodic DFT gradients.
+
+* default NWChem integral settings now handle spherical basis sets but
+  not general contractions.
+ 
+* Fixed normalization for fitting style basis functions for DFT/RI methods.
+
+* Spin Orbit integrals and integral API routines were added.
+
+* Basis Set Object was modified to read Spin-Orbit specifications
+
+* Basis Set Object can now write basis set information to the Ecce
+  output file.
+ 
+* LAPI and SP1 are now separate targets and builds for the IBMSP systems.
+
+* ChemIO updated to latest revision from Dr. J. Nieplocha 
+
+* DFT weight derivatives bug was fixed.
+
+* ChangeLog for ESP module:
+  > Changes to ESP since NWChem release 3.0 (TPS)
+  > 
+  > Oct 06	Initial Electrostatic Potential (ESP) module
+  > 		Current Features of the FIT:
+  > 		a) Fit on grid points (cf CHELPG)
+  > 		b) Constraints on total charge of atom groups
+  > 		c) Restraints (cf RESP)
+  > 
+  > Oct 09	Added USES_BLAS=esp_denmat
+  > 
+  > Apr 21 1998	print under util_print contol
+  >          	put fitted charges onto rtdb
+  > 
+  > Apr 27 1998	defaults without esp input block
+  >                 move probe/factor to esp_rtdbin
+  > 
+  > Jun 15 1998     print probe radius and atom radius factor
+  > Jun 16 1998     change default factor to 2.0
+  > 
+  > Aug 08 1998     destroy geometries on rtdb before storing new
+  > 
+  > Aug 13 1998	bug fixes, extr printout
+
+* Geometry object knows how to print distances/angles/dihedral angles
+  based on atomic radii.
+
+* Geometry object can now auto-detect and use symmetry when requested
+  via the autosym keyword.  This is still experimental but functional.
+
+* Accuracy of SCF Energies/Gradients now consistent.
+
+* integration of "NBO" directly into NWChem.  You must have a license
+  from the University of Wisconsin, Madison for NBO to use this
+  functionality. 
+
+*  
+
+  > Changes to nwARGOS since NWChem release 3.1
+  > 
+  > Dec 29 Include pme force calculation in time considered
+  > 	   in the load-balancing schemes.
+  > 	   
+  > Jan 05 Include additional timer calls
+  > 	   
+  > Jan 06 PME setup put in single subroutine
+  > 	   
+  > Jan 06 PME self energy calculated only once
+  > 	   
+  > Jan 06 Correct error in redetermination box-box list
+  > 	   
+  > Jan 07 Bug fix in arg_listbb.F
+  > 	   
+  > Jan 09 Moved zeroing pme charge grid, removing a sync
+  > 	   
+  > Jan 15 Bug fix in arg_wrtraj.F/arg_hpsrti.F
+  >        Make calls to arg_listbb consistent
+  > 	   All changes copied to release tree
+  > 	   
+  > Jan 23 Distance restraints
+  > 	   Duplicate call to forces removed from arg_stdesc
+  > 	   
+  > Jan 26 Revised load balancing allowing nodes not involved in pme
+  > 	   reciprocal space calculations to continue with local
+  > 	   real space force calculations. This includes a different
+  > 	   order in box-box pairs, synchronization on selected nodes,
+  > 	   and delayed synchronization by use of flag/wait combination.
+  > 	   For now, this option is selected by 'develop 1' in the input file.
+  > 	   
+  > 	   Allow pair loadbalancing to continue with previous sub-box sizes.
+  > 	   
+  > Jan 28 Add arg_forcon (was missing in repository)
+  > 	   
+  > Feb 11 Modified load balancing scheme for PME (develop 1)
+  > 	   Modified atom name output in trajectory header
+  > 	   
+  > Feb 11 Allow writing out trajectory and property files for minimizations
+  > 	   
+  > Feb 13 Fix bug in steepest descent code (update pairlist and forces in
+  > 	   case solute shake is used) after recording.
+  > 	   Fix bug in resetting forces when a sd step is too large.
+  > 	   
+  > Feb 15 Set velocities and kinetic energies to zero in stdesc runs
+  > 	   
+  > Feb 17 Bug fix in pressure scaling array boxsiz
+  > 	   Use tim file to selectively write out timings for timing analysis
+  > 	   Properly close global array ga_flg
+  > 	   Bug fix in solvent fix
+  > 	   Fix format
+  > 	   
+  > Feb 18 Add header to tim file	
+  > 	   Time array dimension as parameter mtimes
+  > 	   
+  > Feb 22 Add initial PME load balancing scheme
+  > 	   
+  > Feb 25 Add arg_select
+  > 	   
+  > Mar 03 Revised load balancing and timing
+  > 	   Set CG search interval to 2 times last step size in SD
+  > 	   nwArgos output shared file on SGI's
+  > 	   
+  > Mar 04 Bug fix in arg_pscals.F
+  > 	   
+  > Mar 05 Bug fix in arg_mdstep.F
+  > 	   Bug fix in arg_reset.F
+  > 	   Write proper number of total steps to property file
+  > 	   
+  > Mar 10 Change output format of diffusion constant
+  > 	   
+  > Mar 11 Fix QM/MM bug in zone atom determination
+  > 	   
+  > Mar 14 Fix QMD property problem
+  > 	   
+  > Apr 22 Initial pmf stuff
+  > 	   Optional read system_calc from input
+  > 	   
+  > May 15 Initial 2nd derivative stuff
+  > 	   
+  > May 29 Remove debug print statements from arg_newton.F
+  >        Fix bug in arg_memor1 in calculation minimum sub-box size
+  > 	   Issue warning if pressure scaling disabled
+  > 	   
+  > Jun 22 Fix memory leak and add memory check for fft
+  > 	   
+  > Jul 16 Catch lost solute atoms caused by small mol on many nodes
+  > 	   Prevent pwtot to be nan
+  > 	   
+  > Aug 07 Initilization bug fix in arg_sync
+
+* DFT added new perdew 1996 functional
+
+* Peigs - pig-shit
+
+* prepar module ChangeLog
+
+  > Apr 14 1998	 Initial prepar module routines
+  > 		 Add routines for rtdb input, third and excluded lists
+  > 		 Make lprint integer print control
+  > Apr 15 1998	 Print control compliant with nwchem
+  > 		 Bug fix in atom type generation
+  > 		 Parameter checks
+  > Apr 16 1998	 Handle solvent
+  > Apr 17 1998	 Generalize ring identification to 3,4,5 and 6 membered rings
+  > 		 Modified code to retrieve improper dihedral parameters
+  > 		 Allow force field atom type file in dir_s, dir_x, dir_u and dir_t
+  > Apr 20 1998	 Consolidate par and typ files
+  > 		 Corrections in improper dihedral center determination
+  > Apr 21 1998	 Coordinates in nm
+  > 		 List missing parameters only once
+  > 		 Read coordinates from rtdb
+  > 		 Add pre_hnames
+  > 		 Call to scf and esp to get charges in pre_charge
+  > Apr 22 1998	 Driver routines for restart generation
+  > Apr 23 1998	 Fix several errors
+  > 		 Center solute routine
+  > 	         Write restart routine
+  > 		 Read geometry object routine
+  > Apr 28 1998  Add remaining options
+  > Apr 29 1998  Bug fixes and Id's in all files
+  > 		 No constraints in esp when intergal molecule
+  > 		 Make sgm format identical to previous format
+  > 		 Apply amber improper format to sgm file
+  > 		 Make current directory ffield_t if not specified
+  > Apr 30 1998	 Report missing impropers for amber in correct order
+  > May 01 1998	 Fix bug for pdb starting with residue number larger than 1
+  > 	         Properly deallocate heap memory
+  > 		 Correction handling single atom first molecule
+  > May 05 1998	 Minor changes and bug fixes
+  > May 15 1998	 Bug fix in declaration
+  > Jun 03 1998  Change pre_namamb to pre_rename
+  > 	         No partial charge estimation if atom types unresolved
+  > 		 Bug fix in atom type string comparison in pre_ffield
+  > Jun 04 1998  Bug fix in atom typing (pre_atype)
+  > 		 Charge determination separate for each segment (pre_charge)
+  > 		 Charge constraint of zero on set of cap atoms (pre_charge)
+  > 		 Handle charmm improper dihedrals (pre_ffield)
+  > 		 List atoms not found (pre_misfit)
+  > 	         Rename residues (CYS,HIS) appropriately for force field
+  >  	         Bug fix in index to array cseq (pre_rename)
+  > Jun 05 1998	 Bug fix in residue renaming (pre_rename)
+  > Jun 08 1998	 Compliance with util_print
+  > Jun 09 1998	 Avoid geom_rtdb_load error message
+  > Jun 11 1998	 Add topology modification commands
+  > 		 Fix bugs in reading solvent from pdb file
+  > 		 Keep name file
+  > Jun 15 1998	 Bug fixes: pre_boxsiz, pre_orient, pre_wrtrst, pre_wrttop
+  > Jun 24 1998	 Fix memory problem occurring in solvent-only preparations
+  > Jul 09 1998  Add positional fix commands
+  >              Slightly increase hydrogen radius
+  > Jul 14 1998	 Add routine to determine if a segment is amino acid (pre_protein)
+  > 		 Put modified residue name on sequence file
+  > 		 Number non chain link atoms from 3 up ( instead of all being 3)
+  > 		 Fix file name problem in pre_mkrst
+  > 		 Expand link array to include global atom number
+  > 		 Fix bug in solvation routine
+  > 	         Fix bug in bonded list overwrite in pre_mkfrg
+  > 		 More diagnostic messages added
+  > 		 Fix file name bug in explicit write rst command
+  > Jul 15 1998	 Remove persistency new_top new_seq and new_rst
+  > 		 Resize solvent arrays when needed to read rst file
+  > 		 Allow coordinate read before solvation
+  > 		 Avoid write of ccordinates if explicit command given
+  > 		 Bug fix in restart file name
+  >              Read modified restart format
+  > Jul 16 1998	 Change default value of xpndw to 0.2 nm
+  > Aug 07 1998	 Initilization bug fix in pre_misfit
+  > Aug 07 1998	 Initilization bug fix in pre_short
+  > Aug 10 1998	 Add missing initialization angle constraints
+  > Aug 13 1998	 Add POx in charge determination
+
+* Symmetry module now handles spherical functions and T, Th, Oh groups
+
+* Task Module now prints each task time by default.
+
+* Frequencies and IR Intensities now computed if module computes
+  dipole moments by default.
+
+* Default step-size for finite-difference hessian set to 0.001
+
+* task_num_gradient now has optional 5 point difference formula for
+  higher precision gradient.
+  
+* Added "make smallversions" instead of "make versions" to allow for
+  smaller routines for the util_version.F information.
+
+* Vib Module: added KM/mol units and dipole derivatives in normal modes 
+ 
