@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.79 2002-06-25 22:43:10 d3j191 Exp $
+c $Id: ana_task.F,v 1.80 2002-07-18 01:46:22 d3j191 Exp $
 c
       implicit none
 c
@@ -833,8 +833,7 @@ c
      + form='formatted',status='unknown',err=9999)
       write(*,3333) filana(1:index(filana,' ')-1)
  3333 format(/,' Opening scn file ',a)
-      write(lfnana,2324) nbnds,nangs,ntors,nimps
- 2324 format(4i10)
+      call ana_anahdr(byte_mb(i_snam))
       endif
       if(lrama) then
       open(unit=lfnram,file=filram(1:index(filram,' ')-1),
@@ -1381,6 +1380,40 @@ c
       endif
 c
       call ga_dgop(mag_d12,x,3*m,'+')
+c
+      return
+      end
+      subroutine ana_anahdr(sgmnam)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "ana_params.fh"
+c
+      character*16 sgmnam(nsa)
+      integer i,j
+c
+      write(lfnana,1000) nbnds,nangs,ntors,nimps
+ 1000 format(4i10)
+c
+      do 1 i=1,nbnds
+      write(lfnana,1001) (sgmnam(ibnds(i,j,1)),j=1,2)
+ 1001 format(2a16)
+    1 continue
+c
+      do 2 i=1,nangs
+      write(lfnana,1002) (sgmnam(iangs(i,j,1)),j=1,3)
+ 1002 format(3a16)
+    2 continue
+c
+      do 3 i=1,ntors
+      write(lfnana,1003) (sgmnam(itors(i,j,1)),j=1,4)
+ 1003 format(4a16)
+    3 continue
+c
+      do 4 i=1,nimps
+      write(lfnana,1003) (sgmnam(iimps(i,j,1)),j=1,4)
+    4 continue
 c
       return
       end
