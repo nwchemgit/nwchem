@@ -1,6 +1,6 @@
       logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.5 2003-08-07 20:33:05 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.6 2003-08-11 22:23:49 d3j191 Exp $
 c
       implicit none
 c
@@ -74,6 +74,11 @@ c
       do 2 i=2,np
       nhopl(i)=nhopl(i)+nhopl(i-1)
     2 continue
+c      if(me.eq.0) write(*,'(a,10i5)') 'nhopl ',(nhopl(i),i=1,np)
+c
+c      do 222 i=1,nlda
+c      write(*,'(12i5)') me,i,(lda(j,i),j=1,10)
+c  222 continue
 c
       ioff=0
       if(me.gt.0) then
@@ -96,7 +101,7 @@ c
     6 continue
       endif
       if(me.lt.np-1) then
-      do 9 i=nhopl(me+2)+1,nhopl(np)
+      do 9 i=nhopl(me+1)+1,nhopl(np)
       do 10 j=1,10
       lda(j,i)=0
    10 continue
@@ -115,7 +120,7 @@ c      if(me.eq.0) then
 c      print*,'Number of donor-acceptor pairs is ',nldat
 c      do 12 i=1,nldat
 c      write(*,111) (lda(j,i),j=1,10),(rda(j,i),j=1,3)
-c  111 format(10i5,3f12.6)
+c  111 format(10x,10i5,3f12.6)
 c   12 continue
 c      endif
 ctest
@@ -153,13 +158,13 @@ c
      + '     angle?  probability',/)
       endif
       do 1 i=1,nldat
-      call qhop_prob(lda(1,i),issgm(lda(2,i)),lseq(lda(3,i)),
-     + lda(6,i),issgm(lda(7,i)),lseq(lda(8,i)),uda(1,i),rda(4,i),pda(i))
+      call qhop_prob(lda(1,i),lda(3,i),lseq(lda(3,i)),
+     + lda(6,i),lda(8,i),lseq(lda(8,i)),uda(1,i),rda(4,i),pda(i))
 c      pda(i)=0.0d0
 c
       if(util_print('qhop',print_high)) then
-      write(*,111) i,lda(1,i),issgm(lda(2,i)),lseq(lda(3,i)),
-     + lda(6,i),issgm(lda(7,i)),lseq(lda(8,i)),
+      write(*,111) i,lda(1,i),lda(3,i),lseq(lda(3,i)),
+     + lda(6,i),lda(8,i),lseq(lda(8,i)),
      + (uda(j,i),j=1,4),rda(4,i),pda(i)
   111 format(7i5,5f12.6,f12.9)
       endif

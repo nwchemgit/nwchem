@@ -1,6 +1,6 @@
-      subroutine qhop_final
+      subroutine qhop_finish
 c
-c $Id: qhop_final.F,v 1.1 2003-08-11 19:43:18 d3j191 Exp $
+c $Id: qhop_final.F,v 1.2 2003-08-11 22:24:40 d3j191 Exp $
 c
       implicit none
 c

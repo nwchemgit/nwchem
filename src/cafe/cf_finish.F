@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.17 2003-07-17 19:44:24 d3j191 Exp $
+c $Id: cf_finish.F,v 1.18 2003-08-11 22:23:49 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -29,6 +29,7 @@ c
       endif
 c
       if(nhop.gt.0) then
+      call qhop_finish()
       if(.not.ma_pop_stack(l_pda))
      + call errquit('Failed to deallocate pda',0)
       if(.not.ma_pop_stack(l_uda))
