@@ -1,0 +1,41 @@
+start scanexp
+
+# Scan the d exponent on oxygen through a range of values printing
+# the energy.  Includes example of handling exceptions and
+# outputing data to another file for plotting (e.g., with gnuplot).
+
+geometry units au noprint
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+print none
+
+python
+import os
+plotdata = open("plotdata",'w')
+
+x = 0.5
+while x <= 0.6:
+   input_parse('''
+      basis noprint
+         H library 3-21g
+         O library 3-21g
+         O d; %f 1.0
+      end
+   ''' % (x))
+   
+   try:
+      energy = task_energy('scf')
+      print ' x = ', x, ' energy = ', energy
+      plotdata.write('%f %f\n' % (x , energy))
+   except:
+      print 'task_energy failed'
+
+   x = x + 0.02
+
+plotdata.close()
+end
+
+task python

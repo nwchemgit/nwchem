@@ -1,0 +1,70 @@
+start bsse
+
+# Determine the interaction energy between Ne and H2O with and without
+# counterpoise correction for BSSE.
+
+geometry supermolecule units au
+ Ne 0       0        2.5
+ O  0       0        0
+ H  0       1.430   -1.107
+ H  0      -1.430   -1.107
+end
+
+geometry fragment1 units au
+ Ne 0       0        2.5
+end
+
+geometry fragment2 units au
+ O  0       0        0
+ H  0       1.430   -1.107
+ H  0      -1.430   -1.107
+end
+
+geometry fragment1+ghost2 units au
+ Ne   0       0        2.5
+ BqO  0       0        0
+ BqH  0       1.430   -1.107
+ BqH  0      -1.430   -1.107
+end
+
+geometry ghost1+fragment2 units au
+ BqNe 0       0        2.5
+ O    0       0        0
+ H    0       1.430   -1.107
+ H    0      -1.430   -1.107
+end
+
+basis spherical noprint
+  ne library cc-pvdz
+  o  library cc-pvdz
+  h  library cc-pvdz
+  BqO library ne cc-pvdz
+  BqH  library o cc-pvdz
+  BqNe  library h cc-pvdz
+end
+
+mp2; freeze core atomic; end
+
+print none
+
+python noprint
+energies = {}
+for system in ('supermolecule', 
+               'fragment1', 'fragment1+ghost2',
+               'fragment2', 'ghost1+fragment2'):
+    rtdb_put('geometry',system)
+    energies[system] = task_energy('mp2')
+    print '   %16s = %10.6f' % (system,energies[system])
+
+uncorrected = energies['supermolecule'] - energies['fragment1'] \
+                                        - energies['fragment2']
+corrected   = energies['supermolecule'] - energies['fragment1+ghost2'] \
+                                        - energies['ghost1+fragment2']
+print ' '
+print '                Interaction energy = %10.6f' % uncorrected
+print ' BSSE corrected interaction energy = %10.6f' % corrected
+print '                   BSSE correction = %10.6f' % (corrected-uncorrected)
+print ' '
+end
+
+task python

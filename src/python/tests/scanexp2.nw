@@ -1,0 +1,37 @@
+start scanexp
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+print none
+
+python
+import os
+plotdata = open("plotdata",'w')
+
+def energy_at_exponent(exponent):
+   input_parse('''
+      basis noprint
+         H library 3-21g
+         O library 3-21g
+         O d; %f 1.0
+      end
+   ''' % (exponent))
+   
+   return task_energy('scf')
+
+exponent = 0.5
+while exponent <= 0.6:
+   energy = energy_at_exponent(exponent)
+   print ' exponent = ', exponent, ' energy = ', energy
+   plotdata.write('%f %f\n' % (exponent , energy))
+   exponent = exponent + 0.02
+
+plotdata.close()
+#os.system('plotit')
+end
+
+task python

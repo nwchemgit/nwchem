@@ -1,0 +1,30 @@
+start test0
+
+# Simplest example.  Scan an the d exponent on O through a range
+# printing the energy
+
+geometry units au noprint
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+python noprint
+exponent = 0.1
+while (exponent <= 2.0):
+   input_parse('''
+      basis noprint
+        H library 3-21g
+        O library 3-21g
+        O d; %f 1.0
+      end
+   ''' % (exponent))
+
+   print ' exponent = ', exponent, ' energy = ', task_energy('scf')
+   exponent = exponent + 0.1
+end
+
+print none
+
+task python
+

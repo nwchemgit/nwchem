@@ -1,0 +1,45 @@
+start testgrad
+
+# Scan C2V geometries for water printing the energy and gradient
+
+basis noprint
+  H library sto-3g
+  O library sto-3g
+end
+
+python noprint
+  print '   y     z     energy                     gradient'
+  print ' ----- ----- ---------- -----------------------------------------------------'
+  y = 1.2
+  elo = 0.0
+  while y <= 1.61:
+     z = 1.0
+     while z <= 1.21:
+        input_parse('''
+           geometry noprint units atomic
+              O 0   0   0
+              H 0  %f -%f
+              H 0 -%f -%f
+           end
+        ''' % (y, z, y, z))
+        (energy,gradient) = task_gradient('scf')
+        if (energy < elo):
+           elo = energy
+           ylo = y
+           zlo = z
+        print ' %5.2f %5.2f %9.6f' % (y, z, energy),
+        i = 0
+        while (i < len(gradient)):
+           print '%5.2f' % gradient[i],
+           i = i + 1
+        print ''
+        z = z + 0.1
+     y = y + 0.1
+  print ''
+  print ' Lowest energy =',elo,' at y=',ylo,', z =',zlo
+  print ' '
+end
+
+print none
+
+task python
