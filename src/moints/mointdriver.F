@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.59 1997-06-12 22:53:20 rg240 Exp $
+C$Id: mointdriver.F,v 1.60 1997-06-24 23:26:35 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -73,10 +73,10 @@ c
        oprint = util_print('information',print_default)
        omemprint = util_print('memory',print_high)
 c
-c Memory settings
+c Memory settings ... leave this to the user input
 c
-       status = ma_set_hard_fail(.true.)
-       status = ma_set_auto_verify(.true.)
+**       status = ma_set_hard_fail(.true.)
+**       status = ma_set_auto_verify(.true.)
 c
 c
        status = geom_nuc_charge(geom, nuclear_charge)

@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.38 1997-05-15 22:13:01 rg240 Exp $
+C$Id: direct_mp2.F,v 1.39 1997-06-24 23:26:35 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -78,11 +78,11 @@ c
        call util_print_rtdb_load(rtdb,'mp2')
        oprint = util_print('information',print_default)
        omemprint = util_print('memory',print_high)
-c
-c Memory settings
-c
-       status = ma_set_hard_fail(.true.)
-       status = ma_set_auto_verify(.true.)
+*c
+*c Memory settings ... RJH ... don't set these here ... leave under user control
+*c
+*       status = ma_set_hard_fail(.true.)
+*       status = ma_set_auto_verify(.true.)
 c
 c Extract high level info from the data-base setting defaults
 c     
