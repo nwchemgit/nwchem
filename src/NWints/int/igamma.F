@@ -1,5 +1,33 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.9 2002-04-08 18:51:41 windus Exp $
+c $Id: igamma.F,v 1.10 2002-08-06 01:09:02 edo Exp $
+
+      Implicit none
+      integer n
+      integer l
+      Double precision Fj(N,0:L)
+
+c Compute the incomplete gamma function.
+c
+c               /1   2j
+c     Fj(T)  =  |   x  exp( - T x**2 ) dx
+c               /0
+c
+c******************************************************************************
+      double precision x,faci
+      integer lmax
+      parameter (lmax=40)
+      double precision ftex(0:lmax)
+      integer m
+      parameter(faci=1d0/1.128379167096d0)
+c
+      do  m = 1,N
+         call fm(fj(m,0),l,ftex)
+         call dcopy(l+1,ftex,1,fj(m,0),N)
+      enddo
+      call dscal(N*(L+1),faci,fj(1,0),1)
+      return
+      end
+      Subroutine igammao(Fj,N,L)
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
