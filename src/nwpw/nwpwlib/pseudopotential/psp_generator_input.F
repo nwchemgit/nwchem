@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.14 2002-03-03 17:42:33 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.15 2002-04-29 16:04:11 bylaska Exp $
 c
 
 *     ***************************************
@@ -446,9 +446,13 @@ c
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
       integer h,i,j,k,debug
-      integer nwpw_libglmax,nwpw_libglocp
+      character ch_tmp
+
+*     **** external functions ****
+      integer  nwpw_libglmax,nwpw_libglocp,control_gga
       double precision nwpw_libgrlocal
-      external nwpw_libglmax,nwpw_libglocp,nwpw_libgrlocal
+      external nwpw_libglmax,nwpw_libglocp,control_gga
+      external nwpw_libgrlocal
 c
       call Parallel_taskid(taskid)
 
@@ -475,6 +479,26 @@ c
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
       write(*,*) "Generating 1d pseudopotential for ",atom
+
+*     ***********************************
+c     *** add GGA options to junk.inp ***
+*     ***********************************
+c     *** Vosko ***
+      if (control_gga().eq.0) then
+        write(*,*) "+ generated using Vosko et al."
+
+c     *** PBE96 ***
+      else if (control_gga().eq.1) then
+        write(*,*) "+ generated using PBE96"
+        open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+        do while(.true.)
+          read(99,*,ERR=30,END=30) ch_tmp
+        end do
+   30   write(99,*) '<exchange>    pbe96 <end>'
+        write(99,*) '<correlation> pbe96 <end>'
+        close(unit=99)
+      end if
+
       debug = 0
       call pspsolve(debug,
      >     lmax,locp,rlocal,

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.11 2002-03-30 00:40:43 edo Exp $
+* $Id: lcao_wvfnc.F,v 1.12 2002-04-29 16:04:11 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -78,9 +78,15 @@
 *     **** initialize atomic orbitals ****
       value = aorbs_init()
       value = value.and.aorbs_readall()
-      if (.not.value) go to 100
+      if (.not.value) go to 101
       nbasis = aorbs_nbasis()
       nbasis2 = nbasis**2
+
+*     **** basis set not big enough to meeting electronic filling ****
+      if ((nbasis.lt.ne(1)).or.(nbasis.lt.ne(2))) then
+        value = .false.
+        go to 101
+      end if
 
 *     ***** allocate memory from heap memory ****
       value = value.and.
@@ -383,7 +389,7 @@ c 50   call lcao_diis_end()
       value2 = ga_destroy(hmatrix(2))
       value2 = ga_destroy(psimatrix(2))
       end if
-      call aorbs_end()
+  101 call aorbs_end()
 
 c     value = .false.
       lcao_wvfnc = value

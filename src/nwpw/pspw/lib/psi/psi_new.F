@@ -1,11 +1,11 @@
 *
-* $Id: psi_new.F,v 1.6 2002-01-18 01:54:33 bylaska Exp $
+* $Id: psi_new.F,v 1.7 2002-04-29 16:04:11 bylaska Exp $
 *
 
 *     ***********************************
-*     *             					*
-*     *           psi_new				*
-*     *             					*
+*     *             			*
+*     *           psi_new		*
+*     *             			*
 *     ***********************************
 
       subroutine psi_new()
@@ -65,14 +65,37 @@
       mult    = control_multiplicity()
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
-      t = icharge - tcharge
+      t = icharge - tcharge       !** total number of electrons **
 
+*     **** reassign spin to agree with total number of electrons ****
+      if ((mod(t,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+         ispin = 2
+         call control_ispin_set(ispin)
+      end if
+
+*     **** reassign mult to agree with total number of electrons ****
+      if ((mod(t,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
+         mult = mult - 1
+         do while (mult.gt.(t+1))
+            mult = mult - 2
+         end do
+         if (mult.lt.1) mult = 2
+         call control_multiplicity_set(mult)
+      end if
+      if ((mod(t,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
+         mult = mult - 1
+         do while (mult.gt.(t+1))
+            mult = mult - 2
+         end do
+         if (mult.lt.1) mult = 1
+         call control_multiplicity_set(mult)
+      end if
+
+*     **** assign number of up and down electrons ****
       if (ispin.eq.1) then
          ne(1) = t/2
          ne(2) = 0
       else
-         x = t
-         if (mod(x,2).ne.0) mult = 2
          x = mult-1
          ne(1) = (t+x)/2
          ne(2) = (t-x)/2

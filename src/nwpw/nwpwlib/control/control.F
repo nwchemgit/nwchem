@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.20 2002-02-25 02:56:33 bylaska Exp $
+* $Id: control.F,v 1.21 2002-04-29 16:04:10 bylaska Exp $
 *
 
 *     ***********************************
@@ -835,9 +835,9 @@ c      end
 
 
 *     ***********************************
-*     *									*
-*     *		control_multiplicity		*
-*     *									*
+*     *					*
+*     *		control_multiplicity	*
+*     *					*
 *     ***********************************
       integer function control_multiplicity()
       implicit none
@@ -848,11 +848,26 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *	    control_multiplicity_set	*
+*     *					*
+*     ***********************************
+      subroutine control_multiplicity_set(new_multiplicity)
+      implicit none
+      integer new_multiplicity
+
+#include "control.fh"
+
+      multiplicity = new_multiplicity
+      return 
+      end
+
 
 *     ***********************************
-*     *									*
-*     *			control_ispin      		*
-*     *									*
+*     *					*
+*     *		control_ispin  		*
+*     *					*
 *     ***********************************
       integer function control_ispin()
       implicit none
@@ -863,11 +878,26 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_ispin_set	*
+*     *					*
+*     ***********************************
+      subroutine control_ispin_set(new_ispin)
+      implicit none
+      integer new_ispin
+
+#include "control.fh"
+
+      ispin = new_ispin
+      return 
+      end
+
 
 *     *******************************************
-*     *											*
-*     *		control_gradient_iterations		*
-*     *											*
+*     *						*
+*     *		control_gradient_iterations	*
+*     *						*
 *     *******************************************
       subroutine control_gradient_iterations()
       implicit none

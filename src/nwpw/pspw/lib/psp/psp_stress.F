@@ -2,7 +2,7 @@
 
       subroutine psp_stress_init()      
 *
-* $Id: psp_stress.F,v 1.5 2002-04-24 17:44:49 bylaska Exp $
+* $Id: psp_stress.F,v 1.6 2002-04-29 16:04:11 bylaska Exp $
 *
       implicit none
 
@@ -68,9 +68,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	   v_local_euv  			*
-*     *									*
+*     *					*
+*     *	 	   v_local_euv  	*
+*     *					*
 *     ***********************************
 
       subroutine v_local_euv(dng,euv)
@@ -170,7 +170,7 @@
 
 *       **** tmp2(G) = tmp2(G)*(dvl(G))
         call Pack_tt_Mul(0,dbl_mb(tmp2(1)),
-     >                     dbl_mb(dvl(1)),
+     >                     dbl_mb(dvl(1)+(ia-1)*npack0),
      >                     dbl_mb(tmp2(1)))
 
 *       **** tmp2(G) = tmp2(G)/G ****
@@ -223,9 +223,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	   v_nonlocal_euv_2			*
-*     *									*
+*     *					*
+*     *	 	   v_nonlocal_euv_2	*
+*     *					*
 *     ***********************************
 
       subroutine v_nonlocal_euv_2(ispin,ne,psi1,euv)
@@ -445,9 +445,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *	 	   psp_stress_read			*
-*     *									*
+*     *					*
+*     *	  	psp_stress_read	        *
+*     *					*
 *     ***********************************
 
       subroutine psp_stress_read(fname,
@@ -549,9 +549,9 @@ c       close(11)
       end
 
 *     ***********************************
-*     *									*
-*     *	 	  psp_stress_readall  		*
-*     *									*
+*     *					*
+*     *	     psp_stress_readall 	*
+*     *					*
 *     ***********************************
 
       subroutine psp_stress_readall()
