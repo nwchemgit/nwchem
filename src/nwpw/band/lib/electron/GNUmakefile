@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-12-14 20:02:43 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-12-15 03:11:01 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
+			c_electron.o \
             cpsi_H.o 
 
 
@@ -11,7 +12,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = 
+    USES_BLAS = c_electron.F
 
   LIB_DEFINES = 
 

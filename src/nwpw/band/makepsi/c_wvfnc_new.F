@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.1 2001-12-14 20:02:45 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
 *
       subroutine c_wvfnc_new(wavefunction_filename,
      >             			version,
@@ -175,7 +175,7 @@
           end if
 
           IF((ABS(filling(4,n,ms)).gt.1)) THEN
-            do 125 K=1,NFFT3D-1
+            do 125 K=2,NFFT3D-1
 c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
               dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
      >                   + (0.5d0-util_random(9))/dsqrt(dble(nfft3d))
@@ -186,10 +186,9 @@ c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
             P=1.0d0/dsqrt(P)
             call dscal(2*nfft3d,P,dcpl_mb(cfull_indx),1)
           ENDIF
-
-
           call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
 
+          call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
           dcpl_mb(cfull_indx+l1)=(0.0d0,0.0d0)
           dcpl_mb(cfull_indx+l2)=(0.0d0,0.0d0)
   130   CONTINUE

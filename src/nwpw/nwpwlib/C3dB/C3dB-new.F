@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.5 2001-12-14 20:02:45 bylaska Exp $
+* $Id: C3dB-new.F,v 1.6 2001-12-15 03:11:02 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -949,6 +949,31 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	       C3dB_cr_aSqrpy	 	*	
+*     *					*
+*     ***********************************
+
+*  This routine performs the operation	C = C + w*A * A
+
+      subroutine C3dB_cr_aSqrpy(nb,w,A,C)     
+      implicit none 
+      integer    nb
+      real*8     w
+      complex*16 A(*)
+      real*8     C(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ C3dB / nq,nx,ny,nz
+
+      integer i
+
+      do i=1,nx(nb)*ny(nb)*nq(nb)
+         C(i) = C(i) + w*(dble(A(i))**2 + dimag(A(i))**2)
+      end do
+      return
+      end
 
 
 *     ***********************************
@@ -1902,6 +1927,34 @@ c     integer i2_start(NFFT3+1)
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *	         C3dB_rrc_Sum  	 	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_rrc_Sum(nb,A,B,C)     
+      implicit none 
+      integer    nb
+      real*8     A(*)
+      real*8     B(*)
+      complex*16 C(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ C3dB / nq,nx,ny,nz
+
+      integer i
+
+      do i=1,nx(nb)*ny(nb)*nq(nb)
+         C(i) = dcmplx(A(i) + B(i),0.0d0)
+      end do
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

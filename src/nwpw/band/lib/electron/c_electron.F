@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.1 2001-12-14 20:55:36 bylaska Exp $
+* $Id: c_electron.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -16,7 +16,6 @@
 
 *     **** local variables ****
       logical value
-      integer n2ft3d
 
 *     **** external functions ****
       integer  psi_ispin,psi_ne,brillioun_nbrillioun
@@ -101,7 +100,7 @@
 
 #include "c_electron_common.fh"
 
-      electron_count = counter
+      c_electron_count = counter
       return
       end
 
@@ -144,7 +143,7 @@
 #include "c_electron_common.fh"
 
 
-      call c_electron_sd_subupdate(npack1,(ne(1)+ne(2)),nbrill,
+      call c_electron_sd_subupdate(nfft3d,(ne(1)+ne(2)),nbrill,
      >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
      >                           dte)
 
@@ -152,13 +151,13 @@
       end
 
 
-      subroutine electron_sd_subupdate(npack1,nn,nbrill,
+      subroutine c_electron_sd_subupdate(nfft3d,nn,nbrill,
      >                                 psi1,psi2,Hpsi,dte)
       implicit none
-      integer    npack1,nn,nbrill
-      complex*16 psi1(npack1,nn,nbrill)
-      complex*16 psi2(npack1,nn,nbrill)
-      complex*16 Hpsi(npack1,nn,nbrill)
+      integer    nfft3d,nn,nbrill
+      complex*16 psi1(nfft3d,nn,nbrill)
+      complex*16 psi2(nfft3d,nn,nbrill)
+      complex*16 Hpsi(nfft3d,nn,nbrill)
       real*8     dte
 
       integer n,nb
@@ -194,13 +193,11 @@
 
 *     **** local variables ****
       integer nb,ii,ms,n1(2),n2(2),nx,ny,nz,indx,neall
-      real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv
+      real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv,weight
 
 *     **** external functions *****
-      integer  control_version
-      real*8   lattice_omega,coulomb_e,electron_ehartree2
-      external control_version
-      external lattice_omega,coulomb_e,electron_ehartree2
+      real*8   lattice_omega,c_coulomb_e,brillioun_weight
+      external lattice_omega,c_coulomb_e,brillioun_weight
       
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
@@ -209,7 +206,6 @@
 
       dv = lattice_omega()/dble(nx*ny*nz)
 
-      n2ft3d = 2*nfft3d
       n1(1) = 1
       n1(2) = ne(1) + 1
       n2(1) = ne(1)
@@ -220,7 +216,7 @@
 *     *** get orbital energies ****
       eorbit = 0.0d0
       do nb=1,nbrill
-      weight = brillioun_weight(nb)
+        weight = brillioun_weight(nb)
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
              indx = (ii-1)*nfft3d + (nb-1)*nfft3d*neall
@@ -266,7 +262,7 @@
           
 
 *     **** total energy ****
-      electron_energy = eorbit + exc - ehartr - pxc
+      c_electron_energy = eorbit + exc - ehartr - pxc
 
       return
       end
@@ -333,7 +329,7 @@
       real*8   c_coulomb_e
       external c_coulomb_e
 
-      electron_ehartree = c_coulomb_e(dng)
+      c_electron_ehartree = c_coulomb_e(dng)
       return
       end
 
@@ -443,9 +439,9 @@
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call dcopy(2*nbrill*nfft3d*(ne(1)+ne(2)),
-     >           dcpl_mb(Hpsi_k(1)),1,
-     >           Hpsi_k_new,1)
+      call Stfl_gg_Copy(ispin,ne,nfft3d,(ne(1)+ne(2)),
+     >                  dcpl_mb(Hpsi_k(1)),
+     >                  Hpsi_k_new)
       return
       end
 
@@ -498,73 +494,52 @@
 #include "c_electron_common.fh"
 
 *     ***** local variables ****
-      integer ms,n,n1(2),shift
+      integer n,neall
 
-      n1(1) = 1
-      n1(2) = ne(1)+1
        
+      neall = ne(1)+ne(2)
+      n     = ne(1)
 
 *     **** no preconditioning ***
-      do nb=1,nbrill
-      do ms=1,ispin
-            shift = (ms-1)*ne(1)*ne(1)
-            n     = ne(ms)
-            call Stfl_gqg_Mul(nfft3d,n,nbrill,
-     >                        psi_k(1+(ms-1)*ne(1)*npack1),
-     >                        hml(shift+1),
-     >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
-      end do
-      end do
-
-      call Stfl_ggg_Sub(npack1,(ne(1)+ne(2)),nbrill,
+      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,
+     >                  psi_k,hml,THpsi_k)
+      call Stfl_ggg_Sub(ispin,ne,nfft3d,neall,nbrill,
      >                  dcpl_mb(Hpsi_k(1)),
      >                  THpsi_k,
      >                  THpsi_k)
-      call Stfl_gg_dScale(npack1,(ne(1)+ne(2)),nbrill,
+      call Stfl_gg_dScale(ispin,ne,nfft3d,neall,nbrill,
      >                    (-1.0d0),
      >                    THpsi_k,
      >                    THpsi_k)
-      
       return
       end
 
 *     ***************************
 *     *				*
-*     *	    electron_gen_hml 	*
+*     *	    c_electron_gen_hml 	*
 *     *				*
 *     ***************************
 
-      subroutine electron_gen_hml(psi_k,hml)
+      subroutine c_electron_gen_hml(psi_k,hml)
       implicit none
       complex*16 psi_k(*)
-      real*8     hml(*)
+      complex*16 hml(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-
 *     **** local variables ****
-      integer ms,n,n1(2),shift
+      integer n,neall
      
+      n     = ne(1)
+      neall = ne(1)+ne(2)
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
-
-
-      do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
-         n     = ne(ms)
-         call Grsm_ggm_dot(npack1,n,
-     >                     psi_k(1+(ms-1)*ne(1)*npack1),
-     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-     >                     hml(shift+1))
-      end do
-
-
+      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,n,
+     >                  psi_k,
+     >                  dcpl_mb(Hpsi_k(1)),
+     >                  hml)
       return
       end
-
-
 
 **************************************************************************
 **************************************************************************
@@ -574,11 +549,11 @@
 
 *     ***********************************
 *     *					*
-*     *		electron_gen_Hpsi_k	*
+*     *		c_electron_gen_Hpsi_k	*
 *     *					*
 *     ***********************************
 
-      subroutine electron_gen_Hpsi_k(psi_k)
+      subroutine c_electron_gen_Hpsi_k(psi_k)
       implicit none
       complex*16 psi_k(*)
 
@@ -598,41 +573,29 @@
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      if (control_version().eq.3)
-     >  call psi_H(ispin,ne,psi_k,
-     >             dbl_mb(psi_r(1)),
-     >             dcpl_mb(vl(1)),
-     >             dcpl_mb(vc(1)),
-     >             dbl_mb(xcp(1)),
-     >             dcpl_mb(Hpsi_k(1)),
-     >             move,
-     >             fion)
+      call psi_H(ispin,ne,psi_k,
+     >           dcpl_mb(psi_r(1)),
+     >           dcpl_mb(vl(1)),
+     >           dcpl_mb(vc(1)),
+     >           dbl_mb(xcp(1)),
+     >           dcpl_mb(Hpsi_k(1)),
+     >           move,
+     >           fion)
 
-      if (control_version().eq.4)
-     >  call psi_Hv4(ispin,ne,psi_k,
-     >             dbl_mb(psi_r(1)),
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(vl_lr(1)),
-     >             dcpl_mb(vc(1)),
-     >             dbl_mb(xcp(1)),
-     >             dcpl_mb(Hpsi_k(1)),
-     >             move,
-     >             fion)
-
-      call Grsm_gg_dscale(npack1,(ne(1)+ne(2)),(-1.0d0),
+      call Stfl_gg_dscale(ispin,ne,nfft3d,(ne(1)+ne(2)),
+     >                    (-1.0d0),
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
-
       return
       end
 
 *     ***************************
 *     *				*
-*     *	    electron_gen_psi_r	*
+*     *	    c_electron_gen_psi_r	*
 *     *				*
 *     ***************************
 
-      subroutine electron_gen_psi_r(psi_k)
+      subroutine c_electron_gen_psi_r(psi_k)
       implicit none
       complex*16 psi_k(*)
 
@@ -641,31 +604,26 @@
 
 
 *     **** local variables ****
-      integer n,nemax,n2ft3d
+      integer neall
 
-      n2ft3d = 2*nfft3d
-      nemax = ne(1) + ne(2)
+      neall = ne(1)+ne(2)
 
-c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
-      do n=1,nemax
-         call Pack_c_Copy(1,psi_k(1+(n-1)*npack1),
-     >                    dbl_mb(psi_r(1)+(n-1)*n2ft3d))
-      end do
-
-      call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))
+      call Stfl_gg_Copy(ispin,ne,nfft3d,neall,nbrill,
+     >                  psi_k,
+     >                  dcpl_mb(psi_r(1)))
+      call Stfl_gh_fftb(ispin,ne,nfft3d,neall,nbrill,dcpl_mb(psi_r(1)))
 
       return
       end
 
 
-*     ***************************
-*     *				*
-*     *	 electron_gen_densities	*
-*     *				*
-*     ***************************
+*     ***********************************
+*     *				        *
+*     *	 c_electron_gen_densities	*
+*     *				        *
+*     ***********************************
 
-      subroutine electron_gen_densities(psi_k,dn,dng,dnall)
+      subroutine c_electron_gen_densities(psi_k,dn,dng,dnall)
       implicit none
       complex*16 psi_k(*)
       real*8     dn(*)
@@ -677,27 +635,22 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
      
 *     **** local variables ****
-      integer i,ms,nx,ny,nz,n2ft3d
-      integer n,n1(2),n2(2)
+      integer ms,nx,ny,nz,neall
       real*8  scal1,scal2
       integer tmp1(2)
       logical value
 
 *     ***** external functions *****
-      logical  psp_semicore
+      logical  cpsp_semicore
       real*8   lattice_omega
-      external psp_semicore
+      external cpsp_semicore
       external lattice_omega
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
+      neall = ne(1)+ne(2)
 
-      n2ft3d = 2*nfft3d
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
 
@@ -705,54 +658,47 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call dcopy(2*n2ft3d,0.0d0,0,dn,1)
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            do i=1,n2ft3d
-               dn(i+(ms-1)*n2ft3d) 
-     >            = dn(i+(ms-1)*n2ft3d) 
-     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
-            end do
-         end do
-         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
-      end do
+      call Stfl_hr_SumSqr(ispin,ne,nfft3d,neall,nbrill,
+     >                    dcpl_mb(psi_r(1)),
+     >                    dn)
+      call C3dB_r_SMul(1,scal2,dn,dn)
+      if (ispin.gt.1) 
+     >  call C3dB_r_SMul(1,scal2,dn(1+nfft3d),dn(1+nfft3d))
+
+
         
 *     **********************
 *     **** generate dng ****
 *     **********************
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_densities: out of stack memory',0)
 
-      call D3dB_rr_Sum(1,dn,dn(1+(ispin-1)*n2ft3d),dbl_mb(tmp1(1)))
-      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
-      call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
-      call Pack_c_pack(0,dbl_mb(tmp1(1)))
-      call Pack_c_Copy(0,dbl_mb(tmp1(1)),dng)
+      call C3dB_rrc_Sum(1,dn,dn(1+(ispin-1)*nfft3d),dbl_mb(tmp1(1)))
+      call C3dB_c_SMul(1,scal1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      call C3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
+      call Cram_c_pack(0,dcpl_mb(tmp1(1)))
+      call Cram_c_Copy(0,dcpl_mb(tmp1(1)),dng)
 
 
-*       ********************************************************
-*       **** generate dnall - used for semicore corrections ****
-*       ********************************************************
-        if (psp_semicore(0)) then
-           call semicore_density(dbl_mb(tmp1(1)))
-           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
-        else
-           call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-        end if
-        do ms=1,ispin
-          call D3dB_rr_Sum(1,dn(1+(ms-1)*n2ft3d),
-     >                     dbl_mb(tmp1(1)),
-     >                     dnall(1+(ms-1)*n2ft3d))
-        end do
-
-
+*     ********************************************************
+*     **** generate dnall - used for semicore corrections ****
+*     ********************************************************
+      if (cpsp_semicore(0)) then
+         call c_semicore_density(dcpl_mb(tmp1(1)))
+         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
+      else
+         call C3dB_r_Zero(1,dcpl_mb(tmp1(1)))
+      end if
+      do ms=1,ispin
+        call C3dB_rr_Sum(1,dn(1+(ms-1)*nfft3d),
+     >                     dcpl_mb(tmp1(1)),
+     >                     dnall(1+(ms-1)*nfft3d))
+      end do
 
       value = MA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
-     >     'electron_gen_densities: error popping stack memory',0)
-
-
+     >     'c_electron_gen_densities: error popping stack memory',0)
       return
       end
 
@@ -760,11 +706,11 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     ***********************************
 *     *			 		*
-*     *   electron_gen_scf_potentials	*
+*     *   c_electron_gen_scf_potentials	*
 *     *					*
 *     ***********************************
 
-      subroutine electron_gen_scf_potentials(dn,dng,dnall)
+      subroutine c_electron_gen_scf_potentials(dn,dng,dnall)
 
       implicit none
       real*8     dn(*)
@@ -777,38 +723,20 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     ***** local variables ****
       logical value
-      integer n2ft3d
       integer tmp1(2)
 
 *     **** external functions ****
       integer  control_gga,control_version
       external control_gga,control_version
      
-      n2ft3d = 2*nfft3d
 
-      if (control_version().eq.3) then
-         call coulomb_v(dng,dcpl_mb(vc(1)))
-      end if
-
-      if (control_version().eq.4)  then
-         value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
-         if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: out of stack memory',0)
-      
-         call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
-     >                    dbl_mb(tmp1(1)))
-         call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
-
-         value = MA_pop_stack(tmp1(2)) 
-         if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: error popping stack memory',0)
-      end if
+      call coulomb_v(dng,dcpl_mb(vc(1)))
 
       if (control_gga().eq.0) then
-         value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+         value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',0)
-        call vxc(n2ft3d,ispin,dnall,
+        call vxc(nfft3d,ispin,dnall,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)),
      >                    dbl_mb(tmp1(1)))
@@ -817,42 +745,31 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >     'electron_gen_scf_potentials: error popping stack memory',0)
 
       else
-        call v_bwexc(n2ft3d,ispin,dnall,
-     >                    dbl_mb(xcp(1)),
-     >                    dbl_mb(xce(1)))
+         write(*,*) "gga not yet implemented"
+c        call v_bwexc(n2ft3d,ispin,dnall,
+c     >                    dbl_mb(xcp(1)),
+c     >                    dbl_mb(xce(1)))
       end if
-
       return
       end
 
 
-
-
 *     ***********************************
 *     *			 		*
-*     *   electron_gen_vl_potential 	*
+*     *   c_electron_gen_vl_potential 	*
 *     *					*
 *     ***********************************
-
-      subroutine electron_gen_vl_potential()
+      subroutine c_electron_gen_vl_potential()
       implicit none
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-
 *     **** local variables ****
       logical move,value
-      integer n2ft3d
       integer tmp1(2)
       integer tmp2(2)
-      integer r_grid(2)
-
-*     **** external functions *****
-      logical  pspw_qmmm_found
-      integer  control_version
-      external pspw_qmmm_found
-      external control_version
+     
 
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
@@ -861,7 +778,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >   errquit('electron_gen_vl_potential: out of stack memory',0)
 
       move = .false.
-      call v_local(dcpl_mb(vl(1)),
+      call cpsp_v_local(dcpl_mb(vl(1)),
      >               move,
      >               dcpl_mb(tmp1(1)),
      >               dbl_mb(tmp2(1)))
@@ -870,32 +787,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
-     >  'electron_gen_vl_potential: error popping stack memory',0)
-
-
-*      *** long-range psp for charge systems ***
-      if (control_version().eq.4) then
-         value = MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
-     >                       r_grid(2),r_grid(1)) 
-
-         call lattice_r_grid(dbl_mb(r_grid(1)))
-         call v_lr_local(dbl_mb(r_grid(1)),
-     >                   dbl_mb(vl_lr(1)))
-
-*        **** generate QM/MM potential ****
-         if (pspw_qmmm_found()) then
-           n2ft3d = 2*nfft3d
-           call pspw_qmmm_Generate_V(n2ft3d,dbl_mb(r_grid(1)),
-     >                                     dbl_mb(vl_lr(1)))
-         end if
-
-         value = MA_pop_stack(r_grid(2))
-         if (.not. value) call errquit(
-     >   'electron_gen_vl_potential: error popping stack memory',0)
-
-      end if
- 
-
+     >  'c_electron_gen_vl_potential: error popping stack memory',0)
 
       return
       end
@@ -904,14 +796,13 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     ***********************************
 *     *			 		*
-*     *   electron_psi_vl_ave	 	*
+*     *   c_electron_psi_vl_ave	 	*
 *     *					*
 *     ***********************************
 
-      real*8 function electron_psi_vl_ave(psi1,dn)
+      real*8 function c_electron_psi_vl_ave(psi1)
       implicit none
       complex*16 psi1(*)
-      real*8     dn(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
@@ -919,79 +810,62 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 *     **** local variables ****
       logical value
-      integer n,ms,n1(2),n2(2)
-      integer nx,ny,nz,n2ft3d,np
-      real*8 elocal,sum,scal1,scal2,dv
+      integer n,ms,n1(2),n2(2),nb,indx
+      integer nx,ny,nz,np,neall
+      real*8 elocal,sum,scal1,scal2,weight
       integer tmp1(2),tmp2(2)
 
 *     **** external functions ***
-      integer  control_version
-      real*8   lattice_omega
-      external control_version
-      external lattice_omega
-
+      real*8   lattice_omega,brillioun_weight
+      external lattice_omega,brillioun_weight
 
       call Parallel_np(np)
 
-      n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0)
+     >            'c_electron_psi_vl_ave: out of stack memory',0)
 
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
       n1(1) = 1
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
+      neall = ne(1) + ne(2)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
-      dv    = scal1/scal2
 
 
 *     **** average Kohn-Sham v_local energy ****
-       call Pack_c_Copy(0,dcpl_mb(vl(1)),dbl_mb(tmp1(1)))
-      call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-      call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+      call Cram_c_Copy(0,dcpl_mb(vl(1)),dcpl_mb(tmp1(1)))
+      call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
       elocal = 0.0d0
-      do ms=1,ispin
+      do nb=1,nbrill
+         weight = brillioun_weight()
+         do ms=1,ispin
          do n=n1(ms),n2(ms)
-            call D3dB_rr_Mul(1,
-     >                       dbl_mb(tmp1(1)),
-     >                       dbl_mb(psi_r(1)+(n-1)*n2ft3d),
-     >                       dbl_mb(tmp2(1)))
+            indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
+            call C3dB_cc_Mul(1,
+     >                       dcpl_mb(tmp1(1)),
+     >                       dcpl_mb(psi_r(1)+indx),
+     >                       dcpl_mb(tmp2(1)))
 
-c           call D3dB_rc_fft3f(1,dbl_mb(tmp2(1)))
-c           call Pack_c_pack(1,dbl_mb(tmp2(1)))
-c           call Pack_cc_dot(1,psi1(1+(n-1)*npack1),
-c    >                         dbl_mb(tmp2(1)),
-c    >                         sum)
-            
-            call D3dB_rr_idot(1,
-     >                       dbl_mb(psi_r(1)+(n-1)*n2ft3d),
-     >                       dbl_mb(tmp2(1)),
+            call C3dB_cc_idot(1,
+     >                       dcpl_mb(psi_r(1)+indx),
+     >                       dcpl_mb(tmp2(1)),
      >                       sum)
 
-            elocal = elocal + sum*scal1*scal2
+            elocal = elocal + sum*scal1*scal2*weight
+         end do
          end do
       end do
-      if (np.gt.1) call D3dB_SumAll(elocal)
+      if (np.gt.1) call C3dB_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
-
-*     *** add in long range part ****
-      if (control_version().eq.4) then
-       call D3dB_rr_dot(1,dn(1),dbl_mb(vl_lr(1)),sum)
-       elocal = elocal + sum*dv
-       call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
-     >                    dbl_mb(vl_lr(1)),sum)
-       elocal = elocal + sum*dv
-      end if
-
-
  
       value = MA_pop_stack(tmp2(2))
       value = value.and.
@@ -999,19 +873,18 @@ c    >                         sum)
       if (.not. value) call errquit(
      >           'electron_psi_vl_ave: error popping stack memory',0)
 
-      electron_psi_vl_ave = elocal
+      c_electron_psi_vl_ave = elocal
       return
       end
 
 
-
 *     ***********************************
-*     *			 						*
-*     *   electron_psi_vnl_ave	 		*
-*     *									*
+*     *					*
+*     *   c_electron_psi_vnl_ave	*
+*     *					*
 *     ***********************************
 
-      real*8 function electron_psi_vnl_ave(psi1)
+      real*8 function c_electron_psi_vnl_ave(psi1)
       implicit none
       complex*16 psi1(*)
 
@@ -1021,19 +894,20 @@ c    >                         sum)
 
 *     **** local variables ****
       logical value
-      integer n,ms,n1(2),n2(2),np
-      integer nee(2)
-      integer n2ft3d
-      real*8 enlocal,sum
+      integer n,ms,n1(2),n2(2),np,nb
+      integer nee(2),neall,indx
+      real*8 enlocal,sum,weight
       integer tmp1(2),tmp2(2)
 
+*     **** external functions ****
+      real*8   brillioun_weight
+      external brillioun_weight
 
       call Parallel_np(np)
 
-      n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
      >            'electron_psi_vl_ave: out of stack memory',0)
 
@@ -1041,26 +915,30 @@ c    >                         sum)
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
       n2(2) = ne(1) + ne(2)
-
-
+      neall = ne(1) + ne(2)
 
 *     **** average Kohn-Sham v_nonlocal energy ****
       nee(1) = 1
       nee(2) = 0
       enlocal = 0.0d0
-      do ms=1,ispin
+      do nb=1,nbrill
+         weight = brillioun_weight()
+         do ms=1,ispin
          do n=n1(ms),n2(ms)
-            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-            call v_nonlocal(ispin,nee,psi1(1+(n-1)*npack1),
-     >                      dbl_mb(tmp1(1)),
-     >                      .false.,dbl_mb(tmp2(1)))
-            call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
-     >                         dbl_mb(tmp1(1)),
+            indx = (n-1)*nfft3d + (nb-1)*nfft3d*neall
+            call C3dB_c_Zero(1,dcpl_mb(tmp1(1)))
+            call cpsp_v_nonlocal(ispin,nee,
+     >                      psi1(1+indx),
+     >                      dcpl_mb(tmp1(1)),
+     >                      .false.,dcpl_mb(tmp2(1)))
+            call Cram_cc_idot(nb,psi1(1+indx),
+     >                         dcpl_mb(tmp1(1)),
      >                         sum)
-            enlocal = enlocal - sum
+            enlocal = enlocal - sum*weight
+         end do
          end do
       end do
-      if (np.gt.1) call D3dB_SumAll(enlocal)
+      if (np.gt.1) call C3dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
  
@@ -1070,7 +948,7 @@ c    >                         sum)
       if (.not. value) call errquit(
      >           'electron_psi_vl_ave: error popping stack memory',0)
 
-      electron_psi_vnl_ave = enlocal
+      c_electron_psi_vnl_ave = enlocal
       return
       end
 
@@ -1079,11 +957,11 @@ c    >                         sum)
 
 *     ***********************************
 *     *			 		*
-*     *   electron_semicoreforce 	*
+*     *   c_electron_semicoreforce 	*
 *     *					*
 *     ***********************************
 
-      subroutine electron_semicoreforce(fion)
+      subroutine c_electron_semicoreforce(fion)
       implicit none
       real*8 fion(3,*)
 
@@ -1091,7 +969,7 @@ c    >                         sum)
 #include "c_electron_common.fh"
 
      
-      call semicore_xc_F(ispin,dbl_mb(xcp(1)),fion)
+      call c_semicore_xc_F(ispin,dbl_mb(xcp(1)),fion)
 
       return
       end

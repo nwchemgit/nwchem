@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.5 2001-12-14 20:02:45 bylaska Exp $
+* $Id: band_minimizer.F,v 1.6 2001-12-15 03:11:01 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -107,8 +107,8 @@
       real*8   c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       external c_ewald_ncut
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
-      logical  cpsp_semicore,psi_filefind
-      external cpsp_semicore,psi_filefind
+      logical  cpsp_semicore,psi_filefind,cpsi_initialize
+      external cpsp_semicore,psi_filefind,cpsi_initialize
 
 
 
@@ -207,14 +207,16 @@
       else
         newpsi = .false.
       end if
-*     value = cpsi_initialize()
+      write(*,*) "HERA"
+      value = cpsi_initialize()
 
-
+      write(*,*) "HERB"
 *     **** electron and geodesic data structures ****
-*     call electron_init()
+      call c_electron_init()
+      WRITE(*,*) "HERC"
 *     call geodesic_init()
       call linesearch_init()
-
+      write(*,*) "HERD"
 
 
 *                |**************************|
@@ -367,10 +369,10 @@
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
-c      call cpsi_finalize()
+      call cpsi_finalize()
 
 *     **** deallocate heap memory ****
-c     call c_electron_finalize()
+      call c_electron_finalize()
 c     call c_geodesic_finalize()
       call c_ewald_end()
       call cstrfac_end()

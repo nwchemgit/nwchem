@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.1 2001-12-14 20:02:44 bylaska Exp $
+* $Id: cpsi.F,v 1.2 2001-12-15 03:11:01 bylaska Exp $
 *
 
 *     ***************************
@@ -71,11 +71,11 @@
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
-      call dcopy(4*nfft3d,
+      call dcopy(2*nfft3d,
      >           dbl_mb(rho2(1)),1,
      >           dbl_mb(rho1(1)),1)
 
-      call dcopy(4*nfft3d,
+      call dcopy(2*nfft3d,
      >           dbl_mb(rho2_all(1)),1,
      >           dbl_mb(rho1_all(1)),1)
       return
@@ -442,7 +442,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call c_geodesic_transport(t,dcpl_mb(psi1(1)),H0)
+c      call c_geodesic_transport(t,dcpl_mb(psi1(1)),H0)
 
       return
       end
@@ -461,7 +461,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call c_geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
+c      call c_geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
 
       return
       end
@@ -487,8 +487,8 @@
       external c_electron_energy
 
      
-      call c_geodesic_get(t,dcpl_mb(psi1(1)),
-     >                    dcpl_mb(psi2(1)))
+c      call c_geodesic_get(t,dcpl_mb(psi1(1)),
+c     >                    dcpl_mb(psi2(1)))
       call c_electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
@@ -519,8 +519,8 @@
       external c_electron_eorbit
 
 
-      call c_geodesic_transport(t,dcpl_mb(psi1(1)),
-     >                          dcpl_mb(psi2(1)))
+c      call c_geodesic_transport(t,dcpl_mb(psi1(1)),
+c     >                          dcpl_mb(psi2(1)))
       cpsi_geodesic_denergy = 2.0d0*c_electron_eorbit(dcpl_mb(psi2(1)))
 
       return
@@ -544,8 +544,8 @@ c     real*8 sum1,sum2
      
       call Parallel_taskid(taskid)
 
-      call c_geodesic_get(t,dcpl_mb(psi1(1)),
-     >                    dcpl_mb(psi2(1)))
+c      call c_geodesic_get(t,dcpl_mb(psi1(1)),
+c     >                    dcpl_mb(psi2(1)))
 
 c*     **** Ortho Check ****     
 c      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
@@ -605,10 +605,10 @@ c      end if
      >        MA_push_get(mt_dbl,(2*nemax*nemax),
      >                    'lmd',lmd(2),lmd(1))
 
-      call cpsi_lmbda(ispin,ne,nemax,nfft3d,
-     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
-     >                 dbl_mb(lmd(1)),
-     >                 dbl_mb(tmp_L(1)),ierr)
+c      call cpsi_lmbda(ispin,ne,nemax,nfft3d,
+c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
+c     >                 dbl_mb(lmd(1)),
+c     >                 dbl_mb(tmp_L(1)),ierr)
 
       value = value.and.MA_pop_stack(lmd(2))
       value = value.and.MA_pop_stack(tmp_L(2))
@@ -621,64 +621,19 @@ c      end if
 
 *     ***********************************
 *     *					*
-*     *		psi_1force              *
+*     *		cpsi_1force              *
 *     *					*
 *     ***********************************
-      subroutine psi_1force(fion)
+      subroutine cpsi_1force(fion)
       implicit none
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "cpsi_common.fh"
 
-*     **** local variables ****
-      logical value
-      integer r_grid(2),tmp(2)
-
-*     **** external functions ****
-      integer  control_version
-      external control_version
-
-c     call electron_gen_psi_r(dcpl_mb(psi1(1)))
-c     call electron_gen_densities(dcpl_mb(psi1(1)),
-c    >                             dbl_mb(rho1(1)),
-c    >                            dcpl_mb(dng1(1)))
-
-      call f_vlocal(dcpl_mb(dng1(1)),fion)
-
-      if (control_version().eq.4) then
-          value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',
-     >                        tmp(2),tmp(1))
-          value = value.and.
-     >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
-     >                        r_grid(2),r_grid(1))
-         if (.not. value) call errquit('out of stack memory',0)
-
-          call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
-     >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
-     >                       dbl_mb(tmp(1)))
-          call lattice_r_grid(dbl_mb(r_grid(1)))
-          call grad_v_lr_local(dbl_mb(r_grid(1)),
-     >                         dbl_mb(tmp(1)),
-     >                         fion)
-
-          value = MA_pop_stack(r_grid(2))
-          value = value.and.MA_pop_stack(tmp(2))
-         if (.not. value) call errquit('error popping stack memory',0)
-      end if
-
-      call f_vnonlocal(ispin,
+*     *** what about semicore???****
+c      call csp_f_vlocal(dcpl_mb(dng1(1)),fion)
+      call cpsp_f_vnonlocal(ispin,
      >                 ne,
      >                 dcpl_mb(psi1(1)),
      >                 fion)
@@ -691,87 +646,58 @@ c    >                            dcpl_mb(dng1(1)))
 
 *     ***********************************
 *     *					*
-*     *		psi_1gen_hml      	*
+*     *		cpsi_1gen_hml      	*
 *     *					*
 *     ***********************************
-      subroutine psi_1gen_hml()
+      subroutine cpsi_1gen_hml()
       implicit none
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "cpsi_common.fh"
 
-      call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
-
+      call c_electron_gen_hml(dcpl_mb(psi1(1)),dcpl_mb(hml(1)))
       return
       end
 
 *     ***********************************
 *     *					*
-*     *		psi_eigenvalue    	*
+*     *		cpsi_eigenvalue    	*
 *     *					*
 *     ***********************************
-      real*8  function psi_eigenvalue(ms,i)
+      real*8  function cpsi_eigenvalue(nb,ms,i)
       implicit none
-      integer ms
+      integer nb,ms
       integer i
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "cpsi_common.fh"
 
-      psi_eigenvalue = dbl_mb(eig(1) + (i-1) + (ms-1)*ne(1))
+      cpsi_eigenvalue = dbl_mb(eig(1) 
+     >                        + (i-1) 
+     >                        + (ms-1)*ne(1)
+     >                        + (nb-1)*(ne(1)+ne(2)))
 
       return
       end
 
 *     ***********************************
 *     *					*
-*     *		psi_hml		   	*
+*     *		cpsi_hml		   	*
 *     *					*
 *     ***********************************
-      real*8  function psi_hml(ms,i,j)
+      complex*16  function cpsi_hml(nb,ms,i,j)
       implicit none
-      integer ms
+      integer nb,ms
       integer i,j
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "cpsi_common.fh"
 
-      psi_hml = dbl_mb(hml(1)-1 + i 
+
+      cpsi_hml = dcpl_mb(hml(1)-1 + i 
      >                          + (j-1)*ne(ms) 
-     >                          + (ms-1)*ne(1)*ne(1)) 
+     >                          + (ms-1)*ne(1)*ne(1)
+     >                          + (nb-1)*2*ne(1)*ne(1)) 
 
       return
       end
@@ -779,78 +705,55 @@ c    >                            dcpl_mb(dng1(1)))
 
 *     ***********************************
 *     *					*
-*     *		psi_spin_density  	*
+*     *		cpsi_spin_density  	*
 *     *					*
 *     ***********************************
-      subroutine psi_spin_density(en)
+      subroutine cpsi_spin_density(en)
       implicit none
       real*8 en(2)
 
 #include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+#include "cpsi_common.fh"
+
 
 *     **** local variables ****
-      integer ms,nx,ny,nz,n2ft3d
+      integer ms,nx,ny,nz
       real*8  scale,sumall
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
 
-      call D3dB_nfft3d(1,n2ft3d)
-      n2ft3d = 2*n2ft3d
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
       scale = lattice_omega()/dble(nx*ny*nz)
 
 *     **** check total number of electrons ****
       do ms =1,ispin
-         call D3dB_r_dsum(1,dbl_mb(rho1(1)+(ms-1)*n2ft3d),sumall)
+         call C3dB_r_dsum(1,dbl_mb(rho1(1)+(ms-1)*nfft3d),sumall)
          en(ms) = sumall*scale
       end do
       
       return
       end
 
-*     ***********************************
-*     *					*
-*     *		psi_spin2     	        *
-*     *					*
-*     ***********************************
-      subroutine psi_spin2(Sab)
-      implicit none
-      real*8 Sab
-
-#include "mafdecls.fh"
-*     ***** psi common block ****
-      integer ispin,ne(2),nfft3d,npack1,npack0
-      integer psi1(2)
-      integer psi2(2)
-      integer rho1(2)
-      integer rho2(2)
-      integer dng1(2)
-      integer dng2(2)
-      integer hml(2)
-      integer eig(2)
-      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
-
-      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),Sab)
-           
-      return
-      end
+c*     ***********************************
+c*     *					*
+c*     *		psi_spin2     	        *
+c*     *					*
+c*     ***********************************
+c      subroutine psi_spin2(Sab)
+c      implicit none
+c      real*8 Sab
+c
+c#include "mafdecls.fh"
+c#include "cpsi_common.fh"
+c
+c      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),Sab)
+c           
+c      return
+c      end
 
 
 
@@ -1108,14 +1011,14 @@ c    >                            dcpl_mb(dng1(1)))
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical value
-      integer nemax
-      real*8 sum1,sum2
+      logical value,gramschmidt
+      integer nemax,indx,nb,ms
+      real*8 sum1,sum2,sum3
+      integer sm2(2),sm3(2)
 
 *     **** external functions ****
       integer  brillioun_nbrillioun
       external brillioun_nbrillioun
-
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
@@ -1131,10 +1034,10 @@ c    >                            dcpl_mb(dng1(1)))
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2))*nbrillioun,
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho1',rho1(2),rho1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2',rho2(2),rho2(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
@@ -1150,40 +1053,71 @@ c    >                            dcpl_mb(dng1(1)))
      >                    'eig',eig(2),eig(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho1_all',rho1_all(2),rho1_all(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
       if (.not. value) call errquit('out of heap memory',0)
 
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
 
-c*     **** Ortho Check ****
-c      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
-c     >                        dcpl_mb(psi1(1)),
-c     >                        dcpl_mb(psi1(1)),
-c     >                        sum2)
-c
-c      sum1 = dble(ne(1) + ne(2))
-c      if (dabs(sum2-sum1).gt.1.0d-10) then
-c         call Parallel_taskid(taskid)
-c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi1(1)))
-c         if (ispin.gt.1) then
-c           call Grsm_g_MakeOrtho(npack1,ne(2),
-c     >                           dcpl_mb(psi1(1) + ne(1)*npack1))
-c         end if
-c         call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
-c     >                        dcpl_mb(psi1(1)),
-c     >                        dcpl_mb(psi1(1)),
-c     >                        sum2)
-c         if (taskid.eq.MASTER)
-c     >    write(*,*) "Waring - Gram-Schmidt being performed on psi:",
-c     >               dabs(sum2-sum1)
-c
-c
-c      end if
+
+*     *********************
+*     **** Ortho Check ****
+*     *********************
+      value = MA_push_get(mt_dbl,2*nbrillioun,
+     >                     'sm2',sm2(2),sm2(1))
+      value = value.and.MA_push_get(mt_dbl,2*nbrillioun,
+     >                     'sm3',sm3(2),sm3(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+
+      call Stfl_gg_trace(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrillioun,
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dbl_mb(sm2(1)))
+
+      gramschmidt = .false.
+      sum1 = dble(ne(1) + ne(2))
+      do nb=1,nbrillioun
+      do ms=1,ispin
+         indx = (nb-1)*nfft3d*(ne(1)+ne(2))
+         indx = (ms-1)*ne(1)*nfft3d+indx
+         sum2 = dbl_mb(sm2(1)+(ms-1)+(nb-1)*2) 
+         if (dabs(sum2-sum1).gt.1.0d-10) then
+           gramschmidt = .true. 
+           call Stfl_g_MakeOrtho(nb,nfft3d,ne(ms),dcpl_mb(psi1(1)+indx))
+         end if
+      end do
+      end do
+
+      if (gramschmidt) then
+      call Stfl_gg_trace(ispin,ne,nfft3d,(ne(1)+ne(2)),nbrillioun,
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dbl_mb(sm3(1)))
+
+      call Parallel_taskid(taskid)
+      do nb=1,nbrillioun
+      do ms=1,ispin
+         sum2 = dbl_mb(sm2(1)+(ms-1)+(nb-1)*2)
+         sum3 = dbl_mb(sm3(1)+(ms-1)+(nb-1)*2) 
+         if (dabs(sum2-sum1).gt.1.0d-10) then
+           if (taskid.eq.MASTER)
+     >      write(*,*) 
+     >      "Waring - Gram-Schmidt performed on psi, spin,zone:",
+     >       ms,nb," error_before,error_after:",sum2,sum3
+         end if
+      end do
+      end do
+      end if
+
+      value = MA_pop_stack(sm3(2))
+      value = value.and.MA_pop_stack(sm2(2))
+      if (.not. value) 
+     > call errquit('cpsi_initialize:popping stack memory',0)
 
 
 

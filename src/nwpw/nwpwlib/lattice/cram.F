@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.5 2001-12-14 20:02:46 bylaska Exp $
+* $Id: cram.F,v 1.6 2001-12-15 03:11:02 bylaska Exp $
 *
 
 *     ***********************************
@@ -466,8 +466,8 @@
       integer npack, shift
 
 *     **** external functions ****
-      real*8   zdotc
-      external zdotc
+      complex*16 zdotc
+      external   zdotc
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -525,8 +525,8 @@
       integer np
 
 *     **** external functions ****
-      real*8   zdotc
-      external zdotc
+      complex*16 zdotc
+      external   zdotc
 
 *     ***** timing variables *****
 *     1 - fft_time
@@ -576,8 +576,8 @@
       integer np
 
 *     **** external functions ****
-      real*8   zdotc
-      external zdotc
+      complex*16   zdotc
+      external     zdotc
 
 *     ***** timing variables *****
 *     1 - fft_time
