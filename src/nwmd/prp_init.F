@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc)
 c
-c $Id: prp_init.F,v 1.38 2001-08-01 16:45:18 d3j191 Exp $
+c $Id: prp_init.F,v 1.39 2001-08-02 16:13:26 d3j191 Exp $
 c
       implicit none
 c
@@ -356,7 +356,7 @@ c
     7 continue
       do 8 i=1,nsm
       it=it+1
-      pronam(it)='Radius of gyrationi solute molecule             nm'
+      pronam(it)='Radius of gyration solute molecule              nm'
       write(pronam(it)(34:38),'(i5)') i
       lp(it)=.true.
     8 continue
