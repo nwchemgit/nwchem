@@ -1,8 +1,14 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.3 2000-12-04 22:59:36 windus Exp $
+# $Id: getmem.nwchem,v 1.4 2001-02-16 21:23:32 windus Exp $
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
+# It can also pick up an alternate amount of memory to take 
+# out for the OS, if available.  This amount is per processor 
+# and is in units of megabytes
+#
+set memos = $1
+if (null$memos == null) set memos = 30
 #
 cd $NWCHEM_TOP/src/input
 set a=("" "" "" "" "" "") 
@@ -16,16 +22,16 @@ set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal:
 else  if ($NWCHEM_TARGET == DECOSF) then
 set nproc = `/usr/sbin/psrinfo | wc -l `
 set memtot = ` /usr/bin/vmstat -P | egrep "Total Physical Memory ="| sed -e "s/Total Physical Memory =//"| sed -e "s/.00 M//"`
-@ memtot = ($memtot * 1000)
+@ memtot = ($memtot * 1024)
 else  if ($NWCHEM_TARGET == SGI_N32 || $NWCHEM_TARGET == SGITFP ) then
 set a=`/sbin/hinv  -c processor|head -1`  
 set nproc=$a[1]
 set a=`/sbin/hinv -c memory | head -1`  
-@ memtot = ($a[4] * 1000)
+@ memtot = ($a[4] * 1024)
 else  if ($NWCHEM_TARGET == SOLARIS ) then
 set nproc = `/usr/sbin/psrinfo | wc -l `
 set a=`/usr/sbin/prtconf | egrep -i mem   `  
-@ memtot = ($a[3] * 1000)
+@ memtot = ($a[3] * 1024)
 else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI ) then
 set nproc=`/usr/sbin/lsdev -Cc processor | wc -l `
 set nmcard = `/usr/sbin/lsdev -Cc memory | egrep mem | wc -l`
@@ -37,7 +43,7 @@ set cardmem=$a[2]
 @ memtot = ($memtot + $cardmem)
 @ i = ($i + 1)
 end
-@ memtot = ($memtot * 1000)
+@ memtot = ($memtot * 1024)
 else  if ($NWCHEM_TARGET == HPUX || $NWCHEM_TARGET == HPUX64  ) then
 set nproc=`/usr/sbin/ioscan -fkC processor | grep '^proc' | wc -l `
 cat > getmemhp.c <<EOF
@@ -63,9 +69,9 @@ set memproc=0
 echo "Total Memory         :" $memtot "Kb"
 echo "No. of processors    :" $nproc
 echo "Total Memory/proc    :" $memproc "Kb"
-# take 30 MB away for OS
-@ memproc = (($memproc - (30 * 1024)))
-# multiply by 128*1024
+# take away memory for OS
+@ memproc = (($memproc - ($memos * 1024)))
+# multiply by 128=(1024/8) to get to doubles
 @ memproc = ($memproc * 128)
 if($good == 1) then
 set copt=" -DDFLT_TOT_MEM="$memproc
