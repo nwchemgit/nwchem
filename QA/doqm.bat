@@ -29,6 +29,7 @@ tcsh runtests.unix pspw_polarizability
 tcsh runtests.unix tddft_h2o
 tcsh runtests.unix tddft_n2+
 tcsh runtests.unix tce_h2o
+tcsh runtests.unix oniom1
 REM ---   long  may not run on workstations
 tcsh runtests.unix aump2 
 tcsh runtests.unix uoverlap
@@ -37,3 +38,4 @@ tcsh runtests.unix hess_nh3
 tcsh runtests.unix hess_nh3_dimer
 tcsh runtests.unix mp2_si2h6
 tcsh runtests.unix pbo_nesc1e
+tcsh runtests.unix oniom3
