@@ -1,22 +1,23 @@
 title
   h2o
+
 geometry units au nocenter 
 o  .00000000     -.00000000      .27143053
 h  .00000000     1.88042809     -.83572213
 h  .00000000    -1.48042809    -1.33572213
 end
-basis segment noprint
+
+basis noprint
   H library sto-3g
   O library sto-3g
 end
- charge 1
- scf
-   rohf
-   doublet
- end
- dft
-   mult 2
- end
+
+charge 1
+
+scf
+  doublet
+end
+
 property
   dipole
   quadrupole
@@ -26,6 +27,26 @@ property
   efieldgrad
   electrondensity
 end
+
 task scf
+
 task property
-eof
+
+dft
+  mult 2
+end
+
+property
+  dipole
+  quadrupole
+  octupole
+  esp
+  efield
+  efieldgrad
+  electrondensity
+end
+
+task dft
+
+task property
+
