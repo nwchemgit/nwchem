@@ -1,6 +1,6 @@
       subroutine ma_print_compact(vector,ndim,mdim,title)
 c
-c $Id: ma_print_compact.F,v 1.1 2002-10-18 23:42:06 sohirata Exp $
+c $Id: ma_print_compact.F,v 1.2 2004-10-28 18:16:40 edo Exp $
 c
 
       implicit none
@@ -20,6 +20,6 @@ c
         enddo
       enddo
  9000 format('-------------------------')
- 9010 format(2i5,20f15.10)
+ 9010 format(2i5,1X,20e17.10)
       return
       end
