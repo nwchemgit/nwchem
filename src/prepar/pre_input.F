@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.22 1998-11-18 01:19:56 d3j191 Exp $
+c $Id: pre_input.F,v 1.23 1998-11-23 20:30:59 d3j191 Exp $
 c
       implicit none
 c
@@ -496,6 +496,21 @@ c
 c
       else
       call errquit('pre_input: modify',9999)
+      endif
+      goto 2
+      endif
+c
+c     update
+c
+      if(inp_compare(.false.,'update',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: update',9999)
+c
+      if(inp_compare(.false.,'lists',item)) then
+      write(67,6714)
+ 6714 format('update')
+      nummod=nummod+1
+      else
+      call errquit('pre_input: update',9999)
       endif
       goto 2
       endif

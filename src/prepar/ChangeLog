@@ -107,3 +107,4 @@ Oct 30 1998      Minor change in fix logic
 Nov 06 1998	 Add err= jump in close of lfncmd
 	         Indexed charge/polarization parameters from topology file
 Nov 17 1998	 Truncated octahedron
+Nov 23 1998	 Implement 'modify segment' and 'update lists' commands

@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.15 1998-09-22 21:35:29 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.16 1998-11-23 20:31:00 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -78,6 +78,7 @@ c     open the pdb file
 c
       open(iunit,file=filnam(1:length),form='formatted',
      + status='old',err=9999)
+      rewind(iunit)
 c
     1 continue
 c

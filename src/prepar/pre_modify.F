@@ -1,9 +1,9 @@
       logical function pre_modify(iwhich,lfnout,lfnmod,filmod,ffield,
      + latm,catm,qatm,matm,natm,
-     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
-     + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp)
+     + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
+     + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.3 1998-09-17 16:38:44 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.4 1998-11-23 20:31:00 d3j191 Exp $
 c
       implicit none
 c
@@ -19,16 +19,16 @@ c
       integer latm(8,matm)
       character*6 catm(4,matm)
       real*8 qatm(6,matm)
-      integer mbnd,nbnd
+      integer mbnd,nbnd,nbndt
       integer lbnd(4,mbnd)
       real*8 rbnd(6,mbnd)
-      integer mang,nang
+      integer mang,nang,nangt
       integer lang(5,mang)
       real*8 rang(6,mang)
-      integer mdih,ndih
+      integer mdih,ndih,ndiht
       integer ldih(9,mdih),kdih(6,3,mdih)
       real*8 rdih(6,6,mdih)
-      integer mimp,nimp
+      integer mimp,nimp,nimpt
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
 c
@@ -42,7 +42,7 @@ c
       real*8 charge,polar,value,forcon
       character*5 type
 c
-      integer i,j
+      integer i,j,k,l,m,n
 c
       open(unit=lfnmod,file=filmod(1:index(filmod,' ')-1),
      + form='formatted',status='old',err=999)
@@ -174,18 +174,39 @@ c
       write(lfnout,2006) isgm,mset
  2006 format('modify segment ',i5,' set',i2,' dummy ')
       endif
+      do 14 i=1,natm
+      if(latm(5,i).eq.isgm) then
+      do 15 j=1,3
+      if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='D'
+   15 continue
+      endif
+   14 continue
       endif
       if(card(21:23).eq.'ego') then
       if(util_print('where',print_default)) then
       write(lfnout,2007) isgm,mset
  2007 format('modify segment ',i5,' set',i2,' self ')
       endif
+      do 16 i=1,natm
+      if(latm(5,i).eq.isgm) then
+      do 17 j=1,3
+      if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='S'
+   17 continue
+      endif
+   16 continue
       endif
       if(card(21:23).eq.'qtm') then
       if(util_print('where',print_default)) then
       write(lfnout,2008) isgm,mset
  2008 format('modify segment ',i5,' set',i2,' quantum ')
       endif
+      do 18 i=1,natm
+      if(latm(5,i).eq.isgm) then
+      do 19 j=1,3
+      if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
+   19 continue
+      endif
+   18 continue
       endif
       endif
 c
@@ -220,27 +241,27 @@ c
      + call errquit('str_replace',9999)
       iatom=0
       jatom=0
-      do 14 i=1,natm
+      do 20 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
       if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
-   14 continue
+   20 continue
       if(iatom.gt.0.and.jatom.gt.0) then
       ibnd=0
-      do 15 i=1,nbnd
+      do 21 i=1,nbndt
       if((lbnd(1,i).eq.iatom.and.lbnd(2,i).eq.jatom).or.
      + (lbnd(1,i).eq.jatom.and.lbnd(2,i).eq.iatom)) then
       ibnd=i
-      goto 16
+      goto 22
       endif
-   15 continue
-   16 continue
+   21 continue
+   22 continue
       if(ibnd.eq.0) call errquit('Bond could not be found',9999)
-      do 17 i=1,3
+      do 23 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rbnd(2*i-1,ibnd)=value
       rbnd(2*i,ibnd)=forcon
       endif
-   17 continue
+   23 continue
       endif
       endif
 c
@@ -280,29 +301,29 @@ c
       iatom=0
       jatom=0
       katom=0
-      do 18 i=1,natm
+      do 24 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
       if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
       if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
-   18 continue
+   24 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0) then
       iang=0
-      do 19 i=1,nang
+      do 25 i=1,nangt
       if(lang(2,i).eq.jatom.and.
      + ((lang(1,i).eq.iatom.and.lang(3,i).eq.katom).or.
      + (lang(1,i).eq.katom.and.lang(3,i).eq.iatom))) then
       iang=i
-      goto 20
+      goto 26
       endif
-   19 continue
-   20 continue
+   25 continue
+   26 continue
       if(iang.eq.0) call errquit('Angle could not be found',9999)
-      do 21 i=1,3
+      do 27 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rang(2*i-1,iang)=value
       rang(2*i,iang)=forcon
       endif
-   21 continue
+   27 continue
       endif
       endif
 c
@@ -352,36 +373,36 @@ c
       jatom=0
       katom=0
       latom=0
-      do 22 i=1,natm
+      do 28 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
       if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
       if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
       if(latm(5,i).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
-   22 continue
+   28 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0.and.latom.gt.0) then
       idih=0
-      do 23 i=1,ndih
+      do 29 i=1,ndiht
       if((ldih(1,i).eq.iatom.and.ldih(2,i).eq.jatom.and.
      + ldih(3,i).eq.katom.and.ldih(4,i).eq.latom).or.
      + (ldih(1,i).eq.latom.and.ldih(2,i).eq.katom.and.
      + ldih(3,i).eq.jatom.and.ldih(4,i).eq.iatom)) then
       idih=i
-      goto 24
+      goto 30
       endif
-   23 continue
-   24 continue
+   29 continue
+   30 continue
       if(idih.eq.0) call errquit('Torsion could not be found',9999)
-      do 25 j=1,max(ldih(7,i),ldih(8,i),ldih(9,i))
-      do 26 i=1,3
+      do 31 j=1,max(ldih(7,i),ldih(8,i),ldih(9,i))
+      do 32 i=1,3
       if((mset.eq.0.or.mset.eq.i).and.
      + (multip.eq.0.or.multip.eq.iabs(kdih(j,i,idih)))) then
       rdih(j,2*i-1,idih)=value
       rdih(j,2*i,idih)=forcon
       endif
-   26 continue
-      if(multip.eq.0) goto 27
-   25 continue
-   27 continue
+   32 continue
+      if(multip.eq.0) goto 33
+   31 continue
+   33 continue
       endif
       endif
 c
@@ -431,15 +452,15 @@ c
       jatom=0
       katom=0
       latom=0
-      do 28 i=1,natm
+      do 34 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
       if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
       if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
       if(latm(5,i).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
-   28 continue
+   34 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0.and.latom.gt.0) then
       iimp=0
-      do 29 i=1,nimp
+      do 35 i=1,nimpt
       if(ffield(1:5).eq.'amber') then
       if(limp(1,i).eq.katom.and.
      + ((limp(2,i).eq.iatom.and.limp(3,i).eq.jatom.and.
@@ -472,19 +493,95 @@ c
      + (limp(1,i).eq.latom.and.limp(2,i).eq.jatom.and.
      + limp(4,i).eq.iatom))) then
       iimp=i
-      goto 30
+      goto 36
       endif
       endif
-   29 continue
-   30 continue
+   35 continue
+   36 continue
       if(iimp.eq.0) call errquit('Out-of-plane could not be found',9999)
-      do 31 i=1,3
+      do 37 i=1,3
       if(mset.eq.0.or.mset.eq.i) then
       rimp(2*i-1,iimp)=value
       rimp(2*i,iimp)=forcon
       endif
-   31 continue
+   37 continue
       endif
+      endif
+c
+c
+      if(card(1:6).eq.'update') then
+      do 50 j=1,3
+      n=0
+      m=0
+      do 51 i=1,nbndt
+      if(catm(j+1,lbnd(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lbnd(2,i))(6:6).ne.'Q') then
+      n=n+1
+      do 52 k=1,6
+      if(k.le.4) lbnd(k,n)=lbnd(k,i)
+      rbnd(k,n)=rbnd(k,i)
+   52 continue
+      if(i.le.nbnd) m=n
+      endif
+   51 continue
+      nbnd=m
+      nbndt=n
+      n=0
+      m=0
+      do 53 i=1,nangt
+      if(catm(j+1,lang(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lang(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,lang(3,i))(6:6).ne.'Q') then
+      n=n+1
+      do 54 k=1,6
+      if(k.le.5) lang(k,n)=lang(k,i)
+      rang(k,n)=rang(k,i)
+   54 continue
+      if(i.le.nang) m=n
+      endif
+   53 continue
+      nang=m
+      nangt=n
+      n=0
+      m=0
+      do 55 i=1,ndiht
+      if(catm(j+1,ldih(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(3,i))(6:6).ne.'Q'.or.
+     + catm(j+1,ldih(4,i))(6:6).ne.'Q') then
+      n=n+1
+      do 56 k=1,9
+      ldih(k,n)=ldih(k,i)
+      if(k.le.6) then
+      do 57 l=1,6
+      kdih(k,l,n)=rdih(k,l,i)
+      if(l.le.3) rdih(k,l,n)=rdih(k,l,i)
+   57 continue
+      endif
+   56 continue
+      if(i.le.ndih) m=n
+      endif
+   55 continue
+      ndih=m
+      ndiht=n
+      n=0
+      m=0
+      do 58 i=1,nimpt
+      if(catm(j+1,limp(1,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(2,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(3,i))(6:6).ne.'Q'.or.
+     + catm(j+1,limp(4,i))(6:6).ne.'Q') then
+      n=n+1
+      do 59 k=1,9
+      limp(k,n)=limp(k,i)
+      if(k.le.6) rimp(k,n)=rimp(k,i)
+   59 continue
+      if(i.le.nimp) m=n
+      endif
+   58 continue
+      nimp=m
+      nimpt=n
+   50 continue
       endif
 c
       endif

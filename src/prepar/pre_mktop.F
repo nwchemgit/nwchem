@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.14 1998-09-17 16:38:43 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.15 1998-11-23 20:30:59 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -314,10 +314,10 @@ c     ------------------------------------------
 c
       if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
-     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
-     + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt))
+     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
+     + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
+     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt))
      + call errquit('pre_modify failed',9999)
 c
 c     get number of atom types
@@ -439,10 +439,10 @@ c     -------------------------------------------------
 c
       if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
-     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
-     + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,
-     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndiht,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimpt))
+     + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
+     + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
+     + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,nimpt))
      + call errquit('pre_modify failed',9999)
 c
 c     write the topology file
