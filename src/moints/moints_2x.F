@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.34 1999-08-20 21:48:48 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.35 2000-10-14 16:15:52 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -94,9 +94,9 @@ c
 c     Set accuracy of integrals from required precision
 c     ... this should come via the argument list but that can wait
 c
-       tol2e = 1d-9             ! No database !!!!
-       integ_acc = min(1d-9, max(0.01d0*tol2e,1d-17))
-       call int_acc_set(integ_acc)
+       tol2e = 1d-12             ! No database !!!!
+*       integ_acc = min(1d-9, max(0.01d0*tol2e,1d-17))
+*       call int_acc_set(integ_acc)
 c
 c  General basis info
 c
@@ -121,7 +121,7 @@ c
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_2x: no memory for syms?',0)
-          call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
+          call sym_movecs_adapt(basis, tol2e, g_movecs, int_mb(k_sym),
      $                          nmixed)
           if (nmixed.ne.0 .and. ga_nodeid().eq.0) then
              write(6,*) ' !! warning: moints 2x: ',nmixed,
