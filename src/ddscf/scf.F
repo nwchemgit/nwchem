@@ -209,6 +209,10 @@ c
       if (.not.(bas_destroy(basis) .and. geom_destroy(geom)))
      $     call errquit ('scf:destroying geom and basis handles',0)
 c
+c terminate integrals 
+c
+      call int_terminate
+c
 c     Nothing else for now ... return convergence status
 c
       if (.not. context_pop('scf')) call errquit('context_pop failed',0)
