@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.28 2004-11-06 00:15:37 marat Exp $
+c $Id: mm_interface.F,v 1.29 2004-11-10 07:26:55 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1560,11 +1560,6 @@ c     local variables:
       integer sorted 
       integer temp
       
-      write(*,*) "before sort"
-      do i=1,n
-        write(*,*) i,a(i)
-      end do
-
       pass = 1
       sorted = 0
       do while(sorted .eq. 0) 
@@ -1581,11 +1576,6 @@ c     local variables:
       end do
       do i=1,n-1
        if(a(i).eq.a(i+1)) a(i)=-1 
-      end do
-
-      write(*,*) "after sort"
-      do i=1,n
-        write(*,*) i,a(i)
       end do
 
       return
