@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.66 1999-05-30 21:50:28 d3g681 Exp $
+C$Id: opt_drv.F,v 1.67 1999-05-31 23:23:09 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1469,7 +1469,6 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
-      LOGICAL       STATUS
       LOGICAL       DBUG
       LOGICAL       OUT
       LOGICAL       SOME
@@ -1499,25 +1498,35 @@ C
 C
 C     ----- CHECK IF THERE IS ALREADY A HESSIAN ON DISK -----
 C
-      OLD_HESSIAN=.FALSE.
-      IF(INHESS.EQ.0) THEN
+      old_hessian=.false.
+      if(inhess.eq.0) then
          call driver_opt_check_hess(ncoor, old_hessian)
-         if (old_hessian)
-     $        call geom_hnd_get_data('drv.hess',hss,ncoor*ncoor)
-         IF(GA_NODEID().EQ.0) THEN
-            IF(OLD_HESSIAN) THEN
-               if (util_print('information', print_low))
-     $              WRITE(IW,9993)
-               IF(SOME) THEN
-                  CALL HND_PRSQ(HSS,NCOOR,NCOOR,NCOOR)
-               ENDIF
-            ELSE
-               if (util_print('information', print_low))
-     $              WRITE(IW,9992)
-            ENDIF
-         ENDIF
-      ENDIF
-      CALL GA_SYNC()
+         if (old_hessian) then
+            call geom_hnd_get_data('drv.hess',hss,ncoor*ncoor)
+            if(some) then
+               call hnd_prsq(hss,ncoor,ncoor,ncoor)
+            endif
+         endif
+      endif
+      call ga_sync()
+c
+      if (ga_nodeid().eq.0 .and. 
+     $        util_print('information', print_low)) then
+         write(6,*)
+         if (inhess.eq.1) then 
+            write(6,*)
+     $           ' Reading Hessian from previous frequency calculation'
+         else if (old_hessian) then
+            write(6,*) 
+     $           ' Reading approximate Hessian from previous geometry',
+     $           ' optimization'
+         else
+            write(6,*) 
+     $           ' Generating default initial guess for Hessian'
+         endif
+         write(6,*)
+         call util_flush(6)
+      endif
 C
 C     ----- GENERATE A GUESS ... BUT DO NOT NECESSARILY USE IT -----
 C     ----- IF drv.hess EXISTS, AND -INHESS- = 0               -----
@@ -1534,9 +1543,6 @@ C
             WRITE(IW,9999) NAT,NCART,NZVAR,NVAR,NINT,NCOOR,NZMAT
          ENDIF
          IF(INHESS.EQ.1) THEN
-            if (ga_nodeid().eq.0 .and. 
-     $           util_print('information', print_low)) write(6,*) 
-     $           ' Reading Hessian from previous frequency calculation'
 C
 C     ----- READ CARTESIAN HESSIAN FROM FILE AND TRANSFORM -----
 C
@@ -1992,9 +1998,7 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          open(32,file=filename,form='unformatted',status='old',err=10)
-         write(6,*) ' CHECK: OPENED OK',filename
          read(32,err=11) m
-         write(6,*) ' CHECK: READ OK ',m,ncoor*ncoor
          if (m.ne.ncoor*ncoor) goto 11
          close(32)
          old_hessian = .true.
@@ -2159,7 +2163,6 @@ c$$$      end
 #include "util.fh"
 c
       integer    rtdb, geom
-      logical    status
 c
       integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
