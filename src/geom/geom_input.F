@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.19 1995-10-10 06:13:33 d3g681 Exp $
+C$Id: geom_input.F,v 1.20 1995-10-16 18:28:12 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -205,6 +205,10 @@ c     unique centers build mapping tables set up coord lists
 c
         nata=ncenter
         call sym_nwc(geom,rtdb,nata,oprint_sym)
+c
+c     Force exact symetry on the coordinates
+c
+        call sym_geom_project(geom, 1d-3)
 c
         call geom_compute_values(geom)
 c
