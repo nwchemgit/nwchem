@@ -5,7 +5,7 @@ c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.10 2000-07-26 01:48:20 edo Exp $
+c     $Id: j_nucder_gen.F,v 1.11 2001-04-27 00:26:23 edo Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.10 2000-07-26 01:48:20 edo Exp $
+c     $Id: j_nucder_gen.F,v 1.11 2001-04-27 00:26:23 edo Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -146,7 +146,7 @@ c     The s34 array is used for the fitting coefficients in the
 c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
          if (bgj_print().gt.0) write(*,*)
-     &      __FILE__,': what about oactive for fitted J?'
+     &      ': what about oactive for fitted J?'
          call dftg_cdfit_gen(AO_bas_han, CD_bas_han,
      &                       nbf_cd, natoms, tol2e,
      &                       dbl_mb(k_scr), lscr, dbl_mb(k_buf), lbuf,
