@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.19 1995-06-08 01:28:44 d3e129 Exp $
+c $Id: exact_mem.F,v 1.20 1995-06-14 07:35:25 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -276,6 +276,7 @@ c
      &             exndcf,exndcf,1,
      &             exndcf,exndcf,exndcf,1,.true.,.true.,.true.,.false.,
      &             .true.,exndcf,memdum)
+            memsize = max(memsize,memdum)
 00200   continue
 00100 continue
 c
