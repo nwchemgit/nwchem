@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.6 2000-02-03 20:26:39 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.7 2000-05-27 17:57:55 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -130,7 +130,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_cd = n_all_c*n_all_d
       n_abcd = n_ab*n_cd
       if ((n_ints .lt. n_abcd) .and. (.not.DryRun)) call errquit (
-     &    'Integral buffer n_ints too small in rel_LLSS',99)
+     &    'Integral buffer n_ints too small in rel_SSSS',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -157,8 +157,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_intmp = n_cartp_a*n_cartm_b*n_cont_ab*n_cd
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab*n_cd
       i_xca = 1
-      i_xcb = i_xca+NPC*NCC
-      i_pp = max(i_xca+n_abcd,i_xcb+NPD*NCD)
+      i_xcb = i_xca+NPA*NCA
+      i_pp = max(i_xca+n_abcd,i_xcb+NPB*NCB)
       i_pm = i_pp+n_intpp
       i_mp = i_pm+n_intpm
       i_mm = i_mp+n_intmp
