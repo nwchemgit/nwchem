@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.2 1998-09-25 19:01:36 mg201 Exp $
+C $Id: rel_LLSS.F,v 1.3 2000-01-03 21:59:04 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for
@@ -16,7 +16,7 @@ c:tex-\begin{verbatim}
      &    Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &    Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &    rel_ints,n_ints,canAB,canCD,canPQ,
-     &    DryRun,scr,lscr,ibug,ntyp,AddInts)
+     &    DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -42,10 +42,10 @@ c:tex-\begin{verbatim}
       integer ntyp    ! [input] potential energy integral type
       double precision Axyz(3)         ! [input] position of center A
       double precision zeta_A(NPA)     ! [input] exponents of shell A
-      double precision coef_A(NPA,NCA) ! [input] A coeffs
+      double precision coef_A(NPA,NCA) ! [input] A large coeffs
       double precision Bxyz(3)         ! [input] position of center B
       double precision zeta_B(NPB)     ! [input] exponents of shell B 
-      double precision coef_B(NPB,NCB) ! [input] B coeffs
+      double precision coef_B(NPB,NCB) ! [input] B large coeffs
       double precision Cxyz(3)         ! [input] position of center C
       double precision zeta_C(NPC)     ! [input] exponents of shell C
       double precision coef_C(NPC,NCC) ! [input] C small coeffs
@@ -110,7 +110,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_arrays = mod(ibug,10)/2 .eq. 1
       max_mem = 0
 *
-      if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4))
+      if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4) .and.
+     &    (ntyp .ne. 9))
      &    call errquit('Invalid value of ntyp in rel_LLSS',99)
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
@@ -126,7 +127,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_ab = n_all_a*n_all_b
       n_cd = n_all_c*n_all_d
       n_abcd = n_ab*n_cd
-      if (n_ints .lt. n_abcd) call errquit (
+      if ((n_ints .lt. n_abcd) .and. (.not.DryRun)) call errquit (
      &    'Integral buffer n_ints too small in rel_LLSS',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
@@ -156,7 +157,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_intmm = n_cartm_c*n_cartm_d*n_cont_cd*n_ab
       i_xcc = 1
       i_xcd = i_xcc+NPC*NCC
-      i_pp = max(i_xcc+n_abcd,i_xcd+NPD*NCD)
+      i_pp = i_xcd+NPD*NCD
       i_pm = i_pp+n_intpp
       i_mp = i_pm+n_intpm
       i_mm = i_mp+n_intmp
@@ -181,7 +182,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_LLSS',99)
         k = i_xcc-1
         do j = 1,NCC
           do i = 1,NPC
@@ -250,23 +251,14 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *     Compute the relativistic integrals
 *
-      call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),scr,ntyp,
+      call rel_pot (
+     &    scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),rel_ints,n_ints,ntyp,
      &    l_C,n_cartp_c,n_cart_c,n_cartm_c,NCC*n_ab,
      &    l_D,n_cartp_d,n_cart_d,n_cartm_d,NCD,
      &    DryRun,scr(i_scr),memscr,ibug)
       if (DryRun) then
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
-      else
-        k = 1
-        do i = 1,ntyp
-          if (AddInts) then
-            call daxpy (n_abcd,one,scr(k),1,rel_ints(1,i),1)
-          else
-            call dcopy (n_abcd,scr(k),1,rel_ints(1,i),1)
-          end if
-          k = k+n_abcd
-        end do
       end if
 *
       return

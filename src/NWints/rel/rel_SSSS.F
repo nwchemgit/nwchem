@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.2 1998-09-25 19:01:37 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.3 2000-01-03 21:59:05 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -19,7 +19,7 @@ c:tex-\begin{verbatim}
      &    Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &    Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &    rel_ints,n_ints,canAB,canCD,canPQ,
-     &    DryRun,scr,lscr,ibug,ntypAB,ntypCD,AddInts)
+     &    DryRun,scr,lscr,ibug,ntypAB,ntypCD)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -130,7 +130,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_ab = n_all_a*n_all_b
       n_cd = n_all_c*n_all_d
       n_abcd = n_ab*n_cd
-      if (n_ints .lt. n_abcd) call errquit (
+      if ((n_ints .lt. n_abcd) .and. (.not.DryRun)) call errquit (
      &    'Integral buffer n_ints too small in rel_LLSS',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
@@ -184,7 +184,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_SSSS',99)
         k = i_xca-1
         do j = 1,NCA
           do i = 1,NPA
@@ -254,23 +254,13 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *     Call routine to generate the integrals.
 *
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
-     &    scr,n_abcd,ntypAB,n_cd,
+     &    rel_ints,n_ints,ntypAB,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA*ntypCD,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,NCB,
      &    DryRun,scr(i_scr),memscr,ibug)
       if (DryRun) then
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
-      else
-        k = 1
-        do i = 1,ntypAB*ntypCD
-          if (AddInts) then
-            call daxpy (n_abcd,one,scr(k),1,rel_ints(1,i),1)
-          else
-            call dcopy (n_abcd,scr(k),1,rel_ints(1,i),1)
-          end if
-          k = k+n_abcd
-        end do
       end if
 *
       return

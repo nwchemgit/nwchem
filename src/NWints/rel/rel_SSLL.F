@@ -1,4 +1,4 @@
-C $Id: rel_SSLL.F,v 1.2 1998-09-25 19:01:36 mg201 Exp $
+C $Id: rel_SSLL.F,v 1.3 2000-01-03 21:59:05 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
@@ -16,7 +16,7 @@ c:tex-\begin{verbatim}
      &    Cxyz,zeta_C,coef_C,NPC,NCC,l_C,
      &    Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &    rel_ints,n_ints,canAB,canCD,canPQ,
-     &    DryRun,scr,lscr,ibug,ntyp,AddInts)
+     &    DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -48,17 +48,16 @@ c:tex-\begin{verbatim}
       double precision coef_B(NPB,NCB) ! [input] B small coeffs
       double precision Cxyz(3)         ! [input] position of center C
       double precision zeta_C(NPC)     ! [input] exponents of shell C
-      double precision coef_C(NPC,NCC) ! [input] C coeffs
+      double precision coef_C(NPC,NCC) ! [input] C small coeffs
       double precision Dxyz(3)         ! [input] position of center D
       double precision zeta_D(NPD)     ! [input] exponents of shell D 
-      double precision coef_D(NPD,NCD) ! [input] D coeffs
+      double precision coef_D(NPD,NCD) ! [input] D small coeffs
       double precision scr(lscr)       ! [scratch] scratch buffers
       double precision rel_ints(n_ints,ntyp)  ! [output] LLSS integrals
       logical canAB   ! [input] compute only canonical ints (false only)
       logical canCD   ! [input] compute only canonical ints (false only)
       logical canPQ   ! [input] compute only canonical ints (false only)
       logical DryRun  ! [input] true means only compute required memory
-      logical AddInts ! [input] true: daxpy SSLL ints to rel_ints, false: dcopy
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
@@ -126,8 +125,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_ab = n_all_a*n_all_b
       n_cd = n_all_c*n_all_d
       n_abcd = n_ab*n_cd
-      if (n_ints .lt. n_abcd) call errquit (
-     &    'Integral buffer n_ints too small in rel_LLSS',99)
+      if ((n_ints .lt. n_abcd) .and. (.not.DryRun)) call errquit (
+     &    'Integral buffer n_ints too small in rel_SSLL',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -156,7 +155,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_intmm = n_cartm_a*n_cartm_b*n_cont_ab*n_cd
       i_xca = 1
       i_xcb = i_xca+NPA*NCA
-      i_pp = max(i_xca+n_abcd,i_xcb+NPB*NCB)
+      i_pp = i_xcb+NPB*NCB
       i_pm = i_pp+n_intpp
       i_mp = i_pm+n_intpm
       i_mm = i_mp+n_intmp
@@ -181,7 +180,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_SSLL',99)
         k = i_xca-1
         do j = 1,NCA
           do i = 1,NPA
@@ -251,23 +250,13 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *     Compute the relativistic integrals
 *
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
-     &    scr,n_abcd,ntyp,n_cd,
+     &    rel_ints,n_ints,ntyp,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,NCB,
      &    DryRun,scr(i_scr),memscr,ibug)
       if (DryRun) then
         max_mem = max(max_mem,i_scr+memscr-1)
         lscr = max_mem
-      else
-        k = 1
-        do i = 1,ntyp
-          if (AddInts) then
-            call daxpy (n_abcd,one,scr(k),1,rel_ints(1,i),1)
-          else
-            call dcopy (n_abcd,scr(k),1,rel_ints(1,i),1)
-          end if
-          k = k+n_abcd
-        end do
       end if
 *
       return
