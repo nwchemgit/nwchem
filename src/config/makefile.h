@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.469 2004-06-29 15:47:59 edo Exp $
+# $Id: makefile.h,v 1.470 2004-06-29 16:05:21 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1511,6 +1511,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         LDOPTIONS =   -Qoption,link,--relax # -Qoption,link,-Bstatic  
         ifeq ($(BUILDING_PYTHON),python)
           LDOPTIONS +=  -Qoption,link,--export-dynamic
+          EXTRA_LIBS += -lutil
         endif
         LDOPTIONS += $(FDEBUG)
         LINK.f = efc   -Qoption,link,-v  $(LDFLAGS)  
