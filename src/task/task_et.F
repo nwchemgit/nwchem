@@ -9,38 +9,27 @@
       integer rtdb
 c
 c  11/26/01 DMAS: this was a copy of task_energy.F 
-c  changed 'energy' tasks to 'et', changed 'energy' variable to 'Vab',
-c  removed ONIOM stuff, and theories other than SCF and DFT.
+c  changed 'energy' tasks to 'et', changed 'energy' variable to 'Vba',
+c  removed ONIOM stuff, and references to theory. 
 c  Also removed 'rtdb_clean' subroutine, and added task_et.o to GNUMakefile.
 c
-c      logical status, ignore
       logical status
-c      character*32 theory
-      double precision cpu, wall, Vab
+      double precision cpu, wall, Vba
       logical task_et_doit
       external task_et_doit
-c
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
-c
-c      ignore = rtdb_delete(rtdb, 'task:et')
-c      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-c     $     call errquit('task_et: failed to invalidate status',0)
-cc
-c      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-c     $     call errquit('task:et: theory not specified',0)
-c
       call util_flush(6)
-      status = task_et_doit(rtdb,Vab)
-c      status = task_et_doit(rtdb,theory,Vab)
+      status = task_et_doit(rtdb,Vba)
       call util_flush(6)
-      if (.not. rtdb_put(rtdb, 'task:et', mt_dbl, 1, Vab))
-     $     call errquit('task_et: failed storing Vab',0)
+      if (.not. rtdb_put(rtdb, 'task:et', mt_dbl, 1, Vba))
+     $     call errquit('task_et: failed storing Vba',0)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
+c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
      $     call errquit('task_et: failed to store status',0)
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
@@ -52,7 +41,7 @@ c
       call ecce_print1('wall time', mt_dbl, wall, 1)
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
-         call ecce_print1('Vab', mt_dbl, Vab, 1)
+         call ecce_print1('Vba', mt_dbl, Vba, 1)
          call ecce_print_module_exit('task et', 'ok')
       else
          call ecce_print_module_exit('task et', 'failed')
@@ -62,13 +51,12 @@ c
 c
       end
 c===========================================================================
-      logical function task_et_doit(rtdb,Vab)
-c      logical function task_et_doit(rtdb,theory,Vab)
+      logical function task_et_doit(rtdb,Vba)
       implicit none
 c
-c     This function actually calculates Vab
+c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.6 2001-12-17 23:16:52 d3k958 Exp $
+* $Id: task_et.F,v 1.7 2001-12-18 21:05:14 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -81,29 +69,27 @@ c
 #include "geom.fh"
 #include "cscf.fh"
 c
-c     Generic NWChem interface to compute Vab. SCF of DFT determinants
+c     Generic NWChem interface to compute Vba. SCF of DFT determinants
 c     can be used.
 c
 c     RTDB output parameters
 c     ----------------------
 c     task:status (logical)- T/F for success/failure
 c     if (status) then
-c     .  task:et (real)   - Vab (electron transfer matrix element)
+c     .  task:et (real)   - Vba (electron transfer matrix element)
 c     .  task:cputime (real)  - cpu time to execute the task
 c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
       integer rtdb
-      integer i, j, k
-      integer l_evals,k_evals
-c      integer g_vecsa,g_vecsb
+      integer i, j, k,l
+      integer l_evals,k_evals,l_vals,k_vals
       integer g_tmp,g_s,g_ahandle(2),g_bhandle(2),g_d,g_temp
       integer nocc(2)
-      integer g_u,g_vt,g_phandle(2)
+      integer g_u,g_vt,g_v,g_phandle(2),g_pt
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
-c      integer k_val,l_val,g_av,g_bu
 c
       logical movecs_read
       external movecs_read
@@ -116,10 +102,13 @@ c
       character*2 pname(2)
       double precision occ_alpha(nbf),occ_beta(nbf)
       double precision evals_alpha(nbf),evals_beta(nbf)
-      double precision Vab,values(nbf*nbf)
+      double precision Vba,values(nbf*nbf)
       double precision t(nbf,nbf),prod(2)
-      double precision sba,pa_val,pb_val,omega1,h1_val
-      double precision detu(2),detv(2),detprod
+      double precision Sba,pa_val,pb_val,omega1,h1_val
+      double precision omega2,pt1, pt2, pa1, pa2, pb1, pb2
+      double precision int2e1,int2e2
+      double precision detu(2),detv(2),detprod,scr(3056)
+      double precision haa,hbb,hba,val
 c
       task_et_doit = .false.
 c
@@ -168,18 +157,6 @@ c
      $        call errquit('task_et ga_create failed', 0)
        call int_1e_ga(basis, basis, g_s, 'overlap', .false.)  
        call ga_print(g_s)
-c
-c     calculate hamiltonian integrals 
-c     -------------------------------
-      if(.not.ga_create(mt_dbl,nbf,nbf,'h1',0,0,g_h1))
-     $        call errquit('task_et ga_create failed', g_h1)
-c
-c     accumulate kinetic and potential 1e integrals into h1
-c
-      call ga_zero(g_h1)
-      call int_1e_ga(basis, basis, g_h1, 'kinetic', .false.)  
-      call int_1e_ga(basis, basis, g_h1, 'potential', .false.)  
-      call ga_print(g_h1)
 c
 c      terminate API
 c      -------------
@@ -305,7 +282,7 @@ c
       g_bhandle(1)=g_bvecsa
       g_bhandle(2)=g_bvecsb
 c
-      g_tmp = ga_create_atom_blocked(geom, basis, 'g_temp')    
+      g_tmp = ga_create_atom_blocked(geom, basis, 'g_tmp')    
 c
 c get nocc(1 and 2): # of occupied alpha and beta mo's
 c
@@ -365,10 +342,19 @@ c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'vt',0,0,g_vt))
      $        call errquit('task_et ga_create failed', g_vt)
 c
+      if (.not.ma_push_get(mt_dbl,nocc(j),'values',l_vals,k_vals))
+     $        call errquit('ma_push_get failed for values ',k_vals)
+c
       call ga_svd_seq(g_d,g_u,g_vt,values)
 c
       call ga_print(g_u)
       call ga_print(g_vt)
+c
+      if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'v',0,0,g_v))
+     $        call errquit('task_et ga_create failed', g_v)
+      call ga_transpose(g_vt,g_v)
+      call ga_print(g_v) 
+c
 c
 c      ===========================
 c      calculate det(U) and det(V)
@@ -424,6 +410,21 @@ c
      &         ,0.d0,g_bu)
       call ga_print (g_bu)
 c
+c  check that D is diagonal after SVD
+c
+      if(.not.ga_create(mt_dbl,nocc(j),nbf,'temp',0,0,g_temp))
+     $        call errquit('task_et ga_create failed', g_temp)
+      call ga_dgemm('T','N',nocc(j),nbf,nbf,1.d0,g_bu
+     &               ,g_s,0.d0,g_temp)
+      call ga_dgemm('N','N',nocc(j),nocc(j),nbf,1.d0,g_temp
+     &               ,g_av,0.d0,g_d)
+      call ga_print(g_d)
+      DO i = 1,nocc(j)
+      DO k = 1,nocc(j)
+         call ga_get(g_d, i, i, k, k, val, 1)
+         write (6,*) i,k,val
+      ENDDO
+      ENDDO
 c
 C                                   N
 C                                -------
@@ -506,11 +507,22 @@ c      =============
 c      calculate SBA
 c      =============
 c
-       sba = prod(1)*prod(2)*detprod
+       Sba = prod(1)*prod(2)*detprod
 c
 c      ============================================
-c      calculate the 1e contribution to Vab, omega1
+c      calculate the 1e contribution to Vba, omega1
 c      ============================================
+c
+c     get hamiltonian integrals 
+c     -------------------------------
+      if(.not.ga_create(mt_dbl,nbf,nbf,'h1',0,0,g_h1))
+     $        call errquit('task_et ga_create failed', g_h1)
+c
+      call ga_zero(g_h1)
+      call int_1e_ga(basis, basis, g_h1, 'kinetic', .false.)  
+      call int_1e_ga(basis, basis, g_h1, 'potential', .false.)  
+      call ga_print(g_h1)
+c
 c
        omega1 = 0.0d0
        do i = 1,nbf
@@ -524,29 +536,73 @@ c         write(6,*) i,j,pa_val+pb_val,h1_val
        enddo
        omega1 = omega1*detprod
 c
+c      ============================================
+c      calculate the 2e contribution to Vba, omega2
+c      ============================================
+c      create array pt = pa + pb
+c 
+      if(.not.ga_create(mt_dbl,nbf,nbf,'pt',0,0,g_pt))
+     $        call errquit('task_et ga_create failed', g_pt)
+      call ga_dadd (1.0d0,g_phandle(1),1.0d0,g_phandle(2),g_pt)
+c
+      omega2 = 0.0d0
+c
+       DO i = 1,nbf
+       DO j = 1,nbf
+       DO k = 1,nbf
+       DO l = 1,nbf
+         call ga_get(g_pt, i, i, j, j, pt1, 1)
+         call ga_get(g_pt, k, k, l, l, pt2, 1)
+         call ga_get(g_phandle(1), i, i, j, j, pa1, 1)
+         call ga_get(g_phandle(1), k, k, l, l, pa2, 1)
+         call ga_get(g_phandle(2), i, i, j, j, pb1, 1)
+         call ga_get(g_phandle(2), k, k, l, l, pb2, 1)
+         call int_2e4c(basis,i,j,basis,k,l,mem_2e4c,scr,1,int2e1)
+         call int_2e4c(basis,i,l,basis,k,j,mem_2e4c,scr,1,int2e2)
+        omega2 = omega2 + ( pt1*pt2 )*int2e1
+        omega2 = omega2 + ( -pa1*pa2-pb1*pb2 )*int2e2
+       ENDDO
+       ENDDO
+       ENDDO
+       ENDDO
+c
+       omega2 = omega2 * (detprod/ ( prod(1)*prod(2) ) ) 
+       omega2 = omega2 / 2.0d0
+c
+c      =============
+c      calculate VBA
+c      =============
+c      Haa and Hbb will have to be read in somehow. Temporarily hard-wired.
+c
+       Haa = -4.811062033425d0 -  0.529177249000d0
+       Hbb = -4.811062033425d0 -  0.529177249000d0
+       Hba = omega1+omega2
+       Vba =  Hba - Sba*(Haa+Hbb)*0.5d0
+       Vba = Vba/(1.0d0-Sba*Sba)
+       Vba = dabs (Vba)
+c
 c      =============
 c      Print results
 c      =============
 c
- 1111 FORMAT(1x,a10,F15.10)
+ 1111 FORMAT(1x,a10,F15.10,1x,a10)
        write(6,*) 
        write(6,*) '-------------------------------------'
        write(6,*) 'Summary of Electron Transport Results'
        write(6,*) '-------------------------------------'
        write(6,*) 
-       write(6,1111)  '       SBA',sba
+       write(6,1111)  '       SBA',Sba
        write(6,*) 
        write (6,1111) '<B|H(1)|A>',omega1
+       write (6,1111) '<B|H(2)|A>',omega2
+       write (6,1111) '       HBA',Hba
+       write (6,*)
+       write (6,1111) 'VBA       ',Vba*2.194746d5,'CM-1'
+       write (6,1111) 'VBA       ',Vba*27.2114d0,'EV'
+       write (6,1111) 'VBA       ',Vba*627.510d0,'KCAL/MOL'
        write (6,*) 
 c
 c
-c
-c      calculate Vab
-c      -------------
-c
-       Vab=1.0d0
-       write(6,*)
-       write(6,*)'Vab = ',Vab
 c
       status=.true.
       task_et_doit = status
