@@ -1,0 +1,1266 @@
+      logical function stpr_gen_apphess_at(rtdb,delta,flag,do_opt)
+      implicit none
+* $Id: graveyard,v 1.1 1996-07-26 16:39:24 d3g681 Exp $
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "msgids.fh"
+#include "stdio.fh"
+#include "stpr_optimize.fh"
+#include "cstprfiles.fh"
+c::functions
+      logical scf_opt, dft_opt
+      logical stpr_check_genat_restart
+      logical stpr_genat_mode_context_push
+      logical stpr_genat_mode_context_pop
+      external scf_opt, dft_opt
+      external stpr_check_genat_restart
+      external stpr_genat_mode_context_push
+      external stpr_genat_mode_context_pop
+c::passed
+      integer rtdb
+      double precision delta
+      integer flag
+      logical do_opt
+c::local
+      integer whoiam, master
+      integer geom
+      integer nat, rank_hess
+      integer basis
+      integer h_grad0, k_grad0 ! handle/index for central gradient
+      integer h_gradp, k_gradp ! handle/index for delta gradient
+      integer h_hess, k_hess   ! handle/index for hessian matrix
+      integer iatom, ixyz
+      integer iatom_start, ixyz_start
+      logical ignore_status
+      logical restart
+      logical xyz_pass
+      double precision xyz(3), chg
+      character*255 tmpname
+      character*16 tag_name
+      character*40 new_geom_name
+      character*255 mo_basis, fd_basis, mo_basis_ref
+      character*255 xc_basis, fdxc_basis, xc_basis_ref
+      character*255 cd_basis, fdcd_basis, cd_basis_ref
+      character*40 movecs_in_ref, movecs_out_ref
+      logical dft_mode, scf_mode
+      logical no_xc_basis, no_cd_basis
+c
+      dft_mode = flag.eq.stpr_dft_flag
+      scf_mode = flag.eq.stpr_scf_flag
+      whoiam = ga_nodeid()
+      master = 0
+      ignore_status = rtdb_parallel(.false.)
+      if (whoiam.eq.master) then
+c
+c.. create/load reference geometry
+        if (.not.geom_create(geom,'geometry')) call errquit
+     &      ('stpr_gen_apphess_at:geom_create failed?',1)
+        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &      ('stpr_gen_apphess_at:geom_rtdb_load failed?',2)
+c..  get the number of atoms
+        if (.not. geom_ncent(geom,nat)) call errquit
+     &      ('stpr_gen_apphess_at:geom_ncent failed?',3)
+c
+c.. copy reference geometry and store on rtdb
+        if (.not.
+     &      geom_rtdb_store(rtdb,geom,'reference'))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: geom_rtdb_store failed',5)
+* set context
+        if (.not.stpr_genat_mode_context_push(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: mode_context failed',911)
+c... store movecs initial state
+*... get input vectors for scf/dft
+        if(.not.context_prefix('input vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cget(rtdb, tmpname, 1,
+     &      movecs_in_ref))
+     $      movecs_in_ref = 'atomic'
+*... get output vectors for scf/dft
+        if(.not.context_prefix('output vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cget
+     &      (rtdb, tmpname, 1, movecs_out_ref))
+     $      movecs_out_ref = ' '
+        if (movecs_out_ref.eq.' ') then
+          if (
+     &        (movecs_in_ref.eq.'atomic' .or.
+     &         movecs_in_ref.eq.'hcore' .or. 
+     &         movecs_in_ref.eq.'project').and.scf_mode
+     &        ) then
+c
+            call util_file_name('movecs', .false.,
+     $            .false.,movecs_out_ref)
+          else if (dft_mode) then
+            call util_file_name('movecs', .false.,
+     $            .false., movecs_out_ref)
+          else
+            movecs_out_ref = movecs_in_ref
+          endif
+        endif
+*.. dft looks for input vector file if it cannot read orbitals
+*..     then it defaults to the atomic guess but not by keyword
+*..     
+        if (dft_mode) movecs_in_ref = movecs_out_ref
+        write(luout,*)' movecs in ref ',movecs_in_ref
+        write(luout,*)' movecs out ref ',movecs_out_ref
+c... set initial guess for fd basis to atomic
+        if(.not.context_prefix('input vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cput(rtdb, tmpname, 1, 'atomic'))
+     &      call errquit('stpr_gen_apphess_at: rtdb_cput failed?',911)
+c... set vector output for fd basis to movecs.fd
+        if(.not.context_prefix('output vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cput(rtdb, tmpname, 1,
+     &      'movecs.fd'))
+     &      call errquit('stpr_gen_apphess_at: rtdb_cput failed?',911)
+*----------------------------------------------------------------------
+* basis set munging
+*----------------------------------------------------------------------
+c
+c.. determine what fd basis name is
+c
+        if (scf_mode) then
+          if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+     &        mo_basis = 'ao basis'
+*.. save reference mo basis
+          mo_basis_ref = mo_basis
+          if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+     &        fd_basis = 'fd basis'
+c
+c.. try to load "fd basis"
+c.. create basis handle
+          if(.not.bas_create(basis,fd_basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_create failed?',7)
+          write(6,*)' basis 1 ',basis
+          if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+            if(.not.bas_destroy(basis)) call errquit
+     &          ('stpr_gen_apphess_at: bas_destroy failed',911)
+          else
+c...  if fd basis not defined die
+            call errquit('fd basis not defined',911)
+          endif
+c set "ao basis" to point to "fd basis"
+          if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
+     &        ('stpr_gen_apphess_at: rtdb_cpu failed?',8)
+c
+        else if(dft_mode) then
+          if(.not.context_rtdb_match(rtdb,'AO_basis',mo_basis))
+     &        mo_basis = 'AO_basis'
+          if(.not.context_rtdb_match(rtdb,'XC_basis',xc_basis)) then
+            xc_basis = 'XC_basis'
+          else
+            no_xc_basis = .false.
+          endif
+          if(.not.context_rtdb_match(rtdb,'CD_basis',cd_basis)) then
+            cd_basis = 'CD_basis'
+          else
+            no_cd_basis = .false.
+          endif
+* save reference basis sets
+          mo_basis_ref = mo_basis
+          xc_basis_ref = xc_basis
+          cd_basis_ref = cd_basis
+* for dft we must load each real basis to see if it exists.  
+* assume the AO basis is always there only check for XC and CD bases.
+*... XC basis
+          if(.not.bas_create(basis,xc_basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_create faield',911)
+          write(6,*)' basis 2 ',basis
+          if(.not.bas_rtdb_load(rtdb,geom,basis,xc_basis_ref)) then
+            no_xc_basis = .true.
+          else
+            no_xc_basis = .false.
+          endif
+          if(.not.bas_destroy(basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_destroy failed',911)
+*... CD basis
+          if(.not.bas_create(basis,cd_basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_create faield',911)
+          if(.not.bas_rtdb_load(rtdb,geom,basis,cd_basis_ref)) then
+            no_cd_basis = .true.
+          else
+            no_cd_basis = .false.
+          endif
+          if(.not.bas_destroy(basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_destroy failed',911)
+* check for fd basis sets
+          if (.not.context_rtdb_match(rtdb,'fd_AO_basis',fd_basis))
+     &        fd_basis = 'fd_AO_basis'
+          if (.not.no_xc_basis) then
+            if (.not.context_rtdb_match(rtdb,'fd_XC_basis',fdxc_basis))
+     &          fdxc_basis = 'fd_XC_basis'
+          endif
+          if (.not.no_cd_basis) then
+            if (.not.context_rtdb_match(rtdb,'fd_CD_basis',fdCD_basis))
+     &          fdcd_basis = 'fd_CD_basis'
+          endif
+* load each fd basis
+*.. fd basis
+          if(.not.bas_create(basis,fd_basis)) call errquit
+     &        ('stpr_gen_apphess_at: bas_create faield',911)
+          if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+            if(.not.bas_destroy(basis)) call errquit
+     &          ('stpr_gen_apphess_at: bas_destroy failed',911)
+          else
+c...  if fd basis not defined die
+            call errquit('fd basis not defined',911)
+          endif
+*.. fdxc basis
+          if (.not.no_xc_basis)then
+            if(.not.bas_create(basis,fdxc_basis)) call errquit
+     &          ('stpr_gen_apphess_at: bas_create faield',911)
+            if(bas_rtdb_load(rtdb,geom,basis,fdxc_basis)) then
+              if(.not.bas_destroy(basis)) call errquit
+     &            ('stpr_gen_apphess_at: bas_destroy failed',911)
+            else
+c...  if fdxc basis not defined die
+              call errquit('fdxc basis not defined',911)
+            endif
+          endif
+*.. fdcd basis
+          if (.not.no_cd_basis) then
+            if(.not.bas_create(basis,fdcd_basis)) call errquit
+     &          ('stpr_gen_apphess_at: bas_create faield',911)
+            if(bas_rtdb_load(rtdb,geom,basis,fdcd_basis)) then
+              if(.not.bas_destroy(basis)) call errquit
+     &            ('stpr_gen_apphess_at: bas_destroy failed',911)
+            else
+c...  if fdcd basis not defined die
+              call errquit('fdcd basis not defined',911)
+            endif
+          endif
+c set "AO_basis" to point to "fd basis"
+          if (.not.rtdb_cput(rtdb,'AO_basis',1,fd_basis))
+     &        call errquit
+     &        ('stpr_gen_apphess_at: rtdb_cpu failed?',8)
+c set "XC_basis" to point to "fdxc basis"
+          if (.not.no_xc_basis) then
+            if (.not.rtdb_cput(rtdb,'XC_basis',1,fdxc_basis))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: rtdb_cpu failed?',8)
+c set "CD_basis" to point to "fdcd basis"
+          endif
+          if (.not.no_cd_basis) then
+            if (.not.rtdb_cput(rtdb,'CD_basis',1,fdcd_basis))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: rtdb_cpu failed?',8)
+          endif
+        else
+          call errquit
+     &        ('stpr_gen_apphess_at: not scf or dft mode ',flag)
+        endif
+        if (.not.(geom_destroy(geom))) call errquit
+     &      ('stpr_gen_apphess_at: geom_destroy failed?',9)
+c set "geometry" to "reference"
+        new_geom_name='reference'
+        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: rtdb_cput failed ?',911)
+c... remove Prefix context
+        if (.not.stpr_genat_mode_context_pop(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: context_pop failed',911)
+c...
+      endif
+c all nodes work here 
+      restart = stpr_check_genat_restart(iatom_start,ixyz_start)
+c
+c..      broadcast number of atoms
+c
+      call ga_brdcst(Msg_gen_at_nat+MSGINT, nat, mitob(1), 0)
+c
+      call ga_sync()
+c
+      ignore_status = rtdb_parallel(.true.)
+c      
+      if(.not.restart) then
+        if (scf_mode) then
+          call scf_gradient(rtdb)
+        elseif (dft_mode) then
+          call dft_grad_top(rtdb)
+        else
+          call errquit
+     &        ('stpr_gen_apphess_at: not scf or dft mode ',flag)
+        endif
+      endif
+c
+      ignore_status = rtdb_parallel(.false.)
+c      
+      call ga_sync()
+      if (whoiam.eq.master) then
+        rank_hess = 3*nat
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'cent nuclear gradient vector',
+     &      h_grad0,k_grad0)) call errquit
+     &      ('stpr_gen_apphess_at: ma_push_get failed?',10)
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'delta nuclear gradient vector',
+     &      h_gradp,k_gradp)) call errquit
+     &      ('stpr_gen_apphess_at: ma_push_get failed?',11)
+        if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
+     &      'nuclear hessian matrix',
+     &      h_hess,k_hess)) call errquit
+     &      ('stpr_gen_apphess_at: ma_push_get failed?',12)
+c
+        if (restart) then 
+          call stpr_get_genat_restart(rank_hess,
+     &        dbl_mb(k_hess),
+     &        dbl_mb(k_grad0),.true.)
+        else
+          call dfill((rank_hess*rank_hess),0.0d00,
+     &        dbl_mb(k_hess),1)
+c
+*... set context
+        if (.not.stpr_genat_mode_context_push(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: mode_context failed',911)
+c.. get central gradient
+          if(.not.context_prefix('gradients',tmpname))
+     &        call errquit
+     &        ('stpr_gen_apphess_at:context_prefix failed ',911)
+          if(.not. rtdb_get(rtdb,tmpname,MT_DBL,
+     &        rank_hess,dbl_mb(k_grad0)))
+     &        call errquit('stpr_gen_apphess_at: rtdb_get failed',13)
+c... remove Prefix context
+        if (.not.stpr_genat_mode_context_pop(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: context_pop failed',911)
+c...
+        endif
+c
+      endif
+c
+c... all nodes doing work here
+      call ga_sync()
+      if(.not.restart) then
+        iatom_start = 1
+        xyz_pass    = .true.
+      else
+        xyz_pass = .false.
+        if (whoiam.eq.master) then
+          write(luout,*)' **** gen_apphess restart ****'
+          write(luout,*)' iatom_start = ',iatom_start
+          write(luout,*)' ixyz_start  = ',ixyz_start
+        endif
+      endif
+      call util_flush(luout)
+      do 00100 iatom = iatom_start,nat
+        if (xyz_pass) then
+          ixyz_start = 1
+        else
+          xyz_pass = .true.
+        endif
+        do 00200 ixyz = ixyz_start,3
+          if(whoiam.eq.master) then
+            write(luout,*)' iatom = ',iatom, ' ixyz = ',ixyz
+c... master node only
+            if (.not.geom_create(geom,'reference')) call errquit
+     &          ('stpr_gen_apphess_at:geom_create failed?',14)
+            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+     &          call errquit
+     &          ('stpr_gen_apphess_at:geom_rtdb_load failed?',15)
+            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
+     &          call errquit
+     &          ('stpr_gen_apphess_at:geom_cent_get failed?',16)
+            xyz(ixyz) = xyz(ixyz) + delta
+            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
+     &          call errquit
+     &          ('stpr_gen_apphess_at:geom_cent_get failed?',17)
+c.. copy modified geometry and store on rtdb
+            write(tmpname,'(i3,1x,i1)')iatom,ixyz
+            new_geom_name = 'reference '//tmpname(1:5)
+            if (.not.
+     &          geom_rtdb_store(rtdb,geom,new_geom_name))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: geom_rtdb_store failed',19)
+            if (.not.geom_destroy(geom))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: geom_destroy failed?',20)
+c set "geometry" to "reference atom/xyz"
+            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: rtdb_cput failed ?',911)
+          endif
+          call ga_sync()
+          ignore_status = rtdb_parallel(.true.)
+          if (scf_mode) then
+            call scf_gradient(rtdb)
+          else if (dft_mode) then
+            call dft_grad_top(rtdb)
+          else
+            call errquit
+     &          ('stpr_gen_apphess_at: not scf or dft mode ',flag)
+          endif
+          ignore_status = rtdb_parallel(.false.)
+          call ga_sync()
+          if (whoiam.eq.master) then
+*... set context
+            if (.not.stpr_genat_mode_context_push(flag))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: mode_context failed',911)
+            if(.not.context_prefix('gradients',tmpname))
+     &          call errquit
+     &          ('stpr_gen_apphess_at:context_prefix failed ',911)
+            if(.not. rtdb_get(rtdb,tmpname,MT_DBL,
+     &          rank_hess,dbl_mb(k_gradp)))
+     &          call errquit('stpr_gen_apphess_at: rtdb_get failed',21)
+c... remove Prefix context
+            if (.not.stpr_genat_mode_context_pop(flag))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: context_pop failed',911)
+c...
+            call stpr_fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
+     &          dbl_mb(k_gradp),1.0d00,delta,nat,iatom,ixyz)
+            call stpr_put_genat_restart(rank_hess,dbl_mb(k_hess),
+     &          dbl_mb(k_grad0),iatom,ixyz,nat,.true.)
+          endif
+00200   continue
+00100 continue
+c
+      ignore_status = rtdb_parallel(.true.)
+      if (do_opt) then
+        if (scf_mode) then
+          stpr_gen_apphess_at = scf_opt(rtdb)
+        elseif (dft_mode) then
+          stpr_gen_apphess_at = dft_opt(rtdb)
+        else
+          call errquit
+     &        ('stpr_gen_apphess_at: not scf or dft mode ',flag)
+        endif
+      endif
+      ignore_status = rtdb_parallel(.false.)
+      if (whoiam.eq.master) then
+* average contributions from finite diff hess since they "should" be the same
+        call stpr_gen_hess_foldave(dbl_mb(k_hess),rank_hess)
+        write(luout,*)' finite difference hessian delta = ',delta
+        call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+        call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,
+     $       FILEHESS)
+        write(luout,*)' triangle hessian written to ',FILEHESS
+        
+        if (scf_mode) then
+c.. redefine ao basis to it's original setting
+          if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
+     &        call errquit
+     &        ('stpr_gen_apphess_at: rtdb_cpu failed?',22)
+        elseif (dft_mode) then
+c.. redefine ao basis to it's original setting
+          if (.not.rtdb_cput(rtdb,'AO_basis',1,mo_basis_ref))
+     &        call errquit
+     &        ('stpr_gen_apphess_at: rtdb_cput failed?',22)
+c.. redefine xc basis to it's original setting
+          if (.not.no_xc_basis) then
+            if (.not.rtdb_cput(rtdb,'XC_basis',1,xc_basis_ref))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: rtdb_cput failed?',22)
+          endif
+c.. redefine cd basis to it's original setting
+          if (.not.no_cd_basis) then
+            if (.not.rtdb_cput(rtdb,'CD_basis',1,cd_basis_ref))
+     &          call errquit
+     &          ('stpr_gen_apphess_at: rtdb_cput failed?',22)
+          endif
+        else
+          call errquit
+     &        ('stpr_gen_apphess_at: not scf or dft mode ',flag)
+        endif
+c set "geometry" to "geometry"
+        if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: rtdb_cput failed ?',911)
+c
+c... reset input vectors option here to original guess 
+* set context
+        if (.not.stpr_genat_mode_context_push(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: mode_context failed',911)
+        if(.not.context_prefix('input vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cput(rtdb, tmpname, 1,
+     &      movecs_in_ref))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: rtdb_cput failed?',911)
+        if(.not.context_prefix('output vectors',tmpname))
+     &      call errquit
+     &      ('stpr_gen_apphess_at:context_prefix failed ',911)
+        if (.not. rtdb_cput
+     &      (rtdb, tmpname, 1, movecs_out_ref))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: rtdb_cput failed?',911)
+c
+c... remove Prefix context
+        if (.not.stpr_genat_mode_context_pop(flag))
+     &      call errquit
+     &      ('stpr_gen_apphess_at: context_pop failed',911)
+c...
+c... free memory
+        if(.not.ma_pop_stack(h_hess)) call errquit
+     &      ('stpr_gen_apphess_at: ma_pop_stack(h_hess) failed?',27)
+        if(.not.ma_pop_stack(h_gradp)) call errquit
+     &      ('stpr_gen_apphess_at: ma_pop_stack(h_gradp) failed?',27)
+        if(.not.ma_pop_stack(h_grad0)) call errquit
+     &      ('stpr_gen_apphess_at: ma_pop_stack(h_grad0) failed?',27)
+      endif
+      call ga_sync()
+      ignore_status = rtdb_parallel(.true.)
+      end
+      logical function stpr_gen_apphess_opt(rtdb,delta,flag)
+* $Id: graveyard,v 1.1 1996-07-26 16:39:24 d3g681 Exp $
+      implicit none
+c
+c function to generate approximate hessian and optimize
+c
+*rak:#include "bas.fh"
+*rak:#include "mafdecls.fh"
+*rak:#include "global.fh"
+*rak:#include "geom.fh"
+*rak:#include "rtdb.fh"
+*rak:#include "context.fh"
+*rak:#include "stdio.fh"
+*rak:#include "stpr_optimize.fh"
+      integer rtdb
+      double precision delta
+      integer flag
+c
+      logical stpr_gen_apphess_at
+      external stpr_gen_apphess_at
+c
+*rak:      integer whoiam, master
+*rak:      logical ignore_status
+*rak:      integer geom,nat,basis
+*rak:      character*40 mo_basis,mo_basis_ref,fd_basis,new_geom_name
+*rak:      character*40 movecs_in_ref
+*rak:c
+*rak:      stpr_gen_apphess_opt=.false.
+*rak:      whoiam = ga_nodeid()
+*rak:      master = 0
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:      if (whoiam.eq.master) then
+*rak:c
+*rak:c.. create/load reference geometry
+*rak:        if (.not.geom_create(geom,'geometry')) call errquit
+*rak:     &      ('stpr_gen_apphess_opt:geom_create failed?',1)
+*rak:        if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+*rak:     &      ('stpr_gen_apphess_opt:geom_rtdb_load failed?',2)
+*rak:c..  get the number of atoms
+*rak:        if (.not. geom_ncent(geom,nat)) call errquit
+*rak:     &      ('stpr_gen_apphess_opt:geom_ncent failed?',3)
+*rak:c
+*rak:c.. copy reference geometry and store on rtdb
+*rak:        if (.not.
+*rak:     &      geom_rtdb_store(rtdb,geom,'reference'))
+*rak:     &      call errquit
+*rak:     &      ('stpr_gen_apphess_opt: geom_rtdb_store failed',5)
+*rak:c
+*rak:c.. determine what fd basis name is
+*rak:c
+*rak:        if (.not.context_rtdb_match(rtdb,'ao basis',mo_basis))
+*rak:     &      mo_basis = 'ao basis'
+*rak:        mo_basis_ref = mo_basis
+*rak:        if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
+*rak:     &      fd_basis = 'fd basis'
+*rak:c
+*rak:c.. try to load "fd basis"
+*rak:c.. create basis handle
+*rak:        if(.not.bas_create(basis,fd_basis)) call errquit
+*rak:     &      ('stpr_gen_apphess_opt: bas_create failed?',7)
+*rak:        if(bas_rtdb_load(rtdb,geom,basis,fd_basis)) then
+*rak:          continue
+*rak:        else
+*rak:c...  if fd basis not defined use current mo_basis
+*rak:          fd_basis = mo_basis
+*rak:          write(luout,*)
+*rak:     &        ' fd basis is the ao basis This will be expensive'
+*rak:          call util_flush(6)
+*rak:        endif
+*rak:c
+*rak:c.. set "ao basis" to point to "fd basis"
+*rak:        if (.not.rtdb_cput(rtdb,'ao basis',1,fd_basis)) call errquit
+*rak:     &      ('stpr_gen_apphess_opt: rtdb_cpu failed?',8)
+*rak:c... destroty basis and geom handles
+*rak:        if (.not.(bas_destroy(basis))) call errquit
+*rak:     &      ('stpr_gen_apphess_opt: bas_destroy failed?',9)
+*rak:        if (.not.(geom_destroy(geom))) call errquit
+*rak:     &      ('stpr_gen_apphess_opt: geom_destroy failed?',9)
+*rak:c set "geometry" to "reference"
+*rak:        new_geom_name='reference'
+*rak:        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+*rak:     &      call errquit
+*rak:     &        ('stpr_gen_apphess_opt: rtdb_cput failed ?',911)
+*rak:      endif
+*rak:c... store movecs initial state
+*rak:      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+*rak:     $     movecs_in_ref = 'atomic'
+*rak:c... set initial guess for fd basis to atomic
+*rak:      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, 'atomic'))
+*rak:     &     call errquit ('stpr_gen_apphess_opt: rtdb_cput failed?',911)
+*rak:c
+*rak:      ignore_status = rtdb_parallel(.true.)
+      stpr_gen_apphess_opt =
+     &    stpr_gen_apphess_at(rtdb,delta,flag,.true.)
+*rak:      call scf_opt(rtdb)
+*rak:c
+*rak:c.. reset stepper so it knows to restart the calculation
+*rak:      call stpr_walk_reset
+*rak:      ignore_status = rtdb_parallel(.false.)
+*rak:c.. set "ao basis" to point to %val<mo_basis_ref
+*rak:      if (.not.rtdb_cput(rtdb,'ao basis',1,mo_basis_ref))
+*rak:     &    call errquit ('stpr_gen_apphess_opt: rtdb_cput failed?',8)
+*rak:c
+*rak:c... reset input vectors option here to original guess if appropriate
+*rak:      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_in_ref))
+*rak:     &     call errquit ('stpr_gen_apphess_opt: rtdb_cput failed?',911)
+*rak:c
+*rak: .true.
+      end
+      logical function eopt(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "geom.fh"
+#include  "global.fh"
+#include "tcgmsg.fh"
+      integer rtdb              ! [input] database handle
+c     
+c     ndone = 0
+c     loop thru modes
+
+c     if (g < tolg) then
+c     increment ndone
+c     skip to next mode
+c     endif
+c     compute step = -g/h ... this from midpoint
+c     Apply trust radius ... initially hardwired input parameter
+c     x2 = (x0+x1)/2 + step 
+c     have gradient at midpoint but emid is unknown
+c     define e(x-mid) = emid + g*(x-xmid) + 1/2 h*(x-xmid)**2
+c     -> emid  = e1 - g*(x1-xmid) - 1/2 h*(x1-xmid)**2
+c     -> epredict = e(x2-mid)
+c     compute e2.  
+c     while ((e2-epredict)> tole || too many iters) then 
+c     quadratic fit (check curvature) -> x3 -> trust radius 
+c     -> epredict -> e3
+c     ensure new energy is lower than current maximum energy
+c     discard highest energy, shuffle up ending with e2<-e3, x2<-x3
+c     end while
+c     
+c     use last quadratic fit to update hessian eigenvalue (damping?)
+c     
+c     e0 = e2
+c     x0 = 0
+c     end loop thru modes
+c     
+c     if (ndone .eq. nmodes or too many macroiterations) then
+c     finished
+c     else
+c     repeat pass thru modes
+c     endif
+c     
+      character*20 wavefunction
+      integer geom
+      integer natoms, natoms3
+      character*255 hessfile
+      double precision xtol, etol, gtol
+      integer hess_unit
+      parameter (hess_unit = 1)
+      integer maxat, maxat3
+      parameter (maxat = 6)    ! Not much sense doing larger than this
+      parameter (maxat3 = maxat*3)
+      double precision a(maxat3**2),b(maxat3**2),aa(maxat3**2)
+      double precision fv1(maxat3),fv2(maxat3)
+      double precision evec(maxat3**2), eval(maxat3), emode(maxat3)
+      double precision coords(3,maxat), charges(maxat), ncoords(3,maxat)
+      character*16 tags(maxat)
+      integer i, j, ij, ierr, nmode, stepnum, iter
+      integer mode, mode3, ndone
+      double precision step(0:3), energy(0:3), small_step, eacc, trust
+      double precision epredict, qa, qb,qc, xmid, x, emid, g, g0
+      double precision current_energy
+      character*255 title
+      logical omaster
+#include "itri.fh"
+c     
+      eacc = 1d-6               ! Estimated accuracy in energies
+      trust = 0.25d0
+      omaster = ga_nodeid() .eq. 0
+c
+      if (omaster) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Energy-based geometry optimization',40,.true.)
+         write(6,*)
+         call util_flush(6)
+      endif
+      if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $     title = ' '
+      call util_print_centered(6,title, 40,.false.)
+c
+      if (.not. rtdb_cget(rtdb, 'eopt:wavefunction',1,wavefunction))
+     $     call errquit('eopt: need to know what I''m optimizing',0)
+      if (.not. geom_create(geom,'geometry'))
+     $     call errquit('eopt: geom failed',0)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry'))
+     $     call errquit('eopt: geometry not found',0)
+      if (.not. geom_ncent(geom, natoms))
+     $     call errquit('eopt: get natoms failed',0)
+      natoms3 = natoms*3
+      if (.not. rtdb_get(rtdb, 'eopt:etol', mt_dbl, 1, etol))
+     $     etol = max(1d-6,eacc)
+      if (.not. rtdb_get(rtdb, 'eopt:gtol', mt_dbl, 1, gtol))
+     $     gtol = 2.0d0*sqrt(etol)
+      if (.not. rtdb_get(rtdb, 'eopt:xtol', mt_dbl, 1, xtol))
+     $     xtol = 0.001d0
+c
+      if (omaster) then
+         write(6,781) wavefunction, gtol, etol, xtol
+ 781     format(//'    Wavefunction       ',1x,a/
+     $            '    Gradient tolerance ',f11.8/
+     $            '    Energy tolerance   ',f11.8/
+     $            '    Geometry tolerance ',f11.8/)
+         call util_flush(6)
+      endif
+c     
+c     Load in the hessian and analyze it
+c     
+      if (omaster) then
+         call util_file_name('hess',.false.,.false.,hessfile)
+         open(hess_unit, file=hessfile, form='formatted',status='old',
+     $        err=2424)
+         goto 2425
+ 2424    call errquit('eopt: error opening/reading ascii hessian',0)
+ 2425    read(hess_unit,*,err=2424) (b(i), i=1, (natoms3*(natoms3+1))/2)
+         close(hess_unit)
+         do i = 1, natoms3      ! Square up hessian
+            do j = 1, natoms3
+               ij = itri(i,j)
+               aa((i-1)*natoms3+j) = b(ij)
+            enddo
+         enddo
+c     
+c     diag in full space purely for infomational purposes
+c     
+         call dcopy(natoms3**2, aa, 1, a, 1)
+         call dfill(natoms3*natoms3, 0.0d0, b, 1) ! b becomes identity
+         call dfill(natoms3, 1.0d0, b, natoms3+1)
+         call rsg(natoms3, natoms3, a, b, eval, 1, evec, fv1, fv2, ierr)
+         if (ierr .ne. 0) call errquit('eopt: rsg failed', 0)
+         write(6,*) ' Eigenvalues of the input cartesian Hessian'
+         call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
+      endif
+c
+c     Loop thru macroiterations
+c
+      call dfill(natoms3, 0.0d0, emode, 1)
+      stepnum = 0
+      do iter = 1, 5
+         ndone = 0
+         if (omaster) then
+            write(6,*) ' EOPT: Macro-iteration ', iter
+            write(6,*)
+            call util_flush(6)
+         endif
+c
+c     Analyze modes at the current geometry 
+c
+         if (.not. geom_cart_get(geom, natoms, tags, coords, charges))
+     $        call errquit('eopt: failed getting coords?',0)
+         if (omaster) then
+            call eopt_modes(geom, natoms, natoms3, nmode,
+     $           evec, eval, aa, a, b, coords, fv1, fv2, iter.eq.1)
+         endif
+         call ga_brdcst(1,nmode,mitob(nmode),0)
+         call ga_brdcst(2,eval,mdtob(nmode),0)
+         call ga_brdcst(3,evec,mdtob(nmode*natoms3),0)
+c
+         if (iter .eq. 1) then
+            call take_step(rtdb, geom, natoms, natoms3, 0.0d0,
+     $           evec, coords, ncoords, tags, charges, stepnum, 
+     $           current_energy, wavefunction)
+         endif
+c
+         do mode = nmode, 1, -1 ! High-energy modes first
+            mode3 = (mode-1)*natoms3+1
+            step(0) = 0.0d0
+            energy(0) = current_energy
+            if (omaster) then
+               write(6,*) ' EOPT       minimizing mode ', mode
+               write(6,17) step(0), energy(0)
+ 17            format(' EOPT',14x,'step=',f8.4,' energy=',f15.8:, 
+     $              ' e-epredict=',1p,d9.2)
+               call util_flush(6)
+            endif
+c
+c     take a step predicted to have a small 2nd order energy change 
+c     so that we can compute an accurate gradient
+c
+            small_step = min(0.05d0, sqrt(2.0d0 * eacc / eval(mode)))
+            step(1) = small_step
+            call take_step(rtdb, geom, natoms, natoms3, step(1),
+     $           evec(mode3), coords, ncoords, tags, charges, stepnum,
+     $           energy(1), wavefunction)
+            current_energy = energy(1)
+c
+c     estimate gradient in search direction at the midpoint and if
+c     we have curvature info from the last macroiteration estimate
+c     the gradient at step 0 by allowing for the curvature.
+c
+            g = (energy(1)-energy(0))/(step(1)-step(0))
+            if (emode(mode) .gt. 0.0d0) then
+               g0 = g + (step(0)-step(1))*emode(mode)*0.5d0
+            else
+               g0 = g
+            endif
+            if (omaster) then
+               write(6,17) step(1), energy(1)
+               write(6,18) 0.5*step(1),g, g0
+ 18            format(' EOPT',14x,'    g(',f7.4,')=',f9.6,
+     $              ', est. g(0)=',f9.6)
+               call util_flush(6)
+            endif
+c
+            if (iter.gt.1 .and. abs(g0).lt.gtol) then 
+c
+c     Stay at the current geometry (which is not the one in the database)
+c
+               ndone = ndone + 1
+               if (.not. geom_cart_set(geom, natoms, tags, coords,
+     $              charges)) call errquit('eopt: failed set coords?',0)
+               current_energy = energy(0)
+               goto 998         ! Avoids accepting step
+            endif
+c
+c     Use eval rather than emode since emode may be unstable? Why?
+c
+c
+            step(2) = -g / eval(mode) ! 2nd order step from midpoint
+c               
+            if (abs(step(2)) .gt. trust) then
+               if (omaster) write(6,*) ' EOPT Truncating step ', step(2)
+               step(2) = sign(trust,step(2))
+            endif
+c
+            xmid = (step(0)+step(1))/2.0d0
+            x = step(1)-xmid
+            emid = energy(1) - g*x - 0.5d0*eval(mode)*x**2
+            x = step(2)
+            epredict = emid + g*x + 0.5d0*eval(mode)*x**2
+            step(2) = step(2) + xmid
+            call take_step(rtdb, geom, natoms, natoms3, step(2),
+     $           evec(mode3), coords, ncoords, tags, charges, stepnum, 
+     $           energy(2), wavefunction)
+            if (omaster) then
+               write(6,17) step(2), energy(2), energy(2)-epredict
+               call util_flush(6)
+            endif
+            current_energy = energy(2)
+            x = step(2) - step(1) ! Size of step we just took
+c
+            call eopt_order(3, step, energy)
+c
+ 100        if ( abs(x).gt.xtol .and.
+     $           abs(energy(2)-epredict).gt.etol) then
+c     
+               call eopt_quadfit(step, energy, qa, qb, qc, step(3), 
+     $           epredict, ierr)
+c
+               if (ierr .ne. 0) then
+                  if (omaster) write(6,*) ' EOPT   Negative curvature'
+                  step(3) = step(2) + sign(0.01d0,-(step(2)-step(1))) ! ???
+                  epredict = 0.0d0
+               else
+                  emode(mode) = 2.0d0*qa ! Update mode ... should damp?
+                  if (abs(step(3)-step(2)) .gt. trust) then
+                     if (omaster) write(6,*)
+     $                    ' EOPT Truncating step ',step(3)-step(2)
+                     step(3) = step(2) + sign(trust,step(3)-step(2))
+                  endif
+               endif
+               call take_step(rtdb, geom, natoms, natoms3, step(3),
+     $              evec(mode3), coords, ncoords, tags, charges, 
+     $              stepnum, energy(3), wavefunction)
+               current_energy = energy(3)
+               if (omaster) then
+                  write(6,17) step(3), energy(3), energy(3)-epredict
+                  call util_flush(6)
+               endif
+c
+               x = step(3) - step(2) ! Size of step we just took
+c     
+c     Now check that e3 is lower than at least one other energy
+c     
+               do i = 0, 2
+                  if (energy(3).lt.energy(i)) goto 876
+               enddo
+               call errquit('eopt: I''m lost',0)
+ 876           call eopt_order(4, step, energy)
+               goto 100
+            endif
+c            
+            call dcopy(natoms3,ncoords,1,coords,1) ! Accept new geometry
+c
+ 998     enddo                  ! End loop over modes
+         if (omaster) then
+            write(6,234) iter
+ 234        format(/' EOPT Geometry after macro-iteration',i2/)
+            if (.not. geom_print(geom)) call errquit
+     $           ('eopt: corrupt geometry?',0)
+            write(6,*)
+            call util_flush(6)
+         endif
+         if (ndone .eq. nmode) goto 9999
+      enddo                     ! End loop over iters
+ 9999 eopt = ndone .eq. nmode
+      if (omaster) then
+         if (eopt) then
+            write(6,*) ' EOPT Converged :-) '
+         else
+            write(6,*) ' EOPT Failed to converge :-('
+         endif
+         write(6,*)
+      endif
+c
+      if (.not. geom_destroy(geom)) 
+     $     call errquit('eopt: geom destroy',0)
+c
+      end
+      subroutine eopt_modes(geom, natoms, natoms3,
+     $     nmode, evec, eval, aa, a, b,coords, fv1, fv2, oprint)
+      implicit none
+#include "util.fh"
+c
+      integer geom, natoms, natoms3, nmode
+      double precision evec(*), eval(*), aa(*), a(*), b(*), 
+     $     coords(3,natoms), fv1(*), fv2(*)
+      logical oprint
+c
+      integer maxat, maxat3
+      parameter (maxat = 10)    ! MUST MATCH ABOVE
+      parameter (maxat3 = maxat*3)
+      double precision vecs(maxat3,6), revec(maxat3**2)
+      double precision xx, yy, zz, centroid(3), x, y, z, fx
+c
+      integer i, j, k, i3, nmode3, ierr
+c     
+c     3N independent coordinates
+c     
+      call dfill(natoms3*natoms3, 0.0d0, evec, 1) 
+      call dfill(natoms3, 1.0d0, evec, natoms3+1)
+c     
+c     Only want totally symmetric displacements
+c     
+      do i = 1, 3*natoms
+         call sym_grad_symmetrize(geom, evec((i-1)*natoms3+1))
+      enddo
+c     
+c     Project out translations and rotations. Rotations are geometry dependent
+c     and so we should do them at each new geometry ... also
+c     to construct rotations that are orthog to the translations
+c     we must center them about the centroid and orthog amoung the rotations
+c
+      call dfill(3, 0.0d0, centroid, 1)
+      do i = 1, natoms
+         do k = 1, 3
+            centroid(k) = centroid(k) + coords(k,i)
+         enddo
+      enddo
+c
+      do k = 1, 3               ! x, y, z translations
+         call dfill(natoms3, 0.0d0, vecs(1,k), 1)
+         call dfill(natoms, sqrt(1.0d0/natoms), vecs(k,k), 3)
+      enddo
+      do k = 4, 6               ! x, y, z rotations
+         do i = 1, natoms
+            x = coords(1,i) - centroid(1)
+            y = coords(2,i) - centroid(2)
+            z = coords(3,i) - centroid(3)
+            if (k .eq. 4) then
+               xx = 0.0d0
+               yy = -z
+               zz =  y
+            else if (k .eq. 5) then
+               xx =  z
+               yy =  0.0d0
+               zz = -x
+            else if (k .eq. 6) then
+               xx = -y
+               yy =  x
+               zz =  0.0d0
+            endif
+            i3 = (i-1)*3
+            vecs(i3+1,k) = xx
+            vecs(i3+2,k) = yy
+            vecs(i3+3,k) = zz
+         enddo
+         do j = 1, k-1
+            fx = ddot(natoms3, vecs(1,j), 1, vecs(1,k), 1)
+            call daxpy(natoms3, -fx, vecs(1,j), 1, vecs(1,k), 1)
+         enddo
+         fx = sqrt(ddot(natoms3, vecs(1,k),1, vecs(1,k), 1))
+         if (fx . gt. 1d-3) then
+            call dscal(natoms3, 1.0d0/fx, vecs(1,k), 1)
+         else
+            call dfill(natoms3, 0.0d0, vecs(1,k), 1)
+         endif
+      enddo
+*     write(6,*) ' trans+rotn vectors '
+*     call output(vecs, 1, natoms, 1, 6, natoms3, 6, 1)
+c     
+      do k = 1, 6
+         do i = 1, natoms3
+            i3 = (i-1)*natoms3 + 1 
+            fx = ddot(natoms3, vecs(1,k), 1, evec(i3), 1)
+            call daxpy(natoms3, -fx, vecs(1,k), 1, evec(i3), 1)
+         enddo
+      enddo
+c     
+c     Get rid of the zero vectors by diagonalizing the metric
+c     
+      call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
+     $     evec, natoms3, evec, natoms3, 0.0d0, a, natoms3)
+      call dfill(natoms3*natoms3, 0.0d0, b, 1) ! b becomes identity
+      call dfill(natoms3, 1.0d0, b, natoms3+1)
+      call rsg(natoms3, natoms3, a, b, eval, 1, revec, fv1, fv2,ierr)
+*     write(6,*) ' Eigen values of the projected vectors metric '
+*     call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
+c     
+c     There should be nmodes unit eigen values with all else zero
+c     
+      nmode = 0
+      do i = 1, natoms3
+         if (eval(i) .gt. 1d-3) then
+            nmode = nmode + 1
+            nmode3 = (nmode-1)*natoms3+1
+            i3 = (i-1)*natoms3+1
+            call dcopy(natoms3,revec(i3),1,evec(nmode3),1)
+            call dscal(natoms3,1.0d0/sqrt(eval(i)),evec(nmode3),1)
+         endif
+      enddo
+      if (oprint)
+     $     write(6,*) ' No. of indep. symmetric all-internal modes ', 
+     $     nmode
+c     
+c     Transform into the reduced space ... this is really only valid at the 
+c     minimum since the unit vectors we have just point in the direction
+c     of the first derivative of the internals w.r.t. the cartesians.
+c     The full non-linear transformation also has a term in it with
+c     gradient components.
+c     
+      call dgemm('n','n',natoms3,nmode,natoms3,1.0d0, 
+     $     aa, natoms3, evec, natoms3, 0.0d0, b, natoms3)
+      call dgemm('t','n',nmode,nmode,natoms3,1.0d0, 
+     $     evec, natoms3, b, natoms3, 0.0d0, a, nmode)
+c     
+c     Diagonalize again in the reduced space
+c     
+      call dfill(nmode*nmode, 0.0d0, b, 1) ! b becomes identity
+      call dfill(nmode, 1.0d0, b, nmode+1)
+      call rsg(nmode, nmode, a, b, eval, 1, revec, fv1, fv2, ierr)
+      if (ierr .ne. 0) call errquit('eopt: rsg failed', 0)
+      if (oprint) then
+         write(6,*) ' Internal Hessian eigenvalues '
+         call output(eval, 1, nmode, 1, 1, nmode, 1, 1)
+      endif
+*     write(6,*) ' Internal Hessian internal eigenvectors '
+*     call output(revec, 1, nmode, 1, nmode, nmode, nmode, 1)
+      call dgemm('n','n',natoms3,nmode,nmode,1.0d0,
+     $     evec, natoms3, revec, nmode, 0.0d0, b, natoms3)
+      call dcopy(natoms3*nmode, b, 1, evec, 1)
+      if (oprint) then
+         write(6,*) ' Internal Hessian cartesian eigenvectors'
+         call output(evec, 1, natoms3, 1, nmode, natoms3, nmode, 1)
+      endif
+c     
+c     Ensure the sucker is positive definite and also that
+c     we will not be taking enormous steps in low frequency modes ... 
+c     take negative  or low frequency modes and reset with 0.05 (?) 
+c     hessian value ... 
+c     the search procedure will determine the appropriate value the 
+c     first time this mode is encountered, which will be after all 
+c     larger modes.
+c     
+      do i = 1, nmode
+         if (eval(i) .lt. 0.05d0) then
+            if (oprint) write(6,1) i, eval(i), 0.1d0
+ 1          format(' Resetting frequency of mode ',i2,' from ',
+     $           f6.2,' to ',f6.2)
+            eval(i) = 0.05d0
+         endif
+      enddo
+c     
+      end
+      subroutine take_step(rtdb, geom, natom, natom3, step,
+     $     search, coords, ncoords, tags, charges, stepnum, 
+     $     energy, wavefunction)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+c     
+      integer rtdb, geom, natom, natom3, stepnum
+      double precision step, search(*)
+      double precision coords(3,natom), ncoords(3,natom), charges(natom)
+      character*16 tags(natom)
+      character*(*) wavefunction
+      double precision energy
+      double precision wavefunction_energy
+      external wavefunction_energy
+c
+      character*80 name
+c     
+      call dcopy(natom3,coords,1,ncoords,1)
+      call daxpy(natom3,step,search,1,ncoords,1)
+      if (.not. geom_cart_set(geom, natom, tags, ncoords, charges))
+     $     call errquit('eopt: failed setting coords?',0)
+      call sym_geom_project(geom, 1d-2) ! Enforce symmetry
+      if (.not. geom_cart_get(geom, natom, tags, ncoords, charges))
+     $     call errquit('eopt: failed getting coords?',0)
+c
+      name = ' '
+      stepnum = stepnum + 1
+      write(name,'(''eopt_geometry'',i3)') stepnum
+      if (.not. geom_rtdb_store(rtdb, geom , name))
+     $     call errquit('eopt:take_step: geom_rtdb_put',stepnum)
+      if (.not. rtdb_cput(rtdb, 'geometry', 1, name))
+     $     call errquit('eopt:take_step:rtdb_cput',stepnum)
+c
+      energy = wavefunction_energy(rtdb, wavefunction)
+c
+      end
+      subroutine eopt_quadfit(step, energy, a, b, c, xmin, emin, ierr)
+      implicit double precision (a-h, o-z)
+      dimension step(3), energy(3)
+c
+      etest(x) = a*x**2 + b*x + c
+c
+      xm = step(1)
+      x0 = step(2)
+      xp = step(3)
+      em = energy(1)
+      e0 = energy(2)
+      ep = energy(3)
+c
+      xxp = xp - x0
+      xxm = xm - x0
+      eep = ep - e0
+      eem = em - e0
+c
+      a = (eep/xxp - eem/xxm) / (xp - xm)
+      b = eep/xxp - a*(xp + x0)
+      c = ep - a*xp**2 - b*xp
+c
+*      write(6,1) xm, etest(xm), em
+*      write(6,1) x0, etest(x0), e0
+*      write(6,1) xp, etest(xp), ep
+* 1    format(' qf: ',f8.4,2f14.8)
+c
+      if (a .lt. 0) then        ! Negative curvature
+         ierr = 1
+         return
+      endif
+c
+      xmin = -b/(2*a)
+      emin = etest(xmin)
+      ierr = 0
+c
+      end
+      subroutine eopt_order(n, step, energy)
+      implicit none
+      integer n
+      double precision step(n), energy(n)
+      integer i, j
+      double precision tmp
+c
+c     Order the elements so that the lowest energy three
+c     points are in positions 1, 2, 3 with the lowest energy
+c     in position 3
+c
+c     Sort into increasing energy and then switch 1/3
+c
+      do i = 1, n
+         do j = i+1, n
+            if (energy(j) .lt. energy(i)) then
+               tmp = energy(i)
+               energy(i) = energy(j)
+               energy(j) = tmp
+               tmp = step(i)
+               step(i) = step(j)
+               step(j) = tmp
+            endif
+         enddo
+      enddo
+c
+      i = 1
+      j = 3
+      tmp = energy(i)
+      energy(i) = energy(j)
+      energy(j) = tmp
+      tmp = step(i)
+      step(i) = step(j)
+      step(j) = tmp
+c
+      end
+      double precision function wavefunction_energy(rtdb, wavefunction)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+      integer rtdb
+      character*(*) wavefunction
+c
+      logical scf
+      external scf
+      double precision energy
+      character*10 prefix
+      character*20 key
+c
+      prefix = wavefunction     ! Nearly always true
+c
+      if (wavefunction .eq. 'scf') then
+         if (.not. scf(rtdb)) call errquit('wf_energy: scf failed',0)
+      else if (wavefunction .eq. 'dft') then
+         call nwdft(rtdb)
+      else if (wavefunction .eq. 'mp2') then
+         if (.not. scf(rtdb)) call errquit
+     $        ('wf_energy: scf for mp2 failed',0)
+         call direct_mp2(rtdb)
+      else if (wavefunction .eq. 'mcscf') then
+         call mcscf(rtdb)
+      else if (wavefunction .eq. 'scf+selci') then
+         if (.not. scf(rtdb)) call errquit
+     $        ('wf_energy: scf for selci failed',0)
+         call selci(rtdb)
+         prefix = 'selci'
+      else if (wavefunction .eq. 'mcscf+selci') then
+         call mcscf(rtdb)
+         call selci(rtdb)
+         prefix = 'selcipt'
+      else
+         call errquit('wf_energy: unknown wavefunction',0)
+      endif
+c
+      key = ' '
+      write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
+c
+      if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
+     $     call errquit('wf_energy: no energy in rtdb',0)
+c
+      wavefunction_energy = energy
+c
+      end

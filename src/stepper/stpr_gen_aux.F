@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.3 1996-07-17 16:36:46 d3g681 Exp $
+* $Id: stpr_gen_aux.F,v 1.4 1996-07-26 16:39:30 d3g681 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -9,8 +9,6 @@
 * stpr_check_genat_restart     ! check for restart "is info available?"
 * stpr_get_genat_restart       ! get restart info
 * stpr_put_genat_restart       ! put restart info out to restart file
-* stpr_genat_mode_context_push ! push dft/scf context
-* stpr_genat_mode_context_pop  ! pop dft/scf context
 * stpr_gen_hess_foldave        ! averages off diaginal contributions
 * stpr_gen_hess_fold           ! sums off diaginal contributions (partial computations)
 * stpr_gen_set_diag            ! sets inactive atom diagonal contribs to large value
@@ -50,6 +48,7 @@ c
       implicit none
 c
 #include "stdio.fh"
+#include "inp.fh"
 c
       integer rank_hess
       double precision hess(rank_hess,rank_hess)
@@ -65,7 +64,7 @@ c
       if (does_it_exist)
      &    write(luout,*)
      &    ' stpr_wrt_fd_from_sq: overwrite of existing file:',
-     &    filename
+     &    filename(1:inp_strlen(filename))
       open(unit=lu,file=filename,
      &    form='formatted',
      &    access='sequential',
@@ -216,46 +215,6 @@ c
       if (put_grad0) write(69)grad0
       write(69)hess
       close(unit=69,status='keep')
-      end
-      logical function stpr_genat_mode_context_push(flag)
-      implicit none
-#include "rtdb.fh"
-#include "context.fh"
-#include "stpr_optimize.fh"
-      integer flag ! [input] flag that determines what code to call
-c
-      if (flag.eq.stpr_scf_flag) then
-*... set context
-        if (.not. context_push('scf')) call errquit
-     &      ('stpr_genat_mode_context_push scf failed',911)
-        stpr_genat_mode_context_push = .true.
-      else if(flag.eq.stpr_dft_flag) then
-        if (.not. context_push('dft')) call errquit
-     &      ('stpr_genat_mode_context_push dft failed',911)
-        stpr_genat_mode_context_push = .true.
-      else
-        stpr_genat_mode_context_push = .false.
-      endif
-      end
-      logical function stpr_genat_mode_context_pop(flag)
-      implicit none
-#include "rtdb.fh"
-#include "context.fh"
-#include "stpr_optimize.fh"
-      integer flag ! [input] flag that determines what code to call
-c
-      if (flag.eq.stpr_scf_flag) then
-*... set context
-        if (.not. context_pop('scf')) call errquit
-     &      ('stpr_genat_mode_context_pop scf failed',911)
-        stpr_genat_mode_context_pop = .true.
-      else if(flag.eq.stpr_dft_flag) then
-        if (.not. context_pop('dft')) call errquit
-     &      ('stpr_genat_mode_context_pop dft failed',911)
-        stpr_genat_mode_context_pop = .true.
-      else
-        stpr_genat_mode_context_pop = .false.
-      endif
       end
       subroutine stpr_gen_hess_foldave(hess,rank_hess)
 *! averages off diaginal contributions
