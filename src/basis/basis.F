@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.115 2002-01-24 22:58:49 edo Exp $
+c $Id: basis.F,v 1.116 2002-01-31 23:49:37 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -2970,7 +2970,7 @@ c::passed
       integer testbf  ! [input] basis function index
       integer center  ! [output] center index
 c::local
-      integer basis, nat, iat, ibflo, ibfhi
+      integer basis, nat, iat, ibflo, ibfhi, istart, iend
 c
 #include "bas_ibs_sfn.fh"
 c
@@ -2991,8 +2991,11 @@ c... linear search through atoms
 c
       center = -1
       do 00100 iat = 1,nat
-        ibflo = sf_ibs_cn2bfr(1,(sf_ibs_ce2cnr(1,iat,basis)),basis)
-        ibfhi = sf_ibs_cn2bfr(2,(sf_ibs_ce2cnr(2,iat,basis)),basis)
+        istart = sf_ibs_ce2cnr(1,iat,basis)
+        iend   = sf_ibs_ce2cnr(2,iat,basis)
+        if ((iend - istart + 1 ) .le. 0) goto 00100
+        ibflo = sf_ibs_cn2bfr(1,istart,basis)
+        ibfhi = sf_ibs_cn2bfr(2,iend,basis)
         if (testbf.ge.ibflo.and.testbf.le.ibfhi) then
           center = iat
           return
