@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.12 1996-07-20 07:11:08 d3e129 Exp $
+c $Id: int_spcart.F,v 1.13 1996-08-01 18:28:45 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, *
@@ -97,7 +97,9 @@ c
 *      do lval=0,Lmaxin
 *        call spcart_print_dtrans(lval)
 *      enddo
-      call xlm_ptrs_fix_p(dbl_mb(int_mb((k_sp2c_lindx+1))),3,1)
+      if (lmaxin.ge.1) then
+        call xlm_ptrs_fix_p(dbl_mb(int_mb((k_sp2c_lindx+1))),3,1)
+      endif
 *rak:      do lval=0,Lmaxin
 *rak:        call xlm_ptrs_phase(dbl_mb(int_mb((k_sp2c_lindx+lval))),
 *rak:     &      (lval+1)*(lval+2)/2,lval)
