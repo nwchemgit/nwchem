@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.256 1998-05-08 19:05:26 d3e129 Exp $
+# $Id: makefile.h,v 1.257 1998-06-15 23:17:17 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -297,7 +297,6 @@ ifeq ($(TARGET),SOLARIS)
 # -DPARALLEL_DIAG
 
   LDOPTIONS = -xildoff
-
 
        CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
@@ -1123,6 +1122,17 @@ endif
 #  some of the definitions below will be 'lost'                   #
 ###################################################################
 
+ifdef PYTHONHOME
+ifdef PYTHONVERSION
+CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+else
+errorpython:
+	@echo "For python you must define both PYTHONHOME and PYTHONVERSION"
+	@echo "E.g., setenv PYTHONHOME /msrc/home/d3g681/Python-1.5.1
+	@echo "      setenv PYTHONVERSION 1.5"
+	@exit 1
+endif
+endif
 
 # MPI version requires tcgmsg-mpi library
 ifdef USE_MPI
