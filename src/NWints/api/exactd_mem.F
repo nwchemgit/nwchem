@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.35 1999-12-30 22:17:25 mg201 Exp $
+c $Id: exactd_mem.F,v 1.36 2000-01-25 20:17:09 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -371,7 +371,10 @@ c
      &        dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)), nat, dbl_mb(mb_exndcf(1,1)),
      &        dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
-     &        nint, .true., .true., .true., .false., .false., .true.,
+C .........           doS     doT     doV     canAB
+     &        nint, .true., .true., .true., .false.,
+C ........     do_nw   do_hnd   nonrel   dryrun
+     &        .true., .false., .false., .true.,
      &        dbl_mb(mb_exndcf(1,1)), memdum,rel_dbg,rel_typ)
           memsize = max(memsize,(bra_fact*ket_fact*memdum))
 00200   continue
