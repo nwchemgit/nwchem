@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.1 1997-06-17 19:25:57 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.2 1997-06-17 22:36:56 mdupuis Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -74,7 +74,7 @@ c
 #include "numb_qP.fh"
 c::functions
       logical int_nint
-      logical int_nint_cart
+      integer int_nint_cart
       external int_nint
       external int_nint_cart
 c::   passed
