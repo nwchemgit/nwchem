@@ -16,20 +16,21 @@ c
 c     tight
 c     tol_rho
 c     accAOfunc
+c     accCDfunc
 c     accCoul
 c     accQrad
 c     accXCfunc
 c     radius
 c     
       integer num_dirs, ind, mlen
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 8)
       character*9 dirs(num_dirs)
       character*255 test
       logical ltight
-      integer iAOacc, itol2e, irqmax, iXCacc
+      integer iAOacc, iCDacc, itol2e, irqmax, iXCacc
       double precision tol_rho, radius
-      data dirs /'tight', 'tol_rho', 'accAOfunc', 'accCoul', 'accQrad',
-     $     'accXCfunc', 'radius'/
+      data dirs /'tight', 'tol_rho', 'accAOfunc', 'accAOfunc', 
+     $           'accCoul', 'accQrad', 'accXCfunc', 'radius'/
 c     
       mlen = inp_strlen(module)
 c     
@@ -42,7 +43,7 @@ c
          goto 10000
       endif
 c     
-      goto (100, 200, 300, 400, 500, 600, 700, 999) ind
+      goto (100, 200, 300, 400, 500, 600, 700, 800, 999) ind
       call errquit('tol_inp: unimplemented directive', ind)
 c     
 c     tight; set screening threshholds tight
@@ -80,52 +81,65 @@ c
 c
       goto 10
 c     
+c     accCDfunc; for use in screening evaluation of CD gaussians
+c                on grid
+c             
+  400 if (.not. inp_i(iCDacc)) then
+         write(6,*)' tol_inp: accCDfunc value not found; defaulting ',
+     &             ' to 20.'
+         iCDacc = 20
+      endif            
+      if (.not. rtdb_put(rtdb, 'dft:iCDacc', mt_int, 1, iCDacc))
+     &   call errquit('tol_inp: rtdb_put failed', 400)
+c
+      goto 10
+c     
 c     accCoul; for use in fitcd & fitvcoul for schwarz screening 
 c             
-  400 if (.not. inp_i(itol2e)) then
+  500 if (.not. inp_i(itol2e)) then
          write(6,*)' tol_inp: accCoul value not found; defaulting ',
      &             ' to 15.'
          itol2e = 15
       endif
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     &   call errquit('tol_inp: rtdb_put failed', 400)
+     &   call errquit('tol_inp: rtdb_put failed', 500)
 c
       goto 10
 c     
 c     accQrad; for use in setquad - r_max for quadrature points (distance in bohr)
 c             
-  500 if (.not. inp_i(irqmax)) then
+  600 if (.not. inp_i(irqmax)) then
          write(6,*)' tol_inp: accQrad value not found; defaulting ',
      &             ' to 40.'
          irqmax = 40
       endif            
       if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
-     &   call errquit('tol_inp: rtdb_put failed', 500)
+     &   call errquit('tol_inp: rtdb_put failed', 600)
 c
       goto 10
 c     
 c     accXCfunc; for use in int_eval_gbsets (called by quadvxc1),
 c                accuracy for evaluating XC gaussians
 c             
-  600 if (.not. inp_i(iXCacc)) then
+  700 if (.not. inp_i(iXCacc)) then
          write(6,*)' tol_inp: accXCfunc value not found; defaulting ',
      &             ' to 20.'
          iXCacc = 20
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
-     &   call errquit('tol_inp: rtdb_put failed', 600)
+     &   call errquit('tol_inp: rtdb_put failed', 700)
 c
       goto 10
 c     
-c     radius; screening radius used in computation of spatial weights.
+c     radius; screening radius used in computation of spatial weights (distance in bohr)
 c     
-  700 if (.not. inp_f(radius)) then
+  800 if (.not. inp_f(radius)) then
          write(6,*)' tol_inp: radius value not found; defaulting ',
-     &             ' to 16.d0.'
-         radius=16.d0
+     &             ' to 32.d0.'
+         radius=32.d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1, radius))
-     &   call errquit('tol_inp: rtdb_put failed', 700)
+     &   call errquit('tol_inp: rtdb_put failed', 800)
 c
       goto 10
 c     
@@ -135,9 +149,9 @@ c
 c     
 10000 write(6,10001)
 10001 format(/,' tolerances [[tight], [tol_rho dtol], ',
-     &       /,' [accAOfunc itol], [accCoul itol], ',
-     &       /,' [accQrad itol], [accXCfunc itol], ',
-     &       /,' [radius dtol] ')
+     &       /,' [accAOfunc itol], [accCDfunc itol], ',
+     &       /,' [accCoul itol], [accQrad itol], ',
+     &       /,' [accXCfunc itol], [radius dtol] ')
       call util_flush(6)
       call errquit('tol_input: invalid format', 0)
 c     

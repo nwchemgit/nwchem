@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.31 1997-10-21 21:57:56 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.32 1997-10-24 23:53:35 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -491,7 +491,7 @@ c
      &         (LuOut,'Screening Tolerance Information',20,.true.)
             t1 = 10.d0**(-itol2e)
             r1 = dble(irqmax)
-            write(LuOut,9372)tol_rho, iaoacc, itol2e, t1, ixcacc, 
+            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
      &                    r1, radius
          endif
       endif
@@ -551,9 +551,10 @@ c
      &       10x,'Spin multiplicity:',2x,i4)
  9372 format(10x,'Density screening/tol_rho: ',d8.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
-     &       10x,'CD Gaussian exp screening on grid/accCoul: ',i3,/,
-     &       10x,'Schwarz screening/accCoul: ',d8.2,/,
+     &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
-     &       10x,'Max radial quadrature (shell size)/accQrad: ',d8.2,/,
-     &       10x,'Spatial weight screening/radius: ',d8.2,/)
+     &       10x,'Schwarz screening/accCoul: ',d8.2,/,
+     &       10x,'Max radial quadrature (shell size)/accQrad(au): '
+     &          ,d8.2,/,
+     &       10x,'Spatial weight screening/radius(au): ',d8.2,/)
       end

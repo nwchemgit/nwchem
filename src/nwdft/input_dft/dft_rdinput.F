@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.47 1997-10-21 21:57:57 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.48 1997-10-24 23:53:36 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -242,6 +242,14 @@ c
      &      call errquit('dft_input: rtdb_put failed', 124)
       endif
 c
+      if (.not. rtdb_get(rtdb, 'dft:iCDacc', mt_int, 1,
+     &   iCDacc))then
+         iCDacc=20
+         if (.not. rtdb_put(rtdb, 'dft:iCDacc',
+     &      mt_int, 1, iCDacc))
+     &      call errquit('dft_input: rtdb_put failed', 125)
+      endif
+c
       if (.not. rtdb_get(rtdb, 'dft:iXCacc', mt_int, 1,
      &   iXCacc))then
          iXCacc=20
@@ -395,7 +403,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,
      &   radius))then
-         radius=16.d0
+         radius=32.d0
          if (.not. rtdb_put(rtdb, 'dft:radius',
      &      mt_dbl, 1,radius))
      &      call errquit('dft_input: rtdb_put failed', 213)
