@@ -15,12 +15,14 @@ c                  symmetry operations and deposits symmetry operations
 c                  and mapping tables to rtdb for future retrieval.
 c                         
 c
+c   call sym_init_inv_op: to make list of inverse operations
+c
 c                                          A.C.H. 5/12/94
 c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.8 1995-10-17 08:56:24 d3g681 Exp $
+C$Id: sym_nwc.F,v 1.9 1995-11-19 19:31:52 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -166,6 +168,8 @@ c
       LResult = MA_Pop_Stack(ldatom)
       LResult = MA_Pop_Stack(lcoord)
       LResult = MA_Pop_Stack(latags)
+c
+      call sym_init_inv_op(geom)
 c
 c--> formats
 c

@@ -1,9 +1,10 @@
-#$Id: GNUmakefile,v 1.13 1995-11-16 20:38:09 d3g681 Exp $
+#$Id: GNUmakefile,v 1.14 1995-11-19 19:32:29 d3g681 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
        HEADERS = bas.fh basP.fh bas_staticP.fh geobasmapP.fh basdeclsP.fh
-           OBJ = basis.o basisP.o bas_input.o
+           OBJ = bas_input.o
+  OBJ_OPTIMIZE = basis.o basisP.o
 
 ifeq ($(TARGET),CRAY-T3D)
    OBJ_OPTIMIZE = basis.o 
@@ -28,7 +29,7 @@ basP.fh:	bas_staticP.fh
 	@touch basP.fh
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-bas_input.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh bas.fh 
-basis.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh geobasmapP.fh $(INCDIR)/context.fh basdeclsP.fh basP.fh basP.fh 
-basisP.o :	 $(INCDIR)/inp.fh geobasmapP.fh basdeclsP.fh basP.fh 
-testbasis.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh bas.fh 
+$(LIBRARY_PATH)(bas_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh bas.fh 
+$(LIBRARY_PATH)(basis.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh geobasmapP.fh $(INCDIR)/context.fh basdeclsP.fh basP.fh basP.fh 
+$(LIBRARY_PATH)(basisP.o):	 $(INCDIR)/inp.fh geobasmapP.fh basdeclsP.fh basP.fh 
+$(LIBRARY_PATH)(testbasis.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh bas.fh 

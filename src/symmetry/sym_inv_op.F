@@ -1,5 +1,24 @@
       subroutine sym_inv_op(geom, op, opinv)
-C$Id: sym_inv_op.F,v 1.2 1995-10-10 06:17:41 d3g681 Exp $
+      implicit none
+#include "geomP.fh"
+      integer geom, op, opinv
+c
+      opinv = sym_op_inv(op, geom)
+c
+      end
+      subroutine sym_init_inv_op(geom)
+      implicit none
+#include "geomP.fh"
+      integer geom
+      integer i
+c
+      do i = 1, sym_num_ops(geom)
+         call sym_find_inv_op(geom, i, sym_op_inv(i,geom))
+      enddo
+c
+      end
+      subroutine sym_find_inv_op(geom, op, opinv)
+C$Id: sym_inv_op.F,v 1.3 1995-11-19 19:31:41 d3g681 Exp $
       implicit none
 #include "sym.fh"
       integer geom, op, opinv

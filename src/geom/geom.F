@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.39 1995-11-13 06:42:33 d3g681 Exp $
+C$Id: geom.F,v 1.40 1995-11-19 19:32:19 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -409,19 +409,22 @@ c
       implicit none
 #include "geomP.fh"
 #include "util.fh"
+#include "inp.fh"
       integer geom              ! [input]
 c
 c     compute effective nuclear repulsion energy, dipole and
 c     interaction with external fields
 c
+c     eventually need to also make the symmetry info consistent
+c     and make internals/cartesians consistent
+c
       double precision e, r
       integer i, j
-      character*2 symi, symj
-      character*16 eli, elj
-      integer atni, atnj
       logical j_is_atom, i_is_atom
       logical geom_tag_to_element
       external geom_tag_to_element
+      logical is_atom
+      is_atom(i) = (.not. inp_compare(.false., 'bq', tags(i,geom)(1:2)))
 c
       e = 0.0d0
       ndipole(1,geom) = 0.0d0
@@ -431,8 +434,7 @@ c
 c     compute nuclear dipole moment and usual nuclear repulsion energy
 c
       do i = 1,ncenter(geom)
-         i_is_atom = geom_tag_to_element(tags(i,geom), 
-     $        symi, eli, atni)
+         i_is_atom = is_atom(i)
          if (include_bqbq(geom) .or. i_is_atom) then
             do j = 1, 3
                ndipole(j,geom) = ndipole(j,geom) +
@@ -440,8 +442,7 @@ c
             end do
          endif
          do j = i+1, ncenter(geom)
-            j_is_atom = geom_tag_to_element(tags(j,geom),
-     $           symj, elj, atnj)
+            j_is_atom = is_atom(j)
             if (include_bqbq(geom) .or. (i_is_atom.or.j_is_atom)) then
 
                r = dsqrt(
@@ -462,6 +463,8 @@ c
       if (isystype(geom) .eq. 3) then
          call geom_3d(geom)
       endif
+c
+      call sym_init_inv_op(geom)
 c
       end
       logical function geom_include_bqbq(geom)

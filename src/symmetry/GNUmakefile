@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.13 1995-11-03 20:43:46 d3g681 Exp $
+#$Id: GNUmakefile,v 1.14 1995-11-19 19:31:27 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -47,27 +47,27 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-sym_apply_cart_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-sym_apply_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-sym_bas_irreps.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-sym_bas_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-sym_center_map.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
-sym_char_table.o :	 $(INCDIR)/util.fh 
-sym_geom_project.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-sym_get_cart_op.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-sym_grad_symmetrize.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
-sym_group_name.o :	 $(INCDIR)/geomP.fh 
-sym_inv_op.o :	 sym.fh 
-sym_movecs_adapt.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-sym_movecs_apply_op.o :	 sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-sym_number_ops.o :	 $(INCDIR)/geomP.fh 
-sym_nwc.o :	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
-sym_op_class_name.o :	 $(INCDIR)/inp.fh 
-sym_op_classify.o :	 $(INCDIR)/util.fh sym.fh $(INCDIR)/inp.fh 
-sym_ops_get.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
-sym_print_all.o :	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geomP.fh 
-sym_print_char_table.o :	 sym.fh 
-sym_print_ops.o :	 sym.fh $(INCDIR)/inp.fh 
-sym_put_in_geom.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
-sym_shell_pair.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-sym_symmetrize.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_apply_cart_op.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_apply_op.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_bas_irreps.o):	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_bas_op.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_center_map.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(sym_char_table.o):	 $(INCDIR)/util.fh 
+$(LIBRARY_PATH)(sym_geom_project.o):	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_get_cart_op.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_grad_symmetrize.o):	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(sym_group_name.o):	 $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_inv_op.o):	 sym.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_movecs_adapt.o):	 $(INCDIR)/util.fh sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_movecs_apply_op.o):	 sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_number_ops.o):	 $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_nwc.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(sym_op_class_name.o):	 $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_op_classify.o):	 $(INCDIR)/util.fh sym.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_ops_get.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_print_all.o):	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geomP.fh 
+$(LIBRARY_PATH)(sym_print_char_table.o):	 sym.fh 
+$(LIBRARY_PATH)(sym_print_ops.o):	 sym.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(sym_put_in_geom.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(sym_shell_pair.o):	 $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(sym_symmetrize.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 

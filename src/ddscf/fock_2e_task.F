@@ -11,8 +11,9 @@
       implicit none
 #include "bas.fh"
 #include "cfock.fh"
+#include "cscfps.fh"
 c
-c     $Id: fock_2e_task.F,v 1.6 1995-11-17 01:07:21 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.7 1995-11-19 19:28:42 d3g681 Exp $
 c
 c     Given an atomic quartet, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -93,12 +94,14 @@ c
 c     
 c     Update F blocks
 c     
+         if (oscfps) call pstat_on(ps_gaops)
          call fock_upd_blk(nfock, vg_fock,
      $        llo, lhi, ilo, ihi, kfac, fli, tmp)
          call fock_upd_blk(nfock, vg_fock,
      $        llo, lhi, jlo, jhi, kfac, flj, tmp)
          call fock_upd_blk(nfock, vg_fock,
      $        llo, lhi, klo, khi, jfac, flk, tmp)
+         if (oscfps) call pstat_off(ps_gaops)
       end if
 c     
       end

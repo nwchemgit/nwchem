@@ -6,6 +6,7 @@
 #include "global.fh"
 #include "bas.fh"
 #include "util.fh"
+#include "cscfps.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -75,14 +76,18 @@ c     Debug ... verify that the density is symmetric
 c
       if (oskel) then
          call ga_copy(g_cdens, g_hcore)
+         if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .true., g_cdens)
+         if (oscfps) call pstat_off(ps_sym_sym)
          call ga_dadd(one, g_hcore, mone, g_cdens, g_hcore)
          call ga_maxelt(g_hcore, errmax)
          if (errmax .gt. 1d-10) call errquit
      $        ('rohf_fock: closed density is not totally symmetric',0)
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
+            if (oscfps) call pstat_on(ps_sym_sym)
             call sym_symmetrize(geom, basis, .true., g_odens)
+            if (oscfps) call pstat_off(ps_sym_sym)
             call ga_dadd(one, g_hcore, mone, g_odens, g_hcore)
             call ga_maxelt(g_hcore, errmax)
             if (errmax .gt. 1d-10) call errquit
@@ -158,10 +163,16 @@ c
 c     Symmetrize the AO components
 c     
       if (oskel) then
+         if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .false., g_cfock)
+         if (oscfps) call pstat_off(ps_sym_sym)
          if (nopen .gt. 0) then
+            if (oscfps) call pstat_on(ps_sym_sym)
             call sym_symmetrize(geom, basis, .false., g_ocoul)
+            if (oscfps) call pstat_off(ps_sym_sym)
+            if (oscfps) call pstat_on(ps_sym_sym)
             call sym_symmetrize(geom, basis, .false., g_oexch)
+            if (oscfps) call pstat_off(ps_sym_sym)
          endif
       endif
 c

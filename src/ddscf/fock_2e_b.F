@@ -3,7 +3,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.5 1995-10-21 19:39:16 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.6 1995-11-19 19:28:36 d3g681 Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -12,9 +12,9 @@ c
 #include "mafdecls.fh"
 #include "schwarz.fh"
 #include "bas.fh"
-#include "cscfps.fh"
 #include "cfock.fh"
 #include "util.fh"
+#include "cscfps.fh"
 c     
 c     
       integer basis
@@ -55,6 +55,7 @@ c     l_scr ... integral scratch space
 c     l_g   ... buffer for eris
 c     l_i, j, k, l ... integral labels
 c     
+      if (oscfps) call pstat_on(ps_fock_add)
       call int_mem_2e4c(max2e, mem2)
       mem2 = max(mem2,max2e)
       status = .true.
@@ -131,14 +132,11 @@ c
 c     
 c     Compute the shell block of integrals
 c     
-                        if (oscfps) call pstat_on(ps_int_2e)
                         call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                       mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
-                        if (oscfps) call pstat_off(ps_int_2e)
 c     
 c     Prescale ERIs
 c     
-                        if (oscfps) call pstat_on(ps_fock_add)
                         call fock_eri_scale( ishbflo, ishbfhi,
      $                       jshbflo, jshbfhi,
      $                       kshbflo, kshbfhi,
@@ -156,7 +154,6 @@ c
      $                       katbflo, katbfhi, latbflo, latbfhi,
      $                       dij, dik, dli, djk, dlj, dlk,
      $                       fij, fik, fli, fjk, flj, flk )
-                        if (oscfps) call pstat_off(ps_fock_add)
 #else
 c
 c     New code with labels
@@ -164,7 +161,6 @@ c
 c     
 c     Compute the shell block of integrals with labels
 c     
-                        if (oscfps) call pstat_on(ps_int_2e)
                         call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                       mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
                         call fock_2e_shell_to_labels(tol2e,
@@ -173,11 +169,9 @@ c
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g),
      $                       dbl_mb(k_scr),  neri)
-                        if (oscfps) call pstat_off(ps_int_2e)
 c     
 c     Prescale ERIs
 c     
-                        if (oscfps) call pstat_on(ps_fock_add)
                         call fock_eri_label_scale(neri, q4_shell,
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
@@ -185,7 +179,6 @@ c
 c     Cache integrals if desired
 c
                         if (owritefile) then
-                           if (oscfps) call pstat_on(ps_intio)
                            if (.not. int2e_file_write(neri,
      $                       int_mb(k_i), int_mb(k_j),
      $                       int_mb(k_k), int_mb(k_l), dbl_mb(k_g)))
@@ -194,7 +187,6 @@ c
      $                          call print_integ_list(neri, 
      $                          int_mb(k_i), int_mb(k_j),
      $                          int_mb(k_k), int_mb(k_l), dbl_mb(k_g))
-                           if (oscfps) call pstat_off(ps_intio)
                         end if
 c     
 c     Add shell-block ERI into Fock components
@@ -207,7 +199,6 @@ c
      $                       katbflo, katbfhi, latbflo, latbfhi,
      $                       dij, dik, dli, djk, dlj, dlk,
      $                       fij, fik, fli, fjk, flj, flk )
-                        if (oscfps) call pstat_off(ps_fock_add)
 #endif
 
                         iscreen(5) = iscreen(5) + 1
@@ -229,4 +220,6 @@ c
       if (.not. status) call errquit
      $     ('rhf_fock_2e_b: pop stack failed?', 0)
 c     
+      if (oscfps) call pstat_off(ps_fock_add)
+c
       end

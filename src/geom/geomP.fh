@@ -43,6 +43,7 @@ c     max_sym_ops                   = max. no. of operations in group
 c     sym_ops(max_sym_op*3,4) = matrix representation of symmetry operators
 c                                     molecules -> transformation of cartesians
 c                                     periodic  -> ask tony!
+c     sym_op_inv(max_sym_op,max_geom) = index of inverse operation
 c     sym_num_ops(max_geom)         = order of group minus one
 c                                   = no. of operations in the group
 c     sym_center_map_handle(max_geom) = MA handle of integer array
@@ -96,7 +97,7 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
-C$Id: geomP.fh,v 1.9 1995-11-03 20:42:16 d3g681 Exp $
+C$Id: geomP.fh,v 1.10 1995-11-19 19:32:22 d3g681 Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)
@@ -105,7 +106,7 @@ c
       logical active, operiodic, oefield, include_bqbq
       integer ngeom_rtdb, ncenter, lenn, lent, lenr, group_number,
      $     ncenter_unique, isystype, setting_number, unique_cent,
-     $     sym_num_ops,sym_center_map_handle,
+     $     sym_op_inv, sym_num_ops, sym_center_map_handle,
      $     sym_center_map_index
       double precision coords, charge, efield, latvec, ndipole, erep,
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
@@ -140,6 +141,7 @@ c
      $     unique_cent(1:max_cent,1:max_geom),
      $     group_number(max_geom),
      $     setting_number(max_geom),
+     $     sym_op_inv(max_sym_ops,max_geom),
      $     sym_num_ops(max_geom),
      $     sym_center_map_handle(max_geom),
      $     sym_center_map_index(max_geom),

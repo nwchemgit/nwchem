@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.17 1995-11-03 20:42:04 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.18 1995-11-19 19:29:05 d3g681 Exp $
       data oscfps /.false./     ! So that other codes do not break
 c
       end
@@ -34,6 +34,9 @@ c
       if (.not. pstat_allocate('scf: int-2e', pstat_qstat, 0, junk,
      $     ps_int_2e)) call errquit('scf: scf_pstat_init', 0)
 c
+      if (.not. pstat_allocate('scf: ga ops', pstat_qstat, 0, junk,
+     $     ps_gaops)) call errquit('scf: scf_pstat_init', 0)
+c
       if (.not. pstat_allocate('scf: fock-add', pstat_qstat, 0, junk,
      $     ps_fock_add)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -52,12 +55,18 @@ c
       if (.not. pstat_allocate('scf: intio', pstat_qstat, 0, junk,
      $     ps_intio)) call errquit('scf: scf_pstat_init', 0)
 c
+      if (.not. pstat_allocate('scf: dipole', pstat_qstat, 0, junk,
+     $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0)
+c
+      if (.not. pstat_allocate('scf: sym ad', pstat_qstat, 0, junk,
+     $     ps_sym_ad)) call errquit('scf: scf_pstat_init', 0)
+c
+      if (.not. pstat_allocate('scf: sym   ', pstat_qstat, 0, junk,
+     $     ps_sym_sym)) call errquit('scf: scf_pstat_init', 0)
+c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
      $     ps_total)) call errquit('scf: scf_pstat_init', 0)
 c
-      if (.not. pstat_allocate('scf: dipole', pstat_qstat, 0, junk,
-     $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0)
-
 C     additional for RI-SCF
       if ( nriscf.ne.0 ) then
 c       
@@ -108,13 +117,16 @@ c
          if (.not. pstat_free(ps_fock_2e))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_int_1e))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_int_2e))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_gaops))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_fock_add))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_matexp))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_orthog))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_sym_ad))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_sym_sym))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
 
 C        additional for RI-SCF
          if ( nriscf.ne.0 ) then

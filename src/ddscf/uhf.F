@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.14 1995-11-15 20:05:30 gg502 Exp $
+C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -165,7 +165,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.14 1995-11-15 20:05:30 gg502 Exp $
+C     $Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -432,7 +432,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.14 1995-11-15 20:05:30 gg502 Exp $
+C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -522,8 +522,9 @@ c
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "util.fh"
+#include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.14 1995-11-15 20:05:30 gg502 Exp $
+c     $Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -581,13 +582,19 @@ c     symmetric component ... hence we can symmetrize the densities and
 c     exploit symmetry.  Compute the max change in any element due to
 c     symmetrizing and print a warning if it is big.
 c
-c     If this is the case then where does the 'force' for symmetry breaking
+c     !! If this is the case then where does the 'force' for symmetry breaking
 c     come from?  Must be missing something?
 c
       call ga_copy(g_a_dens,g_a_coul)
       call ga_copy(g_b_dens,g_b_coul)
-      call sym_symmetrize(geom, basis, .true., g_a_dens)
-      call sym_symmetrize(geom, basis, .true., g_b_dens)
+      if (oskel) then
+         if (oscfps) call pstat_on(ps_sym_sym)
+         call sym_symmetrize(geom, basis, .true., g_a_dens)
+         if (oscfps) call pstat_off(ps_sym_sym)
+         if (oscfps) call pstat_on(ps_sym_sym)
+         call sym_symmetrize(geom, basis, .true., g_b_dens)
+         if (oscfps) call pstat_off(ps_sym_sym)
+      endif
       call ga_dadd(one, g_a_dens, mone, g_a_coul, g_a_coul)
       call ga_dadd(one, g_b_dens, mone, g_b_coul, g_b_coul)
       call ga_maxelt(g_a_coul, errmaxa)
@@ -666,8 +673,14 @@ c
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)
       call ga_dadd(one, g_hcore, one, g_b_coul, g_b_coul)
 c
-      call sym_symmetrize(geom, basis, .false., g_a_coul)
-      call sym_symmetrize(geom, basis, .false., g_b_coul)
+      if (oskel) then
+         if (oscfps) call pstat_on(ps_sym_sym)
+         call sym_symmetrize(geom, basis, .false., g_a_coul)
+         if (oscfps) call pstat_off(ps_sym_sym)
+         if (oscfps) call pstat_on(ps_sym_sym)
+         call sym_symmetrize(geom, basis, .false., g_b_coul)
+         if (oscfps) call pstat_off(ps_sym_sym)
+      endif
 c
       if (odebug) then
          call ga_print(g_a_coul)
@@ -884,7 +897,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.14 1995-11-15 20:05:30 gg502 Exp $
+C$Id: uhf.F,v 1.15 1995-11-19 19:29:08 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
