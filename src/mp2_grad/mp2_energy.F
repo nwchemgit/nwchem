@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.37 1997-04-10 02:05:09 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.38 1997-04-11 00:34:19 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -440,7 +440,9 @@ c
      $        /,10x,'Total MP2 energy   ',f24.12,
      $        /,10x,43('-'),/)
          call util_flush(6)
-      end if
+      end if 
+      call ecce_print1('total energy', mt_dbl, e_total, 1)
+      call ecce_print1('correlation energy', mt_dbl, e2, 1)
       if(.not. rtdb_put(rtdb,'mp2:correlation energy',mt_dbl,1,e2))
      $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))

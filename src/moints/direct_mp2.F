@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.36 1997-04-01 02:04:57 rg240 Exp $
+C$Id: direct_mp2.F,v 1.37 1997-04-11 00:34:10 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -70,6 +70,7 @@ c
 c
        ttotal = util_cpusec()
        status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+       call ecce_print_module_entry('mp2')
 c
 c Print settings
 c
@@ -409,9 +410,13 @@ c
          call util_flush(6)
        endif
 c
-       emp2 = scf_energy + emp2
-       if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1, emp2))
-     $   call errquit('direct_mp2: failed storing energy in rtdb', 0)
+      call ecce_print1('correlation energy', mt_dbl, emp2, 1)
+c
+      emp2 = scf_energy + emp2
+      if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1, emp2))
+     $     call errquit('direct_mp2: failed storing energy in rtdb', 0)
+c
+      call ecce_print1('total energy', mt_dbl, emp2, 1)
 c
 c Cleanup
 c
@@ -429,6 +434,7 @@ c
 c
        call util_print_pop()
 c
+       call ecce_print_module_exit('mp2','ok')
        return
        end
 
