@@ -502,7 +502,7 @@ c
       double precision test, test2
 c
       if (.not. uccsdt_ampfile_open('fred','/tmp/fred','new',d_amp))
-     $     call errquit('open failed',0)
+     $     call errquit('amplitudes: open failed',0)
 c
       symjb = 1
       do spinb = 1, 2

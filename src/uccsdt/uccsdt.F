@@ -498,7 +498,6 @@ c$$$     $                 ishuqlo, ishuqhi, ioff, irange,
 c$$$     $                 jshuqlo, jshuqhi, joff, jrange,
 c$$$     $                 kshuqlo, kshuqhi, koff, krange,
 c$$$     $                 lshuqlo, lshuqhi, loff, lrange,
-c$$$     $                 .false., 
 c$$$     $                 1d-12, g)
 c$$$
 c$$$c

@@ -3,7 +3,6 @@
      $     jshuqlo, jshuqhi, joff, jrange,
      $     kshuqlo, kshuqhi, koff, krange,
      $     lshuqlo, lshuqhi, loff, lrange,
-     $     odirac, 
      $     tol, g)
       implicit none
 #include "mafdecls.fh"
@@ -32,11 +31,7 @@ c     In this scheme SOs are blocked by irrep and within the
 c     irrep are in the natural order of symmetry unique basis 
 c     functions. See sym_abelian() for  more info on the labelling.
 c
-c     if (odirac) then
-c     .   g(i,j,k,l) = <ij|kl>
-c     else
-c     .   g(i,j,k,l) = (ij|kl)
-c     endif
+c     g(i,j,k,l) = (ij|kl)
 c
 c     The integrals non-zero by symmetry are stored densely as if
 c     g() were declared as g(i,j,symj,k,l,syml,symkl) corresponding
@@ -236,7 +231,7 @@ c
             end do
          end do
       end do
-      call soints_aoints(basis, nq,
+      if (nq .gt. 0) call soints_aoints(basis, nq,
      $     int_mb(k_iq), int_mb(k_jq), 
      $     int_mb(k_kq), int_mb(k_lq), 
      $     dbl_mb(k_q4), tol, 
