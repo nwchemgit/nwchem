@@ -1,6 +1,6 @@
       logical function task_save_state(rtdb,suffix)
 *     
-*     $Id: task_save_state.F,v 1.8 2000-11-04 19:26:44 d3g681 Exp $
+*     $Id: task_save_state.F,v 1.9 2000-11-04 19:51:11 d3g681 Exp $
 *     
       implicit none
 #include "rtdb.fh"
@@ -72,7 +72,7 @@ c
             done(method) = ' ' 
             if (rtdb_cget(rtdb,name,1,vectors)) then
                call util_file_name_resolve(vectors, .false.)
-               done(i) = vectors
+               done(method) = vectors
                odone = .false.
                do i = 1, method-1
                   odone = odone .or. inp_compare(.true.,done(i),vectors)
@@ -246,7 +246,7 @@ c
             done(method) = ' ' 
             if (rtdb_cget(rtdb,name,1,vectors)) then
                call util_file_name_resolve(vectors, .false.)
-               done(i) = vectors
+               done(method) = vectors
                odone = .false.
                do i = 1, method-1
                   odone = odone .or. inp_compare(.true.,done(i),vectors)
