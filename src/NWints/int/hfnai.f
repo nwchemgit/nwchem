@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nint,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.4 1996-10-11 10:13:02 d3e129 Exp $
+c $Id: hfnai.f,v 1.5 1996-10-14 23:09:42 d3e129 Exp $
       
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -224,7 +224,7 @@ c
 *            if (iwiw.eq.0)
 *     &            write(6,*)'complex integrals for ica = ',
 *     &            ica,'and icb = ',icb
-            iwiw = iwiw + 1
+*            iwiw = iwiw + 1
             nn = nn + 1
             Vab(nn) = 0.0d00
             do 10700 mp = 1,NPP

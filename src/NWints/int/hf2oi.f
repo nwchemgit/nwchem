@@ -1,5 +1,5 @@
       Subroutine hf2oi(E,Sab,Nint,NPP,La,Lb,Li,canAB)
-c $Id: hf2oi.f,v 1.3 1996-01-17 22:03:49 d3e129 Exp $
+c $Id: hf2oi.f,v 1.4 1996-10-14 23:09:41 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -218,14 +218,14 @@ c* fucked iii/icb/ica norm=13.4349
 c* fucked icb/iii/ica norm=17.5349
 c* try icb/ica/iii
       nn = 0
-      iwiw = 1
+*      iwiw = 1
       do 00400 ica = 1,NCA
         do 00500 icb = 1,NCB
           do 00600 iii = 1,Nint
 *            if (iwiw.eq.0)
 *     &            write(6,*)'complex integrals for ica = ',
 *     &            ica,'and icb = ',icb
-            iwiw = iwiw + 1
+*            iwiw = iwiw + 1
             nn = nn + 1
             Sab(nn) = 0.0d00
             do 00700 mp = 1,NPP
