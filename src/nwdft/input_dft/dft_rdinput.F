@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.91 2001-11-09 02:14:12 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.92 2001-11-15 02:03:57 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -837,7 +837,10 @@ c
 c
 c     For spin-orbit calculations, turn off oskel 
 c
-      if(theory .eq. 'sodft') oskel=.false.
+      if(theory .eq. 'sodft') then
+         oadapt=.false.
+         oskel=.false.
+      endif
 c
 c     Resolve names of MO files to full paths defaulting to the
 c     permanent directory
