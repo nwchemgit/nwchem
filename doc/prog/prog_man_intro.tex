@@ -1,32 +1,130 @@
-\section{Purpose}
+\label{sec:intro}
 
-The purpose of this document is to provide a resource to NWChem
-developers that describes the prescribed practices for developing
-software that utilize the NWChem source tree.  This document also
-delineates the scope, utilization, and features of the base software
-development tools (the ``NWChem umbrella'') that are required to
-interface with other modules and develop new modules.  
+\section{Introduction}
 
-This manual's primary target audience is the NWChem developer.  This
-manual assumes that you are somewhat familiar with parallel computing
-and computational chemistry.  It also assumes that you know a small
-amount about the NWChem software development process.  If you are a
-new NWChem developer you should start by reading this manual except
-for the detailed application programer interfaces which are provided
-as mainly reference.  The ``rule of thumb'' that you should always
-follow is if you don't know or understand {\bf ask} someone.  
+NWChem is a computational chemistry package designed to run on high-performance 
+parallel supercomputers.  The code contains many methods for computing properties
+of molecular and periodic systems using standard quantum mechanical descriptions
+of the electronic wavefunction or density.  In addition, NWChem can perform
+classical molecular dynamics and free energy simulations.  These approaches can
+be combined to perform mixed quantum-mechanics and molecular-mechanics simulations.
+ 
+The code functions by performing specific tasks requested by the user, executing
+the particular operations using the specified theory.  The code currently supports
+the following theory options:
 
-\section{Organization}
 
-The manual is (or will be) organized with the following chapters:
 \begin{itemize}
-\item The NWChem architecture. 
-\item Memory management and manipulation.
-\item How to approach modifying the code (if you dare!).
-\item What can be (and maybe should be) in the database.
-\item How to get information into and out of the code
-\item Brief description of NWChem tools and modules of interest.
-\item Appendices with detailed descriptions of available Application
-  Programmer Interfaces (APIs).
+ \item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
+  ROHF).  
+ \item Multiconfiguration SCF (MCSCF)
+ \item Gaussian Density Functional Theory (DFT) for molecules
+ \item Density Functional Theory for periodic systems (GAPSS)
+ \item MP2 using a semi-direct or fully direct algorithm
+ \item MP2 using Resolution of the Identity (RI) approximation
+ \item Coupled-cluster single and double (CCSD) excitations
+ \item Selected configuration interaction (CI) with perturbation
+   correction 
+ \item Classical molecular dynamics simulation (nwARGOS)
 \end{itemize}
 
+For these theories, numerical first and second derivatives are 
+automatically computed if
+analytic derivatives are not available.
+Any of these theories can be used to perform the following operations:
+
+\begin{itemize}
+\item Single point energy
+\item Geometry optimization (minimization and transition state)
+\item Molecular dynamics on the fully {\em ab initio} potential energy
+  surface
+\item Normal mode vibrational analysis.
+\item Generation of the electron density file for the {\em Insight}
+      graphical program
+\item Evaluation of static, one-electron properties.
+\end{itemize}
+
+The following quantum mechanical methods are available to calculate
+energies and analytic first derivatives with respect to atomic
+coordinates.  (Second derivatives are computed by finite difference of
+the first derivatives.)
+
+\begin{itemize}
+\item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
+  ROHF).  
+\item Gaussian Density Functional Theory (DFT), using many local and
+  non-local exchange-correlation potentials (RHF or UHF).
+\item MP2 semi-direct using frozen core and RHF and UHF reference.
+\item Complete active space SCF (CASSCF).
+\end{itemize}
+
+The following methods are available to compute energies only.  (First
+and second derivatives are computed by finite difference of the
+energies.)
+\begin{itemize}
+\item MP3, MP4, CCSD, CCSD(T), CCSD+T(CCSD), with RHF reference.
+\item Selected-CI with second-order perturbation correction.
+\item MP2 fully-direct with RHF reference.
+\item Resolution of the identity integral approximation MP2 (RI-MP2), with
+  RHF or UHF reference.
+\end{itemize}
+
+In addition, automatic interfaces are provided to perform calculations using
+the following external programs:
+\begin{itemize}
+\item The COLUMBUS multi-reference CI package
+\item The Natural Bond Orbital (NBO) package
+\end{itemize}
+
+Classical molecular dynamics simulations can be performed using the nwARGOS module.
+The operations supported currently include the following:
+
+\begin{itemize}
+\item Single configuration energy evaluation
+\item Energy minimization
+\item Molecular dynamics simulation
+\item Free energy simulation 
+\end{itemize}
+
+NWChem also has the capability to combine classical and quantum
+descriptions in order to perform the following calculations:
+\begin{itemize}
+\item Mixed quantum-mechanics and molecular-mechanics (QM/MM)
+  minimizations
+\item Molecular dynamics using any of the quantum
+  mechanical wavefunctions.
+\end{itemize}
+
+
+The broad functionality in the code and the requirements of efficient programming
+for parallel processing demand modularity of design.  This means that the
+architecture of NWChem must be very carefully structured, and any new modules
+developed to add functionality to the code must adhere 
+very strictly to the prescribed design and
+programming practices. The following section describes in broad outline the 
+architecture of NWChem, and serves as an introduction to the detailed
+discussion of the elements and modules of the code, which is found in the
+subsequent chapters of this manual.
+
+Anyone wishing to develop new modules or enhancements for NWChem should study
+this chapter and the following three chapters very carefully before attempting
+to modify the code.  A Glossary is also included at the front of this manual,
+to help clarify the usage of specific terms and specialized jargon used in
+reference to the structure, functionality, and operation of NWChem.
+Questions on the code should be addressed to the NWChem developers group,
+which can be reached via electronic mail at \verb+nwchem-developers@emsl.pnl.gov+.
+
+Developers can also subscribe to this electronic mailing list 
+by sending a message to 
+\begin{verbatim}
+  majordomo@emsl.pnl.gov
+\end{verbatim}
+The body of the message must contain the line 
+\begin{verbatim}
+  subscribe nwchem-developers
+\end{verbatim}
+
+
+Code modifications should be undertaken only when one has achieved a more
+than superficial understanding of the inner workings of the code, and obtained the
+blessing of the NWChem Program Manager.

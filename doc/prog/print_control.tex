@@ -1,27 +1,27 @@
+\section{Print Control}
 \label{sec:print}
 
-All modules should use the same print control mechanism to provide
+All modules should use the same print control mechanism, to provide
 both uniformity and flexibility.  The routines in \verb+util_print+ do
-this.  By using these routines
+this.  Using these routines ensures that
 
 \begin{enumerate}
 \item All modules understand the print levels
 \begin{itemize}
-\item \verb+none+
+\item \verb+none+ (i.e., no output except for catastrophic errors, such as 
+inconsistent data, or failure to converge)
 \item \verb+low+
 \item \verb+medium+ = \verb+default+
 \item \verb+high+
 \item \verb+debug+
 \end{itemize}
-\verb+None+ is defined to mean literally no output except for
-catastrophic errors (e.g., inconsistent data, failure to converge).
-\item Printing of specific quantities may be directly enabled or
+\item Printing of specific quantities can be directly enabled or
   disabled from the input using already existing input routines
 \item Modules operate independently and printing will eventually be
    controllable via context
 \end{enumerate}
 
-This is an example of how it currently works. Inside the SCF input
+This is an example of how it works. Inside the SCF input
 \begin{verbatim}
   print low basis "final eigenvectors"
   noprint title
@@ -32,33 +32,39 @@ final eigenvectors and basis, and disables printing of the title.
 The implementation is very simple.  Each module defines (using
 provided input routines) one or two entries in the database which
 enable/disable printing
+
 \begin{itemize}
 \item \verb+<module>:print+ --- list of names to enable print
 \item \verb+<module>:noprint+ --- list of names to disable print
 \end{itemize}
+
 The special values ({\tt none}, {\tt low}, \ldots) are recognized in
 the list of print keywords and are used to adjust the print level.
 The parsing of this list is encapsulated in the routine
-\verb+util_print_rtdb_load()+.  To support multiply nested modules a
-stack of print options is maintained --- this will eventually be
-combined with the mythical context.
+\verb+util_print_rtdb_load()+.  To support multiply nested modules, a
+stack of print options is maintained.
 
 \sloppy
-The code necessary for a module using print control is then simply:
+The coding needed in a module using print control is then simply:
 \begin{itemize}
 \item In the input routine, upon detecting a line with either the print
-  or noprint directive
+  or noprint directive, insert the call to {\tt util\_print\_input};
 \begin{verbatim}
      call util_print_input(rtdb, 'module_name')
 \end{verbatim}
-\item At the beginning of a module
+\item Set the default print level for a new module at the beginning of a module
 \begin{verbatim}
      call util_print_push 
      call util_print_rtdb_load(rtdb, 'module_name')
 \end{verbatim}
-  \verb+util_print_push()+ sets the default printlevel for a new
-  module. \verb+util_print_rtdb_load+ reads in any input parameters
-\item To control printing within a module
+\end{itemize}
+
+The routine \verb+util_print_push()+ sets the default print level for a new
+  module. The routine \verb+util_print_rtdb_load+  then
+ reads in any input parameters.
+
+To control printing within a module, the following commands must be specified.
+
 \begin{verbatim}
      #include "util.fh"
 
@@ -66,18 +72,20 @@ The code necessary for a module using print control is then simply:
        write out data associated with "name"
      endif
 \end{verbatim}
-  Level is one of the prespecified print levels (\verb+print_none+,
+
+
+Level is one of the prespecified print levels (\verb+print_none+,
   \verb+print_low+, \ldots; see \verb+util/printlevels.fh+ for
   actual values).
-\item At the end of a module
+
+At the end of a module, the output file can be invoked by the call,
 \begin{verbatim}
      call util_print_pop
 \end{verbatim}
-\end{itemize}
 
 \fussy
 
- E.g.
+ An examle of this usage is as follows;
 \begin{verbatim}
 #include "util.fh"
 
@@ -94,9 +102,11 @@ The code necessary for a module using print control is then simply:
 routines to explicitly control the print level and to enable/disable
 printing of named items.
 
-{\tt util.fh} has been modified to define the integers
+The required integers have been declared in {\tt util.fh} and 
+\verb+util_print+ has been declared an external logical valued function.
+The required integers are
 \begin{itemize}
-\item \verb+print_none+ (use of this as an argument for
+\item \verb+print_none+ (warning: paradoxical as it may seem, this argument for
   \verb+util_print+ will force printing even if none is asked for!)
 \item \verb+print_low+
 \item \verb+print_medium+
@@ -107,9 +117,9 @@ printing of named items.
 \end{itemize}
 and to declare \verb+util_print+ as an external logical valued function.
 
-Other relevant routines are
+\subsection{Other Relevant Routines}
 
-\section{{\tt util\_print}}
+\subsubsection{{\tt util\_print}}
 \sloppy
 \begin{verbatim}
   logical function util_print(name, level)
@@ -125,7 +135,7 @@ explicitly disabled, then \TRUE is returned.  Otherwise
 
 \fussy
 
-\section{{\tt util\_print\_input}}
+\subsubsection{{\tt util\_print\_input}}
 \begin{verbatim}
     subroutine util_print_input(rtdb, prefix)
     integer rtdb         [input]
@@ -136,7 +146,7 @@ either the {\tt print} or {\tt noprint} directives.  It should pass
 the name of the module in the character string {\tt prefix}.  This is
 prepended to actual entries made in the database.
 
-\section{{\tt util\_print\_push}}
+\subsubsection{{\tt util\_print\_push}}
 \begin{verbatim}
     subroutine util_print_push
 \end{verbatim}
@@ -144,7 +154,7 @@ Call this routine on entry to a module to push the print stack down.
 A call to this routine is usually immediately followed by a call to
 \verb+util_print_rtdb_load+. 
 
-\section{{\tt util\_print\_pop}}
+\subsubsection{{\tt util\_print\_pop}}
 \begin{verbatim}
     subroutine util_print_pop
 \end{verbatim}
@@ -152,7 +162,7 @@ Call this routine immediately before exit from a module to pop the
 print stack to the previous context.  Once context is properly
 functioning the push/pop routines may disappear.
 
-\section{{\tt util\_print\_rtdb\_load}}
+\subsubsection{{\tt util\_print\_rtdb\_load}}
 \begin{verbatim}
     subroutine util_print_rtdb_load(rtdb, prefix)
     integer rtdb         [input]
@@ -166,7 +176,7 @@ module with name provided in \verb+prefix+.  The value of
 This routine is usually called at the start of a module immediately
 following a call to \verb+util_print_push+.
 
-\section{{\tt util\_print\_set\_level}}
+\subsubsection{{\tt util\_print\_set\_level}}
 \begin{verbatim}
     subroutine util_print_set_level(level)
     integer level        [input]

@@ -1,16 +1,13 @@
+\section{Symmetry}
+\label{sec:sym}
 
-  The symmetry stuff is intended to work for both molecular and
+The symmetry functionality is intended to work for both molecular and
 periodic systems, so bits and pieces will change over time as the
-periodic code starts to function.
+capability to solve periodic systems is developed in the code.
+All of the the symmetry information is buried in the geometry
+object, so unless changes are required in the orbitals or basis, the
+geometry handle alone is sufficient to obtain all required information.
 
-  All of the the symmetry information is buried in the geometry
-object, so unless you are messing with the orbitals or basis only a
-geometry handle is necessary to get all of the information.
-
-{\em The documentation is still being written, but this list of
-  routines should still be useful.}
-
-\section{Basic functionality}
 
 \subsection{{\tt sym\_group\_name}}
 \begin{verbatim}
@@ -24,9 +21,9 @@ geometry handle is necessary to get all of the information.
   integer function sym_number_ops(geom)
   integer geom              ! [input]
 \end{verbatim}
-Returns the number of operations in the group {\em excluding} the
-identity.  Thus, $C_1$ is thought to contain zero operators and
-$C_{2v}$ three operators.
+This routine  returns the number of operations in the group, {\em excluding} the
+identity.  Thus, $C_1$ is represented as containing zero operators and
+$C_{2v}$ has three operators.
 
 \subsection{{\tt sym\_center\_map}}
 \begin{verbatim}
@@ -58,12 +55,12 @@ the inverse to the operator \verb+op+.
   double precision r(3)
   double precision rnew(3)
 \end{verbatim}
-Apply the operator \verb+op+ to the 3-vector \verb+r+ returning the
+This routine  applies the operator \verb+op+ to the 3-vector \verb+r+ returning the
 result in \verb+rnew+.  {\em Note that this routine acts on
   coordinates natural to the system --- Cartesian for molecules and
   fractional for periodic systems.}
 
-\subsection{{\tt sym\_apply\_cart\_op.F}}
+\subsection{{\tt sym\_apply\_cart\_op}}
 \begin{verbatim}
   subroutine sym_apply_cart_op(geom, op, r, rnew)
   integer geom
@@ -71,18 +68,18 @@ result in \verb+rnew+.  {\em Note that this routine acts on
   double precision r(3)
   double precision rnew(3)
 \end{verbatim}
-Apply the operator \verb+op+ to the Cartesian 3-vector \verb+r+
+This routine  applies the operator \verb+op+ to the Cartesian 3-vector \verb+r+
 returning the result in \verb+rnew+.  {\em Note that this routine acts
   only on Cartesian coordinates.}
 
 \subsection{{\tt sym\_get\_cart\_op}}
 \begin{verbatim}
   subroutine sym_get_cart_op(geom, op, matrix)
-  integer geom          ! [input]
-  integer op            ! [input] Operator
+  integer geom                 ! [input]
+  integer op                   ! [input] Operator
   double precision matrix(3,4) ! [output] Returns cartesian operator
 \end{verbatim}
-Return the matrix representation of the operator that acts on
+This routine  returns the matrix representation of the operator that acts on
 Cartesian coordinates.  The first three columns correspond to the
 point group operator and the final column is the translation.
 
@@ -93,8 +90,8 @@ point group operator and the final column is the translation.
 \subsection{{\tt sym\_ops\_get}}
 \begin{verbatim}
   subroutine sym_ops_get(geom, numops, symops)
-  integer geom      ! [input]
-  integer numops    ! [input] Leading dim. of symops
+  integer geom                        ! [input]
+  integer numops                      ! [input] Leading dim. of symops
   double precision symops(numops*3,4) ! [input] Returns operators
 \end{verbatim}
 Returns in \verb+symops+ the first \verb+numops+ operators.  It's 
@@ -110,48 +107,53 @@ c
 c !! THIS ROUTINE HAS NOT BEEN COMPILED OR TESTED !!
 c
 \end{verbatim}
-Return in \verb+table+ the multiplication table for the operators
+This routine returns in \verb+table+ the multiplication table for the operators
 excluding the identity --- inside the table the identity is labelled
 as zero.
 
-\section{Geometries and gradients}
+\subsection{Geometries and Gradients}
 
-These routines actually do exactly the same thing internally, but the
+The two routines {\tt sym\_geom\_project} and {\tt sym\_grad\_symmetrize} 
+ actually do exactly the same thing internally, but the
 interface differs according to their natural usage.
 
-\subsection{{\tt sym\_geom\_project}}
+\subsubsection{{\tt sym\_geom\_project}}
 \begin{verbatim}
   subroutine sym_geom_project(geom, tol)
   integer geom             ! [input]
   double precision tol     ! [input]
 \end{verbatim}
-Apply a projection operator to the geometry so that it posesses the
-symmetry of the group to machine precision.  An atom and the image of
-that atom under the operations of the group are considered to be
-identical {\em iff} they are less than \verb+tol+ distant from each
-other.  If the two centers that should be symmetry equivalent differ
-by more than \verb+tol+ then a fatal error results.  This operation
-should be idempotent.
 
-\subsection{{\tt sym\_grad\_symmetrize}}
+This routine applies a projection operator to the geometry so that it posesses the
+symmetry of the group, to machine precision.  An atom and the image of
+that atom under the operations of the group are considered to be
+identical if (and only if) they are less than \verb+tol+ distant from each
+other.  If two centers that should be symmetry equivalent differ
+by more than \verb+tol+, then a fatal error results.  This operation
+should be idempotent; that is, the square of the projection operator, {\em P\_a}, is 
+equal to the operator itself, {\em P\_a}.
+
+\subsubsection{{\tt sym\_grad\_symmetrize}}
 \begin{verbatim}
   subroutine sym_grad_symmetrize(geom, grad)
   integer geom                ! [input]
   double precision grad(3,*)  ! [input/output]
 \end{verbatim}
-Apply a projection operator to the gradient so that it posesses the
-symmetry of the group to machine precision.  This is appropriate for
+
+This routine also applies a projection operator
+ to the gradient so that it posesses the
+symmetry of the group, to machine precision.  This is appropriate for
 projecting out the totally symmetric component of a gradient
-constructed from a skeleton integral list.  This operation should be
+constructed from a skeleton integral list.  This operation should also be
 idempotent. 
 
-\section{Character tables}
+\subsection{Character Tables}
 
 In order to make use of the character table you need to determine the
 class of each operator.  Note that the identity is the only operator
 in the first class.
 
-\subsection{{\tt sym\_char\_table}}
+\subsubsection{{\tt sym\_char\_table}}
 \begin{verbatim}
   logical function sym_char_table(zname, nop, nir, class_dim,
  &     zir, zclass, chars)
@@ -166,7 +168,7 @@ in the first class.
 Given the name of the group, this routine returns the
 total number of operators (\verb+nop+) including the identity, the
 number of irreducible representations (\verb+nir+), the name of each
-irreducible representation (\verb+zir(i)+, =verb+i=1,...,nir+), the
+irreducible representation (\verb+zir(i)+, \verb+i=1,...,nir+), the
 dimension and name of each class (\verb+class_dim(i)+,
 \verb+zclass(i)+, \verb+i=1,...,nir+), and the character table.  
 Returns \TRUE\ if group character table was available, \FALSE\ 
@@ -194,13 +196,13 @@ paste these declarations into your code to call this routine
 All is simple except for complex conjugate pairs of irreducible
 representations that are stored with one having the real pieces of the
 characters and the other the imaginary.  This leads to the second
-having a zero character for the identify, however a valid projection
+having a zero character for the identity, however a valid projection
 operator can still be constructed (look in \verb+sym_movecs_adapt()+).
 
-\subsection{{\tt sym\_op\_classify}}
+\subsubsection{{\tt sym\_op\_classify}}
 \begin{verbatim}
   subroutine sym_op_classify(geom, op_class_index)
-  integer geom              ! [input]
+  integer geom              ! [input] Geometry handle
   integer op_class_index(*) ! [output] Class number of each op
 \end{verbatim}
 Return an array that has for each operator the number of the class to
@@ -208,20 +210,20 @@ which it belongs.  This index makes the connection between the
 operator and the character table.  The operators are numbered,
 exluding the identity, from 1 to \verb+sym_number_ops()+.
 
-\section{Atomic/molecular orbitals}
+\subsection{Atomic/Molecular Orbitals}
 
-\subsection{{\tt sym\_bas\_irreps}}
+\subsubsection{{\tt sym\_bas\_irreps}}
 \begin{verbatim}
   subroutine sym_bas_irreps(basis, oprint, nbf_per_ir)
   integer basis             ! [input] basis handle
   logical oprint            ! [input] if true then print
-  integer nbf_per_ir(*)     ! [output] 
+  integer nbf_per_ir(*)     ! [output] no. of functions per irr. rep.
 \end{verbatim}
-Return in \verb+nbf_per_ir+ the number of functions per irreducible
+Returns in \verb+nbf_per_ir+ the number of functions per irreducible
 representation that are present in the specified basis set.  The
 maximim number of irreducible represenations in any point group is 20.
 
-\subsection{{\tt sym\_movecs\_adapt}}
+\subsubsection{{\tt sym\_movecs\_adapt}}
 \begin{verbatim}
   subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
   integer basis             ! [input]
@@ -230,7 +232,7 @@ maximim number of irreducible represenations in any point group is 20.
   integer irs(*)            ! [output]
   integer nmixed            ! [output]
 \end{verbatim}
-Symmetry adapt the molecular orbitals in the GA \verb+ga_vecs+,
+Symmetry adapts the molecular orbitals in the GA \verb+ga_vecs+,
 returning in \verb+irs(i)+ the number of the irreducible
 representation of the i'th molecular orbital.  In \verb+nmixed+ is
 returned the number of input molecular orbitals that were symmetry
@@ -241,13 +243,14 @@ if it contains two or more irreps. with coefficients greater than
 {\em Note:} If the input MOs are nearly linearly dependent then the
 output MOs may be exactly linearly dependent since if the component
 distinguishing two vectors is not the dominant symmetry component it
-will be projected out.  If in doubt call \verb+ga_orthog()+ before
+will be projected out.  If there is reason to suspect linear depencence,
+\verb+ga_orthog()+ should be called  before
 calling this routine.
 
 {\em Note:} If mixing was present it may be necessary to call
 \verb+ga_orthog()+ to reorthogonalize the output vectors.
 
-\subsection{{\tt sym\_movecs\_apply\_op}}
+\subsubsection{{\tt sym\_movecs\_apply\_op}}
 \begin{verbatim}
   subroutine sym_movecs_apply_op(basis, op, v, t)
   integer basis             ! [input]
@@ -259,7 +262,7 @@ Apply the group operation \verb+op+ to the vector of basis function
 coefficients (i.e., a MO vector) in \verb+v(*)+, returning the result
 in \verb+t(*)+.
 
-\subsection{{\tt sym\_bas\_op}}
+\subsubsection{{\tt sym\_bas\_op}}
 \begin{verbatim}
   subroutine sym_bas_op(geom, op, r, maxf, ang_max)
   integer geom              ! [input]
@@ -303,18 +306,18 @@ the effect the transposed matrices of an operator you must
 For examples of how this routine is used in practice look in
 \verb+symmetry/sym_mo_adapt.F+ or \verb+symmetry/sym_sym.F+.
 
-\section{`Skeleton' integral lists}
+\subsection{`Skeleton' integral lists}
 
 Note that the consituency number (point group component only) for
-shells is exactly the same as that for that atoms on which they reside.
+shells is exactly the same as that for the atoms on which they reside.
 
-\subsection{{\tt sym\_atom\_pair}}
+\subsubsection{{\tt sym\_atom\_pair}}
 \begin{verbatim}
   logical function sym_atom_pair(geom, iat, jat, q2)
   integer geom              ! [input] Geometry handle
   integer iat, jat          ! [input] Atom indices
   double precision q2       ! [output] Constituency number
-\end{verbmatim}
+\end{verbatim}
 Return \TRUE\ if \verb+(iat,jat)+ is the lexically highest pair of
 symmetry equivalent atoms. If \TRUE\ also return the constituency
 factor \verb+q2+ (which is the number of symmetry equivalent pairs).
@@ -323,7 +326,7 @@ This routine uses the exchange symmetry \verb+iat <-> jat+ but does
 not incorporate any factors into \verb+q2+ to account for this (i.e.,
 \verb+q2+ includes point group symmetry only).
 
-\subsection{{\tt sym\_atom\_quartet} and {\tt sym\_atom\_gen\_quartet}}
+\subsubsection{{\tt sym\_atom\_quartet} and {\tt sym\_atom\_gen\_quartet}}
 \begin{verbatim}
   logical function sym_atom_quartet(geom, iat, jat, kat, lat, q4)
   integer geom               ! [input] Geometry handle
@@ -349,7 +352,7 @@ uses just two index exchage symmetries \verb+(iat<->jat)+ and
 \verb+(kat<->lat)+.  Look in the \verb+moints/+ directory for examples
 of its use.
 
-\subsection{{\tt sym\_shell\_pair}}
+\subsubsection{{\tt sym\_shell\_pair}}
 \begin{verbatim}
   logical function sym_shell_pair(basis, ishell, jshell, q2)
   integer basis             ! Basis set handle [input]
@@ -367,7 +370,7 @@ However, this factor of two may be removed at some point in order to
 make the shell based routines exactly consistent with the atom based
 code.
 
-\subsection{{\tt sym\_shell\_quartet}}
+\subsubsection{{\tt sym\_shell\_quartet}}
 \begin{verbatim}
   logical function sym_shell_quartet(basis,
  &     ishell, jshell, kshell, lshell, q4)
@@ -387,7 +390,7 @@ not incorporate any additional factors into \verb+q4+ (i.e., \verb+q4+
 reflects only the point group symmetry).  Look in the \verb+ddscf/+
 directory for examples of its use.
 
-\subsection{{\tt sym\_symmetrize}}
+\subsubsection{{\tt sym\_symmetrize}}
 \begin{verbatim}
   subroutine sym_symmetrize(geom, basis, odensity, g_a)
   integer geom       ! [input] Geometry handle
@@ -408,13 +411,13 @@ identity) and \verb+h+ is the order of the group.
 Note that density matrices tranform according to slightly different
 rules to Hamiltonian matrices if components of a shell (e.g.,
 cartesian d's) are not orthonormal.  (see Dupuis and King, IJQC 11,
-613-625, 1977).  Hence, speficy \verb+odensity+ as \TRUE\ for
+613-625, 1977).  Hence, specify \verb+odensity+ as \TRUE\ for
 density-like matrices and \FALSE\ for all other totally symmetric
 Hamiltonian-like operators.
 
-\section{Printing}
+\subsection{Printing Symmetry Information}
 
-\subsection{{\tt sym\_print\_all}}
+\subsubsection{{\tt sym\_print\_all}}
 \begin{verbatim}
   subroutine sym_print_all(geom, oinfo, ouniq, omap, oops, ochar)
   integer geom              ! [input]
@@ -426,15 +429,15 @@ Hamiltonian-like operators.
 \end{verbatim}
 Print out all symmetry related information inside the geometry object
 \begin{description}
-\item{oinfo} prints the name and order of the group
-\item{ouniq} prints the list of symmetry unique atoms
-\item{omap} prints the transformation of atoms under group operations
-\item{oops} prints the matrix representation of operators including
+\item{\tt oinfo} --- prints the name and order of the group
+\item{\tt ouniq} --- prints the list of symmetry unique atoms
+\item{\tt omap} --- prints the transformation of atoms under group operations
+\item{\tt oops} --- prints the matrix representation of operators including
   class information
-\item{ochar} prints the character table
+\item {\tt ochar} --- prints the character table
 \end{description}
 
-\subsection{{\tt sym\_print\_char\_table}}
+\subsubsection{{\tt sym\_print\_char\_table}}
 \begin{verbatim}
   subroutine sym_print_char_table(geom)
   integer geom              ! [input]
@@ -442,7 +445,7 @@ Print out all symmetry related information inside the geometry object
 Print the character table for the group to Fortran unit 6.
 
 
-\subsection{{\tt sym\_print\_ops}}
+\subsubsection{{\tt sym\_print\_ops}}
 \begin{verbatim}
   subroutine sym_print_ops(geom)
   integer geom              ! [input]
@@ -450,16 +453,16 @@ Print the character table for the group to Fortran unit 6.
 Called by \verb+sym_print_all+ to print the operators.  You can call
 it too if you like.
 
-\section{Internal stuff that might be useful}
+\subsection{Internal symmetry stuff that might be useful}
 
-\subsection{{\tt sym\_op\_type}}
+\subsubsection{{\tt sym\_op\_type}}
 
-\subsection{{\tt sym\_op\_class\_name}}
+\subsubsection{{\tt sym\_op\_class\_name}}
 
-\section{Miscellaneous}
+\subsection{Miscellaneous}
 
-\subsection{{\tt cross\_product}}
+\subsubsection{{\tt cross\_product}}
 
-\subsection{{\tt deter3}}
+\subsubsection{{\tt deter3}}
 
 

@@ -1,0 +1,24 @@
+% new section to introduce MA, GA, and ChemIO as the menage a trios known as NUMA
+
+\label{sec:numa}
+
+
+In order to scale to massively parallel computer 
+architectures in all aspects of the hardware: CPU, disk,
+and memory, NWChem uses the principle of Non-Uniform Memory Access (NUMA)
+to distribute the data across all nodes.
+The MA tool allows the programmer to allocate memory that is local to
+the calling process.  This is data that will generally not be directly
+shared with other processes, such as workspace for a particular local
+calculation or for replication of very small sets of data.
+
+The GA tool supports the NUMA model by allowing nodes to share arrays between
+processes as if the memory is physically shared.  It allows the
+programmer to use relatively simple routines to access and manipulate
+data in the shared arrays.  The trade-off with this approach is that
+access to shared data will be slower than access
+to local data, and the programmer must be aware of this in designing modules.
+
+The following subsections describe the Memory Allocator library and 
+the Global Arrays library and how they are used in NWChem.
+

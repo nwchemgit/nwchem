@@ -1,0 +1,114 @@
+% new chapter on Molecular Calculation Modules
+
+\label{sec:modules}
+
+The molecular calcluation modules are the high level molecular
+calculation programs within NWChem.  They are essentially independent
+programs that perform the various functions invoked by the
+task directives, using the appropriate theory for a specified
+operation.  This chapter describes each module in detail under
+the appropriate theory heading below.  The various operations
+that can be performed with the different modules are also described.
+
+\section{Theories}
+
+There are modules in NWChem to support ten different theory options
+for molecular calculations.  
+\begin{itemize}
+ \item Self-Consistent Field (SCF) or Hartree-Fock
+ \item Density Functional Theory (DFT) for molecules
+ \item Density Functional Theory for periodic systems (GAPPS)
+ \item MP2 using a fully direct or semi-direct algorithm
+ \item MP2 using the Resolution of the Identity (RI) approximation
+ \item Coupled-cluster single and double excitations
+ \item Multiconfiguration SCF
+ \item Selected configuration interaction with perturbation
+   correction 
+ \item Classical molecular dynamics simulation using nwARGOS
+\end{itemize}
+
+
+The following subsections describe the internal program structure of each
+of these modules.
+
+\subsection{SCF}
+
+Under construction.
+
+\subsection{DFT}
+
+Under construction.
+
+\subsection{MP2}
+
+Under construction.
+
+\subsection{RI-MP2}
+
+Under construction.
+
+\subsection{CCSD}
+
+Under construction.
+
+\subsection{MCSCF}
+
+Under construction.
+
+\subsection{CI}
+
+Under construction.
+
+\subsection{MM}
+
+Under construction.
+
+
+
+\section{Operations}
+
+Operations are specific calculations performed in a task, using the level of
+theory specified by the user.  
+The following list gives the selection of operations currently
+available in NWChem:
+\begin{itemize}
+\item Evaluate the single point energy.
+\item Evaluate the derivative of the energy with respect to\
+   nuclear coordinate gradient.
+\item Minimize the energy by varying the molecular
+   structure.
+\item Conduct a search for a transition state (or saddle point). 
+\item Calculate energies on a LST path defined by means of
+a z-matrix input.
+\item Compute second derivatives 
+and print out an analysis of molecular vibrations.
+\item Compute molecular dynamics using nwARGOS.
+\item Perform multi-con\-fig\-ura\-tion
+  thermo\-dynamic integ\-ration using nwARGOS.
+\end{itemize}
+
+
+\subsection{Energy}
+
+Under construction.
+
+\subsection{Gradient}
+
+Under construction.
+
+\subsection{Optimization}
+
+Under construction.
+
+\subsection{Frequencies}
+
+Under construction.
+
+\subsection{Properties}
+
+Under construction.
+
+\subsection{Dynamics}
+
+Under construction.
+

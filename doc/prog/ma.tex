@@ -1,0 +1,262 @@
+\label{sec:ma}
+
+MA is a library of routines that comprises a dynamic memory allocator
+for use by C, FORTRAN, or mixed-language applications.  FORTRAN
+applications require such a library because the language does not
+support dynamic memory allocation.  C applications can benefit from
+using MA instead of the ordinary {\tt malloc()} and {\tt free()}
+routines because of the extra features MA provides: both heap and
+stack memory management disciplines, debugging and verification
+support, usage statistics, and quantitative memory availability
+information.  MA is designed to be portable across a large variety of
+platforms.
+
+Detailed information on specific routines is available in the MA man pages.
+This can be accessed by means of the command, {\tt man ma}.  (Note: this 
+will work only if the local environmental variable {\tt MANPATH} includes
+the path {\tt \$(NWCHEM\_TOP)/src/man/ma/man}.  See Section \ref{sec:envar}
+for information on system and environmental requirements for running NWChem.)
+The following subsections present a summary list of the MA routines, and 
+a brief discussion of the implementation of this feature.
+
+\subsubsection{MA Data Types}
+
+All MA memory must be explicitly assigned a specific type by defining each
+data item in units of integer, logical, 
+double precision, or character words.  The type of data is specified
+in arguments using predefined Fortran parameters (or macros in C).
+These parameters are available in the include files \verb+mafdecls.fh+ in 
+Fortran and in \verb+macdecls.h+ in C.  The parameters are typed as follows:
+
+\begin{description} 
+\item{\verb+MT_INT+} --- integer
+\item{\verb+MT_DBL+} --- double precision
+\item{\verb+MT_LOG+} --- logical
+\item{\verb+MT_CHAR+} --- character\verb+*+1
+\end{description}
+
+\subsubsection{Implementation}
+
+To access required MA definitions, C applications should include
+{\tt macdecls.h} and FORTRAN applications should include
+{\tt mafdecls.fh}.  These are public header files for a dynamic memory 
+allocator, and are included in the .../src/ma subdirectory of the
+NWChem directory tree.  The files contain the type declarations
+and parameter declarations for the datatype constants, and define
+needed functions and variable types.
+
+The memory allocator uses the following memory layout definitions:
+\begin{itemize}
+\item segment = heap\_region stack\_region
+\item region = block block block \ldots
+\item block = AD gap1 guard1 client\_space guard2 gap2
+\end{itemize}
+
+A segment of memory is obtained from the OS upon initialization.  The
+low end of the segment is managed as a heap.  The heap region grows
+from low addresses to high addresses.  The high end of the segment is
+managed as a stack. The stack region grows from high addresses to low
+addresses.
+
+Each region consists of a series of contiguous blocks, one per
+allocation request, and possibly some unused space.  Blocks in the
+heap region are either in use by the client (allocated and not yet
+deallocated) or not in use by the client (allocated and already
+deallocated).  A block on the rightmost end of the heap region becomes
+part of the unused space upon deallocation.  Blocks in the stack
+region are always in use by the client, because when a stack block is
+deallocated, it becomes part of the unused space.
+
+A block consists of the client space, i.e., the range of memory
+available for use by the application.  Guard words adjacent to each end
+of the client space to help detect improper memory access by the
+client.  Bookkeeping information is stored(?) in an "allocation descriptor" AD
+Two gaps, each zero or more bytes long, are defined to satisfy alignment constraints
+(specifically, to ensure that AD and client\_space are aligned
+properly).  
+
+
+
+\subsubsection{List of MA routines}
+
+All MA routines are shown below, grouped by category and listed
+alphabetically within each category.  The FORTRAN interface is given
+here.  Information on the the C interface are available in the \verb+man+ pages.
+(The \verb+man+ pages also contain more
+detailed information on the
+arguments for these routines.)
+
+Initialization: 
+\begin{itemize}
+\item {\tt MA\_init(datatype, nominal\_stack, nominal\_heap)}
+\begin{itemize}
+\item      integer datatype
+\item      integer nominal\_stack
+\item      integer nominal\_heap
+\end{itemize}
+
+\item {\tt MA\_sizeof(datatype1, nelem1, datatype2)}
+\begin{itemize}
+\item      integer datatype1
+\item      integer nelem1
+\item      integer datatype2
+\end{itemize}
+
+\item {\tt MA\_sizeof\_overhead(datatype)}
+\begin{itemize}
+\item      integer datatype
+\end{itemize}
+
+\item {\tt MA\_initialized()}
+
+\end{itemize}
+
+Allocation:
+\begin{itemize}
+\item {\tt MA\_alloc\_get(datatype, nelem, name, memhandle, index)}
+\begin{itemize}
+\item      integer datatype
+\item      integer nelem
+\item      character*(*) name
+\item      integer memhandle
+\item      integer index
+\end{itemize}
+
+\item {\tt MA\_allocate\_heap(datatype, nelem, name, memhandle)}
+\begin{itemize}
+\item      integer datatype
+\item      integer nelem
+\item      character*(*) name
+\item      integer memhandle
+\end{itemize}
+
+\item {\tt MA\_get\_index(memhandle, index)}
+\begin{itemize}
+\item      integer memhandle
+\item      integer index
+\end{itemize}
+
+\item {\tt MA\_get\_pointer()} --- C only
+\item {\tt MA\_inquire\_avail(datatype)}
+\begin{itemize}
+\item      integer datatype
+\end{itemize}
+
+\item {\tt MA\_inquire\_heap(datatype)}
+\begin{itemize}
+\item      integer datatype
+\end{itemize}
+
+\item {\tt MA\_inquire\_stack(datatype)}
+\begin{itemize}
+\item      integer datatype
+\end{itemize}
+
+\item {\tt MA\_push\_get(datatype, nelem, name, memhandle, index)}
+\begin{itemize}
+\item      integer datatype
+\item      integer nelem
+\item      character*(*) name
+\item      integer memhandle
+\item      integer index
+\end{itemize}
+
+\item {\tt MA\_push\_stack(datatype, nelem, name, memhandle)}
+\begin{itemize}
+\item      integer datatype
+\item      integer nelem
+\item      character*(*) name
+\item      integer memhandle
+\end{itemize}
+
+\end{itemize}
+
+Deallocation:
+\begin{itemize}
+\item {\tt MA\_chop\_stack(memhandle)}
+\begin{itemize}
+\item      integer memhandle
+\end{itemize}
+
+\item {\tt MA\_free\_heap(memhandle)}
+\begin{itemize}
+\item      integer memhandle
+\end{itemize}
+
+\item {\tt MA\_pop\_stack(memhandle)}
+\begin{itemize}
+\item      integer memhandle
+\end{itemize}
+
+\end{itemize}
+
+Debugging:
+\begin{itemize}
+\item {\tt MA\_set\_auto\_verify(value)}
+\begin{itemize}
+\item      logical value
+\item      integer ivalue
+\end{itemize}
+
+\item {\tt MA\_set\_error\_print(value)}
+\begin{itemize}
+\item      logical value
+\item      integer ivalue
+\end{itemize}
+
+\item {\tt MA\_set\_hard\_fail(value)}
+\begin{itemize}
+\item      logical value
+\item      integer ivalue
+\end{itemize}
+
+\item {\tt MA\_summarize\_allocated\_blocks}
+\item {\tt MA\_verify\_allocator\_stuff()}
+\end{itemize}
+
+Iteration Over Allocated Blocks:
+\begin{itemize}
+\item {\tt MA\_get\_next\_memhandle(ithandle, memhandle)}
+\begin{itemize}
+\item      integer ithandle
+\item      integer memhandle
+\end{itemize}
+
+\item {\tt MA\_init\_memhandle\_iterator(ithandle)}
+\begin{itemize}
+\item      integer ithandle
+\end{itemize}
+
+\end{itemize}
+
+Statistics:
+\begin{itemize}
+\item {\tt MA\_print\_stats(oprintroutines)}
+\begin{itemize}
+\item      logical printroutines
+\end{itemize}
+
+\end{itemize}
+
+
+\subsubsection{MA Errors}
+
+Errors considered fatal by MA result in program termination.  Errors
+considered nonfatal by MA cause the MA routine to return an error
+value to the caller.  For most boolean functions, false is returned
+upon failure and true is returned upon success.  (The boolean
+functions for which the return value means something other than
+success or failure are {\tt MA\_set\_auto\_verify()}, {\tt
+  MA\_set\_error\_print()}, and {\tt MA\_set\_hard\_fail()}.)  Integer
+functions return zero upon failure; depending on the function, zero
+may or may not be distinguishable as an exceptional value.
+
+An application can force MA to treat all errors as fatal via
+{\tt MA\_set\_hard\_fail()}.
+
+If a fatal error occurs, an error message is printed on the standard
+error (stderr).  By default, error messages are also printed for
+nonfatal errors.  An application can force MA to print or not print
+error messages for nonfatal errors via {\tt MA\_set\_error\_print()}.
+
+

@@ -1,0 +1,278 @@
+% NWChem Programming Guide - Draft Template
+
+
+% (chapter title; see prog.tex) About This Guide
+
+NWChem is a computational chemistry package designed to run on high-performance 
+parallel supercomputers.  Code capabilities include the calculation of molecular 
+electronic energies and analytic gradients using Hartree-Fock self-consistent 
+field (SCF) theory, Gaussian density function theory (DFT), and second-order 
+perturbation theory.  For all methods, geometry optimization is available to 
+determine energy minima and transition states.  Classical molecular dynamics 
+capabilities provide for the simulation of macromolecules and solutions, 
+including the computation of free energies using a variety of force fields.
+Quantum mechanical molecular mechanics (QM/MM) can also be used to obtain single-point
+energy evalauation, minimization of the energy by variation of the molecular 
+structure, and molecular dynamics.  The level of theory used must, however, support
+analytic gradients.
+
+NWChem is scalable, both in its ability to treat large problems efficiently, 
+and in its utilization of available parallel computing resources.  The 
+code uses the parallel programming tools TCGMSG and the Global Array (GA) 
+library developed at PNNL for the High Performance Computing and Communication 
+(HPCC) grand-challenge software program and the Environmental Molecular 
+Sciences Laboratory (EMSL) Project.
+
+NWChem is written in Fortran-77 and the C programming language.  It is currently 
+capable of operating on a wide variety of hardware platforms, including Cray T3D,
+Intel Paragon, IBM SP2, Kendall Square Research KSR-2, SGI SMP systems, 
+SUN and other workstations, and workstation networks.  The code can be ported
+to nearly any sequential or parallel computer.
+(Installation instructions and a list of supported platforms are included in
+Section \ref{sec:platforms}.)
+
+Basic system requirements include
+
+\begin{itemize}
+\item Fortran-77 compiler
+\item C compiler 
+\item GNU "make" (version 3.71 or higher)
+\end{itemize}
+
+
+Dependencies on other software include (but are not limited to) the following:
+\begin{itemize}
+\item TCGMSG or MPI for message passing in a parallel computing environment
+
+\item Memory Allocator Library
+
+\item Global Arrays Library eigensolver (for use as a a wrapper for 
+the eigensolver from PEIGS library)
+
+\item BLAS library
+
+\item LAPACK library
+
+\item MPI, SCALAPACK, PBBLAS, and BLACS libraries
+\item LaTex (to obtain hardcopy and new release versions of
+User's Manual and Programmer's Manual)
+\end{itemize}
+
+A discussion of required environmental variables, makefiles, and 
+libraries for all current installations is given in Section \ref{sec:makelib}.  
+Different implementations on the various platforms may use different vendor 
+libraries and include (include.h and include.fh) files.  Refer to Section 
+\ref{sec:PortingNotes} for details on the requirements of each platform.  
+This section also discusses the requirements for TCGMSG for message passing, 
+and the option of using MPI instead of TCGMSG.
+
+
+\section*{Purpose}
+
+The purpose of this document is to provide a resource for NWChem developers 
+that describes the prescribed practices for developing software utilizing 
+the NWChem source tree.  This document also delineates the scope, utilization, 
+and features of the base software development tools (the ``NWChem umbrella'') 
+that are required to interface with other modules and develop new modules.  
+The primary audience for this programming guide is the NWChem developer.
+
+\section*{Scope}
+
+The Programming Guide provides in depth information on how to modify existing 
+modules and create new modules within the structure of NWChem.  For the 
+developer new to the system, the Guide provides a conceptual level overview 
+and introductory material.  For the experienced developer, it provides reference 
+material for the extensive list of functions, subroutines, makefiles, 
+and libraries used in the program.
+
+\section*{Prerequisites}
+
+Users of this guide should have or be working toward a PhD in theoretical or
+computational molecular chemistry,
+and have some familiarity with parallel computing and chemical modeling.  
+It would also be helpful to know at least a small amount about the NWChem software 
+development process.  Users of this guide should have a working knowledge of UNIX 
+operating systems, Fortran-77, and the C programming language.  Some familiarity 
+with object-oriented programming and design would also be useful.
+
+\section*{How to Use This Guide}
+
+If you are a new NWChem developer, you should read Chapter \ref{sec:intro}
+of this guide to gain an overview of the system.  Read Chapters \ref{sec:generic},
+\ref{sec:mmt}, and \ref{sec:sdt} to acquire the basic knowledge needed to begin designing 
+and programming.  Read Chapter \ref{sec:utilities} for information on basic utility
+functions available for use by the different modules of the code.
+
+Once comfortable with the development toolkit and modeling
+tools available, you can find specific information on each module in Chapter
+\ref{sec:modules}.  Read Chapter \ref{sec:install} for guidance on installing the 
+code on your system.  
+
+Read Chapter \ref{sec:develop} for procedures for code
+development and modification.
+If you are an experienced developer and are intimately familiar with the structure 
+of NWChem or specific modules within the program, you may want to start with 
+Chapter \ref{sec:develop}, and use Chapters \ref{sec:modules}, 
+\ref{sec:mmt}, \ref{sec:sdt}, and \ref{sec:utilities}
+as reference resources.
+
+Read Chapters \ref{sec:testing} and \ref{sec:newdoc} to obtain guidance on requirements
+for testing and documentation of code modifications and new modules.
+Regardless of your level of expertise, you should become 
+intimately familiar with Chapter \ref{sec:newdoc}
+and follow the guidelines for documentation of any code that you write.  This
+will help ensure that this manual is kept up to date and remains usable for
+NWChem developers yet unborn.
+
+\section*{Organization}
+
+%chapter 1
+\subsection*{Chapter \ref{sec:intro}: NWChem Overview}
+
+This chapter provides a high-level overview of NWChem, including a detailed
+discussion of the code architecture.  
+
+%chapter 2
+\subsection*{Chapter \ref{sec:generic}: Generic Task Interface}
+
+This chapter discusses the details of the structure of NWChem
+and describes the flow of control through the five-tiered struture
+of the code.
+
+%chapter 3
+\subsection*{Chapter \ref{sec:modules}:  Molecular Calculation Modules}
+
+This chapter describes in detail the individual modules that perform the chemistry
+calculations, such as SCF gradient, DFT energy, QM/MM dynamics.
+
+%chapter 4
+\subsection*{Chapter \ref{sec:mmt}: The Molecular Modeling Toolkit}
+
+This chapter describes in detail the chemistry related tools that provide the basic 
+functionality common to many of the chemistry algorithms in NWChem.
+
+%chapter 5
+\subsection*{Chapter \ref{sec:sdt}: The Software Development Toolkit}
+
+This chapter describes in detail the tools that provide the interface between
+the chemistry calculation modules and the hardware memory and disk.  These tools 
+consist of the runtime database for disk access, plus the memory allocator, 
+global arrays, and ChemI/O tools
+for  non-uniform memory access (NUMA) for parallel programming.
+
+%chapter 6
+\subsection*{Chapter \ref{sec:utilities}: Utilities}
+
+This chapter covers Utilities, the performance statistics (PSTAT) utility, 
+and integral file I/O, 
+with reference to details in App. B and C.
+
+%chapter 7
+\subsection*{Chapter \ref{sec:install}:  Installing NWChem}
+
+This chapter describes procedures and requirements for installing NWChem on a new system.  
+It also contains details on makefiles and libraries, and a description of the Concurrent
+Version System (CVS) used for configuration management.
+
+%chapter 8
+\subsection*{Chapter \ref{sec:develop}:  Developing New Modules and Enhancements}
+
+This chapter describes procedures for coding new modules and modifications  
+to existing modules in NWChem.  Coding style and design requirements are described
+in detail.  The developer is strongly advised to study this chapter thoroughly before
+writing a single line of code.
+
+%chapter 9
+\subsection*{Chapter \ref{sec:testing}:  Testing the Program}
+
+This chapter describes the requirements for testing modifications and 
+new modules for NWChem.
+
+%chapter 10
+\subsection*{Chapter \ref{sec:newdoc}:  Documenting New Modules and Code Enhancements}
+
+This chapter describes procedures for documenting modifications and 
+new modules in NWChem.  Sections cover documentation tools and procedures 
+for notifying end users, trainers, and documenters of new or enhanced modules.
+Please read this chapter thoroughly and follow the procedures so that this document
+will co-evolve with the code.
+
+
+\subsection*{Appendix A.  The Integral Application Programmer's Interface}
+
+This appendix contains information on the structure of the IAP interface.
+
+\subsection*{Appendix B.  Performance Statistics Collection -- PSTAT}
+
+This appendix documents the PSTAT library, developed to facilitate collecting 
+and reporting performance statistics for parallel algorithms.
+
+
+\subsection*{Appendix C.  Integral File I/O}
+
+This appendix describes in detail the application- and i/o-level views of the 
+data stream for NWChem.
+
+\subsection*{Appendix D.  Error Messages}
+
+This appendix lists the error messages NWChem spits out from time to time.
+
+\section*{Related Product Information}
+
+The following related documents and information sources are available for 
+those needing further information 
+on NWChem and the various toolkits used by the code.
+
+\begin{enumerate}
+\item {\em NWChem User Document}
+
+\item Homepage for William R. Wiley Environmental Molecular Sciences Laboratory
+      (EMSL) -- \verb+http://www.emsl.pnl.gov:2080/+
+
+\begin{itemize}
+
+\item under hot link "Products", sublink "Software";
+
+\begin{itemize}
+\item Web page for NWChem -- 
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/nwchem/nwchem.html
+\end{verbatim}
+
+\item Web page for Extensible Computational Chemistry Environment (ECCE) --
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/ecce/
+\end{verbatim}
+
+\item Web page for Global Arrays (GA) toolkit -- 
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/global/
+\end{verbatim}
+
+\item Web page for TCGMSG Message Passing Library --
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/tcgmsg/tcgmsg.html
+\end{verbatim}
+
+\item Web page for Dynamic Memory Allocator (MA) Library -- 
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/parsoft/ma/MAapi.html
+\end{verbatim}
+
+\item Web page for High Performance I/O for Computational Chemistry Applications (ChemIO) --
+\begin{verbatim}
+          http://www.emsl.pnl.gov.2080/docs/parsoft/chemio/chemio.html
+\end{verbatim}
+\end{itemize}
+\end{itemize}
+
+\end{enumerate}
+
+\section*{Notation Conventions}
+
+Unless otherwise noted, all programs are listed in standard Fortran-77 and C language notation.
+
+UNIX commands are given in teletype (i.e., Courier font) text.
+
+Characters to be entered are shown in the appropriate upper or lower case letters.
+

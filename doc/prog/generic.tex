@@ -1,0 +1,364 @@
+\label{sec:generic}
+
+The high-level flow of control within NWChem was broadly outlined in
+the discussion of NWChem architecture (see Section \ref{sec:arch}).  This 
+chapter covers the details of internal communication between modules
+and the control of program execution.  This information is needed if
+NWChem is to be embedded in another application or when new modules
+are developed for the code.
+
+\section{Flow of Control in NWChem}
+
+The Generic Task Interface controls the execution of NWChem.  The flow 
+of control proceeds in the following steps:
+
+\begin{enumerate}
+\item Begin initialization of the parallel environment.
+\item Identify and open the input file.
+\item Complete the initialization of the parallel environment.
+\item Scan the input file for a memory directive.
+\item Process start-up directives.
+\item Summarize start-up information and write it to the output file.
+\item Open the runtime database with the appropriate mode.
+\item Process the input sequentially (ignoring start-up directives), 
+including the first \verb+task+ directive.
+\item Execute the task.
+\item Repeat steps 8 and 9 until reaching the end of the input file, or
+encountering a fatal error condition.
+\end{enumerate}
+
+In Step 1, the parallel environment is initialized by calling the 
+TCGMSG wrapper routine \verb+pbeginf()+.  This creates the parallel processes 
+and provides basic message-passing.  Before the global arrays can be 
+initialized, however, user-specified memory parameters must be obtained 
+from the input file.  This requires execution of Step 2 to open the input file.
+
+The input file is opened {\em only} by process zero.
+The name of the input file is determined by the routine 
+\verb+get_input_file_name()+.  (The convention for the input file name is 
+documented in the user manual.  The default name is \verb+nwchem.nw+.)
+The input file is scanned by process zero for a memory directive using the
+routine \verb+input_mem_size()+.  Defaults are provided for all memory parameters 
+not provided by the user, and results are broadcast to all nodes.  At this point the 
+local memory allocator (MA) and then the global array library (GA) are initialized.  
+Completion of these steps fully initializes the parallel environment.
+
+The next step is to process the startup directives that are contained in the
+input file.  This is done to determine the type of calculation being undertaken 
+(i.e., startup, restart, or continue), the name of the database, and the 
+location of the permanent and scratch directories.  Note that only process zero scans 
+the input file, using  routine \verb+input_file_info()+. The information obtained by
+process zero when reading the input file are broadcast to all nodes, however, and  
+this information is summarized to the output file.  Process zero then
+opens the database with the appropriate mode ({\em empty} for startup, {\em old} 
+for restart or continue).  
+
+At this point NWChem is fully functional and ready to process user 
+input beyond the startup information.
+If the startup mode is 'continue', however, no more input is processed and 
+the code attempts to continue the 
+previously executing task from the information in the database.  No new input information
+will be processed until that task is completed.  Once the continued task is finished,
+however, or if the startup mode is for a new or restarted input file, 
+the input file is read sequentially from the beginning (ignoring 
+startup directives since they have already been processed).  
+
+As long as input is  
+available from the input file, the input module (routine \verb+input_parse()+) is 
+invoked to read it,
+up to and including a task directive.  Each input line is processed, and data is
+inserted into the data base for 
+later retrieval.  Note that within the input module, only process zero is executing 
+code, reading input or putting data into the database.  To enable this, the database 
+is switched into sequential mode at the beginning of the input module, and back to 
+parallel at the end.
+
+Once a task directive is processed and entered into the database, 
+control is returned to the main program so that the task can be carried out.
+The main program initiates the execution of the task by 
+calling the routine \verb+task()+.  If the task fails, a fatal error is generated
+either by  
+\verb+task()+ itself or a lower level routine.  The task information remains in the database 
+so that the task may be continued in another job.  If the task finishes successfully, \verb+task()+ 
+removes information about the completed task from the database, and the main program 
+invokes the input module once again.
+
+The input module continues to sequentially process the input.  If it encounters another
+task directive, control is returned to the main program and the execution of the task
+is initiated, as described above.  Upon successful completion, the main program again
+returns control to the input module and input processing continues.  If the input 
+module does not encounter a task directive before running out of input 
+(physical or logical end of file) it returns false and the loop in the main 
+program terminates.
+
+Once all input has been processed and there are no more tasks to execute,
+the code attempts to clean up by closing the database, 
+tidying up GA, and finally gracefully killing the parallel processes.  Statistics 
+concerning the database, MA and GA are printed to the output file, and execution
+terminates.
+
+When a new module is introduced into NWChem, it must conform to this
+orderly control process.  The new module must be appropriately
+invoked by the task routines.  In addition, if it requires new input, the new module's
+input routine must be 
+appropriately invoked by \verb+input_parse()+ (see Section \ref{sec:parser} for details
+on the input parser).  The new module's input routine must also be structured so that
+it allows only
+process zero to execute the code that reads user input.  
+
+Any new module developed for NWChem must also conform to the design 
+goal that restart/continuation jobs with no repeated input behave exactly the same as 
+if all input and tasks were specified in a single file.  These attributes imply that 
+{\em all} input data be processed and entered into the database or another persistent 
+file.  This means that in-core data structures should not be initialized
+ within the input module.  (Doing so will result in
+only process zero having the information and 
+restarts will not work correctly.)  In addition, 
+input routines must not require having basis set or geometry information 
+available, since these are not known until a task is actually invoked.
+
+\section{Task Execution in NWChem}
+As described above, NWChem excutes all tasks by invoking the routine 
+\verb+task()+.  The main program does not actually know 
+what a particular task is --- the necessary 
+information is passed from the input module to the task library via the 
+database.  This makes the top level structure of NWChem very simple.  The same simplicity 
+is desirable in many applications.  For instance, molecular geometry optimizers 
+(or QM/MM programs) should work for all levels of theory and should not have to be 
+modified if a new theory is introduced into the code.  Similarly, routines that 
+compute gradients and Hessians by finite difference need to be able 
+to save and restore the state associated with each type of wavefunction.
+
+NWChem contains a layer of routines that can perform 
+the most common tasks/computations for all available wavefunctions.
+The following subsection lists the routines in this layer, with their arguments and
+calling conventions.
+
+\subsection{Task Routines for NWChem Operations}
+
+The highest 
+level of the task routines is subroutine (\verb+task()+), which
+is only invoked by the main NWChem program.
+The other task routines, however, can be invoked from almost any module.
+(Nested calls to the same subroutine should be avoided, however,
+ since most NWChem routines are 
+not reentrant.)  The database argument passing conventions of modules in NWChem 
+were developed in their
+present form mainly 
+to support this layer.
+
+\subsubsection{{\tt task}}
+
+\begin{verbatim}
+      subroutine task(rtdb)
+      integer rtdb              ! [input] data base handle
+\end{verbatim}
+
+Called by ALL processes.  After \verb+task_input+ has read the
+task directive and put stuff into the database this routine gets the
+data out and invokes the desired action.
+
+If the operation is in the list of those supported by generic 
+routines then 
+the generic routine is called.  Otherwise, a match is attemped 
+for a specialized routine.  If no operation is specified 
+and no specialized routine located, then it is assumed that
+a generic energy calculation is required.
+
+This needs extending to accomodate QM/MM and other mixed methods
+by having both MM and QM pieces specified (e.g., task md dft).
+
+
+\subsubsection{{\tt task\_energy}}
+
+
+\begin{verbatim}
+      logical function task_energy(rtdb)
+      integer rtdb
+c
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - name of (QM) level of theory to use
+c     
+c     RTDB output parameters
+c     ----------------------
+c     task:status (logical)- T/F for success/failure
+c     if (status) then
+c     .  task:energy (real)   - total energy
+c     .  task:dipole(real(3)) - total dipole moment if available
+c     .  task:cputime (real)  - cpu time to execute the task
+c     .  task:walltime (real) - wall time to execute the task
+c
+c     Also returns status through the function value
+c
+\end{verbatim}
+
+Generic NWChem interface to compute the energy.  Currently
+only the QM components are supported.
+
+\subsubsection{{\tt task\_gradient}}
+
+\begin{verbatim}
+      logical function task_gradient(rtdb)
+
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - name of (QM) level of theory to use
+c     task:numerical (logical) - optional - if true use numerical 
+c         differentiation. If absent or false use default selection.
+c     
+c     RTDB output parameters
+c     ----------------------
+c     task:status (logical)- T/F for success/failure
+c     if (status) then
+c     .  task:energy (real)   - total energy
+c     .  task:gradient (real array) - derivative w.r.t. geometry cart. coords.
+c     .  task:dipole (real(3)) - total dipole if available
+c     .  task:cputime (real)  - cpu time to execute the task
+c     .  task:walltime (real) - wall time to execute the task
+c
+c     Also returns status through the function value
+c
+\end{verbatim}
+
+Generic NWChem interface to compute the energy and gradient.  
+Currently only the QM components are supported.
+
+Since this routine is directly invoked by application modules
+no input is processed in this routine.
+If the method does not have analytic derivatives
+the numerical derivative routine is automatically called.
+
+
+\subsubsection{{\tt task\_freq}}
+
+\begin{verbatim}
+      logical function task_freq(rtdb)
+     
+c     RTDB input parameters
+c     ---------------------
+c     task:theory
+c
+c     RTDB output parameters
+c     ----------------------
+c     task:hessian file name (string) - name of file containing hessian
+c     task:status (logical)      - T/F on success/failure
+c     task:cputime
+c     task:walltime
+\end{verbatim}
+
+Central difference calculation of the hessian using
+the generic energy/gradient interface.  Uses a routine inside
+stepper to do the finite difference ... this needs to be
+cleaned up to be independent of stepper.
+
+Also will be hooked up to analytic methods as they are available.
+
+Since this routine is directly invoked by application modules
+no input is processed in this routine.
+
+\subsubsection{{\tt task\_hessian}}
+
+\begin{verbatim}
+      logical function task_hessian(rtdb)
+ 
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - name of (QM) level of theory to use
+c     task:numerical (logical) - optional - if true use numerical 
+c         differentiation. if 
+c     task:analytic  (logical) - force analytic hessian
+c     
+c     RTDB output parameters no for analytic hessian at the moment.
+c     ----------------------
+c     task:hessian file name - that has a lower triangular 
+C                              (double precision) array 
+c                              derivative w.r.t. geometry cart. coords.
+c     task:status (logical)  - T/F for success/failure
+c     task:cputime (real)    - cpu time to execute the task
+c     task:walltime (real)   - wall time to execute the task
+c
+c     Also returns status through the function value
+\end{verbatim}
+
+Generic NWChem interface to compute the analytic hessian.  
+
+If the method does not have analytic derivatives automatically calls
+the numerical derivative routine.
+
+
+
+\subsubsection{{\tt task\_optimize}}
+
+\begin{verbatim}
+      logical function task_optimize(rtdb)
+     
+c     RTDB input parameters
+c     ---------------------
+c     task:theory (string) - must be set for task_gradient to work
+c     
+c     RTDB output parameters
+c     ----------------------
+c     task:energy (real)   - final energy from optimization
+c     task:gradient (real) - final gradient from optimization
+c     task:status (real)   - T/F on success/failure
+c     task:cputime
+c     task:walltime
+c     geometry             - final geometry from optimization
+c     
+\end{verbatim}
+
+Optimize a geometry using stepper and the generic 
+task energy/gradient interface.  Eventually will need another
+layer below here to handle the selection of other optimizers.
+     
+Since this routine can be directly invoked by application modules
+no input is processed in this routine.
+c     
+\subsubsection{{\tt task\_num\_grad}}
+
+\begin{verbatim}
+      logical function task_num_grad(rtdb)
+      integer rtdb              ! [input] 
+\end{verbatim}
+
+Returns energy and gradient at current geometry.
+
+Computes derivatives of \verb+task_energy()+ with respect to nuclear displacements
+using numerical finite difference.
+
+Uses symmetry and projects out rotations/translations. 
+
+
+\subsubsection{{\tt task\_save\_state} and {\tt task\_restore\_state}}
+
+\begin{verbatim}
+      logical function task_save_state(rtdb,suffix)
+
+      integer rtdb              ! [input]
+      character*(*) suffix      ! [input]
+c
+c     Input argument ... the suffix
+c     
+c     RTDB arguments ... the theory name
+c     
+c     Output ... function value T/F on success/failure
+c     
+\end{verbatim}
+     
+Each module saves any files/database entries neccessary
+to restart the calculation at its current point by appending the
+given suffix to any names.
+     
+The exact (and perhaps only) application of this routine is in
+computation of derivatives by finite difference.  The energy/gradient
+is computed at a reference geometry (or zero field) and then
+the wavefunction is saved by calling this routine.  Subsequent
+calculations at displaced geometries (or non-zero fields) call
+\verb+task_restore_state()+ in order to use the wavefunction at the
+reference geometry as a starting guess for the calculation
+at the displaced geometry.  Thus, there is no need to save basis
+or geometry (or field) information.  E.g., in the SCF only the
+MO vector file is saved.
+     
+

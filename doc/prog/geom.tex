@@ -1,53 +1,77 @@
+% intro to this chapter (Molecular Modeling Toolkit)
+\label{sec:mmt}
 
-  `Geometry', unfortunately, is a bit of a misnomer since the
-`geometry object' serves several purposes
+The Molecular Modeling Toolkit provides the basic functionality common to many
+chemistry algorithms in NWChem.  These tools include the geometry object,
+the basis set object, the linear algebra routines, symmetry, grids, and
+the integral API.  This chapter describes each of the tools
+in detail, so that developers can use them correctly when inserting new modules in
+the code or modifying existing modules.  
+
+\section{The Geometry Object}
+
+\label{sec:geometry}
+
+The geometry object is used in NWChem to store and manipulate important
+information describing the molecular system to be modeled, not all of
+which is specifically connected with the geometry of the system.  The
+geometry object serves four main purposes; 
 \begin{itemize}
-\item a definition of the coordinate system and positioning in space
-  (also lattice vectors for periodic systems)
-\item an association of names/tags with coordinates in space
-\item a specification of the external potential (nuclear multipole
+\item provides a definition of the coordinate system and positioning in space
+  (including lattice vectors for periodic systems)
+\item defines an association of names/tags with coordinates in space
+\item specifies the external potential (nuclear multipole
   moments, external fields, effective core potentials, \ldots) that
-  defines the Hamiltonian for all electronic structure methods
-\item The geometry is home for most Hamiltonian related information (and
+  define the Hamiltonian for all electronic structure methods
+\item stores most Hamiltonian related information (but
   not wavefunction related information).
 \end{itemize}
 
-The tag associated with a geometric center is overloaded with many
-different meanings
+The tag associated with a geometric center serves a number of purposes in NWChem.
+It provides a convenient and unambiguous way to refer to
 \begin{itemize}
-\item an element (to provide default specification of nuclear charge,
+\item a specific chemical element (which provides default values for information
+such as nuclear charge,
   mass, number of electrons, \ldots)
-\item as a name of an `atomic' basis set
-\item as a test for symmetry equivalence (lower symmetry can be forced
-     by specifying different tags for otherwise symmetry equivalent
-     centers)
-\item etc.
+\item the name of an `atomic' basis set
+\item a DFT grid
 \end{itemize}
 
-The data in (or derived from) the geometry object includes, or will
-eventually include
+The tag can also serve as a test for symmetry equivalence, since lower symmetry 
+can be forced
+by specifying different tags for otherwise symmetry equivalent
+centers.
+
+The data contained in the geometry object (or information that can be derived from
+data in the object) include the following;
 \begin{enumerate}
 \item A description of the coordinates of all types of centers (e.g.,
       atom, basis function)
-\item Charges (eventually ECPs, \ldots) associated with those centers
+\item Charges (or optionally, ECPs, \ldots) associated with those centers
 \item Tags (names) of centers
 \item Masses associated with centers
 \item Variables for optimization (e.g., via constrained cartesians
-      or zmatrix variables)
+      or Z-matrix variables)
 \item Symmetry information
-\item Any other simple scalar/vector attributed associated
+\item Any other simple scalar/vector attribute associated
       specifically with a center
 \end{enumerate}
 
-Geometries are referenced through an integer handle.  In this fashion,
-multiple geometries may be accessible at any instant, though since
-geometries can consume a lot of memory the number of simultaneously
-`open' geometries should be kept to a minimum.
+Specific geometries are referenced through an integer handle.   
+Multiple geometries can be defined such that any one of them 
+may be accessible at any instant for a given problem.  However,
+geometries can consume a large amount of memory, so it is usually
+advisable to keep the number of simultaneously
+`open' geometries to a minimum.
 
-All logical functions return true on sucess, false on failure.  Only
-other actions are discussed below.
+Logical functions return true on sucess, false on failure.  The following
+subsections describe in more detail the functions that return something 
+other than the
+logical state.
 
 \subsection{Creating, destroying, loading and storing geometries}
+
+The following functions are used to create, destroy, load and store geometries.
 
 \subsubsection{{\tt geom\_create}}
 \begin{verbatim}
@@ -55,9 +79,11 @@ other actions are discussed below.
   integer geom          [output]
   character*(*) name    [input]
 \end{verbatim}
-The only place from which to get a valid geometry handle.  {\tt Name}
-is used only for identification in printout and subsequent creates.
-If the geometry is already opened, a handle to the existing copy is
+This is the only way to get a valid geometry handle.  The user-supplied string
+for {\tt name}
+is used only for identification in printout and subsequent executions of
+the \verb+geom_create+ function.
+If the geometry has already been opened, a handle to the existing copy is
 returned.
 
 \subsubsection{{\tt geom\_destroy}}
@@ -65,8 +91,9 @@ returned.
   logical function geom_destroy(geom)
   integer geom          [input]
 \end{verbatim}
-Delete the incore data structures associated with the geometry and
-make the geometry invalid for further use.
+This function deletes the {\em in core} data structures associated with the geometry and
+makes the geometry invalid for further use.  (Note that disk resident data is
+not deleted.  The runtime database is preserved between calculations.)
 
 \subsubsection{{\tt geom\_check\_handle}}
 \begin{verbatim}
@@ -74,8 +101,10 @@ make the geometry invalid for further use.
   integer geom          [input]
   character*(*) msg     [input]
 \end{verbatim}
-If {\tt geom} is not a valid geometry handle then print out {\tt msg}
-and return \FALSE.
+If the specified string {\tt geom} is not a valid geometry handle
+ this function prints out 
+the string {\tt msg}
+and returns \FALSE.
 
 \subsubsection{{\tt geom\_rtdb\_load}}
 \begin{verbatim}
@@ -84,12 +113,13 @@ and return \FALSE.
   integer geom          [input]
   character*(*) name    [input]
 \end{verbatim}
-Load named geometry from the data base.  One level of translation is
-attempted upon the name --- an entry with name {\tt name} is searched
+This function loads the named geometry from the data base.  One level of translation is
+attempted upon the name.  An entry with the name {\tt name} is searched
 for in the database and if located the value of that entry is used as
-the name of the geometry, rather than {\tt name} itself.  {\tt Geom}
+the name of the geometry, rather than {\tt name} itself.  The string specified
+for {\tt geom}
 must be a valid handle created by \verb+geom_create+.  The same
-geometry in the databse may be loaded into distinct in-memory geometry
+geometry in the database may be loaded into distinct in-memory geometry
 objects.
 
 \subsubsection{{\tt geom\_rtdb\_store}}
@@ -99,8 +129,8 @@ objects.
   integer geom          [input]
   character*(*) name    [input]
 \end{verbatim}  
-Store named geometry into the database.  One level of translation is
-attempted upon the name.
+This function stores the named geometry in the database.  One level of translation is
+attempted upon the string supplied for \verb+name+.
 
 \subsubsection{{\tt geom\_rtdb\_delete}}
 \begin{verbatim}
@@ -108,11 +138,14 @@ attempted upon the name.
   integer rtdb          [input]
   character*(*) name    [input]
 \end{verbatim}
-Delete the named geometry from the data base.  One level of
+This function deletes the named geometry from the data base.  One level of
 translation is attempted.  Nothing happens to in-core copies of any
 geometries.
 
-\subsection{Information about the geometry}
+\subsection{Information About the Geometry}
+
+This section describes functions that are used to define information about specific
+geometries. 
 
 \subsubsection{{\tt geom\_ncent}}
 \begin{verbatim}
@@ -128,7 +161,7 @@ Returns in {\tt ncent} the number of centers.
   integer geom                   [input]
   double precision total_charge  [output]
 \end{verbatim}
-Return the sum of the nuclear charges.
+Returns the sum of the nuclear charges.
 
 \subsubsection{{\tt geom\_nuc\_rep\_energy}}
 \begin{verbatim}
@@ -136,9 +169,9 @@ Return the sum of the nuclear charges.
   integer geom              [input]
   double precision energy   [output]
 \end{verbatim}
-Return the effective nuclear repulsion energy.  See also
-\verb+geom_incude_bqbq()+ (\ref{sec:incbqbq}) and
-\verb+geom_set_bqbq()+ (\ref{sec:setbqbq}).
+Returns the effective nuclear repulsion energy.  (Refer also to functions
+\verb+geom_incude_bqbq()+  and
+\verb+geom_set_bqbq()+.
 
 \subsubsection{{\tt geom\_include\_bqbq}}
 \label{sec:incbqbq}
@@ -163,10 +196,13 @@ of \FALSE.
   integer geom          [input]
   logical value         [input]
 \end{verbatim}
-Set the logical variable that determines if BQ-BQ interactions are
+Sets the logical variable that determines if BQ-BQ interactions are
 included to {\tt value}.
 
-\subsection{Information about centers and coordinates}
+\subsection{Information About Centers and Coordinates}
+
+This section describes functions that define information about the
+centers and coordinate system for the geometry object.
 
 \subsubsection{{\tt geom\_cart\_set}}
 \begin{verbatim}
@@ -177,10 +213,9 @@ included to {\tt value}.
   double precision c(3,ncent) [input]
   double precision q(ncent)   [input]
 \end{verbatim}
-Simple interface for setting tags ({\tt t}), cartesian coords ({\tt
-  c}) and charges ({\tt q}) for the geometry.  Atomic units are
-currently assumed but might soon be able to specify what units the
-interface will use.
+This function is a simple interface for setting tags ({\tt t}), 
+cartesian coordinates ({\tt
+  c}) and charges ({\tt q}) for the geometry.
 
 \subsubsection{{\tt geom\_cart\_get}}
 \begin{verbatim}
@@ -191,8 +226,10 @@ interface will use.
   double precision c(3,ncent) [output]
   double precision q(ncent)   [output]
 \end{verbatim}
-Extracts info from the geometry (opposite of set).  The user is
-responsible for determining that the arrays are of sufficient
+This function extracts information from the geometry.  (It performs
+essentially the opposite action to that of the \verb+set+ functions
+described above.)  The user must ensure 
+that the arrays are of sufficient
 dimension to hold the output.
 
 \subsubsection{{\tt geom\_cent\_get}}
@@ -204,7 +241,7 @@ dimension to hold the output.
   double precision c(3) [output]
   double precision q    [output]
 \end{verbatim}
-Returns tag/coords/charge about the center {\tt icent}.
+Returns tag/coordinates/charge about the center {\tt icent}.
 
 \subsubsection{{\tt geom\_cent\_set}}
 \begin{verbatim}
@@ -215,7 +252,9 @@ Returns tag/coords/charge about the center {\tt icent}.
   double precision c(3) [input]
   double precision q    [input]
 \end{verbatim}
-Sets values for center {\tt icent} inside the geometry --- opposite of
+This function sets values for center {\tt icent} inside the geometry.  It
+is
+essentially the opposite of the function
 \verb+geom_cent_get+.
 
 \subsubsection{{\tt geom\_cent\_tag}}
@@ -234,11 +273,14 @@ Returns just the tag of the center {\tt icent}.
   character*(*) msg     [input]
   integer icent         [input]
 \end{verbatim}
-Return \TRUE if center \verb+icent+ is a valid center,
-otherwise return \FALSE and print out the message and other
+This function returns \verb+.true.+ if center \verb+icent+ is a valid center.
+Otherwise it returns \verb+.false.+ and prints out the message and other
 information. 
 
-\subsection{Support for periodic systems}
+\subsection{Support for Periodic Systems}
+
+
+This section describes functions that are applicable only to periodic systems.
 
 \subsubsection{{\tt geom\_systype\_get}}
 \begin{verbatim}
@@ -246,7 +288,9 @@ information.
   integer geom          [input]
   integer itype         [input]
 \end{verbatim}
-Return in {\tt systype} the system type
+This function returns an integer flag corresponding to
+the system type in {\tt itype}.  Valid entries include
+the following
 \begin{itemize}
 \item 0 = Molecule
 \item 1 = Polymer
@@ -260,7 +304,7 @@ Return in {\tt systype} the system type
   integer geom                [input]
   double precision vectors(3) [output]
 \end{verbatim}
-For periodic systems, return the lattice constants ({\bf units?}).
+For periodic systems, this function returns the lattice constants.
 
 \subsubsection{{\tt geom\_latang\_get}}
 \begin{verbatim}
@@ -268,7 +312,7 @@ For periodic systems, return the lattice constants ({\bf units?}).
   integer geom                [input]
   double precision angles(3)  [output]
 \end{verbatim}
-For periodic systems, return the angles defining the lattice.
+For periodic systems, this function returns the angles defining the lattice.
 
 \subsubsection{{\tt geom\_recipvec\_get}}
 \begin{verbatim}
@@ -276,7 +320,8 @@ For periodic systems, return the angles defining the lattice.
   integer geom                [input]
   double precision rvectors(3)[output]
 \end{verbatim}
-For periodic systems, return the constants of the reciprocal lattice.
+For periodic systems, this function returns the constants of 
+the reciprocal lattice.
 
 \subsubsection{{\tt geom\_recipang\_get}}
 \begin{verbatim}
@@ -284,7 +329,7 @@ For periodic systems, return the constants of the reciprocal lattice.
   integer geom                [input]
   double precision rangles(3) [output]
 \end{verbatim}
-For periodic systems, return the angles defining the reciprocal
+For periodic systems, this function returns the angles defining the reciprocal
 lattice ({\bf units?}).
 
 \subsubsection{{\tt geom\_volume\_get}}
@@ -293,7 +338,7 @@ lattice ({\bf units?}).
   integer geom            [input]
   double precision volume [output]
 \end{verbatim}
-For periodic systems, return the volume of the unit cell ({\bf units?}).
+For periodic systems, this function returns the volume of the unit cell ({\bf units?}).
 
 \subsubsection{{\tt geom\_amatrix\_get} and {\tt geom\_amatinv\_get}}
 \begin{verbatim}
@@ -305,12 +350,15 @@ For periodic systems, return the volume of the unit cell ({\bf units?}).
   integer geom                  [input]
   double precision amatinv(3,3) [output]
 \end{verbatim}
-For periodic systems, return the `A-matrix' or its inverse.  This is
+For periodic systems, this function returns the `A-matrix' or its inverse.  This is
 the matrix that transforms fractional coordinates to a Cartesian
 system in atomic units (???).  This matrix is the unit matrix for
 molecular systems.
 
-\subsection{Printing and miscellaneous routines}
+\subsection{Printing and Miscellaneous Routines}
+
+This section describes various useful functions that can be called upon to
+manipulate data in the geometry object.
 
 \subsubsection{{\tt geom\_print} and {\tt geom\_print\_xyz}}
 \begin{verbatim}
@@ -321,7 +369,7 @@ molecular systems.
   integer geom          [input]
   integer unit          [input]
 \end{verbatim}
-Print out the geometry to standard output.  The {\tt XYZ} form prints
+This function prints out the geometry to standard output.  The {\tt XYZ} form prints
 the geometry out to the specified Fortran unit in the XYZ format of 
 the molecular viewer {\em Xmol}.
 
@@ -331,7 +379,7 @@ the molecular viewer {\em Xmol}.
   integer geom          [input]
   character*(*) units   [input]
 \end{verbatim}
-Set the coordinates that the user expects for input/output.  It
+This function sets the coordinates that the user expects for input/output.  It
 currently understands either `a.u.' or `angstrom'.  Note that
 geometries are always internally stored as cartesians in atomic units.
 
@@ -343,17 +391,17 @@ geometries are always internally stored as cartesians in atomic units.
   character*(*) element [output]
   integer atn           [output]
 \end{verbatim}
-Attempt to interpret a tag as the name of an element.  If successful,
-return the symbol, full name and atomic number.
+This function attempts to interpret a tag as the name of a chemical element.  If successful,
+it return the symbol, full name and atomic number of the element.
 
 \subsubsection{{\tt geom\_charge\_center}}
 \begin{verbatim}
   logical function geom_charge_center(geom)
   integer geom          [input]
 \end{verbatim}
-Adjust the cartesian coordinates so that the nuclear dipole moment is
-zero --- i.e., the origin of the coordinate system is at the center of
-charge.
+This function adjusts the cartesian coordinates so that the nuclear dipole moment is
+zero (i.e., defines the origin of the coordinate system at the center of
+charge.)
 
 \subsubsection{{\tt geom\_num\_core}}
 \begin{verbatim}
@@ -361,16 +409,7 @@ charge.
   integer geom          [input]
   integer ncore         [output]
 \end{verbatim}
-Determines the number of core orbitals in a system based on the
-constituent atoms and the standard general chemistry ideas of core and
+This function determines the number of core orbitals in a system based on the
+constituent atoms and the standard general chemistry concepts of core and
 valance.
-
-\subsection{Bugs}
-
-\begin{itemize}
-\item It is currently only possible to create a geometry with symmetry
-  from the input
-\item No internal coordinates
-\end{itemize}
-
 

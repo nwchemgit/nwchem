@@ -1,50 +1,154 @@
-\sloppy
-For more detailed information look in 
-{\tt \$NWCHEM\_TOP/src/global/doc/global.doc}     %$ for emacs
+\label{sec:ga}
 
-\fussy
+%\sloppy
+%For more detailed information look in 
+%{\tt \$NWCHEM\_TOP/src/global/doc/global.doc}     %$ for emacs
+%
+%\fussy
 
 Globally addressable arrays have been developed to simplify writing
 portable scientific software for both shared and distributed memory
 computers.  Programming convenience, code extensibility and
 maintainability are gained by adopting the shared memory programming
-model.
+model.  The Global Array (GA) toolkit provides an efficient and portable 
+"shared memory" programming interface for distributed memory computers.
+Each process in a MIMD parallel program can asynchronously access
+logical blocks of physically distributed matrices without need for
+explicit cooperation by other processes. 
 
-From the user perspective, a global array can be used as it was stored
+From the user perspective, a global array can be used as if it was stored
 in the shared memory. Details of the data distribution, addressing and
 communication are encapsulated in the global array objects. However,
 the information on the actual data distribution can be obtained and
 taken advantage of whenever data locality is important.
 
+The Global Arrays tool has been designed to complement the message-passing 
+programming model.  The developer can use both shared memory and message
+passing paradigms in the same program, to take advantage of existing
+message-passing software libraries such as TCGMSG.  This tool is also 
+compatible with the Message Passing Interface (MPI).  The Global Arrays toolkit
+has been in the public domain since 1994 and is actively supported.  Additional
+documentation and information on performance and applications is available
+on the web site http://www.emsl.pnl.gov:2080/docs/global/.
+
 Currently support is limited to 2-D double precision or integer arrays
 with block distribution, at most one block per array per processor.
 
-Operations that are globally collective \ldots i.e.\ must be
-simultaneously invoked by all processes as if in SIMD mode:
+\subsubsection{List of GA Routines}
+
+The following routines are invoked for operations that are globally collective.
+That is, they must be
+simultaneously invoked by all processes as if in SIMD mode.
+
 \begin{itemize}
-\item {\tt ga\_initialize} --- initialize global array internal
+\item {\tt ga\_initialize\_()} --- initialize global array internal
   structures
-\item {\tt ga\_initialize\_ltd} --- initialize global arrays and set
+\item {\tt ga\_initialize\_ltd(mem\_limit)} --- initialize global arrays and set
   memory usage limits
-\item {\tt ga\_create} --- create an array
-\item {\tt ga\_create\_irreg} --- create an array with irregular
+\begin{itemize}
+\item      integer {\tt mem\_limit}       --- [input] GA total memory ( specifying less than 0
+means "unlimited memory")
+\end{itemize}
+
+\item {\tt ga\_create(type,dim1,dim2,array\_name,chunk1,chunk2,g\_a)} --- create an array
+\begin{itemize}
+\item     integer {\tt type}         --- [input] MA type
+\item     integer {\tt dim1, dim2}   --- [input] array dimensions (dim1,dim2) as in FORTRAN
+\item     character {\tt array\_name}--- [input] unique character string identifying the array
+\item     integer {\tt chunk1, chunk2} --- [input] minimum size that dimensions should
+                                         be chunked up into;
+                                         setting chunk1=dim1 gives distribution by rows
+                                         setting chunk2=dim2 gives distribution by columns 
+                                         Actual chunk sizes are modified so that they are
+                                         at least the min size and each process has either
+                                         zero or one chunk. 
+                                         (Specifying both as less than or equal to 1 
+                                         yields an even distribution)
+\item     integer {\tt g\_a}             [output] integer handle for future references
+\end{itemize}
+
+\item {\tt ga\_create\_irreg(type, dim1, dim2, array\_name, map1, nblock1,
+map2, nblock2, g\_a)} --- create an array with irregular
   distribution
-\item {\tt ga\_duplicate} --- create an array following a reference
+\begin{itemize}
+\item     integer {\tt type}        --- [input] MA type
+\item     integer {\tt dim1, dim2}  --- [input] array dimensions (dim1,dim2) as in FORTRAN
+\item     character {\tt array\_name}--- [input] unique character string identifying the array
+\item     integer {\tt map1}        --- [input] number ilo in each block
+\item     integer {\tt nblock1}     --- [input] number of blocks dim1 is divided into
+\item     integer {\tt map2}        --- [input] number jlo in each block
+\item     integer {\tt nblock2}     --- [input] number of blocks dim2 is divided into
+\item     integer {\tt g\_a}        --- [output] integer handle for future references
+\end{itemize}
+
+\item {\tt ga\_duplicate(g\_a, g\_b, array\_name)} --- create an array with same properties as reference
   array
-\item {\tt ga\_destroy} --- destroy an array
-\item {\tt ga\_terminate} --- destroy all existing arrays and delete
-  internal data structures
-\item {\tt ga\_sync} --- synchronize processes (a barrier)
-\item {\tt ga\_zero} --- zero an array
-\item {\tt ga\_ddot} --- dot product of two arrays (doubles only)
+\begin{itemize}
+\item     character {\tt array\_name} --- [input] unique character string identifying the array
+\item     integer {\tt g\_a}         --- [output] integer handle for reference array
+\item     integer {\tt g\_b}         --- [output] integer handle for new array
+\end{itemize}
+
+\item {\tt ga\_destroy\_(g\_a)} --- destroy an array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array to be destroyed
+\end{itemize}
+
+\item {\tt ga\_terminate\_()} --- destroys all existing global arrays 
+and de-allocates shared memory
+\item {\tt ga\_sync\_()} --- synchronizes all processes (a barrier)
+\item {\tt ga\_zero\_(g\_a)} --- zero an array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array to be zeroed
+\end{itemize}
+
+\item {\tt ga\_ddot\_(g\_a, g\_b)} --- dot product of two arrays (double precision only)
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of first array in dot product
+\item     integer {\tt g\_b}         --- [input] integer handle of second array in dot product
+\end{itemize}
+
 \item {\tt ga\_dscal} --- scale the elements in an array by a constant
   (double precision data only)
 \item {\tt ga\_dadd} --- scale and add two arrays to put result in a
   third (may overwrite one of the other two, doubles only)
-\item {\tt ga\_copy} --- copy one array into another
-\item {\tt ga\_dgemm} --- BLAS-like matrix multiply
-\item {\tt ga\_ddot\_patch} --- dot product of two arrays (doubles
-  only) (patch version)
+\item {\tt ga\_copy(g\_a, g\_b)} --- copy one array into another
+\begin{itemize}
+\item     integer {\tt g\_a}          --- [input] integer handle of array to be copied
+\item     integer {\tt g\_b}         --- [input] integer handle of array g\_a is copied into
+\end{itemize}
+
+\item {\tt ga\_dgemm(transa, transb, m, n, k, alpha, g\_a, g\_b, beta, g\_c} --- 
+BLAS-like matrix multiply
+\begin{itemize}
+\item      character*1        {\tt transa, transb}
+\item      integer            {\tt m, n, k}
+\item      double precision   {\tt alpha, beta}
+\item      integer            {\tt g\_a, g\_b, g\_c}
+\end{itemize}
+
+\item {\tt ga\_ddot\_patch(g\_a, t\_a, ailo, aihi, ajlo, ajhi,
+         g\_b, t\_b, bilo, bihi, bjlo, bjhi)} --- dot product of two arrays (double precision
+  only; patch version) (Note: patches of different shapes and distrubutions
+are allowed, but not recommended, and both patches must have the same number
+of elements)
+\begin{itemize}
+\item      integer {\tt g\_a}            --- [input] integer identifier of first array containing
+                                               patch for dot product
+\item     integer {\tt t\_a}             --- [input] transpose of first array
+\item     integer {\tt ailo, aihi}       --- [input] high and low indices for i dimension of
+                                               patch of array  for dot product
+\item     integer {\tt ajlo, ajhi}       --- [input] high and low indices for j dimension of
+                                               patch of array for dot product
+\item      integer {\tt g\_b}            --- [output]integer identifier of second array contianing
+                                               patch for dot product
+\item     integer {\tt t\_b}             --- [input] transpose of second array
+\item     integer {\tt bilo, bihi}       --- [input] high and low indices for i dimension of
+                                               patch of array  for dot product
+\item     integer {\tt bjlo, bjhi}       --- [input] high and low indices for j dimension of
+                                               patch of array  for dot product
+\end{itemize}
+
 \item {\tt ga\_dscal\_patch} --- scale the elements in an array by a
   constant (patch version)
 \item {\tt ga\_dadd\_patch} --- scale and add two arrays to put result
@@ -53,79 +157,328 @@ simultaneously invoked by all processes as if in SIMD mode:
   (integer version)
 \item {\tt ga\_dfill\_patch} --- fill a patch of array with value
   (double version)
-\item {\tt ga\_matmul\_patch} --- matrix multiply (patch version)
-\item {\tt ga\_diag} --- real symmetric generalized eigensolver
+\item {\tt ga\_matmul\_patch(transa, transb, alpha, beta, g\_a, ailo, aihi,
+ajlo, ajhi, g\_b, bilo, bihi, bjlo, bjhi, g\_c, cilo, cihi,
+cjlo, cjhi)} --- matrix multiply (patch version)
+\begin{itemize}
+\item      character {\tt transa}        --- [input] transpose of first array for matrix multiply
+\item      character {\tt transb}        --- [input] transpose of second array for matrix multiply
+\item      double precision {\tt alpha}  ---  ??
+\item      double precision {\tt beta}   ---  ??
+\item      integer {\tt g\_a}            --- [input] integer identifier of first array for matrix multiply
+\item     integer {\tt ailo, aihi}       --- [input] high and low indices for i dimension of
+                                               patch of first array for matrix multiply
+\item     integer {\tt ajlo, ajhi}       --- [input] high and low indices for j dimension of
+                                               patch of first array for matrix multiply
+\item      integer {\tt g\_b}            --- [input] integer identifier of second array for matrix multiply
+\item     integer {\tt bilo, bihi}       --- [input] high and low indices for i dimension of
+                                               patch of second array for matrix multiply
+\item     integer {\tt bjlo, bjhi}       --- [input] high and low indices for j dimension of
+                                               patch of second array for matrix multiply
+\item      integer {\tt g\_c}            --- [input] integer identifier of resultant array for matrix multiply
+\item     integer {\tt cilo, cihi}       --- [input] high and low indices for i dimension of
+                                               patch of resultant array for matrix multiply
+\item     integer {\tt cjlo, cjhi}       --- [input] high and low indices for j dimension of
+                                               patch of resultant array for matrix multiply
+\end{itemize}
+
+
+\item {\tt ga\_diag(g\_a, g\_s, g\_v, eval)} --- real symmetric generalized eigensolver
+  (sequential version \verb+ga_diag_seq+ also exists)
+\begin{itemize}
+\item      integer {\tt g\_a}           ---  matrix to diagonalize
+\item      integer {\tt g\_s}           ---  metric
+\item      integer {\tt g\_v}           ---  global matrix to return evecs
+\item      double precision {\tt eval(*)} --- local array to return evals
+\end{itemize}
+
+\item {\tt ga\_diag\_reuse(reuse,g\_a,g\_s,g\_v,eval)} --- a 
+version of {\tt ga\_diag} for repeated use
+\begin{itemize}
+\item      integer {\tt reuse} --- allows reuse of factorized g\_s: flag is
+                                     0  first time, greater than 0 for
+                                        subsequent calls, less than 0 
+                                     deletes factorized g\_s 
+\item      integer {\tt g\_a}           ---  matrix to diagonalize
+\item      integer {\tt g\_s}           ---  metric
+\item      integer {\tt g\_v}           ---  global matrix to return evecs
+\item      double precision {\tt eval(*)} --- local array to return evals
+\end{itemize}
+
+\item {\tt ga\_diag\_std(g\_a, g\_v, eval)} --- standard real symmetric eigensolver
   (sequential version also exists)
-\item {\tt ga\_diag\_reuse} --- a version of ga\_diag for repeated use
-\item {\tt ga\_diag\_std} --- standard real symmetric eigensolver
-  (sequential version also exists)
-\item {\tt ga\_symmetrize} --- symmetrize a matrix
-\item {\tt ga\_transpose} --- transpose a matrix
-\item {\tt ga\_lu\_solve} --- solve system of linear equations based
-  on LU factorization (sequential version also exists)
-\item {\tt ga\_print\_patch} --- print a patch of an array to the
+\begin{itemize}
+\item      integer {\tt g\_a}            --- [input] matrix to diagonalize
+\item      integer {\tt g\_v}            --- [output] global matrix to return evecs
+\item      double precision {\tt eval(*)} --- [output] local array to return evals
+\end{itemize}
+
+\item {\tt ga\_symmetrize(g\_a)} --- symmetrizes matrix A into 0.5(A+A') (NOTE: diag(A)
+remains unchanged.)
+\begin{itemize}
+\item      integer {\tt g\_a}           --- [input] matrix to symmetrize
+\end{itemize}
+
+\item {\tt ga\_transpose(g\_a)} --- transpose a matrix
+\begin{itemize}
+\item      integer {\tt g\_a}            --- [input] matrix to transpose 
+\end{itemize}
+
+\item {\tt ga\_lu\_solve(trans, g\_a, g\_b)} --- solves system of linear equations based
+  on LU factorization (sequential version \verb+ga_lu_solve_seq+ also exists)
+\begin{itemize}
+\item      character*1 {\tt trans}       --- [input] transpose or not
+\item      integer {\tt g\_a}            --- [input] matrix to diagonalize (coefficient matrix A)
+\item      integer {\tt g\_b}            --- [output] rhs matrix B, overwritten on exit
+                                        by the solution vector, X of AX = B
+\end{itemize}
+
+\item {\tt ga\_print\_patch(g\_a, ilo, ihi, jlo, jhi, pretty)} --- print a patch of an array to the
   screen
-\item {\tt ga\_print} --- print an entire array to the screen
-\item {\tt ga\_copy\_patch} --- copy data from a patch of one global
-  array into another array
-\item {\tt ga\_compare\_distr} --- compare distributions of two global
+\begin{itemize}
+\item      integer {\tt g\_a}           --- [input] integer identifier of array to be printed
+\item      integer {\tt ilo, ihi}       --- [input] high and low indices for i dimension of patch
+                                               of array to be printed
+\item      integer {\tt jlo, jhi}       --- [input] high and low indices for j dimension of patch
+                                               of array to be printed
+\item      integer {\tt pretty}         --- [input] flag for format of output to screen;
+\begin{itemize}
+\item pretty = 0, spew output out with no formatting
+\item pretty = 1, format output so that it is readable
+\end{itemize}
+\end{itemize}
+
+\item {\tt ga\_print(g\_a)} --- print an entire array to the screen
+\begin{itemize}
+\item      integer {\tt g\_a}           --- [input] integer identifier of array to be printed
+\end{itemize}
+
+\item {\tt ga\_copy\_patch(trans, g\_a, ailo, aihi, ajlo, ajhi, g\_b, bilo,
+bihi, bjlo, bjhi)} --- copy data from a patch of one global
+  array into another array, (Note: patch can change shape, but total numer of elements
+  must be the same between the two arrays)
+\begin{itemize}
+\item      character*1 {\tt trans}      --- [input] transpose or not
+\item      integer {\tt g\_a}           --- [input] integer identifier of array to be copied
+\item     integer {\tt ailo, aihi}      --- [input] high and low indices for i dimension of
+                                               patch of array 
+                                               to be copied
+\item     integer {\tt ajlo, ajhi}      --- [input] high and low indices for j dimension of
+                                               patch of array 
+                                               to be copied
+\item      integer {\tt g\_b}           --- [output]integer identifier of array data is to be
+                                       copied into
+\item     integer {\tt bilo, bihi}      --- [input] high and low indices for i dimension of patch
+                                               of array being copied into
+\item     integer {\tt bjlo, bjhi}      --- [input] high and low indices for j dimension of patch
+                                               of array being copied into
+\end{itemize}
+
+\item {\tt ga\_compare\_distr\_(g\_a, g\_b)} --- compare distributions of two global
   arrays
+\begin{itemize}
+\item      integer {\tt g\_a}           --- [input] integer identifier of first array
+\item      integer {\tt g\_b}           --- [output]integer identifier of second array
+\end{itemize}
+
 \end{itemize}
 
 Operations that may be invoked by any process in true MIMD style:
 \begin{itemize}
-\item {\tt ga\_get} --- read from a patch of an array
-\item {\tt ga\_put} --- write to a patch of an array
-\item {\tt ga\_acc} --- accumulate into a patch of an array (double
+\item {\tt ga\_get\_(g\_a, ilo, ihi, jlo, jhi, buf, Id)} --- read from a patch of an array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt ilo, ihi}    --- [input] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [input] high and low indices for j dimension of region
+\item     integer {\tt buf}         --- [output] ???
+\item     integer {\tt Id}          --- [output] ???
+\end{itemize}
+
+\item {\tt ga\_put\_(g\_a, ilo, ihi, jlo, jhi, buf, Id)} --- write from a patch of an array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt ilo, ihi}    --- [input] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [input] high and low indices for j dimension of region
+\item     integer {\tt buf}         --- [output] ???
+\item     integer {\tt Id}          --- [output] ???
+\end{itemize}
+
+\item {\tt ga\_acc\_(g\_a, ilo, ihi, jlo, jhi, buf, Id, alpha)} --- accumulate into a patch of an array (double
   precision only)
-\item {\tt ga\_scatter} --- scatter elements into an array
-\item {\tt ga\_gather} --- gather elements from an array
-\item {\tt ga\_read\_inc} --- atomically read and increment the value
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt ilo, ihi}    --- [input] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [input] high and low indices for j dimension of region
+\item     integer {\tt buf}         --- [output] ???
+\item     integer {\tt Id}          --- [output] ???
+\item     integer {\tt alpha}       ---  ????
+\end{itemize}
+
+\item {\tt ga\_scatter\_(g\_a, v, i, j, nv)} --- scatter elements of v into an array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array that elements of v are to be scattered into
+\item     ????    {\tt v}           --- [input] array from which elements are to be scattered
+\item     integer {\tt i, j}        --- [input] array element indices (i,j) as in FORTRAN
+\item     integer {\tt nv}          ---  ????
+\end{itemize}
+
+\item {\tt ga\_gather\_g\_a, v, i, j, nv} --- gather elements from an array v into array g\_a
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array that elements of v are to be gathered into
+\item     ????    {\tt v}           --- [input] array from which elements are to be gathered 
+\item     integer {\tt i, j}        --- [input] array element indices (i,j) as in FORTRAN
+\item     integer {\tt nv}          ---  ????
+\end{itemize}
+
+\item {\tt ga\_read\_inc\_(g\_a, i, j, inc)} --- atomically read and increment the value
   of a single array element (integers only)
-\item {\tt ga\_locate} --- determine which process `holds' an array
-  element
-\item {\tt ga\_locate\_region} --- determine which process `holds' an
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array 
+\item     integer {\tt i, j}        --- [input] array element indices (i,j) as in FORTRAN
+\item     integer {\tt inc}         --- [input] amount to increment array element value
+\end{itemize}
+
+\item {\tt ga\_locate(g\_a,i,j,owner)} --- determine which process `holds' an array
+  element (i,j)
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt i, j}        --- [input] array element indices (i,j) as in FORTRAN
+\item     integer {\tt owner}       --- [output] index number of processor holding the element
+\end{itemize}
+
+\item {\tt ga\_locate\_region\_(g\_a, ilo, ihi, jlo, jhi, map, np)} --- 
+determine which process `holds' an
   array section
-\item {\tt ga\_error} --- print error message and terminate the
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt ilo, ihi}    --- [input] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [input] high and low indices for j dimension of region
+\item     ??????  {\tt map}                 --- [output] ???
+\item     integer {\tt np}          --- [output] index number of processor holding the region 
+\end{itemize}
+
+\item {\tt ga\_error(string, icode)} --- print error message and terminate the
   program
-\item {\tt ga\_summarize} --- print information about already
-  allocated arrays
+\begin{itemize}
+\item      character {\tt string}     --- [input] ????
+\item      integer {\tt icode}        --- [input] integer flag for error code
+\end{itemize}
+
+\item {\tt ga\_summarize(verbose)} --- print information about all
+  allocated arrays (note: assumes no more than 100 arrays are allocated and
+are numbered -1000, -999, etc.)
+\begin{itemize}
+\item      integer {\tt verbose}      --- [input] if non-zero, print distribution information
+\end{itemize}
+
 \end{itemize}
 
 Operations that may be invoked by any process in true MIMD style and
 are intended to support writing of new functions:
 \begin{itemize}
-\item {\tt ga\_distribution} --- find coordinates of the array patch
+\item {\tt ga\_distribution\_(g\_a, me, ilo, ihi, jlo, jhi)} --- find coordinates of the array patch
   that is `held' by a processor
-\item {\tt ga\_access} --- access internal data
-\item {\tt ga\_release} --- relinquish access to internal data
-\item {\tt ga\_release\_update} --- relinquish access after data were
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     integer {\tt me}          --- [input] index number of processor holding the patch
+\item     integer {\tt ilo, ihi}    --- [output] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [output] high and low indices for j dimension of region
+\end{itemize}
+
+\item {\tt ga\_access(g\_a, ilo, ihi, jlo,jhi, index, Id)} --- provides access to a patch of a global array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array to be accessed
+\item     integer {\tt ilo, ihi}    --- [output] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [output] high and low indices for j dimension of region
+\item     integer {\tt index}       ---  ????
+\item     integer {\tt Id}          ---  ????
+\end{itemize}
+
+\item {\tt ga\_release(g\_a, ilo, ihi, jlo, jhi)} --- relinquish access to internal data
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array to be released
+\item     integer {\tt ilo, ihi}    --- [output] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [output] high and low indices for j dimension of region
+\end{itemize}
+
+\item {\tt ga\_release\_update\_(g\_a, ilo, ihi, jlo, jhi)} --- relinquish access after data were
   updated
-\item {\tt ga\_check\_handle} --- verify that a GA handle is valid
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array to be updated and released
+\item     integer {\tt ilo, ihi}    --- [output] high and low indices for i dimension of region
+\item     integer {\tt jlo, jhi}    --- [output] high and low indices for j dimension of region
+\end{itemize}
+
+\item {\tt ga\_check\_handle(g\_a, fstring)} --- verify that a GA handle is valid
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer handle of array
+\item     character* {\tt fstring}  --- [input] name of routine originating the check
+\end{itemize}
+
 \end{itemize}
 
 Operations to support portability between implementations:
 \begin{itemize}
-\item {\tt ga\_nodeid} --- find requesting compute process message id
-\item {\tt ga\_nnodes} --- find number of compute processes
-\item {\tt ga\_dgop} --- equivalent to TCGMSG dgop
-\item {\tt ga\_igop} --- equivalent to TCGMSG igop
-\item {\tt ga\_brdcst} --- equivalent to TCGMSG brdcst
+\item {\tt ga\_nodeid\_()} --- find requesting compute process message id
+\item {\tt ga\_nnodes\_()} --- find number of compute processes
+\item {\tt ga\_dgop(type, x, n, op)} --- equivalent to TCGMSG dgop, for use in data-server
+mode where only compute processes participate
+\begin{itemize}
+\item     integer {\tt type}        --- [input] integer handle of array
+\item     integer {\tt n}           --- [input]
+\item     double precision {\tt x}  --- [input] 
+\item     character {\tt op}        --- [input] 
+\end{itemize}
+
+\item {\tt ga\_igop(type, x, n, op)} --- equivalent to TCGMSG igop, for use in data-server mode
+where only compute processes participate
+\begin{itemize}
+\item     integer {\tt type}        --- [input] integer handle of array
+\item     integer {\tt n}           --- [input]
+\item     double precision {\tt x}  --- [input] 
+\item     character {\tt op}        --- [input] 
+\end{itemize}
+
+\item {\tt ga\_brdcst(type, buf, len, originator)} --- equivalent to TCGMSG brdcst, for use in data server mode
+with predefined communicators
+\begin{itemize}
+\item     integer {\tt type}        --- [input] integer handle of array
+\item     ????    {\tt buf}         --- [input]
+\item     integer {\tt len}         --- [input]
+\item     integer {\tt originator}  --- [input] number of originating processor
+\end{itemize}
+
 \end{itemize}
 
 Other utility operations:
 \begin{itemize}
-\item {\tt ga\_inquire} --- find the type and dimensions of the array
-\item {\tt ga\_inquire\_name} --- find the name of the array
-\item {\tt ga\_inquire\_memory} --- find the amount of memory in
+\item {\tt ga\_inquire\_(g\_a, atype, adim1, adim2)} --- find the type and 
+                    dimensions of the array
+\begin{itemize}
+\item     integer {\tt g\_a}        --- [input] integer identifier of array
+\item     integer {\tt atype}       --- [output] MA type
+\item     integer {\tt adim1, adim2} --- [output] array dimensions (adim1,adim2) as in FORTRAN
+\end{itemize}
+
+\item {\tt ga\_inquire\_name\_(g\_a, array\_name)} --- find the name of the array
+\begin{itemize}
+\item     integer {\tt g\_a}         --- [input] integer identifier of array
+\item     character* {\tt array\_name}  --- [output] string containing name of the array
+\end{itemize}
+
+\item {\tt ga\_inquire\_memory\_()} --- find the amount of memory in
   active arrays
-\item {\tt ga\_memory\_avail} --- find the amount of memory left for
+\item {\tt ga\_memory\_avail\_()} --- find the amount of memory left for
   GA
-\item {\tt ga\_summarize} --- prints summary info about allocated
+\item {\tt ga\_summarize(verbose)} --- prints summary info about allocated
   arrays
-\item {\tt ga\_uses\_ma} --- finds if memory in arrays comes from MA
+\begin{itemize}
+\item     integer {\tt verbose}     --- [input] if non-zero, print distribution information
+\end{itemize}
+
+\item {\tt ga\_uses\_ma\_()} --- finds if memory in arrays comes from MA
   (memory allocator)
-\item {\tt ga\_memory\_limited} --- finds if limits were set for
+\item {\tt ga\_memory\_limited\_()} --- finds if limits were set for
   memory usage in arrays
 \end{itemize}
 
@@ -139,3 +492,88 @@ Note that consistency is only guaranteed for
 The application has to worry about everything else (usually by
 appropriate insertion of {\tt ga\_sync} calls).
 
+\subsubsection{New(?) Stuff}
+
+Subroutines that appear in the files of directory .../src/global/src, but
+are not in the (ga.tex) document;
+
+\begin{itemize}
+\item {\tt ga\_get\_local(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc)} --- local
+read of a 2-dimensional patch of data into a global array
+\item {\tt ga\_get\_remote(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc)} --- read an
+array patch from a remote processor
+\item {\tt ga\_put\_local(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc)} --- local
+write of a 2-dimensional patch of data into a global array
+\item {\tt ga\_put\_remote(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc)} --- write an
+array patch from a remote processor
+\item {\tt ga\_acc\_local(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc, alpha)} --- local
+accumulate of a 2-dimensional patch of data into a global array
+\item {\tt ga\_acc\_remote(g\_a, ilo, ihi, jlo, jhi, buf, offset, Id, proc, alpha)} --- accumulate an
+array patch from a remote processor
+\item {\tt ga\_scatter\_local(g\_a, v, i, j, nv, proc)} --- local
+scatter of v into a global array
+\item {\tt ga\_scatter\_remote(g\_a, v, i, j, nv, proc)} --- scatter of v into an
+array patch from a remote processor
+\item {\tt ga\_gather\_local(g\_a, v, i, j, nv, proc)} --- local
+gather of v into a global array
+\item {\tt ga\_gather\_remote(g\_a, v, i, j, nv, proc)} --- gather of v into an
+array patch from a remote processor
+\item {\tt ga\_dgop\_clust(type, x, n, op, group)} --- equivalent to TCGMSG dgop, for use in data-server
+mode where only compute processes participate
+\item {\tt ga\_igop\_clust(type, x, n, op, group)} --- equivalent to TCGMSG igop, for use in data-server
+mode where only compute processes participate
+\item {\tt ga\_brdcst\_clust(type, buf, len, originator, group)} --- internal GA routine
+that is used in data server mode with predefined communicators
+\item {\tt ga\_debug\_suspend()} --- ??? option to suspend debugging for a particular process
+\item {\tt ga\_copy\_patch\_dp(t\_a, g\_a, ailo, aihi, ajlo, ajhi,
+                   g\_b, bilo, bihi, bjlo, bjhi)} --- copy a patch by column order (Fortran convention)
+\item {\tt ga\_print\_stats\_()} --- print GA statistics for each process
+\item {\tt ga\_zeroUL(uplo, g\_A)} --- set to zero the L/U tirangle part of an NxN
+double precision global array A
+\item {\tt ga\_symUL(uplo, g\_A)} --- make a symmetric square matrix from a
+double precision global array A in L/U triangle format
+\item {\tt ga\_llt\_s(uplo, g\_A, g\_B, hsA)} --- solves a system of linear equations [A]X = [B],
+\item {\tt ga\_cholesky(uplo, g\_a)} --- computes the Cholesky factorization of an NxN
+double precision symmetric positive definite matrix to obtain the L/U factor
+on the lower/upper triangular part of the matrix
+\item {\tt ga\_llt\_f(uplo, g\_A, hsA)} --- computes the Cholesky factorization of an NxN 
+double precision symmetric positive definite global array A
+\item {\tt ga\_llt\_i(uplo, g\_A, hsA)} --- computes the inverse of a global array that is
+the lower triangle L or the upper triagular Cholesky factor U of an NxN 
+double precision symmetric positive definite global array (LL' or U'U)
+\item {\tt ga\_llt\_solve(g\_A, g\_B)} --- solves a system of linear equations [A]X = [B]
+using the cholesky factorization of an NxN
+double precision symmetric positive definite global array A
+\item {\tt ga\_spd\_invert(g\_A)} --- computes the inverse of a double precision array
+using the cholesky factorization of an NxN
+double precision symmetric positive definite global array A
+\item {\tt ga\_solve(g\_A, g\_B)} --- solves a system of linear equations [A]X = [B], trying
+first to use
+the Cholesky factorization routine; if not successful, calls the LU
+factorization routine \verb+ga_llt_solve+, and solves the system with forward/backward
+substitution
+\item {\tt ga\_ma\_base\_address(type, address)} --- auxiliary routine to provide MA
+base addresses of the data  (calls C routines {\tt ga\_ma\_get\_ptr()})
+\item {\tt ga\_ma\_sizeof(type)} --- auxiliary routine to provide MA
+sizes of the arrays (calls C routines {\tt ga\_ma\_diff()})
+
+\end{itemize}
+
+\subsubsection{Use of TCGMSG global operation routines}
+
+In some cases (notably workstation clusters) the global array tools
+use a ``data-server'' process on each node in addition to the compute
+processes.  Data-server processes don't follow the same flow of
+execution of compute processes, so TCGMSG global operations
+(\verb+brdcst+, \verb+igop+, and \verb+dgop+) will hang when invoked.
+The global array toolkit provides ``wrapper'' functions
+(\verb+ga_brdcst+, \verb+ga_igop+, and \verb+ga_dgop+) which properly
+exclude data server processes from the global communication and must
+be used instead of the corresponding TCGMSG functions.
+
+\subsubsection{Interaction between GA and message-passing}
+
+The limited buffering available on the IBM SP-1/2 means that GA and
+message-passing operations cannot interleave as readily as they do on
+other machines.  Basically, in transitioning from GA to message
+passing or vice versa the application must call {\tt ga\_sync()}.

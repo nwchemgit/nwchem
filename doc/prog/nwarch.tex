@@ -1,0 +1,269 @@
+\section{NWChem Architecture}
+\label{sec:arch}
+
+NWChem has a five-tiered modular architecture.  This structure is illustrated
+conceptually by the diagram in Figure 1, which shows the five tiers and their
+relationships to each other.
+The first tier is the {\em generic task interface}.  This interface\footnote{Note that
+this is an abstract programming interface, not a user interface.  The user's
+'interface' with the code is the input file.} serves as the
+mechanism that transfers control to the different modules in the second tier,
+which consists of the {\em Molecular Calculation Modules}.
+The molecular calculation modules are the high level programming
+modules that accomplish computational tasks, performing particular operations
+using the specified theories defined by the user input file.  These independent modules
+of NWChem share data only through a disk-resident data base,
+which allows modules to share data or to share access to files containing
+data.
+The third tier consists of the {\em Molecular
+Modeling Tools}.  These routines provide basic chemical functionality such as symmetry,
+basis sets, grids, geometry, and integrals.
+The fourth tier is
+the {\em Software
+Development Toolkit}, which is the basic foundation of the code.
+The fifth tier provides the {\em Utility Functions} needed by nearly all modules
+in the code.  These include such functionality as printing 
+and timing.
+
+In addition to using a modular approach for the design, NWChem is built 
+on the concepts of object oriented programming (OOP) and non-uniform memory
+access (NUMA).  The OOP approach might seem incompatible with a code written primarily
+in Fortran77, since it does not
+have all of the necessary functionality for an object oriented language (OOL).
+However, many of the required features can be simulated by careful adherence
+to the guidelines for encapsulation and data hiding outlined
+in Section \ref{sec:coding-style}.
+The main advantage of an object-oriented approach is that it 
+allows for orderly and logical access
+to data more-or-less independent of why or when a given module might require
+the information.  In addition, it allows considerable flexibility in the 
+manipulation and
+distribution of data on shared memory, distributed memory, and massively
+parallel hardware architectures, which is needed in a NUMA approach to parallel
+computations.  However, this model does require that the program
+developer have a fairly comprehensive understanding of the overall structure
+of the code and the way in which the various parts fit together.
+
+The following subsections describe this structure in broad outline, and refer
+to specific chapters and sections in the code where
+the various modules, tools, and "objects" are described in detail.
+
+
+\subsection{Object Oriented Design}
+\label{sec:ood}
+
+In a programming language such as Fortran77, which is not object oriented by
+design, the concept of objects can be simulated  by developing a
+well defined interface
+for the programmer to use that in essence hides all of the gory details of 
+"creating", "manipulating", and "destroying" an object.  The objects are
+treated as if they
+can be manipulated only through the interface.  In reality, of course, Fortran 77
+allows the programmer to use any of the "private" data and routines
+that are underneath the interface.  For this reason, the rules for encapsulation
+and data hiding must be adhered to religiously, by following the guidelines outlined
+in Section \ref{sec:coding-style}.
+
+One of the basic features of an object is that all of the data and
+functions related to the data are encapsulated and available only through
+a "public" programming interface.  This encapsulation feature allows 
+programmers to put related
+data together in one object to be accessed in a well defined manner.
+For example, the basis set object (described further in Section
+\ref{sec:basis}) contains the number of basis functions, the
+exponents, the coefficients and other data related to basis sets.
+It also has a very well defined interface that can be used to access and
+manipulate the data.  Because the data description, the internal "private"
+functions, and the "public" interface together 
+define the abstract concept of the object, specific examples of the
+objects need to be created (instantiated).
+
+Instantiations (or unique copies) of objects are simulated by allowing 
+the user and the programmer to use different handles for different 
+objects of the same type.
+This feature gives the user the capability of defining
+different basis sets during computation simply by naming different
+basis
+set objects (see Section \ref{sec:basis}).  For example, two different basis sets
+can be defined for a molecule in an input file, as follows;
+
+\begin{verbatim}
+geometry
+  Ne 0.0 0.0 0.0
+end
+basis "dz set"
+  Ne library cc-pvdz
+end
+basis "qz set"
+  Ne library cc-pvqz
+end
+set "ao basis" "dz set"
+task scf
+set "ao basis" "qz set"
+task scf
+task mp2
+\end{verbatim}
+
+The above example has two basis sets that have the same object abstraction,
+(exponents and coefficients, etc.), but are different instantiations of
+the object, \verb+"dz set"+ and \verb+"qz set"+, with different handles (i.e., names).
+The handles can then be used to represent the currently "active" basis set for
+the computation, using the input command
+\verb+set "ao basis" "qz set"+.
+
+Related to the object oriented design is the idea of an abstract programming
+interface (API).  An API provides a common interface to many different
+methods that perform the same type of task.  An API is different from an
+object in the sense that there is no instantiation process.  Also, while the
+functions are encapsulated, there is really no data that is encapsulated.
+For example, memory objects, basis objects, and geometry objects are
+passed into the integral API and integrals are passed back out in the
+memory objects.  The integral API decides which of three different
+integral packages will be used to compute the integrals.
+
+\subsection{Non-Uniform Memory Access}
+
+One of NWChem's design goals is to scale to massively parallel
+hardware architectures in all aspects of the hardware: CPU, disk,
+and memory.  With this goal in mind, distributing the data across
+all of the nodes becomes necessary.
+Therefore, in addition to the modular and object oriented architecture discussed
+above, NWChem is built on the principle of non-uniform memory access (NUMA).
+Just as a workstation has various levels of memory (registers, primary
+and secondary cache, memory and swap space) with varying sizes and access
+speed, distributing data across
+nodes "simply" adds another level of remote memory.  The
+programmer must be aware of this extra level of memory access when
+designing the parallel algorithms in NWChem to get efficient, scalable
+code.
+
+The MA tool allows the programmer to allocate memory that is local to
+the calling process.  This is data that will generally not be directly
+shared with other processes, such as workspace for a particular local
+calculation or for replication of very small sets of data.
+
+The GA tool supports the NUMA model by allowing nodes to share arrays between
+processes as if the memory is physically shared.  It allows the
+programmer to use relatively simple routines to access and manipulate
+data in the shared arrays.  However, the programmer must 
+be aware that access to shared data will be slower than access
+to local data.
+
+Just as GA allows the programmer to effectively use the NUMA model for
+memory, ChemIO is used to create files that are either local to the
+process or
+distributed among file systems.  This allows the programmer to perform
+parallel I/O in the most efficient method for the particular
+algorithm or the particular hardware.
+
+Together, MA, GA, and ChemIO provide the tools needed to accomplish a
+NUMA architecture.  They also form a significant part of the Software
+Development Tooklkit layer.
+
+\subsection{The Five-Tiered Modular Architecture}
+
+With the basic understanding of the object oriented approach and the
+NUMA approach, the programmer also needs to understand the basic
+modular architecture that is used in NWChem.  This section provides a
+basic overview of each of the tiers describes how 
+they fit together to make a cohesive and extensible program.
+
+\subsubsection{The Generic Task Interface}
+
+In old-fashioned structured Fortran programming, the Generic Task
+Interface would be refered to as the main program.  As the "interface"
+between the user and the chemistry modules comprising NWChem, the
+generic task interface processes the input, sets up the parallel 
+environment, and performs any initialization needed for the
+desired calculations.  It then transfers control to the appropriate
+module, which performs the calculation.  After a particular task is
+completed, control returns to the main program.
+If the input specifies more than one task, 
+control is transfered to the appropriate module for the next task.  This
+process continues until all specified tasks have been completed, or
+an error condition occurs.  When all tasks complete successfully, the
+interface terminates program execution in an orderly manner.  When errors
+occur, the interface tries to terminate program execution gracefully,
+but the degree of success depends somewhat on the severity
+of the error.  Chapter \ref{sec:generic} presents a detailed discussion
+of the Generic Task Interface, and how it functions in NWChem.
+
+\subsubsection{The Molecular Calculation Modules}
+
+The second level of the five-tiered structure of NWChem consists of
+the high level molecular calculation modules.  These are independent 
+modules that perform the various functions of the code specified by the
+task directives.  Examples 
+include the self-consistent field (SCF) energy, the
+SCF analytic gradient, and the density functional theory (DFT) energy 
+modules.  The independent molecular calculation modules in NWChem 
+can share data only through 
+a run time database or through other well defined disk files.  
+Each of the modules in this layer use
+toolkits and routines in the lower layers of the architecture to
+accomplish their tasks.  Chapter \ref{sec:modules} presents discussions
+of each of the calculational modules in NWChem, and the various operations
+that can be performed with these modules.
+
+\subsubsection{The Molecular Modeling Toolkit}
+
+The third level of the architecture of NWChem consists of
+the molecular modeling toolkit.  Chapter \ref{sec:mmt} describes the
+elements of this toolkit in detail,  including discussions of 
+the geometry object (see Section \ref{sec:geometry}), 
+the basis set object (see Section \ref{sec:basis}), the
+linear algebra routines (see Section \ref{sec:la}), 
+symmetry (see Section \ref{sec:sym}, and
+the integral API (see Section
+\ref{sec:intapi}).  Each of these 
+tools provides a basic functionality that is common to many of the
+algorithms in chemistry.  The integral API provides a common interface to
+the three integral packages available in NWChem.  The basis set object
+provides the programmer with information related to a specific basis
+set.  The geometry object provides the basic geometry in different
+formats and provides for the definition of molecular as well as periodic
+systems.  It also has information such as symmetry, atomic charges, and
+atomic mass.  The linear algebra routines provide many general 
+algorithms for basic vector-vector, vector-matrix, and matrix-matrix
+operations, and for solving
+eigenproblems.
+
+\subsubsection{The Software Development Toolkit}
+
+The Software Development Toolkit
+makes up the foundation level of the five-tiered
+structure of the code, and is the feature that makes it possible
+to develop an object oriented code that is constructed mainly
+in Fortran77.  Chapter \ref{sec:sdt} presents a detailed discussion
+of this toolkit, which consists of four objects.
+These are the runtime database (RTDB) (see Section
+\ref{sec:rtdb}), the memory allocator (MA) (see Section \ref{sec:ma}),
+Global Arrays (GA) (see Section \ref{sec:ga}), and ChemIO 
+(see Section \ref{sec:ChemIO}).  Each of these tools provides the
+interface between the chemistry specific part of the program and the
+hardware.  They also support the NUMA parallel programming
+paradigm used by NWChem.
+
+The RTDB is a persistant data storage mechanism used in NWChem
+to hold calculation specific information for the high level
+programming modules.  Since NWChem does not destroy the RTDB at the end of
+a calculation unless specifically directed to do so by the user, 
+a given RTDB can be used in several independent
+calculations.  The MA tool allocates memory that will be used local to
+the processor.  The GA tool allocates memory that is distributed across
+nodes (or shared in the case of shared memory machines) and is addressable
+by all of the nodes.  ChemIO is a high performance I/O API 
+designed to meet the requirements of large-scale computational
+chemistry problems.  It allows the programmer to 
+create I/O files that may be local or distributed.
+
+\subsubsection{The Utility Routines}
+
+This lowest level of the architecture contains many of the basic 
+"odds-and-ends" functionality.
+These are utility routines that most of the
+above tiers need.
+Examples include the timing routines,
+the input parser, 
+and the print routines.
+

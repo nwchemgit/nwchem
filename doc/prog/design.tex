@@ -1,0 +1,48 @@
+\label{sec:develop}
+
+When developing new modules or enhancements to the code, the developer must
+pay careful attention to design and coding style.  This chapter offers
+guidance on general design requirements and defines coding style rules.
+In addition, the specific considerations for inserting a new module
+into the code are presented in detail.
+
+\section{General Design Guidelines}
+\label{sec:gendesign}
+
+The complexity of NWChem and the large number of developers working with the
+code makes it highly advisable to consider very carefully the effect of even
+minor changes in the code.  This is particularly the case when considering
+changes that may impact the performance of the code in a parallel computing 
+environment.  The first, last, and only rule is {\em Think before you code!}
+Then think again.  Nothing will be as simple as you thought at first.
+
+However, the code is not likely to develop new capability on its own, so you
+must do something, sooner or later.  The following list of design guidelines
+should be followed when adding code to NWChem.
+
+\begin{enumerate}
+\item Design your code before you start adding code.
+\item Set up a performance model that will effectively estimate the
+CPU, communication and IO costs.
+\item Use the model to guide the development of the code.  Remember
+that several algorithms may need to be developed, but the programmer
+should try to develop an algorithm that will scale in CPU, memory and
+IO.
+\item Use the interfaces and APIs that are defined.  {\bf DO NOT}
+use any of the lower level routines that are used by the APIs.  If
+you deem it necessary to use a lower level routine, first talk to
+one of the primary NWChem developers.
+\item When possible and appropriate, think about creating objects
+instead of just data structures.
+\item If an object is not appropriate, think about creating an API
+that isolates details from other programmers.
+\item Create well defined modules.  When possible create and/or
+use ``generic'' routines to emphasize reuse of code.
+\item Don't be afraid to ask questions.  It is better to ask and
+move in a sensible direction than to not ask and have to redo some
+or all of the programming.
+\end{enumerate}
+
+Remember, fortune favors the bold, but you will live longer and happier if you
+consult regularly with other NWChem developers and the NWChem Program
+Manager.

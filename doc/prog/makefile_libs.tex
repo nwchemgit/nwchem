@@ -1,5 +1,77 @@
+\section{Makefiles and Libraries}
+\label{sec:makelib}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% NOTE: the first part of this section (up to the discussion of the
+% environmental variables NWCHEM_TOP and NWCHEM_TARGET)
+% is adapted from the current (as of 9/29/98) version of
+% the file Build.notes, from ~/doc/ in the CVS repository.  If Build.notes
+% has been updated since, this section should be updated, too.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-In your environment, or on the make command line, you must specify two
+
+The working assumption in documenting the NWChem code is that the
+developers will be relatively sophisticated hackers, used to deciphering
+C and Fortran source code and makefile scripts.  The steps for building
+an executable version of the code are as automated as possible, with
+upward of a hundred individual makefiles in the source code directory
+tree.  The developer is advised to look carefully at the top-level
+makefile
+{\tt ...src/config/makefile.h} to get a feel for what this package can
+be built for and for some instructions about variables that must be set
+before invoking {\tt make}.
+
+The makefiles will work only with GNU {\tt make}, and it must be the one
+that appears first in your path, otherwise dependent "makes" will not
+invoke the right one.
+
+The code in the CVS repository is set up to run on machines for
+which working floating point precision is DOUBLE PRECISION.  If your
+platform wants REAL, you need to do a {\tt make dbl\_to\_sngl} before
+anything else.  (Remember to do {\tt make sngl\_to\_dbl} {\em before} checking
+anything back into the repository.  Doing this before updating from
+the repository helps avoid problems too.  Since code comes out of the
+repository set up for DOUBLE PRECISION, you will probably have
+to convert after your update anyway.)
+
+Which routines are subject to precision conversion is governed by a
+{\tt USES\_BLAS} macro in each makefile.  Only files listed in this macro
+will be processed for precision changes.  If you write new routines
+that use {\tt BLAS} or {\tt LAPACK}, be sure to add them to the {\tt USES\_BLAS} macro
+too.
+
+The current philosophy is that by default objects are built without
+optimization (and normally with debugging on, to facilitate
+development).  Only those routines which are performance hot spots are
+optimized.  This helps avoid stupid compiler bugs which, by empirical
+observation, are more likely to show up on things other than
+hard-working number crunching.  Each makefile contains an {\tt OBJ\_OPTIMIZE}
+macro which should name those routines that {\tt should} be built with
+optimization.  All the rest should be listed in the OBJ macro.  The
+extra arguments used when compiling optimized code are the
+platform-dependent [FC]OPTIMIZE macros in config/makefile.h.  If you
+want to turn off all optimization, change these and rebuild.
+
+At present, the package is almost entirely self-contained.  The only
+thing left out is George Fann's PEIGS (Parallel EIGenSolver,
+pronounced "pigs") library.  For most platforms, the makefiles already
+include pointers to the canonical locations for the PEIGS library for
+that platform.  If your link complains about this library, contact one
+of the NWChem developers for help, or send e-mail to 
+{\tt nwchem-developers@emsl.pnl.gov}.
+
+To build the package, go to the source directory ({\tt .../src}) in your
+local copy of the NWChem source directory tree and type 'make'.  (NOTE:
+If you are messing
+around only in specific subdirectories, you can do 'make' inside them, and
+then 'make nwchem\_link' in directory {\tt src}.  This will save you from traversing
+{\em every} directory in the package -- but your version of these directories
+had better be up to date!)
+Object libraries are constructed in the {\tt lib} directory.  The executable
+ends up in {\tt src} (strange but true).
+
+Before you actually do the build, however, you must set up your own
+environment properly.
+In your environment, or on the {\tt make} command line, you must specify two
 variables
 \begin{itemize}
 \item {\tt NWCHEM\_TARGET} --- the name of the machine to build for.
@@ -14,12 +86,12 @@ insert the following in your \verb+.cshrc+ file on a SUN with SunOS
   setenv NWCHEM_TARGET SUN
   if (! $?NWCHEM_TOP) setenv NWCHEM_TOP $HOME/nwchem
 \end{verbatim}
-(the test to see if \verb+NWCHEM_TOP+ is already defined permits you
+(The test to see if \verb+NWCHEM_TOP+ is already defined permits you
 to build in an alternative directory without having to edit your
 \verb+.cshrc+ file).  Given just this information the structure of
 NWChem makes it easy to write a makefile to build a library for a
 module (.e.g, {\tt libddscf.a} for the SCF module) or to add routines
-into a library shared between multiple modules (e.g., {\tt libutil.a}
+into a library shared between multiple modules ({\tt libutil.a}
 which includes at least the util, geometry, basis, global, and ma
 trees).
 
@@ -70,58 +142,65 @@ up automatically with \verb+make clean+.  The final line
 specifies a dependency of certain object files on various header
 files.
 
-In gory detail, a makefile for a module must
+At an absolute minimum, a makefile for a module must do the following:
 \begin{enumerate}
-\item include \verb+../config/makefile.h+ --- amoung other things this will
-    define {\tt TARGET} from which any machine dependent actions are driven
-    (if you don't need to use {\tt TARGET} then it's best to include this
-     file at the same point that makelib.h is included).
-\item define {\tt LIBRARY} as the name of the library to be made
-\item optionally define {\tt OBJ} as the list of object files to be made 
+\item include \verb+../config/makefile.h+ --- this will
+    define {\tt TARGET} (among other things)
+    from which any machine dependent actions are driven.
+    Because the first rule in this file
+     builds the library, there should be {\em no} targets before this.
+    (NOTE: if you do not need to use {\tt TARGET} then it is best to include this
+     file at the same point that {\tt makelib.h} is included.)
+\item define {\tt LIBRARY} as the name of the library to be made.
+\end{enumerate}
+
+The makefile can also do the following, at the developer's option:
+\begin{enumerate}
+\item define {\tt OBJ} as the list of object files to be made 
     without optimization
-\item optionally define {\tt OBJ\_OPTIMIZE} as the list of object files to 
-    be made with optimization.  It is good practice to keep this list 
-    short so as to minimize exposure to possible compiler errors.
-\item optionally define {\tt HEADERS} as the list of header/include files to be
-    copied into the common include directory
-\item optionally define {\tt LIB\_TARGETS} as any additional files made in
+\item define {\tt OBJ\_OPTIMIZE} as the list of object files to 
+    be made with optimization.  (HINT: It is good practice to keep this list 
+    short, to minimize exposure to possible compiler errors.)
+\item define {\tt HEADERS} as the list of header/include files to be
+    copied into the common include directory.  (WARNING: Do NOT copy {\tt include} 
+    files into the {\tt include} directory by hand.  This is done
+    automatically, and any separately copied files will be lost.)
+\item define {\tt LIB\_TARGETS} as any additional files made in
     this subdirectory that may need cleaning up
-\item optionally define {\tt LIB\_DEFINES} as any additional defines for
+\item define {\tt LIB\_DEFINES} as any additional defines for
    the C preprocessor (for both Fortran and C)
- \item optionally define {\tt LIB\_INCLUDES} as any additional include
+ \item define {\tt LIB\_INCLUDES} as any additional include
    directories
-\item optionally define {\tt SUBDIRS} as any subdirectories to build (note
-  that makefiles in subdirectories will need to modify the paths to
-  the include files)
-\item optionally define {\tt USES\_BLAS} to be the list of FORTRAN files that
+\item  define {\tt SUBDIRS} as any subdirectories to build (NOTE: If you do this,
+  makefiles in subdirectories will need to modify the paths to
+  the include files.)
+\item define {\tt USES\_BLAS} to be the list of FORTRAN files that
     need BLAS names converting between single and double (e.g., {\tt
       ddot} to  {\tt sdot})
-\item include \verb+../config/makelib.h+.  The first rule in this file
-     builds the library so there should be {\em no} targets before this.
 \item define any additional targets (e.g., test programs)
 \end{enumerate}
 
-Notes:
+Addtional things you will need to know how to do:
 \begin{enumerate}
-\item  To modify the optimization being used specify on the command
+\item  To modify the optimization being used, specify on the command
   line {\tt C/FDEBUG} or {\tt C/FOPTIMIZE} to override the flags for the 
   {\tt OBJ} and {\tt OBJ\_OPTIMIZE} files respectively.  E.g.,
 \begin{verbatim}
      make FDEBUG="-g -O1"
      make FOPTIMIZE="-O3 -Superfast -bugs" FDEBUG="-O1"
 \end{verbatim}
-\item  The library is now put directly into the NWChem library
+\item  The library is put directly into the NWChem library
   directory and the full path to the library (if needed by your
   makefile) is automatically put into the variable {\tt
     LIBRARY\_PATH}.
-\item The object files are now put directly into the libraries and are
+\item The object files are put directly into the libraries and are
   not kept elsewhere.  This has several implications
   \begin{itemize}
   \item You can (apart from TCGMSG and GA which are being fixed) build
     executables and libraries for multiple platforms in the same
     source tree.
   \item To force recompilation of all source in a given directory 
-    \verb+make clean+ now works by deleting the object files from
+    \verb+make clean+  works by deleting the object files from
     the library, and deletes the library itself only if it is empty.
     You have to
     actually either delete the corresponding library or touch the
@@ -131,7 +210,7 @@ Notes:
     specify the dependency on the object file in the library.  Here
     are two examples.  The first one (\verb+dosymops.f+) does not need
     preprocessing, whereas the second one (\verb+sym_mo_ap_op.F+) does
-    and this must done explicity within the rule for this file.
+    and this must be done explicity within the rule for this file.
     This preprocessing is normally done automatically.
 \begin{verbatim}
   ifeq ($(TARGET),CRAY-T3D)
@@ -159,7 +238,7 @@ Notes:
 \item The target {\tt depend} will recursively descend subdirectories
   and append onto the end of makefiles dependencies of \verb+.F+ and
   \verb+.c+ files on header files that have been included using the
-  notation \verb+#include "filename"+.  Files included using angle
+  notation \verb+#include "filename"+.  File includes using angle
   brackets are assumed to be system files and dependencies are not
   generated.  If the include file is in the local directory, the
   dependency is generated upon that.  Otherwise, a dependency is
@@ -174,19 +253,24 @@ Notes:
 
 Typing {\tt make} in the top-level NWChem directory will traverse the
 entire directory tree twice.  Once to ensure the include files are
-up-to-date, and again for the libraries.  This can take a while.
-When developing a module, then unless recompilation of another module
-is necessary, it is much faster to 
+up-to-date and then again for the libraries.  This can take a while.
+Therefore, 
+when working on development of a particular a module alone,
+it is usually much faster to 
 \begin{enumerate}
 \item execute {\tt make} in the subdirectory, and
 \item execute {\tt make link} in the top NWChem directory.
 \end{enumerate}
-The special target link just relinks the code and does not traverse
+
+Note that this approach cannot be used if recompilation of another
+module is also required, since the
+special target link just relinks the code and does not traverse
 the directory tree.  {\em After doing a \verb+cvs update+ you should:}
 \begin{enumerate}
-\item do a make depend, if you have not recently, in any directory you
+\item do a {\tt make depend}
+ if you have not recently, in any directory you
   have been working in, and
-\item do a full make from the top level to ensure that all libraries
+\item do a full {\tt make} from the top level to ensure that all libraries
   incorporate any changed common blocks or declarations.
 \end{enumerate}
 

@@ -1,17 +1,18 @@
+\section{The Basis Set Object}
+\label{sec:basis}
 
-
-The basis set object and corresponding API was provides access to all
+The basis set object and corresponding API provides access to all
 information concerning a basis set from a unique handle.  In this
 fashion, multiple distinct basis sets may be manipulated simultanously
 on an equal footing.  The internal data structures store only
 information for the unique tags in the geometry.
 
-\section{Creating, destroying, loading and storing basis sets}
+\subsection{Creating, Destroying, Loading and Storing Basis Sets}
 
 Basis set handles must be created with \verb+bas_create+.  Other
 routines load and store basis sets from/to the database.
 
-\subsection{{\tt bas\_create}}
+\subsubsection{{\tt bas\_create}}
 \begin{verbatim}
   logical function bas_create(basis, name)
   integer basis       ! [output] returned handle
@@ -22,7 +23,7 @@ is used for output/debug purposes and is not associated with anything
 in the database.  An empty basis set is created (in memory only) and
 the handle is returned in {\tt basis}.
 
-\subsection{{\tt bas\_destroy}}
+\subsubsection{{\tt bas\_destroy}}
 \begin{verbatim}
   logical function bas_destroy(basis)
   integer basis ![input] handle to basis set to be destroyed
@@ -30,7 +31,7 @@ the handle is returned in {\tt basis}.
 Frees memory and destroys all information about an active in-memory basis
 and the associated mapping arrays.
 
-\subsection{{\tt bas\_check\_handle}}
+\subsubsection{{\tt bas\_check\_handle}}
 \begin{verbatim}
   logical function bas_check_handle(basis,msg)
   integer basis      ! [input] handle
@@ -40,7 +41,7 @@ Returns \TRUE\ if {\tt basis} is a valid basis set handle.  Otherwise
 it returns \FALSE\ and prints the message and a list of known basis
 sets on STDOUT.
 
-\subsection{{\tt bas\_rtdb\_load}}
+\subsubsection{{\tt bas\_rtdb\_load}}
 \begin{verbatim}
   logical function bas_rtdb_load(rtdb, geom, basis, name)
   integer rtdb        ! [input] rtdb handle      
@@ -56,7 +57,7 @@ entry with name {\tt name} is searched for in the database and if
 located the value of that entry is used as the name of the basis,
 rather than {\tt name} itself.
 
-\subsection{{\tt bas\_rtdb\_store}}
+\subsubsection{{\tt bas\_rtdb\_store}}
 \begin{verbatim}
   logical function bas_rtdb_store(rtdb, name, basis)
   integer rtdb              ! [input] handle to database
@@ -70,9 +71,9 @@ specified name.  One level of translation is attempted upon the name
 if located the value of that entry is used as the name of the basis,
 rather than {\tt name} itself.  The in-memory basis set is unchanged.
 
-\section{Information about the entire basis}
+\subsection{Information About the Entire Basis}
 
-\subsection{{\tt bas\_high\_angular}}
+\subsubsection{{\tt bas\_high\_angular}}
 \begin{verbatim}
   logical function bas_high_angular(basis,high_angular)
   integer basis         ! [input] basis set handle
@@ -80,7 +81,7 @@ rather than {\tt name} itself.  The in-memory basis set is unchanged.
 \end{verbatim}
 Returns the highest angular-momentum present in the basis set.
 
-\subsection{{\tt bas\_numbf}}
+\subsubsection{{\tt bas\_numbf}}
 \begin{verbatim}
   logical function bas_numbf(basis,nbf)
   integer basis   ! [input] basis set handle         
@@ -88,7 +89,7 @@ Returns the highest angular-momentum present in the basis set.
 \end{verbatim}
 Returns the total number of functions in the basis set.
 
-\subsection{{\tt bas\_name}}
+\subsubsection{{\tt bas\_name}}
 \begin{verbatim}
   logical function bas_name(basis,basis_name,trans_name)
   integer       basis    ! [input] basis set handle
@@ -101,7 +102,7 @@ used to refer to another basis (i.e., indirection was used) then the
 actual name of the basis is returned in {\tt trans} (i.e., the
 translated name).  Otherwise {\tt trans} returns the same as name.
 
-\subsection{{\tt bas\_numcont}}
+\subsubsection{{\tt bas\_numcont}}
 \begin{verbatim}
   logical function bas_numcont(basis,numcont)
   integer basis     ! [input] basis set handle
@@ -110,7 +111,7 @@ translated name).  Otherwise {\tt trans} returns the same as name.
 Returns the total number of mapped general contractions (or shells)
 for the given basis set.
 
-\subsection{{\tt bas\_nbf\_cn\_max}}
+\subsubsection{{\tt bas\_nbf\_cn\_max}}
 \begin{verbatim}
   logical function bas_nbf_cn_max(basisin,nbf_max)
   integer basisin       ! [input] basis set handle
@@ -118,7 +119,7 @@ for the given basis set.
 \end{verbatim}
 Returns the maximum number of basis functions in any general contraction.
 
-\subsection{{\tt bas\_nbf\_ce\_max}}
+\subsubsection{{\tt bas\_nbf\_ce\_max}}
 \begin{verbatim}
   logical function bas_nbf_ce_max(basisin,nbf_max)
   integer basisin       ! [input] basis set handle
@@ -126,9 +127,9 @@ Returns the maximum number of basis functions in any general contraction.
 \end{verbatim}
 Returns the maximum number of basis functions on any single center.
 
-\section{Mapping between centers, shells/contractions and functions}
+\subsection{Mapping Between Centers, Shells/Contractions and Functions}
 
-\subsection{{\tt bas\_cn2ce}}
+\subsubsection{{\tt bas\_cn2ce}}
 \begin{verbatim}
   logical function bas_cn2ce(basis,cont,center)
   integer basis     ! [input] basis set handle
@@ -138,7 +139,7 @@ Returns the maximum number of basis functions on any single center.
 Returns the center for a given mapped (as opposed to unique)
 contraction.
 
-\subsection{{\tt bas\_cn2bfr}}
+\subsubsection{{\tt bas\_cn2bfr}}
 \begin{verbatim}
   logical function bas_cn2bfr(basis,cont,ifirst,ilast)
   integer basis     ! [input] basis set handle
@@ -149,7 +150,7 @@ contraction.
 Returns the first basis function index of a mapped contraction in
 {\tt ifirst} and the last basis function index in {\tt ilast}.
 
-\subsection{{\tt bas\_ce2bfr}}
+\subsubsection{{\tt bas\_ce2bfr}}
 \begin{verbatim}
   logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
   integer basis             ! [input] handle
@@ -158,7 +159,7 @@ Returns the first basis function index of a mapped contraction in
 \end{verbatim}
 Returns the range of basis functions on a given center.
 
-\subsection{{\tt bas\_ce2cnr}}
+\subsubsection{{\tt bas\_ce2cnr}}
 \begin{verbatim}
   logical function bas_ce2cnr(basis,center,ifirst,ilast)
   integer basis    ! [input] basis set handle         
@@ -168,7 +169,7 @@ Returns the range of basis functions on a given center.
 \end{verbatim}
 Returns the range of mapped contractions on a given center.
 
-\subsection{{\tt bas\_bf2ce}}
+\subsubsection{{\tt bas\_bf2ce}}
 \begin{verbatim}
   logical function bas_bf2ce(basis,testbf,center)
   integer basis   ! [input] basis set handle         
@@ -177,7 +178,7 @@ Returns the range of mapped contractions on a given center.
 \end{verbatim}
 Returns the center on which a basis function resides.
 
-\subsection{{\tt bas\_bf2cn}}
+\subsubsection{{\tt bas\_bf2cn}}
 \begin{verbatim}
   logical function bas_bf2cn(basis,testbf,cont)
   integer basis   ! [input] basis set handle         
@@ -187,23 +188,23 @@ Returns the center on which a basis function resides.
 Returns the mapped contraction index that contains the given basis
 function index.
 
-\section{Printing}
+\subsection{Printing Basis Sets}
 
-\subsection{{\tt bas\_print}}
+\subsubsection{{\tt bas\_print}}
 \begin{verbatim}
   logical function bas_print(basis)
   integer basis   ! [input] basis handle
 \end{verbatim}
-Prints in the information about the basis set on unique centers.
+Prints the information about the basis set on unique centers.
 
-\subsection{{\tt bas\_print\_all}}
+\subsubsection{{\tt bas\_print\_all}}
 \begin{verbatim}
   logical function bas_print_all()
 \end{verbatim}
 Debugging routine.  Prints (using \verb+bas_print+) information about
 all active basis sets.
 
-\subsection{{\tt gbs\_map\_print}}
+\subsubsection{{\tt gbs\_map\_print}}
 \begin{verbatim}
   logical function gbs_map_print(basis)
   integer basis    ! [input] basis set handle
@@ -213,10 +214,13 @@ information to the centers (using the geometry information).  Mostly
 useful only for debugging.
 
 
-\section{Detailed contraction information, exponents, coefficients,
-  etc..} 
+\subsection{Miscellaneous Other Functions for Basis Sets}
 
-\subsection{{\tt bas\_continfo}}
+The following subsections describe functions that can be used to
+obtain detailed contraction information, exponents, coefficients,
+and other information on a basis set.
+
+\subsubsection{{\tt bas\_continfo}}
 \begin{verbatim}
   logical function bas_continfo(basis,icont,
  &       type,nprimo,ngeno,sphcart)
@@ -234,16 +238,18 @@ the number of exponents.  The number of contractions is the number of
 radial functions to which the primitives are contracted, or equivalently,
 the number of sets of coefficients.
 
-\subsection{{\tt bas\_get\_exponent} and {\tt bas\_set\_exponent}}
+\subsubsection{{\tt bas\_get\_exponent} and {\tt bas\_set\_exponent}}
 \begin{verbatim}
-  logical function bas_get_exponent(basis,icont,exp) integer basis !
-  [input] basis set handle integer icont ! [input] mapped contraction
-  index double precision exp(*) ! [output] exponents
+  logical function bas_get_exponent(basis,icont,exp)
+  integer basis           ! [input] basis set handle
+  integer icont           ! [input] mapped contraction index
+  double precision exp(*) ! [output] exponents
 
   logical function bas_set_exponent(basis,icont,exp,nexp) integer
-  basis ! [input] basis set handle integer icont ! [input] mapped
-  contraction index integer nexp ! [input] number of new exponents
-  double precision exp(nexp) ! [input] "new" exponents for contraction
+  integer basis        ! [input] basis set handle
+  integer icont        ! [input] mapped contraction index
+  double precision exp ! [input] "new" exponents for contraction
+  integer nexp         ! [input] number of new exponents
 \end{verbatim}
 Get/set the exponents associated with a contraction.  When setting the
 exponents two points must be noted:
@@ -254,7 +260,7 @@ exponents two points must be noted:
   same type, changes effect all atoms of the same type.
 \end{enumerate}
 
-\subsection{{\tt bas\_get\_coeff} and {\tt bas\_set\_coeff}}
+\subsubsection{{\tt bas\_get\_coeff} and {\tt bas\_set\_coeff}}
 \begin{verbatim}
   logical function bas_get_coeff(basis,icont,coeff)
   integer basis              ! [input] basis set handle
@@ -279,12 +285,12 @@ setting the coefficients two points must be noted:
   same type, changes effect all atoms of the same type.
 \end{enumerate}
 
-\section{Other --- unique contraction information and adding
+\subsection{Other --- unique contraction information and adding
 centers}
 
 Routines exist to do all of this stuff, however, it is not anticipated
 that this functionality is necessary outside of existing input
-routines.  Counterexamples would be automatic creation of fitting
+routines.  Exceptions might include automatic creation of fitting
 basis sets or automatic optimization of an existing basis set.
 Rather than confuse most users by documenting this ``private
 interface'', anyone seeking additional functionality should contact

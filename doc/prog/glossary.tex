@@ -1,0 +1,147 @@
+\label{sec:glossary}
+
+\begin{itemize}
+
+\item API -- Abstract Programming Interface: a common interface
+that can be used by many different modules to perform the same type of task.
+Functions are encapsulated so that information is passed in a standard
+way.  The same information is transfered each time the interface is
+accessed, and the API does not need to know which module is actually
+calling it.
+
+\item CASSCF -- (Complete Active Space Self Consistent Field): calculation
+type performed by the multi-configuration SCF module
+
+\item CCSD -- (Coupled Cluster Single and Double excitations; theory for
+obtaining properties of molecular systems
+
+\item CI -- (Configuration Interaction): module for general spin-adapted
+configuration-driven calculations for computing wavefunctions
+
+\item CVS -- (Concurrent Versions System): software used by NWChem developers
+at EMSL to manage software releases and maintain configuration control in
+a multi-developer environement.
+
+\item DFT -- (Density Functional Theory): module that uses the Gaussian basis
+set approach for computation of closed-shell and open-shell densities and 
+Kohn-Sham orbitals in the local density, non-local density, local spin-density,
+non-local spin-density approximations
+
+\item DRA -- (Disk Resident Arrays): an array oriented I/O library for
+out-of-core computations, extending the global arrays NUMA programming model 
+to disk.
+
+\item driver -- a particular type of module that controls some process, such 
+as optimization or dynamics calculation  (e.g., modules STEPPER and DRIVER; 
+the module nwARGOS acts as a driver when performing QM/MM calculations)
+
+\item ECCE -- (Extensible Computational Chemistry Environment): available 
+software to support planning and management of chemical calculations;
+provides a common interface to multiple computational chemistry codes
+for selection of basis sets, a browsable calculation and chemistry database,
+and visualization of computational results
+
+\item Global Array Library -- the functions comprising the Global
+Array tool, which allows the program to define memory that can be
+distributed across nodes or shared among nodes (on shared memory machines)
+in a parallel environment
+
+\item idempotent -- a fundamental property of projection operators that means
+the square of the projection operator $P_{a}$ is 
+equal to the operator itself; i.e., $P_{a}^2$ = $P_{a}$.
+
+
+\item instantiation -- creation of a unique instance of a particular object,
+in response to user input describing a specific molecule 
+
+\item interface -- generic term for a program feature that provides a
+well-defined
+way for the user to communicate information to the code, for different 
+calculational modules in the code to communicate with each other, for
+the molecular modeling tools to communicate information to the 
+different calculational modules
+
+\item MA -- Memory Allocator: programming tool that allows allocation of
+memory that is local to the calling process only, and will not be shared
+by other processes in a parallel environment
+
+\item MCSCF -- (Multi-Configuration Self Consistent Field): module for
+performing complete active space SCF (CASSCF) calculations with up to
+20 active orbitals and hundreds of basis functions
+
+\item module -- an essentially independent program within NWChem that performs
+some well-defined, high-level function (e.g., SCF, nwARGOS, MP2)
+
+\item MP2 -- (M{\o}ller-Plesset (or Many Body)): module for computation of 
+M{\o}ller-Plesset perturbation theory
+second-order correction to the Hartree-Fock energy calculation
+
+\item MPI -- (Message Passing Interface): alternative to TCGMSG for message passing
+
+\item NUMA -- Non-Uniform Memory Allocation: strategy for distributing data
+across multiple nodes for efficient and scalable performance in a parallel 
+computing environment
+
+\item object -- an encapsulated feature containing data that is organized
+in a specific pattern, instantiated based on user input,
+and can be accessed by any module in the code (NOTE:
+because NWChem is written mainly in Fortran-77, this encapsulation is
+highly artificial and can be maintained only by consciencious adherence
+to the prescribed programming conventions given in Chapter \ref{sec:develop})
+
+\item operation -- the calculation performed in a given task (e.g., single
+point energy evaluation, calculate derivative of energy with respect to
+nuclear coordinates, etc.)
+
+\item patch -- a region of memory in a global array
+
+\item QM/MM -- (Quantum-Mechanics and Molecular-Mechanics):
+
+\item runtime database -- a persistant data storage mechanism that consists of
+a file created at runtime to allow different
+modules of the code to access the same information, and to communicate
+with each other in an orderly and repeatable manner in both sequential
+and parallel environments
+
+\item RHF -- (Restricted Hartree-Fock): default closed-shell wavefunction type 
+solved by SCF module
+
+\item RI-MP2 -- (Resolution of the Identity for M{\o}ller-Plesset or (Many
+Body)): optional algorithm for resolution
+of the identity approximation to MP2
+
+\item ROHF -- (Restricted Open-shell Hartree-Fock): option for type of wavefunction
+solved by SCF module
+
+\item SCF -- (Self Consistent Field): calculation module for computing 
+closed-shell restricted Hartree-Fock (RHF) wavefunctions, restricted 
+high-spin open-shell Hartree-Fock (ROHF) wavefunctions,
+and spin-unrestricted Hartree-Fock (UHF) wavefunctions
+
+\item task -- a specific job the code can be directed to do.  Most commonly
+specifies some specific electronic structure calculation using a particular 
+level of theory, but can also specify combined quantum-mechanics and molecular-
+mechanics calculations, or execution of UNIX commands in the Bourne shell.
+
+\item TCGMSG -- (Theoretical Chemistry Group MeSsaGe): a toolkit for 
+writing portable parallel 
+programs using a message passing model; supported on a variety of common
+UNIX workstations, mini-super and super computers and heterogenous
+networks of such platforms, as well as on true parallel computers
+
+\item theory -- a quantum mechanical method available in NWChem for
+calculation
+of molecular electronic structure properties, including energy, gradients,
+dynamics, and vibrational frequencies
+
+\item UHF -- (Unrestricted Hartee-Fock): option for type of wavefunction
+solved by SCF module
+
+\item utilities -- routines that perform well-defined functions which are
+useful but not directly related to chemical computation, (such as input
+processing, printing of output, timing statistics, etc) that can be  
+accessed as needed by all modules in the code 
+
+
+
+\end{itemize}

@@ -1,12 +1,25 @@
 
 #######################################################################
- SOURCE = prog.tex            disclaimer.tex         cvsintro.tex \
-          codingsty.tex       makefile_libs.tex      newmodules.tex \
-          common_errors.tex   rtdb.tex               ga.tex \
-          ffinp.tex           print_control.tex      geom.tex \
-          basis.tex           symmetry.tex           context.tex \
-          util.tex            util_ga.tex            integral_api.tex \
-          pstat.tex           integral_io.tex        int_api_spec.tex
+# --original SOURCE list
+# SOURCE = prog.tex            disclaimer.tex         cvsintro.tex \
+#          codingsty.tex       makefile_libs.tex      newmodules.tex \
+#          common_errors.tex   rtdb.tex               ga.tex \
+#          ffinp.tex           print_control.tex      geom.tex \
+#          basis.tex           symmetry.tex           context.tex \
+#          util.tex            util_ga.tex            integral_api.tex \
+#          pstat.tex           integral_io.tex        int_api_spec.tex
+# -- my SOURCE list (JMC -- 8/14/98)
+ SOURCE = prog.tex            about.tex              generic.tex  \
+          basis.tex           codingsty.tex          cvsintro.tex \
+          design.tex          disclaimer.tex         ffinp.tex    \
+          ga.tex              geom.tex               glossary.tex \
+          instaport.tex       int_api_spec.tex       la.tex       \
+          ma.tex              makefile_libs.tex      messages.tex \
+          modules.tex         newdoc.tex             newmodules.tex \
+          nwarch.tex          print_control.tex      prog_man_intro.tex \
+          pstat.tex           rtdb.tex               utilities.tex \
+          symmetry.tex        testing.tex            util.tex     \
+          ChemIO.tex          ecce.tex
 
  SOURCE_NOT_USED = prog.old.tex
 

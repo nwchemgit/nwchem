@@ -1,23 +1,39 @@
+% intro to this chapter
+\label{sec:sdt}
+
+The Software Development Toolkit is the foundation of the functional architecture
+in NWChem.  It provides the means for interfacing between the calculation modules
+of the code and the system hardware.  The runtime data base 
+stores the information needed to run particular calculations, and allows 
+different modules to have access to the same information.  The memory 
+management routines enable efficient execution in parallel environments.
+
+This chapter describes the elements of the Software Development Toolkit
+in detail.
+
+\section{The RunTime DataBase (RTDB)}
+
+\label{sec:rtdb}
 
 NWchem consists of independent modules (e.g., input, SCF, RIMP2) that
 communicate through a database (similar in spirit to the GAMESS
 dumpfile or the Gaussian checkpoint file).  The only way modules can
 share data is via the database, or via files whose names are stored in
-the database (which may have default values).  Everything stored
-directly in the database comprises a typed array described by
+the database (which may have default values).  Information is stored
+directly in the database as typed arrays, each of which is described by
 \begin{enumerate}
-\item a name which is a simple string of ASCII characters (e.g., 
+\item a name, which is a simple string of ASCII characters (e.g., 
       \verb+"reference energies"+),
 \item the type of the data (real, integer, logical, or character), 
 \item the number of data items, and
 \item the actual data (an array of items of the specified type).
 \end{enumerate}
 
-A database is simply a file and is openend by name. Usually there is
+A database is simply a file and is opened by name. Usually there is
 just one database per calculation, though multiple databases may be
 open at any instant.  
 
-By default access to all open databases occur in parallel, meaning
+By default, access to all open databases occur in parallel, meaning
 that
 \begin{itemize}
 \item all processes must participate in any read/write of any database
@@ -42,124 +58,177 @@ that
 Usually, all processes will want the same data at the same time from
 the database, and all processes will want to know of the success or
 failure of operations.  This is readily done in the default parallel
-mode.  A counter-example to this is provided during the reading of input.
+mode.  An exception to this is during the reading of input.
 Usually, only process zero will read the input and needs to store the
 data directly into the database without involving the other processes.
 This is done using sequential mode.
 
-Following is a detailed listing of the C and Fortran API\@.  
-Programs using RTDB routines should include the appropriate Fortran
-({\tt rtdb.fh}) or C ({\tt rtdb.h}) header file.   These define return
-types for all functions and also the paramters 
+The following subsections contain a detailed listing of the C and Fortran API.  
+Programs using RTDB routines must include the appropriate header file; 
+{\tt rtdb.fh} for Fortran, or {\tt rtdb.h} for C.   These files define the return
+types for all rtdb functions.  In addition, {\tt rtdb.fh} specifies the 
+following parameters 
 \begin{itemize}
 \item {\tt rtdb\_max\_key} --- an integer parameter that defines the maximum
   length of a character string key
 \item {\tt rtdb\_max\_file} --- an integer parameter that defines the maximum
   length of a file name
 \end{itemize}
-All routines return \TRUE (1 in C) on success, \FALSE (0
-in C) on failure.
+The Fortran routines return logical values; \TRUE on success, \FALSE 
+on failure.  The C routines return integers; 1 on success, or 0 on failure.
+All \verb+rtdb_*+ functions are also mirrored by routines \verb+rtdb_par_*+
+in which process 0 performs the operation and all other processes
+are broadcast the result of a read and discard writes.
 
-\section{{\tt rtdb\_parallel}}
+
+\subsection{{\tt rtdb\_parallel}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_parallel(const int mode)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_parallel(mode)
   logical mode              [input]
 \end{verbatim}
-Set the parallel access mode of all databases to mode and return the
-previous setting. If {\tt mode} is true then accesses are in parallel.
+This function sets the parallel access mode of all databases to {\tt mode} and returns the
+previous setting. If {\tt mode} is true then accesses are in parallel, otherwise they are
+sequential.
 
-\section{{\tt rtdb\_open}}
+\subsection{{\tt rtdb\_open}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_open(const char *filename, const char *mode, int *handle)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_open(filename, mode, handle)
   character *(*) filename   [input]
   character *(*) mode       [input]
   integer handle            [output]
 \end{verbatim}
-Open a database:
+This function opens a database.  It requires the following arguments:
 \begin{itemize}
 \item    {\tt Filename} --- path to file associated with the data base
-\item    {\tt mode} ---
+\item    {\tt mode} --- specify initial condition of data base
 \begin{itemize}
 \item {\tt new} ---  Open only if it does not exist already
 \item {\tt old} ---  Open only if it does exist already
-\item {\tt unknown} --- Create new or open existing (preserving contents)
-\item {\tt empty} --- Create new or open existing (deleting contents)
-\item {\tt scratch} --- Create new or open existing (deleting contents)
-                         and automatically delete upon closing.  Also, items
-                         cached in memory are not written to disk.
+\item {\tt unknown} --- Create a new database or open the existing database {\tt Filename} (preserving contents)
+\item {\tt empty} --- Create a new database or open the existing database {\tt Filename} (deleting contents)
+\item {\tt scratch} --- Create a new database or open the existing database {\tt Filename} (deleting contents)
+                         that will be automatically deleted upon closing.  Note that items
+                         cached in memory are not written to disk when this mode is specified.
 \end{itemize}
-\item {\tt handle} --- returns an integer handle by which all future
-  references to the data base are made
+\item {\tt handle} --- returns an integer handle which must be used in all future
+  references to the database
 \end{itemize}
 
-\section{{\tt rtdb\_close}}
+\subsection{{\tt rtdb\_close}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_close(const int handle, const char *mode)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_close(handle, mode)
   integer handle            [input]
   character*(*) mode        [input]
 \end{verbatim}
-Close a database:
+This function closes a database. It requires the following arguments:
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt mode} ---
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt mode} --- specifies the fate of the information in the database after closing;
 \begin{itemize}
 \item {\tt keep} ---    Preserve the data base file to enable restart
-\item {\tt delete} ---  Delete the data base file freeing all resources
+\item {\tt delete} ---  Delete the data base file, freeing all resources
 \end{itemize}
 \end{itemize}
-The {\tt mode} of close is overridden by opening the data base with
-{\tt mode} equal to {\tt scratch} in which instance it is always
-deleted upon closing.
+When closing a database file that has been opened with the {\tt rtdb\_open} argument
+{\tt mode} specified as {\tt scratch}, the value for {\tt mode} for the function
+{\tt rtdb\_close} is automatically set to {\tt delete}.  Database files needed for
+restart must not be opened as {\tt scratch} files.
 
-\section{{\tt rtdb\_put}}
+\subsection{{\tt rtdb\_put}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_put(const int handle, const char *name, const int ma_type,
                const int nelem, const void *array)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_put(handle, name, ma_type, nelem, array)
   integer handle            [input]
   character *(*) name       [input]
   integer ma_type           [input]
   integer nelem             [input]
-  <ma_type>array(nelem)     [input]
+  <ma_type>                 [input]
+  nelem                     [input]
+  array                     [input]
 \end{verbatim}
-Insert an entry into the data base replacing previous entry
+This function inserts an entry into the database, replacing the previous entry.
+It requires the following arguments:
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt name} --- entry name (null terminated character string)
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of data array to be put into the database (null-terminated character string)
 \item {\tt ma\_type} --- MA type of the entry
 \item {\tt nelem} --- number of elements of the given type
-\item {\tt array} --- data to be inserted
+\item {\tt array} --- array of length {\tt nelem} containing data to be inserted
 \end{itemize}
 
-\section{{\tt rtdb\_get}}
+\subsection{{\tt rtdb\_get}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_get(const int handle, const char *name, const int ma_type,
                const int nelem, void *array)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_get(handle, name, ma_type, nelem, array)
   integer handle            [input]
   character *(*) name       [input]
   integer ma_type           [input]
   integer nelem             [input]
-  <ma_type>array(nelem)     [output]
+  <ma_type>                 [output]
+  nelem                     [output]
+  array                     [output]
 \end{verbatim}
-Get an entry from the data base
+This function gets an entry from the data base. It requires the following arguments:
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt name} --- entry name
-\item {\tt ma\_type} --- MA type of the entry which must match entry type
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of data array to get from the database (null-terminated character string)
+\item {\tt ma\_type} --- MA type of the entry (which must match entry type in the database)
 \item {\tt nelem} --- size of array in units of {\tt ma\_type}
-\item {\tt array} --- user provided buffer that returns data
+\item {\tt array} --- buffer of length {\tt nelem} defined by calling routine to store the returned data
 \end{itemize}
 
-\section{{\tt rtdb\_cput/get}}
+\subsection{{\tt rtdb\_cput} and {\tt rtdb\_cget}}
+
 \begin{verbatim}
   logical function rtdb_cput(handle, name, nelem, buf)
   integer handle            [input]
@@ -171,14 +240,31 @@ Get an entry from the data base
   character *(*) name       [input]
   character *(*) buf        [output]
 \end{verbatim}
-Fortran routines to provide put/get functionality for character
-variables.
+These functions are Fortran routines to provide put/get functionality for character
+variables.  The functions have identical argument lists, the only difference between them is that for
+{\tt rtdb\_cput}, the specified character data is put into the database, and for 
+{\tt rtdb\_cget} the data is copied from the database.  The arguments are as follows;
 
-\section{{\tt rtdb\_ma\_get}}
+\begin{itemize}
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of data array to get from the database (null-terminated character string)
+\item {\tt buf} --- character variable to be put into the database (for {\tt rtdb\_cput}, or character
+buffer in calling routine to store returned character data (for {\tt rtdb\_cget}.
+\end{itemize}
+
+\subsection{{\tt rtdb\_ma\_get}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_ma_get(const int handle, const char *name, int *ma_type,
                   int *nelem, int *ma_handle)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_ma_get(handle, name, ma_type, nelem, ma_handle)
   integer handle            [input]
   character *(*) name       [input]
@@ -186,22 +272,33 @@ variables.
   integer nelem             [output]
   integer ma_handle         [output]
 \end{verbatim}
-Get an entry from the data base returning an MA handle to memory
-automatically allocated to hold the data read from the database.
+This function returns the MA type, number of elements of that type, and the MA handle
+of the entry specified.  (The MA handle is to memory
+automatically allocated to hold the data read from the database.)  the function requires
+the following arguments:
+
 \begin{itemize}  
-\item {\tt handle} --- handle to RTDB
-\item {\tt name} --- entry name
-\item {\tt ma\_type} --- returns MA type of the entry
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of information to get from the database (null-terminated character string)
+\item {\tt ma\_type} --- returns MA type of the entry in the database
 \item {\tt nelem} --- returns number of elements of type {\tt ma\_type} in data
 \item {\tt ma\_handle} --- returns MA handle to data
 \end{itemize}
 
 
-\section{{\tt rtdb\_get\_info}}
+\subsection{{\tt rtdb\_get\_info}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_get_info(const int handle, const char *name, int *ma_type, 
                     int *nelem, char date[26])
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_get_info(handle, name, ma_type, nelem, date)
   integer handle            [input]
   character *(*) name       [input]
@@ -209,23 +306,36 @@ automatically allocated to hold the data read from the database.
   integer nelem             [output]
   character*26 date         [output]
 \end{verbatim}
-Get info about an entry from the data base
+
+This function queries the database to obtain the number of elements in the
+specified entry, it's MA type, and the date of its insertion into the rtdb.
+It requires the following arguments:
+
 \begin{itemize}
-\item {\tt handle} ---- handle to RTDB
-\item {\tt name} --- entry name (null terminated character string in
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of data for which information is to be obtained
+(null-terminated character string in
   C,  standard FORTRAN character constant or variable in FORTRAN)
 \item {\tt ma\_type} --- returns MA type of the entry
 \item {\tt nelem} --- returns number of elements of the given type
-\item {\tt date} --- returns date of insertion (null terminated
-  character string, or FORTRAN character variable)
+\item {\tt date} --- returns date of insertion (null-terminated
+  character string or FORTRAN character variable)
 \end{itemize}
 
-\section{{\tt rtdb\_first/next}}
+\subsection{{\tt rtdb\_first} and {\tt rtdb\_next}}
+
+C routines:
+
 \begin{verbatim}
   int rtdb_first(const int handle, const int namelen, char *name)
 
   int rtdb_next(const int handle, const int namelen, char *name)
+\end{verbatim}
 
+
+Fortran routines:
+
+\begin{verbatim}
   logical function rtdb_first(handle, name)
   integer handle            [input]
   character *(*) name       [output]
@@ -235,17 +345,27 @@ Get info about an entry from the data base
   character *(*) name       [output]
 \end{verbatim}
 These routines enable iteration through the items in the database in
-an effectively random order.  They return in {\tt name} the name of
-the first/next (user inserted) entry in the data base. 
+an effectively random order.  The function {\tt rtdb\_first} returns
+the name of the first user-inserted entry in the datbase.  The function
+{\tt rtdb\_next} returns the name of the user-inserted entry put into the
+data base after the entry identified on the previous call to {\tt rtdb\_next}
+(or the call to {\tt rtdb\_first}, on the first call to {\tt rtdb\_next}).
+
+The arguments required for the C routines are as follows:
+
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt namelen} ---  size of user provided buffer name (C only)
-\item {\tt name} --- name of first/next entry is returned in this
-  buffer
+
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt namelen} ---  size of buffer in calling routine required to store {\tt name}
+\item {\tt name} --- buffer to hold returned name of next (or first) entry in the database 
 \end{itemize}
 
-An example of their use in C to count and print the name of all
-entries is
+The Fortran routines require the same arguments for {\tt handle} and {\tt name}, but it is 
+not necessary to define the length of the buffer required.
+
+An example of the use of these functions in C is to count and print the name of all
+entries  in the database.  The coding for this can be implemented as follows;
+
 \begin{verbatim}
   char name[256];
   int n, status, rtdb;
@@ -256,36 +376,54 @@ entries is
     printf("entry %d has name '%s'\n", n, name);
 \end{verbatim}
 
-\section{{\tt rtdb\_delete}}
+\subsection{{\tt rtdb\_delete}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_delete(const int handle, const char *name)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_delete(handle, name)
   integer handle            [input]
   character *(*) name       [input]
 \end{verbatim}
-Delete the entry from the database. 
+This function deletes an entry from the database. 
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt name} --- name of entry to delete
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt name} --- entry name of data to delete from the database (null-terminated character string)
 \end{itemize}
-Returns
+This function does not return any arguments.  The value the function itself returns as indicates
+success or failure of the delete operation.  The function returns as
 \begin{itemize}
-\item 1 if key was present and successfully deleted, or
-\item 0 if key was not present, or if an error occured.
+\item 1 if key was present and successfully deleted
+\item 0 if key was not present, or if an error occured
 \end{itemize}
 
-\section{{\tt rtdb\_print}}
+\subsection{{\tt rtdb\_print}}
+
+C routine:
+
 \begin{verbatim}
   int rtdb_print(const int handle, const int print_values)
+\end{verbatim}
 
+
+Fortran routine:
+
+\begin{verbatim}
   logical function rtdb_print(handle, print_values)
   integer handle            [input]
   logical print_values      [input]
 \end{verbatim}
-Print the contents of the data base to {\tt STDOUT}.
+This function prints the contents of the data base to {\tt STDOUT}.  It requires
+the following arguments:
 \begin{itemize}
-\item {\tt handle} --- handle to RTDB
-\item {\tt print\_values} --- boolean flag --- if true values as
+\item {\tt handle} --- unique handle created when the database was first opened
+\item {\tt print\_values} --- (boolean flag) if true, values as
   well as keys are printed out.
 \end{itemize}

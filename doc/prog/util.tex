@@ -1,10 +1,10 @@
 
 The NWChem {\tt util} directory is a dumping ground for all sorts of useful
-things, some of which have been described elsewhere.  Here is the rest.
+things, some of which have been described elsewhere.  Here are the rest.
 
-\section{Printing utilities}
+\subsection{Printing utilities}
 
-\subsection{{\tt util\_print\_centered}}
+\subsubsection{{\tt util\_print\_centered}}
 \begin{verbatim}
   subroutine util_print_centered(unit, string, center, ounder)
   integer unit             [input]
@@ -15,7 +15,7 @@ things, some of which have been described elsewhere.  Here is the rest.
 Write the string to speficied Fortran unit centered about the given
 column.  If {\tt ounder} is \TRUE then the string is underlined.
 
-\subsection{{\tt banner}}
+\subsubsection{{\tt banner}}
 \begin{verbatim}
   subroutine banner(unit, string, char, top, bot, sides)
   integer unit             [input]
@@ -28,7 +28,7 @@ margin optionaly enlcosing the top/bottom/sides with a box constructed
 from the given character.  At some point this routine should be renamed
 \verb+util_banner+. 
 
-\subsection{{\tt output}}
+\subsubsection{{\tt output}}
 \begin{verbatim}
   subroutine output (z, rowlow, rowhi, collow, colhi,
                      rowdim, coldim, nctl)
@@ -60,9 +60,9 @@ To print {\tt x(3:12)}
   call output(x, 3, 12, 1, 1, n, 1, 1)
 \end{verbatim}
 
-\section{Error routines}
+\subsection{Error Routines}
 
-\subsection{{\tt errquit}}
+\subsubsection{{\tt errquit}}
 \label{errquit}
 \begin{verbatim}
   subroutine errquit(string, status)
@@ -74,9 +74,9 @@ out the string and status value to both standard error and standard
 output and attempts to kill all parallel processes and to tidy any
 allocated system resources (e.g., system V shared memory).
 
-\section{Parallel communication}
+\subsection{Parallel Communication}
 
-\subsection{{\tt util\_char\_ga\_brdcst}}
+\subsubsection{{\tt util\_char\_ga\_brdcst}}
 \begin{verbatim}
   subroutine util_char_ga_brdcst(type, string, originator)
   integer type            [input]
@@ -91,7 +91,7 @@ should execute the same call and there is an implied weak
 synchronization (i.e., no process can complete this statement until at
 least process \verb+originator+ has reached it).
 
-\subsection{{\tt fcsnd} and {\tt fcrcv}}
+\subsubsection{{\tt fcsnd} and {\tt fcrcv}}
 \begin{verbatim}
   subroutine fcsnd(type, string, node, sync)
   subroutine fcrcv(type, string, slen, nodeselect, nodefrom, sync)
@@ -101,7 +101,7 @@ work portably with Fortran character strings.  Here are routines that
 work only with character strings.  Refer to the standard TCGMSG
 documentation for details on the other arguments.
 
-\section{Naming files}
+\subsection{Naming Files}
 
 The length of a file name can be large and also system depenedent.
 The parameter \verb+NW_MAX_PATH_LEN+ is defined in \verb+util.fh+ to
@@ -120,7 +120,7 @@ process number appended to the name.  Routines (should) exist to do
 all of these things individually, but one master routine does it all
 for you --- wow!
 
-\subsection{{\tt util\_file\_name}}
+\subsubsection{{\tt util\_file\_name}}
 
 \begin{verbatim}
   subroutine util_file_name(stub, oscratch, oparallel, name)
@@ -149,7 +149,7 @@ might yield \verb+/scratch/h2o.khalf.99+ (i.e., having the name
 of the scratch directory and the file prefix prepended and the process
 number appended).
 
-\subsection{{\tt util\_file\_prefix}}
+\subsubsection{{\tt util\_file\_prefix}}
 \begin{verbatim}
   subroutine util_file_prefix(name, fullname)
   character*(*) name         [input]
@@ -165,7 +165,7 @@ simply accomplished by calling this routine which returns in
 \verb+fullname+ the value of \verb+file_prefix+ followed (with no
 intervening characters) by the contents of \verb+name+.
 
-\subsection{{\tt util\_pname}}
+\subsubsection{{\tt util\_pname}}
 \begin{verbatim}
   subroutine util_pname(name, pname)
   character*(*) name         [input]
@@ -181,9 +181,9 @@ of the highest numbered processor.  This is useful for generating
 names for files, but is probably superseded by the exclusive access
 files in CHEMIO.
 
-\section{Sequential Fortran files}
+\subsection{Sequential Fortran Files}
 
-\subsection{{\tt util\_flush}}
+\subsubsection{{\tt util\_flush}}
 \begin{verbatim}
   subroutine util_flush(unit)
   integer unit        [input]
@@ -197,7 +197,7 @@ output has been performed thus care must be taken to ensure that
 writes and flushes are paired --- e.g., it is wrong to have all
 processes flush unit six when only process zero has written output.
 
-\subsection{{\tt sread} and {swrite}}
+\subsubsection{{\tt sread} and {\tt swrite}}
 \begin{verbatim}
   subroutine sread(unit, a, n)
   integer unit            [input]
@@ -209,18 +209,16 @@ processes flush unit six when only process zero has written output.
   double precision a(n)   [input]
   integer n               [input]
 \end{verbatim}
-A blast from the past and hopefully only temporarily present here.
-May also be renamed by prefixing with \verb+util_+.  Read/write an
-array of {\tt double} {\tt precision} words from the given Fortran
+Read/write an array of {\tt double} {\tt precision} words from the given Fortran
 unit (variable record length, binary file).  These routines are
 valuable to avoid inefficient implied {\tt DO} loops and also to
 circumvent system limitations on record lengths (e.g., some Cray
 systems).  The I/O operations are internally chopped into 0.25~Mbyte
 chunks.
 
-\section{Parallel file operations}
+\subsection{Parallel file operations}
 
-\subsection{{\tt begin\_seq\_output}, {\tt write\_seq}, and {\tt end\_seq\_output}}
+\subsubsection{{\tt begin\_seq\_output}, {\tt write\_seq}, and {\tt end\_seq\_output}}
 \begin{verbatim}
   subroutine begin_seq_output
 
@@ -248,7 +246,7 @@ a serious problem.
 Observe that the specified unit is the Fortran unit on node zero, not
 that of the invoking node!
 
-\section{Data packing and unpacking}
+\subsection{Data packing and unpacking}
 \begin{verbatim}
   subroutine util_pack_16(nunpacked, packed, unpacked)
   integer nunpacked                     [input]
@@ -285,7 +283,7 @@ independent fashion using MA
 under the assumption that the word length is an exact multiple of the
 value length.
 
-\section{Checksums}
+\subsection{Checksums}
 
 Checksums are useful for rapid comparison and validation of data, such
 as digital signatures for verification of important messages, or, more
@@ -306,8 +304,8 @@ reference.
 MD5 is probably the strongest checksum algorithm most people will need
 for common use.  It is conjectured that the difficulty of coming up
 with two messages having the same message digest is on the order of
-$2^64$ operations, and that the difficulty of coming up with any
-message having a given message digest is on the order of $2^128$
+$2^{64}$ operations, and that the difficulty of coming up with any
+message having a given message digest is on the order of $2^{128}$
 operations.
 \end{quote}
 
@@ -325,7 +323,7 @@ Fortran interface.  For a more definitive test of MD5 make
 \verb+mddriver+ and execute it with the \verb+-x+ option, comparing
 output with that in \verb+md5.txt+.
 
-\subsection{Checksum C and Fortran interface}
+\subsubsection{Checksum C and Fortran interface}
 
 C routines should include \verb+checksum.h+ for prototypes.
 There is no Fortran header file since there are no functions.
@@ -401,9 +399,9 @@ F77:  subroutine checksum_char_simple(buf, sum)
   (trailing blanks are included).
 
 
-\section{Source version information}
+\subsection{Source version information}
 
-\subsection{{\tt util\_version}}
+\subsubsection{{\tt util\_version}}
 \begin{verbatim}
   subroutine util_version
 \end{verbatim}
@@ -414,9 +412,9 @@ processed to generate a copy \verb+util_version+ which when called
 will printout the name and version information of all source files,
 organized by module.  Of course, you'll also have to relink.
 
-\section{Times and dates}
+\subsection{Times and dates}
 
-\subsection{{\tt util\_cpusec}}
+\subsubsection{{\tt util\_cpusec}}
 \begin{verbatim}
   double precision function util_cpusec()
 \end{verbatim}
@@ -426,7 +424,7 @@ time. The resolution and call overhead will also vary.  This routine
 should provide the most accurate cputime.  On nearly all systems the
 clocks are not synchronized between processes.
 
-\subsection{{\tt util\_wallsec}}
+\subsubsection{{\tt util\_wallsec}}
 \begin{verbatim}
       double precision function util_wallsec()
 \end{verbatim}
@@ -434,7 +432,7 @@ Routine to return wall clock seconds since the start of execution.  On
 nearly all systems the clocks are not synchronized between processes.
 Resolution will also vary.
 
-\subsection{{\tt util\_date}}
+\subsubsection{{\tt util\_date}}
 \begin{verbatim}
   subroutine util_date(date)
   character*(*) date         [output]
@@ -444,9 +442,9 @@ standard C routine {\tt ctime()}.  Note that there are 26 characters
 in this format and a fatal error will result if the argument {\tt
   date} is too small.
 
-\section{System operations and information}
+\subsection{System operations and information}
 
-\subsection{{\tt util\_hostname}}
+\subsubsection{{\tt util\_hostname}}
 \begin{verbatim}
   subroutine util_hostname(name)
   character*(*) name         [output]
@@ -455,7 +453,7 @@ Returns in {\tt name} the hostname of the machine.  A fatal error
 results if {\tt name} is too small to hold the result --- 256
 characters should suffice.
 
-\subsection{{\tt util\_file\_unlink}}
+\subsubsection{{\tt util\_file\_unlink}}
 \begin{verbatim}
   subroutine util_file_unlink(filename)
   character*(*) filename      [input]
@@ -465,7 +463,7 @@ the file.  If the file does not exist then it quietly returns.  If the
 file exists and the unlink fails then it aborts calling
 \verb+ga_error()+.
 
-\subsection{{\tt util\_file\_copy}}
+\subsubsection{{\tt util\_file\_copy}}
 \begin{verbatim}
   subroutine util_file_copy(input, output)
   character*(*) input        [input]
@@ -474,7 +472,7 @@ file exists and the unlink fails then it aborts calling
 The calling process copies the named input file to the named output
 file.  All errors are fatal.
 
-\subsection{{\tt util\_system}}
+\subsubsection{{\tt util\_system}}
 \begin{verbatim}
   integer function util_system(command)
   character*(*) command      [input]
@@ -485,9 +483,9 @@ inside the Bourne shell.  Returned is the completion code of the
 command (typically 0 on success). If this functionality is not
 supported on a given machine then a non-zero value (1) is returned.
 
-\section{C to Fortran interface}
+\subsection{C to Fortran interface}
 
-\subsection{{\tt string\_to\_fortchar} and {\tt
+\subsubsection{{\tt string\_to\_fortchar} and {\tt
     fortchar\_to\_string}}
 \begin{verbatim}
 #ifdef CRAY
@@ -521,11 +519,11 @@ null character is removed and the Fortran string padded on the right
 with blanks.
 
 
-\section{Debugging aids}
+\subsection{Debugging aids}
 
-\subsection{{\tt ieeetrap}}
+\subsubsection{{\tt ieeetrap}}
 
-\section{Miscellaneous BLAS-like operations}
+\subsection{Miscellaneous BLAS-like operations}
 
 dabsmax.F --- to be removed
 
@@ -535,7 +533,7 @@ rsg.f --- Eispack diagonalization routine --- should use Lapack
 equivalent instead
 
 
-\subsection{Initializing arrays --- {\tt dfill} and {\tt ifill}}
+\subsubsection{Initializing arrays --- {\tt dfill} and {\tt ifill}}
 
 \begin{verbatim}
   subroutine dfill(n, s, x, ix)

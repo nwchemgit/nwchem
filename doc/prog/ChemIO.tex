@@ -1,0 +1,645 @@
+\label{sec:ChemIO}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this draft has been freely adapted from the paper by Jarek, et al.
+% that is to appear in Int. J. supercom. Apps. High Perf. Comp. 1998
+% (special issue on I/O in parallel applications)
+% plus EAFguide.doc and DRA.doc from ~/src/global/doc
+%                                   -- Judith M. Cuta (9/28/98)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ChemIO is a high-performanc parallel I/O abstract programming interface for
+computaional chemistry applications\footnote{The ChemIO project is a joint effort of
+Argonne National Laboratory and Pacific Northwest National Laboratoyr, in affiliation
+with a DOE Grand Challenge project developing Massively Parallel Methods for
+Computational Chemistry, with the multi-agency Scalable I/O Project, and with
+the EMSL.}
+The development of out-of-core methods for 
+computational chemistry requires efficient and portable implementation of often complex 
+I/O patterns.  The ChemIO interface addresses this problem by providing high
+performance implementations on multiple platforms that hides some of the
+complexity of the underlying I/O patterns from the programmer through the use of
+high-level libraries.  The interface is tailored to the requirements of
+large-scale computational chemistry problems, and supports thee distinct
+I/O models.  These are
+
+\begin{enumerate}
+\item {\em Disk Resident Arrays (DRA)} --- for explicit transfer between global
+memory and secondary storage, allowing the programmer to manage the movement of array
+data structures between local memory, remote memory, and disk storage.  This component
+supports collective I/O operations, in which multiple processors cooperate in 
+a read or write operation and thereby enable certain useful optimizations.
+
+\item {\em Exclusive Access Files (EAF)} --- for independent I/O to and from
+scratch files maintained on a per-processor basis.  It is used for out-of-core
+computations in calculational modules that cannot easily be organized to perform collective I/O
+operations.
+
+\item {\em Shared Files (SF)} --- for creation of a scratch file that can be
+shared by all processors.  Each processor can perform noncollective read or write
+operations to an arbitrary location in the file.
+
+\end{enumerate}
+
+
+These models are implemented in three user-level libraries in ChemIO; Disk Resident
+Arrays, Exclusive Access Files, and Shared Files.  These libraries are layered on
+a device library, the Elementary I/O library (ELIO), which provides a portable
+interface to different file systems.  The DRA, EAF, and SF modules are fully
+independent.  Each one can be modified or even removed without affecting the others.
+ELIO itself is not exposed to applications.
+
+\subsubsection{Elementary I/O Library (ELIO)}
+
+The ELIO library implements a set of elementary I/O primitives including blocking and
+non-blocking versions of read and write operations, as well as wait and probe operations to
+control status of non-blocing read/writes.  It also implements file operations such
+as open, close, delete, truncate, end-of-file detection, and an inquiry function
+for the file/filesystem that returns the amount of available space and the filesystem
+type.  Most of these operations are commonly seen in various flavors of the UNIX
+filesystem.  ELIO provides an abstract portable interface to such functionality.
+
+{\em (Insert gory details here.)}
+
+\subsubsection{Disk Resident Arrays}
+
+The computational chemistry parallel algorithms in NWChem have been implemented in terms
+of the Global Arrays shared memory programming model.  The GA library (see Section 
+\ref{sec:ga}) library uses a shared memory programming model in which data locality
+is managed explicitly by the programmer.  This management is achieved by explicit
+calls to functions that transfer data between a global address space (a distributed
+array) and local storage.  The GA library allows each process in a MIMD parallel
+program to access asynchronously logical blocks of physically distributed matrices
+without the need for explicit cooperation from other processes.
+
+The GA model exposes to the programmer the non-uniform memory access (NUMA) characteristics
+of modern high-performance computer systems.  The disk resident array (DRA) model extends
+the GA model to another level in the storage hierarchy, namely, secondary storage.  It 
+introduces the concept of a disk resident array --- a disk-based representation of an
+array --- and provides functions for transferring blocks of data between global arrays
+and disk arrays.  It allows the programmer to access data located on disk via a
+simple interface expressed in terms of arrays rather than files.
+
+At the  present time, ({\em NOTE: The source of this statement is a document
+created 5/10/95}) all operations are declared to be collective. 
+This simplifies implementation on machines where only some processors 
+are connected to I/O devices. 
+
+Except where stated otherwise, all operations are synchronous (blocking)
+which means that control is returned to the calling process only after
+the requested operation completes. 
+
+All operations return an error code with value 0 if successful, greater than
+zero if not successful.
+
+A program that uses Disk Resident Arrays should look like the following example:
+
+\begin{verbatim}
+      program foo
+#include "mafdecls.h"
+#include "global.fh"
+#include "dra.fh"
+c
+      call pbeginf()                      ! initialize TCGMSG
+      if(.not. ma_init(...)) ERROR        ! initialize MA
+      call ga_initialize()                ! initialize Global Arrays
+      if(dra_init(....).ne.0) ERROR       ! initialize Disk Arrays 
+
+c     do work
+
+      if(dra_terminate().ne.0)ERROR       ! destroy DRA internal data structures
+      call ga_terminate                   ! terminate Global Arrays
+      call pend()                         ! terminate TCGMSG
+      end
+\end{verbatim}
+
+
+      
+List of DRA operations:
+
+\begin{itemize}
+\item {\tt status = dra\_init(max\_arrays, max\_array\_size, total\_disk\_space, max\_memory)} ---
+              initializes disk resident array I/O subsystem;
+              {\tt max\_array\_size}, {\tt total\_disk\_space} and  {\tt max\_memory} are given
+              in bytes; 
+              {\tt max\_memory} specifies how much local memory per processor the
+              application is willing to provide to the DRA I/O subsystem for
+              buffering. 
+              The value of "-1" for any of input arguments means:
+              "don't care", "don't know", or "use defaults" 
+\begin{itemize}
+\item              integer {\tt max\_arrays} --- [input]
+\item              double precision {\tt max\_array\_size} --- [input]
+\item              double precision {\tt total\_disk\_space} --- [input]
+\item              double precision {\tt max\_memory} --- [input]
+\end{itemize}
+
+
+\item {\tt status = dra\_terminate()} ---
+              closes all open disk resident arrays and shuts down 
+              DRA I/O subsystem.
+
+\item {\tt status = dra\_create(type,dim1,dim2,name,filename,mode,rdim1,rdim2,d\_a)} ---
+              creates new disk resident array with specified dimensions
+              and {\tt type}.
+	      (Note: Only one DRA object can be stored in DRA meta-file identified by
+	      {\tt filename}.
+              DRA objects persist on the disk after calling {\tt dra\_close()}.
+              {\tt dra\_delete()} should be used instead of {\tt dra\_close()} to delete disk
+              array and associated meta-file on the disk.
+              Disk array is implicitly initialized to "0".
+
+\begin{itemize}
+\item              integer {\tt type} ---  [input]  MA type identifier
+\item              integer {\tt dim1} --- [input]
+\item              integer {\tt dim2} --- [input]
+\item              character*(*) {\tt name} --- [input]
+\item              character*(*) {\tt filename} --- [input]
+      name of an abstract
+      meta-file that will store the data on the disk. The
+\item              integer {\tt mode} --- [input] specifys access permissions
+as read, write, or read-and-write
+\item              integer {\tt rdim1,rdim2} --- [input] 
+      specifies dimensions of a
+	      "typical" request;  value of "-1" for either rdim1 or rdim2
+           means "unspecified"
+\item              integer {\tt d\_a} --- [output]   DRA handle
+\end{itemize}
+
+\item {\tt status = dra\_open(filename, mode, d\_a)} ---
+	      Open and assign DRA handle to disk resident array stored in DRA
+	      meta-file {\tt filename}.  Disk arrays that are created
+	      with {\tt dra\_create} and saved by calling {\tt dra\_close} can be
+	      later opened and accessed by the same or different
+	      application.
+
+\begin{itemize}
+\item              character*(*) {\tt filename} --- [input]
+      name of an abstract
+      meta-file that will store the data on the disk. The
+\item              integer {\tt mode} --- [input] specifys access permissions
+as read, write, or read-and-write
+\item              integer {\tt d\_a} --- [output]   DRA handle
+\end{itemize}
+
+\item {\tt status = dra\_write(g\_a, d\_a, request)} ---
+              writes asynchronously specified global array to specified 
+              disk resident array;
+              dimensions and type of {\tt g\_a} and {\tt d\_a} must match. If dimensions
+              don't match, {\tt dra\_write\_section} should be used instead.   
+      The operation is by definition asynchronous (but could   
+      be implemented as synchronous i.e., it would return only
+      when I/O is done.)
+
+\begin{itemize}
+\item              integer {\tt g\_a} --- [input]   GA handle
+\item              integer {\tt d\_a} --- [input]   DRA handle
+\item              integer {\tt request} --- [output]  request id
+\end{itemize}
+
+\item {\tt status = dra\_write\_section(transp, g\_a, gilo, gihi, gjlo, gjhi, 
+                                        d\_a, dilo, dihi, djlo, djhi, request)} ---
+              writes asynchronously specified global array section to 
+              specified disk resident array section:
+                {\tt OP(g\_a[ gilo:gihi, gjlo:gjhi]) --> d\_a[ dilo:dihi, djlo:djhi]},
+              where {\tt OP} is the transpose operator (.true./.false.).
+              Returns error if the two section's types or sizes mismatch.
+              See {\tt dra\_write} specs for discussion of {\tt request}. 
+
+\begin{itemize}
+\item              logical {\tt transp} ---               [input]  transpose operator
+\item             integer {\tt g\_a} ---                  [input]  GA handle
+\item              integer {\tt d\_a} ---                  [input]  DRA handle
+\item              integer {\tt gilo} ---                 [input]
+\item              integer {\tt gihi} ---                 [input]
+\item              integer {\tt gjlo} ---                 [input]
+\item              integer {\tt gjhi} ---                 [input]
+\item              integer {\tt dilo} ---                 [input]
+\item              integer {\tt dihi} ---                 [input]
+\item              integer {\tt djlo} ---                 [input]
+\item              integer {\tt djhi} ---                 [input]
+\item              integer {\tt request} ---              [output]  request id
+\end{itemize}
+
+\item {\tt status = dra\_read(g\_a, d\_a, request)} ---
+              reads asynchronously specified global array from specified
+              disk resident array;
+              Dimensions and type of g\_a and d\_a must match; if dimensions
+              don't match, {\tt dra\_read\_section} could be used instead.
+              See {\tt dra\_write} specs for discussion of {\tt request}. 
+
+\begin{itemize}
+\item              logical {\tt transp} ---               [input]  transpose operator
+\item             integer {\tt g\_a} ---                  [input]  GA handle
+\item              integer {\tt d\_a} ---                  [input]  DRA handle
+\item              integer {\tt request} ---              [output]  request id
+\end{itemize}
+
+\item {\tt status = dra\_read\_section(transp, g\_a, gilo, gihi, gjlo, gjhi,
+                                       d\_a, dilo, dihi, djlo, djhi, request)} --- 
+              reads asynchronously specified global array section from 
+              specified disk resident array section:
+                {\tt OP(d\_a[ dilo:dihi, djlo:djhi]) --> g\_a[ gilo:gihi, gjlo:gjhi]}
+              where OP is the transpose operator (.true./.false.).
+              See {\tt dra\_write} specs for discussion of {\tt request}.
+
+\begin{itemize}
+\item              logical {\tt transp} ---               [input]  transpose operator
+\item             integer {\tt g\_a} ---                  [input]  GA handle
+\item              integer {\tt d\_a} ---                  [input]  DRA handle
+\item              integer {\tt gilo} ---                 [input]
+\item              integer {\tt gihi} ---                 [input]
+\item              integer {\tt gjlo} ---                 [input]
+\item              integer {\tt gjhi} ---                 [input]
+\item              integer {\tt dilo} ---                 [input]
+\item              integer {\tt dihi} ---                 [input]
+\item              integer {\tt djlo} ---                 [input]
+\item              integer {\tt djhi} ---                 [input]
+\item              integer {\tt request} ---              [output]  request id
+\end{itemize}
+
+\item {\tt status = dra\_probe(request, compl\_status)} ---
+	      tests for completion of {\tt dra\_write/read} or
+	      {\tt dra\_write/read\_section} operation which sets the value
+	      passed in {\tt request} argument;
+              completion status is 0 if the operation has been completed, non-zero
+              if not done yet
+
+\begin{itemize}
+\item              integer {\tt request} ---   [input]   request id
+\item              integer {\tt compl\_status} --- [output] completion status  
+\end{itemize}
+
+\item {\tt status = dra\_wait(request)} --- 
+	      blocks operations until completion of {\tt dra\_write/read} or
+	      {\tt dra\_write/read\_section} operation which set the value
+	      passed in {\tt request} argument. 
+
+\begin{itemize}
+\item              integer {\tt request} ---   [input]   request id
+\end{itemize}
+
+\item {\tt status = dra\_inquire(d\_a, type, dim1, dim2, name, filename)} --- 
+	      returns dimensions, {\tt type}, {\tt name} of disk resident array,
+	      and {\tt filename} of DRA meta-file associated with {\tt d\_a}
+	      handle.
+
+\begin{itemize}
+\item              integer {\tt d\_a} ---                        [input]   DRA handle
+\item              integer {\tt type} ---                       [output]
+\item              integer {\tt dim1} ---                       [output]
+\item              integer {\tt dim2} ---                       [output]
+\item              character*(*) {\tt name} ---                 [output]
+\item              character*(*) {\tt filename} ---             [output]
+\end{itemize}
+
+\item {\tt status = dra\_delete(d\_a)} ---
+                deletes a disk resident array associated with {\tt d\_a} handle.
+                Invalidates handle.
+                The corresponding DRA meta-file is destroyed.
+
+\begin{itemize}
+\item              {\tt integer d\_a} ---  [input]   DRA handle
+\end{itemize}
+
+
+\item {\tt status = dra\_close(d\_a)} ---
+	      closes DRA meta-file associated with {\tt d\_a} handle and
+	      deallocates data structures corresponding to this disk
+	      array.  Invalidates {\tt d\_a} handle. The array on the disk is
+	      persistent.
+
+\begin{itemize}
+\item              {\tt integer d\_a} ---  [input]   DRA handle
+\end{itemize}
+
+
+\item {\tt subroutine dra\_flick()} --- 
+             returns control to DRA for a VERY short time to improve 
+             progress of pending asynchronous operations.
+\end{itemize}
+
+\subsubsection{Exclusive Access Files (EAF)}
+
+The EAF module supports a particularly simple I/O abstraction in which each processor
+in a program is able to create files that it alone has access to.  The EAF interface
+is similar to the standard C UNIX I/O interface and is implemented as a thin
+wrapper on the ELIO module.  It provides Fortran and C applications with capabilities
+that include
+
+\begin{itemize}
+
+\item {\tt eaf\_write} and {\tt eaf\_read} --- blocking write and read operations
+\item {\tt eaf\_awrite} and {\tt eaf\_aread} --- non-blocking (asynchronous) 
+write and read operations
+\item {\tt eaf\_wait} and {\tt eaf\_probe} --- operations that can be used to control
+or determine completion status of outstanding nonblocking I/O requests
+\item {\tt eaf\_stats} --- operation that takes a full path to a file or directory and
+returns the amount of disk space available and the filesystem type (e.g., PFS, PIOFS,
+standard UNIX, etc.)
+\item {\tt eaf\_length} and {\tt eaf\_truncate} --- operations that can allow the programmer
+to determine the length of a file, and truncate a file to a specified length.
+\item {\tt eaf\_eof} --- operation that determines whether the enf of the file has been reached
+\item {\tt eaf\_open}, {\tt eaf\_close}, and {\tt eaf\_delete} --- functions that interface to
+UNIX {\tt open}, {\tt close}, and {\tt unlink} operations
+\end{itemize}
+
+The syntax of EAF is similar to the standard Unix C
+file operations, although there are some differences, as a result of
+introducing new semantics or extended features
+available through EAF. 
+
+The primary functionality of EAF is illustrated here by
+tracing execution of example program segments. 
+
+Example 1:
+basic open-write-read-close sequence. 
+
+
+\begin{verbatim}
+#include "chemio.h"
+#include "eaf.fh"
+
+	integer fh 		! File Handle
+	integer sz 		! Return value of size written
+	integer stat		! Return status
+	integer buf(100) 	! Data to write
+
+	fh = EAF_OpenPersist('/tmp/test.out', ELIO_RW) <- We probably want
+						          CHEMIO_RW here
+
+	sz = EAF_Write(fh, 0, buf, 100*EAF_SZ_INT)     <- What's the NWChem 
+                                                          macro for int size?
+	if(sz .ne. 100*EAF_SZ_INT) 
+      $       write(0,*) 'Error writing, wrote ', sz, ' bytes'
+
+	sz = EAF_Read(fh, 0, buf, 100*EAF_SZ_INT)
+	if(sz .ne. 100*EAF_SZ_INT) 
+      $       write(0,*) 'Error reading, read ', sz, ' bytes'
+
+	stat = EAF_Close(fh)
+	end
+\end{verbatim}
+
+
+The include file 'chemio.h' defines the permission macros {\tt ELIO\_R}, {\tt ELIO\_W}, and
+{\tt ELIO\_RW} for read, write, and read-write permissions, respectively.  The
+header file 'eaf.fh' is a Fortran program segment externally defining the EAF
+routines and must appear {\em before} any executable code using EAF. 
+
+{\tt EAF\_OpenPersist} opens a persistent file, as opposed to a scratch file
+({\tt EAF\_OpenScratch}) which is deleted when it is closed.  This file is named
+'/tmp/test.out' and has read-write permissions.  The returned value is the
+file handle for this file and should not be directly manipulated by the user.
+
+{\tt EAF\_Write} writes to the file opened with file handle, fh, at absolute offset
+0.  It is legal to write a scalar or array, for instance in the above 
+example both 'buf' and 'buf(1)' have the same meaning.  The last argument is
+the number of bytes to be written.  It is important to multiply the number of
+array elements by the element size.  The following macros are provided in
+'eaf.fh':
+
+\begin{itemize}
+\item    {\tt EAF\_SZ\_BYTE}
+\item    {\tt EAF\_SZ\_CHARACTER}
+\item    {\tt EAF\_SZ\_INTEGER}
+\item    {\tt EAF\_SZ\_LOGICAL}
+\item    {\tt EAF\_SZ\_REAL}
+\item    {\tt EAF\_SZ\_COMPLEX}
+\item    {\tt EAF\_SZ\_DOUBLE\_COMPLEX}
+\item    {\tt EAF\_SZ\_DOUBLE\_PRECISION}
+\end{itemize}
+
+The return value is the number of bytes written. If this number does not
+match the requested number of bytes to be written, an error has occured.
+
+Example 2: read/write operations
+
+{\tt EAF\_Read} is syntactically and semantialy identical to {\tt EAF\_Write}, except the
+buffer is read, not written.
+
+\begin{verbatim}
+#include "chemio.h"
+#include "eaf.fh"
+
+	integer fh 		! File Handle
+	integer id1, id2 	! asynchronous ID handles
+	integer stat		! Return status
+	integer pend		! Pending status
+	integer iter		! Iterations counter
+	integer buf(100), x	! Data
+
+	iter = 0
+
+	fh = EAF_OpenScratch('/piofs/mogill/test.out', ELIO_RW)
+
+	stat = EAF_AWrite(fh, 0,  buf, 100*EAF_SZ_INT, id1)
+	if(stat .ne. 0) write(0,*) 'Error doing 1st asynch write.  stat=', stat
+
+	stat = EAF_AWrite(fh, 100*EAF_SZ_INT,  x, 1*EAF_SZ_INT, id2)
+	if(stat .ne. 0) write(0,*) 'Error doing 2nd asynch write.  stat=', stat
+
+100	stat = EAF_Probe(id1, pend)
+	iter = iter + 1
+	write(0,*) 'Waiting', iter
+	if(iter .lt. 100  .and.  pend .eq. ELIO_PENDING) goto 100
+	EAF_Wait(id1)
+
+	stat = EAF_ARead(fh, 0, buf, 100*EAF_SZ_INT, id1)
+	if(stat .ne. 0) write(0,*) 'Error doing 1st asynch read.  stat=', stat
+
+	EAF_Wait(id2)
+	stat = EAF_AWrite(fh, 100*EAF_SZ_INT,  x, 1*EAF_SZ_INT, id2)
+	if(stat .ne. 0) write(0,*) 'Error doing 2nd asynch write.  stat=', stat
+	EAF_Wait(id2)
+	EAF_Wait(id1)
+
+	stat = EAF_Close(fh)
+	end
+\end{verbatim}
+
+This example demonstrates use of asynchronous reading and writing.  The
+entire buffer 'buf' is written to offset 0, the beginning of the.  The file
+is simultaniously written to from the scalar x in the position following the
+buffer.  The positions in the file are determined by abosulte offset argument
+as with the synchronous write.
+
+The first write, id1, is repeatedly probed for completion for 100 tries or
+until completion, whichever comes first.  The two possible pending statuses
+are {\tt ELIO\_DONE} and {\tt ELIO\_PENDING}.
+
+When a completed asynchronous operation is detected with {\tt EAF\_Wait} or
+{\tt EAF\_Probe}, the id is invalidated with {\tt ELIO\_DONE}.  The following {\tt EAF\_Wait(id1)}
+blocks until id1 completes.  Using {\tt EAF\_Probe} or {\tt EAF\_Wait} with an invalidated
+ID has no effect. 
+
+Once id1 is freed, it is reused in the first asynchronous read statement.
+The following {\tt EAF\_Wait} blocks for completion and invalidation of id2, which
+is then used to asynchronously read the scalar X.
+
+The {\tt EAF\_Close} deletes the file because it was opened as a scratch file.
+
+
+List of EAF Functions
+
+\begin{itemize}
+\item integer {\tt EAF\_OpenPersist(fname, type)} --- opens a persistent file; returns file
+handle, or -1 upon error
+		character *(*)  fname
+		integer   	type
+
+\begin{itemize}
+\item character     {\tt fname} --- Character string of a globally unique filename (path may
+be fully qualified)
+\item integer {\tt type} --- Read write permissions.  Legal values are {\tt ELIO\_W}, {\tt ELIO\_R},
+		and {\tt ELIO\_RW}
+\end{itemize}
+
+\item integer {\tt EAF\_OpenScratch(fname, type)} --- open a scratch file that is automatically
+deleted upon close; returns file handle, or -1 upon error
+\begin{itemize}
+\item character     {\tt fname} --- Character string of a globally unique filename (path may
+be fully qualified)
+\item integer {\tt type} --- Read write permissions.  Legal values are {\tt ELIO\_W}, {\tt ELIO\_R},
+		and {\tt ELIO\_RW}
+\end{itemize}
+
+\item integer {\tt EAF\_Write(fh, offset, buf, bytes)} --- synchronously write to the
+file specified by the file handle; returns number of bytes written, or -1 on error
+\begin{itemize}
+\item integer {\tt fh} -- File Handle
+\item integer {\tt offset} --- Absolute offset, in bytes, at which to start writing
+\item any {\tt buf} --- Scalar or array of data
+\item integer {\tt bytes} --- Size of buffer, in bytes
+\end{itemize}
+
+\item         {\tt integer EAF\_AWrite(fh, offset, buf, bytes, req\_id)} ---
+     asynchronously writes to the file specified by the file handle,
+     and returns a handle to the asynchronous operation;
+     if there are more than {\tt MAX\_AIO\_REQ} asynchronous requests (reading
+     or writing) pending, the operation is handled in a synchronous
+     fashion and returns a "DONE" handle.
+     Returns 
+     0 if successful, -1 if an error occurs.
+     (On architectures where asynchronous I/O operations are not supported,
+     all requests are handled synchronously, returning a "DONE" handle.)
+
+\begin{itemize}
+\item     integer {\tt fh} --- [input] file descriptor
+\item     integer {\tt offset} --- [input] absolute offset, in bytes, to start writing at
+\item     any     {\tt buf} -- [input] scalar or array of data
+\item     integer {\tt bytes} --- [input] size of buffer, in bytes
+\item     integer {\tt req\_id} --- [output] handle of asynchronous operation
+\end{itemize}
+
+\item  {\tt integer EAF\_Read(fh, offset, buf, bytes)} ---
+     synchronously reads from the file specified by the file handle;
+     returns number of bytes read, or -1 if an error occurs
+
+\begin{itemize}
+\item     integer {\tt fh} --- [input] file descriptor
+\item     integer {\tt offset} ---  [input] absolute offset, in bytes, to start writing at
+\item     any {\tt buf} ---  [input] scalar or array of data
+\item     integer {\tt bytes} ---  [input] size of buffer, in bytes
+\end{itemize}
+
+\item {\tt integer EAF\_ARead(fh, offset, buf, bytes, req\_id)} ---
+     asynchronously reads from the file specified by the file handle,
+     and returns a handle to the asynchronous operation.
+     If there are more than {\tt MAX\_AIO\_REQ} asynchronous requests (reading
+     or writing) pending, the operation is handled in a synchronous
+     fashion and returns a "DONE" handle.
+     On architectures where asynchronous I/O operations are not supported,
+     all requests are handled synchronously, returning a "DONE" handle.
+     Returns 
+     0 if successful; -1 if an error occurs.
+
+\begin{itemize}
+\item integer {\tt fh} --- [input] file descriptor
+\item integer {\tt offset} --- [input] absolute offset, in bytes, to start writing at
+\item any     {\tt buf} --- [input] scalar or array of data
+\item integer {\tt bytes} --- [input] size of buffer, in bytes
+\item integer {\tt req\_id} --- [output] handle of asynchronous operation
+\end{itemize}
+
+\item {\tt integer EAF\_Probe(id, status)} --- 
+    determines if an asynchronous request is completed or pending;
+    returns 
+     {\tt ELIO\_OK} if successful, or {\tt ELIO\_FAIL} if not successful;
+     'status' returns {\tt ELIO\_PENDING} if the asyncronous operation is
+         not complete, or {\tt ELIO\_DONE} if finished.
+     When the asynchronous request is complete, the 'id' is invalidated
+         with {\tt ELIO\_DONE}.
+
+\begin{itemize}
+\item integer {\tt id} --- [input] handle of asynchronous request
+\item integer {\tt status} --- [output] pending or completed status argument
+\end{itemize}
+
+\item {\tt integer EAF\_Wait(id)} --- 
+    waits for the completion of the asynchronous request, id;
+  returns
+     {\tt ELIO\_OK} if successful, or {\tt ELIO\_FAIL} if not successful;
+     'id' is invalidated with {\tt ELIO\_DONE}
+
+\begin{itemize}
+\item integer {\tt id} --- [input] handle of asynchronous request
+\end{itemize}
+
+
+\item {\tt integer EAF\_Close(fh)} --- 
+    closes a file;
+    returns
+     {\tt ELIO\_OK} if successful; aborts if not successful
+\begin{itemize}
+\item integer {\tt fh} --- [input] file handle
+\end{itemize}
+
+\end{itemize}
+
+
+\subsubsection{Shared Files (SF)}
+
+The Shared File module supports the abstraction of a single contiguous  secondary storage
+address space (a "file") that every processor has access to.  Processes create and 
+destroy SF objects in a collective fashion, but all other file I/O operations are non-
+collective.  A shared file can be thought of as a one-dimensional array of bytes located 
+in shared memory, except that the library interface is required to actually access the
+data.
+
+The library is capable of determining the striping factor and all other internal
+optimizations for the "file".  The programmer has the option, however, of giving the library a few
+helpful hints, to reduce the number of decisions the interface must take care of.  These hints
+are supplied when the shared file is created, and can be any or all of the following:
+
+\begin{enumerate}
+\item Specify a hard limit (not to be exceeded) for the file size.
+\item Specify a soft limit for the file size; that is, an estimate of the expected
+shared file size, which can be exceeded at run time, if necessary.
+\item Specify the size of a "typical" request.
+\end{enumerate}
+
+Non-collective I/O operations in SF include read, write, and wait operations.  Read and write 
+operations transfer the specifeid number of bytes between local memory and disk at a
+specified offset.  The library does not perform any explicit control of consistency
+in concurrent accesses to overlapping sections of the shared files.  For example, SF
+semantics allow a write operation to return before the data transfer is complete.
+This requires special care in programs that perform write operations in critical  sections,
+since unlocking access to a critical section before write completes is unsafe.
+To allow mutual exclusion control in access to shared files, the {\tt sf\_wait} function
+is provide.  It can be used
+to enforce completion of the data transfer so that the data can be safely accessed
+by another process after access to the critical section is released by the writing
+process.  The function {\tt sf\_waitall} can be used to force the program to wait for completion
+of multiple SF operations specified through an arugment arry of request identifiers.
+
+The actual size of a shared file might grow as processes perform write operations
+beyond the current end-of-file boundary.  Data in shared files are implicitly initialized 
+to zero, which means that read operations at locations that have not been written to
+return zero values.  However, reading behond the current end-of-file boundary is an
+error.
+
+Shared files can be used to build other I/O abstractions.  In many cases, this process
+requires adding an additional consistency control layer.  A single file pointer view,
+for example, can be implemented by adding an automatically modifiable pointer 
+variable located in shared memory by using the GA toolkit, or some other means.
