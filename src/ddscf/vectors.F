@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.22 1996-03-18 05:14:44 d3e129 Exp $
+C$Id: vectors.F,v 1.23 1996-07-11 20:45:54 rg240 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -533,7 +533,7 @@ c
 c
       file_write_ga = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
-     $     util_print('vectors i/o', print_default)) then
+     $     util_print('vectors i/o', print_high)) then
          write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Wrote ',a,' to ',a/)
          call util_flush(6)
@@ -620,7 +620,7 @@ c
 c
       file_read_ga = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
-     $     util_print('vectors i/o', print_default)) then
+     $     util_print('vectors i/o', print_high)) then
          write(6,22) gtitle(1:len1), fname(1:inp_strlen(fname))
  22      format(/' Read ',a,' from ',a/)
          call util_flush(6)
