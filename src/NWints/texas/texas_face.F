@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.43 1997-06-26 18:13:59 pg481 Exp $
+c $Id: texas_face.F,v 1.44 1997-07-15 22:46:11 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -322,10 +322,14 @@ c
             nps_bas_3=npshells
             nat_bas_3=natoms
          endif
-         if(ibasis.eq.4) then
-            write(6,*) ' too many basis sets : allowed=3, passed=4'
-            write(6,*) ' execution stopped in texas_init'
-            call errquit('texas_face: execution stopped in texasinit',0)
+         if(ibasis.gt.3) then
+           if (ga_nodeid().eq.0) then
+             write(6,*) ' too many basis sets : allowed=3, passed=',
+     &           ibasis
+             write(6,*) ' execution stopped in texas_init'
+             call util_flush(6)
+           endif
+           call errquit('texas_face: execution stopped in texasinit',0)
          endif
   100 continue
 c----------------------------------------------------------------------
@@ -1221,7 +1225,9 @@ c------------------------------------
       icheck = 0
       if (rtdb_get(rtdb,'int:txs:icheck',MT_INT,1,int_tmp)) then
         icheck = int_tmp
-        write(luout,*)' texas integral default override: icheck =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: icheck =',
      &      icheck
       endif
 #ifdef SGITFP
@@ -1231,33 +1237,45 @@ c------------------------------------
 #endif
       if (rtdb_get(rtdb,'int:txs:ncache',MT_INT,1,int_tmp)) then
         ncache = int_tmp
-        write(luout,*)' texas integral default override: ncache =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: ncache =',
      &      ncache
       else if (rtdb_get(rtdb,'int:txs:ncac',MT_INT,1,int_tmp)) then
         ncache = int_tmp
-        write(luout,*)' texas integral default override: ncache =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: ncache =',
      &      ncache
       endif
 c
       maxprice=1    ! option name is IPAY
       if (rtdb_get(rtdb,'int:txs:maxprice',MT_INT,1,int_tmp)) then
         maxprice = int_tmp
-        write(luout,*)' texas integral default override: maxprice =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: maxprice =',
      &      maxprice
       else if(rtdb_get(rtdb,'int:txs:ipay',MT_INT,1,int_tmp)) then
         maxprice = int_tmp
-        write(luout,*)' texas integral default override: maxprice =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: maxprice =',
      &      maxprice
       endif
 c
       iprint=0      ! option name is PRIN
       if (rtdb_get(rtdb,'int:txs:iprint',MT_INT,1,int_tmp)) then
         iprint = int_tmp
-        write(luout,*)' texas integral default override: iprint =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: iprint =',
      &      iprint
       else if(rtdb_get(rtdb,'int:txs:prin',MT_INT,1,int_tmp)) then
         iprint = int_tmp
-        write(luout,*)' texas integral default override: iprint =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: iprint =',
      &      iprint
       endif
       iblock=0      ! option name is IBLO  not used
@@ -1270,44 +1288,60 @@ c
       if (rtdb_get(rtdb,'int:txs:limi',MT_INT,3,rtdblim)) then
         if (rtdblim(1).gt.0) then
           limxmem = rtdblim(1)
-          write(luout,*)' texas integral default override: limxmem =',
+          if (ga_nodeid().eq.0)
+     &        write(luout,*)
+     &        ' texas integral default override: limxmem =',
      &        limxmem
         endif
         if (rtdblim(2).gt.0) then
           limblks = rtdblim(2)
-          write(luout,*)' texas integral default override: limblks =',
+          if (ga_nodeid().eq.0)
+     &        write(luout,*)
+     &        ' texas integral default override: limblks =',
      &        limblks
         endif
         if (rtdblim(3).gt.0) then
           limpair = rtdblim(3)
-          write(luout,*)' texas integral default override: limpair =',
+          if (ga_nodeid().eq.0)
+     &        write(luout,*)
+     &        ' texas integral default override: limpair =',
      &        limpair
         endif
       endif
       if (rtdb_get(rtdb,'int:txs:limxmem',MT_INT,1,int_tmp)) then
         limxmem = int_tmp
-          write(luout,*)' texas integral default override: limxmem =',
-     &        limxmem
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: limxmem =',
+     &      limxmem
       endif
       if (rtdb_get(rtdb,'int:txs:limblks',MT_INT,1,int_tmp)) then
         limblks = int_tmp
-          write(luout,*)' texas integral default override: limblks =',
-     &        limblks
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: limblks =',
+     &      limblks
       endif
       if (rtdb_get(rtdb,'int:txs:limpair',MT_INT,1,int_tmp)) then
         limpair = int_tmp
-          write(luout,*)' texas integral default override: limpair =',
-     &        limpair
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: limpair =',
+     &      limpair
       endif
 c
       iroute=0      ! option name is ROUT
       if (rtdb_get(rtdb,'int:txs:iroute',MT_INT,1,int_tmp)) then
         iroute = int_tmp
-        write(luout,*)' texas integral default override: iroute =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: iroute =',
      &      iroute
       else if(rtdb_get(rtdb,'int:txs:rout',MT_INT,1,int_tmp)) then
         iroute = int_tmp
-        write(luout,*)' texas integral default override: iroute =',
+        if (ga_nodeid().eq.0)
+     &      write(luout,*)
+     &      ' texas integral default override: iroute =',
      &      iroute
       endif
 c-----------------------------------------------------
@@ -1696,45 +1730,53 @@ c
 c
       do ibasis=1,nbas
         if(ibasis.eq.1) then
-           write(6,*)
-           write(6,*)' PNL Basis Set no = 1'
-           write(6,*)' natom=',nat_bas_1,' nsh=',nps_bas_1,
-     *               ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
-           ncs_b=1
-           ncs_e=ncs_bas_1
-           nps_b=1
-           nps_e=nps_bas_1
-           nat_b=1
-           nat_e=nat_bas_1
+          if (ga_nodeid().eq.0) then
+            write(6,*)
+            write(6,*)' PNL Basis Set no = 1'
+            write(6,*)' natom=',nat_bas_1,' nsh=',nps_bas_1,
+     *          ' ncf=',ncf_bas_1,' ncs=',ncs_bas_1
+          endif
+          ncs_b=1
+          ncs_e=ncs_bas_1
+          nps_b=1
+          nps_e=nps_bas_1
+          nat_b=1
+          nat_e=nat_bas_1
         endif
         if(ibasis.eq.2) then
-           write(6,*)
-           write(6,*)' PNL Basis Set no = 2'
-           write(6,*)' natom=',nat_bas_2,' nsh=',nps_bas_2,
-     *               ' ncf=',ncf_bas_2,' ncs=',ncs_bas_2
-           ncs_b=ncs_bas_1+1
-           ncs_e=ncs_bas_2
-           nps_b=nps_bas_1+1
-           nps_e=nps_bas_2
-           nat_b=nat_bas_1+1
-           nat_e=nat_bas_2
+          if (ga_nodeid().eq.0) then
+            write(6,*)
+            write(6,*)' PNL Basis Set no = 2'
+            write(6,*)' natom=',nat_bas_2,' nsh=',nps_bas_2,
+     *          ' ncf=',ncf_bas_2,' ncs=',ncs_bas_2
+          endif
+          ncs_b=ncs_bas_1+1
+          ncs_e=ncs_bas_2
+          nps_b=nps_bas_1+1
+          nps_e=nps_bas_2
+          nat_b=nat_bas_1+1
+          nat_e=nat_bas_2
         endif
         if(ibasis.eq.3) then
-           write(6,*)
-           write(6,*)' PNL Basis Set no = 3'
-           write(6,*)' natom=',nat_bas_3,' nsh=',nps_bas_3,
-     *               ' ncf=',ncf_bas_3,' ncs=',ncs_bas_3
-           ncs_b=ncs_bas_2+1
-           ncs_e=ncs_bas_3
-           nps_b=nps_bas_2+1
-           nps_e=nps_bas_3
-           nat_b=nat_bas_2+1
-           nat_e=nat_bas_3
+          if (ga_nodeid().eq.0) then
+            write(6,*)
+            write(6,*)' PNL Basis Set no = 3'
+            write(6,*)' natom=',nat_bas_3,' nsh=',nps_bas_3,
+     *          ' ncf=',ncf_bas_3,' ncs=',ncs_bas_3
+          endif
+          ncs_b=ncs_bas_2+1
+          ncs_e=ncs_bas_3
+          nps_b=nps_bas_2+1
+          nps_e=nps_bas_3
+          nat_b=nat_bas_2+1
+          nat_e=nat_bas_3
         endif
-        call do_print(inx(inxx),datnuc,datbas,ncs_b,ncs_e,
-     *                                        nps_b,nps_e,
-     *                                        nat_b,nat_e)
-        write(6,*)
+        if (ga_nodeid().eq.0) then
+          call do_print(inx(inxx),datnuc,datbas,ncs_b,ncs_e,
+     *        nps_b,nps_e,
+     *        nat_b,nat_e)
+          write(6,*)
+        endif
       enddo
 c
       end
@@ -1850,10 +1892,14 @@ c-------------------------------------------------------
 c 
       write(8,*)' -------------------------------------------'
       write(8,*)' TEXAS INTEGRAL PROGRAM HAS BEEN INITIALIZED'
-      if(iforwhat.eq.1) write(8,*)'     for ordinary two-el.  integrals'
-      if(iforwhat.eq.2) write(8,*)'     for first giao/nmr  derivatives'
-      if(iforwhat.eq.3) write(8,*)'     for first  geometry derivatives'
-      if(iforwhat.eq.4) write(8,*)'     for second geometry derivatives'
+      if(iforwhat.eq.1)
+     &    write(8,*)'     for ordinary two-el.  integrals'
+      if(iforwhat.eq.2)
+     &    write(8,*)'     for first giao/nmr  derivatives'
+      if(iforwhat.eq.3)
+     &    write(8,*)'     for first  geometry derivatives'
+      if(iforwhat.eq.4)
+     &    write(8,*)'     for second geometry derivatives'
       write(8,*)' -------------------------------------------'
       write(8,*)' Maximum sizes of blocks upon restrictions :'
       write(8,*)'         cache memory < ',icache

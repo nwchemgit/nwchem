@@ -171,7 +171,8 @@ c
       limxmem_here=limxmem - mem_txsetup - mem_blockin
 c
       if(limxmem_here.le.0) then
-        write(6,*)'memory limit for texas will be more likely exceeded'
+        write(6,*)
+     &      'memory limit for texas will be more likely exceeded'
         limxmem_here=limxmem
       endif
 c-----------------------------------------------------
@@ -525,7 +526,8 @@ c-------------------------------------------------
       memory=memory_mem
 c-------------------------------------------------
       if(nquart.le.0) then
-         write(6,*)'nonpositive  max_size=',nquart,' in block=',nbl12
+         write(6,*)
+     &      'nonpositive  max_size=',nquart,' in block=',nbl12
          call errquit('texas:blksizer line=',507 )
       endif
 c-------------------------------------------------
@@ -560,8 +562,10 @@ c-------------------------------------------------
 c-------------------------------------------------
 c
       if(max_111 .gt. limxmem_here) then
-        write(6,*)'A block with only 1 ij-pair, 1 kl-pair and 1 quartet'
-        write(6,*)'requires more memory than the input-upper-limit     '
+        write(6,*)
+     &      'A block with only 1 ij-pair, 1 kl-pair and 1 quartet'
+        write(6,*)
+     &      'requires more memory than the input-upper-limit     '
         write(6,*)'input limit =',limxmem,' requested =',
      *             memory_111+  mem_txsetup
         write(6,*)'     Change the value of LIMXMEM '
