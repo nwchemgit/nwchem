@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.26 2000-03-29 17:53:59 edo Exp $
+c$Id: grid_setrad.F,v 1.27 2000-03-29 22:36:53 edo Exp $
 c
       implicit none
 c      
@@ -27,16 +27,26 @@ c
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
+      logical  grid_on_file
       me=ga_nodeid()
 c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       oprint_grid = util_print('griddebug', print_debug)
+      if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
+     &   grid_on_file))then
+         grid_on_file = .false.
+      endif
+c
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
      &   tol_reset))then
          tol_reset = .true.
       endif
+c
+c     need exps for grid_on_file
+c
+      if(grid_on_file) tol_reset=.true.
       llind=.false.
       if (.not. rtdb_get(rtdb, 'dft:check_s', mt_log, 1,
      &   check_s))then
