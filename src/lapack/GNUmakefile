@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.40 2001-11-14 20:46:50 edo Exp $
+#$Id: GNUmakefile,v 1.41 2002-01-19 05:30:59 edo Exp $
 
 include ../config/makefile.h
 
@@ -52,9 +52,13 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                zlassq.o      zlatrd.o      zpotf2.o       zpotrf.o     \
                zsteqr.o      zung2l.o      zung2r.o       zungql.o     \
                zspcon.o      zspmv.o       zspr.o         zsprfs.o     \
-               zspsvx.o      zsptrf.o      zsptrs.o       zgeru.o      \
+               zspsvx.o      zsptrf.o      zsptrs.o            \
                zlacon.o      zlacpy.o      zlansp.o \
-               zungqr.o      zungtr.o
+               zungqr.o      zungtr.o \
+               zlarfx.o zunghr.o zlatrs.o zgebak.o zgebal.o zgeev.o \
+               zgehd2.o zgehrd.o zgesv.o zgetf2.o zgetrf.o zgetrs.o \
+               zhseqr.o zlahqr.o zlahrd.o zlange.o zlanhs.o dlabad.o \
+               ztrevc.o zlaswp.o
 
 ifeq ($(FC),pgf77)
 #pgf77 on Linux (and possibly others) puts dlamch routines into infinite loop
@@ -92,7 +96,10 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                clarft.o      clascl.o      claset.o       clasr.o      \
                classq.o      clatrd.o      cpotf2.o       cpotrf.o     \
                csteqr.o      cung2l.o      cung2r.o       cungql.o     \
-               cungqr.o      cungtr.o
+               cungqr.o      cungtr.o \
+               cgehd2.o cgehrd.o clahrd.o cgebak.o cgebal.o cgeev.o \
+               chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
+               clatrs.o ctrevc.o cunghr.o slabad.o claswp.o
 endif
 CRAYS = CRAY-T3E CRAY-T3D CRAY-YMP
 ifeq ($(TARGET),$(findstring $(TARGET),$(CRAYS)))
