@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.5 2002-11-13 16:23:23 sohirata Exp $
+c $Id: tce_tidy.F,v 1.6 2002-11-20 05:03:06 sohirata Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -32,11 +32,11 @@ c
       endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_irs(i))) call errquit
-     1    ('tce_tidy: MA problem',0)
-        if (.not.ma_pop_stack(l_occ(i))) call errquit
      1    ('tce_tidy: MA problem',1)
-        if (.not.ma_pop_stack(l_evl(i))) call errquit
+        if (.not.ma_pop_stack(l_occ(i))) call errquit
      1    ('tce_tidy: MA problem',2)
+        if (.not.ma_pop_stack(l_evl(i))) call errquit
+     1    ('tce_tidy: MA problem',3)
       enddo
       if (.not.geom_destroy(geom))
      1  call errquit('tce_tidy: geom_destroy failed',0)

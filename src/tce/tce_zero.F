@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.3 2002-10-23 22:44:33 sohirata Exp $
+c $Id: tce_zero.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
 c
 c     Zero scratch a file
 c
@@ -21,7 +21,7 @@ c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero.and.util_print('zero',print_debug))
      1  write(LuOut,9190) d_sf,size
-      nblocks = size/available + 1
+      nblocks = size/buffer_size + 1
       blocksize = max(size/nblocks,1)
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp,k_temp))

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.17 2002-11-16 06:27:52 sohirata Exp $
+c $Id: tce_init.F,v 1.18 2002-11-20 05:03:06 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -116,6 +116,11 @@ c
      1    call errquit('tce_init: failed to read nocc',0)
         if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
      1    call errquit('tce_init: failed to read mult',0)
+        if (ipol.eq.1) then
+          restricted = .true.
+        else
+          restricted = .false.
+        endif
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
      1    call errquit('tce_init: failed to read nclosed',0)
@@ -127,12 +132,15 @@ c
         if(.not.rtdb_cget(rtdb,'scf:scftype',1,hftype))
      1    call errquit('tce_init: failed to read scftype',0)
         if (hftype.eq.'RHF') then
+          restricted = .true.
           rohf = .false.
           ipol = 1
         else if (hftype.eq.'UHF') then
+          restricted = .false.
           rohf = .false.
           ipol = 2
         else if(hftype.eq.'ROHF')then
+          restricted = .false.
           rohf = .true.
           ipol = 2
         endif

@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.10 2002-11-16 06:27:52 sohirata Exp $
+c $Id: tce_tile.F,v 1.11 2002-11-20 05:03:06 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -325,6 +325,8 @@ c
      1  l_range,k_range)) call errquit("tce_tile: MA problem",6)
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Offset of blocks",
      1  l_offset,k_offset)) call errquit("tce_tile: MA problem",7)
+      if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"alpha-izer",
+     1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8)
       j = 0
       do i = 1,noa+nob+nva+nvb
         int_mb(k_spin+i-1)=spin_tmp(i)
@@ -333,32 +335,46 @@ c
         int_mb(k_offset+i-1)=j
         j = j + range_tmp(i)
       enddo
+      if (restricted) then
+        do i = 1,noa
+          int_mb(k_alpha+i-1) = i
+        enddo
+        do i = noa+1,noa+nob
+          int_mb(k_alpha+i-1) = i - noa
+        enddo
+        do i = noa+nob+1,noa+nob+nva
+          int_mb(k_alpha+i-1) = i
+        enddo
+        do i = noa+nob+nva+1,noa+nob+nva+nvb
+          int_mb(k_alpha+i-1) = i - nva
+        enddo
+      else
+        do i = 1,noa+nob+nva+nvb
+          int_mb(k_alpha+i-1) = i
+        enddo
+      endif
 c
       if (nodezero.and.util_print('tile',print_debug)) then
         write(LuOut,*) "Sorted"
         do any = 1,nmo(1)-nfv(1)-nfc(1)+nmo(ipol)-nfv(ipol)-nfc(ipol)
-          write(LuOut,*) any," spin=",int_mb(k_spin_sorted+any-1)
-     1                      ," irep=",int_mb(k_irs_sorted+any-1)
-     2                      ," eval=",dbl_mb(k_evl_sorted+any-1)
+          write(LuOut,*) any," spin=",int_mb(k_spin_sorted+any-1),
+     1                       " irep=",int_mb(k_irs_sorted+any-1),
+     2                       " eval=",dbl_mb(k_evl_sorted+any-1)
         enddo
         call ma_print(dbl_mb(k_movecs_sorted),nbf,
      1  nmo(1)-nfv(1)-nfc(1)+nmo(ipol)-nfv(ipol)-nfc(ipol),"MO coeffs")
       endif
       if (nodezero.and.util_print('tile',print_default)) then
-        write(LuOut,*)
-        write(LuOut,9050)
-        write(LuOut,*)
         write(LuOut,9070)
         do i = 1,noa+nob+nva+nvb
           call sym_irrepname(geom,int_mb(k_sym+i-1)+1,irrepname)
           write(LuOut,9060) i,spinname(int_mb(k_spin+i-1)),irrepname,
-     1      int_mb(k_range+i-1),int_mb(k_offset+i-1)
+     1      int_mb(k_range+i-1),int_mb(k_offset+i-1),int_mb(k_alpha+i-1)
         enddo
       endif
- 9050 format(1x,'Suggested orbital blocking')
- 9070 format(1x,'Block   Spin    Irrep     Size     Offset',/,
-     1       1x,'-----------------------------------------')
- 9060 format(1x,i3,4x,a5,5x,a4,i4,' doubles',i8)
+ 9070 format(/,1x,'Block   Spin    Irrep     Size     Offset   Alpha',/,
+     1         1x,'-------------------------------------------------')
+ 9060 format(1x,i3,4x,a5,5x,a4,i4,' doubles',i8,i8)
 c
 c     ======
 c     Return

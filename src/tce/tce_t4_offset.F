@@ -1,6 +1,6 @@
       subroutine tce_t4_offset(l_t4_offset,k_t4_offset,size)
 c
-c $Id: tce_t4_offset.F,v 1.1 2002-10-25 17:31:20 sohirata Exp $
+c $Id: tce_t4_offset.F,v 1.2 2002-11-20 05:03:06 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -42,6 +42,15 @@ c
      5                   +int_mb(k_spin+h6b-1)
      6                   +int_mb(k_spin+h7b-1)
      7                   +int_mb(k_spin+h8b-1)) then
+                      if ((.not.restricted).or.
+     1                   (int_mb(k_spin+p1b-1)
+     2                   +int_mb(k_spin+p2b-1)
+     3                   +int_mb(k_spin+p3b-1)
+     4                   +int_mb(k_spin+p4b-1)
+     5                   +int_mb(k_spin+h5b-1)
+     6                   +int_mb(k_spin+h6b-1)
+     7                   +int_mb(k_spin+h7b-1)
+     8                   +int_mb(k_spin+h8b-1).ne.16)) then
                       if (ieor(int_mb(k_sym+p1b-1),
      1                    ieor(int_mb(k_sym+p2b-1),
      2                    ieor(int_mb(k_sym+p3b-1),
@@ -69,6 +78,7 @@ c
      5                              * int_mb(k_range+h6b-1)
      6                              * int_mb(k_range+h7b-1)
      7                              * int_mb(k_range+h8b-1)
+                      endif
                       endif
                       endif
                     enddo

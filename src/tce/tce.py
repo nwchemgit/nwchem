@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.7 2002-11-11 18:25:54 sohirata Exp $
+# $Id: tce.py,v 1.8 2002-11-20 05:03:06 sohirata Exp $
 
 import string
 import types
@@ -1426,6 +1426,7 @@ class Tensor:
       newcode.inserttileddoloops(globalsub)
       newcode.inserttileddoloops(localsub)
       newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifrestricted(super+sub)
 
       # offsets and size (offset first!)
       newline = ""
@@ -2431,6 +2432,9 @@ class ElementaryTensorContraction:
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.getamark(4) + 1
 
+      # spin restriction on output tensor
+      newcode.inserttiledifrestricted(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
+
       # symmetry of output tensor
       super = superglobalzero + superlocalzero
       sub = subglobalzero + sublocalzero
@@ -2445,6 +2449,69 @@ class ElementaryTensorContraction:
          super = superglobalone + superlocalone + supercommonone
          sub = subglobalone + sublocalone + subcommonone
          newcode.inserttiledifsymmetry(super,sub)
+
+      # spin restriction on input tensor one
+      indexesone = superglobalone + superlocalone + supercommonone + subglobalone + sublocalone + subcommonone
+      if (indexesone):
+         newline = "IF ((restricted).and.("
+         conjugation = ""
+         for index in indexesone:
+            newint = string.join([index.show(),"b"],"")
+            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+            conjugation = "+"
+         newline = string.join([newline,".eq.",repr(2*len(indexesone)),")) THEN"],"")
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         for index in indexesone:
+            newint = string.join([index.show(),"b_1"],"")
+            newcode.add("integers",newint)
+            newline = string.join([newint," = int_mb(k_alpha+",index.show(),"b-1)"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+         newline = "ELSE"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+         for index in indexesone:
+            newint = string.join([index.show(),"b_1"],"")
+            newcode.add("integers",newint)
+            newline = string.join([newint," = ",index.show(),"b"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+         newline = "END IF"
+         newcode.statements.insert(newcode.pointer,newline)
+         newcode.pointer = newcode.pointer + 1
+
+      # spin restriction on input tensor one
+      if (three):
+         indexestwo = superglobaltwo + superlocaltwo + supercommontwo + subglobaltwo + sublocaltwo + subcommontwo
+         if (indexestwo):
+            newline = "IF ((restricted).and.("
+            conjugation = ""
+            for index in indexestwo:
+               newint = string.join([index.show(),"b"],"")
+               newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+               conjugation = "+"
+            newline = string.join([newline,".eq.",repr(2*len(indexestwo)),")) THEN"],"")
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for index in indexestwo:
+               newint = string.join([index.show(),"b_2"],"")
+               newcode.add("integers",newint)
+               newline = string.join([newint," = int_mb(k_alpha+",index.show(),"b-1)"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "ELSE"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for index in indexestwo:
+               newint = string.join([index.show(),"b_2"],"")
+               newcode.add("integers",newint)
+               newline = string.join([newint," = ",index.show(),"b"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "END IF"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
 
       # create MA's for tensor 1
       newcode.add("integers","dim_common")
@@ -2623,12 +2690,12 @@ class ElementaryTensorContraction:
             argumentsend = ""
             for nindex in range(len(permutedindexes)-1,-1,-1):
                if (permutedindexes[nindex].type == "hole"):
-                  boffset = "b - 1"
+                  boffset = "b_1 - 1"
                else:
                   if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
-                     boffset = "b - 1"
+                     boffset = "b_1 - 1"
                   else:
-                     boffset = "b - noab - 1"
+                     boffset = "b_1 - noab - 1"
                if (arguments == ""):
                   arguments = string.join(["d_a,dbl_mb(k_a),dima,int_mb(k_a_offset + ",permutedindexes[nindex].show(),boffset],"")
                else:
@@ -2831,12 +2898,12 @@ class ElementaryTensorContraction:
                argumentsend = ""
                for nindex in range(len(permutedindexes)-1,-1,-1):
                   if (permutedindexes[nindex].type == "hole"):
-                     boffset = "b - 1"
+                     boffset = "b_2 - 1"
                   else:
                      if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
-                        boffset = "b - 1"
+                        boffset = "b_2 - 1"
                      else:
-                        boffset = "b - noab - 1"
+                        boffset = "b_2 - noab - 1"
                   if (arguments == ""):
                      arguments = string.join(["d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset + ",permutedindexes[nindex].show(),boffset],"")
                   else:
@@ -5225,7 +5292,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.7 2002-11-11 18:25:54 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.8 2002-11-20 05:03:06 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -5649,6 +5716,25 @@ class Code:
             self.statements.insert(self.pointer,newline)
             previousint = newint
             previoustype = index.type
+ 
+   def inserttiledifrestricted(self,indexes):
+      """Inserts an IF-ENDIF pair for screening all beta intermediates"""
+
+      if (not indexes):
+         return
+
+      # spin symmetry
+      newline = "IF ((.not.restricted).or.("
+      conjugation = ""
+      for index in indexes:
+         newint = string.join([index.show(),"b"],"")
+         newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+         conjugation = "+"
+      newline = string.join([newline,".ne.",repr(2*len(indexes)),")) THEN"],"")
+      self.statements.insert(self.pointer,newline)
+      self.pointer = self.pointer + 1
+      newline = "END IF"
+      self.statements.insert(self.pointer,newline)
  
    def inserttiledifsymmetry(self,super,sub):
       """Inserts an IF-ENDIF pair for screening spin/spatial symmetry"""

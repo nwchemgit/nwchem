@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.3 2002-11-14 02:19:35 sohirata Exp $
+c $Id: reconcilefile.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file
@@ -32,7 +32,7 @@ c
       cpusecs(56) = cpusecs(56) - util_wallsec()
       if (util_print('files',print_debug))
      1  write(LuOut,9190) ga_nodeid(),d_sf,size
-      nblocks = size/available + 1
+      nblocks = size/buffer_size + 1
       blocksize = max(size/nblocks,1)
       if (.not.ga_create(mt_dbl,blocksize,1,'temporary',
      1  -1,1,g_temp))

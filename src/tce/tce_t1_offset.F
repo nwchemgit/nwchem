@@ -1,6 +1,6 @@
       subroutine tce_t1_offset(l_t1_offset,k_t1_offset,size)
 c
-c $Id: tce_t1_offset.F,v 1.1 2002-10-18 23:42:09 sohirata Exp $
+c $Id: tce_t1_offset.F,v 1.2 2002-11-20 05:03:06 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -29,14 +29,16 @@ c
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then
-            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1))
-     1        .eq. 0) then
-              int_mb(k_t1_offset+(p1b-noab-1)*noab+h2b-1) = size
-              if (nodezero.and.util_print('offset',print_debug))
-     1           write(LuOut,9010) p1b,h2b,(p1b-noab-1)*noab+h2b-1,size
-              size = size + int_mb(k_range+p1b-1)
-     1                    * int_mb(k_range+h2b-1)
-            endif
+          if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
+     1      +int_mb(k_spin+h2b-1).ne.4)) then
+          if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.0) then
+            int_mb(k_t1_offset+(p1b-noab-1)*noab+h2b-1) = size
+            if (nodezero.and.util_print('offset',print_debug))
+     1         write(LuOut,9010) p1b,h2b,(p1b-noab-1)*noab+h2b-1,size
+            size = size + int_mb(k_range+p1b-1)
+     1                  * int_mb(k_range+h2b-1)
+          endif
+          endif
           endif
         enddo
       enddo

@@ -1,6 +1,6 @@
       subroutine tce_residual_t2(d_r2,k_r2_offset,residual)
 c
-c $Id: tce_residual_t2.F,v 1.3 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_residual_t2.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -52,27 +52,31 @@ c
               if (next.eq.count) then
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
      1            .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
+                if ((.not.restricted).or.
+     1            (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+
+     2            int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) then
                 if (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),
      1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
      2            .eq. 0) then
-                    factor = 1.0d0
-                    if (p2b .gt. p1b) factor = factor * 2.0d0
-                    if (h4b .gt. h3b) factor = factor * 2.0d0
-                    size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
-     1                   * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
-                    if (.not.ma_push_get(mt_dbl,size,'r2',l_r2,k_r2))
-     1                call errquit('tce_residual_t2: MA problem',0)
-                    call get_block(d_r2,dbl_mb(k_r2),size,
-     1                int_mb(k_r2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
-     2                *noab+h3b-1)*noab+h4b-1))
-                    if (nodezero.and.util_print('residual',
-     1                print_debug)) call ma_print_compact
-     2                (dbl_mb(k_r2),size,1,'t2 residual')
-                    residual = ddot(size,dbl_mb(k_r2),1,dbl_mb(k_r2),1)
-                    call ga_acc(g_residual,1,1,1,1,residual,1,factor)
-                    if (.not.ma_pop_stack(l_r2))
-     1                call errquit('tce_residual_t2: MA problem',1)
-                  endif
+                  factor = 1.0d0
+                  if (p2b .gt. p1b) factor = factor * 2.0d0
+                  if (h4b .gt. h3b) factor = factor * 2.0d0
+                  size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
+     1                 * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
+                  if (.not.ma_push_get(mt_dbl,size,'r2',l_r2,k_r2))
+     1              call errquit('tce_residual_t2: MA problem',0)
+                  call get_block(d_r2,dbl_mb(k_r2),size,
+     1              int_mb(k_r2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
+     2              *noab+h3b-1)*noab+h4b-1))
+                  if (nodezero.and.util_print('residual',
+     1              print_debug)) call ma_print_compact
+     2              (dbl_mb(k_r2),size,1,'t2 residual')
+                  residual = ddot(size,dbl_mb(k_r2),1,dbl_mb(k_r2),1)
+                  call ga_acc(g_residual,1,1,1,1,residual,1,factor)
+                  if (.not.ma_pop_stack(l_r2))
+     1              call errquit('tce_residual_t2: MA problem',1)
+                endif
+                endif
                 endif
                 next = nxtval(nprocs)
               endif

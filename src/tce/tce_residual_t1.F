@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.3 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_residual_t1.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -46,21 +46,23 @@ c
         do h2b = 1,noab
           if (next.eq.count) then
             if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then
-              if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1))
-     1          .eq. 0) then
-                size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
-                if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
-     1            call errquit('tce_residual_t1: MA problem',0)
-                call get_block(d_r1,dbl_mb(k_r1),size,
-     1            int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
-                if (nodezero.and.util_print('residual',
-     1            print_debug)) call ma_print_compact
-     2            (dbl_mb(k_r1),size,1,'t1 residual')
-                residual = ddot(size,dbl_mb(k_r1),1,dbl_mb(k_r1),1)
-                call ga_acc(g_residual,1,1,1,1,residual,1,1.0d0)
-                if (.not.ma_pop_stack(l_r1))
-     1            call errquit('tce_residual_t1: MA problem',1)
-              endif
+            if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
+     1        +int_mb(k_spin+h2b-1).ne.4)) then
+            if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1)).eq.0) then
+              size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
+              if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
+     1          call errquit('tce_residual_t1: MA problem',0)
+              call get_block(d_r1,dbl_mb(k_r1),size,
+     1          int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
+              if (nodezero.and.util_print('residual',
+     1          print_debug)) call ma_print_compact
+     2          (dbl_mb(k_r1),size,1,'t1 residual')
+              residual = ddot(size,dbl_mb(k_r1),1,dbl_mb(k_r1),1)
+              call ga_acc(g_residual,1,1,1,1,residual,1,1.0d0)
+              if (.not.ma_pop_stack(l_r1))
+     1          call errquit('tce_residual_t1: MA problem',1)
+            endif
+            endif
             endif
             next = nxtval(nprocs)
           endif
