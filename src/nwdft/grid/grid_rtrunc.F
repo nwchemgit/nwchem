@@ -55,6 +55,7 @@ c
       
       call grid_rtrunc0(zprim,job_grid_acc,
      ,     int_mb(k_ics),int_mb(k_ldiff),dbl_mb(k_minexp))
+      range_max=0d0
       
 c
 c     loop over atoms again
@@ -84,8 +85,9 @@ c
      .     l_ldiff, lpmat,l_ics,g_s)
 
       call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
-      call ga_dgop(msg_igop_tru-1,exex,ntypes,'absmax') 
-      call ga_igop(msg_igop_tru-2,ll,ntypes,'absmax') 
+      call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
+      call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
+      call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(me.eq.0) 
      .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
       if (tol_reset)then
