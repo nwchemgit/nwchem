@@ -35,8 +35,9 @@ c ----------------------------------
 c Initialize fock builder parameters
 c ----------------------------------
 c
-      call int_init(rtdb,1,basis)
-      call int_acc_std()
+c  int_init and int_acc_std were set in et_fock.F
+c      call int_init(rtdb,1,basis)
+c      call int_acc_std()
       call schwarz_init(geom,basis)
       call scf_get_fock_param(rtdb,tol2e)
       call fock_force_direct(rtdb)
