@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.21 1995-02-07 01:09:39 d3e129 Exp $
+# $Id: GNUmakefile,v 1.22 1995-02-07 20:26:32 d3e129 Exp $
 
 include config/makefile.h
 
@@ -19,6 +19,7 @@ include config/makefile.h
 $(BINDIR)/nwchem nwchem:	directories libraries
 	$(MAKE) nwchem.o stubs.o
 	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 #
 # This to link only and avoid tedious subdir makes
@@ -31,8 +32,8 @@ link nwchem_link:    nwchem.o stubs.o
 #
 # This for linking test version
 #
-nwchem_test:	nwchem.o stubs.o
-	$(LINK.f) -o $@ nwchem.o stubs.o $(LIBS)
+test nwchem_test:	nwchem.o stubs.o
+	$(LINK.f) -o mwchem_test nwchem.o stubs.o $(LIBS)
 	/bin/rm -f nwchem.o
 	$(INSTALL)
 
