@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.46 1996-02-05 23:21:03 d3e129 Exp $
+c $Id: raktest.F,v 1.47 1996-02-14 17:16:58 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -97,6 +97,8 @@ c
       call int_mem(max1e,max2e,mscr1,mscr2)
       max1e = max1e*2
       mscr1 = mscr1*2
+      max1e = max1e + (max1e*110)/100
+      mscr1 = mscr1 + (mscr1*110)/100
 c
       if (.not.ma_push_get(mt_dbl,mscr1,'scr for 1e',h_scr,k_scr))
      &      call errquit('ma scr failed',911)
@@ -155,9 +157,9 @@ c
         cn2bfr(2,ish) = nbf_sp + 2*type+1
         nbf_chk = nbf_chk + (type+1)*(type+2)/2
         nbf_sp  = nbf_sp + 2*type+1
-        write(6,10000)ish,type,cn2bfr(1,ish),cn2bfr(2,ish)
+*        write(6,10000)ish,type,cn2bfr(1,ish),cn2bfr(2,ish)
       enddo
-10000 format('<ish:type><',i3,':',i3,'>  range ',i3,' to ',i3)
+*10000 format('<ish:type><',i3,':',i3,'>  range ',i3,' to ',i3)
       end
       subroutine rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
      &      scr,mscr,buf,mbuf,s,s_sp,cn2bfr_sp)
@@ -181,14 +183,14 @@ c
       logical spcart_init, spcart_terminate
       external spcart_init, spcart_terminate
 c
-      write(6,*)'inside rak_ovlap'
+*      write(6,*)'inside rak_ovlap'
       if (.not.bas_high_angular(basis,hi_ang)) stop ' fuck ang'
       st_ang = hi_ang/2
       if (.not.spcart_init(st_ang,.true.,.false.)) stop ' fuck sp'
       if (.not.spcart_init(hi_ang,.true.,.false.)) stop ' fuck sp'
 c
-      write(6,*)' mscr = ',mscr
-      write(6,*)' mbuf = ',mbuf
+*      write(6,*)' mscr = ',mscr
+*      write(6,*)' mbuf = ',mbuf
 c
       do ish = 1,nshell
         if (.not.bas_cn2bfr(basis,ish,ilow,ihi)) stop 'fuck i'
@@ -236,18 +238,18 @@ c
 *rak:          write(6,*) ' ma fucked 2'
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
 c.... buf is now -- buf(nbfj,nbfi)
-          write(6,*)' integral buffer cart,cart '
-          call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
+*          write(6,*)' integral buffer cart,cart '
+*          call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
           call spcart_a_s(buf,scr,nbfj,typei,.false.)
 c.... scr is now -- scr(nbfj,nbfi_sp)
-          write(6,*)' integral buffer  cart,sph'
-          call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
+*          write(6,*)' integral buffer  cart,sph'
+*          call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
 *rak:          write(6,*) ' ma fucked 3'
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
           call spcart_s_a(scr,buf,nbfi_sp,typej,.false.)
 c.... buf is now -- buf(nbfj_sp,nbfi_sp)
-          write(6,*)' integral buffer  sph,sph'
-          call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
+*          write(6,*)' integral buffer  sph,sph'
+*          call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
 *rak:          write(6,*) ' ma fucked 4'
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 4'
           count = 0
@@ -263,43 +265,66 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
 *rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 5'
         enddo
       enddo
-      write(6,*)' loops done '
+*      write(6,*)' loops done '
       write(6,*)' cartesian overlap matrix '
       call output(s,1,nbf,1,nbf,nbf,nbf,1)
+      write(6,*)' nbf    ',nbf
+      write(6,*)' nbf_sp ',nbf_sp
       write(6,*)' spherical overlap matrix '
       call output(s_sp,1,nbf_sp,1,nbf_sp,nbf_sp,nbf_sp,1)
-      do ii = 2, nbf_sp
+      write(6,*)' nbf    ',nbf
+      write(6,*)' nbf_sp ',nbf_sp
+c
+      count = 0 
+      do ii = 1,nbf_sp
         do jj = 1,(ii-1)
-          write(6,'(a,2i5,2f15.8)')
-     &          ' ratios ',ii,jj,(s_sp(ii,ii)/s_sp(jj,jj)),
-     &          (s_sp(jj,jj)/s_sp(ii,ii))
+          if (abs(s_sp(ii,jj)).gt.1.0d-10) then
+            count = count + 1
+            write(6,'(a,i3,a,i3,a,1pd30.20,i6)')
+     &            'non diag element.gt.1.0d-10 s_sp(',
+     &            ii,',',jj,') = ',
+     &            s_sp(ii,jj),count 
+          endif
         enddo
       enddo
-      PI=2.0d00*acos(0.0d00)
-      write(6,*)pi,(pi-3.1415926535898D0)
-      do ii = 1, nbf_sp
-*rak:        write(6,*)' indx, val, val**2 ',ii,s_sp(ii,ii),
-*rak:     &        (s_sp(ii,ii)*s_sp(ii,ii))
-*rak:        write(6,*)' indx, val, 1/val ',ii,s_sp(ii,ii),
-*rak:     &        (1.0d00/s_sp(ii,ii))
-*rak:        write(6,*)' indx, val, sqrt ',ii,s_sp(ii,ii),
-*rak:     &        (sqrt(s_sp(ii,ii)))
-*rak:        write(6,*)' indx, val, /sqrt(2) ',ii,s_sp(ii,ii),
-*rak:     &        (s_sp(ii,ii)/sqrt(2.0d00))
-*rak:        write(6,*)' indx, val, /sqrt(3) ',ii,s_sp(ii,ii),
-*rak:     &        (s_sp(ii,ii)/sqrt(3.0d00))
-        fact = 1.0d00
-        if (ii.ge.6.and.ii.le.10)  fact = pi*8.0d00/5.0d00
-        if (ii.ge.11.and.ii.le.17) fact = pi*8.0d00/7.0d00
-        if (ii.ge.18.and.ii.le.26) fact = pi*8.0d00/9.0d00
-        write(6,*)' indx, val, *fact',ii,s_sp(ii,ii),
-     &        (s_sp(ii,ii)*fact)
-        write(6,*)' indx, val, *pi',ii,s_sp(ii,ii),
-     &        (s_sp(ii,ii)*pi)
-*rak:        write(6,*)' indx, val, /pi',ii,s_sp(ii,ii),
-*rak:     &        (s_sp(ii,ii)/pi)
-        write(6,*)' '
+      do ii = 1,nbf_sp
+        if (abs(s_sp(ii,ii)-1.0d00).gt.1.0d-05)
+     &        write(6,'(a,i3,a,i3,a,1pd30.20)')
+     &        ' diagonal element.ne.1 s_sp(',ii,',',ii,') = ',
+     &        s_sp(ii,ii) 
       enddo
+*rak:      do ii = 2, nbf_sp
+*rak:        do jj = 1,(ii-1)
+*rak:          write(6,'(a,2i5,2f15.8)')
+*rak:     &          ' ratios ',ii,jj,(s_sp(ii,ii)/s_sp(jj,jj)),
+*rak:     &          (s_sp(jj,jj)/s_sp(ii,ii))
+*rak:        enddo
+*rak:      enddo
+*rak:      PI=2.0d00*acos(0.0d00)
+*rak:      write(6,*)pi,(pi-3.1415926535898D0)
+*rak:      do ii = 1, nbf_sp
+*rak:*rak:        write(6,*)' indx, val, val**2 ',ii,s_sp(ii,ii),
+*rak:*rak:     &        (s_sp(ii,ii)*s_sp(ii,ii))
+*rak:*rak:        write(6,*)' indx, val, 1/val ',ii,s_sp(ii,ii),
+*rak:*rak:     &        (1.0d00/s_sp(ii,ii))
+*rak:*rak:        write(6,*)' indx, val, sqrt ',ii,s_sp(ii,ii),
+*rak:*rak:     &        (sqrt(s_sp(ii,ii)))
+*rak:*rak:        write(6,*)' indx, val, /sqrt(2) ',ii,s_sp(ii,ii),
+*rak:*rak:     &        (s_sp(ii,ii)/sqrt(2.0d00))
+*rak:*rak:        write(6,*)' indx, val, /sqrt(3) ',ii,s_sp(ii,ii),
+*rak:*rak:     &        (s_sp(ii,ii)/sqrt(3.0d00))
+*rak:        fact = 1.0d00
+*rak:        if (ii.ge.6.and.ii.le.10)  fact = pi*8.0d00/5.0d00
+*rak:        if (ii.ge.11.and.ii.le.17) fact = pi*8.0d00/7.0d00
+*rak:        if (ii.ge.18.and.ii.le.26) fact = pi*8.0d00/9.0d00
+*rak:        write(6,*)' indx, val, *fact',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)*fact)
+*rak:        write(6,*)' indx, val, *pi',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)*pi)
+*rak:*rak:        write(6,*)' indx, val, /pi',ii,s_sp(ii,ii),
+*rak:*rak:     &        (s_sp(ii,ii)/pi)
+*rak:        write(6,*)' '
+*rak:      enddo
       if (.not.spcart_terminate()) stop ' fuck sp term'
       end
 *rak:      subroutine raktest0(rtdb)
