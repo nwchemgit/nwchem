@@ -50,6 +50,18 @@ or
 task analyze
 \end{verbatim}
 
+\section{System specification}
+
+\begin{verbatim}
+system <string systemid>_<string calcid>
+\end{verbatim}
+
+where the strings \verb+systemid+ and \verb+calcid+ are user defined names
+for the chemical system and the type of calculation to ber performed, 
+respectively. These names are used to derive the filenames used for the
+calculation. The topoly file used will be \verb+systemid.top+, while all
+other files are named \verb+systemid_calcid.ext+.
+
 \section{Reference coordinates}
 
 Most analyses require a set of reference coordinates. These
@@ -157,16 +169,26 @@ By default all solute atoms are selected. When keyword \verb+super+ is specified
 applies to the superimposition option.
 
 \par
+The selected atoms are specified by the string \verb+atomlist+ which
+takes the form
+
+\begin{verbatim}
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
+\end{verbatim}
+where \verb+isgm+ and \verb+jsgm+ are the first and last residue numbers,
+and \verb+aname+ is an atom name. In the atomname a question mark may be 
+used as a wildcard character. 
+
 For example, all protein backbone atoms are selected by
 
 \begin{verbatim}
-select _N _CA _C
+select _N,_CA,_C
 \end{verbatim}
 
-To select the backbone atoms in residues 20 to 80 only, use
+To select the backbone atoms in residues 20 to 80 and 90 to 100 only, use
 
 \begin{verbatim}
-select 20 80 _N _CA _C
+select 20-80,90-100:_N,_CA,_C
 \end{verbatim}
 
 This selection is reset to apply to all atoms after each file
@@ -191,18 +213,19 @@ Some analysis are performed on groups of atoms. These groups of atoms
 are defined by
 
 \begin{verbatim}
-define <integer igroup> [<real rsel>] [<integer isel> [<integer jsel>]] \\
- [solvent] { <string atom> }
+define <integer igroup> [<real rsel>] [solvent] { <string atomlist> }
 \end{verbatim}
 
-The string atom in this definitions takes the form
+The string atom in this definitions again takes the form
 
 \begin{verbatim}
-[<integer segment>:]<string atomname>
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
 \end{verbatim}
+where \verb+isgm+ and \verb+jsgm+ are the first and last residue numbers,
+and \verb+aname+ is an atom name. In the atomname a question mark may be 
+used as a wildcard character. 
 
-In the atomname a question mark may be used as a wildcard character. Multiple
-define directive can be used to define a single set of atoms.
+Multiple define directive can be used to define a single set of atoms.
 
 \section{Coordinate analysis}
 
@@ -238,6 +261,12 @@ torsion <integer itorsion> <string atomi> <string atomj> \
                        <string atomk> <string atoml> 
 \end{verbatim}
 
+To define a vector:
+
+\begin{verbatim}
+vector <integer ivector> <string atomi> <string atomj>
+\end{verbatim}
+
 The atom string in these definitions takes the form
 
 \begin{verbatim}
@@ -250,6 +279,28 @@ To define charge distribution in z-direction:
 
 \begin{verbatim}
 charge_distribution <integer bins>
+\end{verbatim}
+
+Analyses on atoms in a predefined group are specified by
+
+\begin{verbatim}
+group [<integer igroup> [periodic <integer ipbc>] \
+      ( local [<real rsel default 0.0>] [<real rval default rsel>]
+        <string function> )
+\end{verbatim}
+where \verb+igroup+ specifies the group of atoms defined with a
+\verb+define+ directive. Keyword \verb+periodic+ can be used to
+specify the periodicity, \verb+ipbc=1+ for periodicity in \verb+z+, 
+\verb+ipbc=2+ for periodicity in \verb+x+ and \verb+y+, and
+\verb+ipbc=3+ for periodicity in \verb+x+, \verb+y+ and \verb+z+.
+Currently the only option is \verb+local+ which prints all selected 
+solute atom with a distance between \verb+rsel+ and \verb+rval+ from
+the atoms defined in \verb+igroup+. The actual analysis is done by the
+\verb+scan+ deirective. A formatted report is printed from 
+\verb+group+ analyses using
+
+\begin{verbatim}
+report <string filename> local
 \end{verbatim}
 
 Analyses on pairs of atoms in predefined groups are specified by
@@ -275,6 +326,7 @@ two specified groups of atoms, and\\
 \verb+distances+ to calculate all atomic distances between atoms
 in the specified groups that lie between $value1$ and $value2$.
 
+
 Coordinate histograms are specified by
 
 \begin{verbatim}
@@ -284,6 +336,20 @@ histogram <integer idef> [<integer length>] zcoordinate <string filename>
 where $idef$ is the atom group definition number, $length$ is the size
 of the histogram, \verb+zcoordinate+ is the currently only histogram option,
 and $filename$ is the filname to which the histogram is written.
+
+Order parameters are evalated using
+
+\begin{verbatim}
+order <integer isel> <integer jsel> <string atomi> <string atomj>
+\end{verbatim}
+This is an experimental feature.
+
+To write the average coordinates of a trajectory
+
+\begin{verbatim}
+average [super] <string filename>
+\end{verbatim}
+
 
 To perform the coordinate analysis:
 

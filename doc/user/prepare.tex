@@ -247,6 +247,11 @@ The \verb+chain+ keyword may be used to specify the chain identifier
 for coordinates on a PDB file.
 
 \begin{verbatim}
+histidine ( hid | hie | hip )
+\end{verbatim}
+specifies the default protonation state of histidine.
+
+\begin{verbatim}
 sscyx
 \end{verbatim}
 
@@ -431,7 +436,7 @@ segments.
 
 \begin{verbatim}
 modify segment <integer isgm> [set <integer mset> | initial | final] \
-	( dummy | self | quantum )
+	( dummy | self | uncharged | quantum | quantum_high )
 \end{verbatim}
 
 Modifications to bonded interaction parameters can be made with the
@@ -510,12 +515,16 @@ and 6 through 12 are selected for group 1 by
 \begin{verbatim}
 pmf [all] [bias] zalign <integer isel> <real forcon1> <real forcon2> 
 pmf [combine] [bias] xyplane <integer isel> <real forcon1> <real forcon2>
-pmf [constraint] [bias] distance <integer isel> <integer jsel> \
+pmf [constraint] [bias] (distance | zdistance) <integer isel> <integer jsel> \
              <real dist1> <real dist2> <real forcon1> <real forcon2>
 pmf [bias] angle <integer isel> <integer jsel> <integer ksel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
 pmf [bias] torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
+pmf [bias] basepair <integer isel> <integer jsel> \
+             <real dist1> <real dist2> <real forcon1> <real forcon2>
+pmf [bias] (zaxis | zaxis-cog) <integer isel> <integer jsel> <integer ksel> \
+             <real dist1> <real dist2> <real forcon1> <real forcon2>
 \end{verbatim}
 
 Directive \verb+pmf+ specifies a potential of mean force potential
@@ -525,6 +534,9 @@ z-axis. Option \verb+xyplane+ specifies the atoms in the selection to
 be restrained to a plane perpendicular to the z-axis. Options
 \verb+distance+, \verb+angle+ and \verb+torsion+, are defined in terms
 of the center of geometry of the specified atom selections.
+Keyword \verb+basepair+ is used to specify a harmonic potential between
+residues \verb+isel+ and \verb+jsel+. Keywords \verb+zaxis+ and \verb+zaxis-cog+
+can be used to pull atoms toward the z-axis.
 Option \verb+all+ may be specified to apply an equivalent pmf to each 
 of the equivalent solute molecules in the system.
 Option \verb+combine+ may be specified to apply the specified pmf to 
@@ -587,6 +599,11 @@ touch <real touch default 0.23>
 
 The variable \verb+touch+ specifies the minimum distance between a solvent 
 and solute atom for which a solvent molecule will be accepted for solvation.
+
+\begin{verbatim}
+envelope <real xpndw default 0.0>
+\end{verbatim}
+sets the expand vealues to be used in \verb+solvate+ operations.
 
 \begin{verbatim}
 expand <real xpndw default 0.1>
@@ -653,6 +670,15 @@ This directive translates solute atoms in the indicated range by xtran,
 without checking for bad contacts in the resulting structure.
 
 \begin{verbatim}
+rotate [atom | segment | molecule] \
+	 <integer itran> <integer itran> <real angle> <real xrot(3)>
+\end{verbatim}
+
+This directive rotates solute atoms in the indicated range by angle
+around the vector given by xrot,,
+without checking for bad contacts in the resulting structure.
+
+\begin{verbatim}
 remove solvent [inside | outside] [x <real xmin> <real xmax>] \
 [y <real ymin> <real ymax>] [z <real zmin> <real zmax>]
 \end{verbatim}
@@ -686,6 +712,22 @@ minimum distance between an atom in the system and a counter-ion.
 %The \verb+fix+ keyword may be used to specify that the identified
 %atoms should remain fixed during any operation.
 %
+
+\begin{verbatim}
+crop
+\end{verbatim}
+prints minimum and maximum solute coordinates.
+
+\begin{verbatim}
+boxsize
+\end{verbatim}
+specifies to redetermine the box size.
+
+\begin{verbatim}
+cube
+\end{verbatim}
+specifies to redetermine the smallest cubic box size.
+
 \begin{verbatim}
 box <real xsize> <real ysize>  <real zsize>
 \end{verbatim}
@@ -729,3 +771,16 @@ The \verb+skip+ directive can be used to skip single repeat unit
 from the \verb+repeat+ directive. Up to 100 \verb+skip+ directives 
 may be specified, and will only apply to the previously specified
 \verb+repeat+ directive. 
+
+\begin{verbatim}
+(collapsexy | collapsez)
+\end{verbatim}
+specifies to move all solute molecules toward the \verb+z+-axis or 
+\verb+x=y+-plane, respectively, to within a distance of \verb+touch+
+nm between any pair of atoms from different solute molecules.
+
+\begin{verbatim}
+merge <real xtran(3)> <string pdbfile>
+\end{verbatim}
+specifies to merge the coordinates found on the specified pdb file
+into the current structure after translation by xtran(3).
