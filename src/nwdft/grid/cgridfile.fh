@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.13 2000-03-21 23:11:58 edo Exp $
+* $Id: cgridfile.fh,v 1.14 2000-03-22 00:12:06 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -49,7 +49,7 @@ c     save on memory since have only physical memory
       parameter (buffer_size = 2048)
 #endif
 cedo      512 should be OK for blas business
-#if defined(LAPI) || defined(DECOSF) || defined (IBM) || defined (SOLARIS)
+#if defined(LAPI) || defined(DECOSF) || defined (IBM) || defined (SOLARIS)||defined(SGI)
       parameter (buffer_size = 3072)
 #endif
 #if defined(LINUX) || defined (WIN32) 
