@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.272 1999-01-26 18:28:32 d3g270 Exp $
+# $Id: makefile.h,v 1.273 1999-01-28 00:30:01 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1102,6 +1102,9 @@ ifdef USE_F2C
 else
   FOPTIONS  = -fno-second-underscore
          FC = g77
+ifdef EGCS
+  FOPTIONS += -fno-globals
+endif
 endif
 
    COPTIONS = -Wall -m486 -malign-double
