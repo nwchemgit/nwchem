@@ -18,6 +18,9 @@ c
       double precision coords(3,max_center)
       double precision charge(max_center)
       character*16 tags(max_center)
+      character*2 symbol
+      character*16 element
+      integer atn
 c
 c     read a geometry from the input deck and output it
 c     to the rtdb.
@@ -99,9 +102,25 @@ c
             coords(2,ncenter+1) = coords(2,ncenter+1)*scale
             coords(3,ncenter+1) = coords(3,ncenter+1)*scale
 
-            if (.not. status) call errquit
-     $           ('geom_input: <tag> <charge> <x> <y> <z>', 0)
             ncenter = ncenter + 1
+
+            if (.not. status) call errquit
+     $           ('geom_input: <tag> <charge> <x> <y> <z>', ncenter)
+c
+c     Check that charge of center is consistent with atom type
+c
+            if (geom_tag_to_element(tags(ncenter), symbol,
+     $           element, atn)) then
+               if (abs(charge(ncenter) - dble(atn)).gt.1e-8) then
+                  write(6,2) tags(ncenter), symbol, element, atn,
+     $                 charge(ncenter)
+ 2                format('geom_input: ', a, '(',a,',',a,',',i3,') ',
+     $                 f6.2)
+                  call util_flush(6)
+                  call errquit
+     $                 ('geom_input: charge-atom type mismatch',atn)
+               endif
+            endif
          endif
          goto 20
       else
