@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.58 2000-05-08 19:29:25 d3j191 Exp $
+c $Id: md_start.F,v 1.59 2000-05-08 20:16:30 d3j191 Exp $
 c
       implicit none
 c
@@ -153,7 +153,8 @@ c     fix or unfix
 c     ------------
 c
       call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
-     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),nsaloc)
+     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
+     + int_mb(i_is+(lsdyn-1)*msa),nsaloc)
       if(.not.lqmd)
      + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
 c
