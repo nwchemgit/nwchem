@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.21 1999-02-19 00:17:24 d3e129 Exp $
+C     $Id: datoms.F,v 1.22 2000-03-09 00:12:12 mg201 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -224,6 +224,7 @@ c
       subroutine atscf_bas_gather(geom, basis, iat, ic, iiloc,
      $     isymax, hatom, znps, element, tag, ospherical)
       implicit none
+#include "nwc_const.fh"
 #include "bas.fh"
 #include "cguess.fh"
 #include "geom.fh"
@@ -252,10 +253,8 @@ c
       integer icnlo, icnhi, ibflo, ibfhi, icont
       integer iisch(nb,4),iicnt(nb,4)
       logical status
-      integer mxnprim, mxngen
-      parameter (mxnprim = 20, mxngen = 10)
-      double precision expnt(mxnprim)
-      double precision coeff(mxnprim*mxngen)
+      double precision expnt(nw_max_prim)
+      double precision coeff(nw_max_prim*nw_max_gen_con)
       double precision pi32
 c*debug-s
 *      integer di,dj
@@ -302,8 +301,8 @@ c
 *debug:              write(6,*)' sphcart         =',sphcart
          if (.not. bas_cn2bfr(basis, icont, ibflo, ibfhi))
      $        call errquit('guess atom dens: bas_cn2bfr', icont)
-         if (nprim.gt.mxnprim .or. ngen.gt.mxngen) call errquit
-     $        ('guess atom dens: nprim/ngen too big', 0)
+         if (nprim.gt.nw_max_prim .or. ngen.gt.nw_max_gen_con) 
+     $       call errquit ('guess atom dens: nprim/ngen too big', 0)
 c     
          if (type .le. 3) then  ! Only s/p/d/f functions
             nbf_per_shell = (ibfhi - ibflo + 1) / ngen
