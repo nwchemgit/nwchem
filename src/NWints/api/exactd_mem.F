@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.7 1995-02-07 00:49:22 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.8 1995-02-08 21:25:14 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -36,9 +36,9 @@ c.... 1e
            call emem_d1e(bases(ibas), bases(jbas), lsz_1e, lmem_1e)
            mem_1e = max(mem_1e, lmem_1e)
            isz_1e = max(isz_1e, lsz_1e)
-           write(6,*)' ibas|jbas ', ibas, '|', jbas
-           write(6,*)' mem_2e4c: ',mem_2e4c
-           write(6,*)' mem_1e  : ',mem_1e
+*rak:           write(6,*)' ibas|jbas ', ibas, '|', jbas
+*rak:           write(6,*)' mem_2e4c: ',mem_2e4c
+*rak:           write(6,*)' mem_1e  : ',mem_1e
 00200   continue
 00100 continue
 c     
@@ -52,6 +52,12 @@ c
       isz_2e2c = nbfmax**2
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
+c
+      if (numd_red.gt.numd_tot/33) then
+        write(6,*)' integral derivatives have > 33% split blocks'
+        write(6,*)' insert the following into your input deck'
+        write(6,*)' set "intd:approxmem" integer 9000000'
+      endif
 c
       end
       subroutine emem_d1e(brain, ketin, max1e, memsize)
@@ -163,6 +169,9 @@ c::local
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
       integer bra_geom, ket_geom, nat
+*rak:-start-debug
+*rak:      integer fbra, fket, find
+*rak:-start-end
 c
       memsize = 0
       maxg = 0
@@ -176,7 +185,7 @@ c
       bra_geom  = ibs_geom(bra)
       ket_geom  = ibs_geom(ket)
       if (bra_geom.ne.ket_geom) then
-        write(6,*)'emem_d1e: two different geometries for',
+        write(6,*)'emem_d2e4c: two different geometries for',
      &         ' derivatives?'
         call errquit('emem_d2e4c: geom error ',911)
       endif
@@ -218,13 +227,17 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
      &           exndcf,nint,.false.,.false.,.false.,
      &           .true.,exndcf,memdum)
 *rak:-start-debug
-          write(6,*)
-          write(6,*)'===============================================',
-     &        '================================='
-          write(6,10000)ibc,ibc,ikc,ikc,
-     &        bra_prim,bra_prim,ket_prim,ket_prim,
-     &        nint,memdum
-10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,' memory =',i10)
+*rak:          write(6,*)
+*rak:          write(6,*)'===============================================',
+*rak:     &        '================================='
+*rak:          fbra = bra_prim*((bra_type+1)*(bra_type+2)/2)
+*rak:          fket = ket_prim*((ket_type+1)*(ket_type+2)/2)
+*rak:          find = fbra*fbra*fket*fket
+*rak:          write(6,10000)ibc,ibc,ikc,ikc,
+*rak:     &        bra_prim,bra_prim,ket_prim,ket_prim,
+*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*rak:10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,
+*rak:     &        ' memory =',i10,' find =',i10,' ratio = ',f10.3)
 *rak:-end-debug
           memsize = max(memsize,memdum)
 c
@@ -239,9 +252,10 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &           exndcf,nint,.false.,.false.,.false.,
      &           .true.,exndcf,memdum)
 *rak:-start-debug
-          write(6,10000)ibc,ikc,ibc,ikc,
-     &        bra_prim,ket_prim,bra_prim,ket_prim,
-     &        nint,memdum
+*rak:          find = fbra*fbra*fket*fket
+*rak:          write(6,10000)ibc,ikc,ibc,ikc,
+*rak:     &        bra_prim,ket_prim,bra_prim,ket_prim,
+*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *rak:-end-debug
           memsize = max(memsize,memdum)
 c
@@ -257,9 +271,10 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &             exndcf,nint,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
 *rak:-start-debug
-          write(6,10000)ibc,ibc,ibc,ikc,
-     &        bra_prim,bra_prim,bra_prim,ket_prim,
-     &        nint,memdum
+*rak:          find = fbra*fbra*fbra*fket
+*rak:          write(6,10000)ibc,ibc,ibc,ikc,
+*rak:     &        bra_prim,bra_prim,bra_prim,ket_prim,
+*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *rak:-end-debug
             memsize = max(memsize,memdum)
 c
@@ -274,11 +289,12 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &             exndcf,nint,.false.,.false.,.false.,
      &             .true.,exndcf,memdum)
 *rak:-start-debug
-          write(6,10000)ibc,ikc,ikc,ikc,
-     &        bra_prim,ket_prim,ket_prim,ket_prim,
-     &        nint,memdum
-          write(6,*)'===============================================',
-     &        '================================='
+*rak:          find = fbra*fket*fket*fket
+*rak:          write(6,10000)ibc,ikc,ikc,ikc,
+*rak:     &        bra_prim,ket_prim,ket_prim,ket_prim,
+*rak:     &        nint,memdum,find,(dble(memdum)/dble(find))
+*rak:          write(6,*)'===============================================',
+*rak:     &        '================================='
 *rak:-end-debug
             memsize = max(memsize,memdum)
           endif

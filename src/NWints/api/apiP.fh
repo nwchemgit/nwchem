@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.6 1994-08-12 00:35:42 d3e129 Exp $
+c $Id: apiP.fh,v 1.7 1995-02-08 21:25:12 d3e129 Exp $
 c
 c common block that holds memory information
 c
@@ -15,5 +15,13 @@ c
       common /capidc/ DCexp, DCcoeff
       double precision val_int_acc
       common /comacc/ val_int_acc
+      integer intd_memthresh
+      integer numd_tot, numd_okay, numd_red
+      common /chf2d/ intd_memthresh, numd_tot, numd_okay, numd_red
+c
+      integer intd_memp
+c.... default approximate memory parameter for hf2d
+c....  Memory of 5 000 000 => parameter of 
+      parameter (intd_memp=410000)
 c
       

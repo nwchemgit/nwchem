@@ -1,11 +1,14 @@
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.4 1994-09-22 13:34:19 d3e129 Exp $
+c $Id: intd_init.F,v 1.5 1995-02-08 21:25:18 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
 #include "bas.fh"
 #include "apiP.fh"
+#include "rtdb.fh"
 c::passed
       integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
@@ -13,6 +16,7 @@ c::passed
 c::local
       integer ibas, ang2use, angm
       logical status
+      integer intd_memtmp
 c
 *      call int_init(nbas,bases)
 c
@@ -46,6 +50,19 @@ c
 00300 continue
 c.. for first derivatives add 1
       call defNxyz(ang2use+1)
+c.. read in approximate memory from rtdb
+c.  
+c.. parameter is default value used in hf2d
+c.. input memory in words should be scaled by 1/12 for same range
+      intd_memthresh = intd_memp
+      if (rtdb_get(rtdb,'intd:approxmem',MT_INT,1,intd_memtmp)) then
+        if(ga_nodeid().eq.0)then
+          write(6,'(/a,i10,a/)')
+     &        ' approximate memory for derivative integrals set to:',
+     &        intd_memtmp
+        endif
+        intd_memthresh = intd_memtmp/12
+      endif
 c
 c... generate memory requirements and store in structures in apiP.fh
 c

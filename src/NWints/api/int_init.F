@@ -1,6 +1,6 @@
 
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.17 1994-12-31 07:15:09 og845 Exp $
+c $Id: int_init.F,v 1.18 1995-02-08 21:25:16 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -38,6 +38,11 @@ c
       data DCexp     /0.0000000000D00/
       data DCcoeff   /1.0000000000D00/
       data val_int_acc /0.0d00/
+c
+      data intd_memthresh /0/
+      data numd_tot       /0/
+      data numd_okay      /0/
+      data numd_red       /0/
 c
       if(init_int.eq.1) then
         write(6,*)' warning nested int_inits'
