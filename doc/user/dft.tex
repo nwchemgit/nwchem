@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.80 2004-05-17 20:29:46 pollack Exp $ 
+% $Id: dft.tex,v 1.81 2004-06-24 01:50:31 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -414,6 +414,11 @@ Any combination of the supported correlation functional options can be
 used.  For example  B3LYP could be specified as:
 \begin{verbatim}
 XC vwn_1_rpa 0.19 lyp 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72
+\end{verbatim}
+and X3LYP as:
+\begin{verbatim}
+xc vwn_1_rpa 0.129 lyp 0.871 hfexch 0.218 slater 0.782 \
+becke88 nonlocal 0.542  xperdew91 nonlocal 0.167 
 \end{verbatim}
 
   
