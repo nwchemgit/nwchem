@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.31 2003-10-17 22:55:53 carlfahl Exp $
+c$Id: xc_hcth.F,v 1.32 2004-01-07 19:21:41 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.31 2003-10-17 22:55:53 carlfahl Exp $
+c$Id: xc_hcth.F,v 1.32 2004-01-07 19:21:41 edo Exp $
 c
       Implicit none
 #include "errquit.fh"
@@ -1022,11 +1022,11 @@ Cfah Here starts the big outer loop over the powers u
 
 Cfah construction of the F_xc itself
 Cfah -------------------------------
-        IF (abs(rhoa).GT.tol_rho) THEN
-           if(n.eq.0) then
-          F_xc(1) = F_xs0 (sol(1), rhoa, za)
+        IF (rhoa.GT.tol_rho) THEN
+          if(n.eq.0) then
+            F_xc(1) = F_xs0 (sol(1), rhoa, za)
           else
-          F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
+            F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
           endif
         ENDIF
           if(abs(u_caa).gt.tol_rho)then
