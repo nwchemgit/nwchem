@@ -3,6 +3,8 @@
 #include "misc.h"
 #include "macdecls.h"
 #include "sndrcv.h"
+#include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char *argv[])
 {

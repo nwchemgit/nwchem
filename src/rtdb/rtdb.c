@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
 #include "sndrcv.h"

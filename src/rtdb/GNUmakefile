@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1994-08-31 19:25:41 d3g681 Exp $
+# $Id: GNUmakefile,v 1.5 1994-10-06 00:23:52 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -33,7 +33,7 @@ test:	test.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
 
 rtdbtest:	rtdbtest.o $(LIBRARY_PATH)
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ -lmalloc $(LIBS)
 
 rtdbpartest:	rtdb_par_test.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ rtdb_par_test.o $(TEST_LIBS)
