@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.17 2003-06-27 23:28:46 bylaska Exp $
+* $Id: pspw_sic.F,v 1.18 2003-07-02 17:27:46 bylaska Exp $
 *
 
 *     *************************
@@ -298,12 +298,12 @@
 
 *          **** generate exchange-correlation potential ****
            if (control_gga().eq.0) then
-             call vxc(n2ft3d,ispin,dbl_mb(dn(1)),
+             call vxc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,ispin,dbl_mb(dn(1)),
+             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
            end if
@@ -482,12 +482,12 @@ c     >                            dbl_mb(dn(1)))
 
 *          **** generate exchange-correlation potential ****
            if (control_gga().eq.0) then
-             call vxc(n2ft3d,ispin,dbl_mb(dn(1)),
+             call vxc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,ispin,dbl_mb(dn(1)),
+             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
            end if
