@@ -1,13 +1,16 @@
 #
-# $Id: GNUmakefile,v 1.2 1999-08-10 23:05:15 d3j191 Exp $
+# $Id: GNUmakefile,v 1.3 1999-09-20 22:02:14 d3j191 Exp $
 #
 
-OBJ_CLASS = nwmd.class GUI_Nwchem.class RUN_Nwchem.class Graph.class
+OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
+	nwchem_Task.class nwchem_Job.class nwchem_MD.class \
+	nwchem_MD_energy.class nwchem_MD_optimize.class \
+	nwchem_MD_dynamics.class nwchem_MD_thermo.class \
+	nwchem_Synch.class nwchem_Input.class nwchem_Times.class\
+	nwchem_MD_control.class\
+	IntegerField.class DoubleField.class Graph.class
 
-include ../config/makefile.h
-include ../config/makelib.h
-
-CLASS_PATH = .:./ptplot.zip:$(TOPDIR)/lib/classes/ptplot.zip:$(SWING)
+CLASS_PATH = .:$(PTOLEMY):$(SWING)
 
 .SUFFIXES:	.f .o .java .class
 
@@ -18,7 +21,7 @@ all:
 	$(MAKE) javacheck
 	$(MAKE) classes
 
-CLASSDIR = $(TOPDIR)/lib/classes
+CLASSDIR = $(NWCHEM_TOP)/lib/classes
 
 classes:
 	-test -d $(CLASSDIR) || $(MKDIR) -p $(CLASSDIR) 
