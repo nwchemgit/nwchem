@@ -1,3 +1,7 @@
+%
+% $Id: stepper.tex,v 1.12 1998-09-08 18:53:31 d3e129 Exp $
+%
+
 \label{sec:stepper}
 
 The STEPPER module performs a search for critical points on the
@@ -177,11 +181,11 @@ initial trust radius should most likely be decreased.
 
 
 
-\section{Nuclear Hessian Options}
+\section{Initial Nuclear Hessian Options}
 Stepper uses a modified Fletcher-Powell algorithm to find the
 transition state or energy minimum on the potential energy
 hypersurface.  There are two files left in the user's permanent
-directory that are used to provide an initial hessian to critical
+directory that are used to provide an initial hessian to the critical
 point search algorithm.  If these files do not exist then the default
 is to use a unit matrix as the initial hessian.  Once Stepper executes
 it generates a binary dump file by the name of \verb+name.stpr41+
