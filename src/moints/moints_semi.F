@@ -198,7 +198,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.41 1997-08-08 18:03:48 rg240 Exp $
+c  $Id: moints_semi.F,v 1.42 1997-08-08 18:11:39 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -845,6 +845,7 @@ c ... is this ever called ?
      $                              vlo, vhi, ibflo, ibfhi, 
      $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                              dbl_mb(k_xmo_t), g_kbuf )
                  mi_t2k = mi_t2k + util_cpusec() - t0
                endif
 
