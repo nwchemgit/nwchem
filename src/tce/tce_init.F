@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.13 2002-11-09 06:03:53 sohirata Exp $
+c $Id: tce_init.F,v 1.14 2002-11-11 18:25:55 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -341,13 +341,15 @@ c
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
         if (ioalg.eq.0) then
-          write(LuOut,9140) 'Fortran77 direct access'
+          write(LuOut,9140) 'Global files (Fortran77 direct access)'
         else if (ioalg.eq.1) then
-          write(LuOut,9140) 'C low-level I/O'
+          write(LuOut,9140) 'Global files (C low-level I/O)'
         else if (ioalg.eq.2) then
-          write(LuOut,9140) 'Global array library of ParSoft'
+          write(LuOut,9140) 'Global files (Global array library)'
         else if (ioalg.eq.3) then
-          write(LuOut,9140) 'Shared file library of ParSoft'
+          write(LuOut,9140) 'Global files (Shared file library)'
+        else if (ioalg.eq.4) then
+          write(LuOut,9140) 'Distributed files (C low-level I/O)'
         else
           call errquit('tce_init: unknown I/O scheme',ioalg)
         endif

@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.5 2002-11-09 06:03:53 sohirata Exp $
+c $Id: deletefile.F,v 1.6 2002-11-11 18:25:53 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -13,6 +13,7 @@ c
 #include "tce.fh"
       integer d_sf
       logical nodezero
+      logical parallel
       integer i,j
       logical used
       character*255 filename
@@ -21,10 +22,11 @@ c
 c
       cpusecs(2) = cpusecs(2) - util_cpusec()
       nodezero = (ga_nodeid().eq.0)
+      parallel = (ga_nnodes().gt.1)
       if (nodezero.and.util_print('files',print_debug))
      1  write(LuOut,9000) d_sf
       if (ioalg.eq.0) then
-        call ga_sync()
+        if (parallel) call ga_sync()
         if (nfiles.eq.0)
      1    call errquit('deletefile: there is no file',nfiles)
         used = .false.
@@ -44,7 +46,7 @@ c
           enddo
         endif
         close(d_sf)
-        call ga_sync()
+        if (parallel) call ga_sync()
         if (nodezero) then
           if (sf_unlink(filename).ne.0)
      1      call errquit('deletefile: cannot delete a file',0)
@@ -55,7 +57,7 @@ c
             write(LuOut,9010) filehandles(i),filenames(i)(1:40)
           enddo
         endif
-        call ga_sync()
+        if (parallel) call ga_sync()
       else if (ioalg.eq.1) then
         if (nfiles.eq.0)
      1    call errquit('deletefile: there is no file',nfiles)
@@ -75,14 +77,19 @@ c
             filenames(i-1) = filenames(i)
           enddo
         endif
-        call ga_sync()
-c       if (f_destroy(d_sf).ne.0)
-c    1    call errquit('deletefile: file problem',1)
-        if (nodezero) then
+        if (parallel) then
+          call ga_sync()
+          if (nodezero) then
+            if (sf_unlink(filename).ne.0)
+     1        call errquit('deletefile: cannot delete a file',0)
+          endif
+          call ga_sync()
+        else
+          if (f_close(d_sf).ne.0)
+     1      call errquit('deletefile: file problem',0)
           if (sf_unlink(filename).ne.0)
      1      call errquit('deletefile: cannot delete a file',0)
         endif
-        call ga_sync()
         nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug)) then
           do i = 1,nfiles
@@ -93,12 +100,43 @@ c    1    call errquit('deletefile: file problem',1)
         if (.not.ga_destroy(d_sf))
      1    call errquit('deletefile: GA problem',0)
       else if (ioalg.eq.3) then
-        call ga_sync()
-        if (sf_open(d_sf).ne.0)
-     1    call errquit('deletefile: sf problem',0)
+        if (parallel) then
+          call ga_sync()
+          if (sf_open(d_sf).ne.0)
+     1      call errquit('deletefile: sf problem',0)
+        endif
         if (sf_destroy(d_sf).ne.0)
      1    call errquit('deletefile: sf problem',1)
-        call ga_sync()
+        if (parallel) call ga_sync()
+      else if (ioalg.eq.4) then
+        if (nfiles.eq.0)
+     1    call errquit('deletefile: there is no file',nfiles)
+        used = .false.
+        do i = 1,nfiles
+          if (filehandles(i).eq.d_sf) then
+            filename = filenames(i)
+            j = i
+            used = .true.
+          endif
+        enddo
+        if (.not.used)
+     1    call errquit('deletefile: there is no such file',d_sf)
+        if (j.lt.nfiles) then
+          do i = j+1,nfiles
+            filehandles(i-1) = filehandles(i)
+            filenames(i-1) = filenames(i)
+          enddo
+        endif
+        if (f_close(d_sf).ne.0)
+     1    call errquit('deletefile: file problem',0)
+        if (sf_unlink(filename).ne.0)
+     1    call errquit('deletefile: cannot delete a file',0)
+        nfiles = nfiles - 1
+        if (nodezero.and.util_print('files',print_debug)) then
+          do i = 1,nfiles
+            write(LuOut,9010) filehandles(i),filenames(i)(1:40)
+          enddo
+        endif
       endif
       cpusecs(2) = cpusecs(2) + util_cpusec()
  9000 format(1x,'delete a file: file handle = ',i3)

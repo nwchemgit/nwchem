@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.4 2002-10-30 21:49:14 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.5 2002-11-11 18:25:55 sohirata Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -187,7 +187,6 @@ c
         enddo
       enddo
       next = nxtval(-nprocs)
-      call ga_sync()
 c
 c     ==========
 c     Deallocate

@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.8 2002-11-09 06:03:53 sohirata Exp $
+c $Id: tce_input.F,v 1.9 2002-11-11 18:25:55 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -15,7 +15,7 @@ c          MBPT2||MBPT3||MBPT4) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
-c        [IOALGORITHM (0||1||2||3) default 2]
+c        [IOALGORITHM (0||1||2||3||4) default 2]
 c     END
 c     
       implicit none

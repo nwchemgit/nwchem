@@ -1,11 +1,12 @@
-#$Id: GNUmakefile,v 1.10 2002-11-09 06:03:53 sohirata Exp $
+#$Id: GNUmakefile,v 1.11 2002-11-11 18:25:49 sohirata Exp $
 
 OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
-      f_create.o f_destroy.o f_read.o f_write.o \
+      tce_filename.o createfile.o deletefile.o reconcilefile.o \
+      f_create.o f_open.o f_close.o f_read.o f_write.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o sf_unlink.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
       tce_e_offset.o tce_t1_offset.o tce_t2_offset.o tce_t3_offset.o tce_t4_offset.o \
-      createfile.o deletefile.o tce_guess_t1.o tce_guess_t2.o tce_guess_t3.o tce_guess_t4.o tce_zero.o \
+      tce_guess_t1.o tce_guess_t2.o tce_guess_t3.o tce_guess_t4.o tce_zero.o \
       tce_residual_t1.o tce_residual_t2.o tce_residual_t3.o tce_residual_t4.o \
       tce_jacobi_t1.o tce_jacobi_t2.o tce_jacobi_t3.o tce_jacobi_t4.o \
       ma_pack.o sf_print.o ma_print_compact.o ma_transpose.o ma_scale.o \

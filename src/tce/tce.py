@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.6 2002-11-07 19:02:21 sohirata Exp $
+# $Id: tce.py,v 1.7 2002-11-11 18:25:54 sohirata Exp $
 
 import string
 import types
@@ -3579,6 +3579,9 @@ class OperationTree:
 #        antisymmetrizer = selfcopy.children[0].contraction.tensors[0].fortran77x(filename)
 
       # close the subroutine
+#     newline = "CALL RECONCILEFILE(d_i0,size_i0)"
+#     newcode.statements.insert(newcode.pointer,newline)
+#     newcode.pointer = newcode.pointer + 1
       newline = "RETURN"
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
@@ -3617,11 +3620,14 @@ class OperationTree:
          newcode.add("arguments",d_c)
       l_c_offset = string.join(["l_i",repr(self.children[0].contraction.tensors[0].label),"_offset"],"")
       k_c_offset = string.join(["k_i",repr(self.children[0].contraction.tensors[0].label),"_offset"],"")
+      size_c = string.join(["size_i",repr(self.children[0].contraction.tensors[0].label)],"")
       newcode.add("integers",k_c_offset)
+#     newcode.add("integers",size_c)
       if (self.contraction.isoperation()):
          newcode.add("integers",l_c_offset)
       else:
          newcode.add("arguments",k_c_offset)
+#        newcode.add("arguments",size_c)
 
       # loop over children
       if (self.contraction.isoperation()):
@@ -3660,6 +3666,7 @@ class OperationTree:
 
             if (child.contraction.tensors[1].type == "i"):
                d_a = string.join(["d_i",repr(child.contraction.tensors[1].label)],"") 
+               size_a = string.join(["size_i",repr(child.contraction.tensors[1].label)],"") 
                newcode.add("integers",d_a)
                k_a_offset = string.join(["k_i",repr(child.contraction.tensors[1].label),"_offset"],"")
                l_a_offset = string.join(["l_i",repr(child.contraction.tensors[1].label),"_offset"],"")
@@ -3675,6 +3682,7 @@ class OperationTree:
             if (len(child.contraction.tensors) == 3):
                if (child.contraction.tensors[2].type == "i"):
                   d_b = string.join(["d_i",repr(child.contraction.tensors[2].label)],"") 
+                  size_b = string.join(["size_i",repr(child.contraction.tensors[2].label)],"") 
                   newcode.add("integers",d_b)
                   k_b_offset = string.join(["k_i",repr(child.contraction.tensors[2].label),"_offset"],"")
                   l_b_offset = string.join(["l_i",repr(child.contraction.tensors[2].label),"_offset"],"")
@@ -3692,21 +3700,28 @@ class OperationTree:
             
             # dump the code
             if (createfile):
-               newint = "size"
+               newint = string.join(["size_i",repr(self.children[0].contraction.tensors[0].label)],"")
                newcode.add("integers",newint)
-               newline = string.join(["CALL OFFSET_",name,"(",d_c,",",l_c_offset,",",k_c_offset,",size)"],"")
+               newline = string.join(["CALL OFFSET_",name,"(",d_c,",",l_c_offset,",",k_c_offset,",",size_c,")"],"")
                newcode.statements.insert(0,newline)
                newchar = "filename"
                newcode.add("characters",newchar)
                filename = string.join([name,"_i",repr(child.contraction.tensors[1].label)],"")
-               newline = string.join(["CALL UTIL_FILE_NAME('",filename,"',.true.,.false.,filename)"],"")
+               newline = string.join(["CALL TCE_FILENAME('",filename,"',filename)"],"")
                newcode.statements.insert(0,newline)
-               newline = string.join(["CALL CREATEFILE(filename,",d_c,",size)"],"")
+               newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
                newcode.statements.insert(0,newline)
                callee = child.contraction.tensors[0].fortran77y(globaltargetindexes,name)
                callees.add(callee)
                createfile = 0
             newcode.statements.insert(0,child.fortran77a(name,globaltargetindexes,callees))
+            if (child.contraction.tensors[1].type == "i"):
+               newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
+               newcode.statements.insert(0,newline)
+            if (d_b):
+               if (child.contraction.tensors[2].type == "i"):
+                  newline = string.join(["CALL RECONCILEFILE(",d_b,",",size_b,")"],"")
+                  newcode.statements.insert(0,newline)
             argument = string.join([d_a,",",k_a_offset],"")
             if (d_b):
                argument = string.join([argument,",",d_b,",",k_b_offset],"")
@@ -5210,7 +5225,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.6 2002-11-07 19:02:21 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.7 2002-11-11 18:25:54 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)

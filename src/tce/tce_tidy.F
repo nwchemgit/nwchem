@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.3 2002-11-09 06:03:53 sohirata Exp $
+c $Id: tce_tidy.F,v 1.4 2002-11-11 18:25:55 sohirata Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -23,10 +23,11 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero.and.util_print('time',print_debug)) then
-        write(LuOut,9000) cpusecs(1)
-        write(LuOut,9000) cpusecs(2)
-        write(LuOut,9000) cpusecs(3)
-        write(LuOut,9000) cpusecs(4)
+        write(LuOut,9000) 'createfile',cpusecs(1)
+        write(LuOut,9000) 'deletefile',cpusecs(2)
+        write(LuOut,9000) 'put_block', cpusecs(3)
+        write(LuOut,9000) 'add_block', cpusecs(4)
+        write(LuOut,9000) 'get_block', cpusecs(5)
       endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_irs(i))) call errquit
@@ -43,6 +44,6 @@ c
       call fock_2e_tidy(rtdb)
       call int_terminate()
       call schwarz_tidy()
- 9000 format(1x,'Clock #1:',f20.1)
+ 9000 format(1x,'CPU time for ',A,f20.1)
       return
       end

@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.5 2002-11-09 06:03:53 sohirata Exp $
+c $Id: sf_test.F,v 1.6 2002-11-11 18:25:54 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -18,34 +18,42 @@ c
 c
       nodezero = (ga_nodeid() .eq. 0)
       if (nodezero.and.util_print('sf',print_default)) then
-        if ((ioalg.eq.0) .or. (ioalg.eq.1) .or. (ioalg.eq.3)) then
+        if (ioalg.eq.0) then
+          write(LuOut,9000)
+        else if (ioalg.eq.1) then
           write(LuOut,9000)
         else if (ioalg.eq.2) then
           write(LuOut,9100)
+        else if (ioalg.eq.3) then
+          write(LuOut,9000)
+        else if (ioalg.eq.4) then
+          write(LuOut,9200)
         endif
       endif
       size = ga_nnodes()
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
-     1  call errquit('sf_print: MA problem',0)
-      call util_file_name('filetest',.true.,.false.,filename)
+     1  call errquit('sf_test: MA problem',0)
+      call tce_filename('filetest',filename)
       call createfile(filename,d_test,size)
       dbl_mb(k_sf) = dfloat(ga_nodeid()+1)
       call put_block(d_test,dbl_mb(k_sf),1,ga_nodeid())
-      call ga_sync()
+      call reconcilefile(d_test,size)
       call get_block(d_test,dbl_mb(k_sf),size,0)
       do i = 1,size
         if (dbl_mb(k_sf+i-1) .ne. dfloat(i))
      1    call errquit('sf_test failed',i)
       enddo
       if (.not.ma_pop_stack(l_sf))
-     1  call errquit('sf_print: MA problem',1)
+     1  call errquit('sf_test: MA problem',1)
       if (nodezero.and.util_print('sf',print_default))
      1  write(LuOut,9010)
       call deletefile(d_test)
  9000 format(/,1x,
-     1 'A global file system accessible by all nodes assumed')
+     1 'Global files accessible by all nodes assumed')
  9100 format(/,1x,
-     1 'Diskless GA virtual file algorithm will be used')
+     1 'Global array virtual files algorithm will be used')
+ 9200 format(/,1x,
+     1 'Replicated distributed files algorithm will be used')
  9010 format(/,1x,'I/O self test is being performed ... passed')
       return
       end

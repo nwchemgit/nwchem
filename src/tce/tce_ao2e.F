@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.5 2002-10-30 21:49:14 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.6 2002-11-11 18:25:55 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -78,7 +78,7 @@ c
         write(LuOut,9000) sf_size_pq*sf_size_kl
       endif
  9000 format(1x,'2-e (intermediate) file size = ',i15)
-      call util_file_name('v2i',.true.,.false.,filename)
+      call tce_filename('v2i',filename)
       if (nodezero.and.util_print('mo1e',print_default))
      1  write(LuOut,9010) filename(1:20)
  9010 format(1x,'2-e (intermediate) file name = ',A)
@@ -195,7 +195,7 @@ c
         enddo
       enddo
       next = nxtval(-nprocs)
-      call ga_sync()
+      call reconcilefile(d_ao2e,sf_size_pq*sf_size_kl)
 c
 c     ==========
 c     Deallocate
