@@ -4,6 +4,7 @@
 #include "global.fh"
 #include "rtdb.fh"
 #include "tcgmsg.fh"
+#include "pstat.fh"
       integer rtdb
       integer stack
       integer heap
@@ -36,8 +37,6 @@ c
 10000    call errquit('nwchem: failed to open the input file', 0)
 10001    continue
 c
-         call nwchem_banner
-c
       else
 #ifndef KSR
          close(5)
@@ -56,9 +55,19 @@ c
      $     call errquit('nwchem: ma_init failed', -1)
       status = ma_set_auto_verify(.true.)
 c
+c
 c     Intialize global memory allocator
 c
       call ga_initialize()
+c
+c     Initialize pstat
+c
+      if (.not. pstat_init(20, 1, ' ')) call errquit
+     $     ('nwchem: pstat_init failed', 0)
+c
+c     Now are ready to summarize the environment
+c
+         call nwchem_banner(input_filename)
 c
 c     Read the input and open the RTDB
 c
@@ -72,6 +81,11 @@ c     Close the RTDB
 c
       if (.not. rtdb_close(rtdb, 'keep'))
      $     call errquit('nwchem: rtdb_close failed', rtdb)
+c
+c     Tidy up pstat
+c
+      if (.not. pstat_terminate()) call errquit
+     $     ('nwchem: pstat_terminate failed', 0)
 c
 c     Tidy up the global memory
 c
@@ -215,11 +229,21 @@ c
       status = rtdb_delete(rtdb, 'task') ! quietly discard the status
 c     
       end
-      subroutine nwchem_banner
+      subroutine nwchem_banner(input_filename)
       implicit none
+#include "global.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
 c
-c     Print a banner at the top of the output to make
-c     clear that this code originated at PNL as part of EMSL
+c     Print a banner at the top of the output to identify the origin
+c     of the code along with hostname, no. of processors, date, ...
+c
+      character*(*) input_filename
+      character*80 hostname
+      character*26 date
+      integer heap, stack, total, nproc
+c
+      if (ga_nodeid() .ne. 0) return
 c
       call util_print_centered(6,
      $     '                                                          ',
@@ -243,6 +267,30 @@ c
      $     40, .true.)
       write(6,*)
       write(6,*)
+c
+      call util_hostname(hostname)
+      call util_date(date)
+      total = ma_inquire_avail(mt_dbl)
+      heap  = ma_inquire_heap(mt_dbl)
+      stack = ma_inquire_stack(mt_dbl)
+      nproc = ga_nnodes()
+c
+      call util_print_centered(6, 'Job information', 20, .true.)
+      write(6,2) hostname(1:inp_strlen(hostname)),
+     $     date(1:inp_strlen(date)),
+     $     input_filename(1:inp_strlen(input_filename)), nproc
+ 2    format(/
+     $     '    hostname = ', a/
+     $     '    date     = ', a/
+     $     '    input    = "',a,'"'/
+     $     '    nproc    = ', i4//)
+c
+      call util_print_centered(6, 'Memory information', 20, .true.)
+      write(6,3) heap, stack, total
+ 3    format(/
+     $     '    heap     = ', i8/
+     $     '    stack    = ', i8/
+     $     '    avail    = ', i8//)
 c
       call util_flush(6)
 c
