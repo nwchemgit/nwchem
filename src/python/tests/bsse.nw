@@ -1,3 +1,6 @@
+#
+# $Id: bsse.nw,v 1.2 1999-07-27 21:23:18 d3e129 Exp $
+#
 start bsse
 
 # Determine the interaction energy between Ne and H2O with and without

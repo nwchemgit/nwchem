@@ -1,3 +1,6 @@
+#
+# $Id: test.nw,v 1.2 1999-07-27 21:23:19 d3e129 Exp $
+#
 start test1
 
 # test some basic python wrappers.

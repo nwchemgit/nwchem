@@ -1,3 +1,6 @@
+#
+# $Id: scanexp2.nw,v 1.2 1999-07-27 21:23:18 d3e129 Exp $
+#
 start scanexp
 
 geometry units au

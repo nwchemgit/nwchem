@@ -1,3 +1,6 @@
+/*
+ $Id: task_python.c,v 1.6 1999-07-27 21:21:21 d3e129 Exp $
+*/
 #include "macdecls.h"
 #include "global.h"
 

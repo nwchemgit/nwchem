@@ -1,3 +1,6 @@
+/*
+ $Id: nwchem_wrap.c,v 1.7 1999-07-27 21:21:20 d3e129 Exp $
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

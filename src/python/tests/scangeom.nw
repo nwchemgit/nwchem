@@ -1,3 +1,6 @@
+#
+# $Id: scangeom.nw,v 1.2 1999-07-27 21:23:19 d3e129 Exp $
+#
 start scangeom
 
 # Scan C2V geometries for water printing out the energy

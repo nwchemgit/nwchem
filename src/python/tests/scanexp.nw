@@ -1,3 +1,6 @@
+#
+# $Id: scanexp.nw,v 1.2 1999-07-27 21:23:18 d3e129 Exp $
+#
 start scanexp
 
 # Scan the d exponent on oxygen through a range of values printing

@@ -1,3 +1,6 @@
+#
+# $Id: testgrad.nw,v 1.2 1999-07-27 21:23:19 d3e129 Exp $
+#
 start testgrad
 
 # Scan C2V geometries for water printing the energy and gradient

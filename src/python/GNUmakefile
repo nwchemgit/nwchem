@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.3 1999-07-27 21:21:20 d3e129 Exp $
+#
 
 LIBRARY = libpython.a
 

@@ -1,4 +1,7 @@
       subroutine python_input(rtdb)
+*
+* $Id: python_input.F,v 1.2 1999-07-27 21:21:21 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

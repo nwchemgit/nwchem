@@ -1,3 +1,6 @@
+#
+# $Id: scanexp_simple.nw,v 1.2 1999-07-27 21:23:19 d3e129 Exp $
+#
 start test0
 
 # Simplest example.  Scan an the d exponent on O through a range

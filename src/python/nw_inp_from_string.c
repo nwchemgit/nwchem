@@ -1,3 +1,6 @@
+/*
+ $Id: nw_inp_from_string.c,v 1.5 1999-07-27 21:21:20 d3e129 Exp $
+*/
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
