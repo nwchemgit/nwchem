@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.52 2001-11-08 23:58:39 bert Exp $
+* $Id: prp.F,v 1.53 2003-02-07 19:31:10 bert Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -3056,10 +3056,10 @@ C     ----- DO A MULLIKEN POPULATION ANALYSIS -----
 C              CALCULATE OVERLAP POPULATION
 C
       CALL HND_OVLPOP(X(IDEN),X(I10),L2)
-  200 if (ga_nodeid().eq.0) WRITE(IW,9999) ELEC
-      IF(OUT.and.ga_nodeid().eq.0) THEN
+  200 if (ga_nodeid().eq.0) WRITE(IW,9999) 
+      IF(ga_nodeid().eq.0) THEN
          WRITE(IW,9988)
-         CALL HND_PRTR (X(IDEN),L1)
+         CALL HND_PRTRLAB(X(IDEN),BFLAB,L1)
       ENDIF
 C
 C     ----- CALCULATE TOTAL GROSS POPULATION IN AO'S ----
@@ -3072,16 +3072,16 @@ C
 C
       if (ga_nodeid().eq.0) WRITE(IW,9996)
 C
-C     ----- COMPRESS FROM -AO- TO SHELLS -----
-C
-      CALL HND_SHLPOP(X(IGOC))
-C
 C     ----- COMPRESS FROM -AO- TO ATOMS -----
 C
       CALL HND_ATMPOP(X(IDEN),IA,X(I30),NAT)
-      IF(OUT) THEN
-         CALL HND_PRTR(X(I30),NAT)
+      IF(ga_nodeid().eq.0) THEN
+         CALL HND_PRTRLAB(X(I30),ANAM,NAT)
       ENDIF
+C
+C     ----- COMPRESS FROM -AO- TO SHELLS -----
+C
+      CALL HND_SHLPOP(X(IGOC))
 C
 C     ----- CALCULATE TOTAL GROSS POPULATION ON ATOMS -----
 C
@@ -3191,7 +3191,7 @@ C
  9999 FORMAT(//,10X,28(1H-),/,10X,'Mulliken population analysis',
      1 10X,A8,' electrons',/,10X,28(1H-))
  9998 FORMAT(/,10X,'----- Total gross population in ao -----',/)
- 9997 FORMAT(5(I5,1X,A8,F11.5))
+ 9997 FORMAT(I5,1X,A8,F11.5)
  9996 FORMAT(/,10X,'----- Condensed to atoms -----',/)
  9995 FORMAT(/,10X,'----- Total gross population on atoms ----',/)
  9994 FORMAT(/,10X,'----- Spin population in ao -----',/)

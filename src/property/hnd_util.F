@@ -1,4 +1,4 @@
-c  $Id: hnd_util.F,v 1.2 2000-10-23 23:37:49 windus Exp $
+c  $Id: hnd_util.F,v 1.3 2003-02-07 19:31:10 bert Exp $
 c
 c  These are a bunch of utility routines that were in hessian/rhf_hessian.F
 c  that were moved here since the hessian code no longer depends on them.
@@ -297,6 +297,44 @@ C
    10 CALL HND_READPK(IJK,XX,XX,       NXX,NH,IERR,IEND)
       CALL HND_READPN(IJK,IX,IX,LABSIZ*NXX,NT,IERR,IEND)
       RETURN
+      END
+C
+      SUBROUTINE HND_PRTRLAB(D,LAB,N)
+      IMPLICIT REAL*8 (A-H,O-Z)
+#include "nwc_const.fh"
+C
+C     ----- PRINT OUT A TRIANGULAR MATRIX -----
+C
+      DIMENSION D(1),DD(10)
+      character*8 LAB
+      DIMENSION LAB(1)
+C
+      IW = LuOut
+      LIST=1
+      IF(LIST.EQ.1) MAX=7
+C
+      IMAX = 0
+  100 IMIN = IMAX+1
+      IMAX = IMAX+MAX
+      IF (IMAX .GT. N) IMAX = N
+      WRITE (IW,9008)
+      IF(LIST.EQ.1) WRITE (IW,9128) (I,I = IMIN,IMAX)
+      WRITE (IW,9008)
+      DO 160 J = 1,N
+      K = 0
+      DO 140 I = IMIN,IMAX
+      K = K+1
+      II = MAX0( I, J)
+      JJ = MIN0( I, J)
+      IJ = (II*(II-1))/2 + JJ
+  140 DD(K) = D(IJ)
+      IF(LIST.EQ.1) WRITE(IW,9148) J,LAB(J),(DD(I),I = 1,K)
+  160 CONTINUE
+      IF (IMAX .LT. N) GO TO 100
+      RETURN
+ 9008 FORMAT(/)
+ 9128 FORMAT(14X,7(6X,I3,6X))
+ 9148 FORMAT(I3,1X,A8,2X,7F15.10)
       END
 C
       SUBROUTINE HND_PRTRL(D,N)
