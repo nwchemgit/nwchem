@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.9 2003-01-28 02:03:38 marat Exp $
+* $Id: paw_basis.F,v 1.10 2003-01-30 19:08:55 edo Exp $
 *
 
 !**************************************************
@@ -80,12 +80,15 @@ c      !*** external functions ***
          dbl_mb(paw_basis_i_rgrid(it)) = dbl_mb(paw_basis_i_r1(it))
   
          do ir=1,int_mb(paw_basis_i_ngrid(it))-1
-          dbl_mb(paw_basis_i_rgrid(it)+ir)= amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
+          dbl_mb(paw_basis_i_rgrid(it)+ir)= 
+     =           amesh*dbl_mb(paw_basis_i_rgrid(it)+ir-1)
          end do
          
          i_lo =  paw_basis_i_orb_l(it)
-	 i_hi =  paw_basis_i_orb_l(it) +  int_mb(paw_basis_i_nbasis(it)) - 1
-	 int_mb(paw_basis_i_mult_l(it)) = 2*maxval(int_mb(i_lo:i_hi))
+	 i_hi =  paw_basis_i_orb_l(it) + 
+     +        int_mb(paw_basis_i_nbasis(it)) - 1
+	 int_mb(paw_basis_i_mult_l(it)) = 
+     =        2*dabsmax(i_hi-i_lo+1,int_mb(i_lo))
            
       end do
 
@@ -94,7 +97,7 @@ c      !*** external functions ***
 c     !*****determine max orbital moment     
       i_lo =  paw_basis_i_orb_l(1)
       i_hi =  paw_basis_i_orb_l(1) +  paw_basis_tot_nbasis() - 1
-      max_mult_l = maxval(int_mb(i_lo:i_hi))
+      max_mult_l = dabsmax(i_hi-i_lo+1,int_mb(i_lo))
 
 
 c     !*****enter max orbital moment into paw_basis_data structure
@@ -103,7 +106,8 @@ c     !*****enter max orbital moment into paw_basis_data structure
 c     !*** set core charges ***
             
       do it = 1,nt 
-        call calc_paw_basis_core_charge(it,dbl_mb(paw_basis_i_core_charge(it)))
+        call calc_paw_basis_core_charge(
+     (        it,dbl_mb(paw_basis_i_core_charge(it)))
       end do
 
       return
@@ -119,6 +123,7 @@ c     !*** set core charges ***
 !**************************************************
       subroutine read_paw_basis_dims(nb,ng,filename)
       implicit none
+#include "stdio.fh"
       integer          ng
       integer          nb
       character(*)     filename
@@ -133,7 +138,8 @@ c     !*** set core charges ***
       external assert_file
 
       if( .not. assert_file(filename)) then
-        call errquit("cannot find "//filename,0)
+         write(luout,*)  ' cannot find ',filename
+        call errquit("paswbasis: cannot find file",1)
       end if
 
       call open_file(filename,"r",fp)

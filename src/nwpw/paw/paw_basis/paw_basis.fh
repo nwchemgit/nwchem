@@ -44,8 +44,6 @@
       integer paw_basis_n
       external paw_basis_n
 
-      integer          paw_basis_nbasis
-      external         paw_basis_nbasis
       integer          paw_basis_mult_l
       external         paw_basis_mult_l
 
@@ -102,3 +100,7 @@
       external   paw_basis_i_core_kin_energy
       external   paw_basis_i_rgrid
       external   paw_basis_max_mult_l
+
+      double precision dabsmax
+      external dabsamx
+

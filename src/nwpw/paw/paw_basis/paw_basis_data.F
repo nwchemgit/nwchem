@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.9 2003-01-28 02:03:38 marat Exp $
+! $Id: paw_basis_data.F,v 1.10 2003-01-30 19:08:55 edo Exp $
 
 !**************************************************
 !
@@ -849,7 +849,8 @@ c#include "paw_basis.fh"
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      paw_basis_i_core_density = core_density(1) + int_mb(i_ng(1) + it-1)
+      paw_basis_i_core_density = core_density(1) +
+     +     int_mb(i_ng(1) + it-1)
       return
       END 
 
@@ -966,7 +967,8 @@ c#include "paw_basis.fh"
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      paw_basis_i_phi_ae_prime = phi_ae_prime(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ae_prime = phi_ae_prime(1) + 
+     +     int_mb(i_ngb(1) + it-1)
       return
       END 
 
@@ -985,7 +987,8 @@ c#include "paw_basis.fh"
 #include "myma.fh"
 #include "paw_basis_data.fh"
 
-      paw_basis_i_phi_ps_prime = phi_ps_prime(1) + int_mb(i_ngb(1) + it-1)
+      paw_basis_i_phi_ps_prime = phi_ps_prime(1) + 
+     +     int_mb(i_ngb(1) + it-1)
       return
       END 
 

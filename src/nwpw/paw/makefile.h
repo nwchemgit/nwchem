@@ -1,4 +1,4 @@
-FC=ifc -w -132
+#FC=ifc -w -132
 .SUFFIXES:
 
 .SUFFIXES: .o .f90

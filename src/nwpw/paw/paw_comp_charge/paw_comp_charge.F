@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.7 2003-01-28 02:03:39 marat Exp $
+* $Id: paw_comp_charge.F,v 1.8 2003-01-30 19:08:55 edo Exp $
 *
 
 
@@ -53,7 +53,8 @@
 
       !*** set q00 array ***
       do ia=1,nkatm
-	q00_tmp = (paw_basis_core_charge(ia)-paw_basis_ion_charge(ia))/sqrt(fourpi)    
+	q00_tmp = (paw_basis_core_charge(ia)-paw_basis_ion_charge(ia))/
+     /        sqrt(fourpi)    
         dbl_mb(q00(1)+ia-1)=q00_tmp
       end do
 
