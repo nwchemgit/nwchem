@@ -765,7 +765,7 @@ follows,
 A Gaussian orbital basis (AO) function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accAOfunc}$.
+$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accAOfunc}$.
 
 The input to define a screening tolerance for evaluation of the exchange-
 correlation (XC) Gaussian fitting functions is specified with the
@@ -776,20 +776,18 @@ keyword \verb+accXCfunc+, as follows,
 An exchange-correlation (XC) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accXCfunc}$.
+$\zeta\cdot r_i^2$ is less than the value specified for ${\tt accXCfunc}$.
 
 The input to define a screening tolerance for evaluation of the
 charge-density (CD) Gaussian fitting functions is specified with the
-keyword \verb+accCoul+, as follows,
+keyword \verb+accCDfunc+, as follows,
 \begin{verbatim}
-  TOLERANCES accCDfunc <integer accXCfunc default 20>
+  TOLERANCES accCDfunc <integer accCDfunc default 20>
 \end{verbatim}
 A  charge-density (CD) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
-point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt
-  accCoul}$.
-
-
+point $r_i$ only if $\zeta\cdot r_i^2$ is less than the value 
+specified for ${\tt accCDfunc}$.
 
 The input
 parameter {\tt accCoul} is used to define the tolerance in Schwarz 
@@ -799,8 +797,6 @@ values greater than $10^{(-{\tt accCoul})}$ are evaluated.
 \begin{verbatim}
   TOLERANCES accCoul <integer accCoul default 10>
 \end{verbatim}
-
-
 
 The user also has the option of specifying the radial quadrature 
 grid cut-off for the DFT calculation, using the keyword
