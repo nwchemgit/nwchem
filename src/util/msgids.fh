@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.136 2004-07-22 16:42:55 edo Exp $
+c     $Id: msgids.fh,v 1.137 2004-08-16 23:21:01 marat Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2
@@ -450,6 +450,11 @@ c
       integer msg_qmmm_numout2 
       integer msg_qmmm_c 
       integer msg_qmmm_inum 
+      integer msg_qmmm_nbqw 
+      integer msg_qmmm_nbqs
+      integer msg_qmmm_nbqw_off
+      integer msg_qmmm_nbqs_off
+      integer msg_qmmm_nqm
 c
       integer mrp_000
       integer mrp_d01
@@ -1127,5 +1132,10 @@ c
 c
       parameter(msg_qmmm_c=msg_ftn_base-834) 
       parameter(msg_qmmm_inum=msg_ftn_base-835) 
+      parameter(msg_qmmm_nbqs=msg_ftn_base-836) 
+      parameter(msg_qmmm_nbqw=msg_ftn_base-837) 
+      parameter(msg_qmmm_nqm=msg_ftn_base-838) 
+      parameter(msg_qmmm_nbqw_off=msg_ftn_base-839)
+      parameter(msg_qmmm_nbqs_off=msg_ftn_base-840)
 c
-      parameter(msg_efgs_col=msg_ftn_base-836)
+      parameter(msg_efgs_col=msg_ftn_base-870)
