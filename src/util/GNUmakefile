@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.172 2004-01-14 21:28:50 edo Exp $
+# $Id: GNUmakefile,v 1.173 2004-01-28 01:24:47 edo Exp $
 
 include ../config/makefile.h
 
@@ -36,16 +36,9 @@ ifeq ($(TARGET),SUN)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
-ifeq ($(TARGET),SP)
-  EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DBYTE_SHORT_PACKING  
-  LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
-endif
-
 ifeq ($(TARGET),LAPI)
   EXTRA_OBJ = ibm_cputime.o
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
-  LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),IBM)
@@ -61,6 +54,7 @@ endif
 ifeq ($(TARGET),LAPI64)
   EXTRA_OBJ = ibm_cputime.o 
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
+  LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),HPUX64)
@@ -257,7 +251,11 @@ $(BINDIR)/jobtime:	jobtime
 $(BINDIR)/jobtime.pl:	jobtime.pl
 	/bin/cp $^ $@
 endif
-ifeq ($(TARGET),LAPI)
+USE_LL = LAPI LAPI64
+
+ifeq ($(TARGET),$(findstring $(TARGET),$(USE_LL)))
+ LIB_DEFINES += -DUSE_LL
+ LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 $(BINDIR)/jobtime:	jobtime
 	/bin/cp $^ $@
 
