@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.12 2002-01-16 22:28:23 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.13 2002-02-25 02:11:33 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -94,9 +94,9 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found
-      real*8   pspw_charge_Energy_ion
+      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
-      external pspw_charge_Energy_ion
+      external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
       logical  control_precondition
       external control_precondition
@@ -325,7 +325,8 @@ c     call dng_2to1()
       if (pspw_charge_found()) then
          E(16)  = psi_1v_field()
          E(17)  = pspw_charge_Energy_ion()
-         E(1)   = E(1) + E(17)
+         E(18)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(17) + E(18)
       end if
 
       value = MA_free_heap(G1(2))

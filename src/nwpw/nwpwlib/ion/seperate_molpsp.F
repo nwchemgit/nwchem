@@ -1,5 +1,5 @@
 *     
-* $Id: seperate_molpsp.F,v 1.2 2002-01-14 21:06:26 bylaska Exp $
+* $Id: seperate_molpsp.F,v 1.3 2002-02-25 02:11:33 bylaska Exp $
 *     
 
 *     ***************************
@@ -16,6 +16,8 @@
 #include "geom.fh"
 
 
+      logical bqbq
+      common / nwpw_bqbq_block / bqbq
 
       logical mmexist
       common / ion_qmmm/ mmexist
@@ -44,6 +46,9 @@
       value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
       value = value.and.geom_ncent(geom1,nion1)
       if (.not. value) call errquit('opening geometry',0)
+
+*     *** set bqbq ****
+      bqbq  = geom_include_bqbq(geom1)
 
       value = MA_push_get(mt_dbl, (3*nion1), 'rt',rt(2),rt(1))
       value = value.and.

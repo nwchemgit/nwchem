@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.14 2002-02-16 01:02:01 bylaska Exp $
+* $Id: psi.F,v 1.15 2002-02-25 02:11:34 bylaska Exp $
 *
 
 *     ***************************
@@ -525,6 +525,81 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
+*     ***********************************
+*     *									*
+*     *		rho_1Fcharge				*
+*     *									*
+*     ***********************************
+      subroutine rho_1Fcharge(Fcharge)
+      implicit none
+      real*8 Fcharge(*)
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     **** local variables ****
+      logical value
+      integer n2ft3d,nx,ny,nz
+      integer r_grid(2),rho(2)
+      real*8  dv
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+*     **** Initializationsr ****
+      call D3dB_n2ft3d(1,n2ft3d) 
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+
+*     **** Push memory ****
+      value = MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >                       r_grid(2),r_grid(1))
+      value = value.and. 
+     >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
+     >                       rho(2),rho(1))
+      if (.not. value) call errquit(
+     >     'rho_1Fcharge: out of stack memory',0)
+
+
+*     **** Get r_grid and rho ****
+      call lattice_r_grid(dbl_mb(r_grid(1)))
+      call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
+     >                   dbl_mb(rho1(1)+(ispin-1)*n2ft3d),
+     >                   dbl_mb(rho(1)))
+
+*     **** Now calculate Fcharge ****
+      call pspw_charge_rho_Fcharge(n2ft3d,dbl_mb(r_grid(1)),
+     >                            dbl_mb(rho(1)),
+     >                            dv,Fcharge)
+
+*     **** Pop memory ****
+      value =           MA_pop_stack(rho(2))
+      value = value.and.MA_pop_stack(r_grid(2))
+      if (.not. value) call errquit(
+     >     'rho_1Fcharge: error popping stack memory',0)
+
+      return
+      end
+
+
+
+
 
 
 *     ***********************************

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.14 2002-02-16 01:06:20 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.15 2002-02-25 02:11:33 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -15,7 +15,7 @@ c     $Id: cgsd_energy.F,v 1.14 2002-02-16 01:06:20 bylaska Exp $
       logical stalled
       integer taskid
       integer minimizer
-      integer i,k,neall,NN
+      integer i,neall,NN
       integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
@@ -192,6 +192,7 @@ c        call pspw_charge_Print(6)
             write(luout,1801)
             write(luout,1802) E(16)
             write(luout,1803) E(17)
+            write(luout,1804) E(18)
         end if
 
 
@@ -263,8 +264,9 @@ c        call pspw_charge_Print(6)
 
  1800 FORMAT(/' Charge Field Energies')
  1801 FORMAT( ' ---------------------')
- 1802 FORMAT( ' Charge Field/Electron  :',E19.10)
- 1803 FORMAT( ' Charge Field/Ion       :',E19.10)
+ 1802 FORMAT( ' Charge Field/Electron    :',E19.10)
+ 1803 FORMAT( ' Charge Field/Ion         :',E19.10)
+ 1804 FORMAT( ' Charge Field/Charge Field:',E19.10)
       end
 
 *     *******************************
@@ -281,30 +283,31 @@ c        call pspw_charge_Print(6)
       logical allow_translation
       integer MASTER
       parameter (MASTER=0)
-      integer i,k,taskid,nion
+      integer i,k,taskid,nion,nion1
       integer i1
       real*8  GG
       real*8  fmx,fmy,fmz
       real*8  fmx2,fmy2,fmz2
 
 *     **** external functions ****
-      logical     psp_semicore,pspw_qmmm_found
+      logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       logical     control_allow_translation
-      character*2 ion_aname,pspw_qmmm_aname
+      character*2 ion_aname,pspw_qmmm_aname,pspw_charge_aname
       integer     ion_katm,ion_nion,control_version
-      integer     pspw_qmmm_nion
-      real*8      ion_rion,pspw_qmmm_rion
-      external psp_semicore,pspw_qmmm_found
+      integer     pspw_qmmm_nion,pspw_charge_nion
+      real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external control_allow_translation
-      external ion_aname,pspw_qmmm_aname
+      external ion_aname,pspw_qmmm_aname,pspw_charge_aname
       external ion_katm,ion_nion,control_version
-      external pspw_qmmm_nion
-      external ion_rion,pspw_qmmm_rion
+      external pspw_qmmm_nion,pspw_charge_nion
+      external ion_rion,pspw_qmmm_rion,pspw_charge_rion
 
 
       allow_translation = control_allow_translation()
       nion = ion_nion()
-      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
+      if (pspw_charge_found()) nion = nion + pspw_charge_nion()
+      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       call dcopy(3*nion,0.0d0,0,G1,1)
 
@@ -313,9 +316,18 @@ c        call pspw_charge_Print(6)
 
       if (control_version().eq.3) call ewald_f(G1)
       if (control_version().eq.4) call ion_ion_f(G1)
+
+      if (pspw_charge_found()) then
+         nion1 = ion_nion()
+         call pspw_charge_Fion_Fcharge(G1,G1(1,nion1+1))
+         call pspw_charge_Fcharge(G1(1,nion1+1))
+         call rho_1Fcharge(G1(1,nion1+1))
+      end if
+
       if (pspw_qmmm_found()) then
          call pspw_qmmm_Fion(G1)
-         call rho_1Fmm(G1(1,ion_nion()+1))
+         nion1 = ion_nion() + pspw_charge_nion()
+         call rho_1Fmm(G1(1,nion1+1))
       end if
 
       if (.not.allow_translation) then
@@ -345,9 +357,20 @@ c        call pspw_charge_Print(6)
         write(luout,1420)
         write(luout,1190)(i,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
+
+*       **** print out charge positions ***
+        if (pspw_charge_found()) then
+          do i=1,pspw_charge_nion()
+            i1 = ion_nion() + i
+            write(luout,1190) i1,pspw_charge_aname(i),
+     >                    (pspw_charge_rion(K,i),K=1,3)
+          end do
+        end if
+
+*       **** print out mm positions ***
         if (pspw_qmmm_found()) then
           do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + i
+            i1 = ion_nion() + pspw_charge_nion() + i
             write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (pspw_qmmm_rion(K,i),K=1,3)
           end do
@@ -357,9 +380,19 @@ c        call pspw_charge_Print(6)
         write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
+*       **** print out charge forces ***
+        if (pspw_charge_found()) then
+          do i=1,pspw_charge_nion()
+            i1 = ion_nion() + i
+            write(luout,1190) i1,pspw_charge_aname(i),
+     >                    (G1(K,i1),K=1,3)
+          end do
+        end if
+
+*       **** print out mm forces ***
         if (pspw_qmmm_found()) then
           do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + i
+            i1 = ion_nion() + pspw_charge_nion() + i
             write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (G1(K,i1),K=1,3)
           end do

@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.20 2002-02-13 20:02:07 edo Exp $
+* $Id: cgsdv5.F,v 1.21 2002-02-25 02:11:33 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -82,11 +82,11 @@
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      integer  pspw_qmmm_nion
+      integer  pspw_qmmm_nion,pspw_charge_nion
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
-      external pspw_qmmm_nion
+      external pspw_qmmm_nion,pspw_charge_nion
 
       character*12 control_boundry
       external     control_boundry
@@ -108,6 +108,8 @@
       external ion_TotalCharge
       logical   psi_filefind
       external  psi_filefind
+      logical   pspw_charge_found
+      external  pspw_charge_found
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -345,7 +347,8 @@ c     end if
 
 *     ****  calculate gradient ***
       nion = ion_nion()
-      if (pspw_qmmm_found()) nion = nion + pspw_qmmm_nion()
+      if (pspw_charge_found()) nion = nion + pspw_charge_nion()
+      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
@@ -378,6 +381,7 @@ c     end if
       value = value.and.
      >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
+
       if (.not. value) call errquit('cgsdv5: error writing rtdb',0)
       value = MA_pop_stack(fion(2))
       if (.not. value) call errquit('erroring popping stack memory',0)    

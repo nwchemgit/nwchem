@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.13 2002-01-18 23:23:41 bylaska Exp $
+* $Id: ion.F,v 1.14 2002-02-25 02:11:33 bylaska Exp $
 *
 
 *     ***************************
@@ -44,6 +44,7 @@
 
 *     **** ion common block ****
 #include "ion.fh"
+
 
       integer geom
       common / ION2/ geom
@@ -366,6 +367,23 @@ c     call ion_shift()
 
 *     ***********************
 *     *						*
+*     *	     nwpw_bqbq		*
+*     *						*
+*     ***********************
+      logical function nwpw_bqbq()
+      implicit none
+
+      logical bqbq
+      common / nwpw_bqbq_block / bqbq
+
+      nwpw_bqbq = bqbq
+      return
+      end
+
+
+
+*     ***********************
+*     *						*
 *     *	     ion_q			*
 *     *						*
 *     ***********************
@@ -390,6 +408,7 @@ c     call ion_shift()
       ion_q = q
       return
       end
+
 
 *     ***********************
 *     *						*

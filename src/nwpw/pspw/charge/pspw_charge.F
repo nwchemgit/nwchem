@@ -1,7 +1,7 @@
 c
-c $Id: pspw_charge.F,v 1.6 2002-02-24 23:43:47 bylaska Exp $
+c $Id: pspw_charge.F,v 1.7 2002-02-25 02:11:34 bylaska Exp $
 c
-
+  
 ***********************************************************
 *                                                         *
 *                   PSPW-Charge module                    *
@@ -472,6 +472,99 @@ c
       return
       end
 
+
+*     **********************************
+*     *	                               *
+*     *     pspw_charge_rho_Fcharge        *
+*     *                                *
+*     **********************************
+
+      subroutine pspw_charge_rho_Fcharge(n2ft3d,rgrid,rho,dv,fcharge)
+      implicit none
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 dv
+      real*8 fcharge(3,*)
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     ***** local variables ****
+      integer i,j
+      real*8 rx,ry,rz,c
+      real*8 fx,fy,fz,verf,yerf,v
+      real*8 x,y,z,q,r,epsilon,depsilon,sqrt_pi
+
+*     **** external functions ****
+      real*8   util_erf
+      external util_erf
+
+      if (nion.gt.0) then
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+      do j=1,nion
+         x = dbl_mb(r1(1)+3*(j-1))
+         y = dbl_mb(r1(1)+3*(j-1)+1)
+         z = dbl_mb(r1(1)+3*(j-1)+2)
+         q = -dbl_mb(charge(1)+j-1)
+         c = 1.0d0/s_sigma
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,n2ft3d
+            rx = x - rgrid(1,i)
+            ry = y - rgrid(2,i)
+            rz = z - rgrid(3,i)
+            r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+            if (r .gt. 1.0d-8) then
+
+*             **** define dielectric switching function ****
+              if (r.le.s_d) then
+                 epsilon  = 0.0d0
+                 depsilon = 0.0d0
+              else if (r.lt.(s_d+s_rho)) then
+                 epsilon = 1.0d0-(1.0d0-(r-s_d)**2/s_rho**2)**2
+                 depsilon = 4.0d0*((r-s_d)/s_rho**2)
+     >                           *(1.0d0-(r-s_d)**2/s_rho**2)        
+              else
+                 epsilon  = 1.0d0
+                 depsilon = 0.0d0
+              end if
+              yerf=r*c
+              verf = util_erf(yerf)
+              v    = epsilon*q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                          - verf)/r**3
+     >             + depsilon*q*verf/r
+            else
+              v = 0.0d0
+            end if
+
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
+         end do
+
+         call D3dB_SumAll(fx)
+         call D3dB_SumAll(fy)
+         call D3dB_SumAll(fz)
+         fcharge(1,j) = fcharge(1,j) - fx*dv
+         fcharge(2,j) = fcharge(2,j) - fy*dv
+         fcharge(3,j) = fcharge(3,j) - fz*dv
+      end do
+
+
+      end if
+
+      return
+      end
+
+
+
+
+
+
 *     **********************************
 *     *	                               *
 *     *     pspw_charge_Energy_ion     *
@@ -517,3 +610,168 @@ c
       pspw_charge_Energy_ion = energy
       return
       end
+
+
+
+
+*     **********************************
+*     *	                               *
+*     *     pspw_charge_Fion           *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the forces between the QM ions and point charges.
+*
+*     Exit - fion: force on the QM ions
+*            fcharge: force on the point charges
+*
+*     Uses - ion_nion,Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_charge_Fion_Fcharge(fion,fcharge)
+      implicit none
+      real*8 fion(3,*)
+      real*8 fcharge(3,*)
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     **** local variables ****
+      integer i,j,nion_ion
+      real*8  qi,ri(3),qj,rj(3)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion
+      real*8   psp_zv,ion_rion
+      external ion_katm,ion_nion
+      external psp_zv,ion_rion
+
+      if (nion.gt.0) then      
+     
+        nion_ion = ion_nion()
+
+        do i=1,nion_ion
+           qi = psp_zv(ion_katm(i))
+           ri(1) = ion_rion(1,i)
+           ri(2) = ion_rion(2,i)
+           ri(3) = ion_rion(3,i)
+           do j=1,nion
+              qj = dbl_mb(charge(1)+j-1)            
+              rj(1) = dbl_mb(r1(1)+3*(j-1))
+              rj(2) = dbl_mb(r1(1)+3*(j-1)+1)
+              rj(3) = dbl_mb(r1(1)+3*(j-1)+2)
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge(1,j))
+           end do
+        end do
+
+      end if
+      return
+      end
+
+
+*     **********************************
+*     *	                               *
+*     *     pspw_charge_Energy_charge  *
+*     *                                *
+*     **********************************
+
+      real*8 function pspw_charge_Energy_charge()
+      implicit none
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     **** local variables ****
+      integer i,ii
+      real*8  qi, xi, yi, zi
+      real*8  qii,xii,yii,zii
+      real*8  r,energy
+
+*     **** external functions ****
+      logical  nwpw_bqbq
+      external nwpw_bqbq
+
+      energy = 0.0d0
+      if ((nion.gt.0).and.nwpw_bqbq()) then
+        do ii=1,nion
+           qii = dbl_mb(charge(1)+ii-1)            
+           xii = dbl_mb(r1(1)+3*(ii-1))
+           yii = dbl_mb(r1(1)+3*(ii-1)+1)
+           zii = dbl_mb(r1(1)+3*(ii-1)+2)
+           qii = dbl_mb(charge(1)+ii-1)
+           do i=1,ii-1
+              xi = dbl_mb(r1(1)+3*(i-1))
+              yi = dbl_mb(r1(1)+3*(i-1)+1)
+              zi = dbl_mb(r1(1)+3*(i-1)+2)
+              qi = dbl_mb(charge(1)+i-1)
+              r = (xi-xii)**2 + (yi-yii)**2 + (zi-zii)**2
+              r = dsqrt(r)
+              energy = energy + qi*qii/r
+           end do
+        end do
+      end if
+
+      pspw_charge_Energy_charge = energy
+      return
+      end
+
+
+*     **********************************
+*     *	                               *
+*     *     pspw_charge_Fcharge        *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the force between the point charges.
+*
+*     Exit - fcharge: force on the point charges
+*
+*     Uses - Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_charge_Fcharge(fcharge)
+      implicit none
+      real*8 fcharge(3,*)
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     **** local variables ****
+      integer i,j
+      real*8  qi,ri(3),qj,rj(3)
+
+*     **** external functions ****
+      logical  nwpw_bqbq
+      external nwpw_bqbq
+
+      if ((nion.gt.0).and.(nwpw_bqbq())) then      
+     
+        do j=1,nion
+           qj = dbl_mb(charge(1)+j-1)            
+           rj(1) = dbl_mb(r1(1)+3*(j-1))
+           rj(2) = dbl_mb(r1(1)+3*(j-1)+1)
+           rj(3) = dbl_mb(r1(1)+3*(j-1)+2)
+           do i=1,j-1
+              qi = dbl_mb(charge(1)+i-1)            
+              ri(1) = dbl_mb(r1(1)+3*(i-1))
+              ri(2) = dbl_mb(r1(1)+3*(i-1)+1)
+              ri(3) = dbl_mb(r1(1)+3*(i-1)+2)
+              call Q_Electrostatic_Force(ri,qi,fcharge(1,i),
+     >                                   rj,qj,fcharge(1,j))
+           end do
+        end do
+
+      end if
+      return
+      end
+
+
+
+
+
+
+
+

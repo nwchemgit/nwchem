@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.4 2002-02-16 21:40:00 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.5 2002-02-25 02:11:34 bylaska Exp $
 *
       subroutine coulomb_screened_init(rcut,pp)
       implicit none 
@@ -199,11 +199,12 @@ c     real*8  tmp1(*)
 
 *     **** local variables ****
       integer nrho
-      parameter (nrho=5000)
+      parameter (nrho=15000)
 
       integer i
-      real*8 q,fourpi,r,sum,drho
+      real*8 q,fourpi,r,sum,drho,pp2
 
+      pp2    = pp + 2.0d0
       drho   = 2.0d0*rcut/dble(nrho)
       q      = dsqrt(gg)
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
@@ -211,10 +212,14 @@ c     real*8  tmp1(*)
       sum = 0.0d0
       do i=2,nrho-1
          r = (i-1)*drho
-         sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
+c        sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
+         sum = sum + sin(q*r)
+     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
       end do
       r = drho*(nrho-1)
-      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
+c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
+      sum = sum + sin(q*r)
+     >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
 
       kiril_coulomb_transform = (fourpi/q)*sum*drho
       return
