@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.77 1998-02-05 00:01:46 d3e129 Exp $
+c $Id: basis.F,v 1.78 1998-02-06 01:29:01 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -712,6 +712,7 @@ c::-local
       integer mycont  ! number of contractions
       integer mynbf   ! number of functions
       integer tmp1, tmp2
+      integer myngen
       integer mytype
       integer jtype
       character*1 ctype(0:6)
@@ -757,8 +758,11 @@ c::-local
         do i_cont = myfcont, mylcont
           mynbf = mynbf + nbf_from_ucont(i_cont,basisin)
           mytype = infbs_cont(Cont_Type,i_cont,basis)
+          myngen = infbs_cont(Cont_Ngen,i_cont,basis)
+          if (myngen.lt.1) call errquit (
+     &        'bas_summary_print: fatal error myngen:',myngen)
           if (mytype.ge.0) then
-            cnt_type(mytype) = cnt_type(mytype) + 1
+            cnt_type(mytype) = cnt_type(mytype) + myngen
           else 
             do jtype = 0,abs(mytype)
               cnt_type(jtype) = cnt_type(jtype) + 1
@@ -3477,7 +3481,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.77 1998-02-05 00:01:46 d3e129 Exp $
+C$Id: basis.F,v 1.78 1998-02-06 01:29:01 d3e129 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
