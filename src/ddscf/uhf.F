@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
+C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
+C     $Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -439,7 +439,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
+C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -530,7 +530,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
+c     $Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -899,7 +899,7 @@ c
       integer nvir, nocc(2), iset
       integer i, j, ioff, ibase
       integer l_diag, k_diag, l_x, k_x
-      integer g_f(2)
+      integer g_f(2), ivec, nvec, gtype, vlen
       double precision diag, denominator, shift
       diag(i) = dbl_mb(k_diag + i - 1)
 c     
@@ -913,6 +913,8 @@ c
       if (.not.ma_push_get(MT_DBL,nmo,'uhf: tmp',l_x,k_x))
      $     call errquit('uhf_hdiag_scale: cannot allocate',0)
 c
+      call ga_inquire(g_x, gtype, vlen, nvec)
+c
       shift = lshift - solveshift
 c
       ibase = 1
@@ -920,17 +922,21 @@ c
          nvir = nmo - nocc(iset)
          if (nvir .gt. 0) then
             call ga_get_diagonal(g_f(iset), dbl_mb(k_diag))
-c     
-            do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
-               ioff = (i-1)*nvir + ibase
-               call ga_get(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-               do j=1,nvir
-                  denominator = 2.d0*(diag(j+nocc(iset))-diag(i))+shift
-                  if (denominator .lt. 0.1d0) denominator = 0.1d0
-                  dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+            do ivec = 1, nvec
+               do i = ga_nodeid()+1, nocc(iset), ga_nnodes()
+                  ioff = (i-1)*nvir + ibase
+                  call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $                 dbl_mb(k_x),1)
+                  do j=1,nvir
+                     denominator = 2.d0 * (diag(j+nocc(iset)) - diag(i))
+     $                    + shift
+                     if (denominator .lt. 0.1d0) denominator = 0.1d0
+                     dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
+                  end do
+                  call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
+     $                 dbl_mb(k_x),1)
                end do
-               call ga_put(g_x, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_x),1)
-            end do
+            enddo
          endif
          ibase = ibase + nocc(1)*(nmo-nocc(1))
       end do
@@ -976,7 +982,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
+C$Id: uhf.F,v 1.22 1996-07-10 20:21:42 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
