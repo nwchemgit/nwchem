@@ -209,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.32 1996-09-19 01:09:30 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.33 1996-10-04 21:48:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -417,11 +417,9 @@ c
       external int2e_file_close
       logical okeep
 c
-      if (filesize.gt.0 .or. memsize.gt.0) then
-        if (.not. rtdb_get(rtdb, 'int2e:keep',
-     $       MT_LOG, 1, okeep)) okeep = .false.
-         if (.not. int2e_file_close(okeep))
-     $        call errquit('scf_tidy: closing aoints?', 0)
-      endif
+      if (.not. rtdb_get(rtdb, 'int2e:keep',
+     $     MT_LOG, 1, okeep)) okeep = .false.
+      if (.not. int2e_file_close(okeep))
+     $     call errquit('scf_tidy: closing aoints?', 0)
 c
       end

@@ -1,3 +1,9 @@
+      block data cint2efdata
+      implicit none
+#include "cint2efile.fh"
+      data file_opened /.false./
+      data l_cache /-1/
+      end
       logical function int2e_file_open(
      $     filename,
      $     cachesize, filesize, precision_arg, orestart)
@@ -12,8 +18,13 @@
       integer cachesize, filesize
       double precision precision_arg
       logical orestart
+#ifdef CRAY_T3D
+      external cint2efdata
+#endif
 c
       double precision length
+      integer availkb
+      character*20 fstype
 c
 #include "cint2esave.fh"
 c
@@ -23,7 +34,8 @@ c
 c     Currently only allows for restart if entire file is disk resident
 c     ... needs mods to allow writing of memory cached integrals
 c     (actually gets simpler once the file routines do the caching)
-*
+c
+      if (filename.eq.' ') call errquit('int2e_file_open: empty name',0)
       call util_pname(filename, actualname)
 c
       otrace = util_print('int2edebug',print_debug)
@@ -75,14 +87,23 @@ c
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
-         max_file_rec = (2**30)/(8*rec_len_in_dbl) ! Default max size of 1 Gb
+         if (eaf_stat(actualname, availkb, fstype) .ne. 0) call errquit
+     $        ('int2e_file_open:unable to determine available disk',0)
+         max_file_rec = nint((0.95*1024.0d0*availkb) / 
+     $        (8.0d0*rec_len_in_dbl))
+         max_file_rec = max(0,max_file_rec)
       else 
          max_file_rec = 0
       end if
-      if (max_file_rec .gt. 0) then
+      if (max_file_rec .gt. 0) then ! For the semidirect logic
          max_file_rec = max_file_rec - 1
       else if (max_cache_rec .gt. 0) then
          max_cache_rec = max_cache_rec - 1
+      endif
+c
+      if (max_file_rec.eq.0 .and. max_cache_rec.eq.0) then
+         int2e_file_open = .false.
+         return
       endif
 c
 c     Figure out the size of an existing file
@@ -178,34 +199,37 @@ c
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('int2e_file_close: delete failed', 0)
          endif
-         file_opened = .false.
       endif
 c
-      call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
-      call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
-      if (oinfo) then
-         write(6,1) n_rec_in_file, nlarge
- 1       format(/
-     $        ' Parallel integral file used',i8,' records with',
-     $        i8,' large values'/)
-         call util_flush(6)
-      end if
-      cur_rec = 0
-      n_rec_in_file = 0
-      call int2e_buf_clear
-c
-      if (max_cache_rec .gt. 0) then
+      if (l_cache .ne. -1) then
          if (.not. ma_free_heap(l_cache))
      $        call errquit('int2e_file_close: free heap?',0)
       end if
+c
+      if (file_opened .or. l_cache.ne.-1) then
+         call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
+         call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
+         if (oinfo) then
+            write(6,1) n_rec_in_file, nlarge
+ 1          format(/
+     $           ' Parallel integral file used',i8,' records with',
+     $           i8,' large values'/)
+            call util_flush(6)
+         end if
+         if (otrace) then
+            write(6,*) ' int2e_file: closing ',
+     $           actualname(1:inp_strlen(actualname))
+            call util_flush(6)
+         end if
+      endif
+c
+      l_cache = -1
+      file_opened = .false.
+      cur_rec = 0
+      n_rec_in_file = 0
+      call int2e_buf_clear
       max_cache_rec = 0
-c
-      if (otrace) then
-         write(6,*) ' int2e_file: closing ',
-     $        actualname(1:inp_strlen(actualname))
-         call util_flush(6)
-      end if
-c
+c     
       int2e_file_close = .true.
 c
       end
@@ -671,6 +695,18 @@ c
       end
       logical function int2e_buf_write(oend)
       implicit none
+      logical oend
+      logical int2e_packed_buf_write
+      external int2e_packed_buf_write
+c
+      call int2e_buf_cntr_pack()
+      call int2e_buf_pack()
+c
+      int2e_buf_write = int2e_packed_buf_write(oend)
+c
+      end
+      logical function int2e_packed_buf_write(oend)
+      implicit none
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -696,7 +732,7 @@ c     test for overflowing the file and memory cache
 c
       maxrec = max_cache_rec + max_file_rec
       if ((.not. oend) .and. (cur_rec .gt. maxrec)) then
-         int2e_buf_write = .false.
+         int2e_packed_buf_write = .false.
          if (otrace) then
             write(6,12) cur_rec
  12         format(' int2e_file: file full at record ',i8)
@@ -728,9 +764,6 @@ c
          end if
       end if
 c
-      call int2e_buf_cntr_pack()
-      call int2e_buf_pack()
-c
  10   continue
       if (cur_rec .le. max_cache_rec) then
          if (l_cache .eq. -1) then
@@ -755,7 +788,7 @@ c     Should really detect failures in writing and return false
 c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
          if (eaf_write(fd, offset, buf, 8*rec_len_in_dbl) .ne. 0)
-     $        call errquit('int2e_buf_write: write failed',0)
+     $        call errquit('int2e_packed_buf_write: write failed',0)
       end if
 c
       if (otrace) then
@@ -768,45 +801,21 @@ c
       call int2e_buf_clear
       n_rec_in_file   = n_rec_in_file + 1
       cur_rec         = cur_rec + 1
-      int2e_buf_write = .true.
+      int2e_packed_buf_write = .true.
 c
       end
       logical function int2e_buf_read()
       implicit none
 #include "cint2efile.fh"
-#include "mafdecls.fh"
-#include "cint2esave.fh"
-#include "eaf.fh"
+      logical int2e_packed_buf_read
+      external int2e_packed_buf_read
 c
-      double precision offset
+      int2e_buf_read = int2e_packed_buf_read()
+      if (.not. int2e_buf_read) return
 c
-      call int2e_buf_clear
-      if (cur_rec .gt. n_rec_in_file) then
-         int2e_buf_read = .false.
-         if (otrace) then
-            write(6,1) cur_rec, n_rec_in_file
- 1          format(' int2e_file: EOF at record',i5,' of ',i5,'?')
-            call util_flush(6)
-         end if
-         return
-      end if
-c
-      if (cur_rec .le. max_cache_rec) then
-         call dcopy(rec_len_in_dbl, 
-     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
-     $        buf, 1)
-      else
-         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
-         if (eaf_read(fd, offset, buf, 8*rec_len_in_dbl) .ne. 0)
-     $        call errquit('int2e_buf_write: write failed',0)
-      end if
       call int2e_buf_unpack()
-c
-c     Extract the count of values in the current range in this buffer
-c
       call int2e_buf_cntr_unpack()
 c
-      cur_rec = cur_rec + 1
       if (n_in_rec .gt. 1) then
          int2e_buf_read = .true.
       else
@@ -819,6 +828,40 @@ c
      $           ,' of ',i6,'.')
          call util_flush(6)
       end if
+c
+      end
+      logical function int2e_packed_buf_read()
+      implicit none
+#include "cint2efile.fh"
+#include "mafdecls.fh"
+#include "cint2esave.fh"
+#include "eaf.fh"
+c
+      double precision offset
+c
+      call int2e_buf_clear
+      if (cur_rec .gt. n_rec_in_file) then
+         int2e_packed_buf_read = .false.
+         if (otrace) then
+            write(6,1) cur_rec, n_rec_in_file
+ 1          format(' int2e_file: EOF at record',i5,' of ',i5,'?')
+            call util_flush(6)
+         end if
+         return
+      end if
+c
+      if (cur_rec .le. max_cache_rec) then
+         call dcopy(rec_len_in_dbl, 
+     $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1,
+     $        buf, 1)
+         int2e_packed_buf_read = .true.
+      else
+         offset = 8.0d0*rec_len_in_dbl*(cur_rec-max_cache_rec-1)
+         int2e_packed_buf_read = 
+     $        eaf_read(fd, offset, buf, 8*rec_len_in_dbl) .eq. 0
+      end if
+c
+      cur_rec = cur_rec + 1
 c
       end
       subroutine int2e_buf_clear()
@@ -893,10 +936,12 @@ c
 c     Truncate the physical file as necessary
 c
          if (cur_rec .gt. max_cache_rec) then
-            newfilelen = max(0.0d0,
-     $           8.0d0*rec_len_in_dbl*(target_rec-max_cache_rec))
-            if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $           ('int2e_reposition: file truncate failed', 0)
+            if (file_opened) then
+               newfilelen = max(0.0d0,
+     $              8.0d0*rec_len_in_dbl*(target_rec-max_cache_rec))
+               if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
+     $              ('int2e_reposition: file truncate failed', 0)
+            endif
             n_rec_in_file = target_rec
          endif
 c
@@ -1079,7 +1124,7 @@ c
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "geom.fh"
+#include "sym.fh"
 #include "cfock.fh"
 #include "msgids.fh"
 c     
@@ -1087,78 +1132,87 @@ c
       integer basis             ! [input]
       double precision tol2e    ! [input]
 c     
-c     By default memsize=filesize=0, i.e., a fully direct calculation.
-c     However, if we can store the integrals in memory it is much
-c     better to do this by default.
-c     
-c     memsize<0 or filesize<0 means don't use this medium.
-c     memsize>0 or filesize>0 means already enabled.
+c     By default memsize=filesize=0 implying if the calculation fits into
+c     memory, then use memory, otherwise use all available disk space.
+c
+c     If either size is negative then that medium is not to be used.
+c     If either is size is positive then it has been user set.
 c     
       logical int2e_file_open
       external int2e_file_open
-      integer nbf, avail, mem2, max2e, natom, natom_unique
+      integer nbf, avail, mem2, max2e, localmemsize, nops
       double precision nq
       logical ofirst
       data ofirst /.true./      ! If first call to this routine
 #include "cint2esave.fh"
 c     
       int2e_test_mem = .false.
-      if (memsize.ne.0 .or. filesize.ne.0) return
+c
+      if (file_opened) return
+      if (filesize.lt.0 .and. memsize.lt.0) return
+c
+c     Determine if we should automatically run an in-core calculation
+c
       oinfo  = util_print('int2einfo', print_default) .and.
      $     ga_nodeid().eq.0
       if (.not. bas_numbf(basis, nbf))
      $     call errquit('int2e: bad bas',0)
+      nops = sym_number_ops(geom) + 1
 c
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
 c
 c     How much memory?  Leave space for GAs, for the integral code,
 c     and for 50,000 of misc. junk. 
 c
-      avail = MA_inquire_avail(mt_dbl)
+      if (memsize .eq. 0) then
+         avail = MA_inquire_avail(mt_dbl)
 *      write(6,*) ' avail 1 ', avail
-      if (ga_uses_ma() .and. ga_memory_limited()) 
-     $   avail = avail - ga_memory_avail()
+         if (ga_uses_ma() .and. ga_memory_limited()) 
+     $        avail = avail - ga_memory_avail()
 *      write(6,*) ' avail 2 ', avail
-      call intb_mem_2e4c(max2e, mem2)
+         call intb_mem_2e4c(max2e, mem2)
 *      write(6,*) ' avail 3 ', avail
-      avail = avail - 5*maxeri - mem2
+         avail = avail - 5*maxeri - mem2
 *      write(6,*) ' avail 4 ', avail
-      avail = avail - 100000
+         avail = avail - 100000
 *      write(6,*) ' avail 5 ', avail
-      call ga_igop(msg_int2e_file, avail, 1, 'min')
+         call ga_igop(msg_int2e_file, avail, 1, 'min')
 *      write(6,*) ' avail 6 ', avail
-c
+c     
 c     Assume that for the small systems for which can hold the
 c     integrals, that there is no sparsity except for symmetry.
 c     Also, assume that the integrals will be evenly distributed
 c     apart from a 10% fluctuation
-c
-      if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
-     $     ('int2e_test_mem: bad geom handle?',0)
-      if (.not. geom_ncent(geom, natom)) call errquit
-     $     ('int2e_test_mem: bad geom handle?',0)
 c     
-      nq = 0.125d0 * dble(nbf+1)**4 
+         nq = 0.125d0 * dble(nbf+1)**4 
 *      write(6,*) ' nq 1 ', nq
-      nq = nq * (dble(natom_unique) / dble(natom))
+         if (nops .ne. 1) nq = (1.3 * nq) / nops ! 1.3 empircal from C6H6
 *      write(6,*) ' nq 1 ', nq
-      nq = nq / ga_nnodes()
+         nq = nq / ga_nnodes()
 *      write(6,*) ' nq 1 ', nq
-      nq = nq * 1.1d0 + 2*rec_len_in_dbl ! Fudge factors for safety
+         nq = nq * 1.1d0 + 2*rec_len_in_dbl ! Fudge factors for safety
 *      write(6,*) ' nq 1 ', nq
 c
-      if (nq .lt. avail) then
-         memsize = max(2*buffer_size,int(nq))  ! Set these so that scf_tidy cleans up
-         filesize = -1  ! semidirect should work now
-         if (.not. int2e_file_open(int2efilename, memsize, filesize, 
-     $        tol2e, .false.))
+         if (nq .lt. avail) then
+            localmemsize = max(2*buffer_size,int(nq))
+         else
+            localmemsize = 0
+         endif
+      else
+         localmemsize = 0
+      endif
+c
+      if (localmemsize.gt.0 .or. filesize.ge.0) then
+         if (.not. int2e_file_open(int2efilename, 
+     $        localmemsize, filesize, tol2e, .false.))
      $        call errquit('int2e_test_mem: int2e_file_open failed',0)
          int2e_test_mem = .true.
-      else if (oinfo .and. ofirst) then
-         write(6,1) nq-avail
- 1       format(/' Provide',1p,d9.2,' more words/process to ',
-     $        'cache all integrals in memory'/)
-      end if
+      endif
+*      if (localmemsize.eq.0 .and. oinfo .and. ofirst .and. memsize.eq.0) then
+*         write(6,1) nq-avail
+* 1       format(/' Provide',1p,d9.2,' more words/process to ',
+*     $        'cache all integrals in memory'/)
+*      end if
 c
       ofirst = .false.
 c

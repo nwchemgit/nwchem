@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.12 1996-09-27 22:46:24 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.13 1996-10-04 21:48:16 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -199,6 +199,7 @@ c
          owritefile = .false.
          if (.not. int2e_buf_write(.true.)) 
      $        call errquit('ao_replicated: failed writing last block',0)
+         call int2e_file_balance()
       end if
 c     
       end
@@ -672,7 +673,7 @@ c
       k_l = k_k   + leneri
 c     
       if (.not. intb_init4c(basis, iq, jq, basis, kq, lq,
-     $     nq, lenscr, dbl_mb(k_scr), leneri, block_eff))
+     $     nq, q4, .true., lenscr, dbl_mb(k_scr), leneri, block_eff))
      $     call errquit('intb_init?',nq)
 c     
  50   continue

@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.25 1996-09-27 22:46:26 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.26 1996-10-04 21:48:17 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -442,7 +442,7 @@ c
       k_l = k_k   + leneri
 c
       if (.not. intb_init4c(basis, iq, jq, basis, kq, lq,
-     $     nq, lenscr, dbl_mb(k_scr), leneri, block_eff))
+     $     nq, q4, .true., lenscr, dbl_mb(k_scr), leneri, block_eff))
      $     call errquit('intb_init?',nq)
 c     
  50   more = intb_2e4c(basis, iq, jq, basis, kq, lq,

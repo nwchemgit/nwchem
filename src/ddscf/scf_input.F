@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.5 1996-10-03 23:54:47 vg038 Exp $
+C $Id: scf_input.F,v 1.6 1996-10-04 21:48:22 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -10,12 +10,13 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 33)
+      parameter (num_dirs = 35)
       character*10 dirs(num_dirs)
       character*255 test
       character*5 scftype(1)
       double precision conv, shifts(6), tolnr, tol2e
       integer maxiter, poff, nopen, task_chunks, task_bf, maxsub
+      integer memsize, filesize
       integer nriscf, ri_store
       data dirs /'thresh','maxiter','scftype','level','vectors',
      $     'nr', 'profile', 'print', 'noprint', 'tol2e',
@@ -23,9 +24,7 @@ c
      $     'singlet', 'doublet', 'triplet', 'quartet', 'quintet',
      $     'chunk', 'nosym', 'ri', 'maxsub', 'lagrang', 'taskbf',
      $     'diis', 'diisbas', 'sym', 'adapt', 'lagrangian', 'lock',
-     $     'end'/
-c
-      call context_push('scf')
+     $     'direct', 'semidirect', 'end'/
 c
 c     For now, any SCF input results in it being marked non-converged
 c
@@ -41,7 +40,7 @@ c
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700,
-     $     2800, 2900, 3000, 2500, 3100,
+     $     2800, 2900, 3000, 2500, 3100, 3200, 3300,
      $     9999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
@@ -100,7 +99,7 @@ c
 c
 c     vectors
 c
- 500  call vectors_input(rtdb)
+ 500  call vectors_input(rtdb,'scf')
       goto 10
 c
 c     nr switch
@@ -194,7 +193,7 @@ c
 c     RI-SCF
 c
  2300 continue
-C     set defaults
+c     set defaults
       nriscf = 2
       ri_store = 1
       if (inp_n_field().gt.1) then
@@ -286,17 +285,56 @@ c
      $       call errquit('scf_input: failed to store lock',0)
         goto 10
 c
+c     direct
+c
+ 3200   filesize = -1
+        memsize  = -1
+        if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
+     $       call errquit('scf_input: failed to store filesize',0)
+        if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
+     $       call errquit('scf_input: failed to store filesize',0)
+        goto 10
+c
+c     semidirect [filesize <integer filesize = disksize>] 
+c                [memsize  <integer memsize = available>]
+c                [filename <string filename>]
+c
+ 3300   filesize = -33
+        memsize  = -33
+ 3301   if (inp_a(test)) then
+           if (inp_compare(.false., test, 'filesize')) then
+              if (.not. inp_i(filesize)) goto 3302
+           else if (inp_compare(.false., test, 'memsize')) then
+              if (.not. inp_i(memsize)) goto 3302
+           else if (inp_compare(.false., test, 'filename')) then
+              if (.not. inp_a(test)) goto 3302
+              if (.not. rtdb_cput(rtdb, 'int2e:filename', 1, test))
+     $             call errquit('scf_input: bad rtdb : filename?',0)
+           else
+              goto 3302
+           endif
+           goto 3301
+        endif
+        call inp_clear_err()
+c
+c     User should see a value of zero meaning zero not use default
+c
+        if (filesize.eq.0) filesize = -1
+        if (memsize.eq.0) memsize = -1
+        if (filesize.eq.-33) filesize=0
+        if (memsize.eq.-33) memsize=0
+        if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
+     $       call errquit('scf_input: failed to store filesize',0)
+        if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
+     $       call errquit('scf_input: failed to store filesize',0)
+        goto 10
+c
+ 3302   call errquit('semi-direct [filesize <integer filesize'//
+     $       ' = disksize>] [memsize <integer memsize = available>]'//
+     $       ' [filename <string filename>] ',0)
+c
 c     end
 c     
  9999 continue
-       call context_pop('scf')
 c     
-C      if (.not. rtdb_print(rtdb,.true.)) stop
       end
-
-
-
-
-
-
-
