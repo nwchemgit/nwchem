@@ -1,3 +1,7 @@
+*
+* $Id: pspw_stress_numerical.F,v 1.2 2002-04-25 00:34:38 bylaska Exp $
+*
+
       logical function pspw_stress_numerical(rtdb)
       implicit none
       integer rtdb

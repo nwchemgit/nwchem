@@ -1,6 +1,6 @@
       integer function ewald_ncut()
 *
-* $Id: ewald.F,v 1.1 2002-01-14 21:06:28 bylaska Exp $
+* $Id: ewald.F,v 1.2 2002-04-25 00:34:39 bylaska Exp $
 *
       implicit none 
 
@@ -785,6 +785,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
       call Pack_tt_dot(0,dbl_mb(F(1)),dbl_mb(H(1)),energy)
       energy = -0.5d0*energy/lattice_omega()
 
+      write(*,*) "Ewald E:", energy
       do v=1,3
       do u=1,3
          stress(u,v) = stress(u,v) + energy*hm(u,v)
@@ -888,7 +889,7 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
               ea = dsqrt(ax*ax + ay*ay + az*az)
 
               ss = util_erfc(epsilon*ea)/(ea**2)
-     >            + 2.0d0/dsqrt(pi)*exp(-(epsilon*ea)**2)/ea
+     >           + 2.0d0*epsilon/dsqrt(pi)*exp(-(epsilon*ea)**2)/ea
               Cus(1,1) = Cus(1,1) - ss * ax*ax/ea * 0.5d0*zz
               Cus(1,2) = Cus(1,2) - ss * ax*ay/ea * 0.5d0*zz
               Cus(1,3) = Cus(1,3) - ss * ax*az/ea * 0.5d0*zz
@@ -931,7 +932,8 @@ c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
            ea = dsqrt(ax*ax+ay*ay+az*az)
            w = ea/rcut
 
-           ss = -util_erfc(w)/(ea**2) - 2.0d0/dsqrt(pi)*exp(-w*w)/ea
+           ss = -util_erfc(w)/(ea**2) 
+     >        - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)/ea
            Cus(1,1) = Cus(1,1) + ss * ax*ax/ea * zz
            Cus(1,2) = Cus(1,2) + ss * ax*ay/ea * zz
            Cus(1,3) = Cus(1,3) + ss * ax*az/ea * zz

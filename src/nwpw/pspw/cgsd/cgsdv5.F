@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.24 2002-03-05 03:47:34 bylaska Exp $
+* $Id: cgsdv5.F,v 1.25 2002-04-25 00:34:38 bylaska Exp $
 *
 
 ***********************************************************************
@@ -100,8 +100,8 @@
       integer  psi_ispin,psi_ne,electron_count,linesearch_count
       external psi_initialize, psi_finalize, pspw_qmmm_found
       external psi_ispin,psi_ne,electron_count,linesearch_count
-      real*8   cgsd_energy
-      external cgsd_energy
+      real*8   cgsd_energy,cgsd_noit_energy
+      external cgsd_energy,cgsd_noit_energy
       logical  control_Mulliken
       external control_Mulliken
       real*8   ion_TotalCharge
@@ -342,21 +342,26 @@ c       call control_gradient_iterations()
 c     end if
 
 *     **** calculate energy ****
-      EV= cgsd_energy(newpsi)
+      if (flag.eq.-1) then
+        EV= cgsd_noit_energy()
+      else
+        EV= cgsd_energy(newpsi)
+      end if
 
 *     **** extra energy output for QA test ****
       if (taskid.eq.MASTER) write(6,1600) EV
 
 *     **** calculate the spin contamination ****
-      call psi_spin2(dipole(1))
+      if (flag.gt.-1) call psi_spin2(dipole(1))
       
 *     **** calculate the dipole ***
       dipole(1) = 0.0d0
       dipole(2) = 0.0d0
       dipole(3) = 0.0d0
-      call rho_dipole(dipole)
+      if (flag.gt.-1) call rho_dipole(dipole)
 
 *     ****  calculate gradient ***
+      if (flag.gt.0) then
       nion = ion_nion()
       if (pspw_charge_found()) nion = nion + pspw_charge_nion()
       if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
@@ -367,6 +372,7 @@ c     end if
      
       call cgsd_energy_gradient(dbl_mb(fion(1)))
       call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
+      end if
 
 *     **** calculate the stress tensor ****
       call dcopy(9,0.0d0,0,stress,1)
@@ -383,21 +389,23 @@ c     end if
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
+      if (flag.gt.-1) then
       value = value.and.
      >        rtdb_put(rtdb,'pspw:dipole',mt_dbl,
      >                 3,dipole)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
-     >                 9,stress)
-      value = value.and.
+      end if
+      if (flag.gt.0) then
+        value = value.and.
      >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
-
+        value = value.and.MA_pop_stack(fion(2))
+      end if
+      if (flag.eq.3) then
+        value = value.and.
+     >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
+     >                 9,stress)
+      end if
       if (.not. value) call errquit('cgsdv5: error writing rtdb',0)
-      value = MA_pop_stack(fion(2))
-      if (.not. value) call errquit('erroring popping stack memory',0)    
-
-
 
       if (taskid.eq.MASTER) call current_second(cpu3)
 

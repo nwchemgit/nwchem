@@ -1,19 +1,13 @@
-c     $Id: cgsd_energy.F,v 1.21 2002-04-24 17:44:49 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.22 2002-04-25 00:34:38 bylaska Exp $                       
 *     ***************************
-*     *							*
-*     *		cgsd_energy			*
-*     *							*
+*     *				*
+*     *		cgsd_energy	*
+*     *				*
 *     ***************************
 
       real*8 function cgsd_energy(newpsi)
       implicit none
 #include "stdio.fh"
-
-**** debug ***********
-#include "global.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-**********************
 
       logical newpsi
       integer MASTER
@@ -244,16 +238,6 @@ c        call pspw_charge_Print(6)
 
       end if
 
-*     **** debug - energies written to rtdb for numerical stress ****
-      rtdb = control_rtdb()
-      value =           rtdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
-      value = value.and.rtdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
-      value = value.and.rtdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
-      value = value.and.rtdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
-      value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
-      value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
-      if (.not. value) call errquit(
-     >   'cgsd_energy: numerical stress - error writing rtdb',0)
 
 
       cgsd_energy = E(1)

@@ -1,5 +1,5 @@
 c
-c     $Id: nominimize.F,v 1.1 2002-04-24 21:59:17 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.2 2002-04-25 00:34:39 bylaska Exp $ 
 c
 
       subroutine nominimize(E)
@@ -81,11 +81,7 @@ c
       call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
       Enew = E0
 
- 30   call psi_2to1()
       call psi_1toelectron() 
-c     call rho_2to1()
-c     call dng_2to1()
-      call psi_check()
 
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()

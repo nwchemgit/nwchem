@@ -1,6 +1,6 @@
       logical function update_unitcell(rtdb)
 *
-* $Id: update_unitcell.F,v 1.3 2002-04-24 01:16:26 bylaska Exp $
+* $Id: update_unitcell.F,v 1.4 2002-04-25 00:34:38 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -113,10 +113,10 @@
       end
 
 
-      subroutine adjust_ions(nion,ion,unita,unita2)
+      subroutine adjust_ions(nion,rion,unita,unita2)
       implicit none
       integer nion
-      real*8  ion(3,*)
+      real*8  rion(3,*)
       real*8  unita(3,3)
       real*8  unita2(3,3)
 
@@ -133,9 +133,11 @@
       b(1,1) = a(2,2)*a(3,3) - a(3,2)*a(2,3)
       b(2,1) = a(3,2)*a(1,3) - a(1,2)*a(3,3)
       b(3,1) = a(1,2)*a(2,3) - a(2,2)*a(1,3)
+
       b(1,2) = a(2,3)*a(3,1) - a(3,3)*a(2,1)
       b(2,2) = a(3,3)*a(1,1) - a(1,3)*a(3,1)
       b(3,2) = a(1,3)*a(2,1) - a(2,3)*a(1,1)
+
       b(1,3) = a(2,1)*a(3,2) - a(3,1)*a(2,2)
       b(2,3) = a(3,1)*a(1,2) - a(1,1)*a(3,2)
       b(3,3) = a(1,1)*a(2,2) - a(2,1)*a(1,2)
@@ -147,18 +149,18 @@
       call dscal(9,volume,b,1)
 
       do i=1,nion
-         tion(1) = ion(1,i)
-         tion(2) = ion(2,i)
-         tion(3) = ion(3,i)
-         ion(1,i) = b(1,1)*tion(1)
-     >            + b(1,2)*tion(2)
-     >            + b(1,3)*tion(3)
-         ion(2,i) = b(2,1)*tion(1)
-     >            + b(2,2)*tion(2)
-     >            + b(2,3)*tion(3)
-         ion(3,i) = b(3,1)*tion(1)
-     >            + b(3,2)*tion(2)
-     >            + b(3,3)*tion(3)
+         tion(1) = rion(1,i)
+         tion(2) = rion(2,i)
+         tion(3) = rion(3,i)
+         rion(1,i) = b(1,1)*tion(1)
+     >             + b(2,1)*tion(2)
+     >             + b(3,1)*tion(3)
+         rion(2,i) = b(1,2)*tion(1)
+     >             + b(2,2)*tion(2)
+     >             + b(3,2)*tion(3)
+         rion(3,i) = b(1,3)*tion(1)
+     >             + b(2,3)*tion(2)
+     >             + b(3,3)*tion(3)
 
       end do
 
@@ -169,24 +171,22 @@
       end do
       end do
 
-      do i=1,nion
-         tion(1) = ion(1,i)
-         tion(2) = ion(2,i)
-         tion(3) = ion(3,i)
 
-         ion(1,i) = a(1,1)*tion(1)
-     >            + a(1,2)*tion(2)
-     >            + a(1,3)*tion(3)
-         ion(2,i) = a(2,1)*tion(1)
-     >            + a(2,2)*tion(2)
-     >            + a(2,3)*tion(3)
-         ion(3,i) = a(3,1)*tion(1)
-     >            + a(3,2)*tion(2)
-     >            + a(3,3)*tion(3)
+      do i=1,nion
+         tion(1) = rion(1,i)
+         tion(2) = rion(2,i)
+         tion(3) = rion(3,i)
+
+         rion(1,i) = a(1,1)*tion(1)
+     >             + a(1,2)*tion(2)
+     >             + a(1,3)*tion(3)
+         rion(2,i) = a(2,1)*tion(1)
+     >             + a(2,2)*tion(2)
+     >             + a(2,3)*tion(3)
+         rion(3,i) = a(3,1)*tion(1)
+     >             + a(3,2)*tion(2)
+     >             + a(3,3)*tion(3)
       end do
 
       return
       end
-
-
-
