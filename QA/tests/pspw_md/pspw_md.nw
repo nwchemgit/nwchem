@@ -141,7 +141,7 @@ PSPW
       tolerances: 1.0d-12 1.0d-9 1.0d-4
    END
 END
-task cg_pspw energy
+task pspw energy
 task pspw steepest_descent
 
 
