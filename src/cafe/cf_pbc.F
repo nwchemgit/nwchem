@@ -1,6 +1,6 @@
       subroutine cf_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: cf_pbc.F,v 1.4 1999-09-17 22:21:41 d3j191 Exp $
+c $Id: cf_pbc.F,v 1.5 1999-10-08 18:28:43 d3j191 Exp $
 c
       implicit none
 c
@@ -10,6 +10,10 @@ c
       real*8 xd(ndd,3),xc(ndc,3),xt(3),xts
       integer i,ix,jx,ndim
       real*8 rin(3),pbcor,boxi(3)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      real*8 arg_nint
+      external arg_nint
+#endif
 c
       if(npbtyp.eq.0) return
 c
