@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.49 1996-12-03 18:30:49 d3h449 Exp $
+C$Id: dft_scf.F,v 1.50 1996-12-04 00:56:10 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -609,7 +609,7 @@ c
             call diis_driver(derr(ispin),ispin,ipol,icall,
      &        nfock,nbf_ao,geom,ao_bas_han,
      &        g_fock,g_dens(ispin),g_tmp,
-     &        g_svecs,isvals)
+     &        g_svecs,isvals,diis,nodiis)
           endif
         endif
 c         
@@ -1099,7 +1099,7 @@ c
           call diis_driver(derr(1),1,ipol,icall,
      &         nfock,nbf_ao,geom,ao_bas_han,
      &         g_fock,g_dens(1),g_tmp,
-     &         g_svecs,isvals)
+     &         g_svecs,isvals,diis,nodiis)
         end if
       endif
 c
