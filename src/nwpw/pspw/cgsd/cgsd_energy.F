@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.13 2002-02-13 20:11:08 edo Exp $                       
+c     $Id: cgsd_energy.F,v 1.14 2002-02-16 01:06:20 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -107,7 +107,8 @@ c     $Id: cgsd_energy.F,v 1.13 2002-02-13 20:11:08 edo Exp $
          end if
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
-     >       write(luout,*) ' *** Energy going up. iteration terminated'
+     >       write(luout,*) 
+     >       ' *** Energy going up. iteration terminated'
             go to 3
          end if
          deltae = dabs(deltae)
