@@ -10,12 +10,13 @@
      $     irs_a, irs_b,
      $     c_a, c_b,            ! Better left in a GA to conserve memory
      $     nva_lo_local, nva_hi_local, 
-     $     tunita, tunitb, frc)
+     $     tunita, tunitb, grad)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
 #include "bas.fh"
+#include "eaf.fh"
       integer basis, rtdb, geom
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
@@ -33,7 +34,7 @@
       double precision c_a(nbf,*), c_b(nbf,*) ! MO coefficients
       integer nva_lo_local, nva_hi_local ! Range of virtuals on this node
       integer tunita, tunitb    ! Unit no.s for pure and mixed spin T
-      double precision frc(3,*)
+      double precision grad(3,*)
 c
 c     Allocate memory for back transformation routine
 c
@@ -108,10 +109,9 @@ c
      $     'mp2: backt', 1, 1, int_mb(k_map), ga_nnodes(), g_buf))
      $     call errquit('mp2: backt: ga_create failed', nva*nbfpair)
 c     
-      twopdmunit = 33
       call util_file_name('2pdm', .true., .true., fname)
-      call waopen(twopdmunit,fname,1,0,ierr)
-      if (ierr .ne. 0) call errquit('mp2: backt: failed to open file',0)
+      if (eaf_open(fname,eaf_rw,twopdmunit) .ne. 0)
+     $     call errquit('mp2: backt: failed to open file',0)
 c     
 c     Now do the back transformation
 c
@@ -161,7 +161,7 @@ c
      $     nsh, nbf, ninseg,
      $     nshpairlocal, int_mb(k_shpairslocal),
      $     int_mb(k_shdim), int_mb(k_shlo),
-     $     dbl_mb(k_t), dbl_mb(k_tmp), frc,
+     $     dbl_mb(k_t), dbl_mb(k_tmp), grad,
      $     tol2e)
 
       call intd_terminate()
@@ -172,8 +172,8 @@ c
       if (.not. ma_chop_stack(l_shpairs)) call errquit
      $     ('mp2: backt: failed chopping stack',0)
 c
-      call waclose(twopdmunit, ierr)
-      if (ierr .ne. 0) call errquit('mp2: backt: closing 2pdm',ierr)
+      if (eaf_close(twopdmunit) .ne. 0)
+     $     call errquit('mp2: backt: closing 2pdm',ierr)
       call util_file_unlink(fname)
 c
       end
@@ -197,6 +197,7 @@ c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "eaf.fh"
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
       integer nva, nva_lo, nva_hi ! Number and ranges of virtual orbitals
@@ -226,24 +227,25 @@ c
       integer twopdmunit        ! Unit no. for part transformed two-PDM
       integer map(0:*)          ! First index of g_buf on each node
       integer g_buf             ! Global array handle for transpose buffer
-c
+c     
       double precision ddot
       external ddot
-*      double precision tsum
+*     double precision tsum
 
       double precision zero, one, scale
-      integer tunitptra, tunitptrb, twopdmunitptr  ! Pointers into files
+      integer tunitptra, tunitptrb ! Pointers into files
+      double precision twopdmunitptr
       integer count, tcount, ind, ierr, ptr
       integer symi, symj, syma, symb, symia
       integer i, a, b, u, v, ush, vsh, udim, vdim, ishpair
 c     
       zero=0.0d0
       one=1.0d0
-c
+c     
       tunitptra=1
       tunitptrb=1
-*      tsum = 0
-c
+*     tsum = 0
+c     
       do i=oseg_lo,oseg_hi 
 	 call ga_fill_patch(g_buf,1,nva,1,nbfpair,99.0d0) ! For debug
          symi=irs_a(i)
@@ -283,8 +285,8 @@ c
                   tcount=tcount+num_oa(symj)*num_va(symb)
                end if
             end do
-c
-            tcount=1           ! Read mixed spin t(ia,**) from disk 
+c     
+            tcount=1            ! Read mixed spin t(ia,**) from disk 
             do b=nvb_lo,nvb_hi
                symb=irs_b(b)
                symj=ieor(symb,symia)
@@ -297,7 +299,7 @@ c
                   tcount=tcount+count
                end if
             end do
-c
+c     
             tcount=1
             do symb=0,nir-1
                symj=ieor(symia,symb)
@@ -315,11 +317,11 @@ c
                   tcount=tcount+num_ob(symj)*num_vb(symb)
                end if
             end do
-c
+c     
 c     Pack down into sparse, symmetry unique list and symmetrize over uv
 c     Note we put in the whole square of diagonal shell blocks and divide
 c     it by two.
-c
+c     
             ind = 0
             do ishpair = 1, nshpair
                ush = shpairs(1,ishpair)
@@ -334,7 +336,7 @@ c
                end do
             end do
             if (ind .ne. nbfpair) call errquit('mp2bt: ind?', ind)
-c
+c     
 c     shpairs(1:2,1:nshpair)    (u>=v) shell pair indices
 c     shdim(1:nsh)              dimension of this sh (s=1,p=2,...)
 c     shlo(1:nsh)               first basis function in shell
@@ -343,24 +345,24 @@ c     nshpair                   total no. of non-zero shell pairs
 c     nshpairlocal              no. of shellpairs assigned to this processor
 c     nbfpairlocal              no. of bfpairs assigned to this processor
 c     shpairslocal(1:2,1:nshpairlocal) (u>=v) local shell pair indices
-c
+c     
             call ga_put(g_buf, a-nva_lo+1, a-nva_lo+1,
      $           1, nbfpair, tmp, 1)
-c
-         end do                  ! End of a
+c     
+         end do                 ! End of a
          call ga_sync
-c
+c     
 c     Now have locally (a,1:nbfpairlocal).  Loop thru local shell pairs
 c     transform the a index and write to disk.
-c
+c     
          ind = map(ga_nodeid())
-         ptr = 1
+         ptr = 0
          do ishpair = 1, nshpairlocal
             ush = shpairslocal(1,ishpair)
             vsh = shpairslocal(2,ishpair)
             udim = shdim(ush)
             vdim = shdim(vsh)
-c
+c     
             call ga_get(g_buf,1,nva,ind,ind+udim*vdim-1,tmp,nva)
 	    ind = ind + udim*vdim
             call dgemm('n','n', ! C(s,a)*F(a,uv) -> F(s,uv)
@@ -368,39 +370,27 @@ c
      $           one, c_a(1,nva_lo), nbf,
      $           tmp, nva,
      $           zero, t, nbf)
-c
+c     
 c     On disk is D(1:nbf,1:vdim(v),1:udim(u),oseg_lo:oseg_hi,1:nshpairlocal)
 c     with indices D(s,vf,uf,i,ishpair)
-c
+c     
 c     Note - this presumes that the routine reading the data back in will
 c     be using an algorithm with o*n*s*s memory requirement (n=#bf, s=#bf 
 c     in shell, o=occupied).
-c
+c     
             count = nbf*udim*vdim ! Amount of data to write
-            twopdmunitptr = ptr + (i-oseg_lo)*count
-*            write(6,111) ga_nodeid(),
-*     $           i, ush, vsh, ddot(count, t, 1, t, 1), 
-*     $           twopdmunitptr
-* 111        format(i2,' 2pdm ', 3i5, 5x, 1p, d14.6, i8)
-*            tsum = tsum + ddot(count, t, 1, t, 1)
-c
-            call putwa(twopdmunit, t, twopdmunitptr, count, ierr)
-            if (ierr.ne.0) call errquit
-     $           ('mp2_bt: write of two pdm?', ierr)
-c
+            twopdmunitptr = 8.0d0*(ptr + (i-oseg_lo)*count)
+c     
+            if (eaf_write(twopdmunit, twopdmunitptr, t, count*8).ne.0)
+     $           call errquit('mp2_bt: write of two pdm?', 0)
+c     
             ptr = ptr + count*(oseg_hi-oseg_lo+1)
          end do
-c
+c     
          call ga_sync
-c            
-      end do                     ! End of i
-*      write(6,*) ' tsum ', ga_nodeid(), tsum
-*      call util_flush(6)
-*      call ga_dgop(1,tsum,1,'+')
-*      write(6,*) ' tsum ', ga_nodeid(), tsum
-      call util_flush(6)
-      call ga_sync()
-c
+c     
+      end do                    ! End of i
+c     
       end
       subroutine mp2_backt_info(
      $     basis,
@@ -559,7 +549,7 @@ c
      $     c_t,
      $     nsh, nbf, ninseg,
      $     nshpairlocal, shpairslocal, shdim, shlo,
-     $     t, tbuf, frc,
+     $     t, tbuf, grad,
      $     tol2e)
       implicit none
 #include "schwarz.fh"
@@ -568,6 +558,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
+#include "eaf.fh"
 c     
       integer basis
       integer twopdmunit
@@ -578,17 +569,16 @@ c
       double precision tbuf(*)  ! nbf*S*S
       double precision tol2e, p
 
-      double precision frc
-      dimension frc(3,*)
-C     
+      double precision grad(3,*)
 c     
-      integer fileptr, ierr, i, leng, lenscr, count
+      double precision fileptr
+      integer i, leng, lenscr, count
       integer ishpair
       integer ush, vsh, xsh, ysh, u, v, x, y
       integer udim, vdim, xdim, ydim, xlo, ylo
       double precision energy, scale
       integer l_g, k_g, l_scr, k_scr
-      integer uvxy, vuoff, xvuoff, yvuoff
+      integer duvxy, uvxy, vuoff, xvuoff, yvuoff
 c     
       double precision g
 c     
@@ -622,7 +612,7 @@ c
          call output(c_t, 1, ninseg, 1, nbf, ninseg, nbf, 1)
       end if
 c     
-      fileptr = 1
+      fileptr = 0.0d0
       do ishpair = 1, nshpairlocal
          ush = shpairslocal(1,ishpair)
          vsh = shpairslocal(2,ishpair)
@@ -637,21 +627,12 @@ c
 c     Read this in and transpose to in core structure t(i,x,v,u)
 c     
          do i = 1, ninseg
-            call getwa(twopdmunit, tbuf, fileptr, count, ierr)
-            if (ierr .ne. 0) call errquit
-     $           ('mp2: ao test: failed reading density', 0)
-*            write(6,111) ga_nodeid(),
-*     $           i, ush, vsh, ddot(count, tbuf, 1, tbuf, 1), 
-*     $           fileptr
-* 111        format(i2,' 2pdm ', 3i5, 5x, 1p, d14.6, i8)
-            fileptr = fileptr + count
+            if (eaf_read(twopdmunit, fileptr, tbuf, count*8).ne.0)
+     $           call errquit('mp2: ao test: failed reading density', 0)
+            fileptr = fileptr + count*8.0d0
             call dcopy(count, tbuf, 1, t(i), ninseg)
          end do
 c
-*         write(6,117) ga_nodeid(), ush, vsh,
-*     $        ddot(count*ninseg, t, 1, t, 1)
-* 117     format(i2,' disk ', 2i5,5x,1p,d12.6)
-c     
          do xsh = 1, nsh
             do ysh = 1, xsh
                if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)
@@ -670,7 +651,8 @@ c
      $                 lenscrd, dbl_mb(k_scrd), lengd, dbl_mb(k_gd), 
      $                 idatom)
 
-c     first the energy
+c     first the energy just to validate the 2pdm
+c     overwrite the energy integral  with the value of the 2PDM
 
                   uvxy = k_g
                   do u = 1, udim
@@ -681,53 +663,40 @@ c     first the energy
                            do y = ylo, ylo+ydim-1
                               yvuoff = ninseg*(y-1 + vuoff)
                               g = dbl_mb(uvxy)
+                              p = 0.0d0
+c
                               if (abs(g).gt.tol2e) then
-                                 p = 0.0d0
                                  do i = 1, ninseg
                                     p = p +
      $                                   t(i+xvuoff)*c_t(i,y)+
      $                                   t(i+yvuoff)*c_t(i,x)
                                  end do
-                                 energy = energy + p * g * scale
-                              end if
+                              endif
+c
+                              p = p*scale
+                              energy = energy + p * g
+                              dbl_mb(uvxy) = p
+c
                               uvxy = uvxy + 1
                            end do
                         end do
                      end do
                   end do
-C     and then the gradient
-                  uvxy = k_gd
+
+c     and then the gradient
+
+                  duvxy = k_gd
                   do iat = 1, 4
                      if ( idatom(iat) .gt. 0 ) then
                         do icart = 1, 3
-                           dE = 0.D0
-                           do u = 1, udim
-                              do v = 1, vdim
-                                 vuoff = nbf*(v-1 + vdim*(u-1))
-                                 do x = xlo, xlo+xdim-1
-                                    xvuoff = ninseg*(x-1 + vuoff)
-                                    do y = ylo, ylo+ydim-1
-                                       yvuoff = ninseg*(y-1 + vuoff)
-                                       g = dbl_mb(uvxy)
-                                       if (abs(g).gt.tol2e) then
-                                          p = 0.0d0
-                                          do i = 1, ninseg
-                                             p = p +
-     $                                            t(i+xvuoff)*c_t(i,y)+
-     $                                            t(i+yvuoff)*c_t(i,x)
-                                          end do
-                                          dE = dE + p * g * scale
-                                       end if
-                                       uvxy = uvxy + 1
-                                    end do
-                                 end do
-                              end do
-                           end do
-                           frc(icart,idatom(iat)) =
-     $                          frc(icart,idatom(iat)) + dE
+                           grad(icart,idatom(iat)) = 
+     $                          grad(icart,idatom(iat)) + 
+     $                          ddot(udim*vdim*xdim*ydim,
+     $                          dbl_mb(k_g), 1, dbl_mb(duvxy), 1)
+                           duvxy = duvxy + udim*vdim*xdim*ydim
                         end do   ! icart
                      else
-                        uvxy = uvxy + 3*udim*vdim*xdim*ydim
+                        duvxy = duvxy + 3*udim*vdim*xdim*ydim
                      end if      ! idatom
                   end do         ! iat
                end if
@@ -742,8 +711,8 @@ c
 c
 c     DGOP must be deferred until have everything or will double count
 c
-*      call ga_dgop(1,frc,3*nat,'+')
-*      call output(frc, 1, 3, 1, nat, 3, nat, 1)
+*      call ga_dgop(1,grad,3*nat,'+')
+*      call output(grad, 1, 3, 1, nat, 3, nat, 1)
 c     
       if (.not. ma_pop_stack(l_gd))
      $     call errquit('mp2:test: ma pop failed', 0)

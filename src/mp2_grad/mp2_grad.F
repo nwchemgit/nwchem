@@ -15,19 +15,23 @@
       logical status,converged
       character*8 task
 c
-      logical cphf
-      external cphf
-c
-      semi_dir_mp2 = .true.
+      logical cphf, scf
+      external cphf, scf
 c
       status=rtdb_parallel(.true.)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
+c
       status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
+      if (.not. status) then
+         if (.not. scf(rtdb)) then
+            semi_dir_mp2 = .false.
+            return
+         endif
+      endif
+c
       if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task))
-     $     call errquit('could not determine task for semi_dir_mp2',1)
-      if(.not.(status.and.converged))call errquit(
-     $     'mp2_grad: no converged scf wavefunction available',0)
+     $     call errquit('could not determine task for semi dir mp2',1)
       if(.not.rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if(.not.geom_create(geom, 'geometry'))
@@ -38,6 +42,7 @@ c
      $     call errquit('gradients: bas_create?', 0)
       if(.not.bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('gradients: no ao basis ', 0)
+c
       if(ga_nodeid().eq.0)then
          if(util_print('information',print_low))then
             call util_print_centered(6,
@@ -65,14 +70,16 @@ c
       endif
       call int_normalize(basis)
       call util_file_name('movecs', .false.,.false.,movecs_in)
+c
       call mp2_energy(rtdb,geom,basis,movecs_in,task)
-c      if(.not.cphf(rtdb))call errquit('could not do cphf',1)
-c      call schwarz_tidy()
-*      call schwarz_tidy()
+c
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
-     $    ('mp2_grad:error destroying geom and basis handles',0)
+     $    ('mp2_grad:error destroying geom or basis handles',0)
       call util_print_pop
+c
+      semi_dir_mp2 = .true.
+c
       end
 
 

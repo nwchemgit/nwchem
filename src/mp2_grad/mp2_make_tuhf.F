@@ -5,7 +5,7 @@
      $     oseg_lo,oseg_hi,irs_a,c_a,irs_b,c_b,ia_uv,ia_jb,
      $     eval_a,eval_b,toff_a,toff_b,nva,noa,nvb,nob,nir,
      $     tmp,ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
-     $     e2,task,tunita,tunitb)
+     $     e2,task,tunita,tunitb,kunit)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -24,7 +24,8 @@
       integer a_a,tunita,tunitb,tunitptra,tunitptrb,counta,countb,ierr
       integer oseg_lo,oseg_hi
       integer nir
-      integer toff_a(noa*nva,0:nir-1),toff_b(nob*nvb,0:nir-1)
+      integer toff_a(nva_lo:nva_hi,0:nir-1),
+     $     toff_b(nvb_lo:nvb_hi,0:nir-1)
       double precision eaa,eab
       double precision c_a(nbf,nbf),c_b(nbf,nbf)
       integer i_batch
@@ -33,7 +34,6 @@
       integer irs_a(*),irs_b(*),b,j
       integer indx_v(*)
       integer nnbf,ioff,kunit
-      parameter(kunit=11)
       integer nva_lo_local,nva_hi_local,jb
       double precision tmp(*),ia_uv(*),ia_jb(*)
       double precision eval_a(*),eval_b(*)
