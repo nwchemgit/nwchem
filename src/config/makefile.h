@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.482 2004-09-30 23:45:47 edo Exp $
+# $Id: makefile.h,v 1.483 2004-10-02 05:19:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1420,8 +1420,15 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 	@exit 1
       endif
    endif
+      _FC=noifc
+      ifeq ($(FC),g77)
+       _FC=g77
+      endif
+      ifeq ($(FC),g77-ssa)
+       _FC=g77
+      endif
        ifdef USE_INTEGER4
-         ifneq ($(FC),g77)
+         ifneq ($(_FC),g77)
            FOPTIONS += -i4 
          endif
        else
@@ -1545,7 +1552,6 @@ endif # end of ia32 bit
 	@echo 
 	@exit 1
       endif
-      _FC=noifc
       ifeq ($(FC),pgf90)
         _FC=pgf90
       endif
@@ -1567,7 +1573,7 @@ endif # end of ia32 bit
            @echo ifort 8.1 is required for x86_64 CPUs
            @exit 1
        endif
-        FOPTIONS += -align -mp1 -w -g -vec_report3
+        FOPTIONS += -align -w -g -vec_report3
         ifdef  USE_GPROF
           FOPTIONS += -qp
         endif
@@ -1575,10 +1581,10 @@ endif # end of ia32 bit
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
         endif
+        FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
         FOPTIMIZE +=  -tpp7 -xW -ip
       endif	
-
       
       USE_LIB64 = y #for python linking
 
@@ -1586,7 +1592,7 @@ endif # end of ia32 bit
         FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
         FOPTIONS   +=    -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
-        FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
+        FOPTIMIZE   =  -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O0 
         DEFINES  += -DCHKUNDFLW -DPGLINUX
@@ -1603,7 +1609,7 @@ endif # end of ia32 bit
         FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
       endif
-      ifeq ($(FC),g77)
+      ifeq ($(_FC),g77)
         FOPTIONS  +=  -fno-globals -Wno-globals 
         DEFINES  +=   -DBAD_GACCESS
         FOPTIONS  += -Wunused  -fno-silent
@@ -1621,7 +1627,6 @@ endif # end of ia32 bit
           FOPTIMIZE  +=  -funroll-all-loops
         endif
         FDEBUG = -Os -g
-        LDOPTIONS =   -Wl,--relax  
       endif
       COPTIONS   =   -O3 -funroll-loops -ffast-math  
       ifdef USE_GCC34
