@@ -1,6 +1,6 @@
-       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
+      subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.31 2000-10-23 23:37:44 windus Exp $
+C     $Id: ccsd_driver.F,v 2.32 2000-10-26 19:22:45 edo Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -23,7 +23,6 @@ c
        character*255 title_vecs, basis_vecs
        integer nbf_vecs, nsets
        integer k_occ, l_occ, k_evals, l_evals, g_vecs
-       integer k_epair
        integer nbf, nsh, nelec, nocc, nopen, nvir, nocc_correl,
      &         nvir_correl, lnof
        integer occ_frozen, occ_lo, occ_hi, nmo_lo
@@ -31,13 +30,12 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair, g_ncoul, g_nexch
-       integer ij
        logical oexch,ocoul,status,ohalf
        double precision emp2, RefEner, TotEner
        double precision tpass
        character*7 algo
        Integer Me
-       Integer ALo, AHi, IJLo, IJHi, LD, Off
+       Integer ALo, AHi, IJLo, IJHi
        Integer MaxVec
 C
        Logical OUseSym, OBlk, ODisk, occd
@@ -60,7 +58,8 @@ c
        integer moints_occrange
        external moints_occrange
        logical int_normalize
-       external int_normalize
+       external int_normalize,ccsd_drivacc
+       logical ccsd_drivacc
 c
        double precision zip
        data zip/0.0d00/
@@ -336,13 +335,9 @@ C
 C         GA_Access gets upset if there is nothing local
 C
           If ( IJHi - IJLo + 1 .gt. 0 ) then
-             Call GA_Access(G_EPair, ALo, AHi, IJLo, IJHi, K_EPair, LD)
-             Off = 0
-             Do IJ = IJLo, IJHi
-                EMP2 = EMP2 + Dbl_MB(K_EPair + Off)
-                Off = Off + LD
-             EndDo
-             Call GA_Release(G_EPair, ALo, AHi, IJLo, IJHi)
+             call ga_access_callback_release(
+     $        g_EPair, Alo, Ahi, Ijlo, Ijhi,ccsd_drivacc, EMP2,
+     $        0, 0, 0, 0, 0,0) 
           EndIf
           Call GA_DGOp(msg_cc_emp2, EMP2, 1, '+')
           Call GA_Sync
@@ -438,3 +433,17 @@ c
 c
       return
       end
+      integer function ccsd_drivacc(
+     $        g_EPair, Alo, Ahi, Ijlo, Ijhi, a,ld, EMP2, 
+     $     idum2, idum3, idum4, idum5, idum6)
+      implicit none                                                             
+      integer g_EPair, Alo, Ahi, Ijlo, Ijhi, ld,
+     $     idum2, idum3, idum4, idum5, idum6
+      double precision a(Alo:Alo+ld-1,ijlo:ijhi), EMP2
+      integer i, j 
+      do j=ijlo,ijhi
+         emp2 = emp2 + a(alo,J)
+      enddo
+      ccsd_drivacc = 0    ! no update necessary
+c
+      end     
