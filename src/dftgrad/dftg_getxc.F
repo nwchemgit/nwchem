@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.14 1998-09-25 11:38:37 bjohnson Exp $
+* $Id: dftg_getxc.F,v 1.15 1998-10-23 01:53:49 edo Exp $
 *
       implicit none
 c      
@@ -42,6 +42,7 @@ c
      &        lscratch, mscratch_1e, mscratch_2e, i, lsqa
       integer l_buf, k_buf, l_scr, k_scr, l_ik, i_ik, l_il, i_il,
      &        l_jk, i_jk, l_jl, i_jl, ilo, ihi
+      integer ispin
       double precision tol2e, tot
 c
       nproc = ga_nnodes()
@@ -85,17 +86,15 @@ c
          if (.not.status) 
      &      call errquit('force_dft: could not allocate scratch',1)
 c
-c        store total DM in ga_dens(1)
-c
-         if (ipol .eq. 2)then
-            call ga_dadd (one,iga_dens(1),one,iga_dens(2),iga_dens(1))
-         endif 
-c
+         do ispin=1,ipol
          call dftg_hf_x(xfac(1), dbl_mb(i_ik), dbl_mb(i_jl),
-     &                  dbl_mb(i_il), dbl_mb(i_jk), force, iga_dens,
+     &                  dbl_mb(i_il), dbl_mb(i_jk), force, 
+     &        iga_dens(ispin),
      &                  max_at_bf, AO_bas_han, nproc, natom, 
      &                  dbl_mb(k_scr), lscratch, dbl_mb(k_buf), lbuf, 
-     &                  tol2e, oactive, nactive, geom, s34, oskel)
+     &                  tol2e, oactive, nactive, geom, s34, oskel,
+     &          ipol)
+         enddo
 c
          status = MA_Pop_Stack (l_jl)
          status = MA_Pop_Stack (l_jk)
@@ -105,12 +104,6 @@ c
          status = MA_Pop_Stack (l_buf)
          if (.not.status) 
      &      call errquit('force_dft: could not pop stack',1)
-c
-c        restore alpha DM in g_dens(1)
-c
-         if (ipol .eq. 2)then
-            call ga_dadd (one,iga_dens(1),onem,iga_dens(2),iga_dens(1))
-         endif 
 c 
          if (.not.status) 
      &      call errquit(' dftg_getcx: failed to deallocate',11)
