@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.9 1999-06-25 17:08:01 edo Exp $
+C$Id: dft_densm.F,v 1.10 1999-06-25 18:42:50 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -28,7 +28,7 @@ C$Id: dft_densm.F,v 1.9 1999-06-25 17:08:01 edo Exp $
 c
       integer i,isp,g_tmp
       integer me, nproc
-      double precision zero,fact,toll,efermi
+      double precision zero,toll,efermi
       double precision cksum,ntot(2)
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -46,7 +46,6 @@ c
      ,   kbau=1.d0,eps=1.d-4)
 c
       sqrtpi=sqrt(acos(-1d0))
-      fact=2.d0/ipol
       me=ga_nodeid()
       nproc=ga_nnodes()
       rhfuhf=2d0
@@ -57,20 +56,21 @@ c      nproc=1
 c
 c     check degener
 c
-      if (check_deg.and.ipol.eq.2.and.
-     .     dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
-c      if(ga_nodeid().eq.0) write(6,*) ' DEGEGEG'
-          do isp=1,ipol
-             call dft_focdm(focc(1+(isp-1)*nbf),noc,geom,
-     ,            AO_bas_han,nbf,
-     *            g_vecs(isp),g_dens(isp),toll,rhfuhf)
-          enddo
-          return
-       endif
+         if (check_deg.and.ipol.eq.2) then
+            if(dft_checkdg(
+     .           evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
+               do isp=1,ipol
+                  call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
+     ,                 AO_bas_han,nbf,
+     *                 g_vecs(isp),g_dens(isp),toll,rhfuhf)
+               enddo
+               return
+            endif
+         endif
          do isp=1,ipol
-               call ga_dgemm('n', 't', nbf, nbf, 
-     $              noc(isp), 2d0/ipol, g_vecs(isp),
-     $              g_vecs(isp), zero, g_dens(isp))
+            call ga_dgemm('n', 't', nbf, nbf, 
+     $           noc(isp), 2d0/dble(ipol), g_vecs(isp),
+     $           g_vecs(isp), zero, g_dens(isp))
          enddo
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
@@ -180,7 +180,6 @@ c
          efermi=0.5d0*(evals(ntotel/2)+evals(nbf+ntotel/2))
       endif
       step=max(2.d0*ssmear,1.d0)
-C      write(0,*) ' step EF ',step,efermi
  11   emax=efermi+step
       emin=efermi-step
       fmax=fzero(
@@ -342,7 +341,7 @@ c
 c
 c        reset noc for future calls
 c
-c         noc=nocold
+       noc=nocold
 c      call dfill(nbf, 0.d0, focc, 1)
 c      call dfill(noc, rhfuhf, focc, 1)
          return
@@ -350,8 +349,8 @@ c      call dfill(noc, rhfuhf, focc, 1)
       logical function dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,
      , me,mult)
       implicit none
-      double precision evals(*)
-      double precision focc(*)
+      double precision evals(ipol*nbf)
+      double precision focc(ipol*nbf)
       integer nbf
       integer ntotel
       integer noc(2)
