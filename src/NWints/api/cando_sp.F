@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.22 1996-10-07 16:49:41 d3e129 Exp $
+c $Id: cando_sp.F,v 1.23 1996-10-09 19:52:21 d3g681 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -178,7 +178,7 @@ c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 2e permutations and multiple basis sets.  This routine 
 c:tex-{\tt cando\_sp\_u} works for unique shells only.
 c::local
-      integer basis, mytype, mycont
+      integer basis, mytype, mycont, mygen
 c
       if (user_cando_sp) then
         cando_sp_u = def_cando_sp
@@ -198,8 +198,13 @@ c.... check ish_u
       if (ish_u.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ish_u,basis)
         mycont = infbs_cont(CONT_NPRIM,ish_u,basis)
+        mygen  = infbs_cont(CONT_NGEN,ish_u,basis)
+c
+c     SP shell or singly contracted S or P, nprim <=25
+c
         cando_sp_u = cando_sp_u .and.
-     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
+     &       ((mytype.eq.-1).or.
+     $       (((mytype.eq.0).or.(mytype.eq.1)).and.mygen.eq.1)) .and.
      $         (mycont.le.25)
       endif
 c
@@ -207,8 +212,10 @@ c.... check jsh_u
       if (jsh_u.gt.0) then
         mytype = infbs_cont(CONT_TYPE,jsh_u,basis)
         mycont = infbs_cont(CONT_NPRIM,jsh_u,basis)
+        mygen  = infbs_cont(CONT_NGEN,jsh_u,basis)
         cando_sp_u = cando_sp_u .and.
-     &         ((mytype.eq.-1).or.(mytype.eq.0).or.(mytype.eq.1)) .and.
+     &       ((mytype.eq.-1).or.
+     $       (((mytype.eq.0).or.(mytype.eq.1)).and.mygen.eq.1)) .and.
      $         (mycont.le.25)
       endif
 c
