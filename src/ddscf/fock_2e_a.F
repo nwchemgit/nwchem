@@ -1,12 +1,22 @@
-c$$$      block data cfock_data
-c$$$#include "cfock.fh"
-c$$$C$Id: fock_2e_a.F,v 1.2 1995-03-14 02:21:21 rg240 Exp $
-c$$$      data lchunksize /-1/, task_chunks/-1/
-c$$$*
-c$$$*     lchunksize and task_chunks can be overriden ... 
-c$$$*     see rhf_get_param
-c$$$*
-c$$$      end
+c
+c Conditional compilation to avoid
+c conflict with rhf_fock_2e_a.F
+c
+#ifdef GENERIC_FOCK
+      block data cfock_data
+c
+c$Id: fock_2e_a.F,v 1.3 1995-03-14 19:32:43 rg240 Exp $
+c
+#include "cfock.fh"
+      data lchunksize/-1/
+      data task_chunks/-1/
+
+c lchunksize and task_chunks can be overriden ... 
+c see rhf_get_param
+
+      end
+#endif
+      
 
 
       subroutine fock_2e_a( geom, basis, nfock, ablklen,
@@ -16,7 +26,7 @@ c$$$      end
      $                      tmp, vg_dens, vg_fock )
       implicit none
 c
-c$Id: fock_2e_a.F,v 1.2 1995-03-14 02:21:21 rg240 Exp $
+c$Id: fock_2e_a.F,v 1.3 1995-03-14 19:32:43 rg240 Exp $
 c
 #include "tcgmsg.fh"
 #include "global.fh"
