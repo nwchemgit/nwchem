@@ -25,11 +25,11 @@ long and complicated when presented in its general form, as follows,
          ... 
 
          [VARIABLES
-              <string symbol> <double value>
+              <string symbol> <real value>
               ... ]
  
          [CONSTANTS
-              <string symbol> <double value>
+              <string symbol> <real value>
               ... ]
 
      (END || ZEND)]
@@ -177,13 +177,16 @@ The \verb+SYMMETRY+ directive is used within the compound \verb+GEOMETRY+
 directive to specify the point group for the
 molecular geometry. (Note: space group information for 1-, 2-, and
 3-dimensional periodic systems is not yet documented.)
+
 The general form of the directive, as described above within the general
 form of the \verb+GEOMETRY+ directive, is as follows,
 \begin{verbatim}
     [SYMMETRY [GROUP] <string group_name> [print]]
 \end{verbatim}
 The keyword \verb+group+ is optional, and can be omitted without affecting
-how the input for this directive is processed.
+how the input for this directive is processed\footnote{For periodic
+  systems there are additional keywords within this directive and having
+  a keyword for the group name is useful.}.
 However, a group name must be specified by supplying an entry for the
 string variable \verb+<group_name>+.  The
 group name should be specified as the standard Sch\"{o}files symbol.
@@ -199,13 +202,20 @@ such entries as,
 
 The \verb+SYMMETRY+ directive is optional.  The default is no symmetry 
 (i.e., $C_1$ point group). Detection of point
-group symmetry is not yet automated, though this is planned.  The user
-must know the symmetry of the molecule being modeled, and be able
-to specify the coordinates of the symmetry-unique atoms in a suitable
+group symmetry is not yet automated, though this is planned.  
+
+Only symmetry unique atoms should be specified --- the others will be
+generated through the action of the point group operators.  The user
+must know the symmetry of the molecule being modeled, and be able to
+specify the coordinates of the symmetry-unique atoms in a suitable
 orientation relative to the rotation axes and symmetry planes.
 Appendix \ref{symexamples} lists a number of examples of the
 \verb+GEOMETRY+ directive input for specific molecules having symmetry
-patterns recognized by NWChem.
+patterns recognized by NWChem.  The exact point group symmetry will be
+forced upon the molecule and atoms within $10^{-3}$ a.u. of a symmetry
+element (e.g., a mirror plane or rotation axis) will be forced onto
+that element.  Thus, it is not necessary to specify to high precision
+coordinates determined solely by symmetry.
 
 \subsection{Cartesian coordinate input}
 \label{sec:cart}
@@ -303,9 +313,9 @@ Z-matrix directive described below in Section \ref{sec:Z-matrix}.
 
 The \verb+ZMATRIX+ directive is an optional directive that can be used within
 the compound \verb+GEOMETRY+ directive to specify the structure of the system with a
-Z-matrix.  The Z-matrix option can be used in conjunction with the cartesian
-coordinate input described above.  The \verb+ZMATRIX+ directive is a compound
-directive that can include the \verb+VARIABLES+ and \verb+CONSANTS+
+Z-matrix which can include both internal and Cartesian coordinates. 
+The \verb+ZMATRIX+ directive is a compound
+directive that can include the \verb+VARIABLES+ and \verb+CONSTANTS+
 directives, depending on the options selected.  The general form of the 
 compound \verb+ZMATRIX+ 
 directive is as follows;
@@ -315,11 +325,11 @@ directive is as follows;
          ... 
 
          [VARIABLES
-              <string symbol> <double value>
+              <string symbol> <real value>
               ... ]
  
          [CONSTANTS
-              <string symbol> <double value>
+              <string symbol> <real value>
               ... ]
 
     (END || ZEND)]
@@ -358,7 +368,7 @@ start of the tag.
 Bond lengths, bond angles and dihedral angles (denoted below as {\tt
   R}, {\tt alpha}, and {\tt beta}, respectively) may be specified either as
 numerical values or as symbolic strings that must be subsequently
-defined using the input options on the \verb+VARIABLES+ or 
+defined using the \verb+VARIABLES+ or 
 \verb+CONSTANTS+ directives.  The same symbolic string can be used
 more than once, and any
 mixture of numeric data and symbols is acceptable. Bond angles
@@ -417,24 +427,24 @@ and dihedral angle in Z-matrix input.}
    \item \verb+tag2 i R+
 
      The second center requires specification of its tag and the
-     bond-length ($R_{Ci}$) from the first atom, which is identified by
+     bond-length ($R_{Ci}$) from a previous atom, which is identified by
      \verb+i+.
 
    \item \verb+tag3 i R j alpha+
 
      The third center requires specification of its tag, its distance
      ($R_{Ci}$) to one of the previous two centers (identified by the
-     value of \verb+i+) and the angle $\widehat{Cij}$.
+     value of \verb+i+) and the angle $\alpha = \widehat{Cij}$.
 
    \item \verb+tag i R j alpha k beta [<integer orient default 0>]+
 
      The fourth, and all subsequent centers, require the tag, a bond
      length ($R_{Ci}$) relative to center \verb+i+, the angle with
-     centers \verb+i+ and \verb+j+ ($\widehat{Cij}$), and {\em either} 
+     centers \verb+i+ and \verb+j+ ($\alpha = \widehat{Cij}$), and {\em either} 
     \begin{enumerate}
-    \item the dihedral angle betwen the current center and centers
+    \item the dihedral angle ($\beta$) betwen the current center and centers
       \verb+i+, \verb+j+, and \verb+k+ (Figure \ref{fig:zmat1}), or
-      \item  a second bond angle $\widehat{Cik}$ and an orientation to 
+      \item  a second bond angle $\beta = \widehat{Cik}$ and an orientation to 
       the plane containing the other three centers (Figure
       \ref{fig:zmat2} and \ref{fig:zmat3}).
     \end{enumerate}
@@ -457,7 +467,7 @@ which has the general form;
 
 \begin{verbatim}
   VARIABLES
-    <string symbol>  <double value>
+    <string symbol>  <real value>
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
@@ -470,7 +480,7 @@ variables that remain unchanged during geometry optimizations.  The
 general form of this directive is as follows;
 \begin{verbatim}
   CONSTANTS
-    <string symbol>  <double value>
+    <string symbol>  <real value>
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
@@ -588,7 +598,7 @@ The specific input that must be supplied for the \verb+i+, \verb+j+, \verb+k+, a
 order they are supplied on the input for the \verb+ZMATRIX+ directive.  The
 user must adhere to this convention when suppliying the \verb+ZCOORD+
 directive input described here.  The bond length and angles for the centers
-ae defined as follows;
+are defined as follows;
 
 \begin{verbatim}
    ZCOORD

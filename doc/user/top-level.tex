@@ -101,7 +101,7 @@ input file for the job, without the suffix (which is usually \verb+.nw+)
 If the database with name \verb+$file_prefix$.db+ does {\it not} 
 exist already,
 the calculation is carried out as if a \verb+START+ directive had
-been encountered.  If the database with name \verb+$file\_prefix$.db+
+been encountered.  If the database with name \verb+$file_prefix$.db+
 {\it does} exist, then the calculation is performed as if a
 \verb+RESTART+ directive had been encountered.  
 
@@ -192,7 +192,7 @@ The following is a list of examples of specific allocations of scratch
 directory locations:
 \begin{itemize}
 \item put scratch files from all processes in the local scratch directory 
-(Warning: the definition of 'local scratch directory' may change from 
+(Warning: the definition of ``local scratch directory'' may change from 
 machine to machine);
 \begin{verbatim}
       scratch_dir /localscratch
@@ -213,7 +213,7 @@ given list of directories;
  SGI multi-processor machines (node names {\it coho} and {\it bohr});
 \begin{verbatim}
       scratch_dir coho:/xfs1/rjh coho:/xfs2/rjh coho:/xfs3/rjh \
-          bohr:/disk01/rjh bohr/rjh:/disk02/rjh bohr:/disk13/rjh
+          bohr:/disk01/rjh bohr:/disk02/rjh bohr:/disk13/rjh
 \end{verbatim}
 \end{itemize}
 
@@ -271,8 +271,8 @@ The following specifications all provide for eight megabytes of total memory
 (assuming 64 bit floating point numbers), which
 will be distributed according to the default partitioning.
 \begin{verbatim}
-  memory 1000000
-  memory 1000000 real
+  memory 1048576
+  memory 1048576 real
   memory 1 mw
   memory 8 mb
 \end{verbatim}
@@ -336,8 +336,11 @@ the maximum memory available to applications with common hardware
 configurations.
 
 \begin{table}
-\caption{Default total memory limits according to hardware platform.}
+
+\center
+
 \label{tbl:default-memory-limits}
+
 \begin{tabular}{lr}
 \hline\hline
 Platform        & Total Memory Limit (MBytes) \\
@@ -350,9 +353,14 @@ Intel Paragon   & 16 \\
 KSR             & 20 \\
 Linux           & 16 \\
 SGI             & 48 \\
+SGI Power Challenge  & 48 \\
 Sun             & 48 \\
 \hline\hline
 \end{tabular}
+
+\caption{Default total memory limits according to hardware platform.}
+
+
 \end{table}
 
 \subsection{{\tt ECHO} --- Print input file}
@@ -407,9 +415,7 @@ tasks/jobs until redefined in the input.
 The \verb+PRINT+ and \verb+NOPRINT+ directives allow the user to
 control how much output is generated.  These two directives are
 special in that {\em all} modules are supposed to recognize
-them.\footnote{If one does not, this is probably an error, and should
-  be reported to the developers.  Send email to
-  \verb+nwchem-support@emsl+.} Each module can control both the print
+them. Each module can control both the print
 level and the printing of individual items.  The standard form of the
 \verb+PRINT+ directive is as follows;
 
@@ -427,8 +433,8 @@ the user, then the output is generated.  For example, the threshold
 for printing the SCF energy at convergence is \verb+low+ (Section
 \ref{sec:scfprint}).  This means that if the user-specified print level 
 on the \verb+PRINT+ directive is
-\verb+low+, \verb+medium+, or \verb+high+, then all output for the
-SCF calculation will be printed.  
+\verb+low+, \verb+medium+, or \verb+high+, then the
+SCF energy will be printed at convergence.
 
 The overall print level specified
 using the \verb+PRINT+ directive is a convenient tool for controlling 
@@ -662,8 +668,8 @@ the variable {\tt <theory>};
 \begin{itemize}
  \item \verb+scf+ --- Hartree-Fock
  \item \verb+dft+ --- Density functional theory for molecules
+ \item \verb+gapss+ --- Density functional theory for periodic systems
  \item \verb+rimp2+ --- MP2 using the RI approximation
- \item \verb+oimp2+ --- Orbital invariant MP2
  \item \verb+direct_mp2+ --- MP2 direct from the AO integrals
  \item \verb+semi_dir_mp2+ --- MP2 semi-direct from the AO integrals
  \item \verb+ccsd+ --- Coupled-cluster single and double excitations
@@ -678,14 +684,18 @@ the variable {\tt <theory>};
 The string \verb+<operation>+ is used to specify the calculation that will
 be performed in the task.  The default operation is a single point energy
 evaluation.  The following list gives the selection of operations currently
-available in NWChem, and the string entry for \verb+operation+ for each one.
+available in NWChem;
 \begin{itemize}
 \item \verb+energy+ --- single point energy evaluation
 \item \verb+gradient+ --- evaluate the derivative of the energy with respect to\
    nuclear coordinates
-\item \verb+optimize+ --- optimize the energy by variation of the molecular
-   structure.  This is presently driven by the Stepper module
-   (see Section \ref{sec:stepper})
+\item \verb+optimize+ --- minimize the energy by variation of the molecular
+   structure.  This is presently driven by default by the Driver
+   module (see Section \ref{sec:driver}), but it the Stepper module
+   (see Section \ref{sec:stepper}) may also be used.
+\item \verb+saddle+ --- transition state (or saddle point) search
+  using either Driver (Section \ref{sec:driver}, the default) or
+  Stepper (Section \ref{sec:stepper}).
 \item \verb+frequencies+ or \verb+freq+ --- compute second-derivatives 
 and print out an analysis of molecular vibrations
 \item \verb+dynamics+ --- molecular dynamics using NWArgos
@@ -814,8 +824,8 @@ The default charge\footnote{The charge directive in conjunction with
   the charge of atomic nuclei (which can be changed via the geometry
   input, c.f. Section \ref{sec:cart}) determine the total number of
   electrons in the chemical system.  Therefore, a \verb+charge n+
-  specification deletes "n" electrons from the chemical system.
-  Similaryly, \verb+charge -n+ adds "n" electrons.} is zero
+  specification removes "n" electrons from the chemical system.
+  Similarly, \verb+charge -n+ adds "n" electrons.} is zero
 if this directive is omitted.  An example of a case where the
 directive would be needed is for a calculation on a doubly charged
 cation.  In such a case, the directive is simply,
@@ -823,16 +833,9 @@ cation.  In such a case, the directive is simply,
   charge 2
 \end{verbatim}
 
-% \Large
-% **What happens if the user specifies charge(s) on individual atom(s) in the
-% GEOMETRY directive input, *and* also specifies some non-zero charge on the
-% CHARGE directive?  Do they have to 'add up', in some sense?  Or does the
-% code work this out automatically?  Can the geometry input defeat the
-% CHARGE directive input, in some sense?***
-% \normalsize
-%
-% They do not have to add up.  This notion of charge is the standard
-% chemical definition.  The sum of atomic charges is the default net
-% charge of zero; the charge directive modifies this as per the
-% footnote above.
-% RAK
+If centers with fractional charge have been specified (Section
+\ref{sec:geom}) the net charge of the system should be adjusted to
+ensure that there is an integral number of electrons.
+
+
+

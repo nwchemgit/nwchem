@@ -3,9 +3,9 @@
 NWChem is a computational chemistry package designed to run on
 high-performance parallel supercomputers and workstation clusters.
 Code capabilities include the calculation of molecular electronic
-energies and analytic gradients using self-consistent field, Gaussian
+energies and analytic gradients using Hartree-Fock self-consistent field, Gaussian
 density function theory (DFT), and second-order perturbation theory.
-Geometry optimization for energy minimization and transition states is
+Geometry optimization for energy minima and transition states is
 available for all methods.  Classical molecular dynamics capabilities
 provide for the simulation of macromolecules and solutions, including
 the computation of free energies, using a variety of forcefields.
@@ -27,7 +27,7 @@ have a detailed understanding of the code internals, but some
 familiarity with the overall structure of the code, how it handles
 information, and the nature of the algorithms it contains will
 generally be helpful.  The following sections describe the structure
-of the input file, and a give a brief overview of the code
+of the input file, and give a brief overview of the code
 archetecture.  All input directives recognized by the code are
 described in detail, with options, defaults, and recommended usage,
 where applicable.  Additional information on the molecular geometry
@@ -36,7 +36,7 @@ appendices.
 
 \subsection{Citation}
 
-The EMSL Software Agreement stipulates that the use of NWChem be
+The EMSL Software Agreement stipulates that the use of NWChem will be
 acknowledged in any publications which use results obtained with
 NWChem.  The acknowledgment should be of the form:
 \begin{quote}
@@ -226,9 +226,9 @@ order to run this type of problem --- fewer than ten lines of input,
 as follows;
 \begin{verbatim}
   title; Nitrogen cc-pvdz SCF geometry optimization
-  geometry 
+  geometry  
     n 0 0 0
-    n 0 0 2.1
+    n 0 0 1.08
   end
   basis
     n library cc-pvdz
@@ -240,14 +240,14 @@ Examining the input line by line, it can be seen that it contains
 only four directives; \verb+TITLE+, \verb+GEOMETRY+, \verb+BASIS+, and
 \verb+TASK+.  The \verb+TITLE+ directive is optional, and is used only
 as a means for the user to more easily identify outputs from different
-jobs.  An initial geometry is specified in cartesian coordinates and
-atomic units by means of the \verb+GEOMETRY+ directive.  The Dunning 
+jobs.  An initial geometry is specified in Cartesian coordinates and
+{\angstrom}s by means of the \verb+GEOMETRY+ directive.  The Dunning 
 cc-pvdz basis is obtained from the NWChem basis library, as specified
 by the \verb+BASIS+ directive input.  The \verb+TASK+ directive requests 
 an SCF geometry optimization.
 
 The \verb+GEOMETRY+ directive (Section \ref{sec:geom}) defaults to cartesian
-coordinates and atomic units (options include {\AA}ngstr{\o}m units and
+coordinates and {\angstrom}s (options include atomic units and
 Z-matrix format; see Section \ref{sec:Z-matrix}).  The \verb+BASIS+ 
 directive input block is structured like the \verb+GEOMETRY+ directive
 input block (i.e., name,
@@ -497,10 +497,7 @@ These same five lines could be entered on a single line, as
 This one physical input line comprises five logical
 input lines.  Each logical or physical input line must be no longer
 than 1023 characters.  Data is read until an end-of-file is detected,
-or until an \verb+EOF+ directive is encountered\footnote{The
-  free-format input library does not read past the string \verb+EOF+
-  (ignoring case) on a line by itself.  This is a convenience that
-  allows unused input to be left in the same file.}.
+or until an \verb+EOF+ directive is encountered.
 
 Directives consist of a directive name, keywords, and optional input,
 and may contain one line or many.  Simple directives consist of a
@@ -515,7 +512,7 @@ compound directive.
 Some limited checking for self-consistency of the input is performed
 by the input module, but most defaults are imposed by the application
 modules at runtime.  It is therefore usually impossible to determine
-beforehand whether or not all selected options are consist with each
+beforehand whether or not all selected options are consistent with each
 other.
 
 The following notation and syntax conventions are used in the generic 
@@ -524,7 +521,7 @@ descriptions of the NWChem input in the following sections.
 \begin{itemize}
 \item a directive name always appears in all-capitals, in computer-type 
 face; (e.g.; \verb+GEOMETRY+, \verb+BASIS+, \verb+SCF+).  Note that 
-the case of directives is ignored in the actual input.
+the case of directives and keywords is ignored in the actual input.
 \item a keyword always appears in lower case, in computer-type face; (e.g.,
 {\tt swap}, {\tt print}, {\tt units}, {\tt bqbq})
 \item variable names always appear in lower case, in computer-type face, 
@@ -534,7 +531,7 @@ and enclosed in angle brackets to distinguish them from keywords (e.g.,
       variable
 \item a string, token, or field is a sequence of ASCII characters (NOTE: if 
 the string includes blanks or tabs (i.e., white space) the entire string must
-be enclosed in quotes)
+be enclosed in double quotes)
 \item \verb+()+ is used to group items (the parentheses and other
       special symbols do not appear in the input)
 \item \verb+||+ separate exclusive options/parameters/formats
@@ -542,9 +539,12 @@ be enclosed in quotes)
 \item \verb+< >+ enclose a type, a name of a value to be specified,
       and a default value, if any.
 
-\item \verb+\+ is used to concatenate lines in a description (NOTE: within 
-a string, the \verb+\+ causes the preceeding character (including a blank) 
-to be eliminated
+\item \verb+\+ is used to concatenate lines in a description.  It is
+also used to quote special characters such as whitespace, semi-colons,
+and hash symbols so as to avoid their special meaning (NOTE: these
+special symbols must be quoted with backslash even when enclosed
+within double quotes).
+
 \item \verb+;+ (semicolon) is used to mark the end of a logical input 
 line within a physical line of input
 \item \verb+#+ (the hash or pound symbol) is the comment character.  All
@@ -575,7 +575,7 @@ directive is as follows;
 \begin{verbatim}
   VECTORS [input (<string input_movecs default atomic>) || \
                    (project <string basisname> <string filename>)] \
-          [swap [(alpha|beta)] <integer vec1 vec2> ...] \
+          [swap [(alpha||beta)] <integer vec1 vec2> ...] \
           [output <string output_movecs default $file_prefix$.movecs>]
 \end{verbatim}
 
@@ -603,7 +603,7 @@ vectors in file \verb+<filename>+ will be projected from the (smaller)
 basis \verb+<basisname>+ into the current AO basis.
 
 The second keyword, \verb+swap+, allows the user to re-order the
-starting vectors.  The optional keyword \verb+alpha|beta+ allows the
+starting vectors.  The optional keyword \verb+alpha||beta+ allows the
 user to swap the alpha and beta spin orbitals, and specify in pairs
 the integer numbers of the vectors to be swapped.  As many pairs as
 the user wishes to have swapped can be listed for {\tt <integer vec1
@@ -721,19 +721,19 @@ geometry named \verb+"test geom"+.  Each entry contains the field
 
  Entry                                   Type[nelem]
  ---------------------------  ----------------------
- geometry:test geom:efield              double[3]    
- geometry:test geom:coords              double[9]    
- geometry:names                         char[10]   
- geometry:test geom:ncenter                int[1]    
+ geometry:test geom:efield             double[3]    
+ geometry:test geom:coords             double[9]    
+ geometry:names                          char[10]   
+ geometry:test geom:ncenter               int[1]    
  geometry:ngeom                           int[1]    
- geometry:test geom:charges             double[3]    
- geometry:test geom:tags                  char[6]
+ geometry:test geom:charges            double[3]    
+ geometry:test geom:tags                 char[6]
  ...
 \end{verbatim}
 
 Using this convention, multiple instances of objects may be stored with
 different names in the same database.  If a user needed to do calculations 
-considering alternative geomteries
+considering alternative geometries
 for the water molecule, for example, an input file could be constructed with 
 all of the geometries of interest by storing them in the 
 database under different names.  
@@ -759,7 +759,7 @@ numerical input specified in this directive.  The \verb+GEOMETRY+
 directive allows the user to specify different values for the x,y,z
 coordinates of the atoms (or centers), and identify that object under
 a unique name.  In addition, all of the other information in the 
-geometry oject also available
+geometry object is also available
 to the specifically named objects.  (Refer to Section
 \ref{sec:geom} for a complete description of the {\tt GEOMETRY}
 directive.)
