@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.8 1999-10-25 15:58:04 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.9 1999-10-26 04:25:19 d3g681 Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -281,6 +281,25 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
    return returnObj;
 }
 
+PyObject *wrap_rtdb_delete(PyObject *self, PyObject *args)
+{
+   char *name;
+   PyObject *returnObj = NULL;
+
+   if (PyArg_Parse(args, "s", &name)) {
+       if (rtdb_delete(rtdb_handle, name)) {
+	 returnObj = PyTuple_New(0);
+       }
+       else {
+	   PyErr_SetString(NwchemError, "rtdb_delete failed");
+       }
+   }
+   else {
+       PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_delete(name)");
+   }
+   return returnObj;
+}
+
 PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
 {
    int nelem, ma_type;
@@ -304,7 +323,6 @@ PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
    }
    else {
        PyErr_SetString(PyExc_TypeError, "Usage: value = rtdb_get_info(name)");
-       if (format_str) free(format_str);
        return NULL;
    }
    return returnObj;
@@ -314,13 +332,13 @@ PyObject *wrap_rtdb_get_info(PyObject *self, PyObject *args)
 PyObject *wrap_rtdb_first(PyObject *self, PyObject *args)
 {
    char name[256];
-   PyObject *returnObj;
+   PyObject *returnObj = NULL;
 
    if (rtdb_first(rtdb_handle, sizeof(name), name)) {
      returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
    }
    else {
-       PyErr_SetString(PyExc_TypeError, "rtdb_first: failed");
+       PyErr_SetString(NwchemError, "rtdb_first: failed");
        return NULL;
    }
    return returnObj;
@@ -329,13 +347,13 @@ PyObject *wrap_rtdb_first(PyObject *self, PyObject *args)
 PyObject *wrap_rtdb_next(PyObject *self, PyObject *args)
 {
    char name[256];
-   PyObject *returnObj;
+   PyObject *returnObj = NULL;
 
    if (rtdb_next(rtdb_handle, sizeof(name), name)) {
      returnObj = PyString_FromString(name); /*Py_BuildValue("s#", name, 1); */
    }
    else {
-       PyErr_SetString(PyExc_TypeError, "rtdb_next: failed");
+       PyErr_SetString(NwchemError, "rtdb_next: failed");
        return NULL;
    }
    return returnObj;
@@ -537,6 +555,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_print",      wrap_rtdb_print, 0}, 
    {"rtdb_put",        wrap_rtdb_put, 0}, 
    {"rtdb_get",        wrap_rtdb_get, 0}, 
+   {"rtdb_delete",     wrap_rtdb_delete, 0}, 
    {"rtdb_get_info",   wrap_rtdb_get_info, 0}, 
    {"rtdb_first",      wrap_rtdb_first, 0}, 
    {"rtdb_next",       wrap_rtdb_next, 0}, 
