@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.32 2000-08-25 20:07:13 edo Exp $
+C$Id: int_1e_ga.F,v 1.33 2000-10-16 18:13:14 edo Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -215,9 +215,11 @@ cso
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
-       if(.not.ga_duplicate(g,g_loc,'local g')) call
-     . errquit('int1e: dupl failed',0)
-       call ga_zero(g_loc)
+      if (.not.inp_compare(.false., integ_type, 'so')) then
+         if(.not.ga_duplicate(g,g_loc,'local g')) call
+     .        errquit('int1e: dupl failed',0)
+         call ga_zero(g_loc)
+      endif
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
@@ -271,7 +273,7 @@ c
                   if (inp_compare(.false., integ_type, 'so')) then
                      do i = 1, 3
                         noffset = (ihi-ilo+1)*(jhi-jlo+1)*(i-1)   
-                        call ga_acc(g_loc, ilo, ihi, jlo, jhi, 
+                        call ga_acc(g(i), ilo, ihi, jlo, jhi, 
      $                    dbl_mb(k_buf+noffset),
      $                    idim, q2)
                      enddo 
@@ -308,8 +310,10 @@ c
          ocache=ocache_save
       endif
 c     
-      call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
-      if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0)
+      if (.not.inp_compare(.false., integ_type, 'so')) then
+         call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
+         if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0)
+      endif
       call ga_sync()            ! So that no nasty races can result
 c     
       if (oscfps) call pstat_off(ps_int_1e)
