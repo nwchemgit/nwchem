@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.15 1997-06-11 18:16:05 d3h449 Exp $
+c     $Id: scf_vec_guess.F,v 1.16 1997-06-24 02:56:55 d3g681 Exp $
 c
       implicit none
 c
@@ -88,7 +88,7 @@ c
 c
       oprint = util_print('mo guess', print_default) .and.
      &     ga_nodeid().eq.0
-      if (oprint)write(6,*)' Calling module = ',calling_module
+*      if (oprint)write(6,*)' Calling module = ',calling_module
       if (inp_compare(.false., 'DFT', calling_module))then
          nmo = nbf
          if (oprint)write(6,*)' Skipping linear dependence check. '
