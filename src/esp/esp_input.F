@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.15 2003-10-19 06:07:32 d3j191 Exp $
+c $Id: esp_input.F,v 1.16 2003-10-19 06:09:37 d3j191 Exp $
 c
       implicit none
 c
@@ -365,13 +365,11 @@ c
       if(.not.inp_f(resb)) resb=0.1d0
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'maxiter',item)) then
-      if(.not.inp_i(maxit)) call md_abort('esp_input: maxit error',0,
-     &       INPUT_ERR)
+      if(.not.inp_i(maxit)) call md_abort('esp_input: maxit error',0)
       if(.not.inp_a(item)) goto 1
       endif
       if(inp_compare(.false.,'tolerance',item)) then
-      if(.not.inp_f(toler)) call md_abort('esp_input: toler error',0,
-     &       INPUT_ERR)
+      if(.not.inp_f(toler)) call md_abort('esp_input: toler error',0)
       if(.not.inp_a(item)) goto 1
       endif
       endif
@@ -394,10 +392,8 @@ c
       call md_abort('esp_input: error reading input file',0)
       endif
 c
-      if(factor.le.0.0d0) call md_abort('illegal value for factor',0,
-     &       INPUT_ERR)
-      if(probe.le.0.0d0) call md_abort('illegal value for probe',0,
-     &       INPUT_ERR)
+      if(factor.le.0.0d0) call md_abort('illegal value for factor',0)
+      if(probe.le.0.0d0) call md_abort('illegal value for probe',0)
 c
       if(.not.rtdb_put(irtdb,'esp:probe',mt_dbl,1,probe))
      + call md_abort('esp: rtdb_put rcut failed',0)
