@@ -64,7 +64,7 @@ c
       character*20 scftype_vecs
       logical status
       integer me, nproc, max_sh_bf, max_at_bf, nat, max_sh_bfcd,
-     $     nocc, lforce, nactive, i, nbf_vecs, nsets, ispin, 
+     $     lforce, nactive, i, nbf_vecs, nsets, ispin, 
      $     max1e, max2e, mscratch_1e, mscratch_2e, 
      $     max2e3c, mscratch_2e3c, lbuf, lscratch, lsqa
       integer l_force, k_force, l_occ, k_occ, l_act, k_act, 
@@ -76,7 +76,10 @@ c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      $     lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      $     nscr, lscr, iscr
-      double precision charge, charge_nuc, rhffact, tol2e, onem
+      integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec
+      double precision charge, charge_nuc, rhffact, tol2e, onem,
+     , ssmear, toll
+      parameter(toll=1.d-9)
 c     
       nproc = ga_nnodes()
       me=ga_nodeid()
@@ -107,9 +110,12 @@ c
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
      $     call errquit('dft_gradient: rtdb_get of noc failed', 0) 
 c     
-      if (ipol .eq. 1)then
-         nocc = max(noc(1),noc(2))
-      endif 
+c     check if smearing is on
+c
+      if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
+     &   ssmear))then
+      ssmear=0.d0
+      endif
 c     
 c     allocate and initialize global and local memory
 c     
@@ -183,7 +189,7 @@ c     occupation numbers (not used, but necessary for movecs_read)
 c     
 c     should do k_occ for both spins, in case used at some point...
 c     
-      if (.not. ma_alloc_get(mt_dbl, nbf_ao, 'occ. numbers',
+      if (.not. ma_alloc_get(mt_dbl, nbf_ao*ipol, 'occ. numbers',
      $     l_occ, k_occ))
      $     call errquit('dft_gradient: could not allocate l_occ',1)
 c     
@@ -218,7 +224,8 @@ c
          status = .true.
          do ispin = 1, ipol
             status = status .and.
-     $           movecs_read(movecs_in, ispin, dbl_mb(k_occ),
+     $           movecs_read(movecs_in, ispin, 
+     &          dbl_mb(k_occ+(ispin-1)*nbf_ao),
      $           dbl_mb(k_evals(ispin)), g_vecs(ispin))
          enddo 
       endif
@@ -227,16 +234,53 @@ c
          write(6,*)'dft_gradient movecs output = ',movecs_in
          call errquit('dft_gradient: could not read mo vectors',917)
       endif
+c
+      if(ssmear.gt.1.d-9) then
+c
+c     smearing, therefore check new nocs
+c
+      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
+     &   call errquit('dftgforce: failed to alloc tmpm',0)
+         rhffact = one
+	
+        do ispin=1,ipol
+          g_tmp(ispin) = ga_create_atom_blocked(geom, ao_bas_han,
+     &         'frac vecs')
+          call ga_zero(g_tmp(ispin))
+          ipoint=k_occ+(ispin-1)*nbf_ao-1
+          do i = me+1, nbf_ao, nproc
+            if(dbl_mb(ipoint+i).gt.toll) then
+              call get_col(g_vecs(ispin), nbf_ao, i, DBL_MB(itmpm))
+              call dscal(nbf_ao, dbl_mb(i+ipoint), DBL_MB(itmpm), 1)
+              call put_col(g_tmp(ispin), nbf_ao, i, DBL_MB(itmpm))
+            endif
+          enddo
+          do i=1,nbf_ao
+            if(dbl_mb(ipoint+i).gt.toll) noc(ispin)=i
+          enddo
+        enddo
+      if (.not.ma_pop_stack(ltmpm))
+     &   call errquit('dftg_force: cannot pop stack',0)
+      
+      else
+        do ispin=1,ipol
+          g_tmp(ispin)=g_vecs(ispin)
+        enddo
+      endif
       do ispin = 1, ipol
 c     
 c     dens = vecs*vecs
 c     
          call ga_dgemm('n', 't', nbf_ao, nbf_ao, noc(ispin), rhffact, 
-     $        g_vecs(ispin), g_vecs(ispin), 0.0d0, iga_dens(ispin))
+     $        g_tmp(ispin), g_vecs(ispin), 0.0d0, iga_dens(ispin))
          call ga_symmetrize(iga_dens(ispin))
 c     
 c     free temporary arrays
 c     
+         if(ssmear.gt.1d-9) then
+           if(.not.ga_destroy (g_tmp(ispin))) call
+     *          errquit('dftg_force: could not gadestr gtmp',ispin)
+         endif
       enddo 
 c     
 c     Pre-compute mapping vectors
@@ -339,7 +383,8 @@ c
 c     
          if(.not.bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
      $        call errquit('dftg_force: basnbfcdmax broken?',0)
-         if (.not. MA_Push_get(MT_DBL, 3*max_sh_bfcd*2, 'svec',
+         lenvec=max(3*max_sh_bf,max_sh_bf*max_sh_bf)
+         if (.not. MA_Push_get(MT_DBL, lenvec, 'svec',
      $        lsvec, isvec))
      $        call errquit('dftg_force: could not alloc svec',0)
          ippp=k_wdens
@@ -348,7 +393,6 @@ c
      $        nbf_ao, nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
-     $        max_sh_bfcd,
      $        iga_dens, dbl_mb(k_frc_2el), 
      $        DBL_MB(i_cdcoef), oskel)
 c     
