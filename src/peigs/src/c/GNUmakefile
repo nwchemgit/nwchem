@@ -84,7 +84,7 @@ COBJ  = clustrfix.o \
 
 
 all:		$(COBJ)
-		$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a *.o
+		$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a $?
 
 .EXPORT_ALL_VARIABLES:
 
