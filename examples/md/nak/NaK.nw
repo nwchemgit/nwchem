@@ -2,6 +2,7 @@ start NaK-rtdb
 
 prepare
  system NaK
+ free
  modify atom 1:Na final type K
  solvate cube 2.0
  write NaK_em.rst
