@@ -1,11 +1,11 @@
       subroutine prp_start(nseri,ntyp,nftri,lfn,fil,iout,iprp,igib,
-     + nf1,nf2,nf3,
+     + nf1,nf2,nf3,ipropi,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi,
      + nodpme)
 c
-c $Id: prp_init.F,v 1.52 2002-05-08 18:09:58 d3j191 Exp $
+c $Id: prp_init.F,v 1.53 2002-05-14 21:41:33 d3j191 Exp $
 c
       implicit none
 c
@@ -16,6 +16,7 @@ c
       integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf,nodpme
+      integer ipropi
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbc
       real*8 tstp,ddi,edi
       character*255 fil
@@ -59,6 +60,7 @@ c
       ipset2=isetp2
 c
       iprof=iprf
+      iprop=ipropi
 c
       npener=npenrg
       tstep=tstp
@@ -576,6 +578,7 @@ c
 c
       nsum=0
       nsumt=0
+      nsump=0
       do 1 i=1,maxpro
       psum(i)=zero
       p2sum(i)=zero
@@ -583,6 +586,7 @@ c
       psumt(i)=zero
       p2sumt(i)=zero
       pslopt(i)=zero
+      psump(i)=zero
     1 continue
       tsum=zero
       t2sum=zero

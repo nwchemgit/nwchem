@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.123 2002-05-08 18:09:58 d3j191 Exp $
+c $Id: md_start.F,v 1.124 2002-05-14 21:41:33 d3j191 Exp $
 c
       implicit none
 c
@@ -63,7 +63,7 @@ c     start the property API
 c     ----------------------
 c
       call prp_start(nserie,ntype,nftri,lfnrst,filrst,lfnout,lfnprp,
-     + lfngib,nfoutp,nfstat,nfprop,
+     + lfngib,nfoutp,nfstat,nfprop,iprop,
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,npstat,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
@@ -514,6 +514,7 @@ c
       lendis=0
 c
       nfsync=0
+      iprop=0
 c
       lserver=.false.
 c
@@ -779,6 +780,8 @@ c
       if(.not.rtdb_get(irtdb,'md:nfsfor',mt_int,1,nfsfor))
      + call errquit('md_rtdbin: rtdb_get failed',51)
       if(.not.rtdb_get(irtdb,'md:nfprop',mt_int,1,nfprop))
+     + call errquit('md_rtdbin: rtdb_get failed',54)
+      if(.not.rtdb_get(irtdb,'md:iprop',mt_int,1,iprop))
      + call errquit('md_rtdbin: rtdb_get failed',54)
       if(.not.rtdb_get(irtdb,'md:nffree',mt_int,1,nffree))
      + call errquit('md_rtdbin: rtdb_get failed',55)

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.78 2002-05-14 19:01:43 d3j191 Exp $
+c $Id: prp_main.F,v 1.79 2002-05-14 21:41:33 d3j191 Exp $
 c
       implicit none
 c
@@ -387,6 +387,7 @@ c
 c
       nsum=nsum+1
       nsumt=nsumt+1
+      nsump=nsump+1
       do 8 i=1,maxpro
       if(abs(p(i)).lt.tiny) p(i)=zero
       psum(i)=psum(i)+p(i)
@@ -395,6 +396,7 @@ c
       psumt(i)=psumt(i)+p(i)
       p2sumt(i)=p2sumt(i)+p(i)*p(i)
       pslopt(i)=pslopt(i)+stime*p(i)
+      psump(i)=psump(i)+p(i)
     8 continue
       tsum=tsum+stime
       t2sum=t2sum+stime*stime
@@ -514,8 +516,16 @@ c
       endif
       write(lfnprp,3002)
  3002 format('frame')
+      if(iprop.eq.0) then
       write(lfnprp,3003) (p(ixp(i)),i=1,nprop)
+      else
+      write(lfnprp,3003) (psump(ixp(i))/dble(nsump),i=1,nprop)
  3003 format(4(1pe12.5))
+      endif
+      nsump=0
+      do 1 i=1,nprop
+      psump(ixp(i))=zero
+    1 continue
 c
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.58 2002-04-30 17:23:21 d3j191 Exp $
+c $Id: md_common.fh,v 1.59 2002-05-14 21:41:33 d3j191 Exp $
 c
 c     parameters
 c
@@ -130,7 +130,7 @@ c
      + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
-     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
+     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
@@ -160,7 +160,7 @@ c
      + nfforc,nfsfor,npstat,linkatm,nobq,impfr,impto,npforc,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
-     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
+     + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,iprop,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,nftri,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
      + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.61 2002-04-30 17:23:21 d3j191 Exp $
+c $Id: md_input.F,v 1.62 2002-05-14 21:41:33 d3j191 Exp $
 c
       implicit none
 c
@@ -32,6 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
+      integer iprop
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -147,6 +148,7 @@ c
       ngy=nby
       ngz=nbz
       len=0
+      iprop=0
 c      ifix=0
 c      iunfix=0
       numfix=0
@@ -1275,6 +1277,16 @@ c
       endif
       if(inp_compare(.false.,'prop',item)) then
       if(.not.inp_i(nfprop)) call errquit('md_input: error prop',20)
+      iprop=0
+      if(nfprop.lt.0) then
+      iprop=1
+      nfprop=-nfprop
+      endif
+      goto 600
+      endif
+      if(inp_compare(.false.,'prop_average',item)) then
+      if(.not.inp_i(nfprop)) call errquit('md_input: error prop',20)
+      iprop=1
       goto 600
       endif
       if(inp_compare(.false.,'free',item)) then
@@ -1605,6 +1617,8 @@ c
       if(.not.rtdb_put(irtdb,'md:nfsfor',mt_int,1,nfsfor))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfprop',mt_int,1,nfprop))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:iprop',mt_int,1,iprop))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nffree',mt_int,1,nffree))
      + call errquit('md_input: rtdb_put failed',0)

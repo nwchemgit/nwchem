@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.29 2002-05-08 18:09:58 d3j191 Exp $
+c $Id: prp_common.fh,v 1.30 2002-05-14 21:41:33 d3j191 Exp $
 c
 c
       real*8 zero,tiny,half,one
@@ -33,18 +33,19 @@ c
       common/prp_txt/pronam
 c
       real*8 p(maxpro),psum(maxpro),p2sum(maxpro),psumt(maxpro)
-      real*8 p2sumt(maxpro),pslop(maxpro),pslopt(maxpro)
+      real*8 p2sumt(maxpro),pslop(maxpro),pslopt(maxpro),psump(maxpro)
       real*8 tsum,t2sum,tsumt,t2sumt
       real*8 dfree,deriv(24)
       real*8 tstep,wbox,virial
       integer ntype,nprop,isprop,ixp(maxpro),nsum,nsumt,nderiv,nserie
-      integer iset,ipset1,ipset2,iprof,npgdec,npener,nbias,npstat
+      integer iset,ipset1,ipset2,iprof,npgdec,npener,nbias,npstat,nsump
+      integer iprop
       logical lp(maxpro)
-      common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
+      common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,psump,
      + tsum,t2sum,tsumt,t2sumt,tstep,wbox,virial,
      + dfree,deriv,
      + ixp,ntype,nprop,isprop,nsum,nsumt,nderiv,iset,ipset1,ipset2,
-     + iprof,npgdec,npener,nbias,npstat,nserie,
+     + iprof,npgdec,npener,nbias,npstat,nserie,nsump,iprop,
      + lp
 c
       real*8 volume,temp,pres,tmpscl,tmsscl,prsscl,ddacq,edacq,samrat
