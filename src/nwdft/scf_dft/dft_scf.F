@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.108 1998-09-15 00:31:04 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.109 1998-10-05 21:20:43 og845 Exp $
 c     
       implicit none
 c
@@ -500,6 +500,10 @@ c
      &                       k_ir, g_movecs, g_dens, 'density', 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
+      if(oskel) then
+        call ga_symmetrize(g_dens(1))
+        if(ipol.eq.2) call ga_symmetrize(g_dens(2))
+      endif
 c
 c     Tidy up SCF
 c
