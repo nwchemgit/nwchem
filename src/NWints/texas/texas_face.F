@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.18 1996-06-27 22:33:47 d3g681 Exp $
+c $Id: texas_face.F,v 1.19 1996-07-10 10:12:39 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -363,9 +363,12 @@ c
 *      write(6,*)' mem_2e3c :',mem_2e3c
 *      write(6,*)' mem_2e2c :',mem_2e2c
 *      write(6,*)' l_blsize :',l_blsize
-      mem_2e4c = max(mem_2e4c,l_blsize)
-      mem_2e3c = max(mem_2e3c,l_blsize)
-      mem_2e2c = max(mem_2e2c,l_blsize)
+*      mem_2e4c = max(mem_2e4c,l_blsize)
+*      mem_2e3c = max(mem_2e3c,l_blsize)
+*      mem_2e2c = max(mem_2e2c,l_blsize)
+c tmp fix for memory split
+      iszb_2e4c = isz_2e4c*100  ! 100 max quartet size
+      memb_2e4c = l_blsize
 c
 c--------------------------------------------------
 c ONLY for TESTS : calculate two-electron integrals  
