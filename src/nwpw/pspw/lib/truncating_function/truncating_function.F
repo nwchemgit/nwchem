@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.4 2002-03-03 22:57:04 bylaska Exp $
+c $Id: truncating_function.F,v 1.5 2002-03-05 22:09:23 bylaska Exp $
 c
 
 ***********************************************************
@@ -32,16 +32,20 @@ c
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
+c      integer nrho
+c      integer rho(2),f(2)
 
       logical value,found
-      integer npack0,nfft3d,G(3),nfft(3)
-      integer i,ii,ia,l
+      integer npack0,nfft3d,G(3),nfft(3),n2ft3d
+      integer i,ii,ia,l,j,k,zero,pzero,qzero,nxh,nyh
       real*8  gg,rr,rcut_in,pp_in
-      real*8  unita(3,3)
-      integer tmp1(2),tmp2(2)
+      real*8  unita(3,3),r,f,x,y,z
+      integer tmp1(2),tmp2(2),rgrid(2)
       character*4  element
       character*20 fname
       character*255 full_filename
+      integer nx,ny,nz
+      real*8  scal1
 
 
 
@@ -51,10 +55,12 @@ c
       character*2 ion_atom
       integer  G_indx,ion_nkatm,ion_atn,control_ngrid
       real*8   Truncating_Function_transform,control_unita
+      real*8   Truncating_Function_transform0
       external nwpw_filefind
       external ion_atom
       external G_indx,ion_nkatm,ion_atn,control_ngrid
       external Truncating_Function_transform,control_unita
+      external Truncating_Function_transform0
 
 
 *     ----- van der waals radii in angstroms -Needs to be updated   -----
@@ -92,22 +98,37 @@ c
 
 *     **** define Truncating Functions ****      
       call D3dB_nfft3d(1,nfft3d)
+      call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(0,npack0)
       G(1) = G_indx(1)
       G(2) = G_indx(2)
       G(3) = G_indx(3)
 
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+
+
+
       nt = ion_nkatm()
 
-      value = MA_alloc_get(mt_dbl,(nt*npack0),'Trnc',Trnc(2),Trnc(1))
+      value = MA_alloc_get(mt_dcpl,(nt*nfft3d),'Trnc',Trnc(2),Trnc(1))
       if (.not. value) 
      >  call errquit('Truncating_Function_init: out of heap memory',0)
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        MA_push_get(mt_dbl,n2ft3d,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
       if (.not. value) 
      >  call errquit('Truncating_Function_init: pushing stack',2)
+
+
+      call lattice_r_grid(dbl_mb(rgrid(1)))
+
+
 
 *     ***** Generate Fourier transform of Truncating Functions *****
       do ia=1,nt
@@ -142,7 +163,7 @@ c
             call dread(5,rcut_in,1)
             call dread(5,pp_in,1)
           end if
-          call D3dB_t_read(1,5,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
+          call D3dB_r_read(1,5,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
 
 *         *** close fname binary file ***
           if (taskid.eq.MASTER) then
@@ -174,13 +195,44 @@ c
           end if
  1164     FORMAT(5X,A2,' - generating trunctation function')
 
-          do i = 1,nfft3d
-            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
-     >          + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
-     >          + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
-            dbl_mb(tmp1(1)+i-1) = 
-     >       Truncating_Function_transform(gg,rr,pp)
-          end do
+c*         ***** find the G==0 point in the lattice *****
+c          call D3dB_nx(1,nx)
+c          call D3dB_ny(1,ny)
+c          nxh=nx/2
+c          nyh=ny/2
+c          i=0
+c          j=0
+c          k=0
+c          call D3dB_ktoqp(1,k+1,qzero,pzero)
+c          zero = (qzero-1)*(nxh+1)*ny
+c     >         + j*(nxh+1)
+c     >         + i+1
+c
+c          do i = 1,nfft3d
+c            gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+c     >            + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+c     >            + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+cc
+c            if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+c             dbl_mb(tmp1(1)+i-1) = 
+c     >         Truncating_Function_transform0(rr,pp)
+c               pp_in = (16.0d0*datan(1.0d0)/3.0d0)*rr**3
+c               write(*,*) "gg:",gg,dbl_mb(tmp1(1)+i-1),pp_in
+c            else
+c             dbl_mb(tmp1(1)+i-1) = 
+c     >         Truncating_Function_transform(gg,rr,pp)
+c            end if
+c
+c          end do
+           do i=1,n2ft3d
+              x = dbl_mb(rgrid(1) + 3*(i-1))
+              y = dbl_mb(rgrid(1) + 3*(i-1)+1)
+              z = dbl_mb(rgrid(1) + 3*(i-1)+2)
+              r = dsqrt(x*x + y*y + z*z)
+              f = (1.0d0-(1.0d0-dexp(-(r/rr)**(pp+2)))**pp)
+              dbl_mb(tmp1(1)+i-1) = f
+              if (f.gt.0.1d0) write(*,*) "i,f:",i,f
+           end do
 
 *         **************************************************
 *         **** save Truncating function in  binary file ****
@@ -210,7 +262,7 @@ c
             call dwrite(6,rcut,1)
             call dwrite(6,pp,1)
           end if
-          call D3dB_t_write(1,6,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
+          call D3dB_r_write(1,6,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)))
 
 *         *** close fname binary file ***
           if (taskid.eq.MASTER) then
@@ -218,15 +270,19 @@ c
           end if
 
         end if
-
+        
 *       ***** pack Truncation function for use ****
-        call Pack_t_pack(0,dbl_mb(tmp1(1)))
-        call Pack_t_Copy(0,dbl_mb(tmp1(1)),
-     >                     dbl_mb(Trnc(1)+(ia-1)*npack0))
+        call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+        call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
+c        call Pack_c_pack(0,dbl_mb(tmp1(1)))
+c        call Pack_c_SMul(0,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+        call D3dB_c_SMul(1,scal1,dbl_mb(tmp1(1)),
+     >                     dcpl_mb(Trnc(1)+(ia-1)*nfft3d))
 
       end do
 
-      value =           MA_pop_stack(tmp2(2))
+      value =           MA_pop_stack(rgrid(2))
+      value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
      >  call errquit('Truncating_Function_init: popping stack',3)
@@ -281,20 +337,26 @@ c
      >  call errquit('Truncating_Function: pushing stack',0)
 
       call Pack_c_Zero(0,T)
+      call dcopy(2*nfft3d,0.0d0,0,T,1)
 
       nion = ion_nion()
+      nion = 1  ! debug
       do ii=1,nion
         ia = ion_katm(ii)
 
 *       **** structure factor ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(0,dcpl_mb(exi(1)))
-
-*       **** add to Total Truncating Function ****
-        call Pack_tc_Mul(0,dbl_mb(Trnc(1)+npack0*(ia-1)),
-     >                   dcpl_mb(exi(1)),
-     >                   dcpl_mb(exi(1)))
-        call Pack_cc_Sum(0,T,dcpl_mb(exi(1)),T)
+c        call strfac(ii,dcpl_mb(exi(1)))
+c        call Pack_c_pack(0,dcpl_mb(exi(1)))
+c
+c*       **** add to Total Truncating Function ****
+c        call Pack_cc_Mul(0,dcpl_mb(Trnc(1)+nfft3d*(ia-1)),
+c     >                   dcpl_mb(exi(1)),
+c     >                   dcpl_mb(exi(1)))
+c        call Pack_cc_Sum(0,T,dcpl_mb(exi(1)),T)
+         call Pack_cc_Sum(0,
+     >                    T,
+     >                    dcpl_mb(Trnc(1)+nfft3d*(ia-1)),
+     >                    T)
 
       end do
 
@@ -319,7 +381,7 @@ c
 
 *     *** local variables ***
       integer nfft3d,npack0
-      integer i,ii,ia
+      integer i,ii,ia,nion
       integer exi(2),xtmp(2),G(3)
       integer Gx(2),Gy(2),Gz(2)
       logical value
@@ -355,7 +417,9 @@ c
       call Pack_t_pack(0,dbl_mb(Gz(1)))
 
 
-      do ii=1,ion_nion()
+      nion = ion_nion()
+      nion = 1  ! debug
+      do ii=1,nion
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
@@ -363,7 +427,7 @@ c
         call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 *       **** add to local psp ****
-        call Pack_tc_Mul(0,dbl_mb(Trnc(1)+npack0*(ia-1)),
+        call Pack_cc_Mul(0,dcpl_mb(Trnc(1)+nfft3d*(ia-1)),
      >                   dcpl_mb(exi(1)),
      >                   dcpl_mb(exi(1)))
 
@@ -420,44 +484,123 @@ c
 
 *     **** local variables ****
       integer nrho
-      parameter (nrho=5000)
+      parameter (nrho=5001)
 
-      integer i
-      real*8 q,fourpi,r,sum,drho,pp2,transform
+      integer i,no,ne
+      real*8 q,fourpi,r,sum,drho,pp2,f
 
       pp2    = pp + 2.0d0
-      drho   = 2.0d0*rcut/dble(nrho)
+      drho   = 2.0d0*rcut/dble(nrho-1)
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
 
-*     **** gg > 0 ****
-      if (gg.gt.1.0d-9) then
-         q  = dsqrt(gg)
-         sum = 0.0d0
-         do i=2,nrho-1
-            r = (i-1)*drho
-            sum = sum + r*sin(q*r)
-     >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-         end do
-         r = drho*(nrho-1)
-         sum = sum + 0.5d0*r*sin(q*r)
-     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-         transform = (fourpi/q)*sum*drho
+      q  = dsqrt(gg)
+c      sum = 0.0d0
+c      do i=2,nrho-1
+c        r = (i-1)*drho
+c        sum = sum 
+c     >    + r*sin(q*r)*(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c      end do
+c      r = drho*(nrho-1)
+c      sum = sum + 0.5d0*r*sin(q*r)
+c     >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
 
-*     **** gg == 0 *****
-      else
-         sum = 0.0d0
-         do i=2,nrho-1
-            r = (i-1)*drho
-            sum = sum + r*r*
-     >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-         end do
-         r = drho*(nrho-1)
-         sum = sum + 0.5d0*r*r*
-     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-         transform = (fourpi)*sum*drho
-      end if
 
-      Truncating_Function_transform = transform
+*     **** simpson integration ****
+c      no = nrho/2
+c      ne = no+1
+c
+c      r = drho*(nrho-1)
+c      f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c      sum = -0.5d0*r*r*f*sin(q*r)
+c      do i=1,no
+c         r = 2*(i-1)*drho
+c         f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c         sum = sum + 2.0d0*r*r*f*sin(q*r)
+c      end do
+c      do i=1,ne
+c         r = (2*(i-1)+1)*drho
+c         f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c         sum = sum + 4.0d0*r*r*f*sin(q*r)
+c      end do
+c      sum = sum/3.0d0
+c      Truncating_Function_transform = (fourpi/q)*sum*drho
+
+      Truncating_Function_transform = 
+     >  (fourpi/q**2)*(sin(q*rcut)/q - rcut*cos(q*rcut))
+      return
+      end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *   Truncating_Function_transform0  *
+*     *                                   *
+*     *************************************
+
+*     This function returns the fourier transform of
+*
+*            T(r) = (1.0d0-(1.0d0-dexp(-(r/rcut)**(pp+2)))**pp)
+*
+*      May want to use:
+*            T(r) = exp(-(r/rcut)**pp)
+*
+*     Entry - gg: g squared
+*             rcut:
+*             pp:
+*
+*     Exit - returns
+*                        /infty
+*                       |
+*      T(g=0) = (4*pi)* | r**2 * T(r)  dr
+*                       |
+*                       / 0
+
+      real*8 function Truncating_Function_transform0(rcut,pp)
+      implicit none
+      real*8 rcut,pp
+
+*     **** local variables ****
+      integer nrho,no,ne
+      parameter (nrho=5001)
+
+      integer i
+      real*8 fourpi,r,sum,drho,pp2,f
+
+
+      pp2    = pp + 2.0d0
+      drho   = 2.0d0*rcut/dble(nrho-1)
+      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
+
+c      sum = 0.0d0
+c      do i=2,nrho-1
+c            r = (i-1)*drho
+c            f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c            sum = sum + r*r*f
+c      end do
+
+*     **** simpson integration ****
+c     no = nrho/2
+c     ne = no+1
+c
+c     r = drho*(nrho-1)
+c     f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c     sum = -0.5d0*r*r*f
+c     do i=1,no
+c        r = 2*(i-1)*drho
+c        f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c        sum = sum + 2.0d0*r*r*f
+c     end do
+c     do i=1,ne
+c        r = (2*(i-1)+1)*drho
+c        f = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+c        sum = sum + 4.0d0*r*r*f
+c     end do
+c     sum = sum/3.0d0
+c      Truncating_Function_transform0 = (fourpi)*sum*drho
+       Truncating_Function_transform0 = (fourpi/3.0d0)*(rcut**3)
+
       return
       end
 
