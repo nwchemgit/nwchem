@@ -1,0 +1,27 @@
+A collection of miscelaneous Python scripts and test cases 
+that have been partially tested.
+
+nwgeom.py - look in the file for (a little) more documentation
+   Defines the procedures
+
+   - coords = geom_get_coords(name)
+
+   - geom_set_coords(name,coords)
+     Get/set cartesian coordinates for named geometry
+
+   - bond_length(i,j)
+     Compute bond length between atoms i & j for
+     default geometry
+
+   - (xmin, fmin) = minimize1d(f, xlo, xhi, xtol, maxeval)
+     Fairly robust minimization in 1d ... useful for crude
+     localization of saddle points.
+
+   - results = scan_input(input,start,end,nstep,theory,task)
+     Scan parameters from start to end, substituting into 
+     the NWChem input string and calling the specified
+     task(theory), returning results from each step in results.
+
+   
+
+  
