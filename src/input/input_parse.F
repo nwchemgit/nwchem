@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.63 2001-08-15 15:57:11 d3e129 Exp $
+C     $Id: input_parse.F,v 1.64 2001-08-15 19:47:22 windus Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -65,7 +65,7 @@ c
             else if (inp_compare(.false.,test,'so')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'integral').or.
-                     inp_compare(.false.,test,'intgrl')) then
+     &               inp_compare(.false.,test,'intgrl')) then
                call intgrl_input(rtdb)
             else if (inp_compare(.false.,test,'scf')) then
                call scf_input(rtdb)
