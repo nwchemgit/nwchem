@@ -1,0 +1,144 @@
+      Subroutine xc_becke88(rho,delrho,gamma,Amat,Cmat,nq,ipol,Ex,qwght)
+
+C$Id: xc_becke88.F,v 1.1 1995-04-26 03:40:10 og845 Exp $
+      Implicit real*8 (a-h,o-z)
+      Implicit integer (i-n)
+
+c--> Becke Empirical Parameter
+
+      Parameter (BETA = 0.0042D0,TOLL=1.E-20)
+
+c--> P2 = -(3/4)*(6/PI)**(1/3)
+
+      Parameter (P2 = -0.9305257363490993D+00)
+
+      Parameter (ONE=1.D0,TWO=2.D0,SIX=6.D0)
+      Parameter (ONEHALF=0.5D0,FOURTHIRDS=4.D0/3.D0)
+
+c--> Charge Density & Its Cube Root
+
+      Dimension rho(ipol*(ipol+1)/2,nq)
+
+c--> Charge Density Gradient
+
+      Dimension delrho(ipol,3,nq)
+
+c--> Charge Density Gradient Dot Products
+
+      Dimension gamma(ipol*(ipol+1)/2,nq)
+
+c--> Quadrature Weights
+
+      Dimension qwght(nq)
+
+c--> Sampling Matrices for the XC Potential & Energy
+
+      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
+
+c
+c Compute the partial derivatives of the exchange functional of Becke.
+c
+c References:
+c
+c    Becke, Phys. Rev. A 38, 3098 (1988)
+c    Johnson, Gill & Pople, J. Chem. Phys. 98, 5612 (1993)
+c
+c***************************************************************************
+      sinhm1(x)=log(x+dsqrt(1+x*x))
+      if( ipol.eq.1 )then
+
+c                      ======> SPIN-RESTRICTED <======
+
+       do 10 n = 1,nq
+       if(rho(1,n).lt.TOLL) goto 10
+c Spin alpha:
+        CD13a = (0.5d0*rho(1,n))**(1.d0/3.d0)
+        CD43a = CD13a**4 
+        if(dsqrt(gamma(1,n)).gt.TOLL) then
+          GNa = dsqrt( 0.25D0*gamma(1,n) )
+          Xa = GNa/CD43a
+        else
+          GNa=0.d0
+          Xa=0.d0
+        endif
+        Sa = sqrt(Xa*Xa + ONE)
+        Ha = sinhm1(Xa)
+        Ta = 1/(ONE + SIX*(BETA*Xa)*Ha)
+        Ca = -(BETA*Xa)*Xa*Ta
+        Ga = P2 + Ca
+        Pa = ( (SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa) )*Ta**2
+
+c ...
+
+        Amat(1,n) = Amat(1,n) + FOURTHIRDS*CD13a*(Ga - Xa*Pa)
+        if(Gna.gt.TOLL)  then
+          g         = .5d0*Pa/Gna
+          Cmat(1,1,n) = Cmat(1,1,n) + g*delrho(1,1,n)
+          Cmat(1,2,n) = Cmat(1,2,n) + g*delrho(1,2,n)
+          Cmat(1,3,n) = Cmat(1,3,n) + g*delrho(1,3,n)
+        endif
+        Ex      = Ex + TWO*CD43a*Ga*qwght(n)
+
+
+   10  continue
+
+      else
+
+c                      ======> SPIN-UNRESTRICTED <======
+
+       do 20 n = 1,nq
+         if(dabs(rho(1,n)).lt.TOLL) goto 20
+
+c Spin alpha:
+
+        CD13a = rho(2,n)**(1.d0/3.d0)
+        CD43a = CD13a**4 
+        GNa = sqrt( gamma(1,n) )
+
+        Xa = GNa/CD43a
+        Sa = sqrt(Xa*Xa + ONE)
+        Ha = log(Xa + Sa)
+        Ta = 1/(ONE + SIX*(BETA*Xa)*Ha)
+        Ca = -(BETA*Xa)*Xa*Ta
+        Ga = P2 + Ca
+        Pa = ( (SIX*(BETA*Xa)**2)*(Xa/Sa - Ha) - TWO*(BETA*Xa) )*Ta**2
+
+c Spin beta:
+
+        CD13b = rho(3,n)**(1.d0/3.d0)
+        CD43b = CD13b**4 
+
+        GNb = sqrt( gamma(2,n) )
+
+        Xb = GNb/CD43b
+        Sb = sqrt(Xb*Xb + ONE)
+        Hb = log(Xb + Sb)
+        Tb = 1/(ONE + SIX*(BETA*Xb)*Hb)
+        Cb = -(BETA*Xb)*Xb*Tb
+        Gb = P2 + Cb
+        Pb = ( (SIX*(BETA*Xb)**2)*(Xb/Sb - Hb) - TWO*(BETA*Xb) )*Tb**2
+
+c ...
+
+        Amat(1,n) = Amat(1,n) +FOURTHIRDS*CD13a*(Ga - Xa*Pa)
+        Amat(2,n) = Amat(2,n) + FOURTHIRDS*CD13b*(Gb - Xb*Pb)
+        if(GNa.gt.TOLL) then
+          gaa = Pa/GNa
+          Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n) 
+          Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n) 
+          Cmat(1,3,n) = Cmat(1,3,n) + gaa*delrho(1,3,n) 
+        endif
+        if(GNb.gt.TOLL) then
+          gbb = Pb/GNb
+          Cmat(2,1,n) = Cmat(2,1,n) + gbb*delrho(2,1,n) 
+          Cmat(2,2,n) = Cmat(2,2,n) + gbb*delrho(2,2,n) 
+          Cmat(2,3,n) = Cmat(2,3,n) + gbb*delrho(2,3,n) 
+        endif
+        
+        Ex      = Ex + (CD43a*Ga + CD43b*Gb)*qwght(n)
+
+   20  continue
+
+      end if
+
+      end

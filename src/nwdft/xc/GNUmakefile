@@ -1,33 +1,34 @@
-# $Id: GNUmakefile,v 1.15 1995-04-09 08:09:26 og845 Exp $
+# $Id: GNUmakefile,v 1.16 1995-04-26 03:40:09 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
-	OBJ = getvxc.o quadvxc0.o quadvxc1.o fitvxc.o gaget2oi.o qpts.o gat_mat.o	becke.o
+	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o
 	OBJ_OPTIMIZE = \
-	becke88.o	perdew86.o 		   \
-	dirac.o				   eumac.o	\
-	lyp88.o			\
-	tabcd.o	setACmat.o rho_gen.o\
-	vwn.o		   scat_mat.o	 \
+	xc_becke88.o	xc_perdew86.o 		   \
+	xc_dirac.o	xc_vwn.o	xc_lyp88.o			\
+	eumac.o	\
+	xc_tabcd.o	setACmat.o xc_rhogen.o\
+	scat_mat.o	 \
 	qpts.o		gausquad.o			   \
-	a_dist.o	qdist.o		getvxc.o delley.o lebedev.o
+	a_dist.o	qdist.o		 delley.o lebedev.o
 else
-      OBJ = getvxc.o  quadvxc1.o quadvxc0.o qpts.o
+      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o
 
       OBJ_OPTIMIZE = \
-	a_dist.o	 perdew86.o		   becke.o	\
-	becke88.o 		    \
-	dirac.o				   eumac.o	\
-	fitvxc.o			   gaget2oi.o	\
+	a_dist.o	  xc_beckew.o \
+	xc_perdew86.o	xc_dirac.o	 	\
+	xc_becke88.o 	xc_lyp88.o	xc_vwn.o \
+	eumac.o	\
+	xc_fitv.o			   xc_get2oi.o	\
 	gausquad.o	lebedev.o		   \
-	lyp88.o				   qdist.o	\
-	rho_gen.o	   	\
-	setACmat.o			   tabcd.o	\
-	vwn.o		gat_mat.o		   scat_mat.o delley.o
+	qdist.o	\
+	xc_rhogen.o	   	\
+	setACmat.o		xc_tabcd.o	\
+	gat_mat.o		   scat_mat.o delley.o
 endif
 
      LIBRARY = libnwdft.a
    LIB_DEFINES = -DDFT_TIMER
 
-   USES_BLAS = fitvxc.F quadvxc0.F quadvxc1.F dirac.F tabcd.F rho_gen.F
+   USES_BLAS = xc_fitv.F xc_quadv0_a.F xc_quadv1.F dirac.F xc_tabcd.F xc_rhogen.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
