@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom )
-c$Id: grad_force.F,v 1.9 1996-09-20 23:31:54 vg038 Exp $
+c$Id: grad_force.F,v 1.10 1996-09-27 23:18:21 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -195,8 +195,7 @@ C     # of eigenvalues and density matrices
           ndens = 5
         else if ( scftype .eq. 'RHF' ) then
           nbf2 = nbf
-          ndens = 2
-          call errquit ('no closed shell MP2 gradients yet', 110)
+          ndens = 3
         else    ! ROHF
           nbf2 = nbf
           ndens = 3
@@ -534,7 +533,7 @@ C       symmetrize
           call sym_grad_symmetrize(geom, dbl_mb(k_force))
         endif
 
-        if ( util_print('forces', print_high) .or. .true. ) then
+        if ( util_print('forces', print_high) ) then
           write (luout,2200) 'nuclear repulsion gradient',
      $         ((dbl_mb(k_frc_nuc+i-1+3*(j-1)),i=1,3),j=1,nat)
           write (luout,2200) 'weighted density gradient',
