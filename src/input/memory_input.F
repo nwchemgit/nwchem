@@ -1,6 +1,6 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
      $     global_size, total_size, overify, ohardfail)
-C$Id: memory_input.F,v 1.7 1996-08-06 05:35:43 d3g681 Exp $
+C$Id: memory_input.F,v 1.8 1997-12-09 02:14:09 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -64,6 +64,8 @@ c
             overify = .true.
          else if (inp_compare(.false.,'noverify',ctest)) then
             overify = .false.
+         else if (inp_compare(.false.,'trace',ctest)) then
+            call ma_trace(1)
          else if (inp_compare(.false.,'hardfail',ctest)) then
             ohardfail = .true.
          else if (inp_compare(.false.,'nohardfail',ctest)) then
