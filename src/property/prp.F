@@ -5,9 +5,10 @@ C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "rtdb.fh"
       integer rtdb, basis, geom
-      logical  rtdb_cget
-      external rtdb_cget
+c     logical  rtdb_cget
+c     external rtdb_cget
       LOGICAL SOME
       CHARACTER*8 RUNTYP
       CHARACTER*8 PROP
@@ -54,9 +55,12 @@ C
    10 CONTINUE
 c%%
 C*    RUNTYP=PROP
+c
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $     call errquit('gradients: scftype not defined',0)
+     $     call errquit('prp: scftype not defined',0)
+c
       call inp_ucase(scftype)
+c
       if ( scftype .eq. 'RHF' ) then
            scftyp = scftype
       else
@@ -8179,7 +8183,9 @@ c
    50 continue
 c
       endwrd=word1
-      CALL HND_wrdnam(endwrd)
+c%%% need to be ported
+c     CALL HND_wrdnam(endwrd)
+c%%%
       if(endwrd.eq.wrdend) go to 200
 c
       if(word1.eq.debug) then
@@ -11264,6 +11270,10 @@ C
       RETURN
       END
 
-
-
-
+c*    SUBROUTINE HND_WRDNAM(WRDKEY)
+c*    IMPLICIT REAL*8 (A-H,O-Z)
+c*    CHARACTER*9 WORD
+c*    WRITE(WORD,FMT='(1X,A8)') WRDKEY
+c*     READ(WORD,FMT='(   A8)') WRDKEY
+c*     RETURN
+c*    END
