@@ -1,9 +1,8 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.5 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_plt.F,v 1.6 2003-10-19 06:07:32 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -19,8 +18,7 @@ c
       real*8 xc,yc,zc,eq
       character*10 today,now
 c
-      if(mgrid(1)+2.gt.3*mxgrid) call errquit('Memory problem',0,
-     &       MEM_ERR)
+      if(mgrid(1)+2.gt.3*mxgrid) call md_abort('Memory problem',0)
 c
       if(me.eq.0) then
       call util_file_name('plt',.false.,.false.,pltfil)

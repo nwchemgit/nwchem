@@ -1,9 +1,8 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.14 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_input.F,v 1.15 2003-10-19 06:07:32 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "inp.fh"
@@ -163,8 +162,7 @@ c     read the nwchem input file
 c
     1 continue
 c
-      if(.not.inp_read()) call errquit('esp_input: inp_read failed',0,
-     &       INPUT_ERR)
+      if(.not.inp_read()) call md_abort('esp_input: inp_read failed',0)
 c
     2 continue
 c
@@ -182,34 +180,29 @@ c
       endif
 c
       if(inp_compare(.false.,'range',item)) then
-      if(.not.inp_f(rcut)) call errquit('esp_input: range error',0,
-     &       INPUT_ERR)
+      if(.not.inp_f(rcut)) call md_abort('esp_input: range error',0)
       goto 2
       endif
 c
       if(inp_compare(.false.,'spacing',item)) then
-      if(.not.inp_f(spac)) call errquit('esp_input: spacing error',0,
-     &       INPUT_ERR)
+      if(.not.inp_f(spac)) call md_abort('esp_input: spacing error',0)
       goto 2
       endif
 c
       if(inp_compare(.false.,'radius',item)) then
-      if(.not.inp_i(i)) call errquit('esp_input: radius error',0,
-     &       INPUT_ERR)
+      if(.not.inp_i(i)) call md_abort('esp_input: radius error',0)
       if(.not.inp_f(radius(i)))
-     + call errquit('esp_input: radius error',0, INPUT_ERR)
+     + call md_abort('esp_input: radius error',0)
       goto 2
       endif
 c
       if(inp_compare(.false.,'probe',item)) then
-      if(.not.inp_f(probe)) call errquit('esp_input: probe error',0,
-     &       INPUT_ERR)
+      if(.not.inp_f(probe)) call md_abort('esp_input: probe error',0)
       goto 2
       endif
 c
       if(inp_compare(.false.,'factor',item)) then
-      if(.not.inp_f(factor)) call errquit('esp_input: factor error',0,
-     &       INPUT_ERR)
+      if(.not.inp_f(factor)) call md_abort('esp_input: factor error',0)
       goto 2
       endif
 c
@@ -229,23 +222,23 @@ c
       nconst=nconst+1
       if(.not.inp_f(rcon(nconst))) then
       if(.not.inp_a(item))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(inp_compare(.false.,'equal',item)) then
       if(.not.inp_i(i))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_i(j))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
    41 continue
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=2
       icon(ncon+1)=-i
       icon(ncon+2)=j
       rcon(nconst)=0.0d0
       ncon=ncon+2
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       if(inp_i(j)) then
       nconst=nconst+1
       goto 41
@@ -253,38 +246,38 @@ c
       goto 2
       elseif(inp_compare(.false.,'group',item)) then
       if(.not.inp_i(i))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_i(j))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_a(item))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_compare(.false.,'to',item))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_i(k))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_i(l))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(j.lt.i.or.l.lt.k.or.j-i.ne.l-k)
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       nconst=nconst-1
       do 42 m=0,j-i
       nconst=nconst+1
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=2
       icon(ncon+1)=-(i+m)
       icon(ncon+2)=k+m
       rcon(nconst)=0.0d0
       ncon=ncon+2
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
    42 continue
       goto 2
       elseif(inp_compare(.false.,'xhn',item)) then
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       jcon=ncon
       icon(jcon)=0
       rcon(nconst)=0.0d0
@@ -293,7 +286,7 @@ c
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=i
       goto 43
       elseif(icon(jcon).gt.2) then
@@ -302,23 +295,23 @@ c
       rcon(nconst)=0.0d0
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=2
       icon(ncon+1)=icon(jcon+j+1)
       icon(ncon+2)=-icon(jcon+j+2)
       ncon=ncon+2
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
    44 continue
       endif
       goto 2
       else
-      call errquit('esp_input: constrain error',0, INPUT_ERR)
+      call md_abort('esp_input: constrain error',0)
       endif
       endif
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       jcon=ncon
       icon(jcon)=0
     4 continue
@@ -326,23 +319,23 @@ c
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=i
       ifrom=iabs(i)
       goto 4
       else
       if(.not.inp_a(item)) goto 2
       if(.not.inp_compare(.false.,'through',item))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(.not.inp_i(i))
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       if(ifrom.eq.0) 
-     + call errquit('esp_input: constrain error',0, INPUT_ERR)
+     + call md_abort('esp_input: constrain error',0)
       do 40 j=ifrom+1,iabs(i)
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
       if(ncon+2.gt.maxcon)
-     + call errquit('Increase dimension maxcon',ncon, INPUT_ERR)
+     + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=j
    40 continue
       ifrom=0
@@ -372,12 +365,12 @@ c
       if(.not.inp_f(resb)) resb=0.1d0
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'maxiter',item)) then
-      if(.not.inp_i(maxit)) call errquit('esp_input: maxit error',0,
+      if(.not.inp_i(maxit)) call md_abort('esp_input: maxit error',0,
      &       INPUT_ERR)
       if(.not.inp_a(item)) goto 1
       endif
       if(inp_compare(.false.,'tolerance',item)) then
-      if(.not.inp_f(toler)) call errquit('esp_input: toler error',0,
+      if(.not.inp_f(toler)) call md_abort('esp_input: toler error',0,
      &       INPUT_ERR)
       if(.not.inp_a(item)) goto 1
       endif
@@ -398,59 +391,59 @@ c
       if(me.eq.0) write(6,9999) item
  9999 format('esp_input: unknown field ',a)
       if(np.gt.1) call ga_sync()
-      call errquit('esp_input: error reading input file',0, INPUT_ERR)
+      call md_abort('esp_input: error reading input file',0)
       endif
 c
-      if(factor.le.0.0d0) call errquit('illegal value for factor',0,
+      if(factor.le.0.0d0) call md_abort('illegal value for factor',0,
      &       INPUT_ERR)
-      if(probe.le.0.0d0) call errquit('illegal value for probe',0,
+      if(probe.le.0.0d0) call md_abort('illegal value for probe',0,
      &       INPUT_ERR)
 c
       if(.not.rtdb_put(irtdb,'esp:probe',mt_dbl,1,probe))
-     + call errquit('esp: rtdb_put rcut failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put rcut failed',0)
       if(.not.rtdb_put(irtdb,'esp:factor',mt_dbl,1,factor))
-     + call errquit('esp: rtdb_put rcut failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put rcut failed',0)
       if(.not.rtdb_put(irtdb,'esp:rcut',mt_dbl,1,rcut))
-     + call errquit('esp: rtdb_put rcut failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put rcut failed',0)
       if(.not.rtdb_put(irtdb,'esp:spac',mt_dbl,1,spac))
-     + call errquit('esp: rtdb_put spac failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put spac failed',0)
       if(.not.rtdb_put(irtdb,'esp:radius',mt_dbl,107,radius))
-     + call errquit('esp: rtdb_put radius failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put radius failed',0)
 c
       if(.not.rtdb_put(irtdb,'esp:nconst',mt_int,1,nconst))
-     + call errquit('esp: rtdb_put nconst failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put nconst failed',0)
       if(nconst.gt.0) then
       if(.not.rtdb_put(irtdb,'esp:ncon',mt_int,1,ncon))
-     + call errquit('esp: rtdb_put ncon failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put ncon failed',0)
       if(.not.rtdb_put(irtdb,'esp:icon',mt_int,ncon,icon))
-     + call errquit('esp: rtdb_put icon failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put icon failed',0)
       if(.not.rtdb_put(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
-     + call errquit('esp: rtdb_put rcon failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put rcon failed',0)
       endif
 c
       if(.not.rtdb_put(irtdb,'esp:irest',mt_int,1,irest))
-     + call errquit('esp: rtdb_put irest failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put irest failed',0)
       if(.not.rtdb_put(irtdb,'esp:resa',mt_dbl,1,resa))
-     + call errquit('esp: rtdb_put resa failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put resa failed',0)
       if(.not.rtdb_put(irtdb,'esp:resb',mt_dbl,1,resb))
-     + call errquit('esp: rtdb_put resb failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put resb failed',0)
       if(.not.rtdb_put(irtdb,'esp:hfree',mt_int,1,ihfree))
-     + call errquit('esp: rtdb_put hfree failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put hfree failed',0)
       if(.not.rtdb_put(irtdb,'esp:maxit',mt_int,1,maxit))
-     + call errquit('esp: rtdb_put maxit failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put maxit failed',0)
       if(.not.rtdb_put(irtdb,'esp:toler',mt_dbl,1,toler))
-     + call errquit('esp: rtdb_put toler failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put toler failed',0)
 c
       if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
-     + call errquit('esp: rtdb_put dump failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put dump failed',0)
 c
       if(.not.rtdb_put(irtdb,'esp:screen',mt_int,1,lscrn))
-     + call errquit('esp: rtdb_put screen failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put screen failed',0)
       if(.not.rtdb_put(irtdb,'esp:scrtol',mt_dbl,1,scrtol))
-     + call errquit('esp: rtdb_put scrtol failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put scrtol failed',0)
 c
       if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
-     + call errquit('esp: rtdb_put newgrd failed',0, INPUT_ERR)
+     + call md_abort('esp: rtdb_put newgrd failed',0)
 c
       return
       end

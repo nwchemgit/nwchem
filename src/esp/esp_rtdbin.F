@@ -1,9 +1,8 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.14 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_rtdbin.F,v 1.15 2003-10-19 06:07:32 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -21,30 +20,30 @@ c
 c     load geometry
 c
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('esp: geom_create failed',me, GEOM_ERR)
+     + call md_abort('esp: geom_create failed',me)
 c
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('esp: geom_rtdb_load failed',me, RTDB_ERR)
+     + call md_abort('esp: geom_rtdb_load failed',me)
 c
       if(.not.geom_ncent(igeom,natoms))
-     + call errquit('esp: geom_ncent failed',me, GEOM_ERR)
+     + call md_abort('esp: geom_ncent failed',me)
 c
       if(.not.geom_nuc_charge(igeom,chgnuc))
-     + call errquit('esp: geom_nuc_charge failed',me, GEOM_ERR)
+     + call md_abort('esp: geom_nuc_charge failed',me)
 c
 c     load the basis set
 c
       if(.not.bas_create(ibasis,'ao basis'))
-     + call errquit('esp: bas_create failed',me, BASIS_ERR)
+     + call md_abort('esp: bas_create failed',me)
 c
       if(.not.bas_rtdb_load(irtdb,igeom,ibasis,'ao basis'))
-     + call errquit('esp: bas_rtdb_load failed',me, BASIS_ERR)
+     + call md_abort('esp: bas_rtdb_load failed',me)
 c
       if(.not.bas_numbf(ibasis,nbf))
-     + call errquit('esp: bas_numbf failed',me, BASIS_ERR)
+     + call md_abort('esp: bas_numbf failed',me)
 c     
       if(bas_is_spherical(ibasis)) 
-     + call errquit('esp does not work with spherical basis ',me,
+     + call md_abort('esp does not work with spherical basis ',me,
      &       BASIS_ERR)
 c
 c     get cutoff radius and gridspacing
@@ -166,11 +165,11 @@ c
       if(.not.rtdb_get(irtdb,'esp:nconst',mt_int,1,nconst)) nconst=0
       if(nconst.gt.0) then
       if(.not.rtdb_get(irtdb,'esp:ncon',mt_int,1,ncon))
-     + call errquit('Error reading ncon from rtdb',ncon, RTDB_ERR)
+     + call md_abort('Error reading ncon from rtdb',ncon)
       if(.not.rtdb_get(irtdb,'esp:icon',mt_int,ncon,icon))
-     + call errquit('Error reading icon from rtdb',ncon, RTDB_ERR)
+     + call md_abort('Error reading icon from rtdb',ncon)
       if(.not.rtdb_get(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
-     + call errquit('Error reading rcon from rtdb',nconst, RTDB_ERR)
+     + call md_abort('Error reading rcon from rtdb',nconst)
       endif
       if(.not.rtdb_get(irtdb,'esp:irest',mt_int,1,irest)) irest=0
       if(irest.gt.0) then

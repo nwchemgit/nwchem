@@ -1,9 +1,8 @@
       subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf)
 c
-c $Id: esp_fit.F,v 1.6 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_fit.F,v 1.7 2003-10-19 06:07:31 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -108,13 +107,13 @@ c
 c     allocate work arrays for the matrix inversion
 c
       if(.not.ma_push_get(mt_int,2*ndim,'it0',l_it0,ii0ptr))
-     + call errquit('esp: ma_push_get it0 failed',me, MA_ERR)
+     + call md_abort('esp: ma_push_get it0 failed',me)
       if(.not.ma_push_get(mt_int,ndim,'it1',l_it1,ii1ptr))
-     + call errquit('esp: ma_push_get it1 failed',me, MA_ERR)
+     + call md_abort('esp: ma_push_get it1 failed',me)
       if(.not.ma_push_get(mt_int,ndim,'it2',l_it2,ii2ptr))
-     + call errquit('esp: ma_push_get it2 failed',me, MA_ERR)
+     + call md_abort('esp: ma_push_get it2 failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'dt',l_dt,idtptr))
-     + call errquit('esp: ma_push_get dt failed',me, MA_ERR)
+     + call md_abort('esp: ma_push_get dt failed',me)
 c
 c     unconstrained esp fitting
 c
@@ -265,13 +264,13 @@ c
 c     deallocate work arrays
 c
       if(.not.ma_pop_stack(l_dt))
-     + call errquit('esp: ma_pop_stack dt failed',me, MA_ERR)
+     + call md_abort('esp: ma_pop_stack dt failed',me)
       if(.not.ma_pop_stack(l_it2))
-     + call errquit('esp: ma_pop_stack it2 failed',me, MA_ERR)
+     + call md_abort('esp: ma_pop_stack it2 failed',me)
       if(.not.ma_pop_stack(l_it1))
-     + call errquit('esp: ma_pop_stack it1 failed',me, MA_ERR)
+     + call md_abort('esp: ma_pop_stack it1 failed',me)
       if(.not.ma_pop_stack(l_it0))
-     + call errquit('esp: ma_pop_stack it0 failed',me, MA_ERR)
+     + call md_abort('esp: ma_pop_stack it0 failed',me)
 c
       return
       end

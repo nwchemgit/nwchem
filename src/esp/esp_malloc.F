@@ -1,9 +1,8 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.11 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_malloc.F,v 1.12 2003-10-19 06:07:32 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -27,17 +26,17 @@ c     l_qf iqfptr 'qf' :  4*natoms : fitted atomic charges
 c
       ndim=natoms+nconst
       if(.not.ma_push_get(mt_byte,natoms*16,'t',l_t,itptr))
-     + call errquit('esp: ma_push_get t failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get t failed',me)
       if(.not.ma_push_get(mt_dbl,natoms*3,'x',l_x,ixptr))
-     + call errquit('esp: ma_push_get x failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get x failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'q',l_q,iqptr))
-     + call errquit('esp: ma_push_get q failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get q failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'qk',l_qk,iqkptr))
-     + call errquit('esp: ma_push_get qk failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get qk failed',me)
       if(.not.ma_push_get(mt_dbl,4*ndim,'qf',l_qf,iqfptr))
-     + call errquit('esp: ma_push_get qf failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get qf failed',me)
       if(.not.ma_push_get(mt_int,natoms,'n',l_n,inptr))
-     + call errquit('esp: ma_push_get n failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get n failed',me)
 c
 c     get atomic coordinates
 c
@@ -63,19 +62,19 @@ c
 c     initialize integrals
 c
       if(.not.int_normalize(irtdb,ibasis))
-     + call errquit('esp: int_normalize failed',me, INT_ERR)
+     + call ma_abort('esp: int_normalize failed',me, INT_ERR)
       call int_init(irtdb,1,ibasis)
 c
 c     get number of shells
 c
       if(.not.bas_numcont(ibasis,nshell))
-     + call errquit('esp: bas_numcont failed',me, BASIS_ERR)
+     + call ma_abort('esp: bas_numcont failed',me, BASIS_ERR)
       call int_mem_1e(max1e,mem1)
 c
       mbf=0
       do 1 ish=1,nshell
       if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
-     + call errquit('esp: bas_cn2bfr failed',me, BASIS_ERR)
+     + call ma_abort('esp: bas_cn2bfr failed',me, BASIS_ERR)
       mbf=max(mbf,ihi-ilo+1)
     1 continue
       else
@@ -90,11 +89,11 @@ c     l_e ieptr 'e' :   2*nbf : orbital energies
 c     l_o ioptr 'o' :   2*nbf : orbital occupation
 c
       if(.not.ma_push_get(mt_dbl,mbf*mbf,'d',l_d,idptr))
-     + call errquit('esp: ma_push_get d failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get d failed',me)
       if(.not.ma_push_get(mt_dbl,2*nbf,'e',l_e,ieptr))
-     + call errquit('esp: ma_push_get e failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get e failed',me)
       if(.not.ma_push_get(mt_dbl,2*nbf,'o',l_o,ioptr))
-     + call errquit('esp: ma_push_get o failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get o failed',me)
 c
 c     allocate memory:
 c
@@ -103,13 +102,13 @@ c     l_b ibptr 'b' : (natoms+nconst)   : solution vector
 c     l_c icptr 'c' : (natoms+nconst)   : result vector
 c
       if(.not.ma_push_get(mt_dbl,ndim*ndim,'A',l_a,iaptr))
-     + call errquit('esp: ma_push_get A failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get A failed',me)
       if(.not.ma_push_get(mt_dbl,ndim*ndim,'Ak',l_ak,iakptr))
-     + call errquit('esp: ma_push_get Ak failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get Ak failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'b',l_b,ibptr))
-     + call errquit('esp: ma_push_get b failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get b failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'c',l_c,icptr))
-     + call errquit('esp: ma_push_get c failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get c failed',me)
 c
 c     check how much memory is available
 c
@@ -130,9 +129,9 @@ c     l_g igptr 'g' : 3*mxgrid : grid point coordinates
 c     l_v ivptr 'v' :   mxgrid : grid point values
 c
       if(.not.ma_push_get(mt_dbl,mxgrid*3,'g',l_g,igptr))
-     + call errquit('esp: ma_push_get g failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get g failed',me)
       if(.not.ma_push_get(mt_dbl,mxgrid,'v',l_v,ivptr))
-     + call errquit('esp: ma_push_get v failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get v failed',me)
 c
       if(me.eq.0.and.newgrd.eq.0)
      + call esp_getg(dbl_mb(igptr),dbl_mb(ivptr))

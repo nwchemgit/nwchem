@@ -1,9 +1,8 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.20 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_esp.F,v 1.21 2003-10-19 06:07:31 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -54,9 +53,9 @@ c
 c     allocate memory for the integrals
 c
       if(.not.ma_push_get(mt_dbl,max1e,'bt',l_bt,ibtptr))
-     + call errquit('esp: ma_push_get b failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get b failed',me)
       if(.not.ma_push_get(mt_dbl,mem1 ,'st',l_st,istptr))
-     + call errquit('esp: ma_push_get s failed',me, MA_ERR)
+     + call ma_abort('esp: ma_push_get s failed',me)
 c
       if(lscrn.ne.0) call schwarz_init(igeom,ibasis)
 c
@@ -72,7 +71,7 @@ c
       open(unit=lfner,file=erfil,form='unformatted',status='old',
      + err=12)
       read(lfner) jshi,nval
-      if(nval.ne.ngrid) call errquit('Incompatible er file',0, DISK_ERR)
+      if(nval.ne.ngrid) call ma_abort('Incompatible er file',0)
       read(lfner) (val(i),i=1,ngrid)
       close(unit=lfner)
    12 continue
@@ -83,7 +82,7 @@ c
 c
       do 3 jsh=jshi+1,nshell
       if(.not.bas_cn2bfr(ibasis,jsh,jlo,jhi))
-     + call errquit('esp: bas_cn2bfr failed',me, BASIS_ERR)
+     + call ma_abort('esp: bas_cn2bfr failed',me)
       do 4 ish=1,jsh
       if(lscrn.ne.0) then
       if(schwarz_shell(ish,jsh).lt.scrtol) goto 4
@@ -91,7 +90,7 @@ c
       fact=1.0d0
       if(ish.ne.jsh) fact=2.0d0
       if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
-     + call errquit('esp: bas_cn2bfr failed',me, BASIS_ERR)
+     + call ma_abort('esp: bas_cn2bfr failed',me)
       npts=ngto-ngfr+1
       call esp_getden(dns,jlo,jhi,ilo,ihi)
       call potential_from_shell_pair(ibasis,jsh,ish,dns,mbf,
@@ -161,11 +160,11 @@ c
 c     deallocate memory for the integrals
 c
       if(.not.ga_destroy(lg_d))
-     + call errquit('esp_denmat: ga_destroy lg_d failed',me, GA_ERR)
+     + call ma_abort('esp_denmat: ga_destroy lg_d failed',me)
       if(.not.ma_pop_stack(l_st))
-     + call errquit('esp: ma_pop_stack st failed',me, MA_ERR)
+     + call ma_abort('esp: ma_pop_stack st failed',me)
       if(.not.ma_pop_stack(l_bt))
-     + call errquit('esp: ma_pop_stack bt failed',me, MA_ERR)
+     + call ma_abort('esp: ma_pop_stack bt failed',me)
 c
 c     integral termination
 c

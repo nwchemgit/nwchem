@@ -1,9 +1,8 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.14 2003-10-17 22:54:52 carlfahl Exp $
+c $Id: esp_out.F,v 1.15 2003-10-19 06:07:32 d3j191 Exp $
 c
       implicit none
-#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -99,20 +98,20 @@ c
       if(k.eq.4) name='cresp:geometry'
       do 4 j=1,natoms
       if(.not.geom_cent_get(igeom,j,Atag,coord,charge))
-     + call errquit('esp_out: geom_cent_get failed',9999, GEOM_ERR)
+     + call md_abort('esp_out: geom_cent_get failed',9999)
       charge=qf(j,i)
       if(.not.geom_cent_set(igeom,j,Atag,coord,charge))
-     + call errquit('esp_out: geom_cent_set failed',9999, GEOM_ERR)
+     + call md_abort('esp_out: geom_cent_set failed',9999)
     4 continue
       if(k.gt.0) then
       if(.not.geom_rtdb_store(irtdb,igeom,name))
-     + call errquit('esp_out: geom_rtdb_store failed',9999, GEOM_ERR)
+     + call md_abort('esp_out: geom_rtdb_store failed',9999)
       else
-      call errquit('error in esp_out',9999, GEOM_ERR)
+      call md_abort('error in esp_out',9999)
       endif
       if(i.eq.nf) then
       if(.not.geom_rtdb_store(irtdb,igeom,'esp_fit:geometry'))
-     + call errquit('esp_out: geom_rtdb_store failed',9999, RTDB_ERR)
+     + call md_abort('esp_out: geom_rtdb_store failed',9999)
       endif
     3 continue
 c
