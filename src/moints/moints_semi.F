@@ -198,7 +198,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.37 1997-06-28 05:15:01 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.38 1997-06-29 03:05:00 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -377,8 +377,8 @@ c
 c  Create GA coulomb buffer
 c
        if (ocoul) then
-**         itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
-         itmp = ((nocc-1)/numnodes + 1)*nseg ! rjh
+         itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
+**         itmp = ((nocc-1)/numnodes + 1)*nseg ! rjh
          if (.not.(ga_create( MT_DBL, mxrlen, nseg*nocc, 'transp Jbuf',
      $                        mxrlen, itmp, g_jbuf )))
      $           call errquit('moints_semi: cannot allocate J buffer',0)
@@ -403,10 +403,8 @@ c  Create GA exchange buffer
 c
        if (oexch) then
 c
-c     This distribution needs refining to get better load balance.
-c
-**         itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
-          itmp = ((nvir-1)/numnodes+1)*nseg ! rjh
+         itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
+**          itmp = ((nvir-1)/numnodes+1)*nseg ! rjh
          if (.not.(ga_create( MT_DBL, mxrlen, nseg*nvir, 'transp Kbuf',
      $                        mxrlen, itmp, g_kbuf )))
      $           call errquit('moints_semi: cannot allocate K buffer',0)
