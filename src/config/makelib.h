@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.43 1999-06-01 20:48:07 d3h325 Exp $
+# $Id: makelib.h,v 1.44 1999-06-07 17:47:54 d3e129 Exp $
 
 #
 # A makefile for a library should
@@ -263,7 +263,7 @@ endif
 			$(RM) -f $(LIBRARY_PATH) ; \
 		fi ; \
 	fi ;
-
+	@-$(RM) dependencies
 
 #
 # This is a convenience target that will make the TAGS file for current 
