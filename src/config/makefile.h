@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.266 1998-08-24 18:46:56 d3e129 Exp $
+# $Id: makefile.h,v 1.267 1998-08-28 00:13:42 d3g270 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -849,6 +849,10 @@ ifeq ($(TARGET),SP1)
 LARGE_FILES = YES
 
   LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+ifeq ($(NWCHEM_TARGET_CPU),604)
+  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+endif
+
    LINK.f   = mpxlf -qnohpf $(LDOPTIONS)
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
