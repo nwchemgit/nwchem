@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.33 1997-06-14 02:16:36 d3g681 Exp $
+C$Id: opt_drv.F,v 1.34 1997-06-26 17:39:51 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -346,7 +346,7 @@ c
      2       /,10x,22(1h-))
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
  9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
-     1     /,' maximum number of energy evaluation   (nptopt) = ',i4,/,
+     1     /,' maximum number of energy evaluations  (nptopt) = ',i4,/,
      2       ' max.num. of points in linear search   (linopt) = ',i4,/,
      1       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
      4       ' hessian update selection option       (modupd) = ',i4,/,
@@ -1804,7 +1804,6 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "util.fh"
-c   #include "geomP.fh"   ! should not need this?
 c
       integer    rtdb
       logical    status
@@ -2592,7 +2591,6 @@ c
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
-c   #include "geomP.fh"   ! should not need this?
 #include "rtdb.fh"
 C
 C     ----- ONE DIMENSIONAL SEARCH.  -----
