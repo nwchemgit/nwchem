@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.49 2005-01-25 18:42:00 marat Exp $
+c $Id: qmmm_geom.F,v 1.50 2005-02-10 05:53:32 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -160,7 +160,7 @@ c     ------------------------------------
       end if
 
 
-      if(ga_nodeid().eq.0) then
+      if(qmmm_print_debug()) then
         write(*,*) "list of active atoms"
         do i=1,nqm
           write(*,*) i, log_mb(i_act+i-1)

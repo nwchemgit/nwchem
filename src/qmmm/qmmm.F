@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.42 2005-01-25 18:42:00 marat Exp $
+c $Id: qmmm.F,v 1.43 2005-02-10 05:53:32 marat Exp $
 c
 c
       function qmmm_init(irtdb)

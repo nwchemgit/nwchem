@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.13 2005-01-25 18:42:00 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.14 2005-02-10 05:53:32 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -132,6 +132,7 @@ c     h_g will hold QM gradient for the full system
      &      3*ntot, MA_ERR)
       call dfill(3*ntot,0,dbl_mb(i_g),1)
 c
+      call qmmm_load_fixed_atoms(rtdb)
 c      call qmmm_create_fixed_atoms(rtdb)
 
 c     calculate gradients from qm
@@ -183,6 +184,8 @@ c
 
       call util_print_pop()
       call mm_write_restart()
+
+      call qmmm_unload_fixed_atoms(rtdb)
 
       end
 
@@ -240,6 +243,267 @@ c     local variables
       if(.not.ma_pop_stack(h_gtmp))
      & call errquit('qmmm: 
      >              Failed to deallocate stack gtmp',ncent,
+     &       MA_ERR)
+
+      end
+
+      subroutine qmmm_load_fixed_atoms1(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c
+      logical prior_cons
+      character*32 namespace
+      character*32 pname
+      integer nqm,nact,nfix
+      integer i,j
+      integer i_cons,h_cons
+      integer i_act
+      integer icent
+      integer i_lfix,h_lfix
+      integer ma_type
+     
+      pname = "qmmm_create_fixed_atoms"
+     
+      call cons_inquire_fixed_atoms
+     >   (
+     >   prior_cons,
+     >   rtdb
+     >   )
+
+      if(.not.prior_cons) return
+
+      write(*,*) "found prior constraints"
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
+     $        nact, h_cons)) then
+            if (.not. ma_get_index(h_cons, i_cons))
+     $           call errquit(pname,h_cons,
+     &       MA_ERR)
+      end if
+
+      call cons_sort_i(nact,int_mb(i_cons))
+
+      namespace = "qmmm_old_cons"
+      call cons_save_fixed_atoms(namespace,rtdb)
+      call cons_unload_fixed_atoms(rtdb)
+
+      nqm  = qmmm_get_nqm()
+      i_act = qmmm_get_i_act()
+
+
+      if(.not.ma_push_get(MT_LOG, nqm, 'qmmm lfix',
+     &      h_lfix, i_lfix) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      nqm, MA_ERR)
+
+
+      do i=1,nqm
+        log_mb(i_lfix+i-1)=.true.
+      end do
+
+      do i=1,nact
+        j = int_mb(i_cons+i-1)
+        log_mb(i_lfix+j-1)=.false.
+        write(*,*) "j=",j
+      end do
+
+      if (.not.ma_free_heap(h_cons))
+     $   call errquit(pname,h_cons,
+     &       MA_ERR)
+
+      if(.not.ma_push_get(MT_INT, nqm-nact, 'qmmm cons',
+     &      h_cons, i_cons) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      nqm, MA_ERR)
+
+
+
+      do i=1,nact
+        int_mb(i_cons+i-1) = -1
+      end do
+
+
+      icent = 0
+      nfix = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) then
+          icent = icent + 1
+          if(log_mb(i_lfix+icent-1)) then
+            nfix = nfix+1
+            int_mb(i_cons+nfix-1) = i
+            write(*,*) "i_cons,nfix",int_mb(i_cons+nfix-1),nfix
+          end if
+        end if
+      end do
+
+
+      namespace = "qmmm_new_cons"
+      write(*,*) "nfix=",nfix
+      write(*,*) (int_mb(i_cons+i-1),i=1,nfix)
+
+      call cons_add_fixed_atoms(namespace,nfix,int_mb(i_cons),rtdb)
+      call cons_load_fixed_atoms(namespace,rtdb)
+
+      if (.not. ma_pop_stack(h_cons) ) call errquit(
+     &    pname//' ma_pop_stack ',
+     &    0, MA_ERR)
+
+
+      if (.not. ma_pop_stack(h_lfix) ) call errquit(
+     &    pname//' ma_pop_stack ',
+     &    0, MA_ERR)
+
+      end
+
+      subroutine qmmm_load_fixed_atoms(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c
+      logical prior_cons
+      character*32 pname
+      integer nqm,nact,nfix
+      integer nact1
+      integer i,j
+      integer i_cons,h_cons
+      integer i_act
+      integer icent
+      integer i_lfix,h_lfix
+      integer ma_type
+     
+      pname = "qmmm_create_fixed_atoms"
+     
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
+     $        nact, h_cons)) then
+            if (.not. ma_get_index(h_cons, i_cons))
+     $           call errquit(pname,h_cons,
+     &       MA_ERR)
+      else
+       return
+      end if
+
+      if (.not.rtdb_delete(rtdb, 'geometry:actlist'))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      if (.not.rtdb_put(rtdb, 'qmmm:actlist',
+     >       mt_int,nact,int_mb(i_cons)))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      call cons_sort_i(nact,int_mb(i_cons))
+
+      nqm  = qmmm_get_nqm()
+      i_act = qmmm_get_i_act()
+
+
+      if(.not.ma_push_get(MT_LOG, nqm, 'qmmm lfix',
+     &      h_lfix, i_lfix) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      nqm, MA_ERR)
+
+
+      do i=1,nqm
+        log_mb(i_lfix+i-1)=.true.
+      end do
+
+      do i=1,nact
+        j = int_mb(i_cons+i-1)
+        log_mb(i_lfix+j-1)=.false.
+      end do
+
+
+      icent = 0
+      nact1 = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) then
+          icent = icent + 1
+          if(.not.log_mb(i_lfix+icent-1)) then
+            nact1=nact1+1
+            int_mb(i_cons+nact1-1) = i
+          end if
+        end if
+      end do
+
+      if (.not.rtdb_put(rtdb, 'geometry:actlist',
+     >        mt_int,nact1,int_mb(i_cons)))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+
+      if (.not.ma_free_heap(h_cons))
+     $   call errquit(pname,h_cons,
+     &       MA_ERR)
+
+
+      if (.not. ma_pop_stack(h_lfix) ) call errquit(
+     &    pname//' ma_pop_stack ',
+     &    0, MA_ERR)
+
+      end
+
+      subroutine qmmm_unload_fixed_atoms(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c
+      character*32 pname
+      integer nact
+      integer i_cons,h_cons
+      integer ma_type
+     
+      pname = "qmmm_unload_fixed_atoms"
+     
+      if (rtdb_ma_get(rtdb, 'qmmm:actlist', ma_type,
+     $        nact, h_cons)) then
+            if (.not. ma_get_index(h_cons, i_cons))
+     $           call errquit(pname,h_cons,
+     &       MA_ERR)
+      else
+        return
+      end if
+
+      if (.not.rtdb_delete(rtdb, 'qmmm:actlist'))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      if (.not.rtdb_put(rtdb, 'geometry:actlist',
+     >       mt_int,nact,int_mb(i_cons)))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      if (.not.ma_free_heap(h_cons))
+     $   call errquit(pname,h_cons,
      &       MA_ERR)
 
       end

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.43 2005-01-25 18:42:00 marat Exp $
+c $Id: mm_interface.F,v 1.44 2005-02-10 05:53:32 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
