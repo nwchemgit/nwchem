@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.57 1997-03-25 17:10:13 d3e129 Exp $
+c $Id: basis.F,v 1.58 1997-04-01 18:21:52 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -2710,6 +2710,7 @@ c:: passed
 c                           !          atom in the given basis.
 c:local
       integer basis, mynat, iat, mylo, myhi, mynbf
+      integer myclo, mychi, mynumcont
 c
 #include "bas_ibs_sfn.fh"
 c
@@ -2731,10 +2732,16 @@ c
 c
       nbf_max = -1
       do 00100 iat = 1,mynat
-        mylo  = sf_ibs_cn2bfr(1,(sf_ibs_ce2cnr(1,iat,basis)),basis)
-        myhi  = sf_ibs_cn2bfr(2,(sf_ibs_ce2cnr(2,iat,basis)),basis)
-        mynbf = myhi - mylo + 1
-        nbf_max = max(nbf_max, mynbf)
+        myclo = (sf_ibs_ce2cnr(1,iat,basis))
+        mychi = (sf_ibs_ce2cnr(2,iat,basis))
+        mynumcont = mychi - myclo + 1
+* Bqs with no basis functions have mynumcont < 1
+        if (mynumcont.gt.0) then
+          mylo  = sf_ibs_cn2bfr(1,myclo,basis)
+          myhi  = sf_ibs_cn2bfr(2,mychi,basis)
+          mynbf = myhi - mylo + 1
+          nbf_max = max(nbf_max, mynbf)
+        endif
 00100 continue
 c
       return
