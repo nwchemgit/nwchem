@@ -294,7 +294,7 @@ peigs_CPU = RS6000
 peigs_CODEOBJ = DBLE
 peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -O3 -qstrict
 # peigs_FC  += -I$(peigs_HDIR) -DIBM -Pv -Wp,-eaj -O3 -qstrict
-peigs_FC  += -I$(peigs_HDIR) -DIBM -O3 -qstrict
+peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict
 peigs_CPP += -P -C -DSTD_INT -DSTD_DBL
 endif
 
