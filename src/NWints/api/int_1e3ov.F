@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.15 1999-07-14 00:28:38 d3e129 Exp $
+c $Id: int_1e3ov.F,v 1.16 2000-04-19 23:45:48 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
@@ -49,6 +49,10 @@ c::local
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
       integer Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
+      integer nint_ck
+      integer kk
+      integer int_nint_cart
+      external int_nint_cart
 *     integer nintx, ninta, nintb
 c
       integer WarnP
@@ -62,6 +66,13 @@ c check initialization and shells
 c
       if (.not.int_chk_init('int_1e3ov'))
      &       call errquit('int_1e3ov: int_init was not called' ,0)
+      nint_ck = int_nint_cart(i_basis,ish,j_basis,jsh,k_basis,ksh,
+     ,     k_basis,0)
+      if (nint_ck.gt.lov3) then
+        write(luout,*) 'nint = ',nint_ck
+        write(luout,*) 'leri     = ',lov3
+        call errquit('int_1e3ov: nint>leri error',911)
+      endiF
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
