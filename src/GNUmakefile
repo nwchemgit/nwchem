@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.26 1995-10-17 08:52:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.27 1995-11-03 19:21:23 d3j191 Exp $
 
 include config/makefile.h
 
@@ -44,6 +44,9 @@ libraries:
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir || exit 1 ;  \
 	done
+
+showdir: 
+	@echo "subdirectories in this build <$(SUBDIRS)>"
 
 clean:
 	-$(RM) nwchem core *.o *.a *.trace
