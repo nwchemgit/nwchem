@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.41 2004-04-21 23:27:29 marat Exp $
+* $Id: task_gradient.F,v 1.42 2004-07-31 21:53:11 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -139,7 +139,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.41 2004-04-21 23:27:29 marat Exp $
+* $Id: task_gradient.F,v 1.42 2004-07-31 21:53:11 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -188,6 +188,8 @@ c
       external dft_energy_gradient, sodft_energy_gradient, tddft_energy
       logical tce_energy_fragment
       external tce_energy_fragment
+      logical  paw_gradient
+      external paw_gradient
 c
       logical mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       external mcscf_gradient, scf_gradient, grad_dft, task_num_grad
@@ -368,6 +370,8 @@ c
          status = pspw_gradient(rtdb)
       else if (theory .eq. 'band') then
          status = band_gradient(rtdb)
+      else if (theory .eq. 'paw') then
+         status = paw_gradient(rtdb)
       else if (theory .eq. 'qmmm') then
          if (ga_nodeid().eq.0) then
            write(6,*)'task_gradient: qmmm should never be the theory '

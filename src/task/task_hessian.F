@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.22 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_hessian.F,v 1.23 2004-07-31 21:53:11 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -114,7 +114,8 @@ c
         if (inp_compare(.false.,theory,'dft')) 
      &       default_delta = 0.01d00
         if (inp_compare(.false.,theory,'pspw')   .or.
-     &      inp_compare(.false.,theory,'band'))
+     &      inp_compare(.false.,theory,'band')   .or.
+     &      inp_compare(.false.,theory,'paw'))
      &       default_delta = 0.01d00
 c     
 c     check for change of finite difference delta

@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.33 2004-03-11 15:42:29 bylaska Exp $
+* $Id: task_input.F,v 1.34 2004-07-31 21:53:11 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -119,6 +119,12 @@ c
          else if (inp_compare(.false.,test,
      >                        'expand_cell')) then
             operation='expand_cell'
+         else if (inp_compare(.false.,test,
+     >                        'ionize')) then
+            operation='ionize'
+         else if (inp_compare(.false.,test,
+     >                        'convert_restricted')) then
+            operation='convert_restricted'
          else if (inp_compare(.false.,test,
      >                        'structure')) then
             operation='structure'
