@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.15 2000-04-20 16:27:24 d3j191 Exp $
+c $Id: md_input.F,v 1.16 2000-04-28 18:02:32 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,maxpro,nfanal,iport,iguide
-      integer mbbreq
+      integer mbbreq,nfwcoo,nfwvel
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -98,10 +98,12 @@ c
       nfrest=0
       keepr=0
       nfslow=0
-      nfcoor=0
-      nfscoo=0
-      nfvelo=0
-      nfsvel=0
+      nfcoor=-1
+      nfwcoo=-1
+      nfscoo=-1
+      nfvelo=-1
+      nfwvel=-1
+      nfsvel=-1
       nfprop=0
       nffree=1
       nfsync=0
@@ -983,12 +985,20 @@ c
       if(.not.inp_i(nfcoor)) call errquit('md_input: error coord',20)
       goto 600
       endif
+      if(inp_compare(.false.,'wcoor',item)) then
+      if(.not.inp_i(nfwcoo)) call errquit('md_input: error scoor',20)
+      goto 600
+      endif
       if(inp_compare(.false.,'scoor',item)) then
       if(.not.inp_i(nfscoo)) call errquit('md_input: error scoor',20)
       goto 600
       endif
       if(inp_compare(.false.,'veloc',item)) then
       if(.not.inp_i(nfvelo)) call errquit('md_input: error veloc',20)
+      goto 600
+      endif
+      if(inp_compare(.false.,'wvelo',item)) then
+      if(.not.inp_i(nfwvel)) call errquit('md_input: error svelo',20)
       goto 600
       endif
       if(inp_compare(.false.,'svelo',item)) then
@@ -1124,6 +1134,15 @@ c
       call errquit('md_input: error reading input file',0)
       endif
 c
+      if(nfscoo.lt.0) nfscoo=nfcoor
+      if(nfsvel.lt.0) nfsvel=nfvelo
+      if(nfwcoo.lt.0) nfwcoo=nfcoor
+      if(nfwvel.lt.0) nfwvel=nfvelo
+      if(nfscoo.lt.0) nfscoo=0
+      if(nfsvel.lt.0) nfsvel=0
+      if(nfwcoo.lt.0) nfwcoo=0
+      if(nfwvel.lt.0) nfwvel=0
+c
 c     put input in rtdb
 c
       if(project(1:1).ne.' ') then
@@ -1237,11 +1256,11 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfem',mt_int,1,nfem))
      + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:nfcoor',mt_int,1,nfcoor))
+      if(.not.rtdb_put(irtdb,'md:nfcoor',mt_int,1,nfwcoo))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfscoo',mt_int,1,nfscoo))
      + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:nfvelo',mt_int,1,nfvelo))
+      if(.not.rtdb_put(irtdb,'md:nfvelo',mt_int,1,nfwvel))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfsvel',mt_int,1,nfsvel))
      + call errquit('md_input: rtdb_put failed',0)
