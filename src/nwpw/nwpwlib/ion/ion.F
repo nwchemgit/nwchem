@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.24 2003-08-03 18:21:24 bylaska Exp $
+* $Id: ion.F,v 1.25 2003-08-04 02:10:15 bylaska Exp $
 *
 
 *     ***************************
@@ -649,6 +649,16 @@ c         eki1=0.5d0*eki1
       end do
       ekg = 0.5d0*mass*(vgx**2+vgy**2+vgz**2)
 
+
+*     **** calculate initial kinetic energy ****
+      eki0 = 0.0d0
+      do i=1,nion
+         eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+     >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+      end do
+      eki0=0.5d0*eki0
+
  
 *     **** shift by velocity COM ****
       if (control_COM_shift().eq. .true.) then
@@ -662,14 +672,6 @@ c         eki1=0.5d0*eki1
 *     **** remove ion velocities using ion_FixIon ****
       call ion_FixIon(dbl_mb(r0(1)))
 
-*     **** calculate initial kinetic energy ****
-      eki0 = 0.0d0
-      do i=1,nion
-         eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
-     >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
-     >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
-      end do
-      eki0=0.5d0*eki0
 
 
 *     **** scale velocities then find kinetic energy ***
@@ -680,9 +682,9 @@ c         eki1=0.5d0*eki1
      >                              + dbl_mb(r0(1)+(i-1)*3 + 1)**2
      >                              + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
       end do
-
-
       eki1=0.5d0*eki1
+
+
 
       ekg_out  = ekg
       eki0_out = eki0
