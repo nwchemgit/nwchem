@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.53 2002-02-02 16:38:42 d3j191 Exp $
+c $Id: md_input.F,v 1.54 2002-02-22 21:28:38 d3j191 Exp $
 c
       implicit none
 c
@@ -912,6 +912,7 @@ c     velocity reassignment
 c
       if(inp_compare(.false.,'vreass',item)) then
       if(.not.inp_i(nfgaus)) call errquit('md_input: error vreass',13)
+      if(nfgaus.lt.0) nfgaus=-1
       if(.not.inp_f(tgauss)) call errquit('md_input: error vreass',13)
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'fraction',item)) then

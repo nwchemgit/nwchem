@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.114 2002-02-08 20:34:47 d3j191 Exp $
+c $Id: md_start.F,v 1.115 2002-02-22 21:28:38 d3j191 Exp $
 c
       implicit none
 c
@@ -1458,8 +1458,15 @@ c
 c
       if(ntype.ge.2) then
       if(ivreas.ne.0) then
-      write(lfnout,1022)
- 1022 format(/,' Velocity reassignment temperature ',f12.6,' K')
+      if(ivreas.gt.0) then
+      write(lfnout,1022) tgauss,ivreas
+ 1022 format(/,' Velocity reassignment temperature ',f12.6,' K',/,
+     + ' Velocity reassignment frequency   ',i5,/)
+      else
+      write(lfnout,1122) tgauss
+ 1122 format(/,' Velocity reassignment temperature ',f12.6,' K',/,
+     + ' Velocity reassignment in first step only',/)
+      endif
       endif
       if(itscal.gt.0) then
       write(lfnout,1021) tmpext1,tmpext2,tmprlx,tmsrlx,tann1,tann2
