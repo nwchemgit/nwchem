@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf)
 c
-c $Id: esp_fit.F,v 1.4 1997-10-07 23:47:48 d3j191 Exp $
+c $Id: esp_fit.F,v 1.5 1999-06-24 15:58:49 d3j191 Exp $
 c
       implicit none
 c
@@ -9,6 +9,8 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
 c
       real*8 g(3,mxgrid),v(mxgrid)
       real*8 x(3,natoms),q(natoms),qf(ndim,4)
@@ -24,56 +26,67 @@ c
 c
 c     set up matrix of linear coefficients
 c
-      do 1 i=1,natoms
-      do 2 j=i,natoms
+      do 1 i=1,ndim
+      do 2 j=1,ndim
+      a(i,j)=zero
+    2 continue
+    1 continue
+c
+      do 3 i=me+1,natoms,np
+      do 4 j=i,natoms
       sum=zero
-      do 3 k=1,ngrid
+      do 5 k=1,ngrid
       sum=sum+one/dsqrt( ( (x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
      +                       (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
      +                       (x(3,i)-g(3,k))*(x(3,i)-g(3,k)) )*
      +                     ( (x(1,j)-g(1,k))*(x(1,j)-g(1,k))+
      +                       (x(2,j)-g(2,k))*(x(2,j)-g(2,k))+
      +                       (x(3,j)-g(3,k))*(x(3,j)-g(3,k)) ) )
-    3 continue
+    5 continue
       a(i,j)=sum
       a(j,i)=sum
-    2 continue
-      a(i,natoms+1)=one
-      do 4 j=2,nconst
-      a(i,natoms+j)=zero
     4 continue
-    1 continue
-      do 5 j=1,natoms
-      a(natoms+1,j)=one
-      do 6 i=2,nconst
-      a(natoms+i,j)=zero
+      a(i,natoms+1)=one
+      do 6 j=2,nconst
+      a(i,natoms+j)=zero
     6 continue
-    5 continue
-      do 7 i=1,nconst
-      do 8 j=1,nconst
-      a(natoms+i,natoms+j)=zero
+    3 continue
+c
+      if(np.gt.1) then
+      call ga_dgop(mre_007,a,ndim*ndim,'+')
+      endif
+c
+      do 7 j=1,natoms
+      a(natoms+1,j)=one
+      do 8 i=2,nconst
+      a(natoms+i,j)=zero
     8 continue
     7 continue
+      do 9 i=1,nconst
+      do 10 j=1,nconst
+      a(natoms+i,natoms+j)=zero
+   10 continue
+    9 continue
 c
 c     construct column vector c
 c
-      do 9 i=1,natoms
+      do 11 i=1,natoms
       sum=zero
-      do 10 k=1,ngrid
+      do 12 k=1,ngrid
       sum=sum+v(k)/dsqrt((x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
      +                   (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
      +                   (x(3,i)-g(3,k))*(x(3,i)-g(3,k)))
-   10 continue
+   12 continue
       c(i)=sum
-    9 continue
+   11 continue
       c(natoms+1)=charge
 c
       jcon=0
-      do 11 i=2,nconst
+      do 13 i=2,nconst
       c(natoms+i)=rcon(i-1)
       jcon=jcon+1
       lcon=icon(jcon)
-      do 12 j=1,lcon
+      do 14 j=1,lcon
       jcon=jcon+1
       k=icon(jcon)
       if(k.gt.0) then
@@ -83,13 +96,13 @@ c
       a(natoms+i,-k)=-one
       a(-k,natoms+i)=-one
       endif
-   12 continue
-   11 continue
-      do 13 i=1,ndim
-      do 14 j=1,ndim
-      akeep(i,j)=a(i,j)
    14 continue
    13 continue
+      do 15 i=1,ndim
+      do 16 j=1,ndim
+      akeep(i,j)=a(i,j)
+   16 continue
+   15 continue
 c
 c     allocate work arrays for the matrix inversion
 c
@@ -114,18 +127,18 @@ c
 c
 c     matrix multiplication b = A_inv * c
 c
-      do 15 i=1,natoms+1
+      do 17 i=1,natoms+1
       sum=zero
-      do 16 j=1,natoms+1
+      do 18 j=1,natoms+1
       sum=sum+a(i,j)*c(j)
-   16 continue
-      qf(i,nf)=sum
-   15 continue
-      do 17 i=1,ndim
-      do 18 j=1,ndim
-      a(i,j)=akeep(i,j)
    18 continue
+      qf(i,nf)=sum
    17 continue
+      do 19 i=1,ndim
+      do 20 j=1,ndim
+      a(i,j)=akeep(i,j)
+   20 continue
+   19 continue
 c
 c     constrained esp fitting
 c
@@ -141,14 +154,14 @@ c
 c
 c     matrix multiplication b = A_inv * c
 c
-      do 19 i=1,ndim
+      do 21 i=1,ndim
       sum=zero
-      do 20 j=1,ndim
+      do 22 j=1,ndim
       sum=sum+a(i,j)*c(j)
       a(i,j)=akeep(i,j)
-   20 continue
+   22 continue
       qf(i,nf)=sum
-   19 continue
+   21 continue
       endif
 c
 c     restraint fitting
@@ -158,35 +171,35 @@ c
       labelf(nf)='     RESP   '
       labelc(nf)='            '
 c
-   21 continue
+   23 continue
 c
       if(irest.eq.1) then
-      do 22 i=1,natoms
+      do 24 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1) a(i,i)=akeep(i,i)+resa
-   22 continue
+   24 continue
       endif
 c
       if(irest.eq.2) then
-      do 23 i=1,natoms
+      do 25 i=1,natoms
       q(i)=zero
-   23 continue
+   25 continue
       endif
 c
       niter=0
-   24 continue
+   26 continue
       niter=niter+1
 c
       if(irest.eq.2) then
-      do 25 i=1,ndim
-      do 26 j=1,ndim
+      do 27 i=1,ndim
+      do 28 j=1,ndim
       a(i,j)=akeep(i,j)
-   26 continue
-   25 continue
-      do 27 i=1,natoms
+   28 continue
+   27 continue
+      do 29 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1)
      + a(i,i)=a(i,i)+resa/dsqrt(q(i)*q(i)+resb*resb)
       qkeep(i)=q(i)
-   27 continue
+   29 continue
       endif
       if(nf.ne.4) then
 c
@@ -197,14 +210,14 @@ c
 c
 c     matrix multiplication b = A_inv * c
 c
-      do 28 i=1,natoms+1
+      do 30 i=1,natoms+1
       sum=zero
-      do 29 j=1,natoms+1
+      do 31 j=1,natoms+1
       sum=sum+a(i,j)*c(j)
-   29 continue
+   31 continue
       q(i)=sum
       qf(i,nf)=sum
-   28 continue
+   30 continue
       else
 c
 c     invert the matrix a
@@ -214,36 +227,36 @@ c
 c
 c     matrix multiplication b = A_inv * c
 c
-      do 30 i=1,ndim
+      do 32 i=1,ndim
       sum=zero
-      do 31 j=1,ndim
+      do 33 j=1,ndim
       sum=sum+a(i,j)*c(j)
-   31 continue
+   33 continue
       q(i)=sum
       qf(i,nf)=sum
-   30 continue
+   32 continue
       endif
 c
       if(irest.eq.2) then
       difm=zero
-      do 32 i=1,natoms
+      do 34 i=1,natoms
       dif=(q(i)-qkeep(i))*(q(i)-qkeep(i))
       if(difm.lt.dif) difm=dif
-   32 continue
+   34 continue
       dif=dsqrt(dif)
-      if(dif.gt.toler.and.niter.lt.maxit) goto 24
+      if(dif.gt.toler.and.niter.lt.maxit) goto 26
       endif
 c
       if(nf.eq.3) then
       nf=nf+1
       labelf(nf)='      RESP  '
       labelc(nf)='     constr '
-      do 33 i=1,ndim
-      do 34 j=1,ndim
+      do 35 i=1,ndim
+      do 36 j=1,ndim
       a(i,j)=akeep(i,j)
-   34 continue
-   33 continue
-      goto 21
+   36 continue
+   35 continue
+      goto 23
       endif
 c
       endif
