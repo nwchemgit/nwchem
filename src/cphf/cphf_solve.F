@@ -93,7 +93,7 @@ c
 c
       lshift=0.0d0
       if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
-     $     precond_tol)) precond_tol=1d-5
+     $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb, 'cphf:maxiter', mt_int, 1,
      $     max_precond_iter)) max_precond_iter = 100
 c
