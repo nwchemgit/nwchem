@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.122 2003-10-19 03:30:57 d3j191 Exp $
+c $Id: sp_init.F,v 1.123 2003-10-31 19:56:13 d3j191 Exp $
 c
       implicit none
 c
@@ -904,7 +904,8 @@ cx
       bfs(k,3)=zero
       endif
       read(lfntop,2009,end=9897,err=9898) (ibs(k,j),j=1,10)
- 2009 format(16x,10i5)
+ 2009 format(16x,i3,4i7,5i5)
+c 2009 format(16x,10i5)
       if(ibs(k,3).ne.lasts) then
       icount=icount+1
       lasts=ibs(k,3)
@@ -2581,7 +2582,8 @@ c
     7 continue
       do 9 i=1,nums
       read(lfntop,2009) cat,ism,iss
- 2009 format(a16,5x,2i5)
+ 2009 format(a16,3x,2i7)
+c 2009 format(a16,3x,2i7)
       idyn=iand(ibs(i),3)
       if(npener.le.0) then
       write(lfnout,1009) ism,iss,cat,idyn,
