@@ -1,6 +1,6 @@
-      subroutine dft_inpana(rtdb, ratom)
+      subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.40 1999-03-13 01:57:10 edo Exp $
+c     $Id: dft_inpana.F,v 1.41 1999-06-15 16:22:58 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -31,7 +31,7 @@ c
       integer n, na, nb
       integer nshells
       integer ictr
-      double precision ratom(ntypes), bsr, radang
+      double precision bsr, radang
       double precision anucl_charg, ckfac, t1, r1
       double precision ictr_coord(3), ictr_chg
       character*3 on_off_1, on_off_2
@@ -436,7 +436,7 @@ c
                   endif
                enddo
    40          continue
-               bsr = ratom(n)*AUTOANG
+               bsr = bsrad_atom_type(n)*AUTOANG
                radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
                if (iangquad.eq.0)then
                   write(LuOut,9137)tag,bsr,nrad(n),radang,

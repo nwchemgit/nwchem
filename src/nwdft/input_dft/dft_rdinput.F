@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.61 1999-06-09 23:58:27 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.62 1999-06-15 16:22:59 d3h449 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -26,10 +26,8 @@ c
 c
       integer itype, icenter, jcenter
       integer lcoord, icoord, lcharge, icharge, ltags, itags,
-     &        lznuc, iznuc, lratom, iratom, lrot, irot
+     &        lznuc, iznuc
       integer iline
-      integer three, six, fifteen
-      Parameter (three=3, six=6, fifteen=15)
       character*40 blank_40c
       Logical lnewtype
       Logical int_normalize
@@ -540,15 +538,6 @@ c
          oadapt = sym_number_ops(geom) .gt. 0
       endif
 c
-c     allocate space for M and T (rotational invariance; 
-c     see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 
-c     species R_a - T and (R_a -T)(R_a - T)^T
-c
-      if (.not. Ma_Push_Get(MT_Dbl,fifteen,'rotation',lrot,
-     &   irot))call errquit('dft_rdinput: failed to alloc rotation',0)
-c
-      call dzero(Dbl_MB(irot),fifteen)
-c
 c     get number of atomic centers from geometry object
 c
       if (.not. geom_ncent(geom, ncenters))
@@ -763,50 +752,6 @@ c
       endif
       call util_file_name_resolve(movecs_out, .false.)
 c
-c     Check/set quadrature
-c
-      if (.not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
-     &   call errquit('dft_rdinput: failed to alloc ratom',0)
-      nqshells = MXqshells
-c
-      call ga_sync
-c
-      call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord),
-     &                dbl_mb(icharge),dbl_mb(irot),dbl_mb(irot+three),
-     &                dbl_mb(irot+six))
-c
-      call ga_sync
-c
-c     Read/set/put the numerical quadrature input parameters.
-c
-c
-c     reset gridtype; set nagrid, nradpts, nrad, nang
-c
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('dft_input: rtdb_put failed', 301) 
-c
-      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &   call errquit('dft_input: rtdb_put failed', 116)
-c
-      if (.not. rtdb_put(rtdb,'dft:nradpts', mt_int, 1, nradpts))
-     &   call errquit('dft_input: rtdb_put failed', 115)
-c
-      if (.not. rtdb_put(rtdb,'dft:nrad', mt_int, dft_ntags_bsmx, nrad))
-     &   call errquit('dft_input: rtdb_put failed', 115)
-c
-      if (.not. rtdb_put(rtdb,'dft:nang', mt_int, dft_ntags_bsmx, nang))
-     &   call errquit('dft_input: rtdb_put failed', 115)
-c
-c     Check the user supplied input for any inconsistencies.
-c
-      call ga_sync
-c
-      call dft_inpana(rtdb, Dbl_MB(iratom))
-c
-      call ga_sync
-c
-      if (.not. MA_Pop_Stack(lratom))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0)
       if (.not. MA_Pop_Stack(ltags))
@@ -815,24 +760,8 @@ c
      &   call errquit('dft_rdinput: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lcoord))
      &   call errquit('dft_rdinput: pop stack failed.',0)
-      if (.not. MA_Pop_Stack(lrot))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
 c
       call ga_sync
 c
-      return
-      end
-      logical function atom_tag_check(atom_tag_i, atom_tag_j)
-c
-      implicit none
-c      
-      character*16 atom_tag_i, atom_tag_j
-c      write(*,*)' atom_tag_i = ', atom_tag_i
-c      write(*,*)' atom_tag_j = ', atom_tag_j
-      if (atom_tag_i .eq. atom_tag_j)then
-         atom_tag_check = .true.
-      else
-         atom_tag_check = .false.
-      endif      
       return
       end
