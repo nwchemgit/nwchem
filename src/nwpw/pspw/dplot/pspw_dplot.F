@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.13 2003-11-06 17:01:28 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.14 2003-11-06 21:35:10 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -1548,6 +1548,7 @@ c        if (.not. value) call errquit('reading geometry',0)
       end do
 
 *     **** write grid ****
+      if (taskid.eq.MASTER) then
       do i=1,nx
       do j=1,ny
         write(unit_id,'(6e13.5)') 
@@ -1556,6 +1557,7 @@ c        if (.not. value) call errquit('reading geometry',0)
      >                   +(k-1)*nx*ny),k=1,nz)
       end do
       end do
+      end if
 
 *     **** deallocate space ****
       value = MA_pop_stack(tmp3(2))
