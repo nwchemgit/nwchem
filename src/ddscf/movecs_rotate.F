@@ -1,5 +1,5 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs)
-C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -90,6 +90,9 @@ c
            y2(i) = cact(2,i)
            z2(i) = cact(3,i)
          enddo
+c
+      if (.not. geom_destroy(oldgeom))
+     $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
 c
 c     ----------------------------------------------------------
 c     calculate the 3x3 rotation matrix which transforms the old
@@ -345,7 +348,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -474,7 +477,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.5 2002-12-04 22:06:53 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.6 2002-12-05 16:05:48 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
