@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.57 2000-08-22 19:07:00 d3e129 Exp $
+C     $Id: input_parse.F,v 1.58 2000-11-04 03:25:24 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -109,6 +109,8 @@ c
                call gradients_input(rtdb)
             else if (inp_compare(.false.,test,'ccsd')) then
                call ccsd_input(rtdb)
+            else if (inp_compare(.false.,test,'oniom')) then
+               call oniom_input(rtdb)
             else if (inp_compare(.false.,test,'print')) then
                call util_print_input(rtdb,' ')
                call util_print_rtdb_load(rtdb,' ') ! High level print
