@@ -300,9 +300,11 @@ double	*pc_psp;
            wl_prime[i] = wl_prime[i]*nu0;
          }
      }
+
      gamma=fabs(ul[match]/wl[match]);
      gpr  =fabs(ul_prime[match]/wl_prime[match]);
 	 if (debug_print()){
+	 printf("ul[match] wl[match]: %lf %lf\n",ul[match],wl[match]);
      printf("%d\t%lf  %lf  %lf  %lf  %lf  %lf\n",l_psp[l],
 						rcut_psp[l],r[match],
 						e_psp[l],el,
