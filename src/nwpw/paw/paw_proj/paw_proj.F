@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.18 2003-01-30 19:03:34 bylaska Exp $
+* $Id: paw_proj.F,v 1.19 2003-01-30 21:44:07 marat Exp $
 *
 
 
@@ -16,49 +16,51 @@
 
 #include "mafdecls.fh"
 #include "paw_proj_data.fh" 
-  
+#include "paw_geom.fh" 
+ 
+      integer paw_proj_nbasis
+      external paw_proj_nbasis
+
 *     **** local variables ****
       logical value,found
       integer ia,npack1
       character*4 element
       character*20 fname
 
-*     **** external functions ****
-      logical     nwpw_filefind
-      integer     ion_nkatm
-      character*2 ion_atom
-      external    nwpw_filefind
-      external    ion_nkatm
-      external    ion_atom
 
 *     *** get number of diff atom types ***
-      nkatm = ion_nkatm()
+      prj_nkatm = ion_nkatm()
 
 *     *** number of basis functions for each atom kind ***
-      value = MA_alloc_get(mt_int,(nkatm),
+      value = MA_alloc_get(mt_int,(prj_nkatm),
      >                     'prj_nbasis',prj_nbasis(2),prj_nbasis(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatm),
+     >        MA_alloc_get(mt_int,(prj_nkatm),
      >                     'prj_indx',prj_indx(2),prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nkatm),
+     >        MA_alloc_get(mt_int,(2*prj_nkatm),
      >                     'i_prj_l',i_prj_l(2),i_prj_l(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nkatm),
+     >        MA_alloc_get(mt_int,(2*prj_nkatm),
      >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0)
 
 
-
-*     *** make sure prj files are formatted correctly ***
-*     *** generate them if needed ***
+*     *** generate formatted projector file if needed ***
       call paw_proj_check_format()
 
-*     *** get the size of prj common block and allocate it ***
-      call paw_proj_paw_basis_nbasis(int_mb(prj_nbasis(1)))
-      ntotal = 0
-      do ia=1,nkatm
-        ntotal = ntotal + int_mb(prj_nbasis(1)+ia-1)
+*     *** read number of (nlm) projectors for each atom
+*     from headers off the formatted files
+      call paw_proj_nbasis_read(int_mb(prj_nbasis(1)))
+
+*     *** total number of projectors for diff types of atoms ***
+      prj_ntot = 0
+      do ia=1,prj_nkatm
+        prj_ntot = prj_ntot + int_mb(prj_nbasis(1)+ia-1)
+      end do
+      write(*,*) "paw_proj:prj_ntot",prj_ntot
+
+      do ia=1,prj_nkatm
         value = MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
      >                       'sub_i_prj_l',
      >                       int_mb(i_prj_l(1)+2*(ia-1)+1),
@@ -70,62 +72,38 @@
      >                       int_mb(i_prj_m(1)+2*(ia-1)))
 
       end do
+
+c     *** allocate kspace arrays***
       call Pack_npack(1,npack1)
-      write(*,*) "paw_proj:ntotal",ntotal
-      value = MA_alloc_get(mt_dcpl,(ntotal*npack1),
+      value = MA_alloc_get(mt_dcpl,(prj_ntot*npack1),
      >                     'prj',prj(2),prj(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',1)
 
 *     *** set prj_indx ***
       int_mb(prj_indx(1)) = 0
-      do ia=2,nkatm
+      do ia=2,prj_nkatm
          int_mb(prj_indx(1)+ia-1) = int_mb(prj_indx(1)+ia-2) 
      >                            + int_mb(prj_nbasis(1)  +ia-2)*npack1
       end do
 
 *     *** read in formatted prj's to prj common block ***
-      do ia=1,nkatm
+      do ia=1,prj_nkatm
          call paw_proj_read(ia,
      >            int_mb(int_mb(i_prj_l(1)+2*(ia-1))),
      >            int_mb(int_mb(i_prj_m(1)+2*(ia-1))),
      >            npack1,
      >            dcpl_mb(prj(1)+int_mb(prj_indx(1)+ia-1)))
       end do
-      return
-      end
 
-!**************************************************
-!
-!	Name: paw_proj_end
-!
-!	Purpose: removes space used by the paw projectors
-!
-!	Created:	7/30/2002
-!**************************************************
-      subroutine paw_proj_end()
-      implicit none
-      
-#include "mafdecls.fh"
-#include "paw_proj_data.fh"
-
-      !*** local variables ***
-      logical value
-      integer ia
-      
-      value = .true.
-      do ia=1,nkatm
-         value = value.and.MA_free_heap(int_mb(i_prj_l(1)+2*(ia-1)+1))
-         value = value.and.MA_free_heap(int_mb(i_prj_m(1)+2*(ia-1)+1))
+c     *** set the size of overlap weights ***      
+      w(3) = 0
+      do ia=1,prj_nkatm
+        w(3) = w(3) + paw_proj_nbasis(ia)*ion_nion(ia) 
       end do
-      value = value.and.MA_free_heap(i_prj_l(2))
-      value = value.and.MA_free_heap(i_prj_m(2))
-      value = value.and.MA_free_heap(prj_indx(2))
-      value = value.and.MA_free_heap(prj_nbasis(2))
-      value = value.and.MA_free_heap(prj(2))
-      if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
+
+      write(*,*) "paw_proj:w(3):",w(3)
       return
       end
-
 
 !**************************************************
 !
@@ -203,7 +181,7 @@ c      integer ia
 c#include "mafdecls.fh"
 c#include "paw_proj_data.fh"
 c
-c      paw_proj_total_nbasis = ntotal
+c      paw_proj_total_nbasis = prj_ntot
 c      return
 c      end
 
@@ -266,6 +244,8 @@ c      end
       subroutine paw_proj_check_format()
       implicit none
 
+#include "paw_proj_data.fh"
+
 *     **** local variables ****
       logical value,found
       integer ia,nkatm
@@ -274,12 +254,9 @@ c      end
 
 *     **** external functions ****
       logical     nwpw_filefind,paw_proj_format_ok
-      integer     ion_nkatm
       external    nwpw_filefind,paw_proj_format_ok
-      external    ion_nkatm
 
-      nkatm = ion_nkatm()
-      do ia=1,nkatm
+      do ia=1,prj_nkatm
 
 *       **** define formatted prj name ****
         call ion_atom_plus_suffix(ia,'.jpp',fname)
@@ -303,7 +280,7 @@ c      end
       end 
 
 !**************************************************
-!	Name: paw_proj_paw_basis_nbasis
+!	Name: paw_proj_nbasis_read
 !
 !	Purpose: returns the number of basis functions
 !                for each of the formatted projector 
@@ -311,21 +288,19 @@ c      end
 !
 !	Created:	7/30/2002
 !**************************************************
-      subroutine paw_proj_paw_basis_nbasis(nbasis)
+      subroutine paw_proj_nbasis_read(nbasis)
       implicit none
       integer nbasis(*)
 
+#include "paw_proj_data.fh"
+
 *     **** local variables ****
-      integer ia,nkatm,ngrid(3)
+      integer ia,ngrid(3)
       real*8  unita(3,3)
       character*20 fname
 
-*     **** external functions ****
-      integer  ion_nkatm
-      external ion_nkatm
 
-      nkatm = ion_nkatm()
-      do ia=1,nkatm
+      do ia=1,prj_nkatm
         call ion_atom_plus_suffix(ia,'.jpp',fname)
         call paw_proj_read_header(fname,ngrid,nbasis(ia),unita)
       end do
@@ -347,19 +322,23 @@ c      end
       integer function paw_proj_tot_nbasis()
       implicit none
 
-#include "paw_proj.fh"
+#include "paw_proj_data.fh"
+
+      external paw_proj_nbasis
+      integer paw_proj_nbasis
+
 *     **** local variables ****
-      integer ia,nkatm
+      integer ia
       integer tot_nbasis
 
 *     **** external functions ****
-      integer  ion_nkatm,ion_natm
-      external ion_nkatm,ion_natm
+      integer  ion_natm
+      external ion_natm
 
 c     !*** calculate total number of (n,l,m) projectors  ***
       tot_nbasis = 0
 c     !-- loop over diff kinds of atoms --
-      do ia=1,ion_nkatm()
+      do ia=1,prj_nkatm
 c        !-- ion_natm(ia) is number of atoms of kind ia --
          tot_nbasis = tot_nbasis
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
@@ -933,3 +912,42 @@ c           pause
       legendre_lm = Plm
       return
       end
+
+      subroutine paw_proj_weghts_set()
+
+      return
+      end subroutine
+!**************************************************
+!
+!	Name: paw_proj_end
+!
+!	Purpose: removes space used by the paw projectors
+!
+!	Created:	7/30/2002
+!**************************************************
+      subroutine paw_proj_end()
+      implicit none
+      
+#include "mafdecls.fh"
+#include "paw_proj_data.fh"
+
+      !*** local variables ***
+      logical value
+      integer ia
+      
+      value = .true.
+      do ia=1,prj_nkatm
+         value = value.and.MA_free_heap(int_mb(i_prj_l(1)+2*(ia-1)+1))
+         value = value.and.MA_free_heap(int_mb(i_prj_m(1)+2*(ia-1)+1))
+      end do
+      value = value.and.MA_free_heap(i_prj_l(2))
+      value = value.and.MA_free_heap(i_prj_m(2))
+      value = value.and.MA_free_heap(prj_indx(2))
+      value = value.and.MA_free_heap(prj_nbasis(2))
+      value = value.and.MA_free_heap(prj(2))
+      if (.not.value) call errquit('paw_proj_end: dealloc heap',0)
+      return
+      end
+
+
+
