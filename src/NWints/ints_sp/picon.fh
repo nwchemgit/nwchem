@@ -1,0 +1,6 @@
+c
+c $Id: picon.fh,v 1.1 1994-04-06 23:52:00 d3e129 Exp $
+c
+      double precision pito52, pidiv4, root3, root5
+      common /picon/ pito52,pidiv4,root3,root5
+c

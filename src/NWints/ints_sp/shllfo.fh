@@ -1,0 +1,16 @@
+c
+c $Id: shllfo.fh,v 1.1 1994-04-06 23:52:04 d3e129 Exp $
+c
+c     ag/bg/cg/dg = exponents
+c     csa/cpa/... = s/p contraction coefficients
+c     nga/b/c/d   = no. of primitives
+c     la/b/c/d    = s=0, sp=1
+c     
+      double precision ag, csa, cpa, bg, csb, cpb
+      double precision cg, csc, cpc, dg, csd, cpd
+      integer nga, ngb, ngc, ngd, la, lb, lc, ld
+      common/shllfo/nga,la,ag(10),csa(10),cpa(10),
+     +              ngb,lb,bg(10),csb(10),cpb(10),
+     +              ngc,lc,cg(10),csc(10),cpc(10),
+     +              ngd,ld,dg(10),csd(10),cpd(10)
+c

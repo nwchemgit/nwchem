@@ -1,0 +1,15 @@
+c
+c $Id: maxc.fh,v 1.1 1994-04-06 23:51:56 d3e129 Exp $
+c
+c     cmaxa/b/c/d = max of s/p contraction coeffs
+c     ismlp = ?
+c     ismlq = ?
+c     isml  = ?
+c     error1 = ?
+c     error2 = ?
+c
+      double precision cmaxa, cmaxb, cmaxc, cmaxd
+      integer ismlp, ismlq, isml
+      double precision error1, error2
+      common /maxc/ cmaxa(10),cmaxb(10),cmaxc(10),cmaxd(10),
+     +              ismlp(100),ismlq,isml,error1,error2

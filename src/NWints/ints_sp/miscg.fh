@@ -1,0 +1,13 @@
+c
+c $Id: miscg.fh,v 1.1 1994-04-06 23:51:57 d3e129 Exp $
+c
+c     tolone = 
+c     mab = 
+c     mcd = 
+c     ngangb = product of ab (ij) contraction levels
+c     onorm = 
+c
+      double precision tolone
+      integer mab, mcd, ngangb
+      logical onorm
+      common /miscg/ mab,mcd,ngangb,onorm,tolone

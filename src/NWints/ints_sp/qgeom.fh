@@ -1,0 +1,6 @@
+c
+c $Id: qgeom.fh,v 1.1 1994-04-06 23:52:01 d3e129 Exp $
+c
+      double precision acx, acy, acz, acy2, cosg, sing
+      common /qgeom/ acx,acy,acz,acy2,cosg,sing
+c
