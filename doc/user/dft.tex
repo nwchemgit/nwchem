@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.52 2001-11-12 19:11:35 edo Exp $ 
+% $Id: dft.tex,v 1.53 2001-11-21 02:04:35 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -46,7 +46,7 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke98] [hcth] [hcth120] [hcth147]\
+     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
       [h407] [becke97gga1] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
@@ -170,7 +170,7 @@ has the same effect.
 \label{sec:xc}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke98] [hcth] [hcth120] [hcth147] \
+     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147] \
       [hcth407] [becke97gga1] [optx] [hcthp14]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
@@ -508,6 +508,7 @@ hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
 hcth120    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
 hcth147    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
 hcth407    & $\star$    &   $\star$     &  $\star$  &        &[19]\\
+becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &[18]\\
 hcthp14    & $\star$    &   $\star$     &  $\star$  &        &[21]\\
 \hline                                                  
 beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
@@ -515,7 +516,7 @@ b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
 becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
-becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &[18]\\
+becke97-2  & $\star$    &   $\star$     &  $\star$  & $\star$  &[22]\\
 becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
 pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
 \hline
@@ -560,6 +561,7 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 (2001). \\
 \item  N.C.Handy, A.J. Cohen, Mol. Phys. {\bf 99}, 403 (2001).\\
 \item G. Menconi, P.J. Wilson, D.J. Tozer, J. Chem. Phys {\bf 114}, 3958 (2001).\\
+\item  P.J. Wilson, T.J. Bradley, D.J. Tozer,  J. Chem. Phys {\bf 115}, 9233 (2001).
 
 
 \end{enumerate}
