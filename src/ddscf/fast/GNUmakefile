@@ -17,7 +17,7 @@ else
   OBJ_OPTIMIZE := $(OPTIM)
 endif
 
- USES_BLAS = potential.F
+ USES_BLAS = potential.F pot_shell.F dgels.f fmm.F newfmm.F testfmm.F cart_trans.f
  LIB_TARGETS = solver testcheby testcarttrans testfmm
 
 
