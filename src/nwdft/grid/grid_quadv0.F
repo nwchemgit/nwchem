@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.13 2000-05-31 00:09:11 edo Exp $
+C$Id: grid_quadv0.F,v 1.14 2000-06-09 17:08:03 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -96,7 +96,7 @@ c
       do_cpks_l = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r)) then
-         call errquit('xc_quadv0_gen: illegal calculation type',1)
+         call errquit('grid_quadv0_gen: illegal calculation type',1)
       endif
       if (bgj_print() .gt. 0)
      &     write(*,*)'*** grid_quadv0: nmat logicals', nmat, 
@@ -112,7 +112,7 @@ c
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
       elseif (do_cpks_r) then
-         call errquit('xc_quadv0: what for do_cpks_r?',0)
+         call errquit('grid_quadv0: what for do_cpks_r?',0)
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
       endif
@@ -147,21 +147,16 @@ c
 c
       if (.not.MA_Push_get(mt_dbl,3*n_per_rec,'qxyz',lqxyz,iqxyz))
      &   call errquit('grid_den: cannot allocate qxyz',0)
-      call dfill(3*n_per_rec, 0.0d0, dbl_mb(iqxyz), 1)
       if (.not.MA_Push_get(mt_dbl,n_per_rec,'qwght',lqwght,iqwght))
      &   call errquit('grid_den: cannot allocate qwght',0)
-      call dfill(n_per_rec, 0.0d0, dbl_mb(iqwght), 1)
       if (.not.MA_Push_get(MT_int,nctrs,'atom list',lniz,iniz))
      &   call errquit('grid_den: cannot allocate atom list',0)
-      call ifill(nctrs, 0.0d0, int_mb(iniz), 1)
       if (.not.MA_Push_get(MT_int,nctrs,'atom nbf',lfin,ifin))
      &   call errquit('grid_den: cannot allocate atom nbf',0)
-      call ifill(nctrs, 0.0d0, int_mb(ifin), 1)
       nexpo=nbf_ao_mxprim
       if(xcfit)nexpo=max(nbf_ao_mxprim,nbf_xc_mxprim)
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_den: cannot allocate expo',0)
-      call dfill(nexpo, 0.0d0, dbl_mb(iexpo), 1)
 c
       ncoef_max = nbf_ao_mxnbf_cn * nbf_ao_mxprim
       if(xcfit) ncoef_max=max(ncoef_max,
@@ -169,22 +164,16 @@ c
 c
       if (.not.MA_Push_Get(MT_Dbl,ncoef_max,'coef',lcoef,icoef))
      &   call errquit('grid_den: cannot allocate coef',0)
-      call dfill(ncoef_max, 0.0d0, dbl_mb(icoef), 1)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENSF',lFmat,iFmat))
      &   call errquit('grid_den: cannot allocate DENSF',0)
-      call dfill(nbf_ao_mxnbf_ce2, 0.0d0, dbl_mb(iFmat), 1)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENS',lPmat,iPmat))
      &   call errquit('grid_den: cannot allocate DENS',0)
-      call dfill(nbf_ao_mxnbf_ce2, 0.0d0, dbl_mb(iPmat), 1)
       if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho,irho))
      &   call errquit('grid_den: cannot allocate rho',0)
-      call dfill(len_rho, 0.0d0, dbl_mb(irho), 1)
       if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,
      &   idelrho))call errquit('grid_den: cannot allocate delrho',0)
-      call dfill(len_delrho, 0.0d0, dbl_mb(idelrho), 1)
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*n_per_rec,'Bmat',
      &   lBmat,iBmat))call errquit('grid_den: cannot allocate Bmat',0)
-      call dfill(nbf_ao_mxnbf_ce*n_per_rec, 0.0d0, dbl_mb(iBmat), 1)
       if (.not.MA_Push_Get(MT_dbl,1,'hesdum',lhess,ihess))
      &   call errquit('grid_den: cannot allocate hesdum',0)
 c
@@ -211,7 +200,6 @@ c
       if (.not.MA_Push_Get(MT_Dbl,ipol*nctrs*nctrs,'rdens_atom',
      &   lrdens_atom,irdens_atom))
      &   call errquit('grid_den: cannot allocate rdens_atom',0)
-      call dfill(ipol*nctrs*nctrs, 0.0d0, dbl_mb(irdens_atom), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit('grid_den: cannot allocate scr',0)
@@ -222,17 +210,15 @@ c
      &   call errquit('grid_den: cannot pop stack',0)
 c
       if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',lamat,iamat))
-     &   call errquit('xc_quadv0: cannot allocate Amat',0)
-      call dfill(ipol*n_per_rec, 0.0d0, dbl_mb(iAmat), 1)
+     &   call errquit('grid_quadv0: cannot allocate Amat',0)
       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
-     &   call errquit('xc_quadv0: cannot allocate Amat2',0)
+     &   call errquit('grid_quadv0: cannot allocate Amat2',0)
       call dfill(len_Amat2, 0.0d0, dbl_mb(k_Amat2), 1)
       if (.not.MA_Push_Get(
      .     mt_dbl,3*n_per_rec*ipol,'Cmat',lcmat,icmat))
-     &   call errquit('xc_quadv0: cannot allocate Cmat',0)
-      call dfill(3*ipol*n_per_rec, 0.0d0, dbl_mb(iCmat), 1)
+     &   call errquit('grid_quadv0: cannot allocate Cmat',0)
       if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',l_Cmat2,k_Cmat2))
-     &   call errquit('xc_quadv0: cannot allocate Cmat2',0)
+     &   call errquit('grid_quadv0: cannot allocate Cmat2',0)
       call dfill(len_Cmat2, 0.0d0, dbl_mb(k_Cmat2), 1)
 c
 c     allocate scratch array for grid compression
@@ -261,7 +247,6 @@ c
       if(.not.grid_written) irqlen=max(irqlen,nctrs*nqmax)
       if (.not.MA_Push_get(mt_dbl,irqlen,'rq',lrq,irq))
      &   call errquit('grid_den: cannot allocate rq',0)
-      call dfill(irqlen, 0.0d0, dbl_mb(irq), 1)
       if (.not.MA_Push_Get(mt_dbl,irqlen,'bp',lbp,ibp))
      &     call errquit('grid_quadv0a: cannot allocate bp',4)
 c

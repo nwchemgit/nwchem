@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.15 2000-06-09 03:23:21 edo Exp $
+c$Id: grid_quadvw.F,v 1.16 2000-06-09 17:08:04 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -59,6 +59,9 @@ c
       integer grid_nxyz,grid_nsub4,ifail
       external grid_nxyz,grid_nsub4
       double precision symfact,rmax,rmin,rad_write,rad_sh
+      double precision grid_lcube,lcubez
+      external grid_lcube
+      integer i
       logical oprint
 C      
       nproc=ga_nnodes()
@@ -70,6 +73,7 @@ c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad(xfac,cfac)
       npts_per_ang=nqmax
+ 2001 continue
       nsubb_curr=0
 c
 c     temp set gridfilename to gridpts
@@ -91,7 +95,6 @@ c
       oreadfile = .false.
       owritefile= .false.
 c
- 2001 continue
       if (filesize.gt.0 .or. memsize.gt.0) then
          if (.not. grid_file_open(gridfilename, memsize, filesize))
      $        call errquit('grid_tasks: opening gridpts?', 0)
@@ -219,13 +222,28 @@ c
 c
 c     decrease cube size and goto beginning
 c
-         l_cube=l_cube*.75d0
+         if(dosympts)call grid_sympts2(l_symops,l_gridscr)
+         call grid_buckend()
+         if (l_cache .ne. -1) then
+            if (.not. ma_free_heap(l_cache))
+     $           call errquit('grid_file_close: free heap?',0)
+         endif
+         lcubez=1d+10
+         do i=1,ntypes
+            lcubez=min(grid_lcube(dble(rad_cutoff(1,i))),lcubez)
+         enddo
+         l_cube=lcubez*.75d0
+         if(me.eq.0) write(LuOut,'(A,/,A,F10.4)') 
+     '        ' WARNING: please add to your input file this line',
+     ,        ' set dft:l_cube double ',l_cube
          if (.not. rtdb_put(rtdb, 'dft:l_cube',
      $     mt_dbl, 1, l_cube)) 
      .        call errquit('gridquw: rtdbput failed',0)
          Ex=0d0
          Ec=0d0
          rho_int=0d0
+         nqtot=0 
+         call ga_zero(g_vxc)
          goto 2001
       endif
       if(oprint) write(LuOut,16) ' me ',me,

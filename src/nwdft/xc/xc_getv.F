@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.37 2000-04-27 20:28:12 zzhang Exp $
+C$Id: xc_getv.F,v 1.38 2000-06-09 17:08:05 edo Exp $
 c
       implicit none
 c      
@@ -27,6 +27,7 @@ c
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
       double precision jfac(4),kfac(4)
       integer g_jk(4), g_d(4)
+      logical havehfxc
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -57,7 +58,7 @@ c
 c           nTcols = ipol 
 c
       integer me,i,nTrows,nTcols
-      integer lTmat,iTmat
+      integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
@@ -72,6 +73,7 @@ c
       Exc(1)=0.d0
       Exc(2)=0.d0
       me=ga_nodeid()
+      havehfxc=abs(xfac(1)).gt.1d-8
 c      nproc=ga_nnodes()
 c
       if (oprint_intermediate_xc)then
@@ -86,7 +88,7 @@ c
          if(ipol.eq.2)call ga_print(g_dens(2))
       endif
 c
-      if (abs(xfac(1)).gt.1e-8 .or. (.not. CDFIT))then
+      if (havehfxc .or. (.not. CDFIT))then
 c       
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
@@ -188,8 +190,29 @@ c
          endif
          
          if (grid_on_file)then
-            call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc,
-     ,           dbl_mb(itmat))
+            if(havehfxc.or.(.not.cdfit)) then
+               call ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1')
+               call ga_zero(g_truevxc(1))
+               if(ipol.eq.2) then
+                  call ga_duplicate(g_vxc(2),g_truevxc(2),'g vxc 21')
+                  call ga_zero(g_truevxc(2))
+               endif
+            else
+               g_truevxc(1)=g_vxc(1)
+               g_truevxc(2)=g_vxc(2)
+            endif
+            call grid_quadv0(rtdb, g_dens, g_truevxc, 
+     ,           nexc,rho_n,  Exc, dbl_mb(itmat))
+            if(havehfxc.or.(.not.cdfit)) then
+               call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
+               if (.not. ga_destroy(g_truevxc(1))) call errquit(
+     .              ' xc_getv: ga_destroy failed ',0)
+               if(ipol.eq.2) then
+               call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
+               if (.not. ga_destroy(g_truevxc(2))) call errquit(
+     .              ' xc_getv: ga_destroy failed ',0)
+               endif
+            endif
          else
             if(.not.xcfit) then
 c     
