@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv)
-C$Id: sym_nwc.F,v 1.16 1999-07-14 00:29:11 d3e129 Exp $
+C$Id: sym_nwc.F,v 1.17 2000-10-27 00:11:56 bert Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -37,6 +37,7 @@ C$Id: sym_nwc.F,v 1.16 1999-07-14 00:29:11 d3e129 Exp $
       integer geom,rtdb
       dimension cdist(3),cang(3)
       double precision mass_new(max_cent), charge_new(max_cent)
+      double precision invnucexp_new(max_cent)
 C      external pertbl
 c
 c--> parameters needed by sym chain
@@ -76,7 +77,7 @@ c
      &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*(nops+1),
      $     cdist,cang,Int_MB(idatom), 
      $     charge(1,geom), charge_new, geom_mass(1,geom),
-     $     mass_new, threquiv)
+     $     mass_new, geom_invnucexp(1,geom),invnucexp_new,threquiv)
 c
       if(nareal.gt.max_cent) then
         write(6,*)' Too many atoms, increase nw_max_atom in ',
@@ -125,7 +126,7 @@ c     Note that the memory for the map (lmscr) is now freed in geom_destroy
 c
       call sym_put_in_geom(geom, nata, nareal,
      $     Byte_MB(iatags), int_mb(idatom), dbl_mb(icoord),
-     $     lmscr, imscr, nops, charge_new, mass_new)
+     $     lmscr, imscr, nops, charge_new, mass_new, invnucexp_new)
 c
 c ... sloppy way for the moment to fix units for 2-d case
 c

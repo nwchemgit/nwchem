@@ -23,8 +23,9 @@ c               atoms are in the final (full) coordinate list.
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine dosymops(symops,nops,coords,tags,nata,itype,
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
-     $     charge, charge_new, mass, mass_new, threquiv)
-C$Id: dosymops.F,v 1.3 1999-07-20 18:53:09 d3g681 Exp $
+     $     charge, charge_new, mass, mass_new, 
+     $     invnucexp, invnucexp_new, threquiv)
+C$Id: dosymops.F,v 1.4 2000-10-27 00:12:14 bert Exp $
 *rak typed everyting
       implicit none
 #include "util.fh"
@@ -45,7 +46,7 @@ c
       integer iasym_order(nata)
       logical oprint
       double precision charge(*), charge_new(*), mass(*),
-     $     mass_new(*)
+     $     mass_new(*), invnucexp(*), invnucexp_new(*)
 c
       integer i, j, k, l, ii, ll, nata_old,
      &    ipcord, ipt, nauniq, iopnum, im, iop
@@ -193,6 +194,7 @@ c
 330      continue
          tags_new(ipcord)=tags(i)
          charge_new(ipcord)=charge(i)
+         invnucexp_new(ipcord)=invnucexp(i)
          mass_new(ipcord)=mass(i)
          iasym_order(nauniq)=ipcord
 *
@@ -253,6 +255,7 @@ c
      $              xnew(k,1),xnew(k,2),xnew(k,3)
                tags_new(ipcord)=tags(i)
                charge_new(ipcord)=charge(i)
+               invnucexp_new(ipcord)=invnucexp(i)
                mass_new(ipcord)=mass(i)
             endif
 420      continue
@@ -293,6 +296,7 @@ c
             tags_new(i) = tags(i)
          enddo
          call dcopy(nareal, charge, 1, charge_new, 1)
+         call dcopy(nareal, invnucexp, 1, invnucexp_new, 1)
          call dcopy(nareal, mass, 1, mass_new, 1)
          call dcopy(nareal*3, coords, 1, coords_new, 1)
       endif

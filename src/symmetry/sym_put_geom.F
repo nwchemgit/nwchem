@@ -1,7 +1,7 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
      $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
-     $     charge_new, mass_new)
-C$Id: sym_put_geom.F,v 1.4 1999-07-14 00:29:12 d3e129 Exp $
+     $     charge_new, mass_new, invnucexp_new)
+C$Id: sym_put_geom.F,v 1.5 2000-10-27 00:12:41 bert Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -15,6 +15,7 @@ C$Id: sym_put_geom.F,v 1.4 1999-07-14 00:29:12 d3e129 Exp $
       double precision coords_new(3,nat_new)
       double precision charge_new(max_cent)
       double precision mass_new(max_cent)
+      double precision invnucexp_new(max_cent)
 c
 c     tags_new(1:nat_new) = tags for full list of centers
 c     nat_uniq = no. of symmetry unique atoms = no. of atoms in the geom
@@ -26,13 +27,8 @@ c     nop = no. of operations in the group
 c
       do i = 1, nat_new
          charge(i,geom) = charge_new(i)
-      enddo
-c
-      do i = 1, nat_new
          geom_mass(i,geom) = mass_new(i)
-      enddo
-c
-      do i=1,nat_new
+         geom_invnucexp(i,geom) = invnucexp_new(i)
          tags(i,geom)=tags_new(i)
       enddo
       call dgemm('n', 'n', 3, nat_new, 3, 1.0d0, amatrix(1,1,geom), 3,
