@@ -7,6 +7,9 @@ MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
 ifndef USE_MPI
   EXTRA_INC = "TCG_INCLUDE=../../include"
       EXTRA = "MSG_COMMS=TCGMSG"
+     MP_VER = TCG
+else
+     MP_VER = MPI
 endif
 
 include ../config/makefile.h
@@ -17,8 +20,10 @@ endif
 
 ifdef OLD_GA
     unexport USE_ARMCI
+    GA_VER = O
 else
     export USE_ARMCI
+    GA_VER = N
 endif
 
 ifndef TARGET
@@ -34,8 +39,10 @@ endif
 
 export TARGET TARGET_CPU BINDIR
 
+STAMP = $(TARGET)-$(MP_VER)-$(GA_VER).stamp
 
-tools:   lib/$(TARGET) include
+
+tools:  $(STAMP) lib/$(TARGET) include
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
@@ -65,14 +72,17 @@ endif
 lib/$(TARGET):
 	$(MKDIR) -p $@
 
-include:
+include: 
 	$(MKDIR) -p $@
+
+$(STAMP): clean 
+	echo "" > $(STAMP)
 
 include_stamp: tools
 
 clean:
 	$(MAKESUBDIRS) $^
-	$(RM) -r include
+	$(RM) -r include/* *.stamp
 ifdef USE_ARMCI
 		(cd ./armci/src; $(MAKE) LIB_DISTRIB=../../lib clean )
 endif
