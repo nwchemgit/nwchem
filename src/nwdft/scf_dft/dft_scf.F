@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.29 1996-07-03 21:47:38 d3h449 Exp $
+C$Id: dft_scf.F,v 1.30 1996-07-10 23:41:28 d3h449 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -1197,7 +1197,9 @@ C
       if (me .eq. 0) then
         if (util_print('final evals', print_default)) then
           call util_print_centered(LuOut,'Final alpha eigenvalues',
-     $         20,.true.)
+     $         20,.false.)
+          call util_print_centered(LuOut,
+     $         '(all occupied plus 10 virtual)',20,.true.)
           call output(dbl_mb(k_eval(1)),
      $         1, min(noc(1)+10,nbf_ao),
      $         1, 1, nbf_ao, 1, 1)
@@ -1205,6 +1207,8 @@ C
             write(LuOut,*)
             call util_print_centered(LuOut,'Final beta eigenvalues',
      $           20,.true.)
+            call util_print_centered(LuOut,
+     $           '(all occupied plus 10 virtual)',20,.true.)
             call output(dbl_mb(k_eval(2)),
      $           1, min(noc(1)+10,nbf_ao),
      $           1, 1, nbf_ao, 1, 1)
