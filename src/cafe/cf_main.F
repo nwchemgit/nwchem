@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.73 2000-08-30 06:24:04 d3j191 Exp $
+c $Id: cf_main.F,v 1.74 2000-08-30 06:26:13 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -902,7 +902,7 @@ c
       do 6 i=1,mwa
       ww=ww+wgt(iwat(i),iset)
     6 continue
-      if(mdalgo.eq.3) then
+      if(mdalgo.eq.1) then
       do 7 j=1,3
       do 8 i=1,numw
       vvsum=zero
