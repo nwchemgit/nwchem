@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.465 2004-05-18 19:46:36 edo Exp $
+# $Id: makefile.h,v 1.466 2004-05-19 04:36:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1527,10 +1527,14 @@ endif # end of ia32 bit
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
       FC=pgf90
+      _FC=pgf90
+      ifeq ($(FC),pgf77)
+        _FC=pgf90
+      endif
       
       USE_LIB64 = y #for python linking
 
-      ifeq ($(FC),pgf90)
+      ifeq ($(_FC),pgf90)
         FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
         FOPTIONS   +=    -tp k8-64  
         FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
