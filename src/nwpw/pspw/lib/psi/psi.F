@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.31 2003-06-30 01:23:11 bylaska Exp $
+* $Id: psi.F,v 1.32 2003-07-01 13:39:48 bylaska Exp $
 *
 
 *     ***********************************
@@ -1002,43 +1002,59 @@ c      end
 
 *     **** spin up orbital **** 
       if (i.le.ne(1)) then
+c       do n=1,(ne(1))
+c       !if (n.ne.i) then
+c          call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
+c    >                      Horb,
+c    >                      dbl_mb(x(1)+n-1))
+c       !end if
+c       end do     
+c       if (np.gt.1)
+c    >    call D3dB_Vector_SumAll(ne(1),dbl_mb(x(1)))
+
+        call Pack_ccmn_dot(1,ne(1),1,
+     >                     dcpl_mb(psi_ptr),
+     >                     Horb,
+     >                     dbl_mb(x(1)))
+
         do n=1,(ne(1))
         !if (n.ne.i) then
-           call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                      Horb,
-     >                      dbl_mb(x(1)+n-1))
-        !end if
-        end do     
-
-        if (np.gt.1)
-     >    call D3dB_Vector_SumAll(ne(1),dbl_mb(x(1)))
-
-        do n=1,(ne(1))
-        !if (n.ne.i) then
-           call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-1)),
-     >                        dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                        Horb) 
+c          call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-1)),
+c    >                        dcpl_mb(psi_ptr+(n-1)*npack1),
+c    >                        Horb) 
+           call daxpy(2*npack1,
+     >               (-dbl_mb(x(1)+n-1)),
+     >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
+     >               Horb,1) 
         !end if
         end do     
 
 *     **** spin down orbital ****      
       else       
+c       do n=(ne(1)+1),(ne(1)+ne(2))
+c       !if (n.ne.i) then
+c          call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
+c    >                      Horb,
+c    >                      dbl_mb(x(1)+n-ne(1)-1))
+c       !end if
+c       end do     
+c       if (np.gt.1)
+c    >   call D3dB_Vector_SumAll(ne(2),dbl_mb(x(1)))
+
+        call Pack_ccmn_dot(1,ne(2),1,
+     >                     dcpl_mb(psi_ptr+ne(1)*npack1),
+     >                     Horb,
+     >                     dbl_mb(x(1)))
+
         do n=(ne(1)+1),(ne(1)+ne(2))
         !if (n.ne.i) then
-           call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                      Horb,
-     >                      dbl_mb(x(1)+n-ne(1)-1))
-        !end if
-        end do     
-
-        if (np.gt.1)
-     >   call D3dB_Vector_SumAll(ne(2),dbl_mb(x(1)))
-
-        do n=(ne(1)+1),(ne(1)+ne(2))
-        !if (n.ne.i) then
-           call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-ne(1)-1)),
-     >                        dcpl_mb(psi_ptr+(n-1)*npack1),
-     >                        Horb) 
+c          call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-ne(1)-1)),
+c    >                        dcpl_mb(psi_ptr+(n-1)*npack1),
+c    >                        Horb) 
+           call daxpy(2*npack1,
+     >               (-dbl_mb(x(1)+n-ne(1)-1)),
+     >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
+     >               Horb,1) 
         !end if
         end do     
       end if
