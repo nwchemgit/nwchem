@@ -299,7 +299,7 @@ c
          write(6,887) 
  887     format(/,2x,'Orbital Symmetry Irreps')
          write(6,888) (zir(int_mb(k_sym+i)),i=0,nbf-1)
- 888     format(15(a4,x))
+ 888     format(15(a4,1x))
       endif
       if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
      $     call errquit('mcscf: cannot dup MO vectors',0)
