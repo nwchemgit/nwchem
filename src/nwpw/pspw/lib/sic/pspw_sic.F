@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.19 2003-07-11 21:05:39 bylaska Exp $
+* $Id: pspw_sic.F,v 1.20 2003-07-18 00:57:46 bylaska Exp $
 *
 
 *     *************************
@@ -421,6 +421,7 @@ c    >                        Hpsi_k(index2))
       return
       end
 
+
 *     *************************
 *     *                       *
 *     *     pspw_energy_SIC   *
@@ -596,5 +597,256 @@ c    >                        Hpsi_k(index2))
 #include "pspw_sic.fh"
 
       pspw_SIC_relaxed = relaxed
+      return
+      end
+
+
+*     ********************************
+*     *                      	     *
+*     *     pspw_potential_SIC_OEP   *
+*     *                              *
+*     ********************************
+
+      subroutine pspw_potential_SIC_OEP(ispin,ne,dntotal,psi_r,v_oep)
+      implicit none
+      integer    ispin,ne(2)
+      real*8     dntotal(*)
+      real*8     psi_r(*)
+      real*8     v_oep(*)
+
+#include "mafdecls.fh"
+#include "pspw_sic.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,j,n2ft3d,nx,ny,nz,npack,n1(2),n2(2)
+      integer index,index1,indext,ms
+      integer dn(2),xcp(2),xce(2),tmp1(2),vsic(2),rhoi(2)
+      integer M(2),b(2),ipv(2),info
+      real*8  scal1,scal2,dv,exc,pxc,eh,ph
+
+*     **** external functions ****
+      integer  control_gga
+      real*8   lattice_omega,coulomb_screened_e
+      external control_gga
+      external lattice_omega,coulomb_screened_e
+
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
+      
+        call Pack_npack(1,npack)
+        call D3dB_nx(1,nx)
+        call D3dB_ny(1,ny)
+        call D3dB_nz(1,nz)
+        call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
+     >                         'rhoi',rhoi(2),rhoi(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
+     >                         'vsic',vsic(2),vsic(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,((ne(1)*ne(1))*2),
+     >                         'M',M(2),M(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,((ne(1)+ne(2))),
+     >                         'b',b(2),b(1))
+        if (.not. value) 
+     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',0)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+
+        scal1 = 1.0d0/dble(nx*ny*nz)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+        do i=1,ne(1)+ne(2)
+
+           index  = (i-1)*n2ft3d + 1
+
+*          **** generate dn for Vxc and VH ****
+           call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+           call D3dB_r_SMul(1,scal2,
+     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+           call D3dB_r_Zero_Ends(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+
+
+*          **** generate exchange-correlation potential ****
+           if (control_gga().eq.0) then
+             call vxc(n2ft3d,2,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(tmp1(1)))
+           else
+             call v_bwexc(n2ft3d,2,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
+           end if
+
+*          **** apply the xc_parameter ****
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xcp(1)))
+           call D3dB_r_SMul(1,xc_parameter,
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(xce(1)))
+
+
+*          ***** screened coulomb solver ****
+           if (solver_type.eq.1) then
+
+*            **** generate dng ****
+
+             call D3dB_r_SMul(1,scal1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                              dbl_mb(dn(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*            **** generate Vcoul ****
+             call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
+             call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+             call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+
+
+*          ***** free-space coulomb solver ****
+           else
+              call coulomb2_v(dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                        dbl_mb(tmp1(1)))
+              
+           end if
+
+*          **** apply the h_parameter ****
+           call D3dB_r_SMul(1,h_parameter,
+     >                      dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp1(1)))
+
+*          **** generate vsic(i) = (Vcoul+Vxc) ***
+           call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
+     >                        dbl_mb(xcp(1)),
+     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
+
+
+        end do
+
+        !**** define Vs  ****
+        call dcopy(ispin*n2ft3d,0.0d0,0,v_oep,1)
+        do ms=1,ispin
+        do i=n1(ms),n2(ms)
+           call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
+     >                        dbl_mb(tmp1(1)))
+           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d),
+     >                        dbl_mb(tmp1(1)),
+     >                        v_oep((ms-1)*n2ft3d))
+        end do
+        end do
+        do ms=1,ispin
+          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d),
+     >                          dntotal((ms-1)*n2ft3d),
+     >                            v_oep((ms-1)*n2ft3d))
+        end do
+
+        !**** define M  ****
+        do ms=1,ispin
+        do i=n1(ms),n2(ms)
+        do j=i,n2(ms)
+           call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                        dbl_mb(rhoi(1)+(j-1)*n2ft3d),
+     >                        dbl_mb(tmp1(1)))
+           call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
+     >                          dntotal((ms-1)*n2ft3d),
+     >                           dbl_mb(tmp1(1)))
+
+           call D3dB_r_dsum(1,dbl_mb(tmp1(1)),eh)
+           index = (i-1) + (j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           index = (j-1) + (i-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           dbl_mb(M(1)+index)  = eh*dv
+           dbl_mb(M(1)+indext) = eh*dv
+
+        end do
+        end do
+        end do
+
+        !**** M = I-M ****
+        do ms=1,ispin
+        do i=n1(ms),n2(ms)
+
+           index = (i-1) + (i-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           dbl_mb(M(1)+index)  = 1.0d0 - dbl_mb(M(1)+index)
+        end do
+        end do
+
+
+        !**** define b=(vs-vsic)  ****
+        do ms=1,ispin
+        do i=n1(ms),n2(ms)
+
+          call D3dB_rr_dot(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                       dbl_mb(vsic(1)+(i-1)*n2ft3d),
+     >                       exc)
+          call D3dB_rr_dot(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                       v_oep((ms-1)*n2ft3d),
+     >                       pxc)
+          index = (i-1) + (ms-1)*ne(1)
+          dbl_mb(b(1)+index) = (exc-pxc)*dv
+        end do
+        end do
+
+        !*** solve Ax = b ***
+        value = MA_push_get(mt_int,(ne(1)+ne(2)),'ipiv',ipv(2),ipv(1))
+        if (.not. value) 
+     >    call errquit('pspw_potential_SIC_OEP:out of stack memory',1)
+        do ms=1,ispin
+          call DGESV(ne(ms),1, 
+     >             dbl_mb(M(1)+(ms-1)*ne(1)*ne(1)),ne(ms),
+     >             int_mb(ipv(1)),
+     >             dbl_mb(b(1)+(ms-1)*ne(1)),ne(ms),
+     >             info)
+        end do
+        value = MA_pop_stack(ipv(2))
+        if (.not. value) 
+     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',2)
+
+
+        !***** tmp = (1/rho)* Sum(i=2,N) rhoi * (xi - x1) *****
+        do ms=1,ispin
+          call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+          do i=n1(ms)+1,n2(ms)
+           index  = (i-1) + (ms-1)*ne(1)
+           index1 = (ms-1)*ne(1)
+           eh     = dbl_mb(b(1)+index) - dbl_mb(b(1)+index1) 
+           call D3dB_rr_daxpy(1,eh,
+     >                        dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+     >                        dbl_mb(tmp1(1)))
+
+          end do
+          call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
+     >                        dntotal((ms-1)*n2ft3d),
+     >                          dbl_mb(tmp1(1)))
+          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d),
+     >                       dbl_mb(tmp1(1)),
+     >                       v_oep((ms-1)*n2ft3d))
+        end do
+        
+        value =           MA_pop_stack(b(2))
+        value = value.and.MA_pop_stack(M(2))
+        value = value.and.MA_pop_stack(vsic(2))
+        value = value.and.MA_pop_stack(rhoi(2))
+        value = value.and.MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(xce(2))
+        value = value.and.MA_pop_stack(xcp(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) 
+     >    call errquit('pspw_potential_SIC_OEP:popping stack memory',3)
+
       return
       end
