@@ -4,15 +4,13 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.1 1994-06-24 20:42:35 d3e129 Exp $
+c $Id: stpr_partit.F,v 1.2 1994-10-26 23:13:21 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
       LOGICAL COOK, LPRINT
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
 #include "chow.fh"
-      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
-     &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / THRESH / RCONVG,RSTD
@@ -28,9 +26,11 @@ C
 C     Internal hessian/gradient symmetry tolerance.
 C
       DATA SYMCHK/1.D-8/
+c
       ISYM2(I,J)=MAX(I,J)*((MAX(I,J))-1)/2 + MIN(I,J)
+c
       AUCM = 2.194746D+05
-c      LPRINT = .TRUE.
+*debug:      LPRINT = .TRUE.
       LPRINT = .FALSE.
       IF (MWC) THEN
         SYMCHK=1.0D-08
@@ -259,6 +259,11 @@ C       Zap any elements with absolute value less than 1.D-12
 C
         IF(DABS(SCRSYM(I)).GT.1.D-12) HESS(I) = SCRSYM(I)
   270 CONTINUE
+*debug:      write(6,*)'hess stpr_partit after zap', nat3tr
+*debug:      do i=1,nat3tr
+*debug:        if (abs(hess(i)).gt.1.0d-5)
+*debug:     &      write(6,*)' hess (',i,') =',hess(i)
+*debug:      enddo
       call dfill(NAT3TR,0.0d00,SCRSYM,1)
 C
 C     Form the internal gradient first in a scratch array and then
@@ -284,7 +289,17 @@ C
 C     Construct a reduced internal hessian and gradient to remove
 C     any eigenmodes with zero force.
 C
+*debug:      write(6,*)'hess stpr_partit before jacobi',nat3tr
+*debug:      do i=1,nat3tr
+*debug:        if (abs(hess(i)).gt.1.0d-5)
+*debug:     &      write(6,*)' hess (',i,') =',hess(i)
+*debug:      enddo
       CALL stpr_sjacobi(NAT3,NINTER,HESS,HIEIGS,SCRSQ,IERR)
+*debug:      write(6,*)'hess stpr_partit after jacobi',nat3tr
+*debug:      do i=1,nat3tr
+*debug:        if (abs(hess(i)).gt.1.0d-5)
+*debug:     &        write(6,*)' hess (',i,') =',hess(i)
+*debug:      enddo
       IF(LPRINT)THEN
         WRITE(6,*)' STEPPER| The eigenvalues of the internal hessian. '
         CALL stpr_matout(HIEIGS,NINTER,1,NINTER)
