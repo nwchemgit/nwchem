@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.3 2001-08-19 21:28:59 bjohnson Exp $
+* $Id: trobsa.F,v 1.4 2002-04-08 18:51:51 windus Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -485,9 +485,6 @@ c
 c=======================================================================
       subroutine ssssm(nbls,rysx,const,mmax,wt1,l11,l12,wt0,l01,l02)
       implicit real*8 (a-h,o-z)
-#ifdef BETTIS
-#include "screened_op.fh"
-#endif
       dimension const(*),rysx(*)
       dimension wt0(nbls,l01,l02),wt1(nbls,l11,l12)
       dimension f0m(0:30)
@@ -515,17 +512,6 @@ c--------------------------------------------------------------------
 C  CALCULATE (SS,SS)(M)  M=1,MMAX
 C    S ORBITALS ARE NORMALIZED
 C
-#ifdef BETTIS
-      if (screened_operator_enabled()) then
-         do 410 i=1,nbls
-         xrys=rysx(i)
-         call screened_fm(f0m,mmax-1,xrys,ijkl_theta(i))
-         do 410 m=1,mmax
-         wt1(i,m,1)=const(i)*f0m(m-1)
-ccccc    write(6,*)'   m=',m,' ssssm=',wt1(i,m,1)
- 410     CONTINUE
-      else
-#endif
          do 411 i=1,nbls
          xrys=rysx(i)
          call fm(xrys,mmax-1,f0m)
@@ -533,9 +519,6 @@ ccccc    write(6,*)'   m=',m,' ssssm=',wt1(i,m,1)
          wt1(i,m,1)=const(i)*f0m(m-1)
 ccccc    write(6,*)'   m=',m,' ssssm=',wt1(i,m,1)
  411     CONTINUE
-#ifdef BETTIS
-      endif
-#endif
 c
          do 420 i=1,nbls
          wt0(i,1,1)=wt1(i,1,1)

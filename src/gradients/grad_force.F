@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.55 2001-08-19 21:29:55 bjohnson Exp $
+c     $Id: grad_force.F,v 1.56 2002-04-08 18:51:51 windus Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -61,9 +61,6 @@ C------------------------------------------------------------------------------
 #include "msgids.fh"
 #include "apiP.fh"
 #include "inp.fh"
-#ifdef BETTIS
-#include "screened_op.fh"
-#endif
 
       integer rtdb, basis, geom
       double precision cpu_tim(2), wall_tim(2)
@@ -161,9 +158,6 @@ c
       parameter (numfunc = 30)
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
-#ifdef BETTIS
-      double precision kfac_save
-#endif
 
       nproc = ga_nnodes()
 
@@ -744,16 +738,6 @@ c
       cpu_tim(2)  = util_cpusec()
       wall_tim(2) = util_wallsec()
       if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) then
-#ifdef BETTIS
-         if (screened_exchange()) then
-c           Calculate Coulomb only with unscreened operator
-            kfac_save = kfac
-            kfac = 0d0
-            if (screened_operator_enabled()) then
-               call errquit('Screened operator active in grad_force',0)
-            endif
-         endif
-#endif
          call grad2(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
@@ -785,45 +769,6 @@ c           Calculate Coulomb only with unscreened operator
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
      $     jfac, kfac,.false.)
-#ifdef BETTIS
-         if (screened_exchange()) then
-c           Calculate screened K gradient'
-            kfac = kfac_save
-            call enable_screened_operator()
-            call grad2(
-     $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
-     $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
-     $     dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
-     $     dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
-     $     dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
-     $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
-     $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
-     $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
-     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),
-     .     dbl_mb(ld_jk5),
-     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),
-     .     dbl_mb(ld_jk6),
-     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),
-     .     dbl_mb(ld_jk7),
-     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),
-     .     dbl_mb(ld_jk8),
-     $     dbl_mb(k_frc_2el), g_dens, g_force, blen,
-     $     geom, basis, nproc, nat, 
-     $     lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
-     $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
-     $     tol2e, nsh, 
-     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
-     $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
-     $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
-     $     nshblocks,
-     $     int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
-     $     int_mb(k_bfglo), int_mb(k_bfghi), 
-     $     int_mb(k_bfmap), int_mb(k_rbfmap), 
-     $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $     0d0, kfac,.false.)
-            call disable_screened_operator()
-         endif
-#endif
       endif
       cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
       wall_tim(2) = util_wallsec() - wall_tim(2)

@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.221 2002-02-15 00:34:49 edo Exp $
+c     $Id: dft_scf.F,v 1.222 2002-04-08 18:51:52 windus Exp $
 c     
       implicit none
 c
@@ -28,9 +28,6 @@ c
 #include "msgids.fh"
 #include "util.fh"
 #include "dft_conv.fh"
-#ifdef BETTIS
-#include "screened_op.fh"
-#endif
 c     
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -531,13 +528,6 @@ c
          tol_rho = max(tol_rho_min,tol_rho_max)
       endif
 c     
-#ifdef BETTIS
-c     Screened exchange works only with direct SCF
-      if (screened_exchange()) then
-         write(*,*)'Forcing direct SCF for screened exchange'
-         call fock_force_direct(rtdb)
-      endif
-#endif
       tol2e = 10.d0**(-itol_max)
 c 
 c     Restore SCF parameters

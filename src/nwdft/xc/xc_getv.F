@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.46 2001-08-19 21:32:56 bjohnson Exp $
+C$Id: xc_getv.F,v 1.47 2002-04-08 18:51:52 windus Exp $
 c
       implicit none
 c      
@@ -22,9 +22,6 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "sym.fh"
-#ifdef BETTIS
-#include "screened_op.fh"
-#endif
 c
       integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
@@ -76,9 +73,6 @@ c
       oprint_time = util_print('dft timings', print_high)
       Exc(1)=0.d0
       Exc(2)=0.d0
-#ifdef BETTIS
-      call density_average(0d0, 0d0, 0, 0, 0) ! init
-#endif
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
 c      nproc=ga_nnodes()
@@ -95,12 +89,6 @@ c
          if(ipol.eq.2)call ga_print(g_dens(2))
       endif
 c
-#ifdef BETTIS
-      if (CDFIT .and. screened_exchange()) then
-         call errquit(
-     &       'Screened HF exchange not implemented with fitted J',0)
-      endif
-#endif
       if (havehfxc .or. (.not. CDFIT))then
 c       
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
@@ -117,25 +105,8 @@ c
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
-#ifdef BETTIS
-              if (.not. screened_exchange()) then
-c                Do J and K together
-#endif
                  call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &                tol2e, oskel, g_dens, g_vxc, .false.)
-#ifdef BETTIS
-              else
-c                Do J and K separately
-c                Do J
-                 call fock_2e(geom, AO_bas_han, 1, jfac(2), kfac(2),
-     &                tol2e, oskel, g_dens(2), g_vxc(2), .false.)
-c                Do K
-                 call enable_screened_operator()
-                 call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &                tol2e, oskel, g_dens, g_vxc, .false.)
-                 call disable_screened_operator()
-              endif
-#endif
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
@@ -175,40 +146,8 @@ c                Do K
                g_d(2)  = g_dens(1)
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
-#ifdef BETTIS
-               if (.not. screened_exchange()) then
-c                 Do J and K together
-#endif
                   call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &                 tol2e, oskel, g_d(1), g_jk(1), .false.)
-#ifdef BETTIS
-               else
-c                 Do J and K separately
-c                 Some rearrangement of matrices is needed
-                  g_d(2) = g_d(3) ! Get alpha and beta densities together
-c                 Do J
-                  jfac(1) = 1.0d0
-                  jfac(2) = 1.0d0
-                  kfac(1) = 0.0d0
-                  kfac(2) = 0.0d0
-c                 Use end of g_d to place matrices properly
-                  g_d(3) = g_jk(1)
-                  g_d(4) = g_jk(3)
-                  call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                 tol2e, oskel, g_d(1), g_d(3), .false.)
-c                 Do K
-                  jfac(1) = 0.0d0
-                  jfac(2) = 0.0d0
-                  kfac(1) = 1.0d0
-                  kfac(2) = 1.0d0
-                  g_d(3) = g_jk(2)
-                  g_d(4) = g_jk(4)
-                  call enable_screened_operator()
-                  call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                 tol2e, oskel, g_d(1), g_d(3), .false.)
-                  call disable_screened_operator()
-               endif
-#endif
                ecoul = 0.5d0*( ! Alpha coulomb energy
      $              ga_ddot(g_dens(1),g_jk(1)) + 
      $              ga_ddot(g_dens(1),g_jk(3)))
@@ -328,9 +267,6 @@ c
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
-#ifdef BETTIS
-      call density_average(0d0, 0d0, 0, 0, -1) ! print
-#endif
 c     
 c     
       return

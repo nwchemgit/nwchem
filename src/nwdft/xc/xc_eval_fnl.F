@@ -9,15 +9,12 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.29 2002-04-07 01:22:05 sohirata Exp $
+c     $Id: xc_eval_fnl.F,v 1.30 2002-04-08 18:51:52 windus Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 #include "dft2drv.fh"
-#ifdef BETTIS
-#include "screened_op.fh"
-#endif
 c
       integer nq
       double precision rho(*), delrho(*)
@@ -41,10 +38,6 @@ c
          if (GRAD) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
       endif
       if (ldew) call dfill(nq, 0.d0, func, 1)
-#ifdef BETTIS
-c     Update quantities that help in determining screening constant
-      call density_average(rho, qwght, nq, ipol, 1)
-#endif
 c
 c     warning!! xc_dirac has to be called before all the other
 c     XC routines
@@ -59,20 +52,6 @@ c
      &           Amat, Amat2, nq, ipol, Ex, qwght, 
      &           .false., func)
          endif
-#ifdef BETTIS
-         if (screened_exchange()) then
-c        Add screened LDA exchange contribution
-         if (.not. do_2nd) then
-            call xc_dirac_screened(tol_rho, -xfac(2), lxfac(2),
-     &           nlxfac(2), rho, Amat, nq, ipol, Ex,
-     &           screened_operator_Ks(), qwght, ldew, func)
-         else
-            call xc_dirac_screened_d2(tol_rho, -xfac(2), lxfac(2),
-     &           nlxfac(2), rho, Amat, Amat2, nq, ipol, Ex,
-     &           screened_operator_Ks(), qwght, ldew, func)
-         endif
-         endif
-#endif
       endif
       if (abs(xfac(3)).gt.eps)then
          if (.not. do_2nd) then
@@ -237,9 +216,6 @@ c
       endif
 c     
       if (abs(cfac(6)).gt.eps)then
-#ifdef BETTIS
-         call errquit('pw91lda on in input',0)
-#endif
          if (.not. do_2nd) then
             call xc_pw91lda(tol_rho, cfac(6), lcfac(6), nlcfac(6), 
      &           rho, Amat, nq, ipol, Ec, 
