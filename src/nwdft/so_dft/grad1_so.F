@@ -4,7 +4,7 @@
      $     g_dens, g_wdens, basis, geom, nproc, nat, 
      $     max_at_bf, rtdb, oskel, 
      &     frc_so, densx, densy, densz)
-c$Id: grad1_so.F,v 1.1 2000-04-17 21:46:01 zzhang Exp $
+c$Id: grad1_so.F,v 1.2 2000-06-08 00:34:25 zzhang Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -245,10 +245,10 @@ C               no forces between point charges (for John Nicholas)
  80     continue
  90   continue
       next = nxtask(-nproc,task_size)
-      write(*,'("forces",9f10.5)')((frc_nuc(i,j),i=1,3),j=1,nat)
-      write(*,'("forces",9f10.5)')((frc_kin(i,j),i=1,3),j=1,nat)
-      write(*,'("forces",9f10.5)')((frc_wgh(i,j),i=1,3),j=1,nat)
-      write(*,'("forces",9f10.5)')((frc_so(i,j),i=1,3),j=1,nat)
+c      write(*,'("forces",9f10.5)')((frc_nuc(i,j),i=1,3),j=1,nat)
+c      write(*,'("forces",9f10.5)')((frc_kin(i,j),i=1,3),j=1,nat)
+c      write(*,'("forces",9f10.5)')((frc_wgh(i,j),i=1,3),j=1,nat)
+c      write(*,'("forces",9f10.5)')((frc_so(i,j),i=1,3),j=1,nat)
  
       return
       end
