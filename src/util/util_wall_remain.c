@@ -24,8 +24,8 @@ Integer util_batch_job_time_remaining_(void)
 
   sprintf(cmd,"%s/jobtime",BINDIR);
 
-  if (!access("cmd",X_OK)) {	/* If cannot access perl script */
-    /*(void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);*/
+  if (access(cmd,F_OK|X_OK)) {	/* If cannot access perl script */
+    (void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);
     return NOT_AVAILABLE;
   }
 
