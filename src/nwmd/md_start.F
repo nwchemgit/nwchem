@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.82 2000-10-03 19:50:57 d3j191 Exp $
+c $Id: md_start.F,v 1.83 2000-10-06 19:43:55 d3j191 Exp $
 c
       implicit none
 c
@@ -242,7 +242,7 @@ c
       character*32 theory
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
-      integer niperw,nbperw,i
+      integer niperw,nbperw,i,istart
 c
 c     set process id and number of processes
 c     --------------------------------------
@@ -636,6 +636,8 @@ c
       if(.not.rtdb_cget(irtdb,'md:server',1,server))
      + call errquit('md_rtdbin: rtdb_get failed',0)
       endif
+      if(.not.rtdb_get(irtdb,'md:istart',mt_int,1,istart))
+     + call errquit('md_rtdbin: rtdb_get failed',1)
       if(.not.rtdb_get(irtdb,'md:nbx',mt_int,1,nbx))
      + call errquit('md_rtdbin: rtdb_get failed',1)
       if(.not.rtdb_get(irtdb,'md:nby',mt_int,1,nby))
@@ -990,6 +992,14 @@ c
 c     determine if this is a start, restart or continue
 c
       call util_get_rtdb_state(irtdb,lstart,lrstrt,lcont)
+c
+      if(istart.gt.0) then
+      lstart=istart.eq.0
+      lrstrt=istart.eq.1
+      lcont=istart.eq.2
+      endif
+c
+c      print*,istart,lstart,lrstrt,lcont
 c
       if(lstart) then
       nserie=0

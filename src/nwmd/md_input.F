@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.32 2000-09-25 15:54:44 d3j191 Exp $
+c $Id: md_input.F,v 1.33 2000-10-06 19:43:55 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide
-      integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl
+      integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -168,6 +168,7 @@ c      iunfix=0
       iport=0
       iguide=0
       nopack=0
+      istart=0
 c
       server=' '
 c
@@ -242,6 +243,16 @@ c
      + form='formatted',status='unknown',err=1999)
       rewind(unit=lfncmd)
       numcmd=0
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'finish',item)) then
+      istart=1
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'resume',item)) then
+      istart=2
       goto 2
       endif
 c
@@ -1264,6 +1275,8 @@ c
      + call errquit('md_input: rtdb_put failed',0)
       endif
 c
+      if(.not.rtdb_put(irtdb,'md:istart',mt_int,1,istart))
+     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nbx',mt_int,1,nbx))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nby',mt_int,1,nby))
