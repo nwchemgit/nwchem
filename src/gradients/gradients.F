@@ -85,19 +85,19 @@ c
 c
       status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) call errquit
-     $     ('grad: no converged SCF wavefunction available', 0)
+     $     ('gradients: no converged SCF wavefunction available', 0)
 
 c     Extract high level info from the data-base setting defaults
 c
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
-      status = rtdb_get(rtdb, 'basis', MT_INT, 1, basis)
-      if (.not.status) call errquit('scf: error storing basis handle',0)
-      status = rtdb_get(rtdb, 'geom', MT_INT, 1, geom)
-      if (.not.status) call errquit('scf: error storing geom handle', 0)
+      if (.not. geom_create(geom, 'geometry'))
+     $     call errquit('gradients: geom_create?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      $     call errquit('gradients: no geometry ', 0)
+      if (.not. bas_create(basis, 'mo basis'))
+     $     call errquit('gradients: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
      $     call errquit('gradients: no mo basis ', 0)
       if(.not. int_normalize(basis))
@@ -135,6 +135,17 @@ c
       endif
 c
       call force(rtdb,basis,geom,movecs)
+c
+c gradients is done destroy basis and geomtry handles  
+c (e.g., preserve the memory available to other modules!!)
+c
+      if (.not.(
+     &    (bas_destroy(basis))
+     &    .and.
+     &    (geom_destroy(geom))
+     &    ))
+     &    call errquit
+     &    ('gradients:error destroying geom and basis handles',911)
 c
       if (.not. context_pop('gradients')) 
      $     call errquit('context_pop failed',0)

@@ -1,14 +1,32 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.14 1994-06-23 00:18:15 vg038 Exp $
+c $Id: raktest.F,v 1.15 1994-06-24 20:53:12 d3e129 Exp $
       integer rtdb
+c
+      logical scf
+      logical gradients
+      logical stpr_walk
+      external scf
+      external gradients
+      external stpr_walk
+c
+      logical status
 c
       write(6,*)' run rjh test '
 c      call rjhtest(rtdb)
       write(6,*)' rjh test done '
       write(6,*) ' rak test'
-      call dointsum(rtdb,'geometry', 'mo basis')
-      call derivtest(rtdb,'geometry', 'mo basis')
+*      call dointsum(rtdb,'geometry', 'mo basis')
+*      call derivtest(rtdb,'geometry', 'mo basis')
+00001 continue
+      status = .false.
+      status = scf(rtdb)
+      write(6,*)' status of scf is ',status
+      status = gradients(rtdb)
+      write(6,*)' status of scf gradients is ',status
+      status = stpr_walk(rtdb)
+      write(6,*)' status of step is ',status
+      if (.not.status) goto 00001
 c
       end
       subroutine dointsum(rtdb,geom_name, basis_name)
@@ -57,9 +75,13 @@ c
 c
 c      write(6,*)' with integrals  printed '
 c      call int_chk_sum(basis,.true.)
+      call int_init(1,basis)
+      call int_terminate()
+      call intd_init(1,basis)
       write(6,*)' without integrals  printed '
       call int_chk_sum(basis,.false.)
 c
+      call int_terminate()
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
@@ -98,28 +120,28 @@ c
       write(6,*)' basis_name: <',basis_name,'>'
 c
       if (.not. geom_create(geom, geom_name))
-     $     call errquit('dointsum: geom_create failed?', 0)
+     $     call errquit('derivtest: geom_create failed?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, geom_name))
-     $     call errquit('dointsum: geom_load failed', 0)
+     $     call errquit('derivtest: geom_load failed', 0)
       if (.not. geom_print(geom))
-     $     call errquit('dointsum: geom_print failed', 0)
+     $     call errquit('derivtest: geom_print failed', 0)
       if (.not. bas_create(basis, basis_name))
-     $     call errquit('dointsum: basis create failed', 0)
+     $     call errquit('derivtest: basis create failed', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-     $      call errquit('dointsum: basis load failed', 0)
+     $      call errquit('derivtest: basis load failed', 0)
       if (.not. bas_print(basis))
-     $      call errquit('dointsum: basis print failed', 0)
+     $      call errquit('derivtest: basis print failed', 0)
       if (.not. gbs_map_print(basis))
-     $     call errquit('dointsum: gbs_map_print failed', 0)
+     $     call errquit('derivtest: gbs_map_print failed', 0)
 c
 c normalize basis set
 c
       if (.not.int_normalize(basis))
-     &       call errquit('dointsum: basis norm. failed', 0)
+     &       call errquit('derivtest: basis norm. failed', 0)
       write(6,*)' after normalization'
       call intd_init(1,basis)
       if (.not. bas_print(basis))
-     $      call errquit('dointsum: basis print failed', 0)
+     $      call errquit('derivtest: basis print failed', 0)
 c
 c      write(6,*)' with integrals  printed '
 c      call int_chk_sum(basis,.true.)
@@ -371,7 +393,7 @@ c
      &       call errquit('raktest: ma_pop_stack h2e failed',911)
       if (.not.MA_Pop_Stack(h2ediff))
      &       call errquit('raktest: ma_pop_stack h2ediff failed',911)
-      call int_terminate()
+00911 call int_terminate()
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))

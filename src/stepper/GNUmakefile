@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1994-06-24 20:42:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1994-06-24 20:53:23 d3e129 Exp $
        HEADERS = 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
                  stpr_cneed.o      stpr_cross.o      stpr_driver.o  \
@@ -28,6 +28,7 @@ stpr_inihes.F:	chow.fh
 stpr_interface.F:	chow.fh
 stpr_mkstep.F:	chow.fh
 stpr_partit.F:	chow.fh
+stpr_save.F:	chow.fh
 stpr_sumstc.F:	chow.fh
 
 
