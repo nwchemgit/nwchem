@@ -1,5 +1,5 @@
 c
-C$Id: xc_optx.F,v 1.1 2001-03-08 03:00:07 edo Exp $
+C$Id: xc_optx.F,v 1.2 2001-03-24 01:31:30 edo Exp $
 c
       subroutine xc_optx(tol_rho, fac, p,  rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
@@ -34,7 +34,7 @@ c
 c References:
 c
 c    Becke,  (1986)
-c    Handy, Cohen Mol Phys (2001)
+c    Handy NC, Cohen AJ, Mol Phys 99 (5): 403-412 MAR 2001
 c
 c***************************************************************************
 c

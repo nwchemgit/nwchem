@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.174 2001-01-11 20:40:01 edo Exp $
+c     $Id: dft_scf.F,v 1.175 2001-03-24 01:31:30 edo Exp $
 c     
       implicit none
 c
@@ -1284,6 +1284,7 @@ c
             icall(1) = 0
             icall(2) = 0
          endif
+         damping=.true.
          if(damping) then
          endif
 c
