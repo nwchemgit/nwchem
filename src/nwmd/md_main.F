@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.170 2003-08-19 21:02:06 d3j191 Exp $
+c $Id: md_main.F,v 1.171 2003-08-19 23:20:37 d3j191 Exp $
 c
       implicit none
 c
@@ -1096,6 +1096,7 @@ c
       lequi=.false.
       lprpmf=iprpmf.ne.0
       if(lprpmf) lfnpmf=-iabs(lfnpmf)
+      call timer_start(205)
       do 2 idacq=kdacq+1,mdacq
 c
       call md_timer_init()
@@ -1132,7 +1133,9 @@ c
       write(projct,4000) nserie,mdt,mequi,idacq,tmpext,prsext,
      + filnam(1:38)
  4000 format(i2,' md',a1,i7,' + ',i7,' @',f7.2,e9.2,' ',a)
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
+      if(frequency(mdstep,nfrest)) then
+      call md_wrtrst(lfnrst,filrst,.true.)
+      endif
       if(frequency(mdstep,nftime)) call md_wrtime
 c
       call timer_stop(55)
@@ -1154,6 +1157,15 @@ c
       lesp=frequency(mdstep,nfesp)
 c
       call timer_stop(201)
+c
+      if(lstop) then
+      if(me.eq.0) write(*,1000) tleft,tneed
+ 1000 format(///,' Time left (',f12.3,' s) is less than twice the ',
+     + ' time needed to reach writing the next restart file (',
+     + f12.3,' s)',//,' Simulation aborted',//)
+      return
+      endif
+c
     2 continue
 c
       return
@@ -2454,11 +2466,17 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      real*8 timer_wall
+      external timer_wall
 c
       integer lfn
       character*255 fil
       character*7 cdr
       logical lveloc
+      integer i,left
 c
       if(me.eq.0) then
       if(keepr.eq.0) then
@@ -2488,6 +2506,21 @@ c
       endif
 c
       if(keepr.gt.0) keepr=keepr+1
+c
+      call timer_stop(205)
+      tneed=timer_wall(205)
+      call timer_reset(205)
+      call timer_start(205)
+      left=util_time_remaining(irtdb)
+      tleft=dble(left)
+      i=0
+      if(left.lt.0) then
+      i=1
+      elseif(tleft.gt.two*tneed) then
+      i=1
+      endif
+      call ga_brdcst(mrg_d48,i,ma_sizeof(mt_int,1,mt_byte),0)
+      lstop=i.eq.0
 c
       return
 c
@@ -2598,7 +2631,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.170 2003-08-19 21:02:06 d3j191 Exp $
+c $Id: md_main.F,v 1.171 2003-08-19 23:20:37 d3j191 Exp $
 c
       implicit none
 c
