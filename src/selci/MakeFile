@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2000-11-25 15:42:45 bjohnson Exp $	
+#	$Id: MakeFile,v 1.5 2003-04-07 20:57:03 windus Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -43,7 +43,7 @@ UOBJ =         $(OBJDIR)\iprtri.obj \
                $(OBJDIR)\cputm.obj \
                $(OBJDIR)\minit.obj \
                $(OBJDIR)\mxmb.obj \
-               $(OBJDIR)\check.obj
+               $(OBJDIR)\selci_check.obj
 
 DVOBJ =        $(OBJDIR)\davids.obj \
                $(OBJDIR)\sigma.obj

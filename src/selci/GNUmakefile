@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.23 2002-01-19 02:55:45 zzhang Exp $
+# $Id: GNUmakefile,v 1.24 2003-04-07 20:57:03 windus Exp $
 #
 
 
@@ -18,7 +18,7 @@ renorm.o	sread.o		swrite.o	pkcon.o  \
 wthcon.o	wtconf.o	vadd.o		idmin.o	\
 isum.o		rd1.o		fcidim.o        \
 axb.o		axbt.o		gettim.o	cputm.o \
-minit.o		mxmb.o  check.o
+minit.o		mxmb.o  selci_check.o
 
 DVOBJ = davids.o sigma.o 
 
