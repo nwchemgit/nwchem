@@ -1,0 +1,50 @@
+There is currently no formal input module for the RI-MP2 code.  The
+current plan is that both the local MP2 and RI-MP2 will share the same
+input module.  The following are RTDB etries that are currently
+recognized.
+
+Module:		debtest (invokes SCF then RI-MP2)
+Context:        mp2
+
+INPUTS
+------
+
+"scf:energy"
+        Result of SCF calculation
+
+"geometry"	no default
+"mo basis"	no default
+        Same as used by SCF & friends.
+
+"ri-mp2 basis"	no default
+        The fitting or "ri" basis
+
+"input mo vector file"	default "movecs"
+        As written by SCF.  Default should always be the same as what
+	the SCF writes out.
+
+"mo 3-center integral file"	default "mo3cint"
+        Base file name to be used for transformed three-center
+        integrals.  Actual file names will have spin case ("a" or "b") and
+        node number appended to make a unique name for each node.
+
+"integral threshold"	default 1.0d-12
+        Sets threshold for neglect of integral blocks in Schwarz
+        screening procedure.
+
+"batch size"	default 10
+        Maximum number of occupied orbitals constituting a batch in
+        (a) the direct 3-center transformation, and (b) RI-MP2 energy
+        evaluation. This determines the size of the two large global arrays
+        used in these two steps.  The GAs hold integrals (ai|s) where the
+        number of i's are determined by "batch size" and are overall NVir *
+        "batch size" * NFit elements each.  This is really a
+        workaround for the fact that we don't yet have a good way to control
+        and inquire about memory usage by GA routines.
+
+OUTPUTS
+-------
+"correlation energy"
+        The RI-MP2 contribution to the correlation energy.
+"total energy"
+        SCF + RI-MP2 energy.
