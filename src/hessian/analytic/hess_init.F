@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.28 2002-01-15 23:34:42 edo Exp $
+C $Id: hess_init.F,v 1.29 2002-01-19 01:05:02 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -108,7 +108,8 @@ c        skelsym = sym_number_ops(geom) .gt. 0
 c     end if
       skelsym = .false.
 c
-c  get local memory for the nuclear hessian Exy
+c  get local memory for the nuclear hessian Exy and dipole derivative
+c  tensor
 c
       if (oprint) write(LuOut,*) 'HESS: initializing hessian'
       n3xyz = 3 * ncent
@@ -120,6 +121,10 @@ c
      *     k_hess_xc))
      *     call errquit('hessian_hess_xc: cannot allocate',555)
       call dfill(n3xyz2,zero,dbl_mb(k_hess_xc),1)
+      if (.not.ma_push_get(MT_DBL,3*n3xyz,'hessian: dder',l_dder,
+     *     k_dder))
+     *     call errquit('hessian_dder: cannot allocate',555)
+      call dfill(n3xyz*3,zero,dbl_mb(k_dder),1)
 c
 c  Initialization for each of the different types of wavefunctions.
 c
@@ -262,10 +267,12 @@ c     if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
 c    &    ('hess_init: Failed to initialize DRA interface',555)
       if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
      &    ('hess_init: Failed to initialize DRA interface',555)
-      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',sx_name,
+      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',
+     &    sx_name,
      &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create sx DRA',555)
-      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',fx_name,
+      if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',
+     &    fx_name,
      &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
      &   ('hess_init: Failed to create fx DRA',555)
 

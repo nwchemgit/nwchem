@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.47 2002-01-16 18:25:28 windus Exp $
+C $Id: hess_cphf.F,v 1.48 2002-01-19 01:05:02 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -19,9 +19,9 @@ c
       integer rtdb 
       integer ind, index, index1, index2
       integer nc, num
-      integer nbf2, ndns
+      integer nbf2, ndns, ndip
       integer l_evals, k_evals, l_occ, k_occ
-      integer g_vecs(2), g_modx
+      integer g_vecs(2), g_modx, g_dip
       integer g_wax
       integer g_aa
       integer g_tmp, g_sol
@@ -31,6 +31,7 @@ c
 c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
+      character*255 tmpname
       logical hf_job, oprint, ocphfprint, ouhf
       double precision tol2e
       double precision pt5, four
@@ -252,6 +253,40 @@ c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
+c
+c Before doing the scaling, we will get the dipole integrals into 3
+c (or 6 for UHF) matrices (x, y, z), transform them into the MO 
+c basis and then compute the overlap derivative times the dipole 
+c integral contribution to the dipole derivative term.
+c
+      dims(1) = ndens*3
+      dims(2) = num
+      dims(3) = dims(2)
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, 'dipole matrix',chunk,
+     &     g_dip))
+     &   call errquit('hess_cphf: could not allocate g_dip',555)
+      call ga_zero(g_dip)
+      call hess_dipint(rtdb, geom, basis, g_dip)
+      write(luout,*) 'g_dip in AO basis'
+      call ga_print(g_dip)
+      ndip = 3
+      call hess_aotomo(g_dip, g_vecs, g_modx, oprint,
+     $          ocphfprint, nocc, nvirt, ndens, ndip, num)
+      write(luout,*) 'g_dip in MO basis'
+      call ga_print(g_dip)
+      call hess_sxdip(g_rhs, dbl_mb(k_dder), g_dip, nocc, ndens, 
+     $   n3xyz, num)
+      if (ocphfprint.and.ga_nodeid().eq.0) then
+        write(luout,*) 'after dipole times overlap derivative'
+        write(tmpname,*) ' derivative dipole '
+        call stpr_print_ddipole(dbl_mb(k_dder),tmpname,ncent,-1.0d00)
+      endif
+c
+c Now scale
+c
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -395,10 +430,24 @@ c
 c
 c Get rid of temp memory
 c
-      if (.not.ga_destroy(g_sol)) call errquit
-     $  ('cannot destroy g_sol ',555)
       if (.not.ga_destroy(g_wax)) call errquit
      $  ('cannot destroy g_wax ',555)
+c
+c Now get the dipole derivative term
+c
+      call hess_resdip(g_sol,dbl_mb(k_dder),g_dip,nocc,nvirt,
+     $  ndens, n3xyz, num)
+      if (ocphfprint.and.ga_nodeid().eq.0) then
+        write(tmpname,*) ' derivative dipole '
+        call stpr_print_ddipole(dbl_mb(k_dder),tmpname,ncent,-1.0d00)
+      endif
+c
+c Get rid of temp memory
+c
+      if (.not.ga_destroy(g_sol)) call errquit
+     $  ('cannot destroy g_sol ',555)
+      if (.not.ga_destroy(g_dip)) call errquit
+     $  ('cannot destroy g_dip ',555)
 c
 c Print intermediate result
 c

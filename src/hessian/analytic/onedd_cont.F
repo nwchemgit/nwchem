@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.24 2002-01-16 18:25:28 windus Exp $
+C $Id: onedd_cont.F,v 1.25 2002-01-19 01:05:02 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -28,10 +28,13 @@ c
       integer k_pdm2, k_coeff
       integer nbf2, mxnocc
       integer alo(3), ahi(3), blo(3), bhi(3)
+      double precision one
+      data one /1.0D+00/
       logical doS, doT, doV, frac_occ, omp2
       logical oprint, oneprint
 c
-      character*255 movecs_in                                                   
+      character*255 movecs_in
+      character*255 tmpname
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -219,7 +222,6 @@ c
       doV = .true.
       doT = .true.
       call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
-!     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
      *  doS,doT,doV,geom,basis,ncent)
       if (ndens.gt.1) call nga_copy_patch('N', g_rhs, 
@@ -239,6 +241,23 @@ c
      *  call errquit('onedd_cont: failed to pop l_scr',555)
       if (.not. ma_pop_stack(l_buf)) 
      *  call errquit('onedd_cont: failed to pop l_buf',555)
+c
+c  Get the dipole derivatives contribution
+c
+      if (ndens.gt.1) then ! want total density
+        call ga_dadd (one, g_dens(1), one, g_dens(2), g_wdens)
+      else
+        call ga_copy (g_dens(1), g_wdens)
+      endif
+      if (oprint) write(LuOut,*) 
+     *  'HESS: getting the dipole derivatives'
+      call hess_dipder(geom,basis, dbl_mb(k_dder),
+     *  g_wdens,n3xyz,ncent)
+      if (oprint) then
+        write(luout,*) 'after dipole derivative'
+        write(tmpname,*) ' derivative dipole '
+        call stpr_print_ddipole(dbl_mb(k_dder),tmpname,ncent,-1.0d00)
+      endif
 c
       return
       end

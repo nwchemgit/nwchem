@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.9 2001-12-27 22:54:59 windus Exp $
+C $Id: hess_tidy.F,v 1.10 2002-01-19 01:05:02 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -29,6 +29,8 @@ c  get rid of local memory for the nuclear hessian Exy
 c
       if (.not.ma_pop_stack(l_act))
      *   call errquit('hess_tidy: cannot deallocate oactive',555)
+      if (.not.ma_pop_stack(l_dder))
+     *   call errquit('hess_tidy: cannot deallocate hess_dder',555)
       if (.not.ma_pop_stack(l_hess_xc))
      *   call errquit('hess_tidy: cannot deallocate hess_xc',555)
       if (.not.ma_pop_stack(l_exy))
