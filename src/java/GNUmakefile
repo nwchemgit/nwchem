@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.18 2001-10-15 03:30:01 d3j191 Exp $
+# $Id: GNUmakefile,v 1.19 2001-10-17 21:59:27 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -15,7 +15,7 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
 	IntegerField.class DoubleField.class Graph.class \
 	Atom.class Cros.class Bond.class Angle.class Torsion.class Improper.class Rule.class Segment.class
 
-CLASS_PATH = .:$(PTPLOT_APPLICATION)
+CLASS_PATH = .:/usr/people/d3j191/lib/classes:$(PTPLOT_APPLICATION)
 
 .SUFFIXES:	.f .o .java .class
 

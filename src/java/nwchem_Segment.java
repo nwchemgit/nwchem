@@ -245,16 +245,149 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 
     public void actionPerformed(ActionEvent e){
 	if(e.getSource()==writeButton){
-	    idf = new int[FrSgm.numAtoms];
-	    idt = new int[ToSgm.numAtoms];
+	    idf = new int[FrSgm.numAtoms+1];
+	    idt = new int[ToSgm.numAtoms+1];
 	    for(int k=0; k<atmNumber; k++){
-		if(id[k][0]>=0){idf[id[k][0]]=k;};
-		if(id[k][1]>=0){idt[id[k][1]]=k;};
+		if(id[k][0]>=0){idf[id[k][0]+1]=k;};
+		if(id[k][1]>=0){idt[id[k][1]+1]=k;};
 	    };
-	    try{ 
+	    try{
 		PrintfWriter sgmFile = new PrintfWriter(new FileWriter("NEW.sgm"));
 		sgmFile.println("# Merged Segment File");
 		sgmFile.printf("%5d",atmNumber);
+		// count new number of bonds
+		int number=0;
+		boolean found=false;
+		int[][] ida = new int[FrSgm.numBonds+ToSgm.numBonds][2];
+		for(int i=0; i<FrSgm.numBonds; i++){
+		    System.out.println(i+" "+FrSgm.bond[i].atomi+" "+FrSgm.bond[i].atomj);
+		    ida[number][0]=idf[FrSgm.bond[i].atomi];
+		    ida[number][1]=idf[FrSgm.bond[i].atomj];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		System.out.println("Writing new segment file "+5);
+		for(int i=0; i<ToSgm.numBonds; i++){
+		    ida[number][0]=idf[ToSgm.bond[i].atomi];
+		    ida[number][1]=idf[ToSgm.bond[i].atomj];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		sgmFile.printf("%5d",number);
+		// count new number of angles
+		number=0;
+		ida = new int[FrSgm.numAngles+ToSgm.numAngles][3];
+		for(int i=0; i<FrSgm.numAngles; i++){
+		    ida[number][0]=idf[FrSgm.angle[i].atomi];
+		    ida[number][1]=idf[FrSgm.angle[i].atomj];
+		    ida[number][2]=idf[FrSgm.angle[i].atomk];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]) found=true;
+			if(ida[j][0]==ida[number][2] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		for(int i=0; i<ToSgm.numAngles; i++){
+		    ida[number][0]=idf[ToSgm.angle[i].atomi];
+		    ida[number][1]=idf[ToSgm.angle[i].atomj];
+		    ida[number][2]=idf[ToSgm.angle[i].atomk];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]) found=true;
+			if(ida[j][0]==ida[number][2] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		sgmFile.printf("%5d",number);
+		// count new number of torsions
+		number=0;
+		ida = new int[FrSgm.numTorsions+ToSgm.numTorsions][4];
+		for(int i=0; i<FrSgm.numTorsions; i++){
+		    ida[number][0]=idf[FrSgm.torsion[i].atomi];
+		    ida[number][1]=idf[FrSgm.torsion[i].atomj];
+		    ida[number][2]=idf[FrSgm.torsion[i].atomk];
+		    ida[number][3]=idf[FrSgm.torsion[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		for(int i=0; i<ToSgm.numTorsions; i++){
+		    ida[number][0]=idf[ToSgm.torsion[i].atomi];
+		    ida[number][1]=idf[ToSgm.torsion[i].atomj];
+		    ida[number][2]=idf[ToSgm.torsion[i].atomk];
+		    ida[number][3]=idf[ToSgm.torsion[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		sgmFile.printf("%5d",number);
+		// count new number of impropers
+		number=0;
+		ida = new int[FrSgm.numImpropers+ToSgm.numImpropers][4];
+		for(int i=0; i<FrSgm.numImpropers; i++){
+		    ida[number][0]=idf[FrSgm.improper[i].atomi];
+		    ida[number][1]=idf[FrSgm.improper[i].atomj];
+		    ida[number][2]=idf[FrSgm.improper[i].atomk];
+		    ida[number][3]=idf[FrSgm.improper[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		for(int i=0; i<ToSgm.numImpropers; i++){
+		    ida[number][0]=idf[ToSgm.improper[i].atomi];
+		    ida[number][1]=idf[ToSgm.improper[i].atomj];
+		    ida[number][2]=idf[ToSgm.improper[i].atomk];
+		    ida[number][3]=idf[ToSgm.improper[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		sgmFile.printf("%5d",number);
+		// count new number of zmatrixs
+		number=0;
+		ida = new int[FrSgm.numZmatrix+ToSgm.numZmatrix][4];
+		for(int i=0; i<FrSgm.numZmatrix; i++){
+		    ida[number][0]=idf[FrSgm.zmatrix[i].atomi];
+		    ida[number][1]=idf[FrSgm.zmatrix[i].atomj];
+		    ida[number][2]=idf[FrSgm.zmatrix[i].atomk];
+		    ida[number][3]=idf[FrSgm.zmatrix[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		for(int i=0; i<ToSgm.numZmatrix; i++){
+		    ida[number][0]=idf[ToSgm.zmatrix[i].atomi];
+		    ida[number][1]=idf[ToSgm.zmatrix[i].atomj];
+		    ida[number][2]=idf[ToSgm.zmatrix[i].atomk];
+		    ida[number][3]=idf[ToSgm.zmatrix[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) number++;
+		};
+		sgmFile.printf("%25d",number);
 		sgmFile.println();
 		for(int k=0; k<atmNumber; k++){
 		    sgmFile.printf("%5d",k+1);
@@ -263,10 +396,15 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.print(FrSgm.atom[id[k][0]].Type1+"  ");
 			sgmFile.print(FrSgm.atom[id[k][0]].Type1+"  ");
 			if(id[k][1]>=0){
-			    sgmFile.println(ToSgm.atom[id[k][1]].Type1+"  ");
+			    sgmFile.print(ToSgm.atom[id[k][1]].Type1+"  ");
 			} else {
-			    sgmFile.println(FrSgm.atom[id[k][0]].Type1+"D ");
+			    sgmFile.print(FrSgm.atom[id[k][0]].Type1+"D ");
 			};
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].cgroup);
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].pgroup);
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].link);
+			sgmFile.printf("%5d",FrSgm.atom[id[k][0]].type);
+			sgmFile.println();
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
 			sgmFile.printf("%12.5E",FrSgm.atom[id[k][0]].p1);
 			sgmFile.printf("%12.6f",FrSgm.atom[id[k][0]].q1);
@@ -283,7 +421,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.print(ToSgm.atom[id[k][1]].Name+"  ");
 			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D ");
 			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D ");
-			sgmFile.println(ToSgm.atom[id[k][1]].Type1+"  ");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"  ");
+			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].cgroup);
+			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].pgroup);
+			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].link);
+			sgmFile.printf("%5d",ToSgm.atom[id[k][0]].type);
+			sgmFile.println();
 			sgmFile.printf("%12.6f",0.0);
 			sgmFile.printf("%12.5E",0.0);
 			sgmFile.printf("%12.6f",0.0);
@@ -293,6 +436,338 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			sgmFile.println();
 		    };
 		};
+		number=0;
+	        int jfound=-1;
+		ida = new int[FrSgm.numBonds+ToSgm.numBonds][2];
+		for(int i=0; i<FrSgm.numBonds; i++){
+		    ida[number][0]=idf[FrSgm.bond[i].atomi];
+		    ida[number][1]=idf[FrSgm.bond[i].atomj];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",FrSgm.bond[i].type);
+			sgmFile.printf("%5d",FrSgm.bond[i].source); sgmFile.println();
+			sgmFile.printf("%10.5f",FrSgm.bond[i].bond1);
+			sgmFile.printf("%12.5E",FrSgm.bond[i].force1);
+			sgmFile.printf("%10.5f",FrSgm.bond[i].bond2);
+			sgmFile.printf("%12.5E",FrSgm.bond[i].force2);
+			jfound=-1;
+			for(int j=0; j<ToSgm.numBonds; j++){
+			    if(idt[ToSgm.bond[j].atomi]==ida[number][0] && idt[ToSgm.bond[j].atomj]==ida[number][1]) jfound=j;
+			    if(idt[ToSgm.bond[j].atomj]==ida[number][0] && idt[ToSgm.bond[j].atomi]==ida[number][1]) jfound=j;
+			};
+			if(jfound>=0) {
+			    sgmFile.printf("%10.5f",ToSgm.bond[jfound].bond1);
+			    sgmFile.printf("%12.5E",ToSgm.bond[jfound].force1);
+			} else {
+			    sgmFile.printf("%10.5f",FrSgm.bond[i].bond3);
+			    sgmFile.printf("%12.5E",FrSgm.bond[i].force3);
+			};
+			sgmFile.println();
+			number++;
+		    };
+		};
+		for(int i=0; i<ToSgm.numBonds; i++){
+		    ida[number][0]=idf[ToSgm.bond[i].atomi];
+		    ida[number][1]=idf[ToSgm.bond[i].atomj];
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ToSgm.bond[i].type);
+			sgmFile.printf("%5d",ToSgm.bond[i].source); sgmFile.println();
+			sgmFile.printf("%10.5f",ToSgm.bond[i].bond1);
+			sgmFile.printf("%12.5E",ToSgm.bond[i].force1);
+			sgmFile.printf("%10.5f",ToSgm.bond[i].bond2);
+			sgmFile.printf("%12.5E",ToSgm.bond[i].force2);
+			sgmFile.printf("%10.5f",ToSgm.bond[i].bond3);
+			sgmFile.printf("%12.5E",ToSgm.bond[i].force3);
+			sgmFile.println();
+			number++;
+		    };
+		};
+		number=0;
+	        jfound=-1;
+		ida = new int[FrSgm.numAngles+ToSgm.numAngles][3];
+		for(int i=0; i<FrSgm.numAngles; i++){
+		    ida[number][0]=idf[FrSgm.angle[i].atomi];
+		    ida[number][1]=idf[FrSgm.angle[i].atomj];
+		    ida[number][2]=idf[FrSgm.angle[i].atomk];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]) found=true;
+			if(ida[j][0]==ida[number][2] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",FrSgm.angle[i].type);
+			sgmFile.printf("%5d",FrSgm.angle[i].source); sgmFile.println();
+			sgmFile.printf("%10.5f",FrSgm.angle[i].angle1);
+			sgmFile.printf("%12.5E",FrSgm.angle[i].force1);
+			sgmFile.printf("%10.5f",FrSgm.angle[i].angle2);
+			sgmFile.printf("%12.5E",FrSgm.angle[i].force2);
+			jfound=-1;
+			for(int j=0; j<ToSgm.numAngles; j++){
+			    if(idt[ToSgm.angle[j].atomi]==ida[number][0] && idt[ToSgm.angle[j].atomj]==ida[number][1]
+			       && idt[ToSgm.angle[j].atomk]==ida[number][2]) jfound=j;
+			    if(idt[ToSgm.angle[j].atomk]==ida[number][0] && idt[ToSgm.angle[j].atomj]==ida[number][1]
+			       && idt[ToSgm.angle[j].atomi]==ida[number][2]) jfound=j;
+			};
+			if(jfound>=0) {
+			    sgmFile.printf("%10.5f",ToSgm.angle[jfound].angle1);
+			    sgmFile.printf("%12.5E",ToSgm.angle[jfound].force1);
+			} else {
+			    sgmFile.printf("%10.5f",FrSgm.angle[i].angle3);
+			    sgmFile.printf("%12.5E",FrSgm.angle[i].force3);
+			};
+			sgmFile.println();
+			number++;
+		    };
+		};
+		for(int i=0; i<ToSgm.numAngles; i++){
+		    ida[number][0]=idf[ToSgm.angle[i].atomi];
+		    ida[number][1]=idf[ToSgm.angle[i].atomj];
+		    ida[number][2]=idf[ToSgm.angle[i].atomk];
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]) found=true;
+			if(ida[j][0]==ida[number][2] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ToSgm.angle[i].type);
+			sgmFile.printf("%5d",ToSgm.angle[i].source); sgmFile.println();
+			sgmFile.printf("%10.5f",ToSgm.angle[i].angle1);
+			sgmFile.printf("%12.5E",ToSgm.angle[i].force1);
+			sgmFile.printf("%10.5f",ToSgm.angle[i].angle2);
+			sgmFile.printf("%12.5E",ToSgm.angle[i].force2);
+			sgmFile.printf("%10.5f",ToSgm.angle[i].angle3);
+			sgmFile.printf("%12.5E",ToSgm.angle[i].force3);
+			sgmFile.println();
+			number++;
+		    };
+		};
+		number=0;
+	        jfound=-1;
+		ida = new int[FrSgm.numTorsions+ToSgm.numTorsions][4];
+		for(int i=0; i<FrSgm.numTorsions; i++){
+		    ida[number][0]=idf[FrSgm.torsion[i].atomi];
+		    ida[number][1]=idf[FrSgm.torsion[i].atomj];
+		    ida[number][2]=idf[FrSgm.torsion[i].atomk];
+		    ida[number][3]=idf[FrSgm.torsion[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%5d",FrSgm.torsion[i].type);
+			sgmFile.printf("%5d",FrSgm.torsion[i].source); sgmFile.println();
+			sgmFile.printf("%3d",FrSgm.torsion[i].multi1);
+			sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion1);
+			sgmFile.printf("%12.5E",FrSgm.torsion[i].force1);
+			sgmFile.printf("%3d",FrSgm.torsion[i].multi2);
+			sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion2);
+			sgmFile.printf("%12.5E",FrSgm.torsion[i].force2);
+			jfound=-1;
+			for(int j=0; j<ToSgm.numTorsions; j++){
+			    if(idt[ToSgm.torsion[j].atomi]==ida[number][0] && idt[ToSgm.torsion[j].atomj]==ida[number][1]
+			       && idt[ToSgm.torsion[j].atomk]==ida[number][2]) jfound=j;
+			    if(idt[ToSgm.torsion[j].atomk]==ida[number][0] && idt[ToSgm.torsion[j].atomj]==ida[number][1]
+			       && idt[ToSgm.torsion[j].atomi]==ida[number][2]) jfound=j;
+			};
+			if(jfound>=0) {
+			    sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
+			    sgmFile.printf("%10.5f",ToSgm.torsion[jfound].torsion1);
+			    sgmFile.printf("%12.5E",ToSgm.torsion[jfound].force1);
+			} else {
+			    sgmFile.printf("%3d",FrSgm.torsion[i].multi3);
+			    sgmFile.printf("%10.5f",FrSgm.torsion[i].torsion3);
+			    sgmFile.printf("%12.5E",FrSgm.torsion[i].force3);
+			};
+			sgmFile.println();
+			number++;
+		    };
+		};
+		for(int i=0; i<ToSgm.numTorsions; i++){
+		    ida[number][0]=idf[ToSgm.torsion[i].atomi];
+		    ida[number][1]=idf[ToSgm.torsion[i].atomj];
+		    ida[number][2]=idf[ToSgm.torsion[i].atomk];
+		    ida[number][3]=idf[ToSgm.torsion[i].atoml];
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%5d",ToSgm.torsion[i].type);
+			sgmFile.printf("%5d",ToSgm.torsion[i].source); sgmFile.println();
+			sgmFile.printf("%3d",ToSgm.torsion[i].multi1);
+			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion1);
+			sgmFile.printf("%12.5E",ToSgm.torsion[i].force1);
+			sgmFile.printf("%3d",ToSgm.torsion[i].multi2);
+			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion2);
+			sgmFile.printf("%12.5E",ToSgm.torsion[i].force2);
+			sgmFile.printf("%3d",ToSgm.torsion[i].multi3);
+			sgmFile.printf("%10.5f",ToSgm.torsion[i].torsion3);
+			sgmFile.printf("%12.5E",ToSgm.torsion[i].force3);
+			sgmFile.println();
+			number++;
+		    };
+		};
+		number=0;
+	        jfound=-1;
+		ida = new int[FrSgm.numImpropers+ToSgm.numImpropers][4];
+		for(int i=0; i<FrSgm.numImpropers; i++){
+		    ida[number][0]=idf[FrSgm.improper[i].atomi];
+		    ida[number][1]=idf[FrSgm.improper[i].atomj];
+		    ida[number][2]=idf[FrSgm.improper[i].atomk];
+		    ida[number][3]=idf[FrSgm.improper[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%5d",FrSgm.improper[i].type);
+			sgmFile.printf("%5d",FrSgm.improper[i].source); sgmFile.println();
+			sgmFile.printf("%3d",FrSgm.improper[i].multi1);
+			sgmFile.printf("%10.5f",FrSgm.improper[i].improper1);
+			sgmFile.printf("%12.5E",FrSgm.improper[i].force1);
+			sgmFile.printf("%3d",FrSgm.improper[i].multi2);
+			sgmFile.printf("%10.5f",FrSgm.improper[i].improper2);
+			sgmFile.printf("%12.5E",FrSgm.improper[i].force2);
+			jfound=-1;
+			for(int j=0; j<ToSgm.numImpropers; j++){
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][0] && idt[ToSgm.improper[j].atomj]==ida[number][1]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2]) jfound=j;
+			};
+			if(jfound>=0) {
+			    sgmFile.printf("%3d",ToSgm.improper[i].multi1);
+			    sgmFile.printf("%10.5f",ToSgm.improper[jfound].improper1);
+			    sgmFile.printf("%12.5E",ToSgm.improper[jfound].force1);
+			} else {
+			    sgmFile.printf("%3d",FrSgm.improper[i].multi3);
+			    sgmFile.printf("%10.5f",FrSgm.improper[i].improper3);
+			    sgmFile.printf("%12.5E",FrSgm.improper[i].force3);
+			};
+			sgmFile.println();
+			number++;
+		    };
+		};
+		for(int i=0; i<ToSgm.numImpropers; i++){
+		    ida[number][0]=idf[ToSgm.improper[i].atomi];
+		    ida[number][1]=idf[ToSgm.improper[i].atomj];
+		    ida[number][2]=idf[ToSgm.improper[i].atomk];
+		    ida[number][3]=idf[ToSgm.improper[i].atoml];
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1] && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%5d",ToSgm.improper[i].type);
+			sgmFile.printf("%5d",ToSgm.improper[i].source); sgmFile.println();
+			sgmFile.printf("%3d",ToSgm.improper[i].multi1);
+			sgmFile.printf("%10.5f",ToSgm.improper[i].improper1);
+			sgmFile.printf("%12.5E",ToSgm.improper[i].force1);
+			sgmFile.printf("%3d",ToSgm.improper[i].multi2);
+			sgmFile.printf("%10.5f",ToSgm.improper[i].improper2);
+			sgmFile.printf("%12.5E",ToSgm.improper[i].force2);
+			sgmFile.printf("%3d",ToSgm.improper[i].multi3);
+			sgmFile.printf("%10.5f",ToSgm.improper[i].improper3);
+			sgmFile.printf("%12.5E",ToSgm.improper[i].force3);
+			sgmFile.println();
+			number++;
+		    };
+		};
+		number=0;
+	        jfound=-1;
+		ida = new int[FrSgm.numZmatrix+ToSgm.numZmatrix][4];
+		for(int i=0; i<FrSgm.numZmatrix; i++){
+		    ida[number][0]=idf[FrSgm.zmatrix[i].atomi];
+		    ida[number][1]=idf[FrSgm.zmatrix[i].atomj];
+		    ida[number][2]=idf[FrSgm.zmatrix[i].atomk];
+		    ida[number][3]=idf[FrSgm.zmatrix[i].atoml];
+		    found=false;
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]
+			   && ida[j][3]==ida[number][3]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].bond);
+			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].angle);
+			sgmFile.printf("%10.5f",FrSgm.zmatrix[i].torsion);
+			sgmFile.println();
+			number++;
+		    };
+		};
+		for(int i=0; i<ToSgm.numZmatrix; i++){
+		    ida[number][0]=idf[ToSgm.zmatrix[i].atomi];
+		    ida[number][1]=idf[ToSgm.zmatrix[i].atomj];
+		    ida[number][2]=idf[ToSgm.zmatrix[i].atomk];
+		    ida[number][3]=idf[ToSgm.zmatrix[i].atoml];
+		    for(int j=0; j<number; j++){
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2]
+			   && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][2] && ida[j][2]==ida[number][1]
+			   && ida[j][3]==ida[number][0]) found=true;
+		    };
+		    if(!found) {
+			sgmFile.printf("%5d",number+1);
+			sgmFile.printf("%5d",ida[number][0]+1);
+			sgmFile.printf("%5d",ida[number][1]+1);
+			sgmFile.printf("%5d",ida[number][2]+1);
+			sgmFile.printf("%5d",ida[number][3]+1);
+			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].bond);
+			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].angle);
+			sgmFile.printf("%10.5f",ToSgm.zmatrix[i].torsion);
+			sgmFile.println();
+			number++;
+		    };
+		};
+
+
+
+
+
 		sgmFile.close();
 	    } catch (Exception ee) { System.out.println("Error writing to new segment file"); };
 	};
