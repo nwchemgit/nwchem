@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.500 2005-02-12 01:28:18 edo Exp $
+# $Id: makefile.h,v 1.501 2005-02-19 05:32:37 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1829,7 +1829,7 @@ ifeq ($(TARGET),cray-sv2)
       FOPTIONS += -O ssp
       COPTIONS += -h ssp
    endif
-   FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
+   FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
       FDEBUG = -O scalar1,vector1
    COPTIMIZE = -O -h inline2  -h aggress
 
