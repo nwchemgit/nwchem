@@ -26,9 +26,9 @@
 
       Subroutine part_rho_rel(tol_rho, nq, Amat, Cmat, rho, vect1,
      &                        ipol, occup_i, del_rho, delrho_sig,
-     &                        isp)
+     &                        isp, aux_ik)
       implicit none
-      integer n, nq, ipol, isp
+      integer n, nq, ipol, isp, aux_ik
       double precision tol_rho, occup_i, compx, compy, compz,
      &                 Amat(nq,ipol), vect1(nq), Cmat(nq,3,ipol),
      &                 rho(nq,ipol*(ipol+1)/2),
@@ -38,14 +38,18 @@
         rhosig = vect1(n)
         if (rhosig.gt.tol_rho) then
           relation = occup_i*rho(n,2)/rhosig
-          compx = del_rho(n,1,isp)/rhosig -
+          compx = occup_i*del_rho(n,1,isp)/rhosig -
      &                     rho(n,2)*delrho_sig(n,1)/(rhosig*rhosig)
-          compy = del_rho(n,2,isp)/rhosig -
+          compy = occup_i*del_rho(n,2,isp)/rhosig -
      &                     rho(n,2)*delrho_sig(n,2)/(rhosig*rhosig)
-          compz = del_rho(n,3,isp)/rhosig -
+          compz = occup_i*del_rho(n,3,isp)/rhosig -
      &                     rho(n,2)*delrho_sig(n,3)/(rhosig*rhosig)
         else
-          relation = 0.0d00
+          if (aux_ik.eq.1) then
+            relation = 1.0d00
+          else
+            relation = 0.d00
+          end if
           compx = 0.0d00
           compy = 0.0d00
           compz = 0.0d00
