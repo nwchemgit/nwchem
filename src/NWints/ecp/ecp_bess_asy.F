@@ -1,4 +1,4 @@
-C $Id: ecp_bess_asy.F,v 1.1 2000-05-16 20:33:03 windus Exp $
+C $Id: ecp_bess_asy.F,v 1.2 2000-05-16 20:36:44 windus Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_bess_asy (n,m,x,bess,temp,xt)
@@ -46,7 +46,7 @@ C $Id: ecp_bess_asy.F,v 1.1 2000-05-16 20:33:03 windus Exp $
       fact = (-1)**(m+1)
       do i = 1,n
         xt(i) = x(i)+x(i)
-        if (xt(i).gt.ln_thr_ecp) then  ! check for possible underflow problem
+        if (xt(i).gt.ln_thr_ecp) then  ! check for possible underflow problems
           bess(i) = (bess(i)+fact*temp(i)*exp(-xt(i)))/xt(i)
         else
           bess(i) = bess(i)/xt(i)
