@@ -1,7 +1,6 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 17:56:10 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2001-08-30 17:57:13 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
  SUBDIRS = shake
 
  OBJ_OPTIMIZE = \
