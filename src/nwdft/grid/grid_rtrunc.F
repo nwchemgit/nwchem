@@ -1,6 +1,6 @@
       subroutine grid_rtrunc(rtdb, zprim, 
      .     llind,exex,shiftm,ll,
-     &     tol_reset, range_max)
+     &     tol_reset, range_max,check_s)
 c
 C$Id:
 c
@@ -15,7 +15,7 @@ c
 c
       integer rtdb, me,nproc
       logical tol_reset
-      logical llind ! [in]
+      logical llind,check_s ! [in]
       integer ll(*) ! [out] for lindh grid
       double precision exex(*) ! [out] for lindh grid
       double precision shiftm(*) ! [out] for lindh grid
@@ -23,11 +23,15 @@ c
       double precision range_max
       double precision zprim(nbf_ao_mxprim)
 c
-      integer ll_at,atneigh
+      integer ll_at
       double precision exex_at,shiftm_2g
       integer g_s
       integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,
      .     lpmat,ipmat,l_ics,k_ics,iat_diff,k_coord,l_coord
+c
+      double precision alphaa,alphab,xa(3),xb(3)
+      integer lla,llb,itype
+      
 c
 c     determine node id
 c
@@ -66,7 +70,7 @@ c
          call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
      .        dbl_mb(k_coord),
-     .        ll_at,exex_at,shiftm_2g,atneigh)
+     .        ll_at,exex_at,shiftm_2g)
          if (tol_reset)then
             if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
                if(llind) then
@@ -75,8 +79,8 @@ c
                   shiftm(iatype(iat)) = shiftm_2g
                endif
                rad_cutoff(1,iatype(iat)) = nint(range_max) 
-               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
-c               rad_cutoff(2,iatype(iat)) = atneigh
+               rad_cutoff(2,iatype(iat)) = iat_diff
+c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
             endif
          endif
          else
@@ -84,6 +88,26 @@ c               rad_cutoff(2,iatype(iat)) = atneigh
                rad_cutoff(2,iatype(iat)) = 0
          endif
       enddo
+         if(check_s) then 
+            do itype=1,ntypes
+               iat=ityp2ctr(itype)
+               iat_diff=rad_cutoff(2,itype)
+               write(0,*) ' A and B are ',iat,iat_diff
+               alphab=dbl_mb(k_minexp+iat_diff-1)
+               alphaa=exex(itype)-alphab
+               llb=int_mb(k_ldiff+iat_diff-1)
+               lla=ll(iatype(iat))-llb
+               xa(1)=dbl_mb(k_coord+3*(iat-1))
+               xa(2)=dbl_mb(k_coord+3*(iat-1)+1)
+               xa(3)=dbl_mb(k_coord+3*(iat-1)+2)
+               xb(1)=dbl_mb(k_coord+3*(iat_diff-1))
+               xb(2)=dbl_mb(k_coord+3*(iat_diff-1)+1)
+               xb(3)=dbl_mb(k_coord+3*(iat_diff-1)+2)
+               call grid_checks(iat,alphaa,lla,xa,
+     .           iat_diff,alphab,llb,xb)
+         enddo
+         endif
+
 c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
@@ -198,7 +222,7 @@ c
       subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
      .     iat_diff,range_max,
      .     coord,
-     .     ll_at,exex_at,shiftm_2g,atneigh)
+     .     ll_at,exex_at,shiftm_2g)
       implicit none
 #include "cdft.fh"
       integer iat ! [in]
@@ -212,7 +236,6 @@ c
       integer ll_at ! [out]
       double precision exex_at ! [out]
       double precision shiftm_2g ! [out]
-      integer atneigh ! [out]
       
 c
       integer jat,dimi,dimj,l_iat
@@ -235,8 +258,9 @@ c
                s_max=dabsmax(dimi*dimj,pmat)
             endif
             if(abs(s_max).gt.ov_trunc) then
-cedo               write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
-               range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
+              write(0,*) ' atom ',iat,' - neighbor  & S ',jat,
+     .              s_max,' exp AB ',exp_iat,expo(jat)
+              range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
      .              my_acc) 
 c
 c     bit to add from gaussian product formula
@@ -246,6 +270,7 @@ c
      .              (coord(2,iat)-coord(2,jat))**2+
      .              (coord(3,iat)-coord(3,jat))**2)*exp_iat/
      /              (exp_iat+expo(jat))
+cedo               if(shift_2g.gt.1e-12) shift_2g=shift_2g*5d0
                range=range+shift_2g
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g
@@ -256,11 +281,12 @@ c
                endif
             endif
          enddo
-cedo         write(0,1234)' zmin = ',exp_iat+expo(iat_diff),
-cedo     ,        ' lprod = ',l_iat+l(iat_diff),
-cedo     ,        ' range = ',range_max, ' acc ',my_acc
+         write(0,1234)' zmins = ',exp_iat,expo(iat_diff),
+     ,        ' lprod = ',l_iat+l(iat_diff),
+     ,        ' range = ',range_max, ' acc ',my_acc,
+     ,        ' sh ',shiftm_2g
          return
- 1234          format(A,f15.9,A,I3,A,f12.2,A,d10.2)
+ 1234          format(A,2f15.9,A,I3,A,f12.2,A,d10.2)
          end
       subroutine grid_rtrunc0(zprim,job_grid_acc,cs,ldiff,mexp)
       implicit none
@@ -294,9 +320,9 @@ c
      &        call errquit('Exiting in radtur.',11)
          if(ic2.lt.0) call errquit('gridrtunc:
      .   no basis on ghost atom?',ic2)
-         min_exp=1d20
          range_max=0d0
          do icset = ic1,ic2
+            min_exp=1d20
             if (.not.bas_continfo(AO_bas_han, icset,
      &           l, nprimo, ncontr, isphere))
      &           call errquit('Exiting in rad_trunc.',3)
@@ -314,6 +340,7 @@ C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
                cs(iat)=icset
                mexp(iat)=min_exp
                ldiff(iat)=l
+cedo               write(0,*) ' min exp l',min_exp,l
             endif
          enddo
       endif

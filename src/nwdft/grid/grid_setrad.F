@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.20 2000-02-02 02:37:30 edo Exp $
+c$Id: grid_setrad.F,v 1.21 2000-02-16 01:29:49 edo Exp $
 c
       implicit none
 c      
@@ -96,8 +96,7 @@ c
 
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
      .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
-     &     tol_reset, range_max)
-      if(check_s) call grid_checks(dbl_mb(k_2ex),int_mb(k_2l))
+     &     tol_reset, range_max,check_s)
 
       if (.not.ma_pop_stack(lexpo))
      &   call errquit('grid_setrad: cannot pop stack expo',1)
