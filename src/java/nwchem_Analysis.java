@@ -30,6 +30,10 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 
     int nb, nh, nd, no, number, j;
     
+    DefaultListModel propList = new DefaultListModel();
+    JList pList = new JList(propList);
+    JScrollPane propPane = new JScrollPane(pList);
+    
     public nwchem_Analysis(){
 	
 	super("Analysis Viewer");
@@ -73,7 +77,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    no = Integer.parseInt(card.substring(31,40).trim());
             number=nb+nh+nd+no+1;
 	    
-	    data = new double[number][10000];
+	    data = new double[number][25000];
 	    numdat=0;
 	    
 	    while((card=br.readLine()) != null){
@@ -88,92 +92,64 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
 	
-	JButton tButton = new JButton("t");
-	addComponent(header,tButton,0,1,1,1,1,1,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	
-        number=0;
-        int ix=0;
-        int iy=2;
-	for(int i=0; i<nb; i++){
-	    number++;
-	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,ix,iy,1,1,1,1,
-			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	    bButton.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){ 
-			plot_ana(e.getActionCommand()); }});
-	    ix++; if(ix>11){ix=0; iy++;};
-	};
-	iy++; ix=0;
-
-	for(int i=0; i<nh; i++){
-	    number++;
-	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,ix,iy,1,1,1,1,
-			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	    bButton.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){ 
-			plot_ana(e.getActionCommand()); }});
-	    ix++; if(ix>11){ix=0; iy++;};
-	};
-	iy++; ix=0;
-
-	for(int i=0; i<nd; i++){
-	    number++;
-	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,ix,iy,1,1,1,1,
-			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	    bButton.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){ 
-			plot_ana(e.getActionCommand()); }});
-	    ix++; if(ix>11){ix=0; iy++;};
-	};
-	iy++; ix=0;
-
-	for(int i=0; i<no; i++){
-	    number++;
-	    JButton bButton = new JButton(Integer.toString(number));
-	    addComponent(header,bButton,i,5,1,1,1,1,
-			 GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	    bButton.addActionListener(new ActionListener(){
-		    public void actionPerformed(ActionEvent e){ 
-			plot_ana(e.getActionCommand()); }});
-	    ix++; if(ix>11){ix=0; iy++;};
-	};
-	iy++;
-
-	addComponent(header,plotButton,0,iy,1,1,1,1,
+	addComponent(header,plotButton,0,1,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	plotButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    anaPlot.fillPlot(); }});
-	anaPlot.setSize(700,400);
-	addComponent(header,anaPlot,1,iy,20,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	iy++;
 
-	addComponent(header,clearButton,0,iy,1,1,1,1,
+	addComponent(header,clearButton,1,1,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	clearButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    for(int i=0; i<iset; i++){anaPlot.removeSet(i);}; iset=0; anaPlot.fillPlot(); }});
-	iy++;
 
-	addComponent(header,doneButton,0,iy,1,1,1,1,
+	addComponent(header,doneButton,2,1,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
+
+	anaPlot.setSize(800,600);
+        anaPlot.init();
+
+	addComponent(header,anaPlot,0,2,20,10,10,10,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+    
+	addComponent(header,propPane,21,2,3,1,1,10,
+		     GridBagConstraints.NONE,GridBagConstraints.WEST);
+       	pList.addMouseListener(this);
+
+        number=0;
+	for(int i=0; i<nb; i++){
+	    propList.addElement("Bond "+(i+1));
+	    number++;
+	};
+
+	for(int i=0; i<nh; i++){
+	    number++;
+	    propList.addElement("Angle "+(i+1));
+	};
+
+	for(int i=0; i<nd; i++){
+	    number++;
+	    propList.addElement("Torsion "+(i+1));
+	};
+
+	for(int i=0; i<no; i++){
+	    number++;
+	    propList.addElement("Improper "+(i+1));
+	};
 	
 	setLocation(25,225);	
 	setSize(900,700);
 	setVisible(true);
 
+	pList.setVisibleRowCount(15);
+
     }
 
-    void plot_ana(String s){
-	int ndx = Integer.parseInt(s);
+    void plot_ana(int ndx){
 	boolean first=true;
 	for(int i=0; i<numdat; i++){
 	    if(ndx>nb && i>0 && Math.abs(data[ndx][i-1]-data[ndx][i])>3.14){first=true;};
@@ -239,6 +215,11 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     public void mousePressed(MouseEvent mouse){}
 
     public void mouseReleased(MouseEvent mouse){
+	if(mouse.getModifiers()==MouseEvent.BUTTON1_MASK){
+	    if(mouse.getSource()==pList){
+		plot_ana(pList.getSelectedIndex()+1);
+	    };
+	};
     }
 
     public void mouseEntered(MouseEvent mouse){
