@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.253 1998-04-22 18:10:03 d3j191 Exp $
+# $Id: makefile.h,v 1.254 1998-05-07 18:12:41 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -46,6 +46,9 @@ endif
 #                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SOLARIS
 #                  SP1          NWCHEM_TARGET_CPU : P2SC
+#                      (uses non-thread safe libraries and MPL)
+#                  LAPI      NWCHEM_TARGET_CPU : P2SC
+#                      (uses thread safe libraries and LAPI)
 #                  SUN
 #
 # Note that the preprocessor flags for CRAY-T3D and CRAY-T3E are CRAY_T3D and CRAY_T3E respectively
@@ -203,6 +206,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #
 #        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
 #           SP1                          P2SC
+#           LAPI                       P2SC
 #           SGITFP                       R10000/R8000
 #           SGI_N32                      R10000/R8000
 #
@@ -841,7 +845,8 @@ ifeq ($(TARGET),SP1)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-  LDOPTIONS = 
+  LDOPTIONS = -lc -lxlf90 -lxlf -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+   LINK.f   = mpcc   $(LDOPTIONS)
    FOPTIONS = -qEXTNAME -qnosave
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
@@ -870,6 +875,96 @@ ifdef USE_ESSL
    DEFINES += -DESSL
 # renames not needed for 4.1.  Still are for 3.2.
  CORE_LIBS += -lpesslp2 -lblacsp2 -lesslp2
+#	      -brename:.daxpy_,.daxpy \
+#	      -brename:.dgesv_,.dgesv \
+#	      -brename:.dcopy_,.dcopy \
+#	      -brename:.ddot_,.ddot \
+#	      -brename:.dgemm_,.dgemm \
+#	      -brename:.dgemv_,.dgemv \
+#	      -brename:.dgetrf_,.dgetrf \
+#	      -brename:.dgetrs_,.dgetrs \
+#	      -brename:.dscal_,.dscal \
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dpotri_,.dpotri \
+#	      -brename:.idamax_,.idamax 
+ifdef USE_BLAS
+ CORE_LIBS += -lblas -brename:.xerbla_,.xerbla -brename:.lsame_,.lsame
+endif
+
+else
+    CORE_SUBDIRS_EXTRA += blas
+             CORE_LIBS += -lblas
+endif
+
+
+# IMPORTANT:  These renames are necessary if you try to link against
+# a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
+# see INSTALL)
+# mpipriv is a common block used in MPICH's implementation of MPI.  It
+# is critical that this common block is renamed correctly because
+# the linker will not detect any problems (there will be separate
+# common blocks labeled mpipriv_ and mpipriv) but the program will not
+# operate correctly.
+#ifdef USE_MPI
+#   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
+#		-brename:.mpi_initialized_,.mpi_initialized \
+#		-brename:.mpi_init_,.mpi_init \
+#		-brename:.mpi_comm_rank_,.mpi_comm_rank \
+#		-brename:.mpi_comm_size_,.mpi_comm_size \
+#		-brename:.mpi_finalize_,.mpi_finalize \
+#		-brename:.mpi_send_,.mpi_send \
+#		-brename:mpipriv_,mpipriv
+#endif
+
+ EXPLICITF = TRUE
+  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#
+endif
+
+
+ifeq ($(TARGET),LAPI)
+#
+    CORE_SUBDIRS_EXTRA = lapack blas
+         FC = mpxlf_r
+# -F/u/d3g681/xlhpf.cfg:rjhxlf
+         CC = mpcc_r
+    ARFLAGS = urs
+     RANLIB = echo
+  MAKEFLAGS = -j 7 --no-print-directory
+    INSTALL = @echo $@ is built
+        CPP = /usr/lib/cpp -P
+
+  LDOPTIONS = -lc_r -lxlf90_r -lxlf -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+   LINK.f   = mpcc_r   $(LDOPTIONS)
+   FOPTIONS = -qEXTNAME -qnosave
+# -qinitauto=7F # note that grad_force breaks with this option
+   COPTIONS = 
+  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
+  COPTIMIZE = -O
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
+# These from George from Kent Winchell
+  FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+        -qcache=type=i:level=1:size=32:line=128
+  COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
+        -qcache=type=i:level=1:size=32:line=128
+endif
+
+    DEFINES = -DLAPI -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
+#
+# Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
+#
+#  LIBPATH += -L/sphome/harrison/peigs2.0
+
+  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack -lblas
+
+
+   USE_ESSL = YES
+#   USE_BLAS = YES
+ifdef USE_ESSL
+   DEFINES += -DESSL
+# renames not needed for 4.1.  Still are for 3.2.
+ CORE_LIBS += -lpesslp2_t -lblacsp2_t -lesslp2_r
 #	      -brename:.daxpy_,.daxpy \
 #	      -brename:.dgesv_,.dgesv \
 #	      -brename:.dcopy_,.dcopy \

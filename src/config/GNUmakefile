@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 1998-01-28 00:08:34 d3h449 Exp $
+# $Id: GNUmakefile,v 1.7 1998-05-07 18:12:41 d3e129 Exp $
 #
 
 include makefile.h
@@ -12,6 +12,11 @@ ifeq ($(TARGET),CRAY-T3D)
 endif
 
 ifeq ($(TARGET),SP1)
+# Must use plain cc not mpcc
+  CC = cc
+endif
+
+ifeq ($(TARGET),LAPI)
 # Must use plain cc not mpcc
   CC = cc
 endif
