@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.3 1995-10-30 20:53:42 d3e129 Exp $  
+c $Id: intb_init4c.F,v 1.4 1996-07-22 19:04:38 d3e129 Exp $  
       implicit none
 *
 c
@@ -27,4 +27,5 @@ c
       more_ints_txs = .false. 
       intb_init4c = .true.
       block_eff = -1.0d00
+      using_texas = .false.
       end
