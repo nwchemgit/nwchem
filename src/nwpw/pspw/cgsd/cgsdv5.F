@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.1 2001-08-30 00:25:11 edo Exp $
+* $Id: cgsdv5.F,v 1.2 2001-10-10 20:53:57 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -112,9 +112,9 @@
       external     psp_rcore,psp_ncore,psp_rlocal
 
       logical  psi_initialize, psi_finalize, Waterpsp_found
-      integer  psi_ispin,psi_ne,electron_count
+      integer  psi_ispin,psi_ne,electron_count,linesearch_count
       external psi_initialize, psi_finalize, Waterpsp_found
-      external psi_ispin,psi_ne,electron_count
+      external psi_ispin,psi_ne,electron_count,linesearch_count
       real*8   cgsd_energy
       external cgsd_energy
       logical  control_Mulliken
@@ -223,6 +223,8 @@
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call Waterpsp_init(rtdb)
+
+      call linesearch_init()
 
 
 *                |**************************|
@@ -427,7 +429,8 @@ c     end if
          write(6,*) 'epilogue    : ',T3
          write(6,*) 'total       : ',T4
          write(6,*) 'cputime/step: ',AV,
-     >              '   (',electron_count(),' evalulations)'
+     >              '   (',electron_count(),' evalulations, ', 
+     >                     linesearch_count(),' line searches)'
          write(6,*)
          write(6,*) '-------------------------------'
          write(6,*) 'Time spent doing:'
