@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.16 2003-02-11 01:41:21 edo Exp $
+* $Id: paw_basis.F,v 1.17 2003-02-12 15:23:18 bylaska Exp $
 *
 
 !**************************************************
@@ -13,9 +13,9 @@
       subroutine init_paw_basis()
       implicit none
 
-      include "paw_basis.fh"
+      
+#include "paw_basis.fh"
 #include "mafdecls.fh"
-c      include "myma.fh"
   
 *     !*** local variables ***
       integer it, ir, nt
@@ -26,7 +26,7 @@ c      include "myma.fh"
       integer  max_mult_l
       logical ok
       double precision log_amesh,amesh
-      character*20 fname
+      character*255 fname
 
 c      !*** external functions ***
       double precision dabsmax
@@ -34,6 +34,8 @@ c      !*** external functions ***
       integer ion_nkatm
       external ion_nkatm
       
+*     *** check for existence of _basis files ***
+      call paw_basis_exist_check()
 
       nt = ion_nkatm()
       ok = MA_push_get(MT_INT,nt, "nb_tmp_array", l_nb,i_nb)
@@ -41,6 +43,7 @@ c      !*** external functions ***
   
       do it = 1, nt
        call ion_atom_plus_suffix(it,'_basis',fname)
+       call util_file_name_resolve(fname, .false.)
        call read_paw_basis_dims(int_mb(i_nb-1 + it),
      >                          int_mb(i_ng-1 + it),
      >                          fname)
@@ -51,6 +54,7 @@ c      !*** external functions ***
 
       do it = 1,nt 
          call ion_atom_plus_suffix(it,'_basis',fname)
+         call util_file_name_resolve(fname, .false.)
          call read_paw_basis  ( dbl_mb(paw_basis_i_r1(it)),
      >                         dbl_mb(paw_basis_i_rmax(it)),
      >                         int_mb(paw_basis_i_ngrid(it)),
@@ -255,5 +259,51 @@ c     !*** set core charges ***
       end 
 
 
+
+
+!**************************************************
+!
+!       Name: paw_basis_exist_check
+!
+!       Purpose:
+!
+!       Created:        2/12/2002
+!**************************************************
+      subroutine paw_basis_exist_check()
+      implicit none
+
+
+*     **** local variables ****
+      integer ia
+      character*2 atom
+      character*255 fname,libfile
+
+*     **** external functions ****
+      logical     nwpw_filefind
+      character*2 ion_atom
+      integer     ion_nkatm
+      external    nwpw_filefind
+      external    ion_atom
+      external    ion_nkatm
+
+
+      do ia = 1, ion_nkatm()
+       call ion_atom_plus_suffix(ia,'_basis',fname)
+       call util_file_name_resolve(fname, .false.)
+       if (.not.nwpw_filefind(fname)) then
+
+*         *** find location of library file ***
+          atom = ion_atom(ia)
+          call nwpw_libfile(2,libfile,atom)
+
+*         *** copy library file to fname ***
+          call util_file_copy(libfile,fname)
+      
+       end if
+
+      end do
+
+      return
+      end
 
 
