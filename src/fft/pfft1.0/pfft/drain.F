@@ -115,7 +115,7 @@
             J = 1 + (K - 1) * NELEBK
             DO 110 I = 1, NVECS
 
-              CALL dcopy( NELEBK, BUF( KELE ), 1, ATRANS( J ), 1 )
+              CALL scopy( NELEBK, BUF( KELE ), 1, ATRANS( J ), 1 )
   
               KELE = KELE + NELEBK
               J    = J + M * NELEBK

@@ -85,7 +85,7 @@
 
 #include           "datasize.h"
 
-      INTEGER            ME, JFLAG, IVAL
+      INTEGER            ME, JFLAG(1), IVAL
 
       INTEGER            LSTCNT
       EXTERNAL           LSTCNT
@@ -111,11 +111,12 @@
 
       ENDIF
 
-      JFLAG = ABS( IFLAG )
-
-      IVAL = MXCOMBV1( JFLAG, SUMIV, NBYTEI, 1, NPROC, PRCLST, 2, WORK)
-  
-      IF( JFLAG .NE. 0 ) THEN
+      JFLAG(1) = ABS( IFLAG )
+      
+      IVAL = MXCOMBV1( JFLAG, SUMIV, NBYTEI, 1,
+     $     NPROC, PRCLST, 2, WORK)
+      
+      IF( JFLAG(1) .NE. 0 ) THEN
 
         CALL XSTOP( 'GEXIT' )
         IFLAG = -1

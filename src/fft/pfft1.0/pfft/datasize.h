@@ -34,10 +34,11 @@
 
       INTEGER             NBYTEI, NBYTED
 
-#if defined(KSR) || defined(SGI)
+#if defined(KSR) || defined(SGI) || defined(CRAY_T3E)
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 8 )
 #else
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 4 )
 #endif
+

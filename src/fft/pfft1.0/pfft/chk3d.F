@@ -34,7 +34,8 @@
       INTEGER           IDIR, ISIGN, N1, N2, N3, LWORK, LIWORK, INFO
       INTEGER           MAP1(N3), MAP2(*), IWORK(LIWORK)
       DOUBLE PRECISION  X(*), WORK(LWORK)
-      CHARACTER*(*)     CALLER
+	character*6	     CALLER
+c	external caller
 
 *-----------------------------------------------------------------------
 *
@@ -54,11 +55,12 @@
      $                  M2
       LOGICAL           RCFFT
 
-      INTEGER           LSTCNT
+      INTEGER           LSTCNT, junk(1)
       EXTERNAL          LSTCNT
 
       INTEGER           MXNPRC, MXMYND, MXLBUF, MAPCHK, IGDIFF
       EXTERNAL          MXNPRC, MXMYND, MXLBUF, MAPCHK, IGDIFF
+      character *26     msg  
 
 *-----------------------------------------------------------------------
 
@@ -68,23 +70,23 @@
       INFO = 0
 
       RCFFT =  CALLER .EQ. 'PRFFT3'  .OR.  CALLER .EQ. 'prfft3'
-
+c
 *     Set M2 = number of elements in MAP2.
-
+      
       IF( N1 .EQ. 1  .AND.  RCFFT ) THEN
-        M2 = N2 / 2 + 1
+         M2 = N2 / 2 + 1
       ELSE
-        M2 = N2
+         M2 = N2
       ENDIF
-       
+      
       IF( N2 .LT. 1 ) THEN
-        INFO = -3
-
+         INFO = -3
+         
       ELSE IF( N3 .LT. 1 ) THEN
-        INFO = -4
-
+         INFO = -4
+         
       ELSE IF( MAPCHK( MAP1, N3 ) .NE. 0 ) THEN
-        INFO = -6
+         INFO = -6
         
       ELSE IF( MAPCHK( MAP2, M2 ) .NE. 0 ) THEN
         INFO = -7
@@ -179,26 +181,34 @@
       IWORK( IIWORK+2 ) = N2
       IWORK( IIWORK+3 ) = N3
       IWORK( IIWORK+4 ) = IDIR
-
-      NDIFF = IGDIFF( 5 * NBYTEI, IWORK( IIWORK ), NPROC,
-     $                IWORK( IPROC ), CALLER, 
-     $                'IDIR, ISIGN, N1, N2, or N3',
-     $                IWORK( IIWORK + 5 )  )
+c
+c
+      ndiff = 0
+c      
+      msg = 'IDIR, ISIGN, N1, N2, or N3'
+      NDIFF = IGDIFF( 5,
+     $     IWORK( IIWORK ), NPROC,
+     $     IWORK( IPROC ), CALLER, 
+     $     msg,
+     $     IWORK( IIWORK + 5 )  )
+c     
+c     
 
       NDIFF = MAX( NDIFF, 
-     $             IGDIFF( N3 * NBYTEI, MAP1, NPROC,
-     $                     IWORK( IPROC ), CALLER, 'MAP1',
-     $                     IWORK( IIWORK ) ) )
-
+     $     IGDIFF( n3, MAP1, NPROC,
+     $     IWORK( IPROC ), CALLER, 'MAP1',
+     $     IWORK( IIWORK ) ) )
+c     
+c     
       NDIFF = MAX( NDIFF, 
-     $             IGDIFF( M2 * NBYTEI, MAP2, NPROC,
-     $                     IWORK( IPROC ), CALLER, 'MAP2',
-     $                     IWORK( IIWORK ) ) )
-
+     $     IGDIFF( m2, MAP2, NPROC,
+     $     IWORK( IPROC ), CALLER, 'MAP2',
+     $     IWORK( IIWORK ) ) )
+c     
       CALL GEXIT( NDIFF, NPROC, IWORK, WORK )
-
+      
       IF( NDIFF .NE. 0 ) THEN
-        INFO = -52
+         INFO = -52
         RETURN
       ENDIF
 

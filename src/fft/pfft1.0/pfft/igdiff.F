@@ -33,9 +33,10 @@
 
       INTEGER            N, NPROC
       INTEGER            PRCLST( NPROC )
-      CHARACTER*(*)      ROUTINE, MESSAG
-      CHARACTER*1        DATA( N ), WORK( N )
-
+      CHARACTER*26      MESSAG
+      character*(*)	routine
+      integer        DATA( N )	, WORK( N )
+      
 *-----------------------------------------------------------------------
 *
 * DESCRIPTION
@@ -99,7 +100,6 @@
 
       INTEGER            ME, MYINDX, LASTPR, NEXTPR, IVAL, NDIFF, I
 
-
       INTEGER            LSTIND
       EXTERNAL           LSTIND
 
@@ -107,66 +107,62 @@
       EXTERNAL           MXMYND, MXREAD, MXWRIT
 
       EXTERNAL           MXPEND
-
+c
+#include "datasize.h"
 * EXECUTABLE CODE
 *-----------------------------------------------------------------------
-
+      
       IGDIFF = 0
-
       ME = MXMYND()
-
+      if ( nproc .eq. 0 ) then
+         WRITE(*,*) ' ME = ', ME, ' Error in IGDIFF nproc = ', nproc
+      endif
+	
       MYINDX = LSTIND( ME, PRCLST, NPROC )
-  
+      
       IF( MYINDX .EQ. 0 ) THEN
-    
-        WRITE(*,*) ' ME = ', ME, ' Error in IGDIFF.'
-        WRITE(*,*) ' ME = ', ME, ' I called IGDIFF but am not in PRCLST'
-        WRITE(*,*) ' ME = ', ME, ' Exiting via IGDIFF.'
-
-        CALL MXPEND()
-        STOP
-
-      ENDIF
-
+      WRITE(*,*) ' ME = ', ME, ' Error in IGDIFF.'
+      WRITE(*,*) ' ME = ', ME, ' I called IGDIFF but am not in PRCLST'
+      WRITE(*,*) ' ME = ', ME, ' Exiting via IGDIFF. nproc = ', nproc
+      CALL MXPEND()
+      STOP
+      ENDIF	
+      
       IF( NPROC .EQ. 1 )
-     $  RETURN
-
+     $     RETURN
+      
       MYINDX = MYINDX - 1
-
+      
       LASTPR = MOD( MYINDX + NPROC - 1, NPROC ) + 1
       LASTPR = PRCLST( LASTPR )
-
+      
       NEXTPR = MOD( MYINDX + 1, NPROC ) + 1
       NEXTPR = PRCLST( NEXTPR )
-    
-      IF( MOD( MYINDX, 2 ) .EQ. 0 ) THEN
-
-        IVAL = MXWRIT( DATA, N, NEXTPR, 1 )
-        IVAL = MXREAD( WORK, N, LASTPR, 1 )
-
-      ELSE
-
-        IVAL = MXREAD( WORK, N, LASTPR, 1 )
-        IVAL = MXWRIT( DATA, N, NEXTPR, 1 )
-
+      
+	nn = n*nbytei
+      IF ( MOD( MYINDX, 2 ) .EQ. 0 ) THEN
+         IVAL = MXWRIT( DATA, nn, NEXTPR, 1 )
+         IVAL = MXREAD(	WORK, nn, LASTPR, 2 )
+      ELSE	         
+         IVAL = MXREAD( WORK, nn, LASTPR, 1 )
+         IVAL = MXWRIT( DATA, nn, NEXTPR, 2 )
       ENDIF
-    
+      
       NDIFF = 0
       DO 10 I = 1, N
-        IF( WORK(I) .NE. DATA(I) )
-     $    NDIFF = NDIFF + 1
-
-   10 CONTINUE
-
-      IF( NDIFF .NE. 0 )
-     $  WRITE(*,1000) ME, ROUTINE, MESSAG, ME, LASTPR
-
+         IF( WORK(I) .NE. DATA(I) )
+     $        NDIFF = NDIFF + 1
+ 10   CONTINUE
+      
+      IF( NDIFF .NE. 0 ) then
+         write(*,*) me,  ' error  in igdiff '
+c     $  WRITE(*,1000) ME, ROUTINE, MESSAG, ME, LASTPR
+      endif
       IGDIFF = NDIFF
-
- 1000 FORMAT(
-     $  // 2X, 'ME = ', I4, 2X, 'In ', A, 1X, A
-     $   / 2X, 'ME = ', I4, 2X, 'is not the same as on processor ', I4
-     $  //)
-
       RETURN
+ 1000 FORMAT(
+     $     // 2X, 'ME = ', I4, 2X, 'In ', A, 1X, A
+     $     / 2X, 'ME = ', I4, 2X, 'is not the same as on processor ', I4
+     $     //)
       END
+      

@@ -231,6 +231,7 @@
 * ----------------------------------------------------------------------
 
       EXTERNAL          PFFT1I, PFFT1, MXINIT
+	character*6 junk
 
 ************************************************************************
 
@@ -238,10 +239,11 @@
       CALL MXINIT()
 
 *     Check input data.
-
-      CALL CHK3D( 'PFFT3D', 1, ISIGN, N1, N2, N3, X, MAP1, MAP2,
+c
+	junk = 'pfft3d'
+      CALL CHK3D( junk, 1, ISIGN, N1, N2, N3, X, MAP1, MAP2,
      $            LWORK, WORK, LIWORK, IWORK, INFO )
-
+c
       IF( INFO .NE. 0 )
      $  RETURN
 

@@ -72,15 +72,11 @@
 * ======================================================================
 *
       LSTIND = 0
-
-      DO 10 I = 1, N
-
-        IF( LIST(I) .EQ. IFIND ) THEN
-          LSTIND = I
-          RETURN
-        ENDIF
-
-   10 CONTINUE
-
+      DO I = 1, N
+         IF( LIST(I) .EQ. IFIND ) THEN
+            LSTIND = I
+            RETURN	
+         ENDIF	
+      enddo
       RETURN
       END
