@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.25 2000-06-01 21:49:48 bert Exp $
+c $Id: int_1edk_ga.F,v 1.26 2001-07-20 22:23:54 bert Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -66,7 +66,7 @@ c
       integer Vg_a              ! GA handle potential energy integral matrix V
       integer Vdg_a             ! GA handle p.Vp and later pxVP integral matrix
       integer DKg_a             ! GA handle Douglas-Kroll integrals in uncontracted basis
-      integer X_ga, Y_ga, Z_ga  ! GA arrays for th epxVp integrals (if needed)
+      integer X_ga, Y_ga, Z_ga  ! GA arrays for the pxVp integrals (if needed)
       integer tempg_a           ! Temporary g_a matrix #1 handle
       integer tmpg_a            ! Temporary g_a matrix #2 handle
       integer Mixg_a            ! GA handle for transformation between contr and uncont
@@ -78,6 +78,13 @@ c
       integer tempm_a, tempIm_a ! Temporary m_a vector handle and index
       integer iloop             
       logical oskel            
+      integer Ev1g_a            ! GA handle first-order even term in uncontracted basis
+      integer RE1Rg_a           ! GA handle R*E1*R
+      integer tmp2g_a           ! Temporary g_a matrix #3 handle for DK3
+      integer XpxVp_ga          ! Unmodified pxVp for DK3
+      integer YpxVp_ga          ! Unmodified pxVp for DK3
+      integer ZpxVp_ga          ! Unmodified pxVp for DK3
+      integer tmp3g_a           ! Temporary g_a matrix #3 handle for full DK3
 c
 c     cau = 137.0360000d0         ! Speed of light by Bernd Hess
 c
@@ -155,11 +162,20 @@ c
      $     call errquit('int_1edk_ga: ma_push_get failed Avector',0)
       if (.not. ma_push_get(MT_DBL,nbf,'Kvector',Km_a,KIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0)
+      if (dk_form_type .ne. 0) then   ! Douglas-Kroll     
       do 20 iloop = 1, nbf
          dbl_mb(KIm_a+iloop-1) = cau/(dbl_mb(EIm_a+iloop-1)+csq)  
          dbl_mb(AIm_a+iloop-1) = Sqrt((dbl_mb(EIm_a+iloop-1)+csq)/
      $                                (2.0d0*dbl_mb(EIm_a+iloop-1)))
    20 continue
+      else  
+      do iloop = 1, nbf
+         dbl_mb(KIm_a+iloop-1) = cau/(dbl_mb(EIm_a+iloop-1)+csq)  
+         dbl_mb(AIm_a+iloop-1) = (Sqrt(1.0d0+csq*dbl_mb(p2Im_a+iloop-1)/
+     $     ((dbl_mb(EIm_a+iloop-1)+csq)*(dbl_mb(EIm_a+iloop-1)+csq))))/
+     $                                  (dbl_mb(EIm_a+iloop-1)+csq)
+      enddo    
+      endif
 c
 c     Clear given global array and put in relativistic kinetic energy E on
 c     diagonal (E matrix diagonal in momentum space)
@@ -185,6 +201,14 @@ c     If we just need the potential energy integrals we have to clear Dkg_a
 c
       if (type .eq. 2) call ga_zero(DKg_a)
 c
+c     construct RE1R for DK3
+c
+      if (dk_form_type .ge. 4) then   ! higher-order DK
+      if (.not. ga_create(MT_DBL,nbf,nbf,'RE1Rmatrix',1,1,RE1Rg_a))
+     $     call errquit('int_1edk_ga: ga_create failed RE1Rmatrix',0)
+      call ga_zero(RE1Rg_a)
+      endif
+c
 c     Get potential energy matrix V in uncontracted basis, add AVA term to global array:
 c
 c     <phi|AVA|phi> = AU^tVUA
@@ -203,8 +227,33 @@ c
 c     Do A Vg_a A, remember A is diagonal stored as vector and store in DKg_a
 c
       call ga_copy(Vg_a,tempg_a)
+      if (dk_form_type .ne. 0) then   ! Douglas-Kroll     
       call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_dadd(1.0d0,DKg_a,1.0d0,tempg_a,DKg_a)
+      if (dk_form_type .ge. 4) then   ! higher-order DK
+c
+c     Do R^2 (A Vg_a A) R^2 = K^2 p^2 (A Vg_a A) p^2 K^2, 
+c     and store in RE1Rg_a for DK3
+c
+      call ga_scale_rlh(tempg_a,dbl_mb(p2Im_a),dbl_mb(p2Im_a))
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_dadd(1.0d0,RE1Rg_a,1.0d0,tempg_a,RE1Rg_a)
+      endif
+      else   ! RESC
+      if (.not. ma_push_get(MT_DBL,nbf,'MA temp',tempm_a,tempIm_a))
+     $     call errquit('D-K integrals: ma_push_get failed MA temp',0)
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = Sqrt(dbl_mb(KIm_a+iloop-1))  
+      enddo   
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = 1.0d0/dbl_mb(AIm_a+iloop-1)  
+      enddo   
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,cau*2.0d0,tempg_a,DKg_a)   ! multiply 2c
+      endif
 c
 c     Get double derivative potential energy matrix p.Vp in uncontracted basis, 
 c     add ARVRA term to global array:
@@ -226,14 +275,39 @@ c
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vdg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vdg_a)
-      call ga_symmetrize(Vg_a)
+      call ga_symmetrize(Vdg_a)
 c
 c     Do A K Vdg_a K A, remember A and K are diagonal stored as vector and add to DKg_a
 c
       call ga_copy(Vdg_a,tempg_a)
+      if (dk_form_type .ne. 0) then   ! Douglas-Kroll     
       call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
       call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_dadd(1.0d0,DKg_a,1.0d0,tempg_a,DKg_a)
+      if (dk_form_type .ge. 4) then   ! higher-order DK
+c
+c     add A K Vdg_a K A to RE1Rg_a for DK3
+c
+      call ga_dadd(1.0d0,RE1Rg_a,1.0d0,tempg_a,RE1Rg_a)
+      endif
+      else   ! RESC
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = 1.0d0/dbl_mb(AIm_a+iloop-1)  
+      enddo   
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tempg_a,DKg_a)
+      endif
+c
+c     copy current DKg_a (i.e.,1st-order even term) into Ev1g_a for DK3
+c
+      if (dk_form_type .ge. 4) then   ! higher-order DK
+      if (.not. ga_create(MT_DBL,nbf,nbf,'Ev1matrix',1,1,Ev1g_a))
+     $     call errquit('int_1edk_ga: ga_create failed Ev1matrix',0)
+      call ga_zero(Ev1g_a)
+      call ga_copy(DKg_a,Ev1g_a)
+      endif
 c
 c     At this point we have the basic integrals for the free-particle projection
 c     operators. The remaining terms come from the external potential. Skip and 
@@ -244,6 +318,15 @@ c
      $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
          if (.not. ga_destroy(Vg_a))
      $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+         goto 100
+      endif
+      if (dk_form_type .eq. 0) then   ! RESC
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+         if (.not. ma_pop_stack(tempm_a))
+     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
       endif
 c
@@ -493,10 +576,6 @@ c
       call ga_scale_rh(tmpg_a,dbl_mb(EIm_a))
       call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
 c
-      if (.not. ga_destroy(Vdg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
-      if (.not. ga_destroy(Vg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Vg_a',0)
 c
 c     At this point we have the basic integrals for the external potential projection
 c     operators without the pxVp type terms. These remaining pxVp terms come from 
@@ -506,10 +585,304 @@ c     (CPL, 199, 491, 1992) denoted vn2.
 c     Skip and construct final integrals if dk_form_type=2 (see header).
 c 
       if (dk_form_type .eq. 2) then
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
          if (.not. ma_pop_stack(tempm_a))
      $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
       endif
+      if (dk_form_type .eq. 3) goto 200   ! complete DK2
+c
+c     Compute - W(1)E(1)W(1) term and add to global array:
+c
+c     - <phi|WEW|phi> = - UAKVdg_aKA R^-2 RE(1)R AVg_aAU^t     
+c
+c                       - UAVg_aA RE(1)R R^-2 AKVdg_aKAU^t 
+c
+c                       + UAVg_aA RE(1)R AVg_aAU^t
+c
+c                       + UAKVdg_aKA R^-2 RE(1)R R^-2 AKVdg_aKAU^t
+c
+c                       + UAK(pxV'p)KA R^-2 AK(pxVp)KA AVg_aAU^t (from term 1)
+c
+c                       + UAVg_aA AK(pxVp)KA R^-2 K(pxV'p)KAU^t (from term 2)
+c
+c                       - UAK(pxV'p)KA R^-2 RE(1)R R^-2 AK(pxV'p)KAU^t (from term 4)
+c
+c                       - UAK(pxV'p)KA R^-2 AK(pxVp)KA R^-2 AKVdg_aKAU^t (from term 4)
+c
+c                       - UAKVdg_aKA R^-2 AK(pxVp)KA R^-2 AK(pxV'p)KAU^t (from term 4)
+c
+c     (Last 5 terms done at the end, reusing p.Vp space)
+c
+c     Term 1: - UAKVdg_aKA R^-2 RE(1)R AVg_aAU^t
+c           = - UKAVdg_aAK^-1p^-2 RE(1)R AVg_aAU^t
+c     
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 3',1,1,tmp2g_a))
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(KIm_a))
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) 
+     $   = 1.0d0/dbl_mb(KIm_a+iloop-1)/dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,RE1Rg_a,0.0d0,
+     $              tmpg_a)
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,DKg_a,-1.0d0,tmp2g_a,DKg_a)
+c
+c     Term 2: - UAVg_aA RE(1)R R^-2 AKVdg_aKAU^t
+c           = - UAVg_aA RE(1)R p^-2K^-1 AVdg_aAKU^t
+c     
+      call ga_zero(tempg_a)
+      call ga_transpose(tmp2g_a,tempg_a)
+      call ga_dadd(1.0d0,DKg_a,-1.0d0,tempg_a,DKg_a)
+c
+c     Term 3: + UAVg_aA RE(1)R AVg_aAU^t  
+c     
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,RE1Rg_a,0.0d0,
+     $              tmpg_a)
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tmp2g_a,DKg_a)
+c
+c     Term 4: + UAKVdg_aKA R^-2 RE(1)R R^-2 AKVdg_aKAU^t
+c           = + UKAVdg_aA K^-1p^-2 RE(1)R p^-2K^-1 AVdg_aAKU^t
+c     
+      call ga_copy(RE1Rg_a,tempg_a)
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)/dbl_mb(KIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Vdg_a,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Vdg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tmpg_a,DKg_a)
+c
+c     Compute + 1/2 E(1)W(1)^2 term and add to global array:
+c
+c     + <phi|EW^2|phi> = + UE(1) AKVdg_aKA AVg_aAU^t
+c                     
+c                        + UE(1) AVg_aA AKVdg_aKA U^t
+c      
+c                        - UE(1) AVg_aA p^2K^2 AVg_aAU^t
+c
+c                        - UE(1) AKVdg_aKA K^-2p^-2 AKVdg_aKAU^t
+c
+c                        - UAK(pxVp)KA AK(pxV'p)KA AVg_aAU^t (from term 1)
+c                     
+c                        - UAK(pxVp)KA AVg_aA AK(pxV'p)KA U^t (from term 2)
+c      
+c                        + UE(1) AK(pxV'p)KA K^-2p^-2 AK(pxV'p)KAU^t (from term 4)
+c
+c                        + UAK(pxVp)KA AK(pxV'p)KA K^-2p^-2 AKVdg_aKAU^t (from term 4)
+c
+c                        + UAK(pxVp)KA AKVdg_aKA K^-2p^-2 AK(pxV'p)KAU^t (from term 4)
+c
+c     (Last 5 terms done at the end, reusing p.Vp space)
+c
+c     Term 1: + UE(1)AK Vdg_a KAA Vg_a AU^t
+c
+      do 340 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)
+  340 continue
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Ev1g_a,tmpg_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+c
+c     Term 2: + UE(1)A Vg_a AAK Vdg_a KAU^t
+c     (Intermediate array is the same as in Term 1)
+c
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Vg_a,tempg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Ev1g_a,tmpg_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+c
+c     Term 3: - UE(1)A Vg_a Ap^2K^2A Vg_a AU^t
+c
+      do 341 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(p2Im_a+iloop-1)*
+     $                              dbl_mb(KIm_a+iloop-1)*
+     $                              dbl_mb(KIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)
+  341 continue
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Ev1g_a,tmpg_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tempg_a,DKg_a)
+c
+c     Term 4: - UE(1)AK Vdg_a KAK^-2p^-2AK Vdg_a KAU^t
+c
+      do 342 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)/
+     $                              dbl_mb(p2Im_a+iloop-1)
+  342 continue
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vdg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Ev1g_a,tmpg_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tempg_a,DKg_a)
+c
+c     Compute + 1/2 W(1)^2E(1) term and add to global array:
+c
+c     + <phi|W^2E|phi> = + UAKVdg_aKA AVg_aA E(1)U^t
+c                      
+c                        + UAVg_aA AKVdg_aKA E(1)U^t
+c      
+c                        - UAVg_aA p^2K^2 AVg_aA E(1)U^t
+c
+c                        - UAKVdg_aKA K^-2p^-2 AKVdg_aKA E(1)U^t
+c                      
+c                        - UAVg_aA AK(pxV'p)KA AK(pxVp)KAU^t (from term2)
+c
+c                        - UAK(pxV'p)KA AVg_aA AK(pxVp)KAU^t (from term1)
+c                      
+c                        + UAK(pxV'p)KA K^-2p^-2 AK(pxV'p)KA E(1)U^t (from term 4)
+c                      
+c                        + UAKVdg_aKA K^-2p^-2 AK(pxV'p)KA AK(pxVp)KAU^t (from term 4)
+c
+c                        + UAK(pxV'p)KA K^-2p^-2 AKVdg_aKA AK(pxVp)KAU^t (from term 4)
+c
+c     (Last 5 terms done at the end, reusing p.Vp space)
+c
+c     Term 1: + UAK Vdg_a KAA Vg_a AE(1)U^t
+c
+      do 350 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)
+  350 continue
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,Ev1g_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+c
+c     Term 2: + UA Vg_a AAK Vdg_a KAE(1)U^t
+c     (Intermediate array is the same as in Term 1)
+c
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Vg_a,tempg_a,0.0d0,
+     $              tmpg_a) 
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,Ev1g_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+c
+c     Term 3: - UA Vg_a Ap^2K^2A Vg_a AE(1)U^t
+c
+      do 351 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(p2Im_a+iloop-1)*
+     $                              dbl_mb(KIm_a+iloop-1)*
+     $                              dbl_mb(KIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)
+  351 continue
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,Ev1g_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tempg_a,DKg_a)
+c
+c     Term 4: - UAK Vdg_a KAK^-2p^-2AK Vdg_a KAE(1)U^t
+c
+      do 352 iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1) = dbl_mb(AIm_a+iloop-1)*
+     $                              dbl_mb(AIm_a+iloop-1)/
+     $                              dbl_mb(p2Im_a+iloop-1)
+  352 continue
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Vdg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tempg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,Ev1g_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tempg_a,DKg_a)
+c
+      if (dk_form_type .eq. 4) then   ! incomplete DK3
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+         if (.not. ma_pop_stack(tempm_a))
+     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+         if (.not. ga_destroy(Ev1g_a))
+     $        call errquit('int_1edk_ga: ga_destroy W1sqg_a',0)
+         if (.not. ga_destroy(RE1Rg_a))
+     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0)
+         if (.not. ga_destroy(tmp2g_a))
+     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0)
+         goto 100
+      endif
+  200 continue
 c
 c     Unfortunately for the full Douglas-Kroll we do need for each term 
 c     integrals of the type (pxVp)D(pxVp). We now need three GA's to 
@@ -529,26 +902,31 @@ c
      $     call errquit('int_1edk_ga: ga_create failed GA Y_ga',0)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,Z_ga))
      $     call errquit('int_1edk_ga: ga_create failed GA Z_ga',0)
+      if (dk_form_type .eq. 5) then   ! complete DK3
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,XpxVp_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA XpxVp_ga',0)
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Y',1,1,YpxVp_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA YpxVp_ga',0)
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,ZpxVp_ga))
+     $     call errquit('int_1edk_ga: ga_create failed GA ZpxVp_ga',0)
+      endif
 c
       call int_pxvp_ga(dk_fitbas,X_ga,Y_ga,Z_ga,oskel)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,X_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,X_ga)
-      call ga_symmetrize(X_ga)
+      if (dk_form_type .ge. 5) call ga_copy(X_ga,XpxVp_ga)   ! store unmodified pxVp into XpxVp for DK3
       call ga_scale_divEpp(X_ga,dbl_mb(EIm_a))
-      call ga_symmetrize(X_ga)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Y_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Y_ga)
-      call ga_symmetrize(Y_ga)
+      if (dk_form_type .ge. 5) call ga_copy(Y_ga,YpxVp_ga)   ! store unmodified pxVp into XpxVp for DK3
       call ga_scale_divEpp(Y_ga,dbl_mb(EIm_a))
-      call ga_symmetrize(Y_ga)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Z_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Z_ga)
-      call ga_symmetrize(Z_ga)
+      if (dk_form_type .ge. 5) call ga_copy(Z_ga,ZpxVp_ga)   ! store unmodified pxVp into XpxVp for DK3
       call ga_scale_divEpp(Z_ga,dbl_mb(EIm_a))
-      call ga_symmetrize(Z_ga)
 c
 c     W(1)E(p)W(1): - UAK     pxVp  KAE(p)K^-2p^-2AK pxVp  KAU^t
 c
@@ -635,14 +1013,597 @@ c     At this point we have the integrals we want in momentum space. We have to
 c     backtransform to real space and, as we work in a primitive basis, contract
 c     them back into the contracted basis.
 c
-      if (.not. ga_destroy(Z_ga))
-     $    call errquit('int_1edk_ga: ga_destroy Z_ga',0)
-      if (.not. ga_destroy(Y_ga))
-     $    call errquit('int_1edk_ga: ga_destroy Y_ga',0)
-      if (.not. ga_destroy(X_ga))
-     $    call errquit('int_1edk_ga: ga_destroy X_ga',0)
-      if (.not. ma_pop_stack(tempm_a))
-     $    call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+      if (dk_form_type .eq. 3) then   ! complete DK2
+         if (.not. ga_destroy(Z_ga))
+     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0)
+         if (.not. ga_destroy(Y_ga))
+     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0)
+         if (.not. ga_destroy(X_ga))
+     $        call errquit('int_1edk_ga: ga_destroy X_ga',0)
+         if (.not. ma_pop_stack(tempm_a))
+     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+         goto 100
+      endif
+c
+c     W(1)E(1)W(1): cross-product term 7
+c
+c     - UAK(pxV'p)KA R^-2 RE(1)R R^-2 AK(pxV'p)KAU^t
+c   = - UKA(pxV'p) AK^-1p^-2 RE(1)R p^-2K^-1A (pxV'p)AKU^t
+c
+      if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 4',1,1,tmp3g_a))
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)/dbl_mb(KIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(RE1Rg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,X_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,X_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_copy(tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Y_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Y_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Z_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Z_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,-1.0d0,tmpg_a,DKg_a)
+c
+c     W(1)E(1)W(1): cross-product terms 8 + 9
+c
+c     - UAK(pxV'p)KA R^-2 AK(pxVp)KA R^-2 AKVdg_aKAU^t
+c     - UAKVdg_aKA   R^-2 AK(pxVp)KA R^-2 AK(pxV'p)KAU^t
+c   = - UKA(pxV'p) A^2p^-2(pxVp)p^-2A^2 Vdg_aAKU^t
+c     - UKAVdg_a   A^2p^-2(pxVp)p^-2A^2 (pxV'p)AKU^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(XpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,X_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(YpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Y_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(ZpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Z_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp3g_a,tempg_a,0.0d0,
+     $              tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,-1.0d0,tmpg_a,DKg_a)
+c
+      call ga_copy(XpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(YpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(ZpxVp_ga,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmp3g_a,0.0d0,
+     $              tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,-1.0d0,tmpg_a,DKg_a)
+c
+c     W(1)E(1)W(1): cross-product terms 5 + 6
+c
+c     + UAK(pxV'p)KA R^-2 AK(pxVp)KA AVg_aAU^t
+c     + UAVg_aA AK(pxVp)KA R^-2 K(pxV'p)KAU^t
+c   = + UAK(pxV'p)p^-2A^2(pxVp)AK AVg_aAU^t
+c     + UAVg_aA KA(pxVp)A^2p^-2(pxV'p)KAU^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(XpxVp_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,X_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(YpxVp_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Y_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(ZpxVp_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Z_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_scale_rlh(tmp3g_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmp3g_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+c
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp3g_a,tempg_a,0.0d0,
+     $              tmpg_a)
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tmpg_a,DKg_a)
+c
+      call ga_copy(XpxVp_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(YpxVp_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(ZpxVp_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_scale_rlh(tmp3g_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmp3g_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+c
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmp3g_a,0.0d0,
+     $              tmpg_a)
+      call ga_dadd(1.0d0,DKg_a,1.0d0,tmpg_a,DKg_a)
+c
+c     E(1)W(1)W(1) + W(1)W(1)E(1): cross-product term 7
+c
+c     + UE(1) AK(pxV'p)KA K^-2p^-2 AK(pxV'p)KAU^t
+c     + UAK(pxV'p)KA K^-2p^-2 AK(pxV'p)KA E(1)U^t
+c   = + UE(1) AK(pxV'p)A^2p^-2(pxV'p)KAU^t
+c     + UAK(pxV'p)A^2p^-2(pxV'p)KA E(1)U^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(X_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,X_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmpg_a)
+c
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Y_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp2g_a,tmpg_a)
+c
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Z_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp2g_a,tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Ev1g_a,tmpg_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,Ev1g_a,0.0d0,
+     $              tempg_a)
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tempg_a,DKg_a)
+c
+c     E(1)W(1)W(1) + W(1)W(1)E(1): cross-product term 8
+c
+c    + UAK(pxVp)KA AK(pxV'p)KA K^-2p^-2 AKVdg_aKAU^t
+c     + UAKVdg_aKA K^-2p^-2 AK(pxV'p)KA AK(pxVp)KAU^t
+c   = + UAK(pxVp)K^2A^2(pxV'p)A^2p^-2Vdg_aKAU^t
+c     + UAKVdg_ap^-2A^2(pxV'p)A^2K^2(pxVp)KAU^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)*dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(X_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,XpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,YpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,ZpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp3g_a,tempg_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)*dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(X_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,XpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,YpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,ZpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmp3g_a,0.0d0,
+     $              tmpg_a)
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
+c
+c     E(1)W(1)W(1) + W(1)W(1)E(1): cross-product term 9
+c
+c     + UAK(pxVp)KA AKVdg_aKA K^-2p^-2 AK(pxV'p)KAU^t
+c     + UAK(pxV'p)KA K^-2p^-2 AKVdg_aKA AK(pxVp)KAU^t
+c   = + UAK(pxVp)K^2A^2Vdg_aA^2p^-2(pxV'p)KAU^t
+c     + UAK(pxV'p)p^-2A^2Vdg_aA^2K^2(pxVp)KAU^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)*dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,XpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,X_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_copy(tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,YpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Y_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,ZpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Z_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)*dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(Vdg_a,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    /dbl_mb(p2Im_a+iloop-1)
+      enddo
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,XpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,X_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,YpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Y_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,ZpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Z_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,0.5d0,tmpg_a,DKg_a)
+c
+c     E(1)W(1)W(1) + W(1)W(1)E(1): cross-product term 5
+c
+c     - UAK(pxVp)KA AK(pxV'p)KA AVg_aAU^t
+c     - UAVg_aA AK(pxV'p)KA AK(pxVp)KAU^t
+c   = - UAK(pxVp)K^2A^2(pxV'p)KA AVg_aAU^t
+c     - UAVg_aA AK(pxV'p)K^2A^2(pxVp)KAU^t
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)*dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(X_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,XpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,YpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_lh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,ZpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_scale_rlh(tmp3g_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmp3g_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+c
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp3g_a,tempg_a,0.0d0,
+     $              tmpg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tmpg_a,DKg_a)
+c
+      call ga_copy(X_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,XpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_copy(tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Y_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,YpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_copy(Z_ga,tempg_a)
+      call ga_scale_rh(tempg_a,dbl_mb(tempIm_a))
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,ZpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_dadd(1.0d0,tmp3g_a,1.0d0,tmp2g_a,tmp3g_a)
+c
+      call ga_scale_rlh(tmp3g_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmp3g_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+c
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_zero(tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmp3g_a,0.0d0,
+     $              tmpg_a)
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tmpg_a,DKg_a)
+c
+c     E(1)W(1)W(1) + W(1)W(1)E(1): cross-product term 6
+c
+c     - UAK(pxVp)KA AVg_aA AK(pxV'p)KA U^t 
+c     - UAK(pxV'p)KA AVg_aA AK(pxVp)KAU^t 
+c   = - UAK(pxVp)  KA^2Vg_aA^2K (pxV'p)KA U^t 
+c     - UAK(pxV'p) KA^2Vg_aA^2K (pxVp)KAU^t 
+c
+      do iloop = 1, nbf
+         dbl_mb(tempIm_a+iloop-1)
+     $   = dbl_mb(AIm_a+iloop-1)*dbl_mb(AIm_a+iloop-1)
+     $    *dbl_mb(KIm_a+iloop-1)
+      enddo
+      call ga_copy(Vg_a,tempg_a)
+      call ga_scale_rlh(tempg_a,dbl_mb(tempIm_a),dbl_mb(tempIm_a))
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,XpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,X_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_copy(tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,YpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Y_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,ZpxVp_ga,tempg_a,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmp2g_a,Z_ga,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,XpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,X_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,YpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Y_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_zero(tmp2g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,ZpxVp_ga,0.0d0,
+     $              tmp2g_a)
+      call ga_zero(tmp3g_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,Z_ga,tmp2g_a,0.0d0,
+     $              tmp3g_a)
+      call ga_dadd(1.0d0,tmpg_a,1.0d0,tmp3g_a,tmpg_a)
+c
+      call ga_scale_rlh(tmpg_a,dbl_mb(KIm_a),dbl_mb(KIm_a))
+      call ga_scale_rlh(tmpg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
+      call ga_dadd(1.0d0,DKg_a,-0.5d0,tmpg_a,DKg_a)
+c
+      if (dk_form_type .eq. 5) then   ! complete DK3
+         if (.not. ga_destroy(Z_ga))
+     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0)
+         if (.not. ga_destroy(Y_ga))
+     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0)
+         if (.not. ga_destroy(X_ga))
+     $        call errquit('int_1edk_ga: ga_destroy X_ga',0)
+         if (.not. ma_pop_stack(tempm_a))
+     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+         if (.not. ga_destroy(Ev1g_a))
+     $        call errquit('int_1edk_ga: ga_destroy Ev1g_a',0)
+         if (.not. ga_destroy(RE1Rg_a))
+     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0)
+         if (.not. ga_destroy(tmp2g_a))
+     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0)
+         if (.not. ga_destroy(XpxVp_ga))
+     $        call errquit('int_1edk_ga: ga_destroy XpxVp_ga',0)
+         if (.not. ga_destroy(YpxVp_ga))
+     $        call errquit('int_1edk_ga: ga_destroy YpxVp_ga',0)
+         if (.not. ga_destroy(ZpxVp_ga))
+     $        call errquit('int_1edk_ga: ga_destroy ZpxVp_ga',0)
+         if (.not. ga_destroy(tmp3g_a))
+     $        call errquit('int_1edk_ga: ga_destroy tmp3g_a',0)
+         if (.not. ga_destroy(Vdg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+         if (.not. ga_destroy(Vg_a))
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+      endif
   100 continue
 c
 c     Symmetrize final set of integrals
