@@ -6,7 +6,7 @@
      ,     acc_xc_gauss)
       implicit none
 c
-c$Id: grid_xcfit.F,v 1.5 2003-01-05 20:01:48 edo Exp $
+c$Id: grid_xcfit.F,v 1.6 2003-01-10 02:30:37 edo Exp $
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -49,13 +49,12 @@ c
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0b',0)
       if(natoms.gt.1) then
-        
+      call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
       Call oldnBF_to_mBF(xc_bas_han,rq0,
      &                mbf_xc,natoms,
      &                iniz,ifin,ibf,
      &                Expo,nbf_xc_mxprim,
-     .        docsetx,1d15)
-!     .        docsetx,1d33)
+     .        docsetx,exp(acc_xc_gauss))
          if (mbf_xc.eq.0) return
       else
          iniz(1)=1
@@ -87,7 +86,6 @@ c
      &     ldelchi_xc, idelchi_xc))
      &     call errquit('grid_xcfit: cannot allocate delchi_xc',0)
 
-      call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
       call xc_eval_basis(xc_bas_han, maxdbas, dbl_mb(ichi_xc),
      &     dbl_mb(idelchi_xc), 0, 0,
      ,     rq, qxyz,xyz,
@@ -157,7 +155,7 @@ c
      &                      iniz, ifin, ibf, zprim, nzprim, 
      .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.5 2003-01-05 20:01:48 edo Exp $
+C$Id: grid_xcfit.F,v 1.6 2003-01-10 02:30:37 edo Exp $
 c
       implicit none
 c      
