@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.129 2004-07-22 17:19:56 bert Exp $
+C$Id: geom.F,v 1.130 2004-08-31 19:44:26 marat Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1720,8 +1720,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
       integer geom, unit
-      integer i, j, icent
-      double precision scale, tmp(3)
+      integer j, icent
+      double precision scale
       logical geom_check_handle
       external geom_check_handle
 c
@@ -1741,7 +1741,50 @@ c
 
 
  3       format(1x,a16,1x,3f15.8,3x,"charge",3x,f15.8)
+      else
+       write(unit,4) tags(icent,geom),
+     $                (coords(j,icent,geom)*scale,j=1,3)
+
+
+ 4       format(1x,a16,1x,3f15.8)
+
       end if
+      end do
+c
+      end
+      logical function geom_print_pdb(geom, unit)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer geom, unit
+      integer j, icent
+      double precision scale
+      logical geom_check_handle
+      external geom_check_handle
+c     
+      geom_print_pdb = .true.
+      if (.not. geom_check_handle(geom, 'geom_print_pdb')) then
+         geom_print_pdb = .false.
+         return
+      end if
+c
+      scale = 1.0d0 / angstrom_to_au
+c
+      write(unit,1) ncenter(geom)
+ 1    format(1x,i5)
+      write(unit,2) names(geom)(1:inp_strlen(names(geom)))
+ 2    format(1x,a)
+      do icent = 1, ncenter(geom)
+
+        write(unit,3) tags(icent,geom), 
+     $                (coords(j,icent,geom)*scale,j=1,3),
+     $                 charge(icent,geom)
+
+
+ 3      format("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
       end do
 c
       end
@@ -1753,8 +1796,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
       integer geom, unit
-      integer i, j, icent
-      double precision scale, tmp(3)
+      integer j, icent
+      double precision scale
       logical geom_check_handle
       external geom_check_handle
 c     
