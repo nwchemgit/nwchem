@@ -1,6 +1,6 @@
       block data Dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.24 1996-10-22 08:33:17 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.25 1996-10-23 21:26:38 d3g681 Exp $
       data oscfps /.false./     ! So that other codes do not break
 c
       end
@@ -71,8 +71,6 @@ c
       if (.not. pstat_allocate('scf: k2cf  ', pstat_qstat, 0, junk,
      $     ps_k2cf)) call errquit('scf: scf_pstat_init', 0)
 c
-
-c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
      $     ps_total)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -138,6 +136,8 @@ c
          if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_sym_ad))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_sym_sym))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_k2cf))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_fock_io))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
 
 C        additional for RI-SCF
