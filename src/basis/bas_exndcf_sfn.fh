@@ -1,0 +1,22 @@
+c----------------------------------------------------------------------
+c.. this include only has the statement function definitions
+c----------------------------------------------------------------------
+c NOTE: this must be included AFTER bas_exndcf_dec.fh
+c----------------------------------------------------------------------
+c
+c... statement functions to get exndcf from heap
+c... sf_exndcf gives value of the array
+c... mb_exndcf gives ma pointer into dbl_mb
+c
+c ... old   exndcf(iptr,basis)
+c           iptr pointer into array
+c           basis is the non-offset basis handle (1, 2, 3, 4, 5 etc)
+c
+c ... new   dbl_mb((k_exndcf(basis)-1)+ iptr)
+c
+      sf_exndcf(iptr_exndcf,bas_exndcf) =
+     &    dbl_mb( (exndcf(K_exndcf,bas_exndcf)-1) + iptr_exndcf)
+      mb_exndcf(iptr_exndcf,bas_exndcf) =
+     &    (exndcf(K_exndcf,bas_exndcf)-1) + iptr_exndcf
+c
+c----------------------------------------------------------------------

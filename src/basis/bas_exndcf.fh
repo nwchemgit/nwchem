@@ -1,0 +1,22 @@
+c----------------------------------------------------------------------
+c include for both declarations and statement function.
+c This cannot be used in a routine with a data statement.
+c .... you must separately include the _dec and _sfn include files
+c .... if you have data statements.
+c----------------------------------------------------------------------
+c
+c... statement functions to get exndcf from heap
+c... sf_exndcf gives value of exndcf
+c... mb_exndcf gives ma pointer into dbl_mb
+c
+c ... old   exndcf(iptr,basis)
+c           iptr pointer into array
+c           basis is the non-offset basis handle (1, 2, 3, 4, 5 etc)
+c
+c ... new   dbl_mb((k_exndcf(basis)-1)+ iptr)
+c
+*... this has the declarations
+#include "bas_exndcf_dec.fh"
+*... this has the statement functions
+#include "bas_exndcf_sfn.fh"
+c----------------------------------------------------------------------

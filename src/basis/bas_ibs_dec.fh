@@ -1,0 +1,64 @@
+c----------------------------------------------------------------------
+c include for only declarations
+c----------------------------------------------------------------------
+c
+c... statement functions to get ibs arrays from heap
+c... sf_ibs_??? gives value of index
+c... mb_ibs_??? gives ma pointer into dbl_mb
+c
+c..... where ??? is cn2ucn or
+c                   cn2ce 
+c                   ce2uce
+c                   cn2bfr
+c                   ce2cnr
+c
+c
+c ... old   
+c contraction -> unique_contr          ::  ibs_cn2ucn(ncont,basis)
+c contraction -> center_number         ::  ibs_cn2ce (ncont,basis)
+c center      -> unique_center         ::  ibs_ce2uce(nat,basis)
+c contraction -> basis function range  ::  ibs_cn2bfr(2,ncont,basis)
+c centers     -> contraction range     ::  ibs_ce2cnr(2,nat,basis)
+c           ncont is the number of the contraction or shell (not unique)
+c           nat  is the atom number 1, 2, 3 for water etc.  
+c           basis is the non-offset basis handle (1, 2, 3, 4, 5 etc)
+c
+c ... new   
+c           sf_ibs_cn2ucn(0:ncont,basis)   = int_mb( (K_ibs_cn2ucn(basis)) + ncont)
+c           sf_ibs_cn2ce (0:ncont,basis)   = int_mb( (K_ibs_cn2ce (basis)) + ncont)
+c           sf_ibs_ce2uce(nat,basis)       = int_mb( (K_ibs_ce2uce(basis)-1) + nat)
+c
+c j={1,2}   sf_ibs_cn2bfr(j,1:ncont,basis) = int_mb( (K_ibs_ce2uce(basis)-1) + 2*(ncont-1) + j)  ncont=1,nshell
+c j={1,2}   sf_ibs_cn2bfr(j,1:ncont,basis) = int_mb( (K_ibs_ce2uce(basis)) + 2*ncont + j - 3)  ncont=1,nshell
+c j={1,2}   sf_ibs_cn2bfr(j,0:ncont,basis) = int_mb( (K_ibs_ce2uce(basis)) + 2*ncont + j - 1)  ncont=0,nshell
+c
+c j={1,2}   sf_ibs_ce2cnr(j,nat,basis)     = int_mb( (K_ibs_ce2cnr(basis)-1) + 2*(nat-1) + j) nat=1,natoms
+c j={1,2}   sf_ibs_ce2cnr(j,nat,basis)     = int_mb( (K_ibs_ce2cnr(basis)) + 2*nat + j - 3) nat=1,natoms
+c
+c
+c           mb_ibs_cn2ucn(0:ncont,basis)   =( (K_ibs_cn2ucn(basis)) + ncont)
+c           mb_ibs_cn2ce (0:ncont,basis)   =( (K_ibs_cn2ce (basis)) + ncont)
+c           mb_ibs_ce2uce(nat,basis)       =( (K_ibs_ce2uce(basis)-1) + nat)
+c                                           
+c j={1,2}   mb_ibs_cn2bfr(j,1:ncont,basis) =( (K_ibs_ce2uce(basis)-1) + 2*(ncont-1) + j)  ncont=1,nshell
+c j={1,2}   mb_ibs_cn2bfr(j,1:ncont,basis) =( (K_ibs_ce2uce(basis)) + 2*ncont + j - 3)  ncont=1,nshell
+c j={1,2}   mb_ibs_cn2bfr(j,0:ncont,basis) =( (K_ibs_ce2uce(basis)) + 2*ncont + j - 1)  ncont=0,nshell
+c                                           
+c j={1,2}   mb_ibs_ce2cnr(j,nat,basis)     =( (K_ibs_ce2cnr(basis)-1) + 2*(nat-1) + j) nat=1,natoms
+c j={1,2}   mb_ibs_ce2cnr(j,nat,basis)     =( (K_ibs_ce2cnr(basis)) + 2*nat + j - 3) nat=1,natoms
+c
+      integer H_ibs, K_ibs, SZ_ibs
+      parameter(H_ibs  = 1) 
+      parameter(K_ibs  = 2)
+      parameter(SZ_ibs = 3)
+      integer ibs_ncont, ibs_bas, ibs_nat, ibs12
+      integer sf_ibs_cn2ucn
+      integer sf_ibs_cn2ce
+      integer sf_ibs_ce2uce
+      integer sf_ibs_cn2bfr
+      integer sf_ibs_ce2cnr
+      integer mb_ibs_cn2ucn
+      integer mb_ibs_cn2ce
+      integer mb_ibs_ce2uce
+      integer mb_ibs_cn2bfr
+      integer mb_ibs_ce2cnr
