@@ -1,5 +1,5 @@
       subroutine matrix_exp(g_k)
-C$Id: matrix_exp.F,v 1.9 1996-06-27 22:42:38 d3g681 Exp $
+C$Id: matrix_exp.F,v 1.10 1996-09-03 01:21:47 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -70,9 +70,7 @@ c
       call ga_copy(g_k, g_tmp1)
       call ga_dscal(g_tmp1, third)
       do i = ilo, ihi
-         call ga_get(g_tmp1, i, i, i, i, tmp, 1)
-         tmp = tmp + one
-         call ga_put(g_tmp1, i, i, i, i, tmp, 1)
+         call ga_acc(g_tmp1, i, i, i, i, 1.0d0, 1, 1.0d0)
       enddo
 c     
 c     1 + K/2 * g_tmp1 -> g_tmp2
@@ -80,9 +78,7 @@ c
       call ga_dgemm('n', 'n', nbf, nbf, nbf, half, g_k, g_tmp1,
      $     zero, g_tmp2)
       do i = ilo, ihi
-         call ga_get(g_tmp2, i, i, i, i, tmp, 1)
-         tmp = tmp + one
-         call ga_put(g_tmp2, i, i, i, i, tmp, 1)
+         call ga_acc(g_tmp2, i, i, i, i, 1.0d0, 1, 1.0d0)
       enddo
 c     
 c     1 + K*g_tmp2 -> g_k
@@ -90,9 +86,7 @@ c
       call ga_dgemm('n', 'n', nbf, nbf, nbf, one, g_k, g_tmp2,
      $     zero, g_tmp1)
       do i = ilo, ihi
-         call ga_get(g_tmp1, i, i, i, i, tmp, 1)
-         tmp = tmp + one
-         call ga_put(g_tmp1, i, i, i, i, tmp, 1)
+         call ga_acc(g_tmp1, i, i, i, i, 1.0d0, 1, 1.0d0)
       enddo
       call ga_copy(g_tmp1, g_k)
 c     
