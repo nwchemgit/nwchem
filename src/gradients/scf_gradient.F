@@ -1,5 +1,5 @@
       logical function scf_gradient(rtdb)
-c$Id: scf_gradient.F,v 1.5 1997-02-07 22:06:15 d3g681 Exp $
+c$Id: scf_gradient.F,v 1.6 1998-08-30 17:55:30 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 c
@@ -15,15 +15,21 @@ c
       if (theory .eq. 'scf') then
          if (.not. scf(rtdb))
      $        call errquit('scf_gradient: scf energy failed', 0)
+         call util_print_push
+         call util_print_rtdb_load(rtdb,'scf')
       else if (theory .eq. 'mcscf') then
          if (.not. mcscf(rtdb))
      $        call errquit('mcscf_gradient: mcscf energy failed', 0)
+         call util_print_push
+         call util_print_rtdb_load(rtdb,'mcscf')
       else
          call errquit('(mc)scf gradients: unknown theory',0)
       endif
 c
       if (.not. gradients(rtdb))
      $     call errquit('(mc)scf_gradient: gradients failed', 0)
+c
+      call util_print_pop
 c
       scf_gradient = .true.
 c

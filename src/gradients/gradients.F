@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.23 1998-08-12 22:06:35 d3g681 Exp $
+c$Id: gradients.F,v 1.24 1998-08-30 17:55:30 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,9 +26,7 @@ c
       double precision charge
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      call util_print_push
-      call util_print_rtdb_load(rtdb,'scf')
-      call ecce_print_module_entry ('scf')
+      call ecce_print_module_entry ('gradients')
 c
 c     Extract high level info from the data-base setting defaults
 c     
@@ -91,8 +89,7 @@ c
      &    call errquit
      &    ('gradients:error destroying geom and basis handles',911)
 c
-      call ecce_print_module_exit ('scf','ok')
-      call util_print_pop
+      call ecce_print_module_exit ('gradients','ok')
       gradients = .true.
 c
       return
