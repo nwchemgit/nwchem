@@ -99,12 +99,12 @@ peigs_CPU = ALPHA
 #
 peigs_TARGET_definition = CRAY_T3E
 peigs_CODEOBJ = SINGLE
-peigs_CC +=  -DSTD_DBL
+peigs_CC +=  -DSTD_DBL -DCRAY_T3D
 peigs_NODE = uniproc
 peigs_COMM = TCGMSG
-peigs_FC += $(FOPTIMIZE) -e 0 -DCRAY_T3D
-peigs_FOPT +=   -DCRAY_T3D
-peigs_CPP +=   -DCRAY_T3D -P
+peigs_FC += $(FOPTIMIZE) -e 0 -DCRAY_T3D -DCRAY_T3E
+peigs_FOPT +=   -DCRAY_T3D -DCRAY_T3E
+peigs_CPP += -DCRAY_T3E -DCRAY_T3D -P
 endif
 
 ifeq ($(peigs_TARGET),DELTA)
