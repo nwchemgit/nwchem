@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.43 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_init.F,v 1.44 1999-10-26 22:25:42 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -31,6 +31,8 @@ c::functions
       external spcart_init
       logical  int_ecp_init
       external int_ecp_init
+      logical  int_rel_init
+      external int_rel_init
       logical  texas_check_basis_ok
       external texas_check_basis_ok
 c::passed
@@ -206,6 +208,14 @@ c
         call errquit('int_init: spcart_init failed',911)
       endif
 c
+c Initialize relativistic basis set stuff
+c
+      any_rel = bas_rel_exists(rtdb)
+      if (any_rel) then
+        if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
+     &      ('int_init: int_rel_init failed ',911)
+      end if
+c
 c... generate memory requirements and store in structures in apiP.fh
 c
       call exact_mem(rtdb,bases,nbas)
@@ -252,7 +262,9 @@ c See if any basis has an attached SO potential
       endif
       if (any_so.or.any_ecp) then
         if (.not.int_ecp_init(ecp_bsh,so_bsh,0)) call errquit
-     &        ('int_init: int_ecp_init failed ',911)
+     &      ('int_init: int_ecp_init failed ',911)
+        if (any_rel) call errquit
+     &      ('int_init: ECPs with relativistic atoms illegal',911)
       endif
       init_int = 1
       end
@@ -276,7 +288,7 @@ c::local
       integer my_type    ! type of a given contraction
       integer my_nprim   ! number of primitives in a given contraction
       integer my_ngen    ! number of contractions in a given contraction
-      integer my_spc            ! spherical/cartesean fag for a given contraction
+      integer my_spc            ! spherical/cartesian flag for a given contraction
       double precision exponent ! largest exponent for basis set
 c
       texas_check_basis_ok = .true.  
@@ -309,4 +321,3 @@ c
         endif
       enddo
       end
-      
