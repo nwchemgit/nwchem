@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.101 2003-10-22 01:31:48 edo Exp $
+# $Id: DEFS,v 1.102 2003-10-23 19:51:42 edo Exp $
 #
 #======================================================================
 #
@@ -579,6 +579,11 @@ peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
+    ifeq ($(FC),xlf)
+      peigs_CPU = RS6000
+      peigs_FC  = $(FC) -O3 -qextname -qstrict   -I$(peigs_HDIR)  \
+      -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+    endif
 endif
 
 ifeq ($(peigs_TARGET),PGLINUX)
@@ -592,12 +597,6 @@ peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-#
-# on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
-# or make link from /usr/bin
-#
-# temporary slackware hack until george gets cpp/fconvert in the builds
-#
 peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
 endif
