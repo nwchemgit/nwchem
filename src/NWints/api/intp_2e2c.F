@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.6 1997-04-25 00:41:16 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.7 1998-12-10 23:48:24 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -16,6 +16,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::external subroutines used
 c errquit
@@ -64,10 +65,8 @@ c
       if (.not.shells_ok)
      &       call errquit('intp_2e2c: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
+c  check if gencon/sp shell
 c
-      call int_nospherical_check(brain,'intp_2e2c:bra')
-      call int_nospherical_check(ketin,'intp_2e2c:ket')
       call int_nogencont_check(brain,'intp_2e2c:bra')
       call int_nogencont_check(ketin,'intp_2e2c:ket')
       call int_nospshell_check(brain,'intp_2e2c:bra')
@@ -122,6 +121,16 @@ c......................... canAB    canCD    canPQ
      &         eri, leri, .false., .false., .false.,
 c............. dryrun
      &         .false., scr, lscr)
+        if (bas_spherical(bra).or.bas_spherical(ket)) then
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
+          if (Lp.eq.-1) p_gen = 1
+          if (Lq.eq.-1) q_gen = 1 
+          call spcart_2ctran(eri,scr,lscr,
+     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
+     &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),
+     &        .false.)
+        endif
 c
       else
         write(luout,*)'intp_2e2c: could not do nw integrals'

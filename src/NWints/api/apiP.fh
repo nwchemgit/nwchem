@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.12 1998-09-22 16:14:50 d3e129 Exp $
+c $Id: apiP.fh,v 1.13 1998-12-10 23:48:03 d3e129 Exp $
 c
 c common block that holds memory information
 c
@@ -20,10 +20,10 @@ c
       integer init_intd   ! derivative initialization flag
       integer init_intdd  ! second derivative initialization flag
 *
-      common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e,
-     &       mem_1e_h1, isz_2e3c, isz_2e2c, mem_2e3c, mem_2e2c,
-     &       isz_3ov, mem_3ov, iszb_2e4c, memb_2e4c, init_intd,
-     &       init_intdd
+      common /capi/ mem_2e4c, mem_1e, isz_2e4c, isz_1e,
+     &    mem_1e_h1, isz_2e3c, isz_2e2c, mem_2e3c, mem_2e2c,
+     &    isz_3ov, mem_3ov, iszb_2e4c, memb_2e4c,
+     &    init_int, init_intd, init_intdd
 c
 c common block that holds dummy exponent and coeficient
 c

@@ -1,7 +1,7 @@
       subroutine intp_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri)
 *
-* $Id: intp_2e3ct.F,v 1.2 1998-06-09 23:39:25 d3e129 Exp $
+* $Id: intp_2e3ct.F,v 1.3 1998-12-10 23:48:25 d3e129 Exp $
 *
       implicit none
 c
@@ -143,13 +143,12 @@ c............ dryrun
      &         .false., scr, lscr)
 c
         if (bas_spherical(ket).or.bas_spherical(bra)) then
-          write(6,*)' doing spherical transform '
           nintx = int_nbf_x(Lq)*int_nbf_x(La)*int_nbf_x(Lb)
           if (nintx.lt.lscr)
      &        call errquit
      &        ('intp_2e3ct: not enough scratch for spherical transform',
      &        911)
-          call spcart_3ctran(eri,scr,
+          call spcart_3ctran(eri,scr,lscr,
      &        int_nbf_x(La),int_nbf_s(La),La,a_gen,bas_spherical(bra),
      &        int_nbf_x(Lb),int_nbf_s(Lb),Lb,b_gen,bas_spherical(bra),
      &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),

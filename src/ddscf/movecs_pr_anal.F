@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.9 1998-07-02 20:29:37 ng972 Exp $
+* $Id: movecs_pr_anal.F,v 1.10 1998-12-10 23:48:48 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -264,7 +264,7 @@ c
 c
       integer mcart, l_xlm, k_xlm
       integer geom
-      integer nshell, noperators, maxang, maxbuf, maxscr, me, nproc
+      integer nshell, noperators, maxscr, me, nproc
       integer nbf_max, lmpmax, ishell, jshell, ijshell
       integer ilo, ihi, jlo, jhi, idim, jdim, ind, i, j, l, ioff
       integer l_scr, k_scr, l_mp, k_mp
@@ -274,13 +274,9 @@ c
      $     ('multiplole: bad basis', 0)
       if (.not. bas_numcont(basis, nshell)) call errquit
      $     ('xlm_pole: bas_numcont failed for basis', basis)
-      if (.not. bas_high_angular(basis,maxang)) call errquit(
-     &     'xlm_pole: bas_high_angular call failed',15)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit(
      &     'xlm_pole: bas_nbf_cn_max failed',20)
 c
-      call int_mem_3ov(maxbuf,maxscr)
-      maxscr = max(100000,maxscr)
 c
 c     note lmax is hardwired to 2
 c
@@ -288,10 +284,11 @@ c
 c     
 c     length of int_mpole integral output for full square list
 c     includes l_pole = 0,...,lmax, where l_pole = 0 is simply
-c     the 2-c overlap matrix.  (cartesian components).
+c     the 2-c overlap matrix.  (cartesian or sphericalcomponents).
 c     
-      noperators = 10
-      lmpmax = noperators * nbf_max**2
+      noperators = (lmax+1)*(lmax+2)*(lmax+3)/6
+      call int_mem_dipole(lmpmax,maxscr,basis,basis,lmax)
+      maxscr = max(100000,maxscr)
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -449,5 +446,3 @@ c
       if (.not. ma_pop_stack(l_tmp)) call errquit('xlm_ao_mo?',3)
 c
       end
-
-

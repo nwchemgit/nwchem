@@ -1,10 +1,11 @@
       subroutine intd_2e3c(brain, ish, ketin, jsh, ksh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e3c.F,v 1.5 1997-04-25 00:41:06 d3e129 Exp $
+c $Id: intd_2e3c.F,v 1.6 1998-12-10 23:48:20 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
+#include "stdio.fh"
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -77,6 +78,7 @@ c                                        --------------  |
 c                                        d[idatom(3),z] / 
 c                     
 c::local
+      logical any_spherical
       integer nint, ucont
       integer bra, ket, ab_geom, cd_geom
       integer inp, igen, iexp, icf, itype, iatom
@@ -88,15 +90,13 @@ c
 c
       nint = int_nint_cart(brain,ish,ketin,jsh,ketin,ksh,ketin,0)
       if (nint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',nint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',nint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intd_2e3c: nint>leri error',911)
       endif
 c
-c  check if spherical
+c  check if gencont/spshell
 c
-      call int_nospherical_check(brain,'intd_2e3c:bra')
-      call int_nospherical_check(ketin,'intd_2e3c:ket')
       call int_nogencont_check(brain,'intd_2e3c:bra')
       call int_nogencont_check(ketin,'intd_2e3c:ket')
       call int_nospshell_check(brain,'intd_2e3c:bra')
@@ -108,11 +108,13 @@ c
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
       if (ab_geom.ne.cd_geom) then
-        write(6,*)'intd_2e3c.F: two different geometries for',
+        write(luout,*)'intd_2e3c.F: two different geometries for',
      &         ' derivatives?'
         call errquit('intd_2e3c: geom error ',911)
       endif
       
+c
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
 c
       ucont = (sf_ibs_cn2ucn(ish,bra))
       inp   = infbs_cont(CONT_NPRIM,ucont,bra)
@@ -162,5 +164,11 @@ c
      &       scr,lscr)
 c
       call intd_sum(eri,nint,idatom,iatom,iatom,jatom,katom)
+c
+      if (any_spherical) then
+        call intd_2ec2s(eri,nint,scr,lscr,
+     &      itype,0,jtype,ktype,igen,1,jgen,kgen,
+     &      bas_spherical(bra),bas_spherical(ket),idatom)
+      endif
 c
       end

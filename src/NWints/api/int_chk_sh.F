@@ -1,4 +1,4 @@
-c $Id: int_chk_sh.F,v 1.6 1997-05-29 00:36:07 d3e129 Exp $
+c $Id: int_chk_sh.F,v 1.7 1998-12-10 23:48:10 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_chk\_sh}
@@ -29,6 +29,7 @@ c:tex-\end{verbatim}
 #include "bas.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
+#include "stdio.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer basisin ! [input] basis set handle
@@ -47,9 +48,9 @@ c
       int_chk_sh = shell.gt.0 .and.
      &             shell.le.ncont_tot_gb(basis)
       if (.not.int_chk_sh) then
-        write(6,*)'invalid contraction/shell index'
-        write(6,*)' shell range is: <1:',ncont_tot_gb(basis),'>'
-        write(6,*)' input shell is: ',shell
+        write(luout,*)'invalid contraction/shell index'
+        write(luout,*)' shell range is: <1:',ncont_tot_gb(basis),'>'
+        write(luout,*)' input shell is: ',shell
       endif
       end
 

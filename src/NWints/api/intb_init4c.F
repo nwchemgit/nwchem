@@ -1,4 +1,4 @@
-c $Id: intb_init4c.F,v 1.9 1997-05-29 23:43:08 d3e129 Exp $  
+c $Id: intb_init4c.F,v 1.10 1998-12-10 23:48:18 d3e129 Exp $  
 *
 c:tex-\subsection{intb\_init4c}
 c:tex-This logical function sets up the blocking integral API based on the
@@ -68,6 +68,7 @@ c:tex-\end{verbatim}
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c
       logical status
 c
@@ -167,7 +168,7 @@ c
             endif
  10      enddo
 #if defined(DEBUG_TXS)
-         write(6,*) ' num_q nsp ', num_q, nsp
+         write(luout,*) ' num_q nsp ', num_q, nsp
 #endif
       endif
 c

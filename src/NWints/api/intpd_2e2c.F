@@ -1,7 +1,7 @@
       subroutine intpd_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri, idatom2)
 *
-* $Id: intpd_2e2c.F,v 1.1 1998-05-06 00:50:12 d3e129 Exp $
+* $Id: intpd_2e2c.F,v 1.2 1998-12-10 23:48:28 d3e129 Exp $
 *
       implicit none
 c
@@ -18,6 +18,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::external subroutines used
 c errquit
@@ -70,10 +71,8 @@ c
       if (.not.shells_ok)
      &       call errquit('intpd_2e2c: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
+c  check if gencon/sp shell
 c
-      call int_nospherical_check(brain,'intpd_2e2c:bra')
-      call int_nospherical_check(ketin,'intpd_2e2c:ket')
       call int_nogencont_check(brain,'intpd_2e2c:bra')
       call int_nogencont_check(ketin,'intpd_2e2c:ket')
       call int_nospshell_check(brain,'intpd_2e2c:bra')
@@ -95,8 +94,8 @@ c
       endif
       mynint = int_nint_cart(brain,ish,ketin,jsh,0,0,0,0)
       if (mynint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',mynint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',mynint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intpd_2e2c: nint>leri error',911)
       endif
 c
@@ -143,6 +142,14 @@ c
         call intd_sum2c(eri,mynint,idatom,p_cent,q_cent)
         idatom2(1) = idatom(1)
         idatom2(2) = idatom(3)
+        if (bas_spherical(bra).or.bas_spherical(ket)) then
+          if (Lp.eq.-1) p_gen = 1
+          if (Lq.eq.-1) q_gen = 1
+          call spcart_2cBtran(eri,scr,lscr,
+     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
+     &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),
+     &        (3*2),.false.)
+        endif
       else
         write(luout,*)'intpd_2e2c: could not do nw integrals'
         write(luout,*)' brain :',brain

@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.10 1998-08-24 03:05:56 d3e129 Exp $
+c $Id: int_1cg.F,v 1.11 1998-12-10 23:48:05 d3e129 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -110,6 +110,7 @@ c
 c
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4.
+c ... since int_nbf_* arrays are set to the appropriate size.
 c
       if (li.eq.-1) i_gen = 1
 c

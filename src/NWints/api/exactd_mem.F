@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.22 1998-08-24 03:05:56 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.23 1998-12-10 23:48:05 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -23,8 +23,8 @@ c:tex-\end{verbatim}
 #include "stdio.fh"
 c
 c:: functions
-      logical api_is_ecp_basis
-      external api_is_ecp_basis
+      logical api_is_atomic_basis
+      external api_is_atomic_basis
 c:: passed
 c:tex-\begin{verbatim}
       integer rtdb        ! [input] the RTDB handle
@@ -53,11 +53,11 @@ c
 c
       nbfmax = 0
       do 00100 ibas = 1,nbas
-        if (.not.api_is_ecp_basis(bases(ibas))) then
+        if (api_is_atomic_basis(bases(ibas))) then
           call int_nbf_max(bases(ibas),nbf)
           nbfmax = max(nbfmax,nbf)
           do 00200 jbas = 1,ibas
-            if (.not.api_is_ecp_basis(bases(jbas))) then
+            if (api_is_atomic_basis(bases(jbas))) then
 c.... nbfmax for 2e3c and 2e4c
               if (bases(jbas).ne.bases(ibas)) then
                 call int_nbf_max(bases(ibas),nbf)
@@ -212,7 +212,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 15 000 000
+          memdum = 20 000 000
           nint = int_unint(brain,ibc,ketin,ikc,0,0,0,0)
           call hf1d(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -242,9 +242,9 @@ c
       factor = 1.20d00
       memsize = int(dble(memsize)*factor)
       max1e   = int(dble(max1e)*factor)
-*debug:      write(6,'(a,i10)')'emem_d1e: memsize =',memsize
-*debug:      write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
-*debug:      write(6,*)' factor =',factor
+*debug:      write(luout,'(a,i10)')'emem_d1e: memsize =',memsize
+*debug:      write(luout,'(a,i10)')'emem_d1e: max1e   =',max1e
+*debug:      write(luout,*)' factor =',factor
 c
       end
 c:tex-% part of the API Internal Routines
@@ -343,7 +343,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 15 000 000
+          memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
           call hf2d(
@@ -366,7 +366,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 *debug:          fbra = bra_prim*((bra_type+1)*(bra_type+2)/2)
 *debug:          fket = ket_prim*((ket_type+1)*(ket_type+2)/2)
 *debug:          find = fbra*fbra*fket*fket
-*debug:          write(6,10000)ibc,ibc,ikc,ikc,
+*debug:          write(luout,10000)ibc,ibc,ikc,ikc,
 *debug:     &        bra_prim,bra_prim,ket_prim,ket_prim,
 *debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *debug:10000     format(1x,'<',4(i4),'>(',4(i3),') nint=',i10,
@@ -374,7 +374,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 *debug:-end-debug
           memsize = max(memsize,memdum)
 c
-          memdum = 15 000 000
+          memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           nint = int_unint(brain,ibc,brain,ibc,ketin,ikc,ketin,ikc)
           call hf2d(dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -389,14 +389,14 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
      &          .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
 *debug:-start-debug
 *debug:          find = fbra*fbra*fket*fket
-*debug:          write(6,10000)ibc,ikc,ibc,ikc,
+*debug:          write(luout,10000)ibc,ikc,ibc,ikc,
 *debug:     &        bra_prim,ket_prim,bra_prim,ket_prim,
 *debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *debug:-end-debug
           memsize = max(memsize,memdum)
 c
           if (bra.eq.ket) then
-            memdum = 15 000 000
+            memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             nint = int_unint(brain,ibc,brain,ibc,brain,ibc,ketin,ikc)
             call hf2d(
@@ -414,13 +414,13 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
      &            .false., .true., dbl_mb(mb_exndcf(1,1)), memdum)
 *debug:-start-debug
 *debug:          find = fbra*fbra*fbra*fket
-*debug:          write(6,10000)ibc,ibc,ibc,ikc,
+*debug:          write(luout,10000)ibc,ibc,ibc,ikc,
 *debug:     &        bra_prim,bra_prim,bra_prim,ket_prim,
 *debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *debug:-end-debug
             memsize = max(memsize,memdum)
 c
-            memdum = 15 000 000
+            memdum = 20 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             nint = int_unint(brain,ibc,ketin,ikc,ketin,ikc,ketin,ikc)
             call hf2d(
@@ -437,7 +437,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
      &            .false.,.true.,dbl_mb(mb_exndcf(1,1)),memdum)
 *debug:-start-debug
 *debug:          find = fbra*fket*fket*fket
-*debug:          write(6,10000)ibc,ikc,ikc,ikc,
+*debug:          write(luout,10000)ibc,ikc,ikc,ikc,
 *debug:     &        bra_prim,ket_prim,ket_prim,ket_prim,
 *debug:     &        nint,memdum,find,(dble(memdum)/dble(find))
 *debug:          write(luout,*)'===============================================',
@@ -462,9 +462,9 @@ c
       memsize = int(dble(memsize)*factor)
       maxg    = int(dble(maxg)*factor)
 c
-*debug:      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
-*debug:      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
-*debug:      write(6,*)' factor =',factor
+*debug:      write(luout,'(a,i10)')'emem_d2e4c: memsize =',memsize
+*debug:      write(luout,'(a,i10)')'emem_d2e4c: maxg    =',maxg
+*debug:      write(luout,*)' factor =',factor
 c
       end
 c:tex-% part of the API Internal Routines
@@ -522,8 +522,8 @@ c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
 c
-      write(6,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
-      write(6,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
+      write(luout,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
+      write(luout,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
 c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
@@ -593,7 +593,7 @@ c
                 l_gen  = 1
               endif
 c
-              memdum = 15 000 000
+              memdum = 20 000 000
               nint = int_unint(brain,ibc,brain,jbc,ketin,kkc,ketin,lkc)
               call hf2d(
      &            dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -627,13 +627,14 @@ c
       maxg = maxg*12
       memsize = max(memsize,maxg)
       factor = dble(maxg)/dble(approx_maxg)
-      write(6,'(a,i10)')  'emem_d2e4c     : maxg    =',approx_maxg
-      write(6,'(a,i10)')  'emem_d2e4c_full: maxg    =',maxg
-      write(6,'(a,f10.3)')'             maxg factor =',factor
+      write(luout,'(a,i10)')  'emem_d2e4c     : maxg    =',approx_maxg
+      write(luout,'(a,i10)')  'emem_d2e4c_full: maxg    =',maxg
+      write(luout,'(a,f10.3)')'             maxg factor =',factor
       factor = dble(memsize)/dble(approx_memsize)
-      write(6,'(a,i10)')  'emem_d2e4c     : memsize =',approx_memsize
-      write(6,'(a,i10)')  'emem_d2e4c_full: memsize =',memsize
-      write(6,'(a,f10.3)')'          memsize factor =',factor
+      write(luout,'(a,i10)')  'emem_d2e4c     : memsize =',
+     &    approx_memsize
+      write(luout,'(a,i10)')  'emem_d2e4c_full: memsize =',memsize
+      write(luout,'(a,f10.3)')'          memsize factor =',factor
       call util_flush(6)
 c
       end

@@ -1,6 +1,6 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.6 1997-04-25 00:41:03 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.7 1998-12-10 23:48:20 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -14,6 +14,8 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c dcopy
@@ -66,6 +68,7 @@ c                            --------------  |
 c                            d[idatom(2),z] / 
 c                     
 c::local
+      logical any_spherical
       integer nint, ucont
       integer bra, ket, ab_geom, cd_geom
       integer inp, igen, iexp, icf, itype, iatom
@@ -76,15 +79,13 @@ c
 c
       nint = int_nint_cart(brain,ish,ketin,jsh,brain,0,ketin,0)
       if (nint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',nint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',nint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intd_2e2c: nint>leri error',911)
       endif
 c
-c  check if spherical/gencont/sp shell
+c  check if gencont/sp shell
 c
-      call int_nospherical_check(brain,'intd_2e2c:bra')
-      call int_nospherical_check(ketin,'intd_2e2c:ket')
       call int_nogencont_check(brain,'intd_2e2c:bra')
       call int_nogencont_check(ketin,'intd_2e2c:ket')
       call int_nospshell_check(brain,'intd_2e2c:bra')
@@ -96,11 +97,14 @@ c
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
       if (ab_geom.ne.cd_geom) then
-        write(6,*)'intd_2e2c.F: two different geometries for',
-     &         ' derivatives?'
+        write(luout,*)
+     &      'intd_2e2c.F: two different geometries for',
+     &      ' derivatives?'
         call errquit('intd_2e2c: geom error ',911)
       endif
       
+c
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
 c
       ucont = (sf_ibs_cn2ucn(ish,bra))
       inp   = infbs_cont(CONT_NPRIM,ucont,bra)
@@ -145,6 +149,17 @@ c
       call intd_sum2c(eri,nint,idatom,iatom,jatom)
       idatom2(1) = idatom(1)
       idatom2(2) = idatom(3)
+c
+      if (any_spherical) then
+        if (itype.eq.-1) igen = 1
+        if (jtype.eq.-1) jgen = 1
+        call spcart_2cBtran(eri,scr,lscr,
+     &      int_nbf_x(itype),int_nbf_s(itype),itype,igen,
+     &      bas_spherical(bra),
+     &      int_nbf_x(jtype),int_nbf_s(jtype),jtype,jgen,
+     &      bas_spherical(ket),
+     &      6,.false.)
+      endif
 c
       end
       subroutine intd_sum2c(eri,nint,idatom,iatom,jatom)

@@ -1,6 +1,6 @@
       subroutine int_dip_ga(ibas, jbas, g_x, g_y, g_z)
 *
-* $Id: int_dip_ga.F,v 1.1 1998-04-01 18:33:11 d3e129 Exp $
+* $Id: int_dip_ga.F,v 1.2 1998-12-10 23:48:47 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -14,7 +14,6 @@
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mscratch, max1e
       integer ijshell, ilo, ihi, jlo, jhi, idim
-      integer ibas_lmax, jbas_lmax
       integer l_buf, l_scr
       integer k_buf, k_scr
 c
@@ -37,15 +36,7 @@ c
 c
 c allocate temp. arrays
 c
-      call int_mem_3ov(max1e, mscratch)
-      if (.not. bas_high_angular(ibas, ibas_lmax))
-     $     call errquit('int_dip_ga: bas_high_ang?', 0)
-      if (.not. bas_high_angular(jbas, jbas_lmax))
-     $     call errquit('int_dip_ga: bas_high_ang?', 0)
-c
-      max1e = 4 *
-     $     ((ibas_lmax+1)*(ibas_lmax+2)/2)*
-     $     ((jbas_lmax+1)*(jbas_lmax+2)/2)
+      call int_mem_dipole(max1e,mscratch,ibas,jbas,1)
 c      
       if(.not.MA_push_get(MT_DBL,max1e,'int_dip_ga:buf',l_buf,k_buf))
      $  call errquit('int_dip_ga: ma failure',max1e)
@@ -116,9 +107,3 @@ c
       end do
 c
       end
-
-
-
-
-
-

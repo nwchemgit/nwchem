@@ -1,4 +1,4 @@
-c $Id: intso_1e.F,v 1.1 1998-04-29 07:27:43 d3e129 Exp $
+c $Id: intso_1e.F,v 1.2 1998-12-10 23:48:30 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intso\_1e}
@@ -9,6 +9,7 @@ c:tex-\begin{verbatim}
       subroutine intso_1e(i_basis,ish,j_basis,jsh,lscr,scr,lso,SO)
 c:tex-\end{verbatim}
       implicit none
+#include "stdio.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -47,9 +48,6 @@ c::local
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
 c
       logical any_spherical
-      integer i_nbf_x, j_nbf_x
-      integer i_nbf_s, j_nbf_s
-      integer nintx, nints, i, ip(3)
 c
       integer WarnP
       save WarnP
@@ -93,9 +91,10 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'int_1eso: WARNING: possible geometry inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
+        write(luout,*)
+     &      'int_1eso: WARNING: possible geometry inconsistency'
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
 c
@@ -113,7 +112,7 @@ c
         call errquit('int_1eso: could not do sp or nw integrals',0)
       endif
 c
-*     SO now has the cartesian integral block  (jlo:jhi,ilo:ihi)
+*     SO now has the cartesian integral block  (jlo:jhi,ilo:ihi,3)
 *      
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
       if (.not.any_spherical) return
@@ -123,60 +122,9 @@ c     as a block of 4.
 c
       if (li.eq.-1) i_gen = 1
       if (lj.eq.-1) j_gen = 1
-c
-      nintx = int_nbf_x(Li)*i_gen
-      nintx = int_nbf_x(Lj)*j_gen * nintx
-      nints = int_nbf_s(Li)*i_gen
-      nints = int_nbf_s(Lj)*j_gen * nints
-      ip(1) = 1
-      ip(2) = ip(1) + nintx
-      ip(3) = ip(2) + nintx
-c
-      if (bas_spherical(ibas).and.bas_spherical(jbas)) then
-*... transform both i and j integrals
-        i_nbf_x = int_nbf_x(Li)
-        i_nbf_s = int_nbf_s(Li)
-        j_nbf_x = int_nbf_x(Lj)
-        j_nbf_s = int_nbf_s(Lj)
-c        
-c
-        do i = 1,3
-          call spcart_tran1e(SO(ip(i)),scr,
-     &        j_nbf_x,i_nbf_x,Lj,j_gen,
-     &        j_nbf_s,i_nbf_s,Li,i_gen,
-     &        .false.)
-        enddo
-        call int_c2s_mv(SO,nintx,nints,3,scr,lscr,'intso_1e')
-      else if (bas_spherical(ibas)) then
-*.. transform on i component
-        i_nbf_x = int_nbf_x(Li)
-        i_nbf_s = int_nbf_s(Li)
-        j_nbf_x = int_nbf_x(Lj)
-        j_nbf_s = j_nbf_x
-        do i = 1,3
-          call spcart_tran1e(SO(ip(i)),scr,
-     &        j_nbf_x,i_nbf_x,0,j_gen,
-     &        j_nbf_s,i_nbf_s,Li,i_gen,
-     &        .false.)
-        enddo
-        call int_c2s_mv(SO,nintx,nints,3,scr,lscr,'intso_1e')
-      else if (bas_spherical(ibas)) then
-*.. transform on i component
-        i_nbf_x = int_nbf_x(Li)
-        i_nbf_s = i_nbf_x
-        j_nbf_x = int_nbf_x(Lj)
-        j_nbf_s = int_nbf_s(Lj)
-        do i = 1,3
-          call spcart_tran1e(SO(ip(i)),scr,
-     &        j_nbf_x,i_nbf_x,Lj,j_gen,
-     &        j_nbf_s,i_nbf_s,0,i_gen,
-     &        .false.)
-        enddo
-        call int_c2s_mv(SO,nintx,nints,3,scr,lscr,'intso_1e')
-      else
-        call errquit(
-     &        'int_1eke: should never reach transform blocked else',
-     &        911)
-      endif
+      call spcart_2cBtran(SO,scr,lscr,
+     &    int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &    int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &    3,.false.)
 c
       end

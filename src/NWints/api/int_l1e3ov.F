@@ -1,4 +1,4 @@
-c $Id: int_l1e3ov.F,v 1.10 1997-05-29 00:36:08 d3e129 Exp $
+c $Id: int_l1e3ov.F,v 1.11 1998-12-10 23:48:12 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1e3ov}
@@ -27,6 +27,8 @@ c..  errquit
 c::function
       logical int_chk_sh
       external int_chk_sh
+      integer int_nint_cart
+      external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis            ! [input] basis set handle for ish
@@ -67,12 +69,6 @@ c
       if (.not.shells_ok)
      &       call errquit('int_l1e3ov: invalid contraction/shell',0)
 c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'int_l1e3ov')
-      call int_nospherical_check(j_basis,'int_l1e3ov')
-      call int_nospherical_check(k_basis,'int_l1e3ov')
-c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
       kbas = k_basis + BASIS_HANDLE_OFFSET
@@ -81,12 +77,7 @@ c
       ikbas  = ibas.eq.kbas
       allbas = ijbas .and. jkbas
 c
-      numint =         (sf_ibs_cn2bfr(2,ish,ibas))-
-     &      (sf_ibs_cn2bfr(1,ish,ibas))+1
-      numint = numint*((sf_ibs_cn2bfr(2,jsh,jbas))-
-     &      (sf_ibs_cn2bfr(1,jsh,jbas))+1)
-      numint = numint*((sf_ibs_cn2bfr(2,ksh,kbas))-
-     &      (sf_ibs_cn2bfr(1,ksh,kbas))+1)
+      numint = int_nint_cart(i_basis,ish,j_basis,jsh,k_basis,ksh,0,0)
       newlscr = lscr-numint
       call int_1e3ov(i_basis, ish, j_basis, jsh, k_basis, ksh,
      &    newlscr,scr(numint+1),numint,scr)

@@ -1,4 +1,4 @@
-c $Id: int_lgen1e.F,v 1.13 1997-05-29 23:43:05 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.14 1998-12-10 23:48:15 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines
 c:tex-\subsection{int\_l1gen1e}
@@ -54,11 +54,6 @@ c
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
      &       call errquit('int_lgen1e: invalid contraction/shell',0)
-c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'int_lgen1e')
-      call int_nospherical_check(j_basis,'int_lgen1e')
 c      
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET

@@ -1,7 +1,8 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.7 1998-04-29 07:27:39 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.8 1998-12-10 23:48:20 d3e129 Exp $
       implicit none
+#include "stdio.fh"
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -50,8 +51,8 @@ c                            d[idatom(2),z]/
 *
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lOva) then
-        write(6,*) 'nint*3*2 = ',nint*3*2
-        write(6,*) 'lOva     = ',lOva
+        write(luout,*) 'nint*3*2 = ',nint*3*2
+        write(luout,*) 'lOva     = ',lOva
         call errquit('intd_1eov: nint>lOva error',911)
       endif
       call intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
@@ -64,6 +65,7 @@ c                            d[idatom(2),z]/
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
 c
+#include "stdio.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -167,7 +169,7 @@ c
       jgeom = ibs_geom(jbas)
 c
       if (igeom.ne.jgeom) then
-        write(6,*)'intd_1eovP: two different geometries for',
+        write(luout,*)'intd_1eovP: two different geometries for',
      &         ' derivatives?'
         call errquit('intd_1eovP: geom error ',911)
       endif

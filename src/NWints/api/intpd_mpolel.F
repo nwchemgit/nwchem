@@ -3,7 +3,7 @@
      &    lscr, scr, lmpint, MP, num_mpint,
      &    idatom)
 *
-* $Id: intpd_mpolel.F,v 1.2 1998-06-09 23:39:27 d3e129 Exp $
+* $Id: intpd_mpolel.F,v 1.3 1998-12-10 23:48:29 d3e129 Exp $
 *
 c
 c routine to compute multipole integral derivatives at a given lvalue 
@@ -86,6 +86,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::functions
       logical int_chk_init
@@ -121,6 +122,7 @@ c::local
       integer lpole
       integer ioffj
       double precision xyz_new(3)
+      logical any_spherical
       logical inline_chk_sh      
 c
       integer WarnP
@@ -139,10 +141,8 @@ c
       if (.not.int_chk_init('intpd_mpolel'))
      &       call errquit('intpd_mpolel: int_init was not called' ,0)
 c
-c  check if spherical/gencon/sp shells
+c  check if gencon/sp shells
 c
-      call int_nospherical_check(i_basis,'intpd_mpolel:i_basis')
-      call int_nospherical_check(j_basis,'intpd_mpolel:j_basis')
       call int_nogencont_check(i_basis,'intpd_mpolel:i_basis')
       call int_nogencont_check(j_basis,'intpd_mpolel:j_basis')
       call int_nospshell_check(i_basis,'intpd_mpolel:i_basis')
@@ -179,6 +179,8 @@ c
       j_icfp  = infbs_cont(CONT_ICFP ,ucont,jbas)
       j_cent  = (sf_ibs_cn2ce(jsh,jbas))
       j_geom  = ibs_geom(jbas)
+c
+      any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
         write(luout,*)'intpd_mpolel: WARNING: possible geometry',
@@ -237,5 +239,14 @@ c.....................DryRun
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = -3
+      endif
+      if (any_spherical) then
+        if (Li.eq.-1) i_gen = 1
+        if (Lj.eq.-1) j_gen = 1
+        call spcart_3cBtran(MP,scr,lscr,
+     &      int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &      int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &      int_nbf_x(lval),int_nbf_x(lval),lval,1,.false.,
+     &      9,.false.)
       endif
       end

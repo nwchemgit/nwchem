@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.30 1997-06-06 21:07:32 pg481 Exp $
+c $Id: int_2e4c.F,v 1.31 1998-12-10 23:48:09 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -26,6 +26,7 @@ c
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -81,8 +82,6 @@ c
       logical shells_ok
       logical inline_chk_sh
 c
-*debug:      integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
-*debug:      integer aa,bb,cc,dd,abcd
       integer WarnP
       save WarnP
       data WarnP /0/
@@ -125,9 +124,10 @@ c
      &       call errquit('int_2e4c: invalid contraction/shell',0)
 c
       if (ab_geom.ne.cd_geom.and.WarnP.eq.0) then
-        write(6,*)'int_2e4c: WARNING: possible geometry inconsistency'
-        write(6,*)'bra geometry handle:',ab_geom
-        write(6,*)'ket geometry handle:',cd_geom
+        write(luout,*)
+     &      'int_2e4c: WARNING: possible geometry inconsistency'
+        write(luout,*)'bra geometry handle:',ab_geom
+        write(luout,*)'ket geometry handle:',cd_geom
         WarnP = 1
       endif
 c
@@ -254,17 +254,6 @@ c
 c eri has cartesian block of integrals (llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
 c
         if (any_spherical)then
-*debug:          write(6,*)' for shells:',ish,jsh,ksh,lsh
-*debug:          if (.not.bas_cn2bfr(brain,ish,ilo,ihi))
-*debug:     &        stop 'cn2bfr error i'
-*debug:          if (.not.bas_cn2bfr(brain,jsh,jlo,jhi))
-*debug:     &        stop 'cn2bfr error j'
-*debug:          if (.not.bas_cn2bfr(ketin,ksh,klo,khi))
-*debug:     &        stop 'cn2bfr error k'
-*debug:          if (.not.bas_cn2bfr(ketin,lsh,llo,lhi))
-*debug:     &        stop 'cn2bfr error l'
-*debug:          write(6,*)' nbf low   :',ilo,jlo,klo,llo
-*debug:          write(6,*)' nbf hi    :',ihi,jhi,khi,lhi
 c
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4.
@@ -278,19 +267,6 @@ c
           b_nbf = int_nbf_x(Lb)
           c_nbf = int_nbf_x(Lc)
           d_nbf = int_nbf_x(Ld)
-*debug:          write(6,*)'bra/ket-cartesian integrals'
-*debug:          abcd = 0
-*debug:          do aa = 1,a_nbf
-*debug:            do bb = 1,b_nbf
-*debug:              do cc = 1,c_nbf
-*debug:                do dd = 1,d_nbf
-*debug:                  abcd = abcd + 1
-*debug:                  write(6,*)aa,bb,cc,dd,eri(abcd)
-*debug:                  write(79,*)aa,bb,cc,dd,eri(abcd)
-*debug:                enddo
-*debug:              enddo
-*debug:            enddo
-*debug:          enddo
           if(bas_spherical(bra)) then
             a_nbf_s = int_nbf_s(La)
             b_nbf_s = int_nbf_s(Lb)
@@ -301,19 +277,6 @@ c
             a_nbf = a_nbf_s
             b_nbf = b_nbf_s
           endif
-*debug:          write(6,*)'bra-shperical/ket-cartesian integrals'
-*debug:          abcd = 0
-*debug:          do aa = 1,a_nbf
-*debug:            do bb = 1,b_nbf
-*debug:              do cc = 1,c_nbf
-*debug:                do dd = 1,d_nbf
-*debug:                  abcd = abcd + 1
-*debug:                  write(6,*)aa,bb,cc,dd,eri(abcd)
-*debug:                  write(80,*)aa,bb,cc,dd,eri(abcd)
-*debug:                enddo
-*debug:              enddo
-*debug:            enddo
-*debug:          enddo
           if(bas_spherical(ket)) then
             c_nbf_s = int_nbf_s(Lc)
             d_nbf_s = int_nbf_s(Ld)
@@ -325,27 +288,14 @@ c
             d_nbf = d_nbf_s
           endif
         endif
-*debug:        write(6,*)'bra-shperical/ket-spherical integrals'
-*debug:        abcd = 0
-*debug:        do aa = 1,a_nbf
-*debug:          do bb = 1,b_nbf
-*debug:            do cc = 1,c_nbf
-*debug:              do dd = 1,d_nbf
-*debug:                abcd = abcd + 1
-*debug:                write(6,*)aa,bb,cc,dd,eri(abcd)
-*debug:                write(80,*)aa,bb,cc,dd,eri(abcd)
-*debug:              enddo
-*debug:            enddo
-*debug:          enddo
-*debug:        enddo
       else
-        write(6,*)'int_2e4c: could not do sp or nw integrals'
-        write(6,*)' brain :',brain
-        write(6,*)' ketin :',ketin
-        write(6,*)' ish   :',ish
-        write(6,*)' jsh   :',jsh
-        write(6,*)' ksh   :',ksh
-        write(6,*)' lsh   :',lsh
+        write(luout,*)'int_2e4c: could not do sp or nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
+        write(luout,*)' ksh   :',ksh
+        write(luout,*)' lsh   :',lsh
         call errquit('int_2e4c: fatal error ',0)
       endif
       end

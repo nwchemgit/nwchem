@@ -1,4 +1,4 @@
-c $Id: int_projpole.F,v 1.9 1997-09-05 22:25:08 d3e129 Exp $
+c $Id: int_projpole.F,v 1.10 1998-12-10 23:48:16 d3e129 Exp $
 *
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
@@ -34,14 +34,16 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
+#include "int_nbf.fh"
 c
 c::functions
       logical int_chk_init
       logical cando_nw_1e, cando_nw
-      integer int_nint_cart
+      integer int_nint_cart, int_nint
       external int_chk_init
       external cando_nw_1e, cando_nw
-      external int_nint_cart
+      external int_nint_cart, int_nint
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis             ! [input] basis set handle for ish
@@ -58,8 +60,9 @@ c:tex-\end{verbatim}
 c::local      
       logical shells_ok
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
+      integer i_gen_save
       integer ucont, lval
-      integer l_int, i_int, num_int
+      integer l_int, i_int, i_int_x,num_int
       integer int_point, int_size
       integer lpole
       logical inline_chk_sh      
@@ -74,10 +77,6 @@ c check initialization
 c      
       if (.not.int_chk_init('int_projpole'))
      &       call errquit('int_projpole: int_init was not called' ,0)
-c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'int_projpole')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
@@ -101,16 +100,20 @@ c
 c
       num_int = 0
       do 00100 lval = 0,lmax
-        l_int  = (lval+1)*(lval+2)/2
-        i_int  = int_nint_cart(i_basis, ish, 0, 0, 0,0, 0,0)
+        l_int   = (lval+1)*(lval+2)/2
+        i_int_x = int_nint_cart(i_basis, ish, 0, 0, 0,0, 0,0)
+        i_int   = int_nint(i_basis, ish, 0, 0, 0,0, 0,0)
         int_point = num_int + 1
         int_size  = lmpint - num_int
-        num_int = num_int + l_int*i_int
-        if (num_int.gt.lmpint) then
-          write(6,*)' int_projpole: lmpint  = ',lmpint
-          write(6,*)' int_projpole: num_int = ',num_int
+        if ((num_int+l_int*i_int_x).gt.lmpint) then
+          write(luout,*)
+     &        ' int_projpole: lmpint  = ',lmpint
+          write(luout,*)
+     &        ' int_projpole: (num_int+l_int*i_int_x) = ',
+     &        (num_int+l_int*i_int_x)
           call errquit('int_projpole: lmpint too small ',911)
         endif
+        num_int = num_int + l_int*i_int
         if (cando_nw_1e(i_basis,ish,0)) then
           call int_hf1sp(
      &        centerl,DCexp,
@@ -125,18 +128,17 @@ c............. doS    doT     doV     canonical
      &        .true.,.false.,.false.,.false.,
 c.............. dryrun
      &        .false.,scr,lscr,'int_projpole')
-        elseif (cando_nw(i_basis,ish,0)) then
-          call hf1(
-     &        centerl,DCexp,
-     &        DCcoeff, 1, 1, lval,
-     &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &        dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &        coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-     &        MP(int_point),scr,scr,int_size,
-c............. doS    doT     doV     canonical
-     &        .true.,.false.,.false.,.false.,
-c.............. dryrun
-     &        .false.,scr,lscr)
+          if (bas_spherical(ibas)) then    ! only one basis set
+            if (Li.eq.-1) then
+              i_gen_save = i_gen
+              i_gen = 1
+            endif
+            call spcart_2ctran(MP(int_point),scr,lscr,
+     &          int_nbf_x(lval),int_nbf_x(lval),lval,1,.false.,
+     &          int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,
+     &          bas_spherical(ibas),.false.)
+            if (Li.eq.-1) i_gen = i_gen_save
+          endif
         else
           call errquit
      &        ('int_projpole: could not do sp or nw integrals',0)

@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.4 1998-09-28 17:04:40 d3e129 Exp $
+c $Id: intdd_init.F,v 1.5 1998-12-10 23:48:22 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -17,6 +17,7 @@ c
 c Initializes integral second derivative code 
 c
       implicit none
+#include "stdio.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -61,8 +62,8 @@ c
       val_int_acc = 0.0d00
 c
       if(init_intdd.eq.1 .and. oprint) then
-        write(6,*)' warning nested intdd_inits'
-        write(6,*)' intdd_init already called '
+        write(luout,*)' warning nested intdd_inits'
+        write(luout,*)' intdd_init already called '
         call util_flush(6)
       endif
 c
@@ -97,7 +98,7 @@ c
         user_cando_sp = .true.
         def_cando_sp  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' intdd_init: cando_sp set to always be ',def_cando_sp
           call util_flush(6)
         endif
@@ -107,7 +108,7 @@ c
         user_cando_nw = .true.
         def_cando_nw  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' intdd_init: cando_nw set to always be ',def_cando_nw
           call util_flush(6)
         endif
@@ -117,7 +118,7 @@ c
         user_cando_txs = .true.
         def_cando_txs  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' intdd_init: cando_txs set to always be ',def_cando_txs
           call util_flush(6)
         endif
@@ -128,7 +129,7 @@ c
           user_cando_txs = .true.
           def_cando_txs = .false.
           if (ga_nodeid().eq.0 .and. oprint) then
-            write(6,*)
+            write(luout,*)
      &          ' intdd_init: internal texas instability ',
      &          'possible cando',
      &          '_txs set to always be ',def_cando_txs
@@ -141,10 +142,10 @@ c
 *
       if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
         if (ga_nodeid().eq.0) then
-          write(6,*)' you are trying to turn an integral code on?? '
-          write(6,*)' sp  ', def_cando_sp
-          write(6,*)' nw  ', def_cando_nw
-          write(6,*)' txs ', def_cando_txs
+          write(luout,*)' you are trying to turn an integral code on?? '
+          write(luout,*)' sp  ', def_cando_sp
+          write(luout,*)' nw  ', def_cando_nw
+          write(luout,*)' txs ', def_cando_txs
           call util_flush(6)
         endif
         call errquit
@@ -155,14 +156,14 @@ c
         status = status .and. bas_check_handle(bases(ibas),'intdd_init')
 00100 continue
       if (.not.status) then
-        write(6,*)' at least one basis handle not valid'
+        write(luout,*)' at least one basis handle not valid'
         do 00200 ibas = 1,nbas
-          write(6,'(a,i5)')
+          write(luout,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
         call errquit('intdd_init: basis handles hosed ',nbas)
       endif
-*      write(6,*)' intdd_init: basis set handles valid '
+*      write(luout,*)' intdd_init: basis set handles valid '
 c
 c check for both sp and gc shells
 c
@@ -197,7 +198,7 @@ c.. input memory in words should be scaled by 1/12 for same range
       intd_memthresh = intd_memp
       if (rtdb_get(rtdb,'intdd:approxmem',MT_INT,1,intd_memtmp)) then
         if(ga_nodeid().eq.0)then
-          write(6,'(/a,i10,a/)')
+          write(luout,'(/a,i10,a/)')
      &        ' approximate memory for derivative integrals set to:',
      &        intd_memtmp
         endif

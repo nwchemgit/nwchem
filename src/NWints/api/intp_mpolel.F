@@ -2,7 +2,7 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: intp_mpolel.F,v 1.2 1998-06-09 23:39:26 d3e129 Exp $
+* $Id: intp_mpolel.F,v 1.3 1998-12-10 23:48:26 d3e129 Exp $
 *
 c
 c routine to compute multipole integrals at a given lvalue with the
@@ -73,12 +73,13 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::functions
       logical int_chk_init
-      integer int_nint_cart
+      integer int_nint_cart, int_nint
       external int_chk_init
-      external int_nint_cart
+      external int_nint_cart, int_nint
 c::passed
       integer i_basis             ! [input] basis set handle for ish
       integer ish                 ! [input] i shell/contraction
@@ -101,7 +102,7 @@ c::local
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
       integer jbas, Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
       integer ucont
-      integer l_int, ij_int, num_int
+      integer l_int, ij_int, ij_int_x, num_int
       integer lpole
       double precision xyz_new(3)
       logical inline_chk_sh      
@@ -122,10 +123,8 @@ c
       if (.not.int_chk_init('intp_mpolel'))
      &       call errquit('intp_mpolel: int_init was not called' ,0)
 c
-c  check if spherical/gencon/sp shells
+c  check if gencon/sp shells
 c
-      call int_nospherical_check(i_basis,'intp_mpolel:i_basis')
-      call int_nospherical_check(j_basis,'intp_mpolel:j_basis')
       call int_nogencont_check(i_basis,'intp_mpolel:i_basis')
       call int_nogencont_check(j_basis,'intp_mpolel:j_basis')
       call int_nospshell_check(i_basis,'intp_mpolel:i_basis')
@@ -178,14 +177,16 @@ c
         call errquit('intp_mpolel: general contraction error ',911)
       endif
 c
-      l_int   = (lval+1)*(lval+2)/2
-      ij_int  = int_nint_cart(i_basis, ish, j_basis, jsh, 0,0, 0,0)
-      num_int =  l_int*ij_int
-      if (num_int.gt.lmpint) then
+      l_int    = (lval+1)*(lval+2)/2
+      ij_int   = int_nint(i_basis, ish, j_basis, jsh, 0,0, 0,0)
+      ij_int_x = int_nint_cart(i_basis, ish, j_basis, jsh, 0,0, 0,0)
+      if ((num_int+l_int*ij_int_x).gt.lmpint) then
         write(luout,*)' intp_mpolel: lmpint  = ',lmpint
-        write(luout,*)' intp_mpolel: num_int = ',num_int
+        write(luout,*)' intp_mpolel: (num_int+l_int*ij_int_x) = ',
+     &      (num_int+l_int*ij_int_x)
         call errquit('intp_mpolel: lmpint too small ',911)
       endif
+      num_int =  l_int*ij_int
       call hf3ois(
      &    coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &    dbl_mb(mb_exndcf(i_icfp,ibas)),i_prim, Li,
@@ -196,4 +197,14 @@ c
 c.....................TriDiag..DryRun
      &    MP,num_int,.false.,.false.,scr,lscr)
       num_mpint = num_int
+      if (bas_spherical(ibas).or.bas_spherical(jbas)) then
+        if (Li.eq.-1) i_gen = 1
+        if (Lj.eq.-1) j_gen = 1
+        call spcart_3ctran(MP,scr,lscr,
+     &      int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &      int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &      int_nbf_x(lval),int_nbf_x(lval),lval,1,.false.,
+     &      .false.)
+      endif
+
       end

@@ -1,4 +1,4 @@
-c $Id: int_canon.F,v 1.3 1997-05-29 00:36:06 d3e129 Exp $
+c $Id: int_canon.F,v 1.4 1998-12-10 23:48:09 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_canon}
@@ -16,6 +16,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       integer iii,jjj
 #if defined(DEBUG)
+#include "stdio.fh"
       logical warn
 #endif
 c
@@ -59,8 +60,8 @@ c
       endif
 #if defined(DEBUG)
       if (warn) then
-        write(6,10000)i,j,k,l
-        write(6,10001)ii,jj,kk,ll
+        write(luout,10000)i,j,k,l
+        write(luout,10001)ii,jj,kk,ll
       endif
 10000 format(1x,'old:',4(i5))
 10001 format(1x,'new:',4(i5))

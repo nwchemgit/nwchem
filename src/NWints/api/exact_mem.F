@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.32 1997-12-04 22:43:46 d3e129 Exp $
+c $Id: exact_mem.F,v 1.33 1998-12-10 23:48:04 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -23,8 +23,8 @@ c:tex-\end{verbatim}
 #include "apiP.fh"
 c
 c:: functions
-      logical api_is_ecp_basis
-      external api_is_ecp_basis
+      logical api_is_atomic_basis
+      external api_is_atomic_basis
 c:: passed
 c:tex-\begin{verbatim}
       integer rtdb        ! [input] the RTDB handle
@@ -57,9 +57,9 @@ c
       call int_mem_zero()
 c
       do 00100 ibas = 1,nbas
-        if (.not.api_is_ecp_basis(bases(ibas))) then
+        if (api_is_atomic_basis(bases(ibas))) then
           do 00200 jbas = 1,ibas
-            if (.not.api_is_ecp_basis(bases(jbas))) then
+            if (api_is_atomic_basis(bases(jbas))) then
 c.... 2e 4 center
               if (o_do_full) then
                 call emem_2e4c_full
@@ -94,8 +94,6 @@ c
       mem_1e_h1 = mem_1e + isz_1e
 c
 c... now do loops for 3 center overlap integrals
-c
-c... add control mechanism for 3ov?
 c
       isz_3ov = 0
       mem_3ov = 0
@@ -236,7 +234,7 @@ c
             k_prim = infbs_cont(CONT_NPRIM,ikc,kbas)
 c**            k_gen  = infbs_cont(CONT_NGEN,ikc,kbas)
             
-            memdum  = 9 000 000
+            memdum  = 14 000 000
 c
             call hf3OIs(
      &            dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
@@ -349,7 +347,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 9 000 000
+          memdum = 14 000 000
 *
           call hf1(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -374,8 +372,8 @@ c... insure scratch is large enough to hold 3*max1e
       memsize = max(3*max1e,memsize)
 c
 #if defined(API_DEBUG)
-      write(6,'(a,i10)')'emem_1e: memsize =',memsize
-      write(6,'(a,i10)')'emem_1e: max1e   =',max1e
+      write(luout,'(a,i10)')'emem_1e: memsize =',memsize
+      write(luout,'(a,i10)')'emem_1e: max1e   =',max1e
 #endif
 c
       end
@@ -487,7 +485,7 @@ c
           ket_cando_sp = cando_sp_u(ketin,ikc,0)
           if (bra_cando_sp.and.ket_cando_sp) goto 00201
 c
-          memdum = 9 000 000
+          memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -502,7 +500,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 *:debug   write(luout,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
-          memdum = 9 000 000
+          memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -518,7 +516,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
-            memdum = 9 000 000
+            memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -533,7 +531,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
 *:debug     write(luout,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
-            memdum = 9 000 000
+            memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             call hf2(dbl_mb(mb_exndcf(1,1)),dbl_mb(mb_exndcf(1,1)),
      &            dbl_mb(mb_exndcf(1,1)),bra_prim,bra_gen,bra_type,
@@ -564,8 +562,8 @@ c
 c
 c... add 10% for abbc and abcc class shells not checked for
       memsize = memsize + memsize/10
-*      write(6,'(a,i10)')'emem_2e4c: memsize =',memsize
-*      write(6,'(a,i10)')'emem_2e4c: maxg    =',maxg
+*      write(luout,'(a,i10)')'emem_2e4c: memsize =',memsize
+*      write(luout,'(a,i10)')'emem_2e4c: maxg    =',maxg
 c
       end
 ***********************************************************************
@@ -649,7 +647,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 9 000 000
+          memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -680,8 +678,8 @@ c
 c
 c... add 10% for safety
       memsize = memsize + memsize/10
-*      write(6,'(a,i10)')'emem_2e3c: memsize =',memsize
-*      write(6,'(a,i10)')'emem_2e3c: maxg    =',maxg
+*      write(luout,'(a,i10)')'emem_2e3c: memsize =',memsize
+*      write(luout,'(a,i10)')'emem_2e3c: maxg    =',maxg
 c
       end
 ***********************************************************************
@@ -766,7 +764,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 9 000 000
+          memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -797,8 +795,8 @@ c
 c
 c... add 10% for safety
       memsize = memsize + memsize/10
-*      write(6,'(a,i10)')'emem_2e2c: memsize =',memsize
-*      write(6,'(a,i10)')'emem_2e2c: maxg    =',maxg
+*      write(luout,'(a,i10)')'emem_2e2c: memsize =',memsize
+*      write(luout,'(a,i10)')'emem_2e2c: maxg    =',maxg
 c
       end
 ***********************************************************************
@@ -864,8 +862,8 @@ c
       bra_ucont = infbs_head(HEAD_NCONT,bra)
       ket_ucont = infbs_head(HEAD_NCONT,ket)
 c
-      write(6,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
-      write(6,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
+      write(luout,*)' bra basis ',bs_name(bra)(1:len_bs_name(bra))
+      write(luout,*)' ket basis ',bs_name(ket)(1:len_bs_name(ket))
 c
 *error checking
       if (bra_ucont.eq.0 .or. ket_ucont.eq.0) then
@@ -923,7 +921,7 @@ c
               ket_cando_sp = cando_sp_u(ketin,kbc,jbc)
               if (bra_cando_sp.and.ket_cando_sp) goto 00201
 c
-              memdum = 9 000 000
+              memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
               call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -942,7 +940,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
 #endif
               memsize = max(memsize,memdum)
 c
-              memdum = 9 000 000
+              memdum = 14 000 000
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
               call hf2(
      &              dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -976,13 +974,13 @@ c
       maxg = max_nbf_bra*max_nbf_bra*max_nbf_ket*max_nbf_ket
 c
       factor = dble(maxg)/dble(approx_maxg)
-      write(6,'(a,i10)')'emem_2e4c     : maxg    =',approx_maxg
-      write(6,'(a,i10)')'emem_2e4c_full: maxg    =',maxg
-      write(6,'(a,f10.3)')'             maxg factor =',factor
+      write(luout,'(a,i10)')'emem_2e4c     : maxg    =',approx_maxg
+      write(luout,'(a,i10)')'emem_2e4c_full: maxg    =',maxg
+      write(luout,'(a,f10.3)')'             maxg factor =',factor
       factor = dble(memsize)/dble(approx_memsize)
-      write(6,'(a,i10)')'emem_2e4c     : memsize =',approx_memsize
-      write(6,'(a,i10)')'emem_2e4c_full: memsize =',memsize
-      write(6,'(a,f10.3)')'          memsize factor =',factor
+      write(luout,'(a,i10)')'emem_2e4c     : memsize =',approx_memsize
+      write(luout,'(a,i10)')'emem_2e4c_full: memsize =',memsize
+      write(luout,'(a,f10.3)')'          memsize factor =',factor
       call util_flush(6)
 c
       end
@@ -1102,5 +1100,35 @@ c
         api_is_ecp_basis = .true.
       else
         api_is_ecp_basis = .false.
+      endif
+      end
+      logical function api_is_atomic_basis(basisin)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+      integer basisin ! [input] basis set handle
+* returns true if basis set is an atomic style basis
+      integer basis
+c
+      basis = basisin + basis_handle_offset
+      if (infbs_head(Head_ECP,basis).eq.0) then
+        api_is_atomic_basis = .true.
+      else
+        api_is_atomic_basis = .false.
+      endif
+      end
+      logical function api_is_so_basis(basisin)
+      implicit none
+#include "basdeclsP.fh"
+#include "basP.fh"
+      integer basisin ! [input] basis set handle
+* returns true if basis set is an so style basis
+      integer basis
+c
+      basis = basisin + basis_handle_offset
+      if (infbs_head(Head_ECP,basis).eq.2) then
+        api_is_so_basis = .true.
+      else
+        api_is_so_basis = .false.
       endif
       end

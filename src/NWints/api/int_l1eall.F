@@ -1,4 +1,4 @@
-c $Id: int_l1eall.F,v 1.15 1998-08-24 03:05:57 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.16 1998-12-10 23:48:12 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eall}
@@ -27,11 +27,14 @@ c:tex-\end{verbatim}
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c::external subroutines used
 c errquit
 c::function
       logical int_chk_sh
       external int_chk_sh
+      integer int_nint_cart
+      external int_nint_cart
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis ! [input] basis set handle for ish
@@ -64,35 +67,27 @@ c
       if (.not.shells_ok)
      &       call errquit('int_l1eall: invalid contraction/shell',0)
 c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'int_l1eall')
-      call int_nospherical_check(j_basis,'int_l1eall')
-c
 c check canoncialization of shells
 c
       ijbas = i_basis .eq. j_basis
       if (.not.(ijbas.and.ish.ge.jsh)) then
-        write(6,*)' shells not in canonical order '
-        write(6,*)' ish = ',ish
-        write(6,*)' jsh = ',jsh
+        write(luout,*)' shells not in canonical order '
+        write(luout,*)' ish = ',ish
+        write(luout,*)' jsh = ',jsh
         call errquit('int_l1eall: canonical error',0)
       endif
 c
       if ((3*lstv).gt.lscr) then
-        write(6,*)'int_l1eall: need more scratch space '
-        write(6,*)'int_l1eall: have :',lscr
-        write(6,*)'int_l1eall: need :',(3*lstv)
+        write(luout,*)'int_l1eall: need more scratch space '
+        write(luout,*)'int_l1eall: have :',lscr
+        write(luout,*)'int_l1eall: need :',(3*lstv)
         call errquit('int_l1eall: scratch space error ',0)
       endif
 c
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
 c
-      numint =         (sf_ibs_cn2bfr(2,ish,ibas))-
-     &      (sf_ibs_cn2bfr(1,ish,ibas))+1
-      numint = numint*((sf_ibs_cn2bfr(2,jsh,jbas))-
-     &      (sf_ibs_cn2bfr(1,jsh,jbas))+1)
+      numint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0, 0,0)
       iscrS = 1
       iscrT = iscrS + numint
       iscrV = iscrT + numint

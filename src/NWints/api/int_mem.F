@@ -1,4 +1,4 @@
-c $Id: int_mem.F,v 1.10 1998-02-27 04:31:25 d3e129 Exp $
+c $Id: int_mem.F,v 1.11 1998-12-10 23:48:15 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem}
@@ -267,3 +267,110 @@ c
         call errquit('intb_mem_2e4c: int_init was not called' ,0)
       endif
       end
+      subroutine int_mem_dipole(maxbuf, maxscr,
+     &    basisin_i, basisin_j, lval_max)
+      implicit none
+#include "apiP.fh"
+#include "bas.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxbuf    ! [output] maximum buffer size for dipole routines
+      integer maxscr    ! [output] maximum scratch size for dipole routines
+      integer basisin_i ! [input] basis set for part of multipole ints
+      integer basisin_j ! [input] other basis set for part of multipole ints
+      integer lval_max  ! [input] maximum lval used
+*
+      integer maxang_i
+      integer maxang_j
+*
+      if (.not.int_chk_init('int_mem_dipole')) then
+        call errquit('int_mem_dipole: int_init was not called' ,0)
+      endif
+      maxscr = mem_3ov  ! should always work for dipole integrals
+      if (.not.bas_high_angular(basisin_i,maxang_i))
+     &    call errquit
+     &    ('int_mem_dipole: bas_high_angular failed',911)
+      if (.not.bas_high_angular(basisin_j,maxang_j))
+     &    call errquit
+     &    ('int_mem_dipole: bas_high_angular failed',911)
+      maxbuf =          ((lval_max+1)*(lval_max+2)*(lval_max+3))/6
+      maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
+      maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
+      end
+      subroutine int_mem_dipole_l(maxbuf, maxscr,
+     &    basisin_i, basisin_j, lval)
+      implicit none
+#include "apiP.fh"
+#include "bas.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxbuf    ! [output] maximum buffer size for dipole routines
+      integer maxscr    ! [output] maximum scratch size for dipole routines
+      integer basisin_i ! [input] basis set for part of multipole ints
+      integer basisin_j ! [input] other basis set for part of multipole ints
+      integer lval      ! [input] lval for the given call
+*
+      integer maxang_i
+      integer maxang_j
+*
+      if (.not.int_chk_init('int_mem_dipole_l')) then
+        call errquit('int_mem_dipole_l: int_init was not called' ,0)
+      endif
+      maxscr = mem_3ov  ! should always work for dipole integrals
+      if (.not.bas_high_angular(basisin_i,maxang_i))
+     &    call errquit
+     &    ('int_mem_dipole: bas_high_angular failed',911)
+      if (.not.bas_high_angular(basisin_j,maxang_j))
+     &    call errquit
+     &    ('int_mem_dipole: bas_high_angular failed',911)
+      maxbuf =          ((lval+1)*(lval+2)*(lval+3))/6
+      maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
+      maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
+      end
+      subroutine intd_mem_dipole(maxbuf, maxscr,
+     &    basisin_i, basisin_j, lval_max)
+      implicit none
+* computes memory for derivative dipole integrals
+#include "apiP.fh"
+#include "bas.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxbuf    ! [output] maximum buffer size for dipole routines
+      integer maxscr    ! [output] maximum scratch size for dipole routines
+      integer basisin_i ! [input] basis set for part of multipole ints
+      integer basisin_j ! [input] other basis set for part of multipole ints
+      integer lval_max  ! [input] maximum lval used
+*
+      if (.not.int_chk_init('intd_mem_dipole')) then
+        call errquit('intd_mem_dipole: int_init was not called' ,0)
+      endif
+      call int_mem_dipole(maxbuf,maxscr,basisin_i,basisin_j,lval_max)
+      maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center
+      end
+      subroutine intd_mem_dipole_l(maxbuf, maxscr,
+     &    basisin_i, basisin_j, lval)
+      implicit none
+#include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxbuf    ! [output] maximum buffer size for dipole routines
+      integer maxscr    ! [output] maximum scratch size for dipole routines
+      integer basisin_i ! [input] basis set for part of multipole ints
+      integer basisin_j ! [input] other basis set for part of multipole ints
+      integer lval      ! [input] lval for the given call
+*
+      if (.not.int_chk_init('intd_mem_dipole_l')) then
+        call errquit('intd_mem_dipole_l: int_init was not called' ,0)
+      endif
+      call int_mem_dipole_l(maxbuf,maxscr,basisin_i,basisin_j,lval)
+      maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center
+      end
+

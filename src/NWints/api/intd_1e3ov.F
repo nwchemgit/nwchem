@@ -1,4 +1,4 @@
-c $Id: intd_1e3ov.F,v 1.3 1997-05-29 23:43:08 d3e129 Exp $
+c $Id: intd_1e3ov.F,v 1.4 1998-12-10 23:48:18 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1e3ov}
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "stdio.fh"
 c:: external subroutines used
 c..  errquit
 c::functions
@@ -83,6 +84,7 @@ c                                        -------------- |
 c                                        d[idatom(3),z]/
 c If idatom(?) = 0 then do not use this 3*nint block of integral derivatives
 c::local
+      logical any_spherical
       logical shells_ok
       integer nint_intrnl
       integer ucont
@@ -111,9 +113,6 @@ c
       if (.not.shells_ok)
      &       call errquit('intd_1e3ov: invalid contraction/shell',0)
 c
-      call int_nospherical_check(i_basis,'intd_1e3ov:i_basis')
-      call int_nospherical_check(j_basis,'intd_1e3ov:j_basis')
-      call int_nospherical_check(k_basis,'intd_1e3ov:k_basis')
       call int_nogencont_check(i_basis,'intd_1e3ov:i_basis')
       call int_nogencont_check(j_basis,'intd_1e3ov:j_basis')
       call int_nogencont_check(k_basis,'intd_1e3ov:k_basis')
@@ -154,9 +153,9 @@ c
 c
       nint_intrnl = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
       if ((nint_intrnl*9).gt.ldov3) then
-        write(6,*)' buffer size too small '
-        write(6,*)' buffer size : ',ldov3
-        write(6,*)' needed      : ',(nint_intrnl*9)
+        write(luout,*)' buffer size too small '
+        write(luout,*)' buffer size : ',ldov3
+        write(luout,*)' needed      : ',(nint_intrnl*9)
         stop ' intd_1e3ov: fatal error '
       endif
 c
@@ -169,11 +168,11 @@ c
       endif
 c
       if ((i_geom.ne.j_geom.or.j_geom.ne.k_geom).and.WarnP.eq.0) then
-        write(6,*)
+        write(luout,*)
      &      'intd_1e3ov: WARNING: possible geometry inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
-        write(6,*)'k_basis geometry handle:',k_geom
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
+        write(luout,*)'k_basis geometry handle:',k_geom
         WarnP = 1
       endif
 c
@@ -198,11 +197,23 @@ c
       j_pov3 = 3*nint_intrnl+i_pov3 ! pointer to j block of derivs
       k_pov3 = 3*nint_intrnl+j_pov3 ! pointer to k block of derivs
 c
+      any_spherical = bas_spherical(ibas).or.
+     &    bas_spherical(jbas).or.bas_spherical(kbas)
       if ((i_cent.ne.j_cent).and.(i_cent.ne.k_cent).and.
      &                                       (j_cent.ne.k_cent)) then
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = k_cent
+        if (any_spherical) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          if (Lk.eq.-1) k_gen = 1
+          call spcart_3cBtran(dOV3,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        int_nbf_x(Lk),int_nbf_s(Lk),Lk,k_gen,bas_spherical(kbas),
+     &        9,.false.)
+        endif
       else if (i_cent.eq.j_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(j_pov3),1,dOV3(i_pov3),1)
         call dcopy(3*nint_intrnl,dOV3(k_pov3),1,dOV3(j_pov3),1)
@@ -210,21 +221,51 @@ c
         idatom(1) = i_cent
         idatom(2) = k_cent
         idatom(3) = 0
+        if (any_spherical) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          if (Lk.eq.-1) k_gen = 1
+          call spcart_3cBtran(dOV3,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        int_nbf_x(Lk),int_nbf_s(Lk),Lk,k_gen,bas_spherical(kbas),
+     &        6,.false.)
+        endif
       else if (i_cent.eq.k_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(i_pov3),1)
         call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = 0
+        if (any_spherical) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          if (Lk.eq.-1) k_gen = 1
+          call spcart_3cBtran(dOV3,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        int_nbf_x(Lk),int_nbf_s(Lk),Lk,k_gen,bas_spherical(kbas),
+     &        6,.false.)
+        endif
       else if (j_cent.eq.k_cent) then
         call daxpy(3*nint_intrnl,1.0d00,dOV3(k_pov3),1,dOV3(j_pov3),1)
         call dfill(3*nint_intrnl,0.0d00,dOV3(k_pov3),1)
         idatom(1) = i_cent
         idatom(2) = j_cent
         idatom(3) = 0
+        if (any_spherical) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          if (Lk.eq.-1) k_gen = 1
+          call spcart_3cBtran(dOV3,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        int_nbf_x(Lk),int_nbf_s(Lk),Lk,k_gen,bas_spherical(kbas),
+     &        6,.false.)
+        endif
       else
-        write(6,*)i_cent,j_cent,k_cent
-        write(6,*)' fatal error '
+        write(luout,*)'ijk->centers',i_cent,j_cent,k_cent
+        write(luout,*)' fatal error '
         stop 'intd_1e3ov: how did I get here'
       endif
       end

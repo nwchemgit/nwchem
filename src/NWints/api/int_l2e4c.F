@@ -1,4 +1,4 @@
-c $Id: int_l2e4c.F,v 1.20 1997-06-06 21:07:33 pg481 Exp $
+c $Id: int_l2e4c.F,v 1.21 1998-12-10 23:48:14 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e4c}
@@ -196,10 +196,6 @@ c
 c compute eri (instead of copy) in front of scr()
 c
 c
-c  check if spherical
-c
-*        call int_nospherical_check(brain,'int_l2e4c')
-*        call int_nospherical_check(ketin,'int_l2e4c')
         bra = brain + BASIS_HANDLE_OFFSET
         ket = ketin + BASIS_HANDLE_OFFSET
         

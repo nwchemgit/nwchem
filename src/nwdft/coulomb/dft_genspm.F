@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole,coord)
-C$Id: dft_genspm.F,v 1.7 1996-10-18 21:49:59 d3h449 Exp $
+C$Id: dft_genspm.F,v 1.8 1998-12-10 23:48:50 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -26,36 +26,37 @@ C$Id: dft_genspm.F,v 1.7 1996-10-18 21:49:59 d3h449 Exp $
 
       integer ifirst,ilast,iat,idim,ish,ifirst_sh,ilast_sh,nbf_i,jfunc
       integer jfirst,jlast,jat,jdim,jsh,jfirst_sh,jlast_sh,nbf_j
-      integer nshells,max_scratch,maxg
-      integer num_int,lval,ij_int
+      integer max_scratch
+*rak:      integer num_int,lval,ij_int,maxg,nshells
       integer istart,Pmat_point,Pmat_point0,istartd
       integer n1,n2,icount,nproc
       double precision centerl(3)
 
-c     
-c     evaluation of # of multipole ints
-c     
-      if( .not. bas_numcont(basis,nshells) )
-     &     call errquit('Exiting in dft_gensmp.',3)
-
-      lmpint=0
-      do ish=1,nshells
-        do jsh=1,ish
-          ij_int = int_nint(basis, ish, basis, jsh, 0,0, 0,0)
-          num_int=0
-          do lval = 0,lmax
-            num_int = num_int+ 1 + ij_int*(lval+1)*(lval+2)/2
-          enddo
-          lmpint=max(lmpint,num_int)
-        enddo
-      enddo
+*rak:c     
+*rak:c     evaluation of # of multipole ints
+*rak:c     
+*rak:      if( .not. bas_numcont(basis,nshells) )
+*rak:     &     call errquit('Exiting in dft_gensmp.',3)
+*rak:
+*rak:      lmpint=0
+*rak:      do ish=1,nshells
+*rak:        do jsh=1,ish
+*rak:          ij_int = int_nint(basis, ish, basis, jsh, 0,0, 0,0)
+*rak:          num_int=0
+*rak:          do lval = 0,lmax
+*rak:            num_int = num_int+ 1 + ij_int*(lval+1)*(lval+2)/2
+*rak:          enddo
+*rak:          lmpint=max(lmpint,num_int)
+*rak:        enddo
+*rak:      enddo
 
       nproc  = ga_nnodes()
+
+      call int_mem_dipole(lmpint, max_scratch, basis, basis, lmax)
 
       if(.not.MA_Push_Get(mt_dbl,lmpint,' multipole ints',lMP,iMP))
      &  call errquit('dft_genspm: cannot allocate multipole ints',0)
 
-      call int_mem_2e3c(maxg, max_scratch)
       if(.not.MA_Push_Get(mt_dbl,max_scratch,' scratch',lscr,iscr))
      &  call errquit('dft_genspm: cannot allocate scratch',0)
 

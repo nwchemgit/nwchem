@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.14 1998-08-24 03:05:57 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.15 1998-12-10 23:48:11 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -264,7 +264,7 @@ c::local
         nintV = int_nbf_x(Li)*i_ngen
         nintV = nintV*int_nbf_x(Lj)*j_ngen
         offset = nintV + 1
-*       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
+*       write(luout,*)' lscr to ecp_hf1:',(lscr-nintV)
         if (ictri.lt.0.or.ictrj.lt.0) then
           write(luout,*)' int_hf1sp_ecp: ictri = ',ictri
           write(luout,*)' int_hf1sp_ecp: ictrj = ',ictrj

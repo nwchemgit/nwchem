@@ -1,5 +1,5 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.7 1997-09-05 22:25:10 d3e129 Exp $
+c $Id: intp_1eke.F,v 1.8 1998-12-10 23:48:23 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -8,6 +8,8 @@ c $Id: intp_1eke.F,v 1.7 1997-09-05 22:25:10 d3e129 Exp $
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+#include "stdio.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -53,11 +55,6 @@ c
       if (.not.int_chk_init('intp_1eke'))
      &       call errquit('intp_1eke: int_init was not called' ,0)
 c
-c  check if spherical/gencon/sp shell
-c
-      call int_nospherical_check(i_basis,'intp_1eke:i_basis')
-      call int_nospherical_check(j_basis,'intp_1eke:j_basis')
-c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
 c
@@ -85,9 +82,10 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'intp_1eke: WARNING: possible geometry inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
+        write(luout,*)
+     &      'intp_1eke: WARNING: possible geometry inconsistency'
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
 c
@@ -108,17 +106,14 @@ c............................. doS    doT     doV     canonical
      &         scr,Ke,scr,lke,.false.,.true.,.false.,.false.,
 c.............. dryrun
      &         .false.,scr,lscr,'intp_1eke')
-      elseif (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)) then
-        call hf1(
-     &         coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &         xyz_new,dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &         dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-c............................. doS    doT     doV     canonical
-     &         scr,Ke,scr,lke,.false.,.true.,.false.,.false.,
-c.............. dryrun
-     &         .false.,scr,lscr)
+        if (bas_spherical(ibas).or.bas_spherical(jbas)) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          call spcart_2ctran(Ke,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        .false.)          
+        endif
       else
         call errquit('intp_1eke: could not do sp or nw integrals',0)
       endif

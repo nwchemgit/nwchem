@@ -1,4 +1,4 @@
-c $Id: int_l2e3c.F,v 1.12 1997-05-29 23:43:04 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.13 1998-12-10 23:48:14 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e3c}
@@ -23,6 +23,7 @@ c:tex-\end{verbatim}
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -68,19 +69,14 @@ c   check canonicalizations of input shells for canket
 c      
       shells_ok = jsh.ge.ksh
       if (.not.shells_ok) then
-        write(6,*)'int_2e3c: shells not canonical on input '
-        write(6,*)'bra basis set handle:',brain
-        write(6,*)'ket basis set handle:',ketin
-        write(6,*)'                 ish:',ish
-        write(6,*)'                 jsh:',jsh
-        write(6,*)'                 ksh:',ksh
+        write(luout,*)'int_2e3c: shells not canonical on input '
+        write(luout,*)'bra basis set handle:',brain
+        write(luout,*)'ket basis set handle:',ketin
+        write(luout,*)'                 ish:',ish
+        write(luout,*)'                 jsh:',jsh
+        write(luout,*)'                 ksh:',ksh
         call errquit('int_l2e3c: shells not in canonical order',0)
       endif
-c
-c  check if spherical
-c
-      call int_nospherical_check(brain,'int_l2e3c')
-      call int_nospherical_check(ketin,'int_l2e3c')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

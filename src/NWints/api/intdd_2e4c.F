@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.4 1998-10-02 22:14:38 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.5 1998-12-10 23:48:22 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -124,13 +124,6 @@ c
         write(luout,*) 'leri     = ',leri
         call errquit('intdd_2e4c: nint>leri error',911)
       endif
-c
-c  check if spherical/gencon/sp shell
-c
-*      call int_nogencont_check(brain,'intdd_2e4c:bra')
-*      call int_nogencont_check(ketin,'intdd_2e4c:ket')
-*      call int_nospshell_check(brain,'intdd_2e4c:bra')
-*      call int_nospshell_check(ketin,'intdd_2e4c:ket')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

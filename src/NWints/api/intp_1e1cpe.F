@@ -1,5 +1,5 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.6 1997-09-05 22:25:09 d3e129 Exp $
+c $Id: intp_1e1cpe.F,v 1.7 1998-12-10 23:48:23 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -9,6 +9,7 @@ c $Id: intp_1e1cpe.F,v 1.6 1997-09-05 22:25:09 d3e129 Exp $
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c::external subroutines used
 c errquit
 c::functions
@@ -46,10 +47,6 @@ c
       if (.not.shells_ok)
      &       call errquit('intp_1e1cpe: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
-c
-      call int_nospherical_check(i_basis,'intp_1e1cpe')
-c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
@@ -75,16 +72,13 @@ c............................. doS     doT     doV    canonical
      &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,
 c.............. dryrun
      &         .false.,scr,lscr,'intp_1e1cpe')
-      elseif (cando_nw(i_basis,ish,0)) then        
-        call hf1(
-     &         xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &         dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
-     &         xyz_new_i,DCexp,DCcoeff, 1, 1, 0, 
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
-c............................. doS     doT     doV    canonical
-     &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,
-c.............. dryrun
-     &         .false.,scr,lscr)
+        if (bas_spherical(ibas)) then
+          if (Li.eq.-1) i_gen = 1
+          call spcart_2ctran(Pe,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(0), int_nbf_s(0) ,0 ,1,.false.,
+     &        .false.)
+        endif
       else
         call errquit('intp_1e1cpe: could not do sp or nw integrals',0)
       endif

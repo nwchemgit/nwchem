@@ -1,7 +1,7 @@
       subroutine intpd_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri, idatom)
 *
-* $Id: intpd_2e3ct.F,v 1.2 1998-06-09 23:39:26 d3e129 Exp $
+* $Id: intpd_2e3ct.F,v 1.3 1998-12-10 23:48:29 d3e129 Exp $
 *
       implicit none
 c
@@ -79,7 +79,7 @@ c
       if (.not.shells_ok)
      &       call errquit('intpd_2e3ct: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
+c  check if gencon/sp shell
 c
       call int_nogencont_check(brain,'intpd_2e3ct:bra')
       call int_nogencont_check(ketin,'intpd_2e3ct:ket')
@@ -111,8 +111,8 @@ c
         return
       endif
       if (mynint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',mynint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',mynint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intpd_2e3ct: nint>leri error',911)
       endif
 c.. translate jsh center coordinates based on Rj
@@ -149,7 +149,7 @@ c
      &      xyz_new_j, dbl_mb(mb_exndcf(b_iexp,bra)),
      &      dbl_mb(mb_exndcf(b_icfp,bra)), b_prim, b_gen, Lb, b_cent,
      &      xyz_new_k, dbl_mb(mb_exndcf(q_iexp,ket)),
-     &      dbl_mb(mb_exndcf(q_icfp,bra)), q_prim, q_gen, Lq,
+     &      dbl_mb(mb_exndcf(q_icfp,ket)), q_prim, q_gen, Lq,
      &      q_cent,
      &      xyz_new_k, DCexp,
      &      DCcoeff           ,      1,     1, 0, q_cent,
@@ -160,18 +160,12 @@ c........... dryrun
 c
         call intd_sum(eri,mynint,idatom,a_cent,b_cent,q_cent,q_cent)
 *
-*rak:        if (bas_spherical(ket).or.bas_spherical(bra)) then
-*rak:          nintx = int_nbf_x(Lp)*int_nbf_x(Lc)*int_nbf_x(Ld)
-*rak:          if (nintx.lt.lscr)
-*rak:     &        call errquit
-*rak:     &        ('intpd_2e3ct: not enough scratch for spherical transform',
-*rak:     &        911)
-*rak:          call spcart_3ctran(eri,scr,
-*rak:     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
-*rak:     &        int_nbf_x(Lc),int_nbf_s(Lc),Lc,c_gen,bas_spherical(ket),
-*rak:     &        int_nbf_x(Ld),int_nbf_s(Ld),Ld,d_gen,bas_spherical(ket),
-*rak:     &        .false.)          
-*rak:        endif
+        if (bas_spherical(ket).or.bas_spherical(bra)) then
+          call intd_2ec2s(eri,mynint,scr,lscr,
+     &        La,Lb,Lq,0,a_gen,b_gen,q_gen,1,
+     &        bas_spherical(bra),bas_spherical(ket),idatom)
+        endif
+*
       else
         write(luout,*)'intpd_2e3ct: could not do nw integrals'
         write(luout,*)' brain :',brain

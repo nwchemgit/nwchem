@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.9 1998-08-24 03:05:58 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.10 1998-12-10 23:48:18 d3e129 Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -159,23 +159,19 @@ c
       i_scr_ptr = numint + 1
       newlscr   = lscr - numint
       if (newlscr .lt. 0) then
-        write(6,*)' newlscr too small      :',newlscr
-        write(6,*)' lscr                   :',lscr
-        write(6,*)' numint                 :',(numint/12)
-        write(6,*)' numint spherical       :',nint_s
-        write(6,*)' numint grad            :',numint
-        write(6,*)' numint grad spherical  :',(nint_s*12)
-        write(6,*)' i bf size is ',(ihi-ilo+1)
-        write(6,*)' j bf size is ',(jhi-jlo+1)
-        write(6,*)' k bf size is ',(khi-klo+1)
-        write(6,*)' l bf size is ',(lhi-llo+1)
+        write(luout,*)' newlscr too small      :',newlscr
+        write(luout,*)' lscr                   :',lscr
+        write(luout,*)' numint                 :',(numint/12)
+        write(luout,*)' numint spherical       :',nint_s
+        write(luout,*)' numint grad            :',numint
+        write(luout,*)' numint grad spherical  :',(nint_s*12)
+        write(luout,*)' i bf size is ',(ihi-ilo+1)
+        write(luout,*)' j bf size is ',(jhi-jlo+1)
+        write(luout,*)' k bf size is ',(khi-klo+1)
+        write(luout,*)' l bf size is ',(lhi-llo+1)
         call errquit('intbd_nw_2e4c: fatal error',911)
       endif
-*      call intd_2e4c(
-*     &    brain,icl(i_q),jcl(i_q),
-*     &    ketin,kcl(i_q),lcl(i_q),
-*     &    newlscr,scr(i_scr_ptr),
-*     &    numint,scr,idatom)
+*
 * use memory copy instead of first part of scratch.  Otherwise scratch is 
 * way to big to do derivativeswith sphericals
 *

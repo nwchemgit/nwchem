@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.15 1997-06-06 21:07:29 pg481 Exp $
+c $Id: int_2e2c.F,v 1.16 1998-12-10 23:48:08 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -26,6 +26,8 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+#include "stdio.fh"
 c
 c::external subroutines used
 c errquit
@@ -70,6 +72,8 @@ c:: local
       integer nint
       logical dum_log
 #endif
+      logical any_spherical
+      logical OFALSE
 c
       integer WarnP
       save WarnP
@@ -77,6 +81,10 @@ c
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+c
+c
+c
+      OFALSE = .false.
 c
 c check initialization
 c
@@ -90,12 +98,7 @@ c
 c
       if (.not.shells_ok)
      &       call errquit('int_2e2c: invalid contraction/shell',0)
-c
-c  check if spherical
-c
 #ifndef USE_TEXAS_BROKE
-      call int_nospherical_check(brain,'int_2e2c:bra')
-      call int_nospherical_check(ketin,'int_2e2c:ket')
       call int_nogencont_check(brain,'int_2e2c:bra')
       call int_nogencont_check(ketin,'int_2e2c:ket')
       call int_nospshell_check(brain,'int_2e2c:bra')
@@ -109,10 +112,15 @@ c
       p_geom = ibs_geom(bra)
       q_geom = ibs_geom(ket)
 c
+c  check if spherical
+c
+      any_spherical = bas_spherical(bra).or.bas_spherical(ket)
+c
       if (p_geom.ne.q_geom.and.WarnP.eq.0) then
-        write(6,*)'int_2e2c: WARNING: possible geometry inconsistency'
-        write(6,*)'bra geometry handle:',p_geom
-        write(6,*)'ket geometry handle:',q_geom
+        write(luout,*)
+     &      'int_2e2c: WARNING: possible geometry inconsistency'
+        write(luout,*)'bra geometry handle:',p_geom
+        write(luout,*)'ket geometry handle:',q_geom
         WarnP = 1
       endif
 c
@@ -155,7 +163,7 @@ c
         roff(1) = 0.0d00
         roff(2) = 0.0d00
         roff(3) = 0.0d00
-        dum_log = .false.
+        dum_log = OFALSE
         q4 = 1.0d00
         nint = 0
         txs_i = ish
@@ -165,9 +173,9 @@ c
         call texas_hf2_m(
      &      brain,txs_i,txs_d1,
      &      ketin,txs_j,txs_d2,num_quart,
-     &      q4,.false.,roff,roff,roff,roff,.false.,
+     &      q4,OFALSE,roff,roff,roff,roff,OFALSE,
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
-     &      nint, .false., dum_log, scr, lscr, 0.0d0,'scfd_int')
+     &      nint, OFALSE, dum_log, scr, lscr, 0.0d0,'scfd_int')
 
 #endif
 c
@@ -196,16 +204,26 @@ c
      &         coords(1,q_cent,q_geom), DCexp,
      &         DCcoeff           ,      1,     1, 0,
 c......................... canAB    canCD    canPQ
-     &         eri, leri, .false., .false., .false.,
+     &         eri, leri, OFALSE, OFALSE, OFALSE,
 c............. dryrun
-     &         .false., scr, lscr)
+     &         OFALSE, scr, lscr)
 c
+        if (any_spherical) then
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
+          if (Lp.eq.-1) p_gen = 1
+          if (Lq.eq.-1) q_gen = 1 
+          call spcart_2ctran(eri,scr,lscr,
+     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
+     &        int_nbf_x(Lq),int_nbf_s(Lq),Lq,q_gen,bas_spherical(ket),
+     &        OFALSE)
+        endif
       else
-        write(6,*)'int_2e2c: could not do nw integrals'
-        write(6,*)' brain :',brain
-        write(6,*)' ketin :',ketin
-        write(6,*)' ish   :',ish
-        write(6,*)' jsh   :',jsh
+        write(luout,*)'int_2e2c: could not do nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
         call errquit('int_2e2c: fatal error ',0)
       endif
       end

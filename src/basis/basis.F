@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.86 1998-09-25 23:25:14 d3e129 Exp $
+c $Id: basis.F,v 1.87 1998-12-10 23:48:44 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3750,8 +3750,7 @@ c
 c
 c     Return true if it's possible to compute multipoles for this basis
 c
-c     The multipole code cannot handle sphericals, general contractions
-c     or SP shells.
+c     The multipole code cannot handle general contractions or SP shells.
 c
       integer nshell, ishell, type, nprim, ngen, sphcart
       logical bas_numcont, bas_continfo
@@ -3765,7 +3764,7 @@ c
          if (.not. bas_continfo(basis, ishell, type, 
      $        nprim, ngen, sphcart)) call errquit
      $        ('multipole: basis bad?',0)
-         if (type.lt.0 .or. ngen.gt.1 .or. sphcart.ne.0) return
+         if (type.lt.0 .or. ngen.gt.1) return
       enddo
 c
       bas_cando_mpoles = .true.

@@ -1,7 +1,7 @@
       subroutine multipole_density(basis, center, lmax, 
      &     g_dens, moments, len_moments)
 *
-* $Id: multipole.F,v 1.8 1997-11-07 11:35:14 d3e129 Exp $
+* $Id: multipole.F,v 1.9 1998-12-10 23:48:48 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -40,7 +40,7 @@ c
       parameter (one=1.d0, two=2.d0)
 c     
       integer geom, moff
-      integer nshell, noperators, maxang, maxbuf, maxscr, me, nproc
+      integer nshell, noperators, maxang, maxscr, me, nproc
       integer nbf_max, lmpmax, maxd, ishell, jshell, ijshell
       integer ilo, ihi, jlo, jhi, idim, jdim, ind, i, j, l, m, ioff
       integer l_scr, k_scr, l_mp, k_mp, l_dens, k_dens, l_m, k_m
@@ -60,15 +60,14 @@ c
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit(
      &     'multipole: bas_nbf_cn_max failed',20)
 c     
-      call int_mem_3ov(maxbuf,maxscr)
-      maxscr = max(100000,maxscr)
 c     
 c     length of int_mpole integral output for full square list
 c     includes l_pole = 0,...,lmax, where l_pole = 0 is simply
-c     the 2-c overlap matrix.  (cartesian components).
+c     the 2-c overlap matrix.  (cartesian or spherical components).
 c     
       maxd = nbf_max**2
-      lmpmax = noperators * nbf_max**2
+      call int_mem_dipole(lmpmax,maxscr,basis,basis,lmax)
+      maxscr = max(100000,maxscr)
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -230,7 +229,3 @@ c
          pow_multi = a**b
       endif
       end
-
-
-
-

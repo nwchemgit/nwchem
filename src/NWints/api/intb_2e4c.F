@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.21 1998-08-24 03:05:57 d3e129 Exp $
+*     $Id: intb_2e4c.F,v 1.22 1998-12-10 23:48:17 d3e129 Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -217,8 +217,8 @@ c
       leri_left = l_erilab
       i_q_done = num_q_start - 1
 #if defined(DEBUG_TXS)
-      write(6,*)' num_q_start ',num_q_start
-      write(6,*)' num_q_last  ',num_q_last
+      write(luout,*)' num_q_start ',num_q_start
+      write(luout,*)' num_q_last  ',num_q_last
 #endif
       if (num_q_start.eq.num_q_last) then
          write(luout,*)' l_erilab: too small ',l_erilab
@@ -236,13 +236,13 @@ c
            numintj=int_nint_cart(brain,jcl(i_q),0,0,0,0,0,0)
            numintk=int_nint_cart(ketin,kcl(i_q),0,0,0,0,0,0)
            numintl=int_nint_cart(ketin,lcl(i_q),0,0,0,0,0,0)
-           write(6,*)' shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q)
-           write(6,*)' numinti  ',numinti
-           write(6,*)' numintj  ',numintj
-           write(6,*)' numintk  ',numintk
-           write(6,*)' numintl  ',numintl
-           write(6,*)' numint   ',numint
-           write(6,*)' leri_left',leri_left
+           write(luout,*)' shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q)
+           write(luout,*)' numinti  ',numinti
+           write(luout,*)' numintj  ',numintj
+           write(luout,*)' numintk  ',numintk
+           write(luout,*)' numintl  ',numintl
+           write(luout,*)' numint   ',numint
+           write(luout,*)' leri_left',leri_left
 #endif
             goto 00002
          else
@@ -256,11 +256,11 @@ c
      $           call dscal(nint_for_q,q4(i_q),eri(ip_int),1)
             i_q_done = i_q_done + 1
 #if defined(DEBUG_TXS)
-            write(6,*)' numinti  ',numinti
-            write(6,*)' numintj  ',numintj
-            write(6,*)' numintk  ',numintk
-            write(6,*)' numintl  ',numintl
-            write(6,*)' i_q_done = ',i_q_done,
+            write(luout,*)' numinti  ',numinti
+            write(luout,*)' numintj  ',numintj
+            write(luout,*)' numintk  ',numintk
+            write(luout,*)' numintl  ',numintl
+            write(luout,*)' i_q_done = ',i_q_done,
      &          '   shells ',icl(i_q),jcl(i_q),kcl(i_q),lcl(i_q),
      &          '   numint ',numint,' nint_for_q ',nint_for_q
 #endif
@@ -273,7 +273,7 @@ c
 00002 continue
       num_q_start = i_q_done + 1
 #if defined(DEBUG_TXS)
-      write(6,*)' num_q_start on next pass is ',num_q_start
+      write(luout,*)' num_q_start on next pass is ',num_q_start
 #endif
 c     
       end

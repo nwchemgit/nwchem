@@ -10,10 +10,11 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.12 1998-10-20 23:44:25 windus Exp $
+c $Id: int_term.F,v 1.13 1998-12-10 23:48:17 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
+#include "stdio.fh"
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
@@ -21,7 +22,7 @@ c::functions
       external hnd_terminate 
 c
       if (init_int .eq. 0) then
-        write(6,*)' warning: int_init has not been called '
+        write(luout,*)' warning: int_init has not been called '
       endif
       call int_mem_zero()
 c      
@@ -55,6 +56,7 @@ c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
       implicit none
+#include "stdio.fh"
 #include "apiP.fh"
 #include "candoP.fh"
 c::functions
@@ -62,7 +64,7 @@ c::functions
       external spcart_terminate 
 c
       if (init_intd.eq.0) then
-        write(6,*)' warning: intd_init has not been called '
+        write(luout,*)' warning: intd_init has not been called '
       endif
       call int_mem_zero()
 c.. parameters for int derivative (hf2d)
@@ -102,12 +104,13 @@ c:tex-
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
+#include "stdio.fh"
 c::functions
       logical spcart_terminate 
       external spcart_terminate 
 c
       if (init_intdd.eq.0) then
-        write(6,*)' warning: intdd_init has not been called '
+        write(luout,*)' warning: intdd_init has not been called '
       endif
       call int_mem_zero()
       intd_memthresh = 0

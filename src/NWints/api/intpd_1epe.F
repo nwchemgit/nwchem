@@ -1,9 +1,10 @@
       subroutine intpd_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1epe.F,v 1.1 1998-05-06 00:50:12 d3e129 Exp $
+* $Id: intpd_1epe.F,v 1.2 1998-12-10 23:48:27 d3e129 Exp $
 *
       implicit none
+#include "stdio.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -11,6 +12,7 @@
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c::external subroutines used
 c errquit
 c::functions
@@ -60,11 +62,6 @@ c
       if (.not.shells_ok)
      &    call errquit('intpd_1epe: invalid contraction/shell',0)
 c
-c  check if spherical
-c
-      call int_nospherical_check(i_basis,'intpd_1epe')
-      call int_nospherical_check(j_basis,'intpd_1epe')
-c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
 c
@@ -87,9 +84,10 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'intpd_1epe: WARNING: possible geometry inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
+        write(luout,*)
+     &      'intpd_1epe: WARNING: possible geometry inconsistency'
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
 c.. translate ish center coordinates based on Ri
@@ -99,7 +97,7 @@ c.. translate jsh center coordinates based on Rj
 c      
       mynint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
 c
-      if (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)) then        
+      if (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)) then
         call hf1d(
      &      xyz_new_i,dbl_mb(mb_exndcf(i_iexp,ibas)),
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
@@ -112,6 +110,14 @@ c............................. doS     doT     doV    canonical
      &      scr,scr,Pea,mynint,.false.,.false.,.true.,.false.,
 c.............. dryrun
      &      .false.,scr,lscr)
+        if (bas_spherical(ibas).or.bas_spherical(jbas)) then
+          if (Li.eq.-1) i_gen = 1
+          if (Lj.eq.-1) j_gen = 1
+          call spcart_2cBtran(Pea,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        (3*ncenter(i_geom)),.false.)
+        endif
       else
         call errquit('intpd_1epe: could not do sp or nw integrals',0)
       endif

@@ -1,6 +1,6 @@
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1e1cpe.F,v 1.2 1998-08-24 03:05:58 d3e129 Exp $
+* $Id: intpd_1e1cpe.F,v 1.3 1998-12-10 23:48:26 d3e129 Exp $
 *
       implicit none
 #include "apiP.fh"
@@ -11,6 +11,7 @@
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c::external subroutines used
 c errquit
 c::functions
@@ -51,10 +52,6 @@ c
       if (.not.shells_ok)
      &    call errquit('intpd_1e1cpe: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
-c
-      call int_nospherical_check(i_basis,'intpd_1e1cpe')
-c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
@@ -82,6 +79,13 @@ c.............................. doS     doT     doV    canonical
      &      scr,scr,Pea,mynint,.false.,.false.,.true.,.false.,
 c........... dryrun
      &      .false.,scr,lscr)
+        if (bas_spherical(ibas)) then
+          if (Li.eq.-1) i_gen = 1
+          call spcart_2cBtran(Pea,scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x( 0),int_nbf_x( 0), 0,    1,.false.,
+     &        (3*ncenter(i_geom)),.false.)
+        endif
       else
         call errquit('intpd_1e1cpe: could not do sp or nw integrals',0)
       endif

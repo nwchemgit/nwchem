@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.11 1997-05-29 23:43:06 d3e129 Exp $
+c $Id: int_mpole.F,v 1.12 1998-12-10 23:48:16 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mpole}
@@ -33,6 +33,7 @@ c:tex-\begin{verbatim}
      &    lscr, scr, lmpint, MP)
 c:tex-\end{verbatim}
       implicit none
+#include "stdio.fh"
 #include "apiP.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -41,12 +42,13 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c
 c::functions
       logical int_chk_init
-      integer int_nint_cart
+      integer int_nint_cart, int_nint
       external int_chk_init
-      external int_nint_cart
+      external int_nint_cart, int_nint
 c::passed
 c:tex-\begin{verbatim}
       integer i_basis             ! [input] basis set handle for ish
@@ -62,11 +64,13 @@ c . . . . . . . . . . . . . . . . !   multipole integrals in this batch
       double precision MP(lmpint) ! [output] multipole integrals
 c:tex-\end{verbatim}
 c::local      
+      logical any_spherical
       logical shells_ok
       integer ibas, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent, i_geom
       integer jbas, Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent, j_geom
+      integer i_gen_save, j_gen_save
       integer ucont, lval
-      integer l_int, ij_int, num_int
+      integer l_int, ij_int, ij_int_x, num_int
       integer int_point, int_size
       logical inline_chk_sh      
       integer lpole
@@ -90,8 +94,6 @@ c
 c
 c  check if spherical
 c
-      call int_nospherical_check(i_basis,'int_mpole:i_basis')
-      call int_nospherical_check(j_basis,'int_mpole:j_basis')
       call int_nogencont_check(i_basis,'int_mpole:i_basis')
       call int_nogencont_check(j_basis,'int_mpole:j_basis')
       call int_nospshell_check(i_basis,'int_mpole:i_basis')
@@ -131,29 +133,44 @@ c
       j_geom  = ibs_geom(jbas)
 c
       if (i_geom.ne.j_geom.and.WarnP.eq.0) then
-        write(6,*)'int_mpole: WARNING: possible geometry inconsistency'
-        write(6,*)'i_basis geometry handle:',i_geom
-        write(6,*)'j_basis geometry handle:',j_geom
+        write(luout,*)
+     &      'int_mpole: WARNING: possible geometry inconsistency'
+        write(luout,*)'i_basis geometry handle:',i_geom
+        write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
 c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
-        write(6,*)' hf3ois does not handle general contractions yet'
+        write(luout,*)
+     &      ' hf3ois does not handle general contractions yet'
         call errquit('int_mpole: general contraction error ',911)
       endif
 c
+      any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
+c
       num_int = 0
       do 00100 lval = 0,lmax
-        l_int  = (lval+1)*(lval+2)/2
-        ij_int = int_nint_cart(i_basis, ish, j_basis, jsh, 0,0, 0,0)
+        l_int  = int_nbf_x(lval) ! (lval+1)*(lval+2)/2
+        ij_int_x = int_nint_cart(i_basis, ish, j_basis, jsh, 0,0, 0,0)
+        ij_int   = int_nint(i_basis, ish, j_basis, jsh, 0,0, 0,0)
         int_point = num_int + 1
         int_size  = lmpsiz - num_int
-        num_int = num_int + l_int*ij_int
-        if (num_int.gt.lmpsiz) then
-          write(6,*)' int_mpole: lmpsiz  = ',lmpsiz
-          write(6,*)' int_mpole: num_int = ',num_int
+        if ((num_int+(l_int*ij_int_x)).gt.lmpsiz) then
+          write(luout,*)' int_mpole: lmpsiz                     = ',
+     &        lmpsiz
+          write(luout,*)' int_mpole: l_int                      = ',
+     &        l_int
+          write(luout,*)' int_mpole: ij_int_x                   = ',
+     &        ij_int_x
+          write(luout,*)' int_mpole: ij_int                     = ',
+     &        ij_int
+          write(luout,*)' int_mpole: lval                       = ',
+     &        lval
+          write(luout,*)' int_mpole: (num_int+(l_int*ij_int_x)) = ',
+     &        (num_int+(l_int*ij_int_x))
           call errquit('int_mpole: lmpint too small ',911)
         endif
+        num_int = num_int + l_int*ij_int
         call hf3ois(
      &       coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &       dbl_mb(mb_exndcf(i_icfp,ibas)),i_prim, Li,
@@ -163,6 +180,22 @@ c
      &       dbl_mb(mb_exndcf(j_icfp,jbas)),j_prim, Lj,
 c...................................TriDiag..DryRun
      &       MP(int_point),int_size,.false.,.false.,scr,lscr)
+        if (any_spherical) then
+          if (Li.eq.-1) then
+            i_gen_save = i_gen
+            i_gen = 1
+          endif
+          if (Lj.eq.-1) then
+            j_gen_save = i_gen
+            j_gen = 1
+          endif
+          call spcart_3ctran(MP(int_point),scr,lscr,
+     &        int_nbf_x(Li),int_nbf_s(Li),Li,i_gen,bas_spherical(ibas),
+     &        int_nbf_x(lval),int_nbf_x(lval),lval,1,.false.,
+     &        int_nbf_x(Lj),int_nbf_s(Lj),Lj,j_gen,bas_spherical(jbas),
+     &        .false.)
+          if (Li.eq.-1) i_gen = i_gen_save
+          if (Lj.eq.-1) j_gen = j_gen_save
+        endif
 00100 continue
-*     lmpsiz = num_int
       end

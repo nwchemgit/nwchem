@@ -1,7 +1,7 @@
       subroutine intpd_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri, idatom)
 *
-* $Id: intpd_2e3c.F,v 1.2 1998-06-09 23:37:44 d3e129 Exp $
+* $Id: intpd_2e3c.F,v 1.3 1998-12-10 23:48:28 d3e129 Exp $
 *
       implicit none
 c
@@ -48,6 +48,7 @@ c translation vectors are in fractional coordinates !
       double precision Ri(3)  ! translation vector for ish center 
       double precision Rj(3)  ! translation vector for jsh center 
 c:: local
+      logical any_spherical
       logical shells_ok
       integer bra, ket 
       integer p_geom, cd_geom, ucont
@@ -79,7 +80,7 @@ c
       if (.not.shells_ok)
      &       call errquit('intpd_2e3c: invalid contraction/shell',0)
 c
-c  check if spherical/gencon/sp shell
+c  check if gencon/sp shell
 c
       call int_nogencont_check(brain,'intpd_2e3c:bra')
       call int_nogencont_check(ketin,'intpd_2e3c:ket')
@@ -111,8 +112,8 @@ c
         return
       endif
       if (mynint*3*4.gt.leri) then
-        write(6,*) 'nint*3*4 = ',mynint*3*4
-        write(6,*) 'leri     = ',leri
+        write(luout,*) 'nint*3*4 = ',mynint*3*4
+        write(luout,*) 'leri     = ',leri
         call errquit('intpd_2e3c: nint>leri error',911)
       endif
 c.. translate ish center coordinates based on Ri
@@ -121,6 +122,8 @@ c.. translate jsh center coordinates based on Rj
       call intp_txyz(c_cent,cd_geom,Rj,xyz_new_j)
 c
       if(cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,ksh)) then
+c
+        any_spherical = bas_spherical(bra).or.bas_spherical(ket)
 c
         ucont   = (sf_ibs_cn2ucn(ish,bra))
         Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
@@ -160,18 +163,11 @@ c........... dryrun
 c
         call intd_sum(eri,mynint,idatom,p_cent,p_cent,c_cent,d_cent)
 *
-*rak:        if (bas_spherical(ket).or.bas_spherical(bra)) then
-*rak:          nintx = int_nbf_x(Lp)*int_nbf_x(Lc)*int_nbf_x(Ld)
-*rak:          if (nintx.lt.lscr)
-*rak:     &        call errquit
-*rak:     &        ('intpd_2e3c: not enough scratch for spherical transform',
-*rak:     &        911)
-*rak:          call spcart_3ctran(eri,scr,
-*rak:     &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
-*rak:     &        int_nbf_x(Lc),int_nbf_s(Lc),Lc,c_gen,bas_spherical(ket),
-*rak:     &        int_nbf_x(Ld),int_nbf_s(Ld),Ld,d_gen,bas_spherical(ket),
-*rak:     &        .false.)          
-*rak:        endif
+        if (any_spherical) then
+          call intd_2ec2s(eri,mynint,scr,lscr,
+     &        Lp,0,Lc,Ld,p_gen,1,c_gen,d_gen,
+     &        bas_spherical(bra),bas_spherical(ket),idatom)
+        endif
       else
         write(luout,*)'intpd_2e3c: could not do nw integrals'
         write(luout,*)' brain :',brain

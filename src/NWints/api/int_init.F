@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.40 1998-10-20 23:44:25 windus Exp $
+c $Id: int_init.F,v 1.41 1998-12-10 23:48:11 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -24,6 +24,7 @@ c
 #include "rtdb.fh"
 #include "int_nbf.fh"
 #include "util.fh"
+#include "stdio.fh"
 c::functions
       logical  spcart_init
       external spcart_init
@@ -68,8 +69,8 @@ c
       numd_red       = 0
 c
       if(init_int.eq.1 .and. oprint) then
-        write(6,*)' warning nested int_inits'
-        write(6,*)' int_init already called '
+        write(luout,*)' warning nested int_inits'
+        write(luout,*)' int_init already called '
         call util_flush(6)
       endif
 c
@@ -98,7 +99,7 @@ c
         user_cando_sp = .true.
         def_cando_sp  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' int_init: cando_sp set to always be ',def_cando_sp
           call util_flush(6)
         endif
@@ -108,7 +109,7 @@ c
         user_cando_nw = .true.
         def_cando_nw  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' int_init: cando_nw set to always be ',def_cando_nw
           call util_flush(6)
         endif
@@ -118,7 +119,7 @@ c
         user_cando_txs = .true.
         def_cando_txs  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' int_init: cando_txs set to always be ',def_cando_txs
           call util_flush(6)
         endif
@@ -128,7 +129,7 @@ c
         user_cando_hnd = .true.
         def_cando_hnd  = status
         if (ga_nodeid().eq.0 .and. oprint) then
-          write(6,*)
+          write(luout,*)
      &        ' int_init: cando_hnd set to always be ',def_cando_hnd
           call util_flush(6)
         endif
@@ -139,7 +140,7 @@ c
           user_cando_txs = .true.
           def_cando_txs = .false.
           if (ga_nodeid().eq.0 .and. oprint) then
-            write(6,*)
+            write(luout,*)
      &          ' int_init: internal texas instability possible cando_',
      &          'txs set to always be ',def_cando_txs
             call util_flush(6)
@@ -152,11 +153,11 @@ c
       if (def_cando_sp.or.def_cando_nw.or.def_cando_txs.or.
      &    def_cando_hnd) then
         if (ga_nodeid().eq.0) then
-          write(6,*)' you are trying to turn an integral code on?? '
-          write(6,*)' sp  ', def_cando_sp
-          write(6,*)' nw  ', def_cando_nw
-          write(6,*)' txs ', def_cando_txs
-          write(6,*)' hnd ', def_cando_hnd
+          write(luout,*)' you are trying to turn an integral code on?? '
+          write(luout,*)' sp  ', def_cando_sp
+          write(luout,*)' nw  ', def_cando_nw
+          write(luout,*)' txs ', def_cando_txs
+          write(luout,*)' hnd ', def_cando_hnd
           call util_flush(6)
         endif
         call errquit
@@ -169,14 +170,14 @@ c
 00100 continue
 
       if (.not.status) then
-        write(6,*)' at least one basis handle not valid'
+        write(luout,*)' at least one basis handle not valid'
         do 00200 ibas = 1,nbas
-          write(6,'(a,i5)')
+          write(luout,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
         call errquit('int_init: basis handles hosed ',nbas)
       endif
-*      write(6,*)' int_init: basis set handles valid '
+*      write(luout,*)' int_init: basis set handles valid '
 c
 c check for both sp and gc shells
 c
@@ -256,70 +257,8 @@ c See if any basis has an attached SO potential
       end
       subroutine sp_init(nbas,bases)
       implicit none
-*_not_used?:#include "apispP.fh"
-*_not_used?:#include "bas.fh"
-*_not_used?:#include "mafdecls.fh"
-*_not_used?:c::passed
       integer nbas
       integer bases(nbas)
-*_not_used?:c::local
-*_not_used?:      integer ncont,icont,ibas
-*_not_used?:      integer mytype,nprim,ngen,sphorcart
-*_not_used?:      integer myang, testang
-*_not_used?:c
-*_not_used?:      no_sp_conts = .true.
-*_not_used?:      do 00100 ibas = 1,nbas
-*_not_used?:        if (.not.bas_numcont(bases(ibas),ncont))
-*_not_used?:     &         call errquit('sp_init: bas_numcont failed',911)
-*_not_used?:        do 00200 icont = 1,ncont
-*_not_used?:          if(.not.bas_continfo
-*_not_used?:     &           (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
-*_not_used?:     &           call errquit('sp_init: bas_continfo failed',911)
-*_not_used?:
-*_not_used?:          if (mytype.lt.0) then
-*_not_used?:            no_sp_conts = .false.
-*_not_used?:            goto 00201
-*_not_used?:          endif
-*_not_used?:00200   continue
-*_not_used?:00100 continue
-*_not_used?:00201 continue
-*_not_used?:c
-*_not_used?:      if (no_sp_conts) return
-*_not_used?:c... arbitrary set max number of blocks to 2 for sp's if spd's set to 3
-*_not_used?:      max_sp_blksz = 2
-*_not_used?:c
-*_not_used?:      write(6,*)':::: allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block A',
-*_not_used?:     &       hszspa,kszspa))
-*_not_used?:     &       call errquit('sp_init:ma_alloc_get A failed',911)
-*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block B',
-*_not_used?:     &       hszspb,kszspb))
-*_not_used?:     &       call errquit('sp_init:ma_alloc_get B failed',911)
-*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block C',
-*_not_used?:     &       hszspc,kszspc))
-*_not_used?:     &       call errquit('sp_init:ma_alloc_get C failed',911)
-*_not_used?:      if (.not.MA_alloc_get(mt_int,max_sp_blksz,'sp size block D',
-*_not_used?:     &       hszspd,kszspd))
-*_not_used?:     &       call errquit('sp_init:ma_alloc_get D failed',911)
-*_not_used?:      write(6,*)':::done: allocating sp blocks of memory'
-*_not_used?:c
-*_not_used?:      myang = -56565
-*_not_used?:      do 00300 ibas = 1,nbas
-*_not_used?:        if (.not.bas_high_angular(bases(ibas),testang))
-*_not_used?:     &         call errquit('sp_init:bas_high_angular failed',911)
-*_not_used?:        myang = max(myang,testang)
-*_not_used?:00300 continue
-*_not_used?:      myang = (myang+1)*(myang+2)/2
-*_not_used?:* max of (sp,sp|sp,sp) and (sp,X,X,X) and permutations
-*_not_used?:      sp_scat_sz = max((4*4*4*4),(4*4*4*myang))
-*_not_used?:      sp_scat_sz = max(sp_scat_sz,(4*4*myang*myang))
-*_not_used?:      sp_scat_sz = max(sp_scat_sz,(4*myang*myang*myang))
-*_not_used?:      sp_scat_sz = max(sp_scat_sz,(myang*myang*myang*myang))
-*_not_used?:c
-*_not_used?:      if (.not.MA_alloc_get(mt_int,sp_scat_sz,'sp scatter array',
-*_not_used?:     &       hspscat,kspscat))
-*_not_used?:     &       call errquit('sp_init:ma_alloc_get scat failed',911)
-*_not_used?:      write(6,*)':::done: allocating sp blocks of memory'
       end
       logical function texas_check_basis_ok(nbas,bases)
       implicit none

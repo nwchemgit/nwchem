@@ -1,7 +1,8 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.10 1998-04-29 07:27:37 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.11 1998-12-10 23:48:19 d3e129 Exp $
       implicit none
+#include "stdio.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -72,8 +73,8 @@ c
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*nat.gt.lH1a) then
-        write(6,*) 'nint*3*nat = ',nint*3*nat
-        write(6,*) 'lH1a       = ',lH1a
+        write(luout,*) 'nint*3*nat = ',nint*3*nat
+        write(luout,*) 'lH1a       = ',lH1a
         call errquit('intd_1eh1: nint>lH1a error',911)
       endif
 c
@@ -88,6 +89,7 @@ c
       subroutine intd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
      &       nint,H1a,Ta)
       implicit none
+#include "stdio.fh"
 #include "apiP.fh"
 #include "int_nbf.fh"
 #include "basP.fh"
@@ -157,7 +159,7 @@ c
       jatom = (sf_ibs_cn2ce(jsh,jbas))
 c
       if (igeom.ne.jgeom) then
-        write(6,*)'intd_1eh1P.F: two different geometries for',
+        write(luout,*)'intd_1eh1P.F: two different geometries for',
      &         ' derivatives?'
         call errquit('intd_1eh1P: geom error ',911)
       endif
@@ -200,8 +202,8 @@ c
       if (any_ecp) then
         nintV = int_nbf_x(itype)*int_nbf_x(jtype)
         offset = nintV*3*nat + 1
-*       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
-*       call dcopy(nintV*3*nat,0.0d00,0,scr,1) buffer zeroed in ecp_gradient
+*       write(luout,*)' lscr to ecp_hf1:',(lscr-nintV)
+*       call dcopy(nintV*3*nat,0.0d00,0,scr,1) ! buffer zeroed in ecp_gradient
         call intd_ecp_hf1(
      &      coords(1,iatom,igeom),
      &      dbl_mb(mb_exndcf(iexp,ibas)),

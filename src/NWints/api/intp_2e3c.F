@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.7 1998-04-29 07:27:42 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.8 1998-12-10 23:48:25 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -146,7 +146,7 @@ c
      &        call errquit
      &        ('intp_2e3c: not enough scratch for spherical transform',
      &        911)
-          call spcart_3ctran(eri,scr,
+          call spcart_3ctran(eri,scr,lscr,
      &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
      &        int_nbf_x(Lc),int_nbf_s(Lc),Lc,c_gen,bas_spherical(ket),
      &        int_nbf_x(Ld),int_nbf_s(Ld),Ld,d_gen,bas_spherical(ket),

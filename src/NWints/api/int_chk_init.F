@@ -1,4 +1,4 @@
-c $Id: int_chk_init.F,v 1.3 1997-05-29 00:36:07 d3e129 Exp $
+c $Id: int_chk_init.F,v 1.4 1998-12-10 23:48:10 d3e129 Exp $
 *
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_chk\_init}
@@ -11,6 +11,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "stdio.fh"
 c:: passed
 c:tex-\begin{verbatim}
       character*(*) msg ! [input] usually indentfy calling routine
@@ -20,7 +21,7 @@ c check initialization
 c
       int_chk_init = init_int.ne.0
       if (.not.int_chk_init) then
-        write(6,*)' ERROR:: <',msg,'>'
-        write(6,*)' int_init was not called '
+        write(luout,*)' ERROR:: <',msg,'>'
+        write(luout,*)' int_init was not called '
       endif
       end
