@@ -1,8 +1,12 @@
 *
-* $Id: paw_inner_loop.F,v 1.24 2003-02-24 21:58:59 marat Exp $
+* $Id: paw_inner_loop.F,v 1.25 2003-02-24 22:38:51 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2003/02/24 21:58:59  marat
+* ...
+* MV
+*
 * Revision 1.23  2003/02/24 21:05:00  bylaska
 *  $Log: added to cvs output....EJB
 *
@@ -49,7 +53,7 @@
       integer nx,ny,nz
       integer index,indext
       double precision evloc_pw,evloc_atom
-      real*8  sum,Eold,eorbit,eion,ehartr,eke,enlocal
+      real*8  sum,Eold,eorbit,ehartr_pw,eke,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  deltamm,vzero
       double precision ekin_atom
@@ -65,8 +69,8 @@
       logical value
       integer tmp_L(2)
       integer tmp1(2),tmp2(2)
-      integer vl(2),vc(2),dng(2)
-      integer vlr_l(2),rho(2),r_grid(2)
+      integer vl(2),vh(2),vc(2),vcomp(2),dng(2)
+      integer rho(2),r_grid(2)
       integer xcp(2),xce(2),dnall(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
@@ -112,14 +116,20 @@
 
       if (control_version().eq.3) then
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
+     >        MA_push_get(mt_dcpl,(npack0),'vcomp',vcomp(2),vcomp(1))
+       value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'vh',vh(2),vh(1))
+       value = value.and.
+     >        MA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
       end if
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+     >        MA_push_get(mt_dbl,(n2ft3d),'vcomp',vcomp(2),vcomp(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+     >        MA_push_get(mt_dbl,(n2ft3d),'vh',vh(2),vh(1))
+       value = value.and.
+     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
       end if
 
       if (control_version().eq.4) then
@@ -243,6 +253,11 @@
      >               move,
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
+       call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),evloc_pw)
+
+       write(*,*) 
+       write(*,*) "DEBUG evloc_pw:",evloc_pw
+       write(*,*) 
 
 *      ************************************
 *      **** generate coulomb potential ****
@@ -253,27 +268,30 @@
            
         call paw_mult_dn_cmp_get(dcpl_mb(tmp1(1)),
      >                           dn_cmp_smooth)
-
         if (control_version().eq.3)  then
-           call paw_mult_vzero(vzero)
-           call Pack_cc_Sum(0,
-     >                      dn_cmp_smooth,
-     >                      dcpl_mb(dng(1)),
-     >                      dcpl_mb(dng(1))) !** dng = dng+dn_cmp_smooth **
            call Pack_cc_Sub(0,
      >                      dcpl_mb(tmp1(1)),
      >                      dn_cmp_smooth,
-     >                      dcpl_mb(tmp2(1))) !** tmp1 = dn_cmp - dn_cmp_smooth
-
-           call coulomb_v(dcpl_mb(dng(1)), 
-     >                    dcpl_mb(vc(1)))   !*** vh   ***
-           call coulomb_v(dcpl_mb(tmp2(1)),
-     >                    dcpl_mb(tmp1(1))) !*** vcmp ***
-           call Pack_c_setzero(0,vzero,dcpl_mb(tmp1(1)))
-           call paw_mult_coeff_set(dcpl_mb(vc(1)),dcpl_mb(tmp1(1)))
+     >                      dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp - dn_cmp_smooth
            call Pack_cc_Sum(0,
-     >                      dcpl_mb(vc(1)),
-     >                      dcpl_mb(tmp1(1)),
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(dng(1)),
+     >                      dcpl_mb(tmp1(1))) !** tmp1 = dng+dn_cmp_smooth **
+
+           !**** vh *****
+           call coulomb_v(dcpl_mb(tmp1(1)), 
+     >                    dcpl_mb(vh(1))) 
+
+           !**** vcmp *****
+           call coulomb_v(dcpl_mb(tmp2(1)),
+     >                    dcpl_mb(vcomp(1)))
+           call paw_mult_vzero(vzero)
+           call Pack_c_setzero(0,vzero,dcpl_mb(vcomp(1)))
+
+           call paw_mult_coeff_set(dcpl_mb(vh(1)),dcpl_mb(vcomp(1)))
+           call Pack_cc_Sum(0,
+     >                      dcpl_mb(vh(1)),
+     >                      dcpl_mb(vcomp(1)),
      >                      dcpl_mb(vc(1)))
                    
         end if
@@ -436,19 +454,29 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
       if (ispin.eq.1) eorbit = eorbit+eorbit
         
 
-*     **** get ewald energy ****
-      eion = 0.0d0
-      if (control_version().eq.3) eion = ewald_e()
     
-*     **** get free-space ion-ion energy ****
-      if (control_version().eq.4) eion = ion_ion_e()
-
-           
 *     **** get coulomb energy ****
-      if (control_version().eq.3) ehartr = coulomb_e(dcpl_mb(dng(1)))
+      if (control_version().eq.3) then
+        call Pack_cc_Sum(0,
+     >                   dcpl_mb(dng(1)),
+     >                   dn_cmp_smooth,
+     >                   dcpl_mb(tmp1(1)))
+        call Pack_c_Copy(0,
+     >                   dcpl_mb(vcomp(1)),
+     >                   dcpl_mb(tmp2(1)))
+        call Pack_cc_daxpy(0,0.5d0,
+     >                   dcpl_mb(vh(1)),
+     >                   dcpl_mb(tmp2(1)))
+        call Pack_cc_dot(0,
+     >                  dcpl_mb(tmp1(1)),
+     >                  dcpl_mb(tmp2(1)),
+     >                  ehartr_pw)
+        ehartr_pw = ehartr_pw*lattice_omega()
+      end if
+
       if (control_version().eq.4) then
-         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-         ehartr = 0.5d0*ehartr*dv
+         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr_pw)
+         ehartr_pw = 0.5d0*ehartr_pw*dv
       end if
         
 
@@ -476,11 +504,6 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
       call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),evloc_pw)
 
 
-*     *** add in long range part ****
-      if (control_version().eq.4) then
-      call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
-      evloc_pw = evloc_pw + sum*dv
-      end if
 
  
 *     ***** average Kohn-Sham v_nonlocal energy ****
@@ -518,7 +541,7 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
 *     *** kinetic energy 
       E(2) = eke
       E(3) = ekin_atom 
-      E(4) = ehartr
+      E(4) = ehartr_pw
 
 *     *** coulomb contributions 
       E(5) = eion_atom + ecore_atom + ehartree_atom +
@@ -545,13 +568,13 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
       end do
       
 c      E(2) = eorbit
-c      E(3) = ehartr
+c      E(3) = ehartr_pw
 c      E(4) = exc
 c      E(5) = eion
 c      E(6) = eke
 c      E(7) = elocal
 c      E(8) = enlocal
-c      E(9) = 2.0d0*ehartr
+c      E(9) = 2.0d0*ehartr_pw
 c      E(10) = pxc
 
 
@@ -607,10 +630,9 @@ c      E(10) = pxc
       if ((control_version().eq.4))
      >   value = MA_pop_stack(r_grid(2))
 
-      if (control_version().eq.4) 
-     >   value = MA_pop_stack(vlr_l(2))
-
       value = MA_pop_stack(vc(2))
+      value = MA_pop_stack(vh(2))
+      value = MA_pop_stack(vcomp(2))
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp1(2))
       value = MA_pop_stack(tmp_L(2))
