@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.73 1996-03-15 01:40:41 d3h449 Exp $
+c     $Id: nwchem.F,v 1.74 1996-03-15 22:04:22 gg502 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -279,6 +279,8 @@ c
       logical status 
       logical  scf, task_check_sum, selci, eopt, rjhtest
       external scf, task_check_sum, selci, eopt, rjhtest
+      logical debtest, rimp2
+      external debtest, rimp2
       logical nwdft
       external nwdft
       parameter (ntasks = 26)
@@ -287,8 +289,8 @@ c
      $     'raktest',           ! 2
      $     'rtdbprint',         ! 3
      $     'scf',               ! 4
-     $     'debtest',           ! 5
-     $     'gradients',         ! 6
+     $     'debtest',           ! 5  <-- PLEASE REPLACE THIS MODULE WITH 
+     $     'gradients',         ! 6      SOMETHING WORTHWHILE    --David
      $     'optscf',            ! 7
      $     'atwtest',           ! 8
      $     'rimp2',             ! 9
@@ -350,7 +352,7 @@ c
 C     
 C     debtest ... I want my own task! (SCF + RI-MP2 at the moment)
 C     
- 50      call debtest(rtdb)
+ 50      status = debtest(rtdb)
          goto 1000
 c     
 c     gradients (scf has to be done first)
@@ -370,7 +372,7 @@ c
 c     
 C     RI-MP2 energy (SCF must be done separately first)
 c     
- 90      call rimp2(rtdb)
+ 90      status = rimp2(rtdb)
          goto 1000
 c     
 c     integral check sum
