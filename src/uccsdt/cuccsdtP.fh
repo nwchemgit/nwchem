@@ -6,6 +6,13 @@ c
 c     Alpha=1, Beta=2
 c     Irreps numbered 0..7 so that ijsym=ieor(isym,jsym)
 c
+c     The generic information is filled in by uccsdt_init() 
+c     and is cleaned up by uccsdt_tidy().
+c
+c     The triples blocking information is filled in by 
+c     uccsdt_triples_{sub,super}_blocking() and cleaned up by
+c     uccsdt_triples_sub_blocking_end().
+c
       integer basis
       integer geom
       integer g_movecs(2)       ! GAs holding the MO vectors
@@ -35,8 +42,8 @@ c
 c
 c     Super-blocking info for the triples
 c
-      integer asuper(2), bsuper(2), csuper(2) ! First/list orbital in super-block
-      integer asuper_spin, bsuper_spin, csuper_spin ! Spin of orbital blocks
+      integer asuper(2), bsuper(2), csuper(2) ! The current super block ranges
+      integer asuper_spin, csuper_spin ! Spin of orbital blocks
 c
 c     Sub-blocking info for the triples
 c     1=first orbital, 2=last orbital, 3=symmetry of all orbitals in sub-block
@@ -57,6 +64,8 @@ c     .   (note that 1st dimension is unity except for lists 11, 12, 13)
       integer listinfo(1:9,23)
       character*10 listname(23)
 c
+      logical ocheck            ! If true check the integral lists
+c
       double precision eps(nw_max_nbf,1:2) ! Eigenvalues for each spin
 c
       common /cuccsdt/ 
@@ -69,10 +78,10 @@ c     integers
 c
      $     basis, geom, g_movecs, k_movecs, l_movecs,
      $     nsh, nbf, nmo, nact, nir, nc, no, nv, nc_sym, no_sym, nv_sym, 
-     $     c_sym, o_sym, v_sym, map, 
+     $     c_sym, o_sym, v_sym, map, ocheck,
 c
      $     asuper, bsuper, csuper, 
-     $     asuper_spin, bsuper_spin, csuper_spin,
+     $     asuper_spin, csuper_spin,
      $     nablock, nbblock, ncblock, noblock,
      $     ablock, bblock, cblock, oblock,
      $     oblock_max, vblock_max, 

@@ -30,7 +30,7 @@ c
      $       ' GA handle  ', i8, '       block dims ', 4i5/)
 c
       spina = asuper_spin
-      spinb = bsuper_spin
+      spinb = spina
       spinc = csuper_spin
       spini = spina
       spinj = spina
@@ -533,650 +533,7 @@ c$$$         call errquit('uccsdt_triples_get_list: bad list', list)
 c$$$      end if
 c
       end
-         
-      subroutine uccsdt_triples_set_super_block
-     $     (alo, ahi, blo, bhi, clo, chi, spina, spinb, spinc,
-     $     oprint)
-      implicit none
-#include "cuccsdtP.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-      integer alo, ahi, blo, bhi, clo, chi ! [input]
-      integer spina, spinb, spinc
-      logical oprint
-c
-c     The outer-3-most loops of the triples are over blocks of virtual 
-c     indices.  The blocking is determined outside of this routine
-c     so as to minimize recomputation of the integrals within memory 
-c     constraints.
-c
-c     This routine, given the specified super blocks and spins of 
-c     abc, sets up all of the blocking info in the common block
-c
-c     1. The sub-blocking info for both virtual and occupied indices
-c     2. The addressing info for indexing into the 5 global
-c     .  arrays by sub-block indices
-c     3. Allocation of the global arrays themselves
-c
-      integer ir, a1, a2, b1, b2, c1, c2, spin, list, i
-      integer spini, spinj, spink
-c
-      asuper(1) = alo
-      asuper(2) = ahi
-      bsuper(1) = blo
-      bsuper(2) = bhi
-      csuper(1) = clo
-      csuper(2) = chi
-      asuper_spin = spina
-      bsuper_spin = spinb
-      csuper_spin = spinc
-c
-c     Determine the optimal sub-blocking for the occupied
-c     and virtual indices ... these should be determined by the
-c     machine characteristics and the performance model ... 
-c     for debug purposes just hardwire these.
-c
-c     Must also ensure that there are not so many sub-blocks as
-c     to overflow the dimensions of the adressing arrays.
-c
-      oblock_max = 2
-      vblock_max = 3
-c
-c     Sub-block the 'a' super-block ... sub-blocks will be restricted
-c     to orbitals of the same symmetry whereas super-blocks can contain
-c     multiple symmetries and split symmetry blocks.
-c
-      nablock = 0
-      do ir = 0, nir-1
-         do a1 = max(alo,v_sym(1,ir,spina)),
-     $           min(ahi,v_sym(2,ir,spina)), vblock_max
-            a2 = a1 + vblock_max - 1
-            a2 = min(a2,min(ahi,v_sym(2,ir,spina)))
-            nablock = nablock + 1
-            ablock(1,nablock) = a1
-            ablock(2,nablock) = a2
-            ablock(3,nablock) = ir
-         end do
-      end do
-c
-c     Ditto for b
-c
-      nbblock = 0
-      do ir = 0, nir-1
-         do b1 = max(blo,v_sym(1,ir,spinb)),
-     $           min(bhi,v_sym(2,ir,spinb)), vblock_max
-            b2 = b1 + vblock_max - 1
-            b2 = min(b2,min(bhi,v_sym(2,ir,spinb)))
-            nbblock = nbblock + 1
-            bblock(1,nbblock) = b1
-            bblock(2,nbblock) = b2
-            bblock(3,nbblock) = ir
-         end do
-      end do
-c
-c     Ditto for c
-c
-      ncblock = 0
-      do ir = 0, nir-1
-         do c1 = max(clo,v_sym(1,ir,spinc)),
-     $           min(chi,v_sym(2,ir,spinc)), vblock_max
-            c2 = c1 + vblock_max - 1
-            c2 = min(c2,min(chi,v_sym(2,ir,spinc)))
-            ncblock = ncblock + 1
-            cblock(1,ncblock) = c1
-            cblock(2,ncblock) = c2
-            cblock(3,ncblock) = ir
-         end do
-      end do
-c
-c     The blocking of the occupied never changes but just re-do it 
-c     every time for convenience
-c
-      do spin = 1, 2
-         noblock(spin) = 0
-         do ir = 0, nir-1
-            do i = o_sym(1,ir,spin),o_sym(2,ir,spin),oblock_max
-               noblock(spin) = noblock(spin) + 1
-               oblock(1,noblock(spin),spin) = i
-               oblock(2,noblock(spin),spin) = 
-     $              min(o_sym(2,ir,spin),i+oblock_max-1)
-               oblock(3,noblock(spin),spin) = ir
-            end do
-         end do
-      end do
-c
-      if (oprint) then
-         write(6,*) ' A super block ', alo, ahi, spina, nablock
-         write(6,1) (i,ablock(1,i),ablock(2,i),ablock(3,i),i=1,nablock)
-         write(6,*) ' B super block ', blo, bhi, spinb, nbblock
-         write(6,1) (i,bblock(1,i),bblock(2,i),bblock(3,i),i=1,nbblock)
-         write(6,*) ' C super block ', clo, chi, spinc, ncblock
-         write(6,1) (i,cblock(1,i),cblock(2,i),cblock(3,i),i=1,ncblock)
-         write(6,*) ' Alpha occupied blocking'
-         write(6,1) (i,oblock(1,i,1),oblock(2,i,1),oblock(3,i,1),
-     $        i=1,noblock(1))
-         write(6,*) ' Beta  occupied blocking'
-         write(6,1) (i,oblock(1,i,2),oblock(2,i,2),oblock(3,i,2),
-     $        i=1,noblock(2))
- 1       format(4x,i5,4x,3i5)
-      endif
-c
-c     Now set up the addressing arrays for the by-sub-block
-c     addressing of the 1-d global arrays with contiguous sub-blocks
-c
-c     Mixed spin case has
-c     .   spin(a)=spin(b)=spin(i)=spin(j)
-c     .   spin(c)=spin(k)
-c
-c     Pure spin case has all spins the same but the same lists
-c     are created as for mixed spin, except that all integrals
-c     are antisymmetrized.
-c
-c     3-x integrals
-c     1.  <ei||ab>  spin(e)=spin(a)  pure
-c     2.  <ek|ac>   spin(e)=spin(a)  mixed 
-c     3.  <ek|bc>   spin(e)=spin(a)  mixed
-c     4.  <ei|ca>   spin(e)=spin(c)  mixed
-c     5.  <ei|cb>   spin(e)=spin(c)  mixed
-c
-c     1-x integrals
-c     6.  <mc|ik>  spin(m)=spin(a)  mixed
-c     7.  <ma||ij> spin(m)=spin(a)  pure
-c     8.  <mb||ij> spin(m)=spin(a)  pure
-c     9.  <ma|ki>  spin(m)=spin(c)  mixed
-c     10. <mb|ki>  spin(m)=spin(c)  mixed
-c
-c     2-x integrals (for V)
-c     11. <ab||ij> pure
-c     12. <ac|ik>  mixed
-c     13. <bc|ik>  mixed
-c
-c     Amplitudes multiplying 3-x integrals (note similarity to 1-x integrals)
-c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
-c     15.  t(e,a,i,j) spin(e)=spin(a) pure
-c     16.  t(e,b,i,j) spin(e)=spin(a) pure
-c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
-c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
-c
-c     Amplitudes multiplying 1-x integrals (note similarity to 3-x integrals)
-c     19.  t(m,i,a,b) spin(m)=spin(a) pure
-c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
-c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
-c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
-c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
-c
-      spini = spina
-      spinj = spina
-      spink = spinc
-c
-c     Setup the names of the lists for easier printing & debugging
-c
-c     3-x integrals
-      listname(1) = '<ei||ab>'
-      listname(2) = '<ek|ac>'
-      listname(3) = '<ek|bc>'
-      listname(4) = '<ei|ca>'
-      listname(5) = '<ei|cb>'
-c     1-x integrals
-      listname(6) = '<mc|ik>'
-      listname(7) = '<ma||ij>'
-      listname(8) = '<mb||ij>'
-      listname(9) = '<ma|ki>'
-      listname(10) = '<mb|ki>'
-c     2-x integrals (for V)
-      listname(11) = '<ab||ij>'
-      listname(12) = '<ac|ik>'
-      listname(13) = '<bc|ik>'
-c     Amplitudes multiplying 3-x integrals (note similarity to 1-x integrals)
-      listname(14) = 't(e,c,i,k)'
-      listname(15) = 't(e,a,i,j)'
-      listname(16) = 't(e,b,i,j)'
-      listname(17) = 't(e,a,k,i)'
-      listname(18) = 't(e,b,k,i)'
-c     Amplitudes multiplying 1-x integrals (note similarity to 3-x integrals)
-      listname(19) = 't(m,i,a,b)'
-      listname(20) = 't(m,k,a,c)'
-      listname(21) = 't(m,k,b,c)'
-      listname(22) = 't(m,i,c,a)'
-      listname(23) = 't(m,i,c,b)'
-c
-c     Compute the size of each dimension of the pointer arrays
-c     and then computer their size so they can be MA'd
-c     
-c     3-x integrals
-      listinfo(6,1) = 1                         ! 1.  <ei||ab> 
-      listinfo(7,1) = noblock(spini)
-      listinfo(8,1) = nablock
-      listinfo(9,1) = nbblock                   
-      listinfo(6,2) = 1                         ! 2.  <ek|ac>  
-      listinfo(7,2) = noblock(spink)
-      listinfo(8,2) = nablock
-      listinfo(9,2) = ncblock                   
-      listinfo(6,3) = 1                         ! 3.  <ek|bc>  
-      listinfo(7,3) = noblock(spink)
-      listinfo(8,3) = nbblock
-      listinfo(9,3) = ncblock                   
-      listinfo(6,4) = 1                         ! 4.  <ei|ca>  
-      listinfo(7,4) = noblock(spini)
-      listinfo(8,4) = ncblock
-      listinfo(9,4) = nablock                   
-      listinfo(6,5) = 1                         ! 5.  <ei|cb>  
-      listinfo(7,5) = noblock(spini)
-      listinfo(8,5) = ncblock
-      listinfo(9,5) = nbblock                   
-c     1-x integrals
-      listinfo(6,6) = 1                         ! 6.  <mc|ik>
-      listinfo(7,6) = ncblock
-      listinfo(8,6) = noblock(spini)
-      listinfo(9,6) = noblock(spink)            
-      listinfo(6,7) = 1                         ! 7.  <ma||ij>
-      listinfo(7,7) = nablock
-      listinfo(8,7) = noblock(spini)
-      listinfo(9,7) = noblock(spinj)            
-      listinfo(6,8) = 1                         ! 8.  <mb||ij>
-      listinfo(7,8) = nbblock
-      listinfo(8,8) = noblock(spini)
-      listinfo(9,8) = noblock(spinj)            
-      listinfo(6,9) = 1                         ! 9.  <ma|ki>
-      listinfo(7,9) = nablock
-      listinfo(8,9) = noblock(spink)
-      listinfo(9,9) = noblock(spini)            
-      listinfo(6,10)= 1                         ! 10. <mb|ki> 
-      listinfo(7,10)= nbblock
-      listinfo(8,10)= noblock(spink)
-      listinfo(9,10)= noblock(spini)            
-c     2-x integrals (for V)
-      listinfo(6,11)= nablock                   ! 11. <ab||ij>
-      listinfo(7,11)= nbblock
-      listinfo(8,11)= noblock(spini)
-      listinfo(9,11)= noblock(spinj)            
-      listinfo(6,12)= nablock                   ! 12. <ac|ik>
-      listinfo(7,12)= ncblock
-      listinfo(8,12)= noblock(spini)
-      listinfo(9,12)= noblock(spink)            
-      listinfo(6,13)= nbblock                   ! 13. <bc|ik>
-      listinfo(7,13)= ncblock
-      listinfo(8,13)= noblock(spini)
-      listinfo(9,13)= noblock(spink)            
-c     Amplitudes multiplying 3-x integrals (note similarity to 1-x integrals)
-      listinfo(6,14)= 1                         ! 14.  t(e,c,i,k)
-      listinfo(7,14)= ncblock
-      listinfo(8,14)= noblock(spini)
-      listinfo(9,14)= noblock(spink)            
-      listinfo(6,15)= 1                         ! 15.  t(e,a,i,j)
-      listinfo(7,15)= nablock
-      listinfo(8,15)= noblock(spini)
-      listinfo(9,15)= noblock(spinj)            
-      listinfo(6,16)= 1                         ! 16.  t(e,b,i,j)
-      listinfo(7,16)= nbblock
-      listinfo(8,16)= noblock(spini)
-      listinfo(9,16)= noblock(spinj)            
-      listinfo(6,17)= 1                         ! 17.  t(e,a,k,i)
-      listinfo(7,17)= nablock
-      listinfo(8,17)= noblock(spink)
-      listinfo(9,17)= noblock(spini)            
-      listinfo(6,18)= 1                         ! 18.  t(e,b,k,i)
-      listinfo(7,18)= nbblock
-      listinfo(8,18)= noblock(spink)
-      listinfo(9,18)= noblock(spini)            
-c     Amplitudes multiplying 1-x integrals (note similarity to 3-x integrals)
-      listinfo(6,19)= 1                         ! 19.  t(m,i,a,b)
-      listinfo(7,19)= noblock(spini)
-      listinfo(8,19)= nablock
-      listinfo(9,19)= nbblock                   
-      listinfo(6,20)= 1                         ! 20.  t(m,k,a,c)
-      listinfo(7,20)= noblock(spink)
-      listinfo(8,20)= nablock
-      listinfo(9,20)= ncblock                   
-      listinfo(6,21)= 1                         ! 21.  t(m,k,b,c)
-      listinfo(7,21)= noblock(spink)
-      listinfo(8,21)= nbblock
-      listinfo(9,21)= ncblock                   
-      listinfo(6,22)= 1                         ! 22.  t(m,i,c,a)
-      listinfo(7,22)= noblock(spini)
-      listinfo(8,22)= ncblock
-      listinfo(9,22)= nablock                   
-      listinfo(6,23)= 1                         ! 23.  t(m,i,c,b)
-      listinfo(7,23)= noblock(spini)
-      listinfo(8,23)= ncblock
-      listinfo(9,23)= nbblock                   
-c
-c     Allocate and then create the pointer/reclen arrays
-c
-      do list = 1, 23
-         listinfo(1,list) = listinfo(6,list)*listinfo(7,list)*
-     $        listinfo(8,list)*listinfo(9,list)
-         if (.not. ma_push_get(mt_int,2*listinfo(1,list),listname(list), 
-     $        listinfo(3,list), listinfo(2,list))) call errquit
-     $        ('uccsdt_triples_set_super_block: ma of list?', list)
-      end do
-c
-c     1.  <ei||ab>  spin(e)=spin(a)  pure
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     noblock(spini), oblock(1,1,spini), nablock, ablock, 
-     $     nbblock, bblock, int_mb(listinfo(2,1)), listinfo(4,1))
-c
-c     2.  <ek|ac>   spin(e)=spin(a)  mixed 
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     noblock(spink), oblock(1,1,spink), nablock, ablock, 
-     $     ncblock, cblock, int_mb(listinfo(2,2)), listinfo(4,2))
-c
-c     3.  <ek|bc>   spin(e)=spin(a)  mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     noblock(spink), oblock(1,1,spink), nbblock, bblock, 
-     $     ncblock, cblock, int_mb(listinfo(2,3)), listinfo(4,3))
-c      
-c     4.  <ei|ca>   spin(e)=spin(c)  mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spinc), 
-     $     noblock(spini), oblock(1,1,spini), ncblock, cblock, 
-     $     nablock, ablock, int_mb(listinfo(2,4)), listinfo(4,4))
-c
-c     5.  <ei|cb>   spin(e)=spin(c)  mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spinc), 
-     $     noblock(spini), oblock(1,1,spini), ncblock, cblock, 
-     $     nbblock, bblock, int_mb(listinfo(2,5)), listinfo(4,5))
-c
-c     1-x integrals
-c
-c     6.  <mc|ik>  spin(m)=spin(a)  mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     ncblock, cblock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spink), oblock(1,1,spink), int_mb(listinfo(2,6)), 
-     $     listinfo(4,6))
-c
-c     7.  <ma||ij> spin(m)=spin(a)  pure
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     nablock, ablock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spinj), oblock(1,1,spinj), int_mb(listinfo(2,7)), 
-     $     listinfo(4,7))
-c
-c     8.  <mb||ij> spin(m)=spin(a)  pure
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     nbblock, bblock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spinj), oblock(1,1,spinj), int_mb(listinfo(2,8)), 
-     $     listinfo(4,8))
-c
-c     9.  <ma|ki>  spin(m)=spin(c)  mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spinc), 
-     $     nablock, ablock, noblock(spink), oblock(1,1,spink), 
-     $     noblock(spini), oblock(1,1,spini), int_mb(listinfo(2,9)), 
-     $     listinfo(4,9))
-c
-c     10. <mb|ki>  spin(m)=spin(c)  mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spinc), 
-     $     nbblock, bblock, noblock(spink), oblock(1,1,spink), 
-     $     noblock(spini), oblock(1,1,spini), int_mb(listinfo(2,10)), 
-     $     listinfo(4,10))
-c
-c     2-x integrals (for V)
-c
-c     11. <ab||ij> pure
-c
-      call uccsdt_2x_pointers(nablock, ablock, nbblock, bblock,
-     $     noblock(spini), oblock(1,1,spini), 
-     $     noblock(spinj), oblock(1,1,spinj), int_mb(listinfo(2,11)), 
-     $     listinfo(4,11))
-c
-c     12. <ac|ik>  mixed
-c
-      call uccsdt_2x_pointers(nablock, ablock, ncblock, cblock,
-     $     noblock(spini), oblock(1,1,spini), 
-     $     noblock(spink), oblock(1,1,spink), int_mb(listinfo(2,12)), 
-     $     listinfo(4,12))
-c
-c     13. <bc|ik>  mixed
-c
-      call uccsdt_2x_pointers(nbblock, bblock, ncblock, cblock,
-     $     noblock(spini), oblock(1,1,spini), 
-     $     noblock(spink), oblock(1,1,spink), int_mb(listinfo(2,13)), 
-     $     listinfo(4,13))
-c
-c     Amplitudes multiplying 3-x integrals (note similarity to 1-x integrals)
-c
-c     14.  t(e,c,i,k) spin(e)=spin(a) mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     ncblock, cblock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spink), oblock(1,1,spink), int_mb(listinfo(2,14)), 
-     $     listinfo(4,14))
-c
-c     15.  t(e,a,i,j) spin(e)=spin(a) pure
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     nablock, ablock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spinj), oblock(1,1,spinj), int_mb(listinfo(2,15)), 
-     $     listinfo(4,15))
-c      
-c     16.  t(e,b,i,j) spin(e)=spin(a) pure
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spina), 
-     $     nbblock, bblock, noblock(spini), oblock(1,1,spini), 
-     $     noblock(spinj), oblock(1,1,spinj), int_mb(listinfo(2,16)), 
-     $     listinfo(4,16))
-c
-c     17.  t(e,a,k,i) spin(e)=spin(c) mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spinc), 
-     $     nablock, ablock, noblock(spink), oblock(1,1,spink), 
-     $     noblock(spini), oblock(1,1,spini), int_mb(listinfo(2,17)), 
-     $     listinfo(4,17))
-c
-c     18.  t(e,b,k,i) spin(e)=spin(c) mixed
-c
-      call uccsdt_1x_3x_pointers(nv_sym(0,spinc), 
-     $     nbblock, bblock, noblock(spink), oblock(1,1,spink), 
-     $     noblock(spini), oblock(1,1,spini), int_mb(listinfo(2,18)), 
-     $     listinfo(4,18))
-c
-c     Amplitudes multiplying 1-x integrals (note similarity to 3-x integrals)
-c
-c     19.  t(m,i,a,b) spin(m)=spin(a) pure
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     noblock(spini), oblock(1,1,spini), nablock, ablock,
-     $     nbblock, bblock, int_mb(listinfo(2,19)), listinfo(4,19))
-c
-c     20.  t(m,k,a,c) spin(m)=spin(a) mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     noblock(spink), oblock(1,1,spink), nablock, ablock,
-     $     ncblock, cblock, int_mb(listinfo(2,20)), listinfo(4,20))
-c
-c     21.  t(m,k,b,c) spin(m)=spin(a) mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spina), 
-     $     noblock(spink), oblock(1,1,spink), nbblock, bblock,
-     $     ncblock, cblock, int_mb(listinfo(2,21)), listinfo(4,21))
-c
-c     22.  t(m,i,c,a) spin(m)=spin(c) mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spinc), 
-     $     noblock(spini), oblock(1,1,spini), ncblock, cblock,
-     $     nablock, ablock, int_mb(listinfo(2,22)), listinfo(4,22))
-c
-c     23.  t(m,i,c,b) spin(m)=spin(c) mixed
-c
-      call uccsdt_1x_3x_pointers(no_sym(0,spinc), 
-     $     noblock(spini), oblock(1,1,spini), ncblock, cblock,
-     $     nbblock, bblock, int_mb(listinfo(2,23)), listinfo(4,23))
-c
-c     Print a summary of the lists
-c
-      if (oprint) then
-         write(6,2)
- 2       format('  Summary of block-sorted list of integrals',
-     $        ' and amplitudes',//,
-     $        '  list    name    #blocks  #elements   block',
-     $        ' dimensions',/
-     $        ' ----- ---------- ------- ----------',
-     $        ' --------------------')
-         do list = 1, 23
-            write(6,3) list, listname(list), listinfo(1,list), 
-     $           listinfo(4,list), 
-     $           listinfo(6,list), listinfo(7,list), listinfo(8,list), 
-     $           listinfo(9,list)
- 3          format(1x,i5,1x,a10,i8,i11,1x,4i5)
-         end do
-      endif
-c     
-c     Finally, we can allocate the arrays for the lists themselves
-c
-      do list = 1, 23
-         if (listinfo(4,list) .gt. 0) then
-            if (.not. ga_create(mt_dbl, listinfo(4,list), 1, 
-     $           listname(list), 0, 0, listinfo(5,list))) call errquit
-     $           ('uccsdt_triples_set_super_block: ga_create', list)
-            call ga_zero(listinfo(5,list))
-         else
-            listinfo(5,list) = 99999999 ! invalid handle for empty array
-         endif
-      end do
-c
-      end
-      subroutine uccsdt_1x_3x_pointers(
-     $     ne_sym,
-     $     niblock, iblock,
-     $     nablock, ablock, 
-     $     nbblock, bblock,
-     $     pointer, length)
-      implicit none
-      integer ne_sym(0:7)       ! [input] No. of e orbitals by symmetry
-      integer niblock, iblock(3,*) ! [input] Blocking for i
-      integer nablock, ablock(3,*) ! [input] Blocking for a
-      integer nbblock, bblock(3,*) ! [input] Blocking for b
-      integer pointer(2,niblock, nablock, nbblock) ! [output]
-      integer length            ! [output] Total length of the array
-c
-c     Generate the pointer to the start of a block of <ei|ab>
-c     for all e (of appropriate symmetry) and i, a, b blocked
-c     as specified
-c
-c     pointer(iblock,ablock,bblock) = start of block of <ei|ab>
-c
-c     Eventually the lists must be stored with randomization to avoid
-c     hot spts.  Also, eventually the lists must store double precision
-c     pointers to use the long GA interface for > 16 GB arrays.
-c
-      integer ptr, reclen
-      integer a, b, i
-      integer syma, symb, symi, syme
-      integer dima, dimb, dimi, dime
-c
-      ptr = 1
-      do b = 1, nbblock
-         dimb = bblock(2,b) - bblock(1,b) + 1
-         symb = bblock(3,b)
-         do a = 1, nablock
-            dima = ablock(2,a) - ablock(1,a) + 1
-            syma = ablock(3,a)
-            do i = 1, niblock
-               dimi = iblock(2,i) - iblock(1,i) + 1
-               symi = iblock(3,i)
-               syme = ieor(symi,ieor(syma,symb))
-               dime = ne_sym(syme)
-c
-               reclen = dime*dimi*dima*dimb
-               pointer(1,i,a,b) = ptr
-               pointer(2,i,a,b) = reclen
-               ptr = ptr + reclen
-            end do
-         end do
-      end do
-      length = ptr - 1
-c
-      end
-      subroutine uccsdt_2x_pointers(
-     $     nablock, ablock,
-     $     nbblock, bblock,
-     $     niblock, iblock, 
-     $     njblock, jblock,
-     $     pointer, length)
-      implicit none
-      integer nablock, ablock(3,*) ! [input] Blocking for a
-      integer nbblock, bblock(3,*) ! [input] Blocking for b
-      integer niblock, iblock(3,*) ! [input] Blocking for i
-      integer njblock, jblock(3,*) ! [input] Blocking for i
-      integer pointer(2,nablock, nbblock, niblock, njblock) ! [output]
-      integer length            ! [output] Total length of the array
-c
-c     Generate the pointer to the start of a block of <ab|ij>
-c     for i, j, a, b blocked as specified
-c
-c     pointer(ablock,bblock,iblock,jblock) = start of block of <ab|ij>
-c
-c     Eventually the lists must be stored with randomization to avoid
-c     hot spts.  Also, eventually the lists must store double precision
-c     pointers to use the long GA interface for > 16 GB arrays.
-c
-c     THESE POINTER LISTS GET TOO BIG ... NEED TO REDUCE TO JUST
-C     LAST 3 BLOCK DIMENSIONS AND USE LOGIC TO FIGURE OUT FIRST.
-c
-      integer ptr, reclen
-      integer a, b, i, j
-      integer syma, symb, symi, symj
-      integer dima, dimb, dimi, dimj
-c
-      ptr = 1
-      do j = 1, njblock
-         dimj = jblock(2,j) - iblock(1,j) + 1
-         symj = jblock(3,j)
-         do i = 1, niblock
-            dimi = iblock(2,i) - iblock(1,i) + 1
-            symi = iblock(3,i)
-            do b = 1, nbblock
-               dimb = bblock(2,b) - bblock(1,b) + 1
-               symb = bblock(3,b)
-               do a = 1, nablock
-                  dima = ablock(2,a) - ablock(1,a) + 1
-                  syma = ablock(3,a)
-c
-                  if (ieor(ieor(ieor(symi,symj),syma),symb) .eq. 0) then
-                     reclen = dimi*dimj*dima*dimb
-                     pointer(1,a,b,i,j) = ptr
-                     pointer(2,a,b,i,j) = reclen
-                     ptr = ptr + reclen
-                  else
-                     pointer(1,a,b,i,j) = -999999999 ! Zero by symmetry
-                     pointer(2,a,b,i,j) = -999999999 ! Zero by symmetry
-                  end if
-               end do
-            end do
-         end do
-      end do
-      length = ptr - 1
-c
-      end
-      subroutine uccsdt_triples_unset_super_block()
-      implicit none
-#include "cuccsdtP.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-c     
-c     Clean up any MA/GA allocated by set_super_block()
-c
-      integer list
-c
-      do list = 23, 1, -1
-         if (.not. ma_pop_stack(listinfo(3,list))) call errquit
-     $        ('uccsdt_triples_unset_super_block: ma overwrite?',list)
-         if (listinfo(5,list) .ne. 99999999) then
-            if (.not. ga_destroy(listinfo(5,list))) call errquit
-     $           ('uccsdt_triples_unset_super_block: ga destroy?', list)
-         end if
-      end do
-c
-      end
-      subroutine uccsdt_triples_moints(rtdb)
+      subroutine uccsdt_triples_moints()
       implicit none
 #include "cuccsdtP.fh"
 #include "global.fh"
@@ -1184,8 +541,6 @@ c
 #include "util.fh"
 #include "bas.fh"
 #include "schwarz.fh"
-#include "rtdb.fh"
-      integer rtdb
 c
 c     Assumes that super- and sub-block info is already set
 c     up in the common cuccsdtP.fh including the final global
@@ -1205,15 +560,13 @@ c
       integer nxtval
       external nxtval
       double precision q2, tol
-      logical odoit, oskel, ocheck
+      logical odoit, oskel
       parameter (tol = 1d-12, oskel = .true.)
       logical sym_shell_pair
       external sym_shell_pair
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
-      if (.not. rtdb_get(rtdb, 'uccsdt:ocheck', mt_log, 1, ocheck))
-     $     ocheck = .false.
 c
 c     This is written for the mixed-spin case in which 
 c     spin(a)=spin(b)=spin(i)=spin(j) and spin(c)=spin(k) 
@@ -2420,5 +1773,56 @@ c
 c
       if (.not. ma_chop_stack(l_q4)) call errquit
      $     ('moints_aoblock: ma corrupted?',0)
+c
+      end
+      subroutine uccsdt_block_range(lo, hi, maxb, nblock, blocks, 
+     $     ld, maxnblock)
+      implicit none
+      integer lo, hi, maxb, maxnblock, ld ! [input]
+      integer nblock, blocks(ld,maxnblock) ! [input]
+c
+c     Given a range [lo:hi] divide it into blocks so that each
+c     block is not bigger than maxb but, if possible, we don't
+c     have small trailing blocks.
+c
+c     nblock .. returns the no. of blocks
+c     blocks(1,i) ... first index in i'th block
+c     blocks(2,i) ... last  index in i'th block
+c     
+      integer n, b, i
+c
+      if (hi .lt. lo) then 
+         nblock = 0
+         return
+      endif
+c
+      n = (hi - lo + 1)
+      nblock = (n-1)/maxb + 1
+      if (nblock .gt. maxnblock) call errquit
+     $     ('uccsdt_block_range: maxnblock too small', nblock)
+c
+c     Compute the number of elements in each block.
+c     All blocks get b elements.  (n-nblock*b) blocks get one more.
+c
+      b = n/nblock
+      do i = 1, nblock
+         blocks(2,i) = b
+      end do
+      do i = 1, (n-nblock*b)
+         blocks(2,i) = blocks(2,i) + 1
+      end do
+c
+c     Fill in the ranges
+c
+      blocks(1,1) = lo
+      blocks(2,1) = lo + blocks(2,1) - 1
+      do i = 2, nblock
+         blocks(1,i) = blocks(2,i-1) + 1
+         blocks(2,i) = blocks(2,i) + blocks(1,i) - 1
+      end do
+c
+c$$$      write(6,*) ' BLOCKING ', lo, hi
+c$$$      write(6,1) nblock, (blocks(1,i),blocks(2,i),i=1,nblock)
+c$$$ 1    format(i5,2x,100(2i3,3x))
 c
       end
