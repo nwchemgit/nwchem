@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.27 2004-10-22 23:43:08 marat Exp $
+c $Id: mm_interface.F,v 1.28 2004-11-06 00:15:37 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -316,12 +316,14 @@ c     -----------------------------
          ind(ioq)=int_mb(psl+i-1)
       endif
       end do
-
+       
       call ga_igop(msg_qmmm_ind,ind,nt,'+')
 
       if(.not.ma_pop_stack(l_ioff))
      + call errquit('qmmm: Failed to deallocate memory for ioff',np,
      &       MA_ERR)
+
+      call mm_sort_ind(nt,ind)
 
       end
 
@@ -555,6 +557,7 @@ c
       if(.not.ma_pop_stack(h_num))
      & call errquit('qmmm: Failed to deallocate stack h_num',nt,
      &       MA_ERR)
+
  
       end
 
@@ -602,6 +605,7 @@ c     mm local variables
       call mm_get_psl(psl)
       call mm_get_pxs(pxs)
 
+
       do i=1,nsa
         if(mm_type(i)) then
             do j=1,nt
@@ -623,6 +627,7 @@ c     mm local variables
       do i=1,nt
          call cf_num2tag(inum(i),t(i))
       end do
+
 
       end
 
@@ -1164,7 +1169,6 @@ c     mm local variables
       double precision  g(3,nt)
       logical link
       character*32 pname
-      integer i
 
       pname = " mm_set_solute_force_quant"
 
@@ -1404,5 +1408,187 @@ c     mm local variables
         end if
       end do
 
+      end
+
+      subroutine mm_debug0()
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+
+
+c     local variables
+      integer i
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+
+      do i=1,nsa
+        write(56,*) int_mb(psl+i-1),
+     >                int_mb(psz+i-1)
+
+      end do
+
+      call ga_sync()
+
+      end
+
+      subroutine mm_debug()
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+
+
+c     local variables
+      integer i
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+
+      do i=1,nsa
+        if(int_mb(psl+i-1).eq.639) then
+          write(*,*) "found atom",int_mb(psl+i-1),
+     >                int_mb(psz+i-1)
+
+        end if
+      end do
+
+      call ga_sync()
+
+      end
+
+      subroutine mm_print_system()
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+
+
+c     local variables
+      integer i,k
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+      integer pxs
+      integer psg
+      double precision c(3)
+      character*16 t
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+      call mm_get_pxs(pxs)
+      call mm_get_psg(psg)
+
+      if(ga_nodeid().eq.0) then
+      do i=1,nsa
+         do k=1,3
+           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
+         end do
+         call cf_num2tag(mm_element(i),t)
+         write(23,FMT=9000)
+     >            int_mb(psl+i-1), 
+     >            t,
+     >            int_mb(psg+i-1),
+     >            c(1)*0.529177249d00,
+     >            c(2)*0.529177249d00,
+     >            c(3)*0.529177249d00,
+     >            int_mb(psz+i-1),
+     >            mm_quant(i),
+     >            mm_link(i)
+
+      end do
+      end if
+
+9000  FORMAT("ATOM",T7,I5,T13,A4,T23,I4,T31,
+     >       F8.3,T39,F8.3,T47,F8.3,T55,I2,
+     >       T60,L2,T62,L2)
+
+
+      call ga_sync()
+
+      end
+
+      subroutine mm_sort_ind(n,a)
+      implicit none
+
+      integer n
+      integer a(n)
+c
+c     local variables:
+      integer i
+      integer pass  
+      integer sorted 
+      integer temp
+      
+      write(*,*) "before sort"
+      do i=1,n
+        write(*,*) i,a(i)
+      end do
+
+      pass = 1
+      sorted = 0
+      do while(sorted .eq. 0) 
+        sorted = 1
+        do 2 i = 1,n-pass
+          if(a(i) .gt. a(i+1)) then
+            temp = a(i)
+            a(i) = a(i+1)
+            a(i+1) = temp
+            sorted = 0
+          endif
+ 2      continue
+        pass = pass +1
+      end do
+      do i=1,n-1
+       if(a(i).eq.a(i+1)) a(i)=-1 
+      end do
+
+      write(*,*) "after sort"
+      do i=1,n
+        write(*,*) i,a(i)
+      end do
+
+      return
+ 
       end
 
