@@ -17,7 +17,7 @@ c
      &     CONVGG, NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.12 1997-03-26 18:19:11 d3h449 Exp $
+c     $Id: stpr_face.F,v 1.13 1997-05-14 01:16:06 d3g681 Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
@@ -504,8 +504,8 @@ c.. one one int no allocate now
      &    call errquit
      &    ('stpr_store_rtdb: push for dbls failed?',911)
 c
-      log_mb( klog)       = omin
-      log_mb((klog +  1)) = ts
+      log_mb( klog)       = omin ! OVERRIDDEN BELOW
+      log_mb((klog +  1)) = ts  ! OVERRIDDEN BELOW
       log_mb((klog +  2)) = std
       log_mb((klog +  3)) = trot
       log_mb((klog +  4)) = trtr
@@ -534,6 +534,18 @@ c
      &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
      &    call errquit
      &    ('stpr_store_rtdb: rtdb_put failed',911)
+c
+      if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+c
+      if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+c
+      if (.not.rtdb_put
+     &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
+     &    call errquit
+     &    ('stpr_store_rtdb: rtdb_put failed',911)
+
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:integervals',MT_INT,ns_int,int_mb(kint)))
@@ -626,8 +638,15 @@ c
       if(.not.MA_get_index(hdbl,kdbl))
      &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
 c
-      omin     = log_mb( klog)       
-      ts       = log_mb((klog +  1)) 
+c
+      if (.not.rtdb_get(rtdb,'stepper:ts',MT_LOG,1,ts))
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+c
+      if (.not.rtdb_get(rtdb,'stepper:omin',MT_LOG,1,omin))
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+c
+***   omin     = log_mb( klog)          ! NOW DONE INDIVIDUALLY
+***   ts       = log_mb((klog +  1))    ! NOW DONE INDIVIDUALLY
       std      = log_mb((klog +  2)) 
       trot     = log_mb((klog +  3)) 
       trtr     = log_mb((klog +  4)) 

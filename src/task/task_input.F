@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.13 1997-04-02 23:25:06 d3e129 Exp $
+* $Id: task_input.F,v 1.14 1997-05-14 01:16:01 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -36,6 +36,8 @@ c
             operation = 'energy'
          else if (inp_compare(.false.,test,'optimize')) then
             operation = 'optimize'
+         else if (inp_compare(.false.,test,'saddle')) then
+            operation = 'saddle'
          else if (inp_compare(.false.,test,'gradient')) then
             operation = 'gradient'
          else if (inp_compare(.false.,test,'hessian')) then

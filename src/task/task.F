@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.15 1997-04-02 23:25:03 d3e129 Exp $
+* $Id: task.F,v 1.16 1997-05-14 01:16:00 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -31,7 +31,7 @@ c
       logical  rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
       logical  task_energy, task_gradient, task_optimize, task_freq
-      logical  task_hessian
+      logical  task_hessian, task_saddle
       logical  task_qmmm
       logical task_version
 c
@@ -137,6 +137,8 @@ c
          status = task_hessian(rtdb)
       else if (inp_compare(.false., 'optimize', operation)) then
          status = task_optimize(rtdb)
+      else if (inp_compare(.false., 'saddle', operation)) then
+         status = task_saddle(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
