@@ -6,7 +6,7 @@
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.4 2003-10-21 23:45:44 pollack Exp $
+c$Id: xc_cpkzb99.F,v 1.5 2004-12-07 17:47:21 pollack Exp $
 c
 
 c     References:
@@ -335,7 +335,7 @@ c           if(rho(n,2).lt.tol_rho) goto199
 
 
 
-c199           if(rho(n,3).lt.tol_rho) goto20
+          if(rho(n,3).gt.tol_rho) then
 
         atermb1=dneGGAdn(2)
         atermb2=dneGGAdn(2)*bigC*( sumWeiz/sumTau )**2 
@@ -351,6 +351,12 @@ c199           if(rho(n,3).lt.tol_rho) goto20
         mterm=-2.d0*bigC*neGGA*(sumWeiz**2)/sumTau**3
            Mmat(n,2)=Mmat(n,2)+mterm*fac
 
+
+         else
+           Amat(n,2)=0.d0
+           Cmat(n,3)=0.d0
+           Mmat(n,2)=0.d0
+         endif
 
 20      continue
 
