@@ -751,7 +751,7 @@ The following sets the maximum number of SCF iterations to 50:
   maxiter 50
 \end{verbatim}
 
-\section{{\tt RI} --- resolution of the identity approximation}
+\section{{\tt RI-SCF} --- resolution of the identity approximation}
 \label{sec:riscf}
 
 The resolution of the identity (RI) approximation (using the
@@ -764,12 +764,12 @@ sets.  Calculations on large molecules in modest basis sets will not
 realize a significant performance gain from RISCF.
 
 The full RISCF approximation will be applied by default, and the
-\verb+RI+ directive serves to modify the extent of the approximation
+\verb+RI-SCF+ directive serves to modify the extent of the approximation
 and the computational strategy.
 
 \begin{verbatim}
-   RI [<string (hessian || preconverge || full) default full>] \
-      [<string (disk || memory || auto) default auto>]
+   RI-SCF [<string (hessian || preconverge || full) default full>] \
+          [<string (disk || memory || auto) default auto>]
 \end{verbatim}
 
 The first three parameters determine the extent of the approximation:
