@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.133 2000-10-23 20:08:54 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.134 2000-10-23 21:21:34 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -73,7 +73,7 @@ EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_argos = prepar nwargos analyz
-EXP_md  = prepar nwmd qmmm analyz ddscf gradients
+EXP_md  = prepar nwmd qmmm analyz ddscf gradients esp
 EXP_qmmm = $(EXP_md) $(EXP_qm)
 
 # Check each expansion
@@ -239,9 +239,10 @@ STUBROUTINES := $(patsubst driver,driver drv_lst drv_opt driver_input,$(STUBROUT
 STUBROUTINES := $(patsubst plane_wave,plnwv plnwv_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwargos,nwargos arg_input qmmm_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwargos,nwargos arg_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmmm,qmmm_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
