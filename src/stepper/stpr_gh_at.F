@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.16 1998-08-12 22:01:46 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.17 1998-12-11 23:35:22 windus Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -431,7 +431,7 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        24)
 c     
-          call util_print_set_level(print_none) ! Minimize output
+          call util_print_set_level(print_low) ! Minimize output
           time_taskg1 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb)) call errquit
      &        ('stpr_gen_hess_at: energy+grad failed',25)
