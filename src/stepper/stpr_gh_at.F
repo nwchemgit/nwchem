@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.6 1996-08-27 23:05:20 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.7 1996-08-29 17:23:05 d3g681 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -249,6 +249,9 @@ c
             call ga_sync()
             ignore_status = rtdb_parallel(.false.)
             if (whoiam.eq.master) then
+               if (.not. geom_rtdb_delete(rtdb,new_geom_name))
+     $              call errquit
+     $              ('stpr_gen_hess_at: geom_rtdb_delete failed',19)
                if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      $              rank_hess,dbl_mb(k_gradp)))
      $              call errquit('stpr_gen_hess_at: rtdb_get failed',21)
@@ -302,6 +305,9 @@ c
             call ga_sync()
             ignore_status = rtdb_parallel(.false.)
             if (whoiam.eq.master) then
+               if (.not. geom_rtdb_delete(rtdb,new_geom_name))
+     $              call errquit
+     $              ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',19)
                if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      $              rank_hess,dbl_mb(k_gradm)))
      $              call errquit('stpr_gen_hess_at: rtdb_get failed',21)

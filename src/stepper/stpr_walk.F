@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.21 1996-07-26 16:39:34 d3g681 Exp $
+c     $Id: stpr_walk.F,v 1.22 1996-08-29 17:23:06 d3g681 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -33,7 +33,7 @@ c
       character*40 new_geom_name ! new geometry name for next step
       character*16 stpr_tags(max_cent) ! local tags array
       integer i_timewalk
-      logical o_timewalk
+      logical o_timewalk, okeepgeom
       logical status
       double precision convgg, convge
 #include "cstprfiles.fh"
@@ -152,29 +152,23 @@ c.....set coordinates
      &        call errquit
      &        ('stpr_walk: geom_cart_set failed ?',911)
 c     
-c.....copy geom on rtdb with new name
+c     optionally delete the old geometry (done by default)
 c     
-*     tmpname = ' '
-*     write(tmpname,'(i4)')abs(step_number)
-*     new_geom_name='g-'//tmpname//'-step'
-         new_geom_name = ' '
-         if (abs(step_number) .lt. 10) then
-            write(new_geom_name,'(''g-'',i1,''-step'')') 
-     $           abs(step_number)
-         else if (abs(step_number) .lt. 100) then
-            write(new_geom_name,'(''g-'',i2,''-step'')') 
-     $           abs(step_number)
-         else if (abs(step_number) .lt. 1000) then
-            write(new_geom_name,'(''g-'',i3,''-step'')') 
-     $           abs(step_number)
-         else
-            write(new_geom_name,'(''g-'',i4,''-step'')') 
-     $           abs(step_number)
+         if (.not. rtdb_get(rtdb,'stepper:keepgeom', mt_log, 1, 
+     $        okeepgeom)) okeepgeom = .false.
+         if (step_number.gt.1 .and. (.not. okeepgeom)) then
+            call stpr_new_geom_name(new_geom_name, step_number-1)
+            if (.not. geom_rtdb_delete(rtdb,new_geom_name))
+     $           call errquit('stpr_walk: rtdb corrupt? geom delete',
+     $           step_number-1)
          endif
+c
+c     copy the new geometry to the database with a new name
+c
+         call stpr_new_geom_name(new_geom_name, step_number)
 c     
          call sym_geom_project(geom, 1d-4)
 c     
-
          if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &        call errquit
      &        ('stpr_walk: geom_rtdb_store (of copy) failed',911)
@@ -257,6 +251,30 @@ c
       iwctr = 0
       natom = 0
       icalc = 0
+c
+      end
+      subroutine stpr_new_geom_name(new_geom_name, step_number)
+      implicit none
+c
+      character*(*) new_geom_name
+      integer step_number
+c
+c     Construct a name for the geometry at this step
+c
+      new_geom_name = ' '
+      if (abs(step_number) .lt. 10) then
+         write(new_geom_name,'(''g-'',i1,''-step'')') 
+     $        abs(step_number)
+      else if (abs(step_number) .lt. 100) then
+         write(new_geom_name,'(''g-'',i2,''-step'')') 
+     $        abs(step_number)
+      else if (abs(step_number) .lt. 1000) then
+         write(new_geom_name,'(''g-'',i3,''-step'')') 
+     $        abs(step_number)
+      else
+         write(new_geom_name,'(''g-'',i4,''-step'')') 
+     $        abs(step_number)
+      endif
 c
       end
 
