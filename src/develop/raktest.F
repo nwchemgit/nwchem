@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.42 1995-12-27 20:19:08 d3e129 Exp $
+c $Id: raktest.F,v 1.43 1996-01-17 21:46:42 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,11 +13,11 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200,00300,00400) raktask
+      goto (00100,00200,00300,00400,00500) raktask
 c
       write(6,*)' default raktest task '
-      write(6,*)' test of spcart stuff '
-      call raktest_spcart(rtdb)
+      write(6,*)' test of general contraction code '
+      call raktest_gc(rtdb)
       goto 00001
 c
 00100 write(6,*)' raktest task 1 stepper test'
@@ -32,6 +32,8 @@ c
 00400 write(6,*)' raktest check 3ctr nai'
       call raktest_3ctr(rtdb)
       goto 00001
+00500 write(6,*)' test of spcart stuff '
+      call raktest_spcart(rtdb)
 c
 00001 continue
       end
@@ -4885,3 +4887,336 @@ c Define the angular momentum indices for shell "B".
      &    '=============================='
 23456 continue
       end
+      subroutine raktest_gc(rtdb)
+      implicit none
+#include "stdio.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+c
+      integer rtdb
+c
+      integer geom, basisseg, basisns, bases(2)
+      integer mx1e, mxg, mxs1, mxs2, membuf, memscr
+      integer h_buf, k_buf, h_scr, k_scr
+      integer h_s_seg, k_s_seg, h_s_ns, k_s_ns
+      integer nbf_seg, ncont_seg, nbf_ns, ncont_ns
+      integer icount, niter
+      double precision norm, tov_seg, tov_ns
+      logical status
+      logical FF, FT
+      parameter (FF=.false.,FT=.true.)
+c
+      logical int_normalize
+      external int_normalize
+c
+      write(luout,*)' ============================================ '
+      write(luout,*)' ================            ================ '
+      write(luout,*)' ================ raktest_gc ================ '
+      write(luout,*)' ================            ================ '
+      write(luout,*)' ============================================ '
+c
+      if (.not.geom_create(geom,'geometry'))
+     &      call errquit('raktest_gc: geom_create failed',911)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     &      call errquit('raktest_gc: geom_rtdb_load failed',911)
+c
+      if(.not.bas_create(basisseg,'aobasisseg'))
+     &      call errquit('raktest_gc: bas_create choked',911)
+      if(.not.
+     &      bas_rtdb_load(rtdb,geom,basisseg,'aobasisseg'))
+     &      call errquit('raktest_gc: bas_rtdb_load choked',911)
+c
+      if(.not.bas_create(basisns,'aobasisns'))
+     &      call errquit('raktest_gc: bas_create choked',911)
+      if(.not.
+     &      bas_rtdb_load(rtdb,geom,basisns,'aobasisns'))
+     &      call errquit('raktest_gc: bas_rtdb_load choked',911)
+c
+      bases(1) = basisseg
+      bases(2) = basisns
+c
+      status = geom_print(geom)
+      status = bas_print(basisseg)
+      status = gbs_map_print(basisseg)
+      status = bas_print(basisns)
+      status = gbs_map_print(basisns)
+c
+c... get memory requirements for segmented basis
+      call int_init(rtdb,1,basisseg)
+      call int_mem(mx1e, mxg, mxs1, mxs2)
+      write(luout,*)' seg: one electron buffer size        :',mx1e
+      write(luout,*)' seg: two electron buffer size        :',mxg
+      write(luout,*)' seg: one electron scratch buffer size:',mxs1
+      write(luout,*)' seg: two electron scratch buffer size:',mxs2
+      call int_terminate()
+c
+c... get memory requirements for non-segmented basis
+      call int_init(rtdb,1,basisns)
+      call int_mem(mx1e, mxg, mxs1, mxs2)
+      write(luout,*)'  ns: one electron buffer size        :',mx1e
+      write(luout,*)'  ns: two electron buffer size        :',mxg
+      write(luout,*)'  ns: one electron scratch buffer size:',mxs1
+      write(luout,*)'  ns: two electron scratch buffer size:',mxs2
+      call int_terminate()
+      call int_init(rtdb,2,bases)
+      if(.not.int_normalize(basisseg)) call errquit
+     &      ('raktest_gc: int_normalize seg failed',911)
+      if(.not.int_normalize(basisns)) call errquit
+     &      ('raktest_gc: int_normalize ns failed',911)
+c
+      call int_mem(mx1e, mxg, mxs1, mxs2)
+      write(luout,*)' both: one electron buffer size        :',mx1e
+      write(luout,*)' both: two electron buffer size        :',mxg
+      write(luout,*)' both: one electron scratch buffer size:',mxs1
+      write(luout,*)' both: two electron scratch buffer size:',mxs2
+c
+      membuf = max(mx1e,mxg,10000)
+      memscr = max(mxs1,mxs2,100000)
+c
+      if(.not.ma_push_get(mt_dbl,membuf,'int buff',h_buf,k_buf))
+     &      call errquit('raktest_gc: ma failed 1',911)
+      if(.not.ma_push_get(mt_dbl,memscr,'int scr',h_scr,k_scr))
+     &      call errquit('raktest_gc: ma failed 2',911)
+c
+      if(.not.bas_numcont(basisseg,ncont_seg))
+     &      call errquit('raktest_gc: bas_numcont failed',911)
+      write(luout,*)' ao basis seg number of contractions    :',
+     &      ncont_seg
+      if(.not.bas_numbf(basisseg,nbf_seg))
+     &      call errquit('raktest_gc: bas_numbf failed',911)
+      write(luout,*)' ao basis seg number of basis functions :',
+     &      nbf_seg
+      if(.not.bas_numcont(basisns,ncont_ns))
+     &      call errquit('raktest_gc: bas_numcont failed',911)
+      write(luout,*)' ao basis noseg number of contractions    :',
+     &      ncont_ns
+      if(.not.bas_numbf(basisns,nbf_ns))
+     &      call errquit('raktest_gc: bas_numbf failed',911)
+      write(luout,*)' ao basis noseg number of basis functions :',
+     &      nbf_ns
+c
+      if (nbf_ns.ne.nbf_seg) call errquit
+     &      ('raktest_gc: nbf_seg.ne.nbf_ns',(nbf_ns-nbf_seg))
+c
+      if(.not.ma_push_get(mt_dbl,(nbf_seg*nbf_seg),'overlap seg',
+     &      h_s_seg,k_s_seg))
+     &      call errquit('raktest_gc: ma failed 3',911)
+      if(.not.ma_push_get(mt_dbl,(nbf_ns*nbf_ns),'overlap noseg',
+     &      h_s_ns,k_s_ns))
+     &      call errquit('raktest_gc: ma failed 4',911)
+c
+c set niter number of iterations
+c
+      niter = 10
+      write(6,'(/,a,i5)')
+     &    'number of instances computed for each seg/noseg set:',niter
+c
+c zero ma segments
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+c
+c overlap check
+      tov_seg = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisseg,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_seg,ncont_seg,dbl_mb(k_s_seg),
+     &        FT,FF,FF,'  segment overlap')
+      enddo
+      tov_seg = util_cpusec() - tov_seg
+      tov_ns  = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisns,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_ns,ncont_ns,dbl_mb(k_s_ns),
+     &        FT,FF,FF,'nosegment overlap')
+
+      enddo
+      tov_ns = util_cpusec() - tov_ns
+c
+      call daxpy((nbf_seg*nbf_seg),(-1.0d00),
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+      write(luout,*)' '
+      write(luout,*)' time for segmented overlap         :',tov_seg
+      write(luout,*)' time for non-segmented overlap     :',tov_ns
+      write(luout,'(a,f10.2)')
+     &    ' % speedup                          :',
+     &    (tov_seg-tov_ns)/tov_seg*100.0d00
+      write(luout,*)'raktest_gc: overlap difference norm :',norm
+      write(luout,*)' '
+c
+c zero ma segments
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+c kinetic energy check
+      tov_seg = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisseg,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_seg,ncont_seg,dbl_mb(k_s_seg),
+     &        FF,FT,FF,'  segment kinetic')
+      enddo
+      tov_seg = util_cpusec() - tov_seg
+      tov_ns  = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisns,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_ns,ncont_ns,dbl_mb(k_s_ns),
+     &        FF,FT,FF,'nosegment kinetic')
+
+      enddo
+      tov_ns = util_cpusec() - tov_ns
+c
+      call daxpy((nbf_seg*nbf_seg),(-1.0d00),
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+      write(luout,*)' '
+      write(luout,*)' time for segmented kinetic         :',tov_seg
+      write(luout,*)' time for non-segmented kinetic     :',tov_ns
+      write(luout,'(a,f10.2)')
+     &    ' % speedup                          :',
+     &    (tov_seg-tov_ns)/tov_seg*100.0d00
+      write(luout,*)'raktest_gc: kinetic difference norm :',norm
+      write(luout,*)' '
+c
+c zero ma segments
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+c potential check
+      tov_seg = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisseg,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_seg,ncont_seg,dbl_mb(k_s_seg),
+     &        FF,FF,FT,'  segment potential')
+      enddo
+      tov_seg = util_cpusec() - tov_seg
+      tov_ns  = util_cpusec()
+      do icount = 1,niter
+        call raktest_bs_gc(basisns,
+     &        memscr,dbl_mb(k_scr),
+     &        membuf,dbl_mb(k_buf),
+     &        nbf_ns,ncont_ns,dbl_mb(k_s_ns),
+     &        FF,FF,FT,'nosegment potential')
+
+      enddo
+      tov_ns = util_cpusec() - tov_ns
+c
+      call daxpy((nbf_seg*nbf_seg),(-1.0d00),
+     &      dbl_mb(k_s_seg),1,dbl_mb(k_s_ns),1)
+      norm = ddot((nbf_ns*nbf_ns),dbl_mb(k_s_ns),1,dbl_mb(k_s_ns),1)
+      write(luout,*)' '
+      write(luout,*)' time for segmented potential         :',tov_seg
+      write(luout,*)' time for non-segmented potential     :',tov_ns
+      write(luout,'(a,f10.2)')
+     &    ' % speedup                          :',
+     &    (tov_seg-tov_ns)/tov_seg*100.0d00
+      write(luout,*)'raktest_gc: potential difference norm :',norm
+      write(luout,*)' '
+c
+      status =              ma_pop_stack(h_s_ns)
+      status = status .and. ma_pop_stack(h_s_seg)
+      status = status .and. ma_pop_stack(h_scr)
+      status = status .and. ma_pop_stack(h_buf)
+      if (.not.status) call errquit('raktest_gc: pop error',911)
+c
+      end
+      subroutine raktest_bs_gc(basis,nscr,scr,nbuf,buf,nbf,ncont,S,
+     &      OV,KE,PE,msg)
+      implicit none
+c
+#include "stdio.fh"
+c
+#include "bas.fh"
+c
+      integer basis,nscr,nbuf,nbf,ncont
+      double precision scr(nscr), buf(nbuf)
+      double precision S(nbf,nbf)
+      logical OV,KE,PE
+      character*(*) msg
+c
+      double precision val
+      integer nint
+      integer ish, ilo, ihi, ibf
+      integer jsh, jlo, jhi, jbf
+      integer icount
+c
+c      check validity
+      icount = 0   
+      if (OV) icount = icount + 1
+      if (KE) icount = icount + 1
+      if (PE) icount = icount + 1
+      if (icount.eq.0) then
+        write(luout,*)' no integral set defined '
+        call dfill ((nbf*nbf),0.0d00,S,1)
+        return
+      elseif(icount.ne.1) then
+        write(luout,*)' OV =',OV
+        write(luout,*)' KE =',KE
+        write(luout,*)' PE =',PE
+      endif
+c
+      do ish = 1,ncont
+        do jsh = 1,ish
+          if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) call errquit
+     &          ('raktest_gc: cn2bfr failed',911)
+*          write(luout,*)'ish = ',ish,' bfr =',ilo,ihi
+          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) call errquit
+     &          ('raktest_gc: cn2bfr failed',911)
+*          write(luout,*)'jsh = ',jsh,' bfr =',jlo,jhi
+          nint = (ihi-ilo+1)*(jhi-jlo+1)
+*          write(luout,*)'number of integrals = ',nint
+          if (OV) then
+            call int_1eov(basis,ish,basis,jsh,
+     &          nscr,scr,nint,buf)
+          elseif (KE) then
+            call int_1eke(basis,ish,basis,jsh,
+     &          nscr,scr,nint,buf)
+          elseif (PE) then
+            call int_1epe(basis,ish,basis,jsh,
+     &          nscr,scr,nint,buf)
+          else
+            write(luout,*)' no integral set defined '
+            call dfill ((nbf*nbf),0.0d00,S,1)
+            return
+          endif
+          icount = 0
+          nint = 0
+          do ibf = ilo, ihi
+            do jbf = jlo, jhi
+              nint = nint+1
+              val = buf(nint)
+              s(ibf,jbf) = val
+              s(jbf,ibf) = val
+*              if (abs(val).gt.1.0d-07) then
+*                icount = icount + 1
+*                write(69,10000)ibf,jbf,val,msg,' ints ',icount
+*                write(luout,10000)ibf,jbf,val,msg,' ints ',icount
+*              endif
+            enddo
+          enddo
+        enddo
+      enddo
+c
+*      write(luout,*)' raktest_gc overlap matrix ',msg
+*      call output(S,1,nbf,1,nbf,nbf,nbf,1)
+c
+10000 format(i5,i5,1pd20.10,1x, a,a,i12)
+c
+      end
+
