@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.43 2002-02-22 01:19:47 windus Exp $
+$Id: INSTALL,v 1.44 2002-03-04 17:31:09 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -370,6 +370,8 @@ BUILDING WITH MPI:
         setenv LIBMPI -lmpich
      MPIPro: 
         setenv LIBMPI "-lmpipro -lpthread"
+     MVICH 1.0
+        setenv LIBMPI "-lmpich -lmpichfsup -lpthread"	
      LAM version 6.3 
         setenv MPI_LIB $LAMHOME/lib
         setenv LIBMPI "-lmpi -ltstdio -ltrillium -largs -lt"
@@ -380,7 +382,7 @@ BUILDING WITH MPI:
         setenv MPI_INCLUDE /usr/include/
      MPICH/GM
       same as for MPICH, plus
-        setenv GM_HOME /usr/local/gm-1.2/binary #location of GM software
+        setenv GM_HOME "location of GM software"
         setenv GM_INCLUDE $GM_HOME/include
         setenv GM_LIB $GM_HOME/lib
         setenv ARMCI_NETWORK GM
@@ -592,7 +594,8 @@ Before starting the NWChem compilation, the following environmental
 variables must be defined:
 
 ARMCI_NETWORK=VIA 
-LIBMPI="-lmpipro -lpthread"
+
+
 
 To run NWChem, you need to set the following environmental variable:
 
