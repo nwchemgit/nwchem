@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.38 2000-01-06 03:11:13 d3g681 Exp $
+* $Id: task.F,v 1.39 2000-01-11 19:59:28 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -31,7 +31,8 @@ c
       double precision task_cpu, task_wall
       logical oprint_task_times, odebug
 c
-      logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
+      logical rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf,
+     $     jantest
       logical nwargos, property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
@@ -41,6 +42,7 @@ c
       logical task_pspw
       logical task_drdy
 c
+      external jantest
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
@@ -99,6 +101,8 @@ c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then
             status = rjhtest(rtdb)
+         else if (inp_compare(.false.,'jantest', theory)) then
+            status = jantest(rtdb)
          else if (inp_compare(.false.,'jvltest', theory)) then
             status = jvltest(rtdb)
          else if (inp_compare(.false.,'marga', theory)) then
