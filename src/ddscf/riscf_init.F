@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.9 1996-10-03 23:54:44 vg038 Exp $
+C$Id: riscf_init.F,v 1.10 1996-10-04 00:47:18 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -352,7 +352,7 @@ C       scratch arrays for ga_dgemm: 3 * block size
       endif
 
 C     assume evenly distributed array: free space = min * nnodes
-      call ga_igop ( msg_riscf_mem, mfree, 1, 'min' )
+      call ga_igop ( msg_riscf_free, mfree, 1, 'min' )
       mfree = mfree * nnodes
 
 C     size of the 3-center integral array
