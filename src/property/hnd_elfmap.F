@@ -1,6 +1,6 @@
       subroutine hnd_elfmap(rtdb,basis,geom)
 c
-c $Id: hnd_elfmap.F,v 1.2 2004-07-23 21:34:46 bert Exp $
+c $Id: hnd_elfmap.F,v 1.3 2004-12-06 20:20:02 bert Exp $
 c
 c     This routine calculates the electric field
 c     for a given density at the atomic positions.
@@ -21,7 +21,7 @@ c
 c
       character*2  symbol
       character*16 element, at_tag
-      integer iat, atn, nat, i, j, ij
+      integer iat, atn, nat, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_efld, k_efld
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)

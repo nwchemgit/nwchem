@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.61 2004-12-03 21:50:20 bert Exp $
+* $Id: prp.F,v 1.62 2004-12-06 20:20:02 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -22,10 +22,7 @@
       character*4 iblk 
       data scf     /'scf     '/
       data rhf     /'rhf     '/
-      data zero    /0.0d+00/
-      data prop    /'propty  '/
       data blank   /'        '/
-      data iblk    /'   '/
       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
      2     nogiao,noston

@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.3 2004-12-02 16:23:08 bert Exp $
+c $Id: hnd_elpmap.F,v 1.4 2004-12-06 20:20:02 bert Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -21,7 +21,7 @@ c
 c
       character*2  symbol
       character*16 element, at_tag
-      integer iat, atn, nat, i, j, ij
+      integer iat, atn, nat, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_epot, k_epot
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)

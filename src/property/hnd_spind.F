@@ -1,6 +1,6 @@
       subroutine hnd_spind(rtdb,basis,geom)
 c
-c $Id: hnd_spind.F,v 1.3 2004-12-03 21:50:20 bert Exp $
+c $Id: hnd_spind.F,v 1.4 2004-12-06 20:20:02 bert Exp $
 c
 c     This routine calculates the Fermi Contact Term and
 c     Spin-Dipolar terms for a given (spin) density at the
@@ -26,13 +26,11 @@ c
       integer l_elds, k_elds
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
-      double precision xp, yp, zp, xn, yn, zn, zan, fac, fac1, fac2
+      double precision xp, yp, zp, fac, fac1, fac2
       double precision pi, betae, betan, convf, con, aiso, spnden
-      double precision ge, emf, vl, auev, evmhz, gmhz, gnu, hbar
-      double precision gnuc
+      double precision ge, emf, vl, auev, evmhz, gmhz, gnu
       double precision spndxx, spndyy, spndzz, spndxy, spndxz, spndyz
-      double precision a(6),vec(3,3),eig(3),val
-      logical status
+      double precision a(6),vec(3,3),eig(3),hbar,gnuc
 c
       logical atom_gfac
       integer ga_create_atom_blocked

@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.5 2004-12-03 21:50:20 bert Exp $
+c $Id: hnd_mtpole.F,v 1.6 2004-12-06 20:20:02 bert Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -33,13 +33,12 @@ c
       double precision octo, debye, buck, cx, cy, cz
       double precision dipol, dipefc, diptot, rsquar, dum1, dum2
       integer Nxyz(3)
-      integer ncomp, iefc, nat, iat, icomp, i
+      integer ncomp, nat, iat, icomp, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
-      character*2  symbol
-      character*16 element, at_tag
+      character*16 at_tag
       data octo    /0.711688d+00/
       data buck    /1.344911d+00/
       data debye   /2.54176568d+00/

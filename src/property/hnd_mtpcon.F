@@ -1,6 +1,6 @@
       subroutine hnd_mtpcon(basis,geom,g_dens,mtpval,mpole,centerl)
 c
-c $Id: hnd_mtpcon.F,v 1.2 2004-12-03 21:50:20 bert Exp $
+c $Id: hnd_mtpcon.F,v 1.3 2004-12-06 20:20:02 bert Exp $
 c
 c     This routine calculates the electronic contribution of a given
 c     multipole for a given density at the grid points defined in points
@@ -30,7 +30,7 @@ c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
       integer l_dens, k_dens, l_scr, k_scr, l_buf, k_buf
-      integer maxbuf, maxscr, i, ncomp, mtpint
+      integer maxbuf, maxscr, ncomp, mtpint
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
