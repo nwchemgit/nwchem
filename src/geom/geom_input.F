@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.75 1998-04-23 00:23:01 mdupuis Exp $
+C     $Id: geom_input.F,v 1.76 1998-04-25 00:45:54 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1015,7 +1015,8 @@ c
 c     ----- call routine to read z-matrix data -----
 c
       call geom_zmt_geo(coords,charge,tags,ncenter,
-     1                  nizmat,izmat,nzvar,izfrz,nzfrz)
+     1                  nizmat,izmat,nzvar,izfrz,nzfrz,
+     2                  units)
 c
 c     -----    set parameters for -nwchem-     -----
 c
@@ -6921,7 +6922,8 @@ C
  9991 FORMAT(' LINEAR-BENDS NOT SET UP CURRENTLY . STOP . ')
       END
       SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
-     1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ)
+     1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ,
+     2                        UNITS)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
@@ -7535,12 +7537,13 @@ C
                ENDDO
             ENDIF
             DO IAT=1,NAT
-               XXLST(IAT,   2)=XX(IAT)
-               YYLST(IAT,   2)=YY(IAT)
-               ZZLST(IAT,   2)=ZZ(IAT)
+               XXLST(IAT,   2)=XX(IAT)*UNITS
+               YYLST(IAT,   2)=YY(IAT)*UNITS
+               ZZLST(IAT,   2)=ZZ(IAT)*UNITS
             ENDDO
             STATUS=GEOM_LST_PUT_COORD(XXLST(1,2),
-     1                                YYLST(1,2),ZZLST(1,2),NAT)
+     1                                YYLST(1,2),
+     2                                ZZLST(1,2),NAT)
             IF(.NOT.STATUS) THEN
                CALL ERRQUIT('GEOM_LST_PUT_COORD : PUT FAILED',911)
             ENDIF
@@ -7831,6 +7834,7 @@ c
       if(out) then
          write(iw,*) 'lst_coord_fil = ', lst_coord_fil
          write(iw,*) 'n = ',n
+         write(iw,*) 'irc = ',irc
       endif
 c
       rewind ift
