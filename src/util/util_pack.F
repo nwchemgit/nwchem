@@ -131,7 +131,7 @@ c
          ind = 1
          do i = 1, nunpacked/4
             ijkl = packed(i)
-            unpacked(ind  ) =      rshift(ijkl,24)
+            unpacked(ind  ) = iand(rshift(ijkl,24),255)
             unpacked(ind+1) = iand(rshift(ijkl,16),255)
             unpacked(ind+2) = iand(rshift(ijkl, 8),255)
             unpacked(ind+3) = iand(ijkl,255)
