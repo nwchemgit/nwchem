@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.15 1999-06-23 16:37:38 d3j191 Exp $
+c $Id: esp_esp.F,v 1.16 2000-03-14 05:44:13 d3j191 Exp $
 c
       implicit none
 c
@@ -174,7 +174,7 @@ c
       call util_file_name('grid',.false.,.false.,grdfil)
       open(unit=lfngrd,file=grdfil,form='formatted',status='unknown')
       rewind(lfngrd)
-      write(lfngrd,'(i10)') ngrid
+      write(lfngrd,'(i10,f20.10)') ngrid,charge
       do 10 i=1,ngrid
       write(lfngrd,'(4f20.10)') (grid(j,i),j=1,3),val(i)
    10 continue

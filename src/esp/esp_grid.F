@@ -1,6 +1,6 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.5 1999-01-27 18:18:00 d3j191 Exp $
+c $Id: esp_grid.F,v 1.6 2000-03-14 05:44:13 d3j191 Exp $
 c
       implicit none
 c
@@ -19,9 +19,10 @@ c
       if(me.eq.0) then
       call util_file_name('grid',.false.,.false.,grdfil)
       open(unit=lfngrd,file=grdfil,form='formatted',status='old')
-      read(lfngrd,'(i10)') ngrid
+      rewind(lfngrd)
+      read(lfngrd,'(i10,f20.10)') ngrid,charge
       do 10 i=1,ngrid
-      write(lfngrd,'(4f20.10)') (g(j,i),j=1,3),v(i)
+      read(lfngrd,'(4f20.10)') (g(j,i),j=1,3),v(i)
    10 continue
       close(unit=lfngrd)
       endif
