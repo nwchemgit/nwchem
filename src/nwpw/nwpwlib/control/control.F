@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.33 2002-10-15 21:24:00 bylaska Exp $
+* $Id: control.F,v 1.34 2003-01-09 22:25:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -181,12 +181,27 @@ c     end do
       else if (code.eq.3) then
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
+c
+c     **** Figure input/output MO vectors ****
+c
+      if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
+     >                    1,input_wavefunction_filename))
+     >  input_wavefunction_filename = 'atomic'
+      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
+     >                    1,output_wavefunction_filename))
+     >     output_wavefunction_filename = ' '
+      if (output_wavefunction_filename.eq.' ')then
+         if (input_wavefunction_filename.eq.'atomic')then
+            call util_file_name('movecs', .false.,.false.,
+     >                          output_wavefunction_filename)
+         else
+            output_wavefunction_filename = input_wavefunction_filename
+         endif
+      endif
+      if (input_wavefunction_filename.eq.'atomic')then
+         input_wavefunction_filename = output_wavefunction_filename
+      end if
+
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:exchange_correlation',
      >                  1,exchange_correlation)
@@ -266,12 +281,32 @@ c     end do
       else if (code.eq.5) then
       value = value.and.
      >        rtdb_cget(rtdb,'band:cell_name',1,cell_name)
-      value = value.and.
-     >        rtdb_cget(rtdb,'band:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename)
-      value = value.and.
-     >        rtdb_cget(rtdb,'band:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename)
+cc      value = value.and.
+cc     >        rtdb_cget(rtdb,'band:input_wavefunction_filename',
+cc     >                  1,input_wavefunction_filename)
+cc      value = value.and.
+cc     >        rtdb_cget(rtdb,'band:output_wavefunction_filename',
+cc     >                  1,output_wavefunction_filename)
+cc
+c     **** Figure input/output MO vectors ****
+c
+      if (.not. rtdb_cget(rtdb, 'band:input vectors', 
+     >                    1,input_wavefunction_filename))
+     >  input_wavefunction_filename = 'atomic'
+      if (.not. rtdb_cget(rtdb, 'band:output vectors', 
+     >                    1,output_wavefunction_filename))
+     >     output_wavefunction_filename = ' '
+      if (output_wavefunction_filename.eq.' ')then
+         if (input_wavefunction_filename.eq.'atomic')then
+            call util_file_name('movecs', .false.,.false.,
+     >                          output_wavefunction_filename)
+         else
+            output_wavefunction_filename = input_wavefunction_filename
+         endif
+      endif
+      if (input_wavefunction_filename.eq.'atomic')then
+         input_wavefunction_filename = output_wavefunction_filename
+      end if
       value = value.and.
      >        rtdb_cget(rtdb,'band:exchange_correlation',
      >                  1,exchange_correlation)
