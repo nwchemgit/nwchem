@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.5 2000-01-04 00:29:04 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.6 2000-08-16 19:48:15 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -35,7 +35,7 @@ c
       logical doS     ! [input] compute overlap (True/False)
       logical doT     ! [input] compute kinetic (True/False)
       logical doV     ! [input] compute potential (True/False)
-      logical some, doH1
+      logical some
       integer nder, mini, maxi, minj, maxj, minprim, maxprim
       integer i, index
       dimension minprim(5), maxprim(5)
@@ -45,7 +45,6 @@ c
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c
-      doH1 = doT.and.doV.and..not.doS
       nder = 2
 c
 c     ----- calculate -s-, -t-, and -v- derivative integrals -----
@@ -107,7 +106,7 @@ c     call flush(luout)
       if (doT.or.doV) then
         call dfill(nint*3*3*3,zero,tder,1)
 c note that scr is used as a dummy and tder also holds the vder terms
-        if (doV) call dfill(nint*3*3,zero,scr,1)
+c       if (doV) call dfill(nint*3*3,zero,scr,1)
         call hnd_tvd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1    xyzj,expj,coefj,j_nprim,j_ngen,Lj,xyz,scr,scr,tder,
      2    tder(nint*3*3+1),tder(nint*3*3*2+1),scr,scr,
@@ -130,26 +129,28 @@ c
         maxj = maxprim(Lj+1)
         if (doS) then
           index = 1
-          do i=1,6
+          do i=1,36
             call hnd_to_nw_order(scr,sder(index),minj,mini,
      1                           maxj-minj+1,maxi-mini+1)
             call dcopy (nint,scr,1,sder(index),1)
             index = index + nint
           enddo
         endif
-        if (doT) then
+        if (doV) then
           index = 1
-          do i=1,6
+          do i=1,27
             call hnd_to_nw_order(scr,tder(index),minj,mini,
      1                           maxj-minj+1,maxi-mini+1)
             call dcopy (nint,scr,1,tder(index),1)
             index = index + nint
           enddo
-        endif
-        if (doV) then
-          call hnd_to_nw_order(scr,vder,minj,mini,maxj-minj+1,
-     1                         maxi-mini+1)
-          call dcopy (nint,scr,1,vder,1)
+          index = 1
+          do i=1,27*nat
+            call hnd_to_nw_order(scr,vder(index),minj,mini,
+     1                           maxj-minj+1,maxi-mini+1)
+            call dcopy (nint,scr,1,vder(index),1)
+            index = index + nint
+          enddo
         endif
       endif
 c
