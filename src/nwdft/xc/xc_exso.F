@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.11 2000-06-07 04:13:31 zzhang Exp $
+C$Id: xc_exso.F,v 1.12 2000-06-09 23:59:51 zzhang Exp $
 c
       implicit none
 c      
@@ -31,7 +31,7 @@ c
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
-      double precision tol2e
+      double precision tol2e, denmax1, denmax2, denmax
 c
 c     fock matrix test using jan_all_ao_integrals
 c
@@ -117,6 +117,13 @@ c
 c     Im(Kaa) and Im(Kbb) (g_dens(1) and g_dens(2))
 c
          call ga_dens_aabbi(g_dens, g_densso, nao)
+         denmax1 = 0.0d0
+         denmax2 = 0.0d0
+         denmax=0.0d0
+         call ga_maxelt(g_dens(1), denmax1)
+         call ga_maxelt(g_dens(2), denmax2)
+         denmax=max(denmax1,denmax2)
+         if(denmax.lt.1.0d-6)goto 1001
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
@@ -182,6 +189,7 @@ c
             call ga_print(g_jk(4))
             if(jantest)call ga_print(g_jk(3))
          endif
+ 1001    continue
          call ga_zero(g_jk(1))
          call ga_zero(g_jk(2))
          call ga_zero(g_jk(3))
@@ -190,6 +198,13 @@ c
 c     Re(Kab) and Re(Kba) (g_dens(1) and g_dens(2))
 c     
          call ga_dens_abbar(g_dens, g_densso, nao)
+         denmax1 = 0.0d0
+         denmax2 = 0.0d0
+         denmax=0.0d0
+         call ga_maxelt(g_dens(1), denmax1)
+         call ga_maxelt(g_dens(2), denmax2)
+         denmax=max(denmax1,denmax2)
+         if(denmax.lt.1.0d-6)goto 1002
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
@@ -253,6 +268,7 @@ c
             if(jantest)call ga_print(g_jk(3))
          endif
 c
+ 1002    continue 
          call ga_zero(g_jk(1))
          call ga_zero(g_jk(2))
          call ga_zero(g_jk(3))
@@ -261,6 +277,13 @@ c
 c     Im(Kab) and Im(Kba) (g_dens(1) and g_dens(2))
 c
          call ga_dens_abbai(g_dens, g_densso, nao)
+         denmax1 = 0.0d0
+         denmax2 = 0.0d0
+         denmax=0.0d0
+         call ga_maxelt(g_dens(1), denmax1)
+         call ga_maxelt(g_dens(2), denmax2)
+         denmax=max(denmax1,denmax2)
+         if(denmax.lt.1.0d-6)goto 1003
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
@@ -333,6 +356,7 @@ c
             if (.not. ma_pop_stack(l_aoint)) call errquit('aoint',0)
          endif
 c
+ 1003    continue
          if (.not. ga_destroy(g_dens(1))) call errquit
      $        ('xc_exso: ga corrupt?',0)
          if (.not. ga_destroy(g_dens(2))) call errquit
