@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.6 1998-06-15 18:20:13 d3j191 Exp $
+c $Id: esp_common.fh,v 1.7 1998-08-18 16:53:52 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -12,12 +12,10 @@ c     ------------------------------
 c
       integer l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,l_p,ipptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
-     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
-     + lg_v,lg_d
+     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr
       common/esp_ptr/l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,l_p,ipptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
-     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
-     + lg_v,lg_d
+     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr
 c
 c     esp_atm : atom information
 c     --------------------------

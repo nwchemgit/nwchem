@@ -20,3 +20,5 @@ Jun 16 1998     change default factor to 2.0
 Aug 08 1998     destroy geometries on rtdb before storing new
 
 Aug 13 1998	bug fixes, extr printout
+
+Aug 18 1998	changes in memory allocation

@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,pot,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.6 1998-08-13 21:35:19 d3j191 Exp $
+c $Id: esp_esp.F,v 1.7 1998-08-18 16:53:53 d3j191 Exp $
 c
       implicit none
 c
@@ -14,8 +14,11 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      logical movecs_read,movecs_read_header
-      external movecs_read,movecs_read_header
+      logical int_normalize
+      external int_normalize
+c
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       real*8 ene(nbf),occ(nbf),dns(nbf,nbf),pot(nbf,nbf)
       real*8 x(3,natoms),q(natoms)
@@ -29,41 +32,17 @@ c
       integer imin
       real*8 dmin
 c
-c     read orbital occupations and energies
+c     calculate density matrix, occupation and energies
 c
-      call util_file_name('movecs',.false.,.false.,movfil)
-      if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
-     + nmo,2)) call errquit('esp: movecs_read_header failed',me)
-      if(.not.movecs_read(movfil,1,occ,ene,lg_v))
-     + call errquit('eps: movecs_read failed',me)
-c
-      nocc=0
-      charge=chgnuc
-      do 1 i=1,nbf
-      if(occ(i).gt.small) charge=charge-occ(i)
-    1 continue
-c
-c     get AO density matrix
-c
-      call esp_denmat(igeom,ibasis,lg_v,lg_d,occ)
-c
-c     get density matrix
-c
-      call ga_get(lg_d,1,nbf,1,nbf,dns,nbf)
-      if(me.eq.0.and.util_print('where',print_debug)) then
-      write(lfnout,1000)
- 1000 format(//,' Density matrix',/)
-      do 1002 j=1,nbf
-      write(lfnout,1001) (i,dns(i,j),i=1,nbf)
- 1001 format(i5,f12.6,/,(5x,10f12.6))
- 1002 continue
-      endif
+      call esp_denmat(dns,occ,ene)
 c
 c     initialize integrals
 c
+      if(.not.int_normalize(ibasis))
+     + call errquit('esp: int_normalize failed',me)
       call int_init(irtdb,1,ibasis)
 c
-c     number of shells
+c     get number of shells
 c
       if(.not.bas_numcont(ibasis,nshell))
      + call errquit('esp: bas_numcont failed',me)
@@ -71,10 +50,13 @@ c
 c     allocate memory for the integrals
 c
       call int_mem_1e(max1e,mem1)
+c
       if(.not.ma_push_get(mt_dbl,max1e,'bt',l_bt,ibtptr))
      + call errquit('esp: ma_push_get b failed',me)
       if(.not.ma_push_get(mt_dbl,mem1 ,'st',l_st,istptr))
      + call errquit('esp: ma_push_get s failed',me)
+c
+c     determine gridpoints handled by current node
 c
       if(np.gt.1) then
       ngfr=me*(ngrid/np)+1
@@ -84,6 +66,8 @@ c
       ngfr=1
       ngto=ngrid
       endif
+c
+c     get electrostatic potential on the grid points
 c
       do 2 i=ngfr,ngto
       do 3 jsh=1,nshell
@@ -132,9 +116,6 @@ c
  1003 format(//,' Electrostatic potential on grid',/)
       write(lfnout,1004) imin,i,(grid(j,i),j=1,3),val(i)-vt,vt,val(i)
  1004 format(2i5,3f8.4,3f12.6)
-      if(i.eq.1) write(88,8888) spac
-      write(88,8888) (grid(j,i),j=1,3),val(i)
- 8888 format(4f12.6)
       endif
     2 continue
 c

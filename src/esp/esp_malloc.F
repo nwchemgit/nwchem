@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.2 1997-10-07 23:41:43 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.3 1998-08-18 16:53:54 d3j191 Exp $
 c
       implicit none
 c
@@ -9,9 +9,6 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
-c
-      integer ga_create_atom_blocked
-      external ga_create_atom_blocked
 c
       integer i,j
 c
@@ -81,11 +78,6 @@ c
      + call errquit('esp: ma_push_get b failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'c',l_c,icptr))
      + call errquit('esp: ma_push_get c failed',me)
-c
-c     allocate global arrays
-c
-      lg_d=ga_create_atom_blocked(igeom,ibasis,'density')
-      lg_v=ga_create_atom_blocked(igeom,ibasis,'vector')
 c
       return
       end

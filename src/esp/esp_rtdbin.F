@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.7 1998-08-13 21:35:19 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.8 1998-08-18 16:53:56 d3j191 Exp $
 c
       implicit none
 c
@@ -10,9 +10,6 @@ c
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
-c
-      logical int_normalize
-      external int_normalize
 c
       integer i
 c
@@ -42,9 +39,6 @@ c
       if(.not.bas_rtdb_load(irtdb,igeom,ibasis,'ao basis'))
      + call errquit('esp: bas_rtdb_load failed',me)
 c
-      if(.not.int_normalize(ibasis))
-     + call errquit('esp: int_normalize failed',me)
-c
       if(.not.bas_numbf(ibasis,nbf))
      + call errquit('esp: bas_numbf failed',me)
 c     
@@ -52,9 +46,9 @@ c     get cutoff radius and gridspacing
 c
       if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
       if(.not.rtdb_get(irtdb,'esp:factor',mt_dbl,1,factor))
-     +  factor=1.5d0
-      if(.not.rtdb_get(irtdb,'esp:rcut',mt_dbl,1,rcut)) rcut=0.5d0
-      if(.not.rtdb_get(irtdb,'esp:spac',mt_dbl,1,spac)) spac=0.1d0
+     +  factor=1.45d0
+      if(.not.rtdb_get(irtdb,'esp:rcut',mt_dbl,1,rcut)) rcut=0.3d0
+      if(.not.rtdb_get(irtdb,'esp:spac',mt_dbl,1,spac)) spac=0.05d0
       if(.not.rtdb_get(irtdb,'esp:radius',mt_dbl,107,radius)) then
       radius(  1)=0.030d0
       radius(  2)=0.122d0

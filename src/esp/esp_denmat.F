@@ -1,6 +1,6 @@
-      subroutine esp_denmat(geom,basis,g_vec,g_dns,occ)
+      subroutine esp_denmat(dns,occ,ene)
 c
-c $Id: esp_denmat.F,v 1.3 1998-08-13 21:35:18 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.4 1998-08-18 16:53:53 d3j191 Exp $
 c
       implicit none
 c
@@ -10,26 +10,50 @@ c
 #include "stdio.fh"
 #include "esp_params.fh"
 #include "esp_common.fh"
-c
-      integer geom,basis
-      integer g_vec,g_dns
-      real*8 occ(nbf)
-c
-      integer ilo,ihi,jlo,jhi,lthi,lthj,i
-      integer g_scr,k_scr,l_scr,icol
-c     
+#include "util.fh"
+c  
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+c
+      logical movecs_read,movecs_read_header
+      external movecs_read,movecs_read_header
+c
+      real*8 ene(nbf),occ(nbf),dns(nbf,nbf)
+c
+      integer lg_v,lg_d
+      integer ilo,ihi,jlo,jhi,lthi,lthj,i,j
+      integer lg_s,k_scr,l_scr,icol
 c
       real*8 scale
       logical lresult
 c
-      g_scr=ga_create_atom_blocked(geom, basis, 'scr')
+c     allocate global arrays
 c
-      call ga_copy(g_vec,g_scr)
+      lg_d=ga_create_atom_blocked(igeom,ibasis,'density')
+      lg_v=ga_create_atom_blocked(igeom,ibasis,'vector')
+      lg_s=ga_create_atom_blocked(igeom,ibasis,'scr')
+c
+c     open movecs file and read header info
+c
+      call util_file_name('movecs',.false.,.false.,movfil)
+      if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
+     + nmo,2)) call errquit('esp: movecs_read_header failed',me)
+c
+c     read orbital occupations, energies and vectors from movecs
+c
+      if(.not.movecs_read(movfil,1,occ,ene,lg_v))
+     + call errquit('eps: movecs_read failed',me)
+c
+      nocc=0
+      charge=chgnuc
+      do 1 i=1,nbf
+      if(occ(i).gt.small) charge=charge-occ(i)
+    1 continue
+c
+      call ga_copy(lg_v,lg_s)
       call ga_sync()
 c
-      call ga_distribution(g_scr,me,ilo,ihi,jlo,jhi)
+      call ga_distribution(lg_s,me,ilo,ihi,jlo,jhi)
       lthi=ihi-ilo+1
       lthj=jhi-jlo+1
 c
@@ -40,18 +64,24 @@ c
       if(.not.ma_push_get(mt_dbl,lthi,'vector',l_scr,k_scr))
      + call errquit('esp_denmat: failed to allocate vector',me)
 c
-      do 1 icol=jlo,jhi
-      call ga_get(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+      do 2 icol=jlo,jhi
+      call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+cx
 cx      write(*,6666) icol,(dbl_mb(k_scr+i),i=0,nbf-1)
 cx 6666 format(//,'Vector',i5,/,(10f10.6))
+cx
       scale=occ(icol)
+cx
 cx      write(*,'(a,i5,f12.6)') 'Scale ',icol,scale
+cx
       call dscal(lthi,scale,dbl_mb(k_scr),1)
-      call ga_put(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
-      call ga_get(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+      call ga_put(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+      call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+cx
 cx      write(*,6667) (dbl_mb(k_scr+i),i=0,nbf-1)
 cx 6667 format(10f10.6)
-    1 continue
+cx
+    2 continue
 c
       if(.not.ma_pop_stack(l_scr))
      + call errquit('esp_denmat: failed to deallocate vector',me)
@@ -59,10 +89,29 @@ c
       endif
 c
       call ga_sync()
-      call ga_dgemm('n','t',nbf,nbf,nbf,1.d0,g_vec,g_scr,0.d0,g_dns)
+      call ga_dgemm('n','t',nbf,nbf,nbf,1.d0,lg_v,lg_s,0.d0,lg_d)
 c
-      if(.not.ga_destroy(g_scr))
-     +  call errquit('esp_denmat: failed to destroy g_scr',me)
+c     copy density matrix into local array
+c
+      call ga_get(lg_d,1,nbf,1,nbf,dns,nbf)
+c
+      if(me.eq.0.and.util_print('where',print_debug)) then
+      write(lfnout,1000)
+ 1000 format(//,' Density matrix',/)
+      do 1002 j=1,nbf
+      write(lfnout,1001) (i,dns(i,j),i=1,nbf)
+ 1001 format(i5,f12.6,/,(5x,10f12.6))
+ 1002 continue
+      endif
+c
+c     deallocate global arrays lg_s, lg_v and lg_d
+c
+      if(.not.ga_destroy(lg_s))
+     + call errquit('esp_denmat: failed to destroy lg_s',me)
+      if(.not.ga_destroy(lg_v))
+     + call errquit('esp_denmat: ga_destroy lg_v failed',me)
+      if(.not.ga_destroy(lg_d))
+     + call errquit('esp_denmat: ga_destroy lg_d failed',me)
 c
       return
       end

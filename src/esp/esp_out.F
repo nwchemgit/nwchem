@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.9 1998-08-10 17:05:04 d3j191 Exp $
+c $Id: esp_out.F,v 1.10 1998-08-18 16:53:55 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,6 @@ c
       character*16 Atag
       character*80 name
       real*8 coord(3)
-      logical done
 c
       if(me.eq.0) then
 c
@@ -79,10 +78,6 @@ c
 c     put charges on rtdb
 c     -------------------
 c
-      done=geom_rtdb_delete(irtdb,'esp:geometry')
-      done=geom_rtdb_delete(irtdb,'cesp:geometry')
-      done=geom_rtdb_delete(irtdb,'resp:geometry')
-      done=geom_rtdb_delete(irtdb,'cresp:geometry')
       do 3 i=1,nf
       k=1
       if(labelf(i).ne.'      ESP   ') k=k+2
@@ -103,6 +98,10 @@ c
      + call errquit('esp_out: geom_rtdb_store failed',9999)
       else
       call errquit('error in esp_out',9999)
+      endif
+      if(i.eq.nf) then
+      if(.not.geom_rtdb_store(irtdb,igeom,'esp_fit:geometry'))
+     + call errquit('esp_out: geom_rtdb_store failed',9999)
       endif
     3 continue
 c
