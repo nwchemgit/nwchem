@@ -1,0 +1,172 @@
+#
+# $Id: data.dbl2sngl,v 1.1 1997-03-17 20:34:23 d3e129 Exp $
+#
+#
+# this file contains the transliterations for both the 
+# blas and lapack routines.  The format of this file is:
+# "double_name" "single_name"  
+# one pair per line.  Lines that begin with "#" are 
+# processed as comments.
+#
+# This file is used by both dbl2sngl.pl and sngl2dbl.pl 
+# and the format is assumed as above by both scripts:
+# 
+# Written:  3/14/97
+# By:       Ricky A. Kendall
+#           High Performance Computational Chemistry Group
+#           Theory Modeling and Simulation Program
+#           Environmental Molecular Sciences Laboratory
+#           Pacific Northwest National Laboratory
+#           P.O. Box 999
+#           Richland, WA 99352-0999
+#           email: ra_kendall@pnl.gov
+#
+# blas transliterations
+dasum      sasum         
+daxpy      saxpy         
+dcopy      scopy         
+ddot       sdot          
+dgemm      sgemm         
+dgemv      sgemv         
+dger       sger          
+dnrm2      snrm2         
+drot       srot          
+dscal      sscal         
+dspmv      sspmv         
+dspr       sspr          
+dswap      sswap         
+dsymm      ssymm         
+dsymv      ssymv         
+dsyr2      ssyr2         
+dsyr2k     ssyr2k        
+dsyrk      ssyrk         
+dtrmm      strmm         
+dtrmv      strmv         
+dtrsm      strsm         
+dtrsv      strsv         
+dznrm2     scnrm2        
+idamax     isamax        
+zaxpy      caxpy         
+zcopy      ccopy         
+zdotc      cdotc         
+zdscal     csscal        
+zgemm      cgemm         
+zgemv      cgemv         
+zgerc      cgerc         
+zhemm      chemm         
+zhemv      chemv         
+zher2      cher2         
+zher2k     cher2k        
+zherk      cherk         
+zscal      cscal         
+zswap      cswap         
+ztrmm      ctrmm         
+ztrmv      ctrmv         
+ztrsm      ctrsm         
+ztrsv      ctrsv            
+# lapack transliterations
+dbdsqr    sbdsqr    
+dgebd2    sgebd2    
+dgebrd    sgebrd    
+dgelq2    sgelq2    
+dgelqf    sgelqf    
+dgeqr2    sgeqr2    
+dgeqrf    sgeqrf    
+dgesv     sgesv    
+dgesvd    sgesvd    
+dgetf2    sgetf2    
+dgetrf    sgetrf    
+dgetrs    sgetrs    
+dlabrd    slabrd    
+dlacon    slacon    
+dlacpy    slacpy    
+dladiv    sladiv
+dlae2     slae2    
+dlaev2    slaev2    
+dlagtf    slagtf    
+dlagts    slagts    
+dlamch    slamch    
+dlange    slange    
+dlansp    slansp    
+dlanst    slanst
+dlansy    slansy    
+dlapy2    slapy2    
+dlapy3    slapy3
+dlarf     slarf    
+dlarfb    slarfb    
+dlarfg    slarfg    
+dlarft    slarft    
+dlarnv    slarnv    
+dlartg    slartg    
+dlaruv    slaruv    
+dlas2     slas2    
+dlascl    slascl    
+dlaset    slaset    
+dlasr     slasr    
+dlasrt    slasrt
+dlassq    slassq    
+dlasv2    slasv2    
+dlaswp    slaswp    
+dlatrd    slatrd    
+dlauu2    slauu2    
+dlauum    slauum    
+dlazro    slazro    
+dorg2l    sorg2l    
+dorg2r    sorg2r    
+dorgbr    sorgbr    
+dorgl2    sorgl2    
+dorglq    sorglq    
+dorgql    sorgql    
+dorgqr    sorgqr    
+dorgtr    sorgtr    
+dorm2r    sorm2r    
+dormbr    sormbr    
+dorml2    sorml2    
+dormlq    sormlq    
+dormqr    sormqr    
+dpotf2    spotf2    
+dpotrf    spotrf    
+dpotri    spotri    
+dspcon    sspcon    
+dsprfs    ssprfs    
+dspsvx    sspsvx    
+dsptrf    ssptrf    
+dsptrs    ssptrs    
+dsteqr    ssteqr    
+dsterf    ssterf    
+dsyev     ssyev    
+dsygs2    ssygs2    
+dsygst    ssygst    
+dsygv     ssygv    
+dsytd2    ssytd2    
+dsytrd    ssytrd    
+dtrtri    strtri    
+ilaenv    ilaenv    
+lsamen    lsamen    
+xerbla    xerbla
+zheev     cheev
+zhegs2    chegs2   
+zhegst    chegst   
+zhegv     chegv    
+zhetd2    chetd2   
+zhetrd    chetrd   
+zlacgv    clacgv   
+zladiv    cladiv   
+zlanhe    clanhe   
+zlarf     clarf    
+zlarfb    clarfb   
+zlarfg    clarfg   
+zlarft    clarft   
+zlascl    clascl   
+zlaset    claset   
+zlasr     clasr    
+zlassq    classq   
+zlatrd    clatrd   
+zpotf2    cpotf2   
+zpotrf    cpotrf   
+zsteqr    csteqr   
+zung2l    cung2l   
+zung2r    cung2r   
+zungql    cungql   
+zungqr    cungqr   
+zungtr    cungtr   
