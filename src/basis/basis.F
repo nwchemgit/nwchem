@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.94 1999-10-26 21:38:07 mg201 Exp $
+c $Id: basis.F,v 1.95 1999-12-30 21:58:17 mg201 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -474,7 +474,7 @@ c 1s on H
       a_cof (2) = 0.90469100d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on H
@@ -485,7 +485,7 @@ c 2s on H
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on He
@@ -499,7 +499,7 @@ c 1s on He
       a_cof (2) =  0.89348300d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on He
@@ -510,7 +510,7 @@ c 2s on He
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on O
@@ -526,7 +526,7 @@ c 1s on O
       a_cof (3) =    0.70765800d00  
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1sp on O
@@ -541,7 +541,7 @@ c add s first
       a_cof (2) =    1.22156000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -555,7 +555,7 @@ c add p now
       a_cof (2) =   0.85395500d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2sp on O
@@ -568,7 +568,7 @@ c add s first
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -580,7 +580,7 @@ c add p now
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, 'bas_321g_load')
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 *_old_checking_code:      bs_tags(1,usebas) = 'H'
@@ -4574,16 +4574,18 @@ c
       logical function bas_rel_exists (rtdb)
       implicit none
       integer rtdb
+#include "nwc_const.fh"
 #include "rel_nwc.fh"
       logical  bas_name_exist_rtdb
       external bas_name_exist_rtdb
       bas_rel_exists = bas_name_exist_rtdb(rtdb,small_cmpt_name)
+     &    .or. bas_name_exist_rtdb(rtdb,auto_small_cmpt_name)
       end
-*
 *.....................................................................
       logical function basis_is_rel (basisin)
       implicit none
       integer basisin
+#include "nwc_const.fh"
 #include "rel_nwc.fh"
       character*32 basis_name,trans_name
       logical  bas_name
@@ -4592,5 +4594,64 @@ c
       if (basis_is_rel) then
         basis_is_rel = (basis_name .eq. small_cmpt_name) 
      &      .or. (basis_name .eq. large_cmpt_name)
+     &      .or. (basis_name .eq. auto_small_cmpt_name)
+     &      .or. (basis_name .eq. auto_large_cmpt_name)
       end if
+      end
+*.....................................................................
+      logical function bas_get_ao_handle (basis,nbas,ao_handle)
+      implicit none
+      integer nbas        ! [input] number of basis sets
+      integer basis(nbas) ! [input] array of basis set handles
+      integer ao_handle   ! [output] ao basis set handle
+c
+c   Returns handle of "ao basis"
+c
+      integer ibas
+      logical odum
+      character*255 basis_name,trans_name
+*
+      logical bas_name
+      external bas_name
+c
+      do ibas = 1,nbas
+        odum = bas_name(basis(ibas),basis_name,trans_name)
+        if (basis_name(1:8) .eq. 'ao basis') then
+          bas_get_ao_handle = .true.
+          ao_handle = basis(ibas)
+          return
+        end if
+      end do
+      bas_get_ao_handle = .false.
+c
+      return
+      end
+*.....................................................................
+      logical function bas_any_rel_shells (basisin)
+      implicit none
+c
+      integer basisin ! [input] basis set handle
+#include "nwc_const.fh"
+#include "basdeclsP.fh"
+#include "basP.fh"
+c
+c   Checks basis set to see if there are any relativistic shells
+c
+      integer ibas   ! basis set
+      integer nucont ! number of unique contractions
+      integer i, isum
+c
+      logical bas_check_handle
+      external bas_check_handle
+c
+      if (.not. bas_check_handle(basisin,'bas_any_rel_shells'))
+     &    call errquit('bas_any_rel_shells: invalid handle',99)
+      ibas = basisin+BASIS_HANDLE_OFFSET
+      nucont = infbs_head(HEAD_NCONT,ibas)
+      isum = 0
+      do i = 1,nucont
+        isum = isum+infbs_cont(CONT_RELLS,i,ibas)
+      end do
+      bas_any_rel_shells = isum .ne. 0
+      return
       end

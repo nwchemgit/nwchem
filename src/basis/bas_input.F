@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.46 1999-11-17 18:33:59 bjohnson Exp $
+c $Id: bas_input.F,v 1.47 1999-12-30 21:58:17 mg201 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -11,7 +11,7 @@ c $Id: bas_input.F,v 1.46 1999-11-17 18:33:59 bjohnson Exp $
 c
 c   basis [<name>] [library [<standard set>] [file <filename>] \
 c         [spherical|cartesian] [segment||nosegment] [print|noprint]\
-c         [ecpset ecp_name] [soset so_name]
+c         [ecpset ecp_name] [soset so_name] [rel]
 c
 c     tag library [tag in library] <standard set> [file <filename>]
 c     tag <shell type>
@@ -52,21 +52,21 @@ c::passed
       integer rtdb              ! [input] handle to database
 c::local
       integer nopt
-      parameter (nopt = 11)
+      parameter (nopt = 12)
       character*10 opts(nopt)
       character*255 test, name, filename, standard
       character*255 ecpname, soname
       character*1000 errmsg
       logical status, ospherical, osegment, oprint
       logical o_add_ecpname, o_add_soname
-      logical oIs_ecp, oIs_so
+      logical oIs_ecp, oIs_so, oIs_rel
       integer ind, basis
       logical bas_add_ucnt_init, bas_set_spherical
       external bas_add_ucnt_init, bas_set_spherical
       data opts /
      &    'spherical', 'cartesian', 'segment', 'nosegment', 'library',
      &    'file',      'print',     'noprint', 'ecpset',    'soset',
-     &    'version'/
+     &    'version', 'rel'/
 c
       ecpname = '                                                '
       soname = '                                                '
@@ -99,6 +99,7 @@ c
       oprint     = .true.  ! Default is to print the basis on input
       o_add_ecpname = .false. ! Default is to not associate an ecp name
       o_add_soname = .false.  ! Default is to not associate a so name
+      oIs_rel = .false.    ! Default is nonrelativistic
 c
  10   if (inp_a(test)) then
 c
@@ -116,7 +117,7 @@ c
          endif
 c
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     &         1100) ind
+     &         1100,1200) ind
          goto 10000
 c
 c     spherical
@@ -188,6 +189,17 @@ c
      &       ('bas_input: bas_version failed ',911)
          goto 10
 c
+c set entire basis set to be relativistic
+c
+01200    continue
+         oIs_rel = .true.
+         if (oIs_so.or.oIs_ecp) then 
+           errmsg = 'bas_input: rel keyword incompatible with '
+     $           // 'so or ecp basis.'
+           call errquit(errmsg, 911)
+         endif
+         goto 10
+c
       endif
 c
 c initialize the default library name based on rules in bas_library_file
@@ -239,7 +251,7 @@ c    for basis functions or standard sets on specific tags
 c
       if (.not.bas_add_ucnt_init(basis)) call errquit
      &    ('bas_input: failed to init add_ucnt ',911)
-      call bas_input_body(basis, osegment)
+      call bas_input_body(basis, osegment, oIs_rel)
 c
       if (.not. bas_set_spherical(basis, ospherical))
      &      call errquit
@@ -275,7 +287,7 @@ c
 c
       end
 *.....................................................................
-      subroutine bas_input_body(basis, osegment)
+      subroutine bas_input_body(basis, osegment, oIs_rel)
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -294,7 +306,8 @@ c     tags/exponents/contraction coefficients
 c
 c
 c     tag library [<tag in library>] <standard set> [file <filename>]
-c     tag <contraction type>
+c         [rel]
+c     tag <contraction type> [rel]
 c       <exponent> <contraction coefficients>
 c       ...
 c     end basis
@@ -310,24 +323,26 @@ c
 c
 c     
       character*16 tag, tag_in_lib
-      character*16 type_of_cont
+      character*16 type_of_cont, rel_shell
       character*255 field, standard, filename
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       integer nopts             ! No. of options
-      parameter (nltypes = 7, nsptypes = 3, nopts = 3)
+      parameter (nltypes = 7, nsptypes = 3, nopts = 4)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
       logical oIs_ecp            
       logical oIs_so
+      logical oIs_rel
+      logical oshell_is_rel
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
-      data opts / 'library', 'file', 'nelec' /
+      data opts / 'library', 'file', 'rel', 'nelec' /
 c
 #include "ecpso_sfnP.fh"
 c
@@ -344,6 +359,7 @@ c
  20   call inp_set_field(0)
       standard = ' '            ! Must reset these for every tag
       filename = user_library_name
+      oshell_is_rel = oIs_rel
       if (.not. inp_a(tag)) goto 10000
 c
 *. . . . . . . . . . . . . . . . . . . . . . ! End of basis directive
@@ -357,20 +373,40 @@ c  The contraction is a simple shell or an ecp projector shell of the
 c  given type
 c     
         l_value = ind - 1
+c
+c     check if it is a relativistic shell
+c
+        if (inp_a(rel_shell)) then
+          if (.not. inp_compare(.false., 'rel', rel_shell)) call errquit
+     &        ('bas_input_body: option on simple shell must be "rel"',
+     &        99)
+          oshell_is_rel = .true.
+        end if
       else if (
      &      inp_match(nsptypes, .false., type_of_cont,sptypes,ind)) then
 c     
-c     The contraction is an sp-type shell or an ecp Ulocal shell
+c  The contraction is an sp-type shell or an ecp Ulocal shell
 c     
-         l_value = spvalues(ind)
+        l_value = spvalues(ind)
+c
+c     check for relativistic shell - this is illegal.
+c
+        if (oIs_rel) call errquit
+     &      ('bas_input_body: sp shell illegal with relativistic basis',
+     &      99)
+        if (inp_a(rel_shell)) then
+          if (inp_compare(.false., 'rel', rel_shell)) call errquit
+     &        ('bas_input_body: sp shell cannot be "rel"', 99)
+          call inp_prev_field
+        end if
       else
 c     
-c     It might be an option
+c  It might be an option
 c     
          call inp_prev_field
  22      if (inp_a(field)) then
             if (inp_match(nopts, .false., field, opts, ind)) then
-               goto (24, 26, 28) ind
+               goto (24, 26, 27, 28) ind
 c     
 c     library
 c     
@@ -392,6 +428,11 @@ c     file
 c     
  26            if (.not. inp_a(filename)) goto 10000
                goto 22
+c     
+c     relativistic shell
+c     
+ 27            oshell_is_rel = .true.
+               goto 22
 c
 c...  nelec  ...  =>  number of electrons for ecp
 c
@@ -402,6 +443,9 @@ c
                if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
      &             call errquit
      &             ('bas_input_body: ecp_set_num_elec failed',911)
+               if (oshell_is_rel) call errquit
+     &             ('bas_input_body: rel keyword incompatible with ECP',
+     &             99)
 *. . . . no more input allowed on line so no goto 22 structure needed?
                goto 10
             else
@@ -415,14 +459,14 @@ c     or explicit input
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
-     $        filename)
+     $        filename, oshell_is_rel)
          goto 10
       endif
 c
 c     Fall thru to here to read in a set of contraction coefficients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    'user specified')
+     &    'user specified', oshell_is_rel)
 c
 c     Have already read in the next line ... parse it
 c
@@ -451,7 +495,8 @@ c
 c
       end
 *.....................................................................
-      subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag)
+      subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag,
+     &    oshell_is_rel)
       implicit none
 #include "stdio.fh"
 #include "bas.fh"
@@ -470,6 +515,7 @@ c
       character*16 tag          ! [input] tag string
       integer l_value           ! [input] l value of contraction
       character*(*) stdtag      ! [input] standard name
+      logical oshell_is_rel     ! [input] flag for relativistic shell
 c
       integer ngen, iprim, nprim, i, j, nptmp
       integer cont_max          ! Max. no. of contractions
@@ -615,18 +661,18 @@ c     simple shell or all ecp/so shells
             status = status .and.
      $          bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
      $          rex_tmp, etmp, ctmp, prim_max,
-     $          stdtag)
+     $          stdtag, oshell_is_rel)
           enddo
         else
 c     sp shell
           status = status .and.
      $        bas_add_ucnt(basis, tag, 0, 1, nprim, 
      $        rex, expnt, coeff(1,1), prim_max,
-     &        stdtag)
+     &        stdtag, oshell_is_rel)
           status = status .and.
      $        bas_add_ucnt(basis, tag, 1, 1, nprim, 
      $        rex, expnt, coeff(1,2), prim_max,
-     &        stdtag)
+     &        stdtag, oshell_is_rel)
         endif
       else
 c     
@@ -635,7 +681,7 @@ c
         status = status .and.
      $      bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $      rex, expnt, coeff, prim_max,
-     &      stdtag)
+     &      stdtag, oshell_is_rel)
       endif
       if (.not. status) call errquit
      $        ('bas_input_cont: bas_add_ucnt failed!!', 0)
@@ -657,7 +703,7 @@ c
       end
 *.....................................................................
       subroutine bas_tag_lib(basis, osegment, tag, tag_in_lib, 
-     $     standard, filename)
+     $     standard, filename, oshell_is_rel)
       implicit none
 #include "bas.fh"
 #include "basdeclsP.fh"
@@ -672,6 +718,7 @@ c
       character*16 tag_in_lib   ! [input] tag to lookup in library
       character*(*) standard    ! [input] name of standard basis set
       character*(*) filename    ! [input] name of library file
+      logical oshell_is_rel     ! [input] flag for relativistic shell(s)
 c
       character*5 id_string
       character*2 symbol
@@ -797,14 +844,17 @@ c
 c     The contraction is an sp-type shell
 c     
          l_value = spvalues(ind)
+         if (oshell_is_rel) call errquit(
+     &       'bas_tag_lib: sp shell illegal with relativistic basis',
+     &       99)
       else
-         call errquit('bas_tag_lib: invalide shell type?', 0)
+         call errquit('bas_tag_lib: invalid shell type?', 0)
       endif
 c
 c     Have tag and l_value ... read in the contraction coeffcients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    standard)
+     &    standard, oshell_is_rel)
       goto 20
 c
  9000 close(33)

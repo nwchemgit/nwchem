@@ -1,11 +1,11 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.8 1999-07-14 00:28:50 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.9 1999-12-30 21:58:17 mg201 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $     rex, expnt, coeffs, ldc, stdtag)
+     $     rex, expnt, coeffs, ldc, stdtag, oshell_is_rel)
       implicit none
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
@@ -26,6 +26,7 @@
       double precision coeffs(ldc, 1:*) ! [input] coefficients
       double precision rex(nprim) ! [input] gaussian R exponents 
 *. . . . . . . . . . . . . . . . .          (offset by 2)
+      logical oshell_is_rel ! [input] flag for relativistic shell
 c
       integer size_add ! amount to be added to exndcf array
       integer ind ! Index into basis function structures
@@ -177,6 +178,11 @@ c
 *. . . . . . . . . . . . . . . . . . ! point to exponents for saftey?
         infbs_cont(Cont_Irexp, iu_cont,ind) = free 
       endif
+      if (oshell_is_rel) then
+        infbs_cont(CONT_RELLS, iu_cont,ind) = 1
+      else
+        infbs_cont(CONT_RELLS, iu_cont,ind) = 0
+      end if
 c
 c     Copy real data over
 c

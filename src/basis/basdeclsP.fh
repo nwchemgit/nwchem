@@ -1,4 +1,4 @@
-c $Id: basdeclsP.fh,v 1.7 1999-10-26 21:34:08 mg201 Exp $
+c $Id: basdeclsP.fh,v 1.8 1999-12-30 21:58:17 mg201 Exp $
 c
 c compressed array pointer information variables.
 c
@@ -29,12 +29,13 @@ c define CONT_IEXP  4
 c define CONT_ICFP  5
 c define CONT_TAG   6
 c define CONT_IREXP 7
+c define CONT_RELLS 8
       integer HEAD_NTAGS, HEAD_NCONT, HEAD_NPRIM, HEAD_NCOEF,
      &        HEAD_EXCFPTR, HEAD_SPH, HEAD_ECP
       integer TAG_NCONT, TAG_NPRIM, TAG_NCOEF, TAG_FCONT, TAG_LCONT,
      &        TAG_NELEC, TAG_HIGH_ANG
       integer CONT_TYPE, CONT_NPRIM, CONT_NGEN, CONT_IEXP, CONT_ICFP,
-     &        CONT_TAG, CONT_IREXP
+     &        CONT_TAG, CONT_IREXP, CONT_RELLS
       parameter (HEAD_NTAGS   = 1)
       parameter (HEAD_NCONT   = 2)
       parameter (HEAD_NPRIM   = 3)
@@ -58,6 +59,7 @@ c
       parameter (CONT_ICFP  = 5)
       parameter (CONT_TAG   = 6)
       parameter (CONT_IREXP = 7)
+      parameter (CONT_RELLS = 8)
 c
 c bas_normalization specification values
 c

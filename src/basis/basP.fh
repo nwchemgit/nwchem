@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.13 1999-10-26 21:32:34 mg201 Exp $
+c $Id: basP.fh,v 1.14 1999-12-30 21:58:17 mg201 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -108,7 +108,7 @@ c
 c The above data structure is too cumbersome to efficiently store to 
 c  and read from the run-time-data-base (one call per array).  The 
 c  integer and real*8 data needs to be linearized with appropriate 
-c  informaton accessable by pointers arrays.  
+c  informaton accessible by pointer arrays.  
 c
 c The more appropriate "basis" data structure is as follows:
 c  Character*256 bs_name             ! as "mo basis" 
@@ -125,8 +125,8 @@ c  Integer infbs_tags(7,num_tags)
 c           ! 1 = num_cont   ! Num of conts on tag
 c           ! 2 = nprim_tag  ! Num of prim exponents on tag
 c           ! 3 = ncoeff_tag ! Num of prim coeffs on tag
-c           ! 4 = first cont ! first contaction on tag
-c           ! 5 = last cont  ! last contaction on tag
+c           ! 4 = first cont ! first contraction on tag
+c           ! 5 = last cont  ! last contraction on tag
 c           ! 6 = nelec      ! number of elecs removed by ECP
 c           ! 7 = high ang   ! highest angular momentum on tag
 c  Integer infbs_cont(7,num_cont) 
@@ -189,6 +189,8 @@ c                            ! array for first coefficient of
 c                            ! each cont. on each tag
 c           ! 6 = tag number ! unique center lexical index
 c           ! 7 = irexp      ! pointer to R exponents for ECP functions
+c           ! 8 = rel flag   ! flag for relativistic shell. 
+c                            ! 0 = nonrelativistic, 1 = relativistic.
 c  Real*8 exndcf(3,nbasis)   ! linearized real*8 array of 
 c                            ! exponents and coefficients
 c                            ! allocated on heap; exndcf now
@@ -212,7 +214,7 @@ c.. static dimension information for common blocks
 c
 c leading dimensions of compressed arrays
       integer ndbs_tags, ndbs_ucont, ndbs_head
-      parameter(ndbs_tags=7, ndbs_ucont=7, ndbs_head=7)
+      parameter(ndbs_tags=7, ndbs_ucont=8, ndbs_head=7)
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags
