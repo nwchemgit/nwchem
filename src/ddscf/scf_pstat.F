@@ -8,7 +8,8 @@
 #include "cscfps.fh"
       double precision junk
 c
-      call pstat_init(20, 1, ' ')
+      if (.not. pstat_init(20, 1, ' ')) call errquit
+     $     ('scf_pstat_init: pstat_init failed', 0)
 c
       if (.not. pstat_allocate('scf: solve', pstat_qstat, 0,junk,
      $     ps_solve)) call errquit('scf: scf_pstat_init', 0)
@@ -45,11 +46,13 @@ c
       implicit none
 #include "pstat.fh"
 #include "cscfps.fh"
+c     
+      logical status
 c
       if (oscfps) then
          call pstat_off(ps_total)
          call pstat_print_all
-         call pstat_terminate
+         status = pstat_terminate()
          oscfps = .false.
       endif
 c
