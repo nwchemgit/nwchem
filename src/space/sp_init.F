@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.123 2003-10-31 19:56:13 d3j191 Exp $
+c $Id: sp_init.F,v 1.124 2003-11-06 16:26:07 d3j191 Exp $
 c
       implicit none
 c
@@ -3104,6 +3104,8 @@ c
       endif
 c
       endif
+c
+      call util_flush(lfntrj)
 c
       return
       end
