@@ -1,0 +1,29 @@
+*
+* $Id: C3dB.fh,v 1.1 2004-05-05 19:56:57 bylaska Exp $
+*
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common    / C3dB / nq,nx,ny,nz
+
+
+
+      integer nfft3d(NBLOCKS),n2ft3d(NBLOCKS)
+      integer nfft3d_map(NBLOCKS),n2ft3d_map(NBLOCKS)
+      integer mapping
+      common    / C3dB_kdfj / nfft3d,n2ft3d,
+     >                        nfft3d_map,n2ft3d_map,
+     >                        mapping
+
+
+      integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
+      common /C3dB_mapping / q_map,p_map,k_map
+
+
+      !**** hilbert mapping ****
+      integer q_map1(2,NBLOCKS),p_map1(2,NBLOCKS),nq1(NBLOCKS)
+      integer q_map2(2,NBLOCKS),p_map2(2,NBLOCKS),nq2(NBLOCKS)
+      integer q_map3(2,NBLOCKS),p_map3(2,NBLOCKS),nq3(NBLOCKS)
+      common /C3dB_mapping2 / q_map1,p_map1,q_map2,p_map2,q_map3,p_map3,
+     >                        nq1,nq2,nq3
+
+
