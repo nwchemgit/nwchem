@@ -321,6 +321,13 @@ c
 c
       call cf_copyv(ia,ja,vdwai,vdwri,dbl_mb(i_vdw))
 c
+      if(abs(vdwai(1)-vdwai(2)).gt.tiny) ip2(14)=.true.
+      if(abs(vdwai(1)-vdwai(3)).gt.tiny) ip3(14)=.true.
+      if(abs(vdwai(2)-vdwai(3)).gt.tiny) ith(14)=.true.
+      if(abs(vdwri(1)-vdwri(2)).gt.tiny) ip2(14)=.true.
+      if(abs(vdwri(1)-vdwri(3)).gt.tiny) ip3(14)=.true.
+      if(abs(vdwri(2)-vdwri(3)).gt.tiny) ith(14)=.true.
+c
       return
       end
       subroutine cf_parq(ia,chgi)
@@ -337,10 +344,13 @@ c
 c
       call cf_copyq(ia,chgi,dbl_mb(i_chg))
 c
-      if(abs(chgi(1)-chgi(2)).gt.tiny) ip2(16)=.true.
-      if(abs(chgi(1)-chgi(3)).gt.tiny) ip3(16)=.true.
-      if(abs(chgi(2)-chgi(3)).gt.tiny) ith(16)=.true.
-cc
+      if(abs(chgi(1)-chgi(3)).gt.tiny) ip2(16)=.true.
+      if(abs(chgi(1)-chgi(5)).gt.tiny) ip3(16)=.true.
+      if(abs(chgi(3)-chgi(5)).gt.tiny) ith(16)=.true.
+      if(abs(chgi(2)-chgi(4)).gt.tiny) ip2(17)=.true.
+      if(abs(chgi(2)-chgi(6)).gt.tiny) ip3(17)=.true.
+      if(abs(chgi(4)-chgi(6)).gt.tiny) ith(17)=.true.
+c
       return
       end
       subroutine cf_copyq(ia,chgi,chg)
@@ -537,18 +547,18 @@ c
 c
       if(id.lt.1.or.id.gt.mwa) call errquit('Error in parwiq',0)
       call cf_copwiq(id,ia,iq,int_mb(i_iwa),int_mb(i_iwq),
-     + dbl_mb(i_mas),dbl_mb(i_chg))
+     + dbl_mb(i_mas),dbl_mb(i_chg),dbl_mb(i_vdw))
 c
       return
       end
-      subroutine cf_copwiq(id,ia,iq,iwa,iwq,wgt,chg)
+      subroutine cf_copwiq(id,ia,iq,iwa,iwq,wgt,chg,vdw)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      integer id,ia,iq,iwa(mwa),iwq(mwa)
-      real*8 wgt(mat,6),chg(mqt,mqp,6)
+      integer i,j,id,ia,iq,iwa(mwa),iwq(mwa)
+      real*8 wgt(mat,6),chg(mqt,mqp,6),vdw(mat,mat,map,6)
 c
       iwa(id)=ia
       iwq(id)=iq
@@ -556,9 +566,19 @@ c
       if(abs(wgt(ia,1)-wgt(ia,2)).gt.tiny) ip2(1)=.true.
       if(abs(wgt(ia,1)-wgt(ia,3)).gt.tiny) ip3(1)=.true.
       if(abs(wgt(ia,2)-wgt(ia,3)).gt.tiny) ith(1)=.true.
+      do 1 j=1,map
+      do 2 i=1,mat
+      if(abs(vdw(ia,i,j,1)-vdw(ia,i,j,2)).gt.tiny) ip2(2)=.true.
+      if(abs(vdw(ia,i,j,1)-vdw(ia,i,j,3)).gt.tiny) ip3(2)=.true.
+      if(abs(vdw(ia,i,j,2)-vdw(ia,i,j,3)).gt.tiny) ith(2)=.true.
+    2 continue
+    1 continue
       if(abs(chg(iq,1,1)-chg(iq,1,2)).gt.tiny) ip2(4)=.true.
       if(abs(chg(iq,1,1)-chg(iq,1,3)).gt.tiny) ip3(4)=.true.
       if(abs(chg(iq,1,2)-chg(iq,1,3)).gt.tiny) ith(4)=.true.
+      if(abs(chg(iq,2,1)-chg(iq,2,2)).gt.tiny) ip2(5)=.true.
+      if(abs(chg(iq,2,1)-chg(iq,2,3)).gt.tiny) ip3(5)=.true.
+      if(abs(chg(iq,2,2)-chg(iq,2,3)).gt.tiny) ith(5)=.true.
 c
       return
       end

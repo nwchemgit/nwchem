@@ -130,8 +130,6 @@ c
      + iwfr,iwto,jwfr,jwto,xs,xsm,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
-      if(.not.ma_verify_allocator_stuff())
-     + call errquit('Oops',me)
 c
 c     forces
 c     ------

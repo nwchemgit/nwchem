@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
       implicit none
 c
@@ -56,7 +56,7 @@ c
       real*8 c6,cf6,c12,cf12
 c
       integer i,j,jwm,iwaptr,jwaptr,nwwlen(2),k
-      real*8 cx,cy,cz,dx,dy,dz,rx,ry,rz,ri1,ri2,ri6,ff
+      real*8 cx,cy,cz,dx,dy,dz,rx,ry,rz,ri1,ri2,ri6,ff,eterml,etermq
 c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
@@ -207,7 +207,8 @@ c
       f(iax)=f(iax)+q*rwi2(iax)*(ferfc*rwi1(iax)-fderfc)
    17 continue
       endif
-      eww(6,ipww)=eww(6,ipww)+q*ewwqsm
+      etermq=q*ewwqsm
+      eww(6,ipww)=eww(6,ipww)+etermq
 c
 c     reaction field contribution
 c     ---------------------------
@@ -231,6 +232,7 @@ c
       c12=vdw(iptr,jptr,3,iset)
       cf12=twelve*c12
 c
+      eterml=zero
       if(c6.ne.zero.or.c12.ne.zero) then
       ewwl6=zero
       ewwl12=zero
@@ -240,7 +242,8 @@ c
       ewwl12=ewwl12+facu(iax)*rwi6(iax)*rwi6(iax)
       f(iax)=f(iax)+(cf12*rwi6(iax)-cf6)*rwi6(iax)*rwi2(iax)
    20 continue
-      eww(5,ipww)=eww(5,ipww)+c12*ewwl12-c6*ewwl6
+      eterml=c12*ewwl12-c6*ewwl6
+      eww(5,ipww)=eww(5,ipww)+eterml
       endif
 c
 c     force vectors
@@ -388,6 +391,7 @@ c
       do 32 iax=1,nax
       ep2(ipww)=ep2(ipww)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    32 continue
+      ep2(ipww)=ep2(ipww)-eterml
       endif
       if(ip2(4).or.ip2(5)) then
       qp=chg(iwq(iwa),1,2)*chg(iwq(jwa),1,2)
@@ -405,7 +409,7 @@ c      qp=qwa(iwa,2)*qwa(jwa,2)
       ep2tmp=ep2tmp+facu(iax)*erfc(ealpha/rwi1(iax))*rwi1(iax)
       endif
    33 continue
-      ep2(ipww)=ep2(ipww)+qp*ep2tmp
+      ep2(ipww)=ep2(ipww)+qp*ep2tmp-etermq
       if(ireact.ne.0) then
       ep2tmp=zero
       do 34 iax=1,nax
@@ -425,6 +429,7 @@ c
       do 35 iax=1,nax
       ep3(ipww)=ep3(ipww)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    35 continue
+      ep3(ipww)=ep3(ipww)-eterml
       endif
       if(ip2(4).or.ip2(5)) then
       qp=chg(iwatm(iwa),1,3)*chg(iwatm(jwa),1,3)
@@ -442,7 +447,7 @@ c      qp=qwa(iwa,3)*qwa(jwa,3)
       ep3tmp=ep3tmp+facu(iax)*erfc(ealpha/rwi1(iax))*rwi1(iax)
       endif
    36 continue
-      ep3(ipww)=ep3(ipww)+qp*ep3tmp
+      ep3(ipww)=ep3(ipww)+qp*ep3tmp-etermq
       if(ireact.ne.0) then
       ep3tmp=zero
       do 37 iax=1,nax
@@ -513,7 +518,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
       implicit none
 c
@@ -727,6 +732,7 @@ c      endif
       if(isrx(iax).eq.2) rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
    27 continue
       iwatmi=iwatm(iwa)
+      eterml=zero
       do 28 iax=1,nax
       isa=isal(iax)
       isatm=isat(isa)
@@ -736,12 +742,13 @@ c      endif
       cf12=twelve*c12
       rwi6(iax)=rwi2(iax)*rwi2(iax)*rwi2(iax)
       rw(iax)=facu(iax)*(c12*rwi6(iax)-c6)*rwi6(iax)
-      esw(isf,5,ipsw)=esw(isf,5,ipsw)+rw(iax)
+      eterml=eterml+rw(iax)
 c      if(npener.ne.0) then
 c      u(iax)=u(iax)+(c12*rwi6(iax)-c6)*rwi6(iax)
 c      endif
       f(iax)=f(iax)+(cf12*rwi6(iax)-cf6)*rwi6(iax)*rwi2(iax)
    28 continue
+      esw(isf,5,ipsw)=esw(isf,5,ipsw)+eterml
 c
 c     electrostatic interactions
 c
@@ -992,6 +999,7 @@ c
       ep2(ipsw)=ep2(ipsw)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    45 continue
       endif
+      ep2(ipsw)=ep2(ipsw)-eterml
       endif
       if(ip2(4).or.ip2(5).or.ip2(16).or.ip2(17)) then
 c      qj=qwa(iwa,2)
@@ -1080,6 +1088,7 @@ c
       ep3(ipsw)=ep3(ipsw)+facu(iax)*(c12p*rwi6(iax)-c6p)*rwi6(iax)
    49 continue
       endif
+      ep3(ipsw)=ep3(ipsw)-eterml
       endif
       if(ip2(4).or.ip2(5).or.ip2(16).or.ip2(17)) then
 c      qj=qwa(iwa,3)
@@ -1202,7 +1211,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
       implicit none
 c
@@ -1409,6 +1418,7 @@ c
 c
 c     evaluate electrostatic energies and forces
 c
+      etermq=zero
       if(issscl.eq.0) then
       if(ipme.eq.0.or.isolvo.ne.0) then
       do 24 iax=1,nax
@@ -2099,7 +2109,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2160,7 +2170,7 @@ c
       integer i,j,isb,isa,jsa,isf,jsf
       integer isag,jsag
       real*8 factu,hess,dercon,qij,ferfc,fderfc
-      real*8 bond,dbond,for,dfor,dfs1,dfs2,dfs3
+      real*8 bond,dbond,for,dfor,dfs1,dfs2,dfs3,eterm
       real*8 xs1,xs2,xs3,rsi,rss,rss2,rssi,rss2i,ess(msf,msf,mpe,2)
 c
 #include "cf_funcs_dec.fh"
@@ -2249,9 +2259,11 @@ c
 c     evaluate energies and forces
 c
       rbnd(isb,2)=half*for*dbond*dbond
+      eterm=zero
       if(lupden) then
       ess(isf,isf,1,1)=ess(isf,isf,1,1)+half*factu*rbnd(isb,2)
       ess(jsf,jsf,1,1)=ess(jsf,jsf,1,1)+half*factu*rbnd(isb,2)
+      eterm=factu*rbnd(isb,2)
       endif
       dfor=for*dbond*rssi
       dfs1=dfor*xs1
@@ -2324,9 +2336,9 @@ c     for thermodynamic perturbations evaluate the energies using
 c     the 'perturbed' parameters in set 2 and/or 3
 c
       if(ip2(18))
-     + ep2(1)=ep2(1)+factu*half*bnd(isb,2,2)*(rss-bnd(isb,1,2))**2
+     + ep2(1)=ep2(1)-eterm+factu*half*bnd(isb,2,2)*(rss-bnd(isb,1,2))**2
       if(ip3(18))
-     + ep3(1)=ep3(1)+factu*half*bnd(isb,2,3)*(rss-bnd(isb,1,3))**2
+     + ep3(1)=ep3(1)-eterm+factu*half*bnd(isb,2,3)*(rss-bnd(isb,1,3))**2
 c
 c     for thermodynamic integrations evaluate the derivative
 c
@@ -2379,7 +2391,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2442,7 +2454,7 @@ c
       integer ifacu
       real*8 angle,dangle,for,dfor,dfs,phi,cphi,sphi,factu,dercon
       real*8 xsijx,xskjx,xsijy,xskjy,xsijz,xskjz
-      real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,dx(3)
+      real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,dx(3),eterm
       real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
 c
 #include "cf_funcs_dec.fh"
@@ -2543,10 +2555,12 @@ c     ----------------------------
 c
 c      ush(ish)=half*for*dangle*dangle
       rang(ish,2)=half*for*dangle*dangle
+      eterm=zero
       if(lupden) then
       ess(isf,isf,2,1)=ess(isf,isf,2,1)+third*factu*rang(ish,2)
       ess(jsf,jsf,2,1)=ess(jsf,jsf,2,1)+third*factu*rang(ish,2)
       ess(ksf,ksf,2,1)=ess(ksf,ksf,2,1)+third*factu*rang(ish,2)
+      eterm=factu*rang(ish,2)
       endif
       sphi=sin(phi)
       if(abs(sphi).lt.small) sphi=small
@@ -2581,9 +2595,9 @@ c     using 'perturbed' parameters of set 2 and/or set 3
 c     -----------------------------------------------------
 c
       if(ip2(20))
-     + ep2(1)=ep2(1)+factu*half*ang(ish,2,2)*(phi-ang(ish,1,2))**2
+     + ep2(1)=ep2(1)-eterm+factu*half*ang(ish,2,2)*(phi-ang(ish,1,2))**2
       if(ip3(20))
-     + ep3(1)=ep3(1)+factu*half*ang(ish,2,3)*(phi-ang(ish,1,3))**2
+     + ep3(1)=ep3(1)-eterm+factu*half*ang(ish,2,3)*(phi-ang(ish,1,3))**2
 c
 c     for thermodynamic integrations evaluate the derivative
 c     ------------------------------------------------------
@@ -2637,7 +2651,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2706,7 +2720,7 @@ c
       real*8 xex,xey,xez,xox,xoy,xoz,xpx,xpy,xpz
       real*8 dfsix,dfsiy,dfsiz,dfsjx,dfsjy,dfsjz
       real*8 dfskx,dfsky,dfskz,dfslx,dfsly,dfslz
-      real*8 rm2i,rn2i,rmni,s,rpa,dx(3)
+      real*8 rm2i,rn2i,rmni,s,rpa,dx(3),eterm
       real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,rkj,rkjo,rkjp
       real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
 c
@@ -2847,11 +2861,13 @@ c     -----------------
 c
       rdih(isd,2)=for*(one+cos(rpa))
 c
+      eterm=zero
       if(lupden) then
       ess(isf,isf,3,1)=ess(isf,isf,3,1)+fourth*factu*rdih(isd,2)
       ess(jsf,jsf,3,1)=ess(jsf,jsf,3,1)+fourth*factu*rdih(isd,2)
       ess(ksf,ksf,3,1)=ess(ksf,ksf,3,1)+fourth*factu*rdih(isd,2)
       ess(lsf,lsf,3,1)=ess(lsf,lsf,3,1)+fourth*factu*rdih(isd,2)
+      eterm=factu*rdih(isd,2)
       endif
 c
       dfor=(-for)*rmul*sin(rpa)
@@ -2860,9 +2876,9 @@ c     for thermodynamic perturbations evaluate the energies using
 c     the 'perturbed' parameters in set 2 and/or set 3
 c     -----------------------------------------------------------
 c
-      if(ip2(21)) ep2(1)=ep2(1)+
+      if(ip2(21)) ep2(1)=ep2(1)-eterm+
      + factu*dih(isd,3,2)*(one+cos(dih(isd,1,2)*phi-dih(isd,2,2)))
-      if(ip3(21)) ep3(1)=ep3(1)+
+      if(ip3(21)) ep3(1)=ep3(1)-eterm+
      + factu*dih(isd,3,3)*(one+cos(dih(isd,1,3)*phi-dih(isd,2,3)))
 c
 c     for normal angles use cosine equation to get the forces
@@ -2964,7 +2980,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3033,7 +3049,7 @@ c
       real*8 xex,xey,xez,xox,xoy,xoz,xpx,xpy,xpz
       real*8 dfsix,dfsiy,dfsiz,dfsjx,dfsjy,dfsjz
       real*8 dfskx,dfsky,dfskz,dfslx,dfsly,dfslz
-      real*8 rm2i,rn2i,rmni,s,rpa,dx(3)
+      real*8 rm2i,rn2i,rmni,s,rpa,dx(3),eterm
       real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,rkj,rkjo,rkjp
       real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
 c
@@ -3163,11 +3179,13 @@ c
       dfor=for*dang
 c      uso(iso)=half*for*dang*dang
       rimp(iso,2)=half*for*dang*dang
+      eterm=zero
       if(lupden) then
       ess(isf,isf,4,1)=ess(isf,isf,4,1)+fourth*factu*rimp(iso,2)
       ess(jsf,jsf,4,1)=ess(jsf,jsf,4,1)+fourth*factu*rimp(iso,2)
       ess(ksf,ksf,4,1)=ess(ksf,ksf,4,1)+fourth*factu*rimp(iso,2)
       ess(lsf,lsf,4,1)=ess(lsf,lsf,4,1)+fourth*factu*rimp(iso,2)
+      eterm=factu*rimp(iso,2)
       endif
 c
 c     for thermodynamic perturbations evaluate the energies
@@ -3175,11 +3193,11 @@ c     using the 'perturbed' parameters of set 2 and/or set 3
 c
       if(ip2(22))  then
       dangp=(phi-dimp(iso,2,2))-nint((phi-dimp(iso,2,2))/twopi)*twopi
-      ep2(1)=ep2(1)+factu*half*dimp(iso,3,2)*dangp**2
+      ep2(1)=ep2(1)-eterm+factu*half*dimp(iso,3,2)*dangp**2
       endif
       if(ip3(22)) then
       dangp=(phi-dimp(iso,2,3))-nint((phi-dimp(iso,2,3))/twopi)*twopi
-      ep3(1)=ep3(1)+factu*half*dimp(iso,3,3)*dangp**2
+      ep3(1)=ep3(1)-eterm+factu*half*dimp(iso,3,3)*dangp**2
       endif
 c
 c     for normal angles use the cosine equation
@@ -3276,7 +3294,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3460,7 +3478,6 @@ c
       q=chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)
       qij=(one-q14fac)*q
       q=q14fac*q
-      etermq=ferfc*factu*q*r1i
       epmecs=epmecs-(one-ferfc)*qij*r1i*factu
       ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*(one-ferfc)*qij*r1i*factu
       ess(isf,jsf,8,1)=ess(jsf,jsf,8,1)-half*(one-ferfc)*qij*r1i*factu
@@ -3593,7 +3610,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.8 1999-05-05 23:03:34 d3j191 Exp $
+c $Id: cf_f.fh,v 1.9 1999-05-06 19:36:16 d3j191 Exp $
 c
       implicit none
 c
@@ -3639,6 +3656,7 @@ c
       real*8 c6,c12,c6t,c12t,qit,qjt,cf6,cf12,qi,qj,q,qp1,qp2
       real*8 ep2l,ep3l,ep2q,ep3q,rxx,rxy,rxz,r2,r2i,r1i,r6i,dfw
       real*8 rwikji,sphii,qij,rwi,ferfc,fderfc,eww(mpe,2)
+      real*8 eterm,etermq,eterml
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -3692,6 +3710,8 @@ c
       endif
    20 continue
       eww(1,1)=eww(1,1)+rbnd(iwb,2)
+      if(ip2(6)) ep2(1)=ep2(1)-rbnd(iwb,2)
+      if(ip3(6)) ep3(1)=ep3(1)-rbnd(iwb,2)
       endif
       if(ipme.ne.0) then
       iwa=ibnd(iwb,1)
@@ -3773,9 +3793,9 @@ c
       fw(iwm,2,jwa,1)=fw(iwm,2,jwa,1)-dfw2
       fw(iwm,3,kwa,1)=fw(iwm,3,kwa,1)+dfw3
       fw(iwm,3,jwa,1)=fw(iwm,3,jwa,1)-dfw3
-      if(ip2(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip2(8))
      + ep2(1)=ep2(1)+half*ang(iwh,2,2)*(phi-ang(iwh,1,2))**2
-      if(ip3(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
+      if(ip3(8))
      + ep3(1)=ep3(1)+half*ang(iwh,2,3)*(phi-ang(iwh,1,3))**2
       if(ith(8)) then
       deriv(8,1)=deriv(8,1)+
@@ -3783,6 +3803,8 @@ c
       endif
    50 continue
       eww(2,1)=eww(2,1)+rang(iwh,2)
+      if(ip2(8)) ep2(1)=ep2(1)-rang(iwh,2)
+      if(ip3(8)) ep3(1)=ep3(1)-rang(iwh,2)
       if(ipme.ne.0) then
       iwa=iang(iwh,1)
       jwa=iang(iwh,3)
@@ -3862,11 +3884,9 @@ c
       if(iand(iwdt(iwm),mdynam).eq.ldynam)
      + rdih(iwd,2)=rdih(iwd,2)+for*(one+cos(rpa))
       dfor=(-for)*rmul*sin(rpa)
-      if(ip2(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep2(1)=ep2(1)+
+      if(ip2(8)) ep2(1)=ep2(1)+
      + dih(iwd,3,2)*(one+cos(dih(iwd,1,2)*phi-dih(iwd,2,2)))
-      if(ip3(8).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep3(1)=ep3(1)+
+      if(ip3(8)) ep3(1)=ep3(1)+
      + dih(iwd,3,3)*(one+cos(dih(iwd,1,3)*phi-dih(iwd,2,3)))
       if(abs(sphi).lt.small) sphi=sign(small,sphi)
       sphii=one/sphi
@@ -3906,6 +3926,8 @@ c
       endif
    80 continue
       eww(3,1)=eww(3,1)+rdih(iwd,2)
+      if(ip2(8)) ep2(1)=ep2(1)-rdih(iwd,2)
+      if(ip3(8)) ep3(1)=ep3(1)-rdih(iwd,2)
    70 continue
       do 90 iwo=1,nwo
       iwa=iimp(iwo,1)
@@ -3951,11 +3973,11 @@ c
       dangle=(phi-angle)-nint((phi-angle)/twopi)*twopi
       dfor=for*dangle
       if(iand(iwdt(iwm),mdynam).eq.ldynam) rimp(iwo,2)=half*dfor*dangle
-      if(ip2(9).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
+      if(ip2(9)) then
       danglep=(phi-dimp(iwo,2,2))-nint((phi-dimp(iwo,2,2))/twopi)*twopi
       ep2(1)=ep2(1)+half*dimp(iwo,3,2)*danglep**2
       endif
-      if(ip3(9).and.iand(iwdt(iwm),mdynam).eq.ldynam) then
+      if(ip3(9)) then
       danglep=(phi-dimp(iwo,2,3))-nint((phi-dimp(iwo,2,3))/twopi)*twopi
       ep3(1)=ep3(1)+half*dimp(iwo,3,3)*danglep**2
       endif
@@ -3997,6 +4019,8 @@ c
       endif
   100 continue
       eww(4,1)=eww(4,1)+rimp(iwo,2)
+      if(ip2(9)) ep2(1)=ep2(1)-rimp(iwo,2)
+      if(ip3(9)) ep3(1)=ep3(1)-rimp(iwo,2)
    90 continue
       c6p1=zero
       c12p1=zero
@@ -4052,18 +4076,14 @@ c
       r2i=one/r2
       r1i=sqrt(r2i)
       r6i=r2i*r2i*r2i
-      if(iand(iwdt(iwm),mdynam).eq.ldynam)
-     + eww(5,1)=eww(5,1)+(c12*r6i-c6)*r6i
-      if(iand(iwdt(iwm),mdynam).eq.ldynam)
-     + eww(6,1)=eww(6,1)+q*r1i
-      if(ip2(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep2l=ep2l+(c12p1*r6i-c6p1)*r6i
-      if(ip3(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep3l=ep3l+(c12p2*r6i-c6p2)*r6i
-      if(ip2(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep2q=ep2q+qp1*r1i
-      if(ip3(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep3q=ep3q+qp2*r1i
+      eterml=(c12*r6i-c6)*r6i
+      etermq=q*r1i
+      if(iand(iwdt(iwm),mdynam).eq.ldynam) eww(5,1)=eww(5,1)+eterml
+      if(iand(iwdt(iwm),mdynam).eq.ldynam) eww(6,1)=eww(6,1)+etermq
+      if(ip2(2)) ep2l=ep2l-eterml+(c12p1*r6i-c6p1)*r6i
+      if(ip3(2)) ep3l=ep3l-eterml+(c12p2*r6i-c6p2)*r6i
+      if(ip2(4)) ep2q=ep2q-etermq+qp1*r1i
+      if(ip3(4)) ep3q=ep3q-etermq+qp2*r1i
       dfw=((cf12*r6i-cf6)*r6i+q*r1i)*r2i
       fw(iwm,1,iwa,1)=fw(iwm,1,iwa,1)+dfw*rxx
       fw(iwm,2,iwa,1)=fw(iwm,2,iwa,1)+dfw*rxy
@@ -4163,18 +4183,16 @@ c
       ferfc=erfc(ealpha/r1i)
       fderfc=ealpha+derfc(ealpha/r1i)
       endif
+      eterml=(c12*r6i-c6)*r6i
+      etermq=ferfc*q*r1i
       if(iand(iwdt(iwm),mdynam).eq.ldynam) then
-      eww(5,1)=eww(5,1)+(c12*r6i-c6)*r6i
-      eww(6,1)=eww(6,1)+ferfc*q*r1i
+      eww(5,1)=eww(5,1)+eterml
+      eww(6,1)=eww(6,1)+etermq
       endif
-      if(ip2(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep2l=ep2l+(c12p1*r6i-c6p1)*r6i
-      if(ip3(2).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep3l=ep3l+(c12p2*r6i-c6p2)*r6i
-      if(ip2(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep2q=ep2q+qp1*r1i
-      if(ip3(4).and.iand(iwdt(iwm),mdynam).eq.ldynam)
-     + ep3q=ep3q+qp2*r1i
+      if(ip2(2)) ep2l=ep2l-eterml+(c12p1*r6i-c6p1)*r6i
+      if(ip3(2)) ep3l=ep3l-eterml+(c12p2*r6i-c6p2)*r6i
+      if(ip2(4)) ep2q=ep2q-etermq+qp1*r1i
+      if(ip3(4)) ep3q=ep3q-etermq+qp2*r1i
       dfw=((cf12*r6i-cf6)*r6i+q*(ferfc*r1i-fderfc))*r2i
       fw(iwm,1,iwa,1)=fw(iwm,1,iwa,1)+dfw*rxx
       fw(iwm,2,iwa,1)=fw(iwm,2,iwa,1)+dfw*rxy
@@ -4182,12 +4200,8 @@ c
       fw(iwm,1,jwa,1)=fw(iwm,1,jwa,1)-dfw*rxx
       fw(iwm,2,jwa,1)=fw(iwm,2,jwa,1)-dfw*rxy
       fw(iwm,3,jwa,1)=fw(iwm,3,jwa,1)-dfw*rxz
-      if(ith(2)) then
-      deriv(2,1)=deriv(2,1)+(c12t*r6i-c6t)*r6i
-      endif
-      if(ith(4)) then
-      deriv(4,1)=deriv(4,1)+(qi*qjt+qj*qit)*r1i
-      endif
+      if(ith(2)) deriv(2,1)=deriv(2,1)+(c12t*r6i-c6t)*r6i
+      if(ith(4)) deriv(4,1)=deriv(4,1)+(qi*qjt+qj*qit)*r1i
   140 continue
       ep2(1)=ep2(1)+ep2l+ep2q
       ep3(1)=ep3(1)+ep3l+ep3q
