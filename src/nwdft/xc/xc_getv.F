@@ -1,7 +1,7 @@
       Subroutine xc_getv(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz, wght_GA)
 c
-C$Id: xc_getv.F,v 1.9 1997-03-06 06:51:27 d3h449 Exp $
+C$Id: xc_getv.F,v 1.10 1997-03-28 18:45:48 d3h449 Exp $
 c
       implicit none
 c      
@@ -17,6 +17,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "cdft.fh"
+#include "util.fh"
 #include "sym.fh"
 c
       double precision jfac(4),kfac(4)
@@ -52,16 +53,29 @@ c      integer g_scr,me,nproc,i,nTrows,nbf_xc,nbf_ao,nTcols
 c      integer lTmat,iTmat,itol2e
       integer lTmat,iTmat
       double precision zero,one,onem
+      logical oprint_intermediate_xc
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e,tot
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential and energy.
 c
+      oprint_intermediate_xc = util_print('intermediate XC matrix',
+     $     print_debug)
       Exc(1)=0.d0
       Exc(2)=0.d0
       me=ga_nodeid()
       nproc=ga_nnodes()
+c
+      if (oprint_intermediate_xc)then
+         write(*,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
+     &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
+         write(*,*)' g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA: ',
+     &               g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA
+         write(*,*)' Fock XC matrix entering xc_getv: '
+         call ga_print(g_vxc(1))
+         if(ipol.eq.2)call ga_print(g_vxc(2))
+      endif
 c
       if (abs(xfac(1)).gt.1e-8)then
 c       
@@ -198,5 +212,12 @@ c
 c
          endif
       endif
+c
+      if (oprint_intermediate_xc)then
+         write(*,*)' Fock XC matrix leaving xc_getv: '
+         call ga_print(g_vxc(1))
+         if(ipol.eq.2)call ga_print(g_vxc(2))
+      endif
+c
       return
       end

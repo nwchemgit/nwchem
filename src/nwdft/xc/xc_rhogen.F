@@ -1,9 +1,9 @@
       Subroutine xc_rhogen(tol_rho, basis, g_dens, max_at_bf, natoms, 
      &                     ipol, nq, nbf, mbf, ldelley, GRAD, 
      &                     F, Pmat, ff, chi, delchi, ibf, iniz, ifin, 
-     &                     rho, delrho, rhoat)
+     &                     rho, delrho, rhoat, scr)
 c
-c$Id: xc_rhogen.F,v 1.10 1997-03-20 21:35:11 d3h449 Exp $
+c$Id: xc_rhogen.F,v 1.11 1997-03-28 18:45:55 d3h449 Exp $
 c
       implicit none
 c
@@ -24,44 +24,39 @@ c
       integer ifin(natoms) !
       double precision tol_rho ! accuracy for rho evaluation [input]
       double precision chi(nq,mbf)     ! function values [input]
-      double precision delchi(3,nq,mbf)! function gradients [input]
-
+      double precision delchi(nq,3,mbf)! function gradients [input]
       double precision rhoat(nq,natoms) ! atomic density values [output]
-      double precision delrho(ipol,3,nq) ! density gradients [output]
-
+      double precision delrho(nq,3,ipol) ! density gradients [output]
       double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
       double precision ff(nq)   ! scratch array
-
-      double precision rho(ipol*(ipol+1)/2,nq) ! density values [output]
-C
-C     local declarations
-C
-      double precision rho_tol0,rho_tol1
-      integer i0,ii,mu,nu,n
-      integer iat,inizia,ifirst,ilast,nbfia,nnia,idim
-      integer ifinia,icount
-      integer jat,inizja,jfirst,jlast,nbfja,nnja,jdim
-      double precision FUNC_MAX,FUNC_MAXI,FUNC_MAX2,P_MAX
+      double precision rho(nq,ipol*(ipol+1)/2) ! density values [output]
+      double precision scr(nq)   ! scratch array
+c
+c     local declarations
+c
+      double precision rho_tol0, rho_tol1
+      integer i0, ii, mu, nu, n
+      integer iat, inizia, ifirst, ilast, nbfia, nnia, idim
+      integer ifinia, icount
+      integer jat, inizja, jfirst, jlast, nbfja, nnja, jdim
+      double precision FUNC_MAX, FUNC_MAXI, FUNC_MAX2, P_MAX
       double precision aaa
-c      double precision ta
       double precision dabsmax
       external dabsmax
-
 c
-c Evaluate the charge density and its gradient at each of the sampling 
-c points 
-c
+c     Evaluate the charge density and its gradient at each of the sampling 
+c     points 
 c
 c     tolerance setting
 c
       rho_tol0=tol_rho*.1d0
       rho_tol1=0.5D0*rho_tol0
-
+c
       i0=ipol-1
-
+c
 c     Loop over products of AO basis functions to define the matrix bands.
-
+c
       FUNC_MAX=dabsmax(nq*mbf,chi)
 
       do 230 iat = 1, natoms
@@ -81,7 +76,10 @@ c
                   inizja = iniz(jat)
                   if (.not.bas_ce2bfr(basis,jat,jfirst,jlast))
      &               call errquit('Exiting in rho_gen',14)
-                  do 215 ii = 1,ipol
+                  nbfja = jlast-jfirst+1
+                  nnja = ifin(jat)-inizja+1
+c
+                  do 215 ii = 1, ipol
 
                      call get_atom_block(g_dens(ii), basis,
      &                                   iat, jat, Pmat, idim, jdim)
@@ -89,13 +87,9 @@ c
                      P_MAX = dabsmax(idim*jdim,Pmat)
                      if ((P_MAX*FUNC_MAX2).lt.rho_tol0) goto 215
 
-                     nbfja = jlast-jfirst+1
-                     nnja = ifin(jat)-inizja+1
-c
-                     call gat_mat(F,Pmat,nbfia,nbfja,nnia,nnja,
-     &                            ifirst,jfirst,ibf(inizia),ibf(inizja))
-c
-                     if (iat.ne.jat) call dscal(nq,2.d0,ff,1)
+                     call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja,
+     &                            ifirst, jfirst, ibf(inizia), 
+     &                            ibf(inizja))
 c
                      icount = 0
                      do mu = inizja, ifin(jat)
@@ -110,30 +104,26 @@ c
                         if (iat.ne.jat) call dscal(nq,2.d0,ff,1)
 c                       dir$ UNROLL 3
                         do n = 1, nq
-                           rho(i0+ii,n) = rho(i0+ii,n) + chi(n,mu)*ff(n)
+                           scr(n) = chi(n,mu)*ff(n)
                         enddo
+                        call daxpy(nq,1.d0,scr,1,rho(1,i0+ii),1)
                         if (ldelley)then
                            if (iat.ne.jat)then
-                              do n = 1, nq
-                                 aaa = chi(n,mu)*ff(n)
-                                 rhoat(n,iat) = rhoat(n,iat) + aaa
-                                 rhoat(n,jat) = rhoat(n,jat) + aaa
-                              enddo
+                              call daxpy(nq,1.d0,scr,1,rhoat(1,iat),1)
+                              call daxpy(nq,1.d0,scr,1,rhoat(1,jat),1)
+ 
                            else
-                              do n = 1, nq
-                                 aaa = chi(n,mu)*ff(n)
-                                 rhoat(n,iat) = rhoat(n,iat) + aaa
-                              enddo
+                              call daxpy(nq,1.d0,scr,1,rhoat(1,iat),1)
                            endif
                         endif
                         if (grad)then
                            do n = 1, nq
-                              delrho(ii,1,n) = delrho(ii,1,n) + 
-     &                                         delchi(1,n,mu)*ff(n)
-                              delrho(ii,2,n) = delrho(ii,2,n) + 
-     &                                         delchi(2,n,mu)*ff(n)
-                              delrho(ii,3,n) = delrho(ii,3,n) + 
-     &                                         delchi(3,n,mu)*ff(n)
+                              delrho(n,1,ii) = delrho(n,1,ii) + 
+     &                                         delchi(n,1,mu)*ff(n)
+                              delrho(n,2,ii) = delrho(n,2,ii) + 
+     &                                         delchi(n,2,mu)*ff(n)
+                              delrho(n,3,ii) = delrho(n,3,ii) + 
+     &                                         delchi(n,3,mu)*ff(n)
                            enddo
                         endif
                      enddo
@@ -154,12 +144,12 @@ c
                            if (iat.ne.jat) call dscal(nq,2.d0,ff,1)
 c                          dir$ UNROLL 3
                            do n = 1, nq
-                              delrho(ii,1,n) = delrho(ii,1,n) + 
-     &                                         delchi(1,n,nu)*ff(n)
-                              delrho(ii,2,n) = delrho(ii,2,n) + 
-     &                                         delchi(2,n,nu)*ff(n)
-                              delrho(ii,3,n) = delrho(ii,3,n) + 
-     &                                         delchi(3,n,nu)*ff(n)
+                              delrho(n,1,ii) = delrho(n,1,ii) + 
+     &                                         delchi(n,1,nu)*ff(n)
+                              delrho(n,2,ii) = delrho(n,2,ii) + 
+     &                                         delchi(n,2,nu)*ff(n)
+                              delrho(n,3,ii) = delrho(n,3,ii) + 
+     &                                         delchi(n,3,nu)*ff(n)
                            enddo
                         enddo
                      endif
@@ -169,35 +159,31 @@ c                          dir$ UNROLL 3
          endif
   230 continue
       if (ipol.eq.2)then
-         call cut_tol(nq,rho(3,1),3,rho_tol1)
-         call cut_tol(nq,rho(2,1),3,rho_tol1)
-         do 240 n = 1, nq
-            rho(1,n) = rho(2,n) + rho(3,n)
-  240    continue
+         call cut_tol(nq, rho(1,3), rho_tol1)
+         call cut_tol(nq, rho(1,2), rho_tol1)
+         call dcopy(nq, rho(1,2), 1, rho(1,1), 1)
+         call daxpy(nq, 1.d0, rho(1,3), 1, rho(1,1), 1)
       else
-         call cut_tol(nq,rho,1,rho_tol0)
+         call cut_tol(nq, rho, rho_tol0)
       endif
-      if (ldelley) call cut_tol(nq*natoms,rhoat,1,rho_tol0)
+      if (ldelley) call cut_tol(nq*natoms, rhoat, rho_tol0)
       return
       end
       
-      Subroutine cut_tol(n,vec,inc,tol)
+      Subroutine cut_tol(n, vec, tol)
       implicit none
-      integer n,inc           ! [input]
+      integer n               ! [input]
       double precision vec(n) ! [input/ouput]
       double precision tol    ! [input]
 c
 c     local
 c
-      integer ii,i
+      integer i
 c
 c     zeroes array elements under a given threshold
 c
-      i = 1
-c     dir$ UNROLL 3
-      do ii = 1, n
+      do i = 1, n
          if (vec(i).lt.tol) vec(i) = tol
-         i = i+inc
       enddo
       return
       end

@@ -1,41 +1,37 @@
-      Subroutine setACmat(Amat,Cmat,qwght,
-     &                    ipol,nq,GRAD)
-
-C$Id: setACmat.F,v 1.5 1996-10-18 00:53:21 d3h449 Exp $
+      Subroutine setACmat(Amat, Cmat, qwght, ipol, nq, GRAD)
+c
+C$Id: setACmat.F,v 1.6 1997-03-28 18:45:45 d3h449 Exp $
+c
       implicit none
-
-      integer ipol,nq
-      
+      integer ipol, nq
       Logical GRAD
-
-c--> Sampling Matrices for the XC Potential & Energy
-
-      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
-
-c--> Quadrature Weights
-
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq,ipol),Cmat(nq,3,ipol)
+c
+c     Quadrature Weights
+c
       double precision qwght(nq)
 c
-      integer ii,jj
+      integer ii, jj
 c
-      if( GRAD )then
-        do ii=1,ipol
-          do jj=1,nq
-            Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
-            Cmat(ii,1,jj)=Cmat(ii,1,jj)*qwght(jj)
-            Cmat(ii,2,jj)=Cmat(ii,2,jj)*qwght(jj)
-            Cmat(ii,3,jj)=Cmat(ii,3,jj)*qwght(jj)
-          enddo
-        enddo
-c
+      if (GRAD)then
+         do ii = 1, ipol
+            do jj = 1, nq
+               Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
+               Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
+               Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
+               Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
+            enddo
+         enddo
       else
-c
-        do ii=1,ipol
-          do jj=1,nq
-            Amat(ii,jj)=Amat(ii,jj)*qwght(jj)
-          enddo
-        enddo
-      end if
+         do ii = 1, ipol
+            do jj = 1, nq
+               Amat(jj,ii) = Amat(jj,ii)*qwght(jj)
+            enddo
+         enddo
+      endif
       return
       end
 
