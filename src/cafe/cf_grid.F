@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.8 2000-08-30 04:17:17 d3j191 Exp $
+c $Id: cf_grid.F,v 1.9 2000-09-01 19:26:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -156,7 +156,7 @@ c
       do 9 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
-      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),2,ipset)
+      prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),1,ipset)
       i0=int(ys(isa,1))-morder
       if(j.lt.miny) miny=j
       if(j.gt.maxy) maxy=j
