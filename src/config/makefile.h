@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.337 2000-08-29 22:51:49 edo Exp $
+# $Id: makefile.h,v 1.338 2000-10-20 20:31:18 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1415,23 +1415,37 @@ ifeq ($(TARGET),FUJITSU_VPP)
     DEFINES = -DFUJITSU_VPP
     USE_MPI = TRUE
 
-#change DEFINES so that frt understands them and simply add them to FOPTIONS
- FDEFINES_1 = $(strip  $(DEFINES))
-   FDEFINES = -Wp,$(subst $(space),$(comma),$(FDEFINES_1))   
-   FOPTIONS = -w -Sw $(FDEFINES)
-   COPTIONS = 
+ #search include files for tools directories that are not built
+   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
+                   -I$(NWCHEM_TOP)/src/tools/ma \
+                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
+                   -I$(NWCHEM_TOP)/src/tools/global/src \
+                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
+                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/dra
+
+ #change DEFINES and LIB_DEFINES so that frt understands them and add them
+ #to FOPTIONS
+     comma:= ,
+     end:=
+     space:= $(end) $(end)
+   FDEFINES_1:= $(DEFINES) $(LIB_DEFINES)
+   FDEFINES:= -Wp,$(subst $(space),$(comma),$(strip $(FDEFINES_1)))
+    FOPTIONS = -w -Sw -KA32 $(FDEFINES)
+    COPTIONS = -KA32
      FDEBUG = -Ob -g
   FOPTIMIZE = -Kfast -Wv,-s8
   COPTIMIZE = -K4
 
 # removed global, ma, tcgmsg-mpi, as they are part of the native GA
-NW_CORE_SUBDIRS = include basis geom inp input chemio ma \
-	pstat rtdb task symmetry util $(CORE_SUBDIRS_EXTRA)
+ NW_CORE_SUBDIRS = include basis geom inp input  \
+       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 
-       CORE_LIBS = -lutil -lpario -lpeigs \
-                   -L/home/fruechtl/lib -lglobal -lma -ltcgmsg-mpi \
-                   -llapackvp -lblasvp
-      EXTRA_LIBS = -L /opt/tools/lib/ -lmp -lgen  -lpx -lelf -Wl,-J,-P,-t
+        CORE_LIBS = -lutil -lpeigs \
+                    -L/home/fecit/research/fruechtl/lib -lglobal -lpario -lma \
+                    -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
+       EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
 endif
 
 #-do not use# ifeq ($(TARGET),PGLINUX)
