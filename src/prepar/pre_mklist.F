@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.18 1998-09-17 16:38:43 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.19 1999-03-15 21:25:19 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
       real*8 wcorr(3)
 c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
-      integer no,ndi,ltemp,igrp,ipgrp,nia(3),ib,jb
+      integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
       character*255 filsgm
 c

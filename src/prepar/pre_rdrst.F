@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.5 1998-11-18 01:19:57 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.6 1999-03-15 21:25:28 d3j191 Exp $
 c
       implicit none
 c
@@ -30,7 +30,7 @@ c
      + status='old',err=9999)
       rewind(lfnrst)
 c
-      call arg_swatch(rstdat,rsttim)
+      call swatch(rstdat,rsttim)
 c
       read(lfnrst,1001) rdummy,rstdat,rsttim
  1001 format(///,f12.6,2a10)

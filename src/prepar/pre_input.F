@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.25 1999-01-29 21:12:42 d3j191 Exp $
+c $Id: pre_input.F,v 1.26 1999-03-15 21:25:16 d3j191 Exp $
 c
       implicit none
 c
@@ -123,7 +123,6 @@ c
       call util_print_input(irtdb,'prepar')
       goto 1
       endif
-c
 c
 c     force field
 c     -----------

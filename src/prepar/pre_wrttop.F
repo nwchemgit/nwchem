@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.20 1999-01-30 04:54:13 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.21 1999-03-15 21:25:33 d3j191 Exp $
 c
       implicit none
 c
@@ -82,7 +82,7 @@ c
       open(unit=lfntop,file=filtop(1:length),form='formatted',
      + status='new',err=9999)
 c
-      call arg_swatch(topdat,toptim)
+      call swatch(topdat,toptim)
 c
       write(lfntop,1000) filtop(1:length),3.3,topdat,toptim,ffield(1:10)
  1000 format('TOPOLOGY FILE ',a,/,

@@ -1,9 +1,9 @@
-      logical function pre_mkrst(irtdb,source,lfnout,
+      logical function pre_mkrst(irtdb,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model)
 c
-c $Id: pre_mkrst.F,v 1.27 1999-02-08 19:22:49 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.28 1999-03-15 21:25:23 d3j191 Exp $
 c
       implicit none
 c
@@ -16,13 +16,13 @@ c
       external pre_rdgeom,pre_orient,pre_slvsiz,pre_slvrd,pre_slvnum
       logical pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
-      logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz
-      external pre_rdrst,pre_disres,pre_fix,pre_rstsiz
+      logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
+      external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       logical util_nwchemrc_get
       external util_nwchemrc_get
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
-      integer lfnslv,model
+      integer lfnslv,model,mdold
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
       character*10 slvmdl
       character*3 slvnam
@@ -296,12 +296,21 @@ c
 c     write the restart file
 c     ----------------------
 c
+      if(mdold.gt.0) then
+      if(.not.pre_wtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_wtrst failed',9999)
+      else
       if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
+      endif
       goto 9
 c
 c     loop through commands from command file
@@ -602,12 +611,21 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
+      if(mdold.gt.0) then
+      if(.not.pre_wtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
+     + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
+     + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_wtrst failed',9999)
+      else
       if(.not.pre_wrtrst(lfnout,lfnrst,filnam,npbtyp,nbxtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_wrtrst failed',9999)
+      endif
       endif
 c
 c     center solute

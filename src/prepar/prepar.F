@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.24 1999-01-29 21:12:47 d3j191 Exp $
+c $Id: prepar.F,v 1.25 1999-03-15 21:25:39 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -48,7 +48,7 @@ c
       character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk
+      integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount,icyren,model
       real*8 gdist,qscale
       logical lstate
@@ -104,7 +104,7 @@ c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk))
+     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,model,nxlnk,mdold))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -270,7 +270,7 @@ c
 c     generate restart file
 c     ---------------------
 c
-      if(.not.pre_mkrst(irtdb,source,lfnout,lfntop,filtop,
+      if(.not.pre_mkrst(irtdb,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model))
      + call errquit('pre_mkrst failed',9999)
