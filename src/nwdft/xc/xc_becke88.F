@@ -8,7 +8,7 @@
      &                         qwght,ldew,func)     
 #endif
 c
-C$Id: xc_becke88.F,v 1.15 1999-01-04 20:11:36 edo Exp $
+C$Id: xc_becke88.F,v 1.16 1999-01-29 00:51:26 edo Exp $
 c
       implicit none
 c      
@@ -212,11 +212,13 @@ c
 c
             if (lfac) then
                Ex = Ex + rho43*C*qwght(n)*fac
+               if (ldew)func(n) = func(n) + rho43*C*fac
                Amat(n,2) = Amat(n,2) + (4d0/3d0)*rho13*C*fac
             endif
 c
             if (nlfac) then
                Ex = Ex + rho43*g*qwght(n)*fac
+               if (ldew)func(n) = func(n) +rho43*g*fac
                Amat(n,2) = Amat(n,2) + (4d0/3d0)*rho13*(g-x*dg)*fac
             endif
 c
