@@ -68,7 +68,7 @@ c
       potential = pot
 c
       end
-      subroutine potential_list(basis, g_dens, npts, r, potential)
+      subroutine potential_list(basis, g_dens, npts, r, potential, tol)
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -76,6 +76,7 @@ c
 c
       integer basis, g_dens, npts
       double precision r(3,npts), potential(npts)
+      double precision tol
 c
 c     Compute the electrostatic potential due to the density
 c     at the given list of points.
@@ -119,7 +120,7 @@ c
 c
             call ga_get(g_dens,ilo,ihi,jlo,jhi,dbl_mb(k_scr),idim)
             call potential_from_shell_pair(basis, ishell, jshell,
-     $           dbl_mb(k_scr), idim, 1d-12, d, dinv, lmax2, 
+     $           dbl_mb(k_scr), idim, tol, d, dinv, lmax2, 
      $           npts, r, potential)
 c
          enddo

@@ -50,7 +50,7 @@ c
       integer ijtype, ind, nlm, ipt, n, l, m, geom, ind
       logical iosph, josph
       double precision ri(3), rj(3), x, y, z, alpha, prefac, sqrta, ar,
-     $     dmax, radial, factor, sum, ppot, r, charge
+     $     dmax, radial, factor, sum, ppot, r, charge, ralpha
       double precision anls((lmax2+2)*(lmax2+3)/4)
       character*16 tag
       double precision anl_fit
@@ -183,6 +183,7 @@ c
      $                    (y*ndens(2) + z*ndens(3) + x*ndens(4))
                   enddo
                else
+                  ralpha = 1.0d0 / alpha
                   do ipt = 1, npts
                      x = xyz(1,ipt)-a
                      y = xyz(2,ipt)-b
@@ -206,7 +207,7 @@ c
                               sum = sum + q(m,l)*ndens(nlm)
                            enddo
                            ppot = ppot + factor*sum
-                           radial = radial / alpha
+                           radial = radial * ralpha
                         enddo
                      enddo
                      pot(ipt) = pot(ipt) - ppot

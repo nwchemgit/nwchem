@@ -27,7 +27,7 @@ c
      $     nprim, ngen, n, nx, ny, nz, l_grid, k_grid,
      $     depth, lmax
       integer maxprim, maxgen, maxgrid, ntest
-      parameter (maxprim = 40, maxgen=1, maxgrid=16, ntest=2000)
+      parameter (maxprim = 40, maxgen=1, maxgrid=16, ntest=20000)
       double precision alpha(maxprim), start, used
       double precision rtest(3,ntest), ptest(ntest)
       logical osph, status
@@ -37,7 +37,7 @@ c
       integer ngrid, nnx, nny, nnz, l_poles, k_poles, lenpoles
       double precision c(3), charge, x, y, z, xlo, xhi, ylo, yhi,
      $     zlo, zhi, range, side, resolution, pi, exponent, xx, yy, zz,
-     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2, test3,
+     $     hx, hy, hz, hx_fmm, hy_fmm, hz_fmm, test1, test2,
      $     errmax, errrms, err, rneglect, resn
       double precision fastj_gaussian_range, fastj_eval_point, potential
       double precision drand, fastj_r_neglected
@@ -310,15 +310,20 @@ c
             rtest(2,i) = y
             rtest(3,i) = z
          enddo
-         call potential_list(basis, g_dens, ntest, rtest, ptest)
+         start = util_cpusec()
+         call potential_list(basis, g_dens, ntest, rtest, ptest, 
+     $        eps*1d-2)
+         used = (util_cpusec()-start)/ntest
+         write(6,8321) used
+ 8321    format(' Time per point for potential_list ', 1p, d9.2)
          do i = 1, ntest
             x = rtest(1,i)
             y = rtest(2,i)
             z = rtest(3,i)
             test1 = fastj_eval_point(data, x, y, z)
             test2 = ptest(i)
-            test3 = potential(basis, g_dens, x, y, z)
-            err = abs(test3 - test2)
+*****            test3 = potential(basis, g_dens, x, y, z)
+            err = abs(test1 - test2)
             errrms = errrms + err*err
             if (abs(err) .gt. errmax) then
                errmax = abs(err)
@@ -326,8 +331,8 @@ c
                yy = y
                zz = z
             end if
-            write(6,781) x, y, z, test3, test2, err
- 781        format(1x,3f10.4,2x,2f14.8,1p,d9.2)
+*            write(6,781) x, y, z, test1, test2, err
+* 781        format(1x,3f10.4,2x,2f14.8,1p,d9.2)
          enddo
          errrms = sqrt(errrms / ntest)
          write(6,82) errrms, errmax, xx, yy, zz
