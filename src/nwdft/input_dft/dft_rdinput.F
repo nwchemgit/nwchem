@@ -1,7 +1,6 @@
-      Subroutine dft_rdinput( rtdb, 
-     &                     iconst, nconst )
+      Subroutine dft_rdinput( rtdb, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.10 1996-01-09 17:54:18 og845 Exp $
+C$Id: dft_rdinput.F,v 1.11 1996-05-01 23:53:17 og845 Exp $
       implicit none
       
       integer rtdb                               ! [input] database handle
@@ -25,13 +24,13 @@ c
       character*255 title
       integer ncenters,iproc,ichg,itscf,iscfcon,iguess,mult,ipol,
      ,     igcon,icvgtyp,nfock,ncysh,idirect,idisoff,noio,
-     ,     lshift,ndamp,idecomp,nagrid,nrinc,nrmax,
+     ,     ndamp,idecomp,nagrid,nrinc,nrmax,
      ,     itype,numgrp,numset,itrscf,
      ,     icenter,jcenter,iEx,iEc,i3
       integer nbf,nshells_cd,nbf_xc,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      ,     lznuc,iznuc,lratom,iratom
-      double precision rcharge,rm,rscale
+      double precision rcharge,rm,rscale,rlshift
       Logical LResult, lnewtype, XCFIT, CDFIT, oskel
       Logical int_normalize
       External int_normalize
@@ -88,7 +87,7 @@ c
      &     call errquit('rdinput: rtdb_get failed',24)
       if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
      &     call errquit('rdinput: rtdb_get failed',32)
-      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_int, 1, lshift))
+      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
      &     call errquit('rdinput: rtdb_get failed',34)
       if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
      &     call errquit('rdinput: rtdb_get failed',36)
@@ -123,7 +122,6 @@ c
 
       itype = 1
       numgrp = 1
-      numset = 1
       iconst(44) = itype      
       iconst(45) = numgrp      
       iconst(46) = numset     
@@ -324,7 +322,7 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
       iconst(37) = nfock
       iconst(38) = idirect
       iconst(49) = noio
-      iconst(50) = lshift
+C      iconst(50) = lshift
       iconst(51) = ndamp
       iconst(52) = ncysh
 
@@ -337,28 +335,23 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
 
 c     Check the user supplied input for any inconsistencies.
 
-        call dft_inpana(geom,rtdb,iconst,nconst,ncenters)
-c      if( iproc.eq.0 )then
+        call dft_inpana(geom,rtdb,iconst,nconst,ncenters,
+     &       itrscf,iscfcon,igcon,ipol,icvgtyp,idirect,
+     &       nbf_xc,nbf_cd,iEx,iEc) 
 c
 c       inpana could have modified ipol
 c
         ipol=iconst(11)
 
-c
-c       Write the scf header to output.
-c
-        call dft_banner(rtdb,
-     &       itrscf,iscfcon,igcon,ipol,icvgtyp,idirect,
-     &       nbf_xc,nbf_cd,iEx,iEc) 
       if( iproc.eq.0 )then
         if(nfock.ne.0) then
           write(LuOut,'(3x,A,i2,A)') 
      &         '       ',nfock,' Fock matrices are used in DIIS'
           write(LuOut,*)
         endif
-        if(lshift.ne.0) then
+        if(abs(rlshift).gt.1.d-5) then
           write(LuOut,'(3x,A,f4.2,A,i4,A)') 
-     &         '       Fock Matrix Level Shifted by ',0.1d0*lshift,
+     &         '       Fock Matrix Level Shifted by ',rlshift,
      &         ' hartree for ',ncysh,' cycles'
           write(LuOut,*)
         endif
