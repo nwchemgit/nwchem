@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.485 2004-10-11 19:40:33 edo Exp $
+# $Id: makefile.h,v 1.486 2004-10-15 00:14:31 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1160,6 +1160,11 @@ endif
       COPTIONS   = -Wall -no-cpp-precomp
       COPTIMIZE  = -g -O2
     endif
+    ifdef  USE_GPROF
+      FOPTIONS += -pg
+      LDOPTIONS += -pg
+      COPTIONS += -pg
+    endif
 ifdef USE_VECLIB
              CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
 else
@@ -1583,9 +1588,6 @@ endif # end of ia32 bit
            @exit 1
        endif
         FOPTIONS += -align -w -g -vec_report3
-        ifdef  USE_GPROF
-          FOPTIONS += -qp
-        endif
         DEFINES+= -DIFCV8 -DIFCLINUX
         ifeq ($(FC),ifc)
           FOPTIONS += -quiet
@@ -1644,6 +1646,11 @@ endif # end of ia32 bit
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
      ifeq ($(BUILDING_PYTHON),python)
      EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
+     endif
+     ifdef  USE_GPROF
+       FOPTIONS += -pg
+       COPTIONS += -pg
+       LDOPTIONS += -pg
      endif
 endif
 
