@@ -1,22 +1,24 @@
       Subroutine dftg_beckew(d_qwght, qwght, qxyz, xyz, Rij, rq, p,
-     &                       zeta, dzeta, d_p, ictr, bcenters, nq,
+     &                       zeta, dzeta, d_p, ictr, bcenters, 
+     .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.8 1999-11-16 03:26:54 edo Exp $
+C     $Id: dftg_beckew.F,v 1.9 1999-11-16 23:24:33 edo Exp $
 c
       implicit none
 c
 #include "cdft.fh"
 c      
-      integer bcenters, nq
+      integer bcenters, nq,nq_orig
       double precision qxyz(3,nq), xyz(3,*)
       double precision Rij(*)
       integer ictr(*)
       integer iandex(bcenters)
-      double precision p(nq,*), rq(nq,*), qwght(nq), zeta(nq),
-     &                 dzeta(3,nq,bcenters)
-      double precision d_p(3,nq,*)
-      double precision d_qwght(3,nq,*)
+      double precision p(nq_orig,*), rq(nq_orig,*), 
+     ,     qwght(nq_orig), zeta(nq_orig),
+     &                 dzeta(3,nq_orig,bcenters)
+      double precision d_p(3,nq_orig,*)
+      double precision d_qwght(3,nq_orig,*)
 C     
       integer i, j, n, ij
       integer iind, jind, istep, iti
@@ -252,12 +254,35 @@ c
             enddo
          endif
       enddo
-      do n = 1, nq
-         if(p(n,ictr_reduc).gt.1d-16) then
-            qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
-         else
-            qwght(n)=0d0
-         endif
-      enddo
+cedo      do n = 1, nq
+cedo         if(p(n,ictr_reduc).gt.1d-16) then
+cedo            qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
+cedo         else
+cedo            qwght(n)=0d0
+cedo         endif
+cedo      enddo
+      n=1
+ 111  if(n.le.nq) then
+      if(qwght(n).lt.1d-16) then
+         do j=n,nq
+            qwght(j)=qwght(j+1)
+            qxyz(1,j)=qxyz(1,j+1)
+            qxyz(2,j)=qxyz(2,j+1)
+            qxyz(3,j)=qxyz(3,j+1)
+         enddo
+         do i=1,bcenters
+            do j=n,nq
+               d_qwght(1,j,i)=d_qwght(1,j+1,i)
+               d_qwght(2,j,i)=d_qwght(2,j+1,i)
+               d_qwght(3,j,i)=d_qwght(3,j+1,i)
+            enddo
+         enddo
+         nq=nq-1
+      else
+         qwght(n) = (p(n,ictr_reduc)*qwght(n))/zeta(n)
+         n=n+1
+      endif
+      goto 111
+      endif
       return
       end
