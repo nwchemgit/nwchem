@@ -11,7 +11,7 @@ c
 c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.8 1998-09-25 11:39:49 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.9 1998-09-29 20:30:38 bjohnson Exp $
 *
       implicit none
 c      
@@ -54,7 +54,7 @@ c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
 *
-* $Id: dftg_grad2.F,v 1.8 1998-09-25 11:39:49 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.9 1998-09-29 20:30:38 bjohnson Exp $
 *
       implicit none
 c      
@@ -94,7 +94,6 @@ c
       logical do_force, do_cpks_r, do_hess
       integer l_dfij, k_dfij, l_dfkl, k_dfkl
 c
-      write(*,*)'*** dftg_grad2 called'
       do_force = calc_type .eq. 1
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
@@ -176,12 +175,6 @@ c
      &                   iab3f.le.0 .or.
      &                   iab4f.le.0)goto 1010
 c                              
-#if 0
-                     write(*,*)'Center 1:',iat1,iab1f,iab1l
-                     write(*,*)'Center 2:',iat2,iab2f,iab2l
-                     write(*,*)'Center 3:',iat3,iab3f,iab3l
-                     write(*,*)'Center 4:',iat4,iab4f,iab4l
-#endif
                      status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
                      if (.not.status)call errquit 
      &                  ('dftg_grad2: error with bas_ce2cnr',0)
@@ -271,15 +264,12 @@ c
      &                                            ish4, lscr, scr, lbuf,
      &                                            buf, idatom)
                                           else if (do_hess) then
-c         write(*,*)'Uncomment call to 2nd deriv API in dftg_grad2!'
-         write(*,*)'Hope call to 2nd deriv API in dftg_grad2 is right'
                                              call intdd_2e4c(basis,
      &                                            ish1, ish2, basis,
      &                                            ish3, ish4, lscr, scr,
      &                                            lbuf, buf, idatom)
                                           endif
 c
-            if (do_hess) write(*,*)'*** Scale factor?'
                                           if (do_force .or. do_hess)
      &                                       then
                                              scale = 1.0d0
@@ -320,7 +310,6 @@ c
 c
       else if (do_hess) then
 c
-c     !!!         what should buf be?
          call d2int_block_jhess(d_ija, d_kla, ldim, hess, nat, buf,
      &        q4*scale, idatom, if1, il1, if2, il2, if3, il3, if4, il4)
 c
