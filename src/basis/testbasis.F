@@ -6,6 +6,18 @@ c
 #include "mafdecls.h"
 #include "geom.fh"
 c
+c::friends functions
+      logical bas_ucontinfo
+      logical bas_getu_exponent
+      logical bas_getu_coeff
+      logical bas_setu_exponent
+      logical bas_setu_coeff
+      external bas_ucontinfo
+      external bas_getu_exponent
+      external bas_getu_coeff
+      external bas_setu_exponent
+      external bas_setu_coeff
+c
       integer rtdb, geom, basis, ngen,nprim, iang
       integer ncenters, sphcart, i,j
       character*16 drivtags(20)
@@ -78,23 +90,23 @@ c
       status = bas_print(basis)
       status = gbs_map_print(basis)
 c
-      status = bas_continfo(basis,1,.false.,nprim,ngen,sphcart)
+      status = bas_continfo(basis,1,nprim,ngen,sphcart)
       write(6,*)' f:query: nprim   cont 1 ',nprim
       write(6,*)' f:query: ngen    cont 1 ',ngen
       write(6,*)' f:query: sphcart cont 1 ',sphcart
-      status = bas_get_exponent(basis,1,.false.,exp)
-      status = bas_get_coeff(basis,1,.false.,coeff)
+      status = bas_get_exponent(basis,1,exp)
+      status = bas_get_coeff(basis,1,coeff)
       write(6,*)' exponenents and coefficients '
       do 00100 i=1,nprim
         write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
 00100 continue
 c
-      status = bas_continfo(basis,1,.true.,nprim,ngen,sphcart)
+      status = bas_ucontinfo(basis,1,nprim,ngen,sphcart)
       write(6,*)' t:query: nprim   cont 1 ',nprim
       write(6,*)' t:query: ngen    cont 1 ',ngen
       write(6,*)' t:query: sphcart cont 1 ',sphcart
-      status = bas_get_exponent(basis,1,.true.,exp)
-      status = bas_get_coeff(basis,1,.true.,coeff)
+      status = bas_getu_exponent(basis,1,exp)
+      status = bas_getu_coeff(basis,1,coeff)
       write(6,*)' exponenents and coefficients '
       do 00200 i=1,nprim
         write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)
@@ -102,18 +114,18 @@ c
 c
       exp(1) = 565.6589
       coeff(1) = 6.021023
-      status = bas_set_exponent(basis,1,.true.,exp,(nprim+1))
-      status = bas_set_coeff(basis,1,.true.,coeff,(nprim*ngen)+1)
-      status = bas_set_exponent(basis,1,.true.,exp,nprim)
-      status = bas_set_coeff(basis,1,.true.,coeff,nprim*ngen)
+      status = bas_setu_exponent(basis,1,exp,(nprim+1))
+      status = bas_setu_coeff(basis,1,coeff,(nprim*ngen)+1)
+      status = bas_setu_exponent(basis,1,exp,nprim)
+      status = bas_setu_coeff(basis,1,coeff,nprim*ngen)
 c
-      status = bas_continfo(basis,1,.true.,nprim,ngen,sphcart)
+      status = bas_ucontinfo(basis,1,nprim,ngen,sphcart)
       write(6,*)' modified '
       write(6,*)' t:query: nprim   cont 1 ',nprim
       write(6,*)' t:query: ngen    cont 1 ',ngen
       write(6,*)' t:query: sphcart cont 1 ',sphcart
-      status = bas_get_exponent(basis,1,.true.,exp)
-      status = bas_get_coeff(basis,1,.true.,coeff)
+      status = bas_getu_exponent(basis,1,exp)
+      status = bas_getu_coeff(basis,1,coeff)
       write(6,*)' exponenents and coefficients '
       do 00300 i=1,nprim
         write(6,*)exp(i),(coeff(i+(j-1)*nprim),j=1,ngen)

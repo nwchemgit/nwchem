@@ -1073,324 +1073,6 @@ c
       return
       end
 c
-      logical function bas_get_exponent(basisin,icont,unique,exp)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      logical unique
-      integer basisin, icont 
-      double precision exp(*)
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c
-      bas_get_exponent = bas_check_handle(basisin,'bas_get_exponent')
-      if (.not.bas_get_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-      if (unique) then 
-        icontmax = infbs_head(HEAD_NCONT,basis)
-        myucont = icont
-      else
-        icontmax = ncont_tot_gb(basis)
-        myucont = ibs_cn2ucn(icont,basis)
-      endif
-      bas_get_exponent = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_get_exponent)) then
-        write(6,*)' bas_get_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
-c
-      bas_get_exponent = .true.
-c
-      return
-      end
-c
-      logical function bas_continfo(basisin,icont,
-     &       unique,nprimo,ngeno,sphcart)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c::passed
-      logical unique
-      integer basisin, icont, nprimo, ngeno, sphcart
-c::local
-      integer basis,myucont,icontmax
-c
-      nprimo = -123
-      ngeno  = -456
-      sphcart = -789
-c
-      bas_continfo = bas_check_handle(basisin,'bas_continfo')
-      if (.not.bas_continfo) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      if (unique) then
-        icontmax = infbs_head(HEAD_NCONT,basis)
-      else
-        icontmax = ncont_tot_gb(basis)
-      endif
-c
-      if (.not.(icont.gt.0.and.icont.le.icontmax)) then
-        write(6,*)' bas_continfo: ERROR '
-        if (unique) then
-          write(6,*)' unique contraction range for basis is 1:',
-     &           icontmax
-        else
-          write(6,*)' contraction range for basis is 1:',
-     &           icontmax
-        endif
-        write(6,*)' information requested for contraction:',icont
-        bas_continfo = .false.
-        return
-      endif
-c
-      if (unique) then
-        myucont = icont
-      else
-        myucont = ibs_cn2ucn(icont,basis)
-      endif
-c... no spherical yet 3/94 only cart. 
-      sphcart = 0
-      nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
-      ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
-      bas_continfo=.true.
-      return
-      end
-c
-      logical function bas_numcont(basisin,numcont,unique)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c::passed
-      integer basisin,numcont
-      logical unique
-c::local
-      integer basis
-c
-      numcont = -6589
-      bas_numcont = bas_check_handle(basisin,'bas_numcont')
-      if (.not.bas_numcont) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      if (unique) then
-        numcont = infbs_head(HEAD_NCONT,basis)
-      else
-        numcont = ncont_tot_gb(basis)
-      endif
-      bas_numcont = .true.
-      return
-      end
-c
-      logical function bas_numbf(basisin,nbf)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c::passed
-      integer basisin,nbf
-c::local
-      integer basis
-c
-      nbf = -6589
-      bas_numbf = bas_check_handle(basisin,'bas_numbf')
-      if (.not. bas_numbf) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-      nbf = nbf_tot_gb(basis)
-      bas_numbf = .true.
-      return
-      end
-c      
-      logical function bas_get_coeff(basisin,icont,unique,coeff)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      logical unique
-      integer basisin, icont 
-      double precision coeff(*)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-      bas_get_coeff = bas_check_handle(basisin,'bas_get_coeff')
-      if (.not.bas_get_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      if (unique) then
-        icontmax = infbs_head(HEAD_NCONT,basis)
-        myucont  = icont
-      else
-        icontmax = ncont_tot_gb(basis)
-        myucont = ibs_cn2ucn(icont,basis)
-      endif
-      bas_get_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_get_coeff)) then
-        write(6,*)' bas_get_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
-c
-      bas_get_coeff = .true.
-c
-      return
-      end
-      logical function bas_set_exponent(basisin,icont,unique,exp,nexp)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      logical unique
-      integer basisin, icont, nexp
-      double precision exp(nexp)
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c
-      bas_set_exponent = bas_check_handle(basisin,'bas_set_exponent')
-      if (.not.bas_set_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      if (unique) then 
-        icontmax = infbs_head(HEAD_NCONT,basis)
-        myucont = icont
-      else
-        icontmax = ncont_tot_gb(basis)
-        myucont = ibs_cn2ucn(icont,basis)
-      endif
-      bas_set_exponent = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_set_exponent)) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      bas_set_exponent = myprim.eq.nexp
-      if (.not.bas_set_exponent) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
-     &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
-        return
-      endif
-      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
-c
-      bas_set_exponent = .true.
-c
-      return
-      end
-c
-      logical function bas_set_coeff(basisin,icont,unique,coeff,ncoeff)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      logical unique
-      integer basisin, icont, ncoeff
-      double precision coeff(ncoeff)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-      bas_set_coeff = bas_check_handle(basisin,'bas_set_coeff')
-      if (.not.bas_set_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      if (unique) then
-        icontmax = infbs_head(HEAD_NCONT,basis)
-        myucont  = icont
-      else
-        icontmax = ncont_tot_gb(basis)
-        myucont = ibs_cn2ucn(icont,basis)
-      endif
-      bas_set_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_set_coeff)) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-c
-      bas_set_coeff = ncoeff .eq. (myprim*mygen)
-      if(.not.bas_set_coeff) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
-     &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
-        return
-      endif
-      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
-c
-      bas_set_coeff = .true.
-c
-      return
-      end
       logical function bas_rtdb_out(rtdb)
       implicit none
 #include "basP.fh"
@@ -1576,7 +1258,7 @@ c
 c
       return
       end
-      logical function bas_cn2bf(basisin,cont,ifirst,ilast)
+      logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -1588,13 +1270,13 @@ c::passed
 c::local 
       integer basis
 c
-      bas_cn2bf = bas_check_handle(basisin)
-      if(.not.bas_cn2bf) return
+      bas_cn2bfr = bas_check_handle(basisin)
+      if(.not.bas_cn2bfr) return
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-      bas_cn2bf = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
-      if (.not.bas_cn2bf) then
-        write(6,*)' bas_cn2bf: invalid contraction information '
+      bas_cn2bfr = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
+      if (.not.bas_cn2bfr) then
+        write(6,*)' bas_cn2bfr: invalid contraction information '
         write(6,*)' contraction range is 1:',ncont_tot_gb(basis)
         write(6,*)' input contraction was: ',cont
         return
@@ -1641,164 +1323,282 @@ c..... add diagnostics later
 c
       return
       end
-      logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $     expnt, coeffs, ldc)
+      logical function bas_get_exponent(basisin,icont,exp)
       implicit none
-#include "basdeclsP.fh"
 #include "basP.fh"
-      integer basis             ! [input] basis handle
-      character*(*) tag         ! [input] tag on which to contraction
-      integer l_value           ! [input] type of contraction (s, p, ..., sp)
-      integer ngen              ! [input] no. of contractions
-      integer nprim             ! [input] no. of primitives
-      integer ldc               ! [input] leading dimension of coeffs
-      double precision expnt(nprim) ! [input] exponents
-      double precision coeffs(ldc, 1:*) ! [input] coefficients
-c
-      integer ind               ! Index into basis function structures
-      integer free              ! Free space pointer
-      integer i, itag, jtag, iu_cont, ntags ! Locals
-c
-      logical bas_add_utag
-      external bas_add_utag
-c
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
       logical bas_check_handle
       external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont 
+      double precision exp(*)
+c::local
+      integer basis, myucont, icontmax
+      integer myprim,myexptr
 c
-c     adds a new general contraction on the specified tag.  If the
-c     tag is not present it will also add that by calling bas_add_utag
-c      
-      bas_add_ucnt = bas_check_handle(basis,'bas_add_ucnt')
-      if (.not. bas_add_ucnt) return
-      ind = basis + BASIS_HANDLE_OFFSET
-c
-c     Make sure that the tag is in the list
-c
-      bas_add_ucnt = bas_add_utag(basis, tag, itag)
-      if (.not. bas_add_ucnt) return
-c
-c     Update header information about all unique contractions on all tags
-c     Free points to next free word in the exndcf
-c
-      free = infbs_head(HEAD_NPRIM,ind) + infbs_head(HEAD_NCOEF,ind) + 1
-      if ((free+nprim*ngen+nprim-1) .gt. mxbs_exndcf) then
-         write(6,*) 'bas_add_ucnt: too many prims/coeffs'
-         bas_add_ucnt = .false.
-         return
-      endif
-      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
-         write(6,*) 'bas_add_ucnt: too many contractions '
-         bas_add_ucnt = .false.
-         return
-      endif
-c         
-      infbs_head(HEAD_NCONT,ind) = infbs_head(HEAD_NCONT,ind) + 1
-      infbs_head(HEAD_NPRIM,ind) = infbs_head(HEAD_NPRIM,ind) + nprim
-      infbs_head(HEAD_NCOEF,ind) = infbs_head(HEAD_NCOEF,ind) +
-     $     ngen*nprim
-c
-      ntags = infbs_head(HEAD_NTAGS,ind)
-      if (itag .ne. ntags) then
-         do jtag = ntags, itag+1, -1
-c
-c     Shuffle data+pointers for following tags up one contraction
-c
-            do iu_cont = infbs_tags(TAG_LCONT,jtag,ind),
-     $           infbs_tags(TAG_FCONT,jtag,ind), -1
-               do i = 1, ndbs_ucont
-                  infbs_cont(i,iu_cont+1,ind) =
-     $                 infbs_cont(i,iu_cont,ind)
-               enddo
-            enddo
-c
-c     Increment first and last contractions on following tags
-c
-            infbs_tags(TAG_FCONT,jtag,ind) =
-     $           infbs_tags(TAG_FCONT,jtag,ind) + 1
-            infbs_tags(TAG_LCONT,jtag,ind) =
-     $           infbs_tags(TAG_LCONT,jtag,ind) + 1
-         enddo
+      bas_get_exponent = bas_check_handle(basisin,'bas_get_exponent')
+      if (.not.bas_get_exponent) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+      bas_get_exponent = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_get_exponent)) then
+        write(6,*)' bas_get_exponent: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
       endif
 c
-c     Increment basis info on this tag
+      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
 c
-      infbs_tags(TAG_NCONT,itag,ind) = infbs_tags(TAG_NCONT,itag,ind)
-     $     + 1
-      infbs_tags(TAG_NPRIM,itag,ind) = infbs_tags(TAG_NPRIM,itag,ind)
-     $     + nprim
-      infbs_tags(TAG_NCOEF,itag,ind) = infbs_tags(TAG_NCOEF,itag,ind)
-     $     + nprim*ngen
-      if (infbs_tags(TAG_FCONT,itag,ind).eq.0) then
-         if (itag .ne. ntags) call errquit
-     $        ('bas_add_ucnt: tag error', itag)
-         infbs_tags(TAG_FCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
-         infbs_tags(TAG_LCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
-      else
-         infbs_tags(TAG_LCONT,itag,ind) = infbs_tags(TAG_LCONT,itag,ind)
-     $        + 1
-      endif
+      bas_get_exponent = .true.
 c
-      iu_cont = infbs_tags(TAG_LCONT,itag,ind) ! Index of new contraction
-c
-      infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
-      infbs_cont(CONT_NPRIM,iu_cont,ind) = nprim
-      infbs_cont(CONT_NGEN, iu_cont,ind) = ngen
-      infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
-      infbs_cont(CONT_IEXP, iu_cont,ind) = free
-      infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
-c
-c     Copy real data over
-c
-      call dcopy(nprim, expnt, 1, exndcf(free,ind), 1)
-      free = free + nprim
-      do i = 1, ngen
-         call dcopy(nprim, coeffs(1,i), 1, exndcf(free,ind), 1)
-         free = free + nprim
-      enddo
-*      write(6,*) ' expnt input ', nprim
-*      call output(expnt, 1, nprim, 1, 1, nprim, 1, 1)
-*      write(6,*) ' coeffs input ', nprim, ngen, ldc
-*      call output(coeffs, 1, nprim, 1, ngen, ldc, ngen, 1)
-c
-c     Done
-c
+      return
       end
-      logical function bas_add_utag(basisin, tag, itag)
-      implicit none
-#include "basdeclsP.fh"
-#include "basP.fh"
-#include "inp.fh"
-      integer basisin           ! [input] basis handle
-      character*(*) tag         ! [input] name of tag
-      integer itag              ! [output] index of tag
 c
-      integer basis             ! [local] index into basis arrays
+      logical function bas_continfo(basisin,icont,
+     &       nprimo,ngeno,sphcart)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
       logical bas_check_handle
       external bas_check_handle
+c::passed
+      integer basisin, icont, nprimo, ngeno, sphcart
+c::local
+      integer basis,myucont,icontmax
 c
-c     Add the unique tag to the list of tags in the basis,
-c     incrementing the no. of tags if necessary.
-c     Return in itag the index of the unique tag
+      nprimo = -123
+      ngeno  = -456
+      sphcart = -789
 c
-      bas_add_utag = bas_check_handle(basisin, 'bas_add_utag')
-      if (.not. bas_add_utag) return
-      basis = basisin + BASIS_HANDLE_OFFSET
+      bas_continfo = bas_check_handle(basisin,'bas_continfo')
+      if (.not.bas_continfo) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
 c
-      do itag = 1, infbs_head(HEAD_NTAGS,basis)
-         if (inp_compare(.true.,bs_tags(itag,basis),tag)) return
-      enddo
+      icontmax = ncont_tot_gb(basis)
 c
-c     No match found ... append new tag to the list
-c
-      itag = infbs_head(HEAD_NTAGS,basis) + 1
-      if (itag .gt. ntags_bsmx) then
-         write(6,*) 'bas_add_utag: too many tags', itag
-         bas_add_utag = .false.
-         return
+      if (.not.(icont.gt.0.and.icont.le.icontmax)) then
+        write(6,*)' bas_continfo: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        bas_continfo = .false.
+        return
       endif
 c
-      infbs_head(HEAD_NTAGS,basis) = itag
-      bs_tags(itag,basis) = tag
+      myucont = ibs_cn2ucn(icont,basis)
+c... no spherical yet 3/94 only cart. 
+      sphcart = 0
+      nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
+      ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
+      bas_continfo=.true.
+      return
+      end
 c
+      logical function bas_numcont(basisin,numcont)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin,numcont
+c::local
+      integer basis
+c
+      numcont = -6589
+      bas_numcont = bas_check_handle(basisin,'bas_numcont')
+      if (.not.bas_numcont) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+
+      numcont = ncont_tot_gb(basis)
+
+      bas_numcont = .true.
+      return
+      end
+c
+      logical function bas_numbf(basisin,nbf)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin,nbf
+c::local
+      integer basis
+c
+      nbf = -6589
+      bas_numbf = bas_check_handle(basisin,'bas_numbf')
+      if (.not. bas_numbf) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      nbf = nbf_tot_gb(basis)
+      bas_numbf = .true.
+      return
+      end
+c      
+      logical function bas_get_coeff(basisin,icont,coeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont 
+      double precision coeff(*)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_get_coeff = bas_check_handle(basisin,'bas_get_coeff')
+      if (.not.bas_get_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+      bas_get_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_get_coeff)) then
+        write(6,*)' bas_get_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+c
+      bas_get_coeff = .true.
+c
+      return
+      end
+      logical function bas_set_exponent(basisin,icont,exp,nexp)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, nexp
+      double precision exp(nexp)
+c::local
+      integer basis, myucont, icontmax
+      integer myprim,myexptr
+c
+      bas_set_exponent = bas_check_handle(basisin,'bas_set_exponent')
+      if (.not.bas_set_exponent) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+
+      bas_set_exponent = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_set_exponent)) then
+        write(6,*)' bas_set_exponent: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      bas_set_exponent = myprim.eq.nexp
+      if (.not.bas_set_exponent) then
+        write(6,*)' bas_set_exponent: ERROR '
+        write(6,*)' input and stored number of exponents ',
+     &         '(nprim) differ '
+        write(6,*)' input  nprim: ',nexp
+        write(6,*)' stored nprim: ',myprim
+        return
+      endif
+      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
+c
+      bas_set_exponent = .true.
+c
+      return
+      end
+c
+      logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, ncoeff
+      double precision coeff(ncoeff)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_set_coeff = bas_check_handle(basisin,'bas_set_coeff')
+      if (.not.bas_set_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+
+      bas_set_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_set_coeff)) then
+        write(6,*)' bas_set_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+c
+      bas_set_coeff = ncoeff .eq. (myprim*mygen)
+      if(.not.bas_set_coeff) then
+        write(6,*)' bas_set_coeff: ERROR '
+        write(6,*)' input and stored number of coefficients ',
+     &         '(nprim*ngen) differ '
+        write(6,*)' input  nprim*ngen: ',ncoeff
+        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
+        return
+      endif
+      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+c
+      bas_set_coeff = .true.
+c
+      return
       end
 

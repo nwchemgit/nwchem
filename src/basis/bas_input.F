@@ -264,6 +264,10 @@ c
 #include "inp.fh"
 #include "bas.fh"
 #include "geom.fh"
+c::functions
+      logical bas_add_ucnt
+      external bas_add_ucnt
+c
       integer basis             ! [input]
       logical osegment          ! [input]
       character*16 tag          ! [input]
