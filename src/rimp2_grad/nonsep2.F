@@ -3,11 +3,11 @@ C NAME
 C     RIMP2_NonSep2 -- Non-separable gradient contrib from 2c integrals
 C
 C REVISION
-C     $Id: nonsep2.F,v 1.1 1999-05-28 16:03:55 bernhold Exp $
+C     $Id: nonsep2.F,v 1.2 1999-06-01 17:12:21 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir,
-     $     FitBas, D_Int, D_Gam, Grad, LDGrad)
+     $     FitBas, D_Int, D_Gam, Grad, LDGrad )
       Implicit NONE
       Logical BraKetSame        ![in]
       Integer TopSpin           ![in]
@@ -47,7 +47,7 @@ C
 C LOCAL VARIABLES
       Integer Me
       Integer NFit, Spin
-      Integer g_V
+      Integer g_V, H_Scr, I_Scr, H_Buf, I_Buf, LBuf, LScr
       Integer NTotal, IBlock, GBlock
       Double Precision Initial, Final, Block
 C
@@ -95,11 +95,21 @@ C     **************************************
 C     * Contract with derivative integrals *
 C     **************************************
 C
-c$$$      call int_mem_2e2c(max1e, mem1)
-c$$$      if (.not. MA_push_get(MT_DBL,max1e,'int_2c_ga:buf',l_buf,k_buf))
-c$$$     $     call errquit('int_2c_ga: ma failed', max1e)
-c$$$      if (.not. MA_push_get(MT_DBL, mem1,'int_2c_ga:scr',l_scr,k_scr))
-c$$$     $     call errquit('int_2c_ga: ma failed', mem1)
+      Call Int_Mem_2e2c(LBuf, LScr)
+      If (.NOT. MA_Push_Get(MT_DBL, LBuf, 'deriv int buf',
+     $     H_Buf, I_Buf ) ) Call ErrQuit(
+     $     'RIMP2_NonSep2: ma failed (buf)', LBuf)
+      If (.NOT. MA_Push_Get(MT_DBL, LScr, 'deriv int scr',
+     $     H_Scr, I_Scr ) ) Call ErrQuit(
+     $     'RIMP2_NonSep2: ma failed (scr)', LScr )
+C
+      Call RIMP2_NS2_2e2c(FitBas, Dbl_MB(I_Buf), LBuf,
+     $     Dbl_MB(I_Scr), LScr, g_V)
+C
+      If (.NOT. MA_Pop_Stack( H_Scr) ) Call ErrQuit(
+     $     'RIMP2_NonSep2: pop of scr failed', 0)
+      If (.NOT. MA_Pop_Stack( H_Buf) ) Call ErrQuit(
+     $     'RIMP2_NonSep2: pop of buf failed', 0)
 C
 C     Free remaining GAs
 C

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.11 1999-05-28 15:29:49 bernhold Exp $
+C     $Id: driver_g.F,v 1.12 1999-06-01 17:12:21 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -127,7 +127,7 @@ C
 C     Needs ket integrals only, and gamma3
 C
       Call RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir, FitBas,
-     $     D_Int(1, 2, 1), D_Gam(1), Dbl_MB(I_Grad), 3*NCent )
+     $     D_Int(1, 2, 1), D_Gam(1), Dbl_MB(I_Grad), 3*NCent)
 C
       If ( PrPrgRpt ) Call Progress_Report( LuOut,
      $     '    Non-separable gradient contrib (3-c deriv ints)')
