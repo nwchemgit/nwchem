@@ -1,11 +1,13 @@
 /*
- $Id: raktestc.c,v 1.4 1998-08-12 21:54:19 d3e129 Exp $
+ $Id: raktestc.c,v 1.5 1999-06-16 22:16:05 d3e129 Exp $
  */
 
 #include <stdio.h>
 #if defined(SOLARIS)
 #define WORKS_FOR 1
 #endif
+
+/* */
 
 #if defined(WORKS_FOR)
 #include <ieeefp.h>
