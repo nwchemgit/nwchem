@@ -1,9 +1,10 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.3 1999-11-02 21:57:56 bert Exp $
+c $Id: int_1edk_ga.F,v 1.4 1999-11-02 22:02:32 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "global.fh"
+#include "rtdb.fh"
 #include "inp.fh"
 #include "bas.fh"
 #include "sym.fh"
