@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.24 2001-06-28 21:14:29 windus Exp $
+C $Id: hess_cphf.F,v 1.25 2001-06-28 23:58:49 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -17,7 +17,7 @@ c
 #include "util.fh"
 c
       integer rtdb 
-      integer i, ij, jnd
+      integer i, ij, jnd, index
       integer nocc(2), nc, nxyz, num, num2, norb, nc3 
       integer num3, norb2, nbf2, ind, ndns, in, nfock
       integer l_evals, k_evals, l_occ, k_occ
@@ -458,55 +458,64 @@ c
      $    ('cannot destroy g_rhs ',ind)
       enddo
 c
-c Now actually set up the CPHF matrices to run through solutions one at a
-c time.
+c Now actually set up the CPHF matrices 
 c
       if (oprint) write(LuOut,*) 'HESS: CPHF contributions'
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
  
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
 
-      do ndns = 1, ndens
-        if (.not.ga_create(MT_DBL,nvirt(ndns)*nocc(ndns),1,'cphf_tmp',
+c
+c The next line obviously won't work for UHF!
+c
+       if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_tmp',
      $    0,0,g_tmp))
      $    call errquit('hess_cphf: could not create g_tmp',555)
-        if(.not.ga_create(MT_DBL,nvirt(ndns),nocc(ndns),'g_tmp2',
-     $     0,0,g_tmp2))
-     $     call errquit('hess_cphf:could not alloc tmp2 array',555) 
-        if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_sol',
-     $     0,0,g_sol))
-     $     call errquit('hess_cphf:could not alloc sol array',555) 
+c
+c Put the CPHF matrices into one GA in the correct format
+c
+      index = 1
+      do ndns = 1, ndens
       do ind = 1, nc
         call ga_copy_patch('T',g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
-     $    g_tmp,1,nvirt(ndns)*nocc(ndns),1,1)   ! put into format for current cphf
-        if (ocphfprint) then
-          if(ga_nodeid().eq.0)write(LuOut,*)
-          if(ga_nodeid().eq.0)write(LuOut,*) 'g_wax_tr ',ind
-          call ga_print(g_tmp)
-        endif
-        call ga_maxelt(g_tmp,dmax)
-        if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
-        if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
-     $    ('hess_cphf:could not write cphf_rhs',ind)
+     $    g_tmp,1,nvirt(ndns)*nocc(ndns),index,index)   ! put into format for current cphf
+        index = index + 1
+      enddo
+      enddo
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        call ga_print(g_tmp)
+      endif
+      if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
+     $  ('hess_cphf:could not write cphf_rhs',ind)
 c
-c Actually run the CPHF on one rhs
+c Actually run the CPHF on all rhs
 c
-        if (.not.cphf(rtdb)) call errquit
-     $    ('hess_cphf: failure in cphf for index ',ind)
+      if (.not.cphf(rtdb)) call errquit
+     $  ('hess_cphf: failure in cphf for index ',ind)
+      if(.not.file_read_ga(cphf_sol,g_tmp)) call errquit
+     $  ('hess_cphf:could not read cphf_rhs',ind)
 c
 c Get the solution off of disk, put it into appropriate shape and then 
 c combine it with the wax matrices to get final contribution to hessian.
 c
-        if(.not.file_read_ga(cphf_sol,g_tmp)) call errquit
-     $    ('hess_cphf:could not read cphf_rhs',ind)
-        if (ocphfprint) then
-          if(ga_nodeid().eq.0)write(LuOut,*)
-          if(ga_nodeid().eq.0)
-     .         write(LuOut,*) 'before the sol copy_patch ',ind
-          call ga_print(g_tmp)
-        endif
-        call ga_copy_patch('N',g_tmp,1,nvirt(ndns)*nocc(ndns),1,1,
-     $    g_tmp2,1,nvirt(ndns),1,nocc(ndns))
+      if(.not.ga_create(MT_DBL,nvirt(ndns),nocc(ndns),'g_tmp2',
+     $   0,0,g_tmp2))
+     $   call errquit('hess_cphf:could not alloc tmp2 array',555) 
+      if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_sol',
+     $   0,0,g_sol))
+     $   call errquit('hess_cphf:could not alloc sol array',555) 
+      index = 1
+      do ndns = 1, ndens
+      do ind = 1, nc
+c       if (ocphfprint) then
+c         if(ga_nodeid().eq.0)write(LuOut,*)
+c         if(ga_nodeid().eq.0)
+c    $         write(LuOut,*) 'before the sol copy_patch ',ind
+c         call ga_print(g_tmp)
+c       endif
+        call ga_copy_patch('N',g_tmp,1,nvirt(ndns)*nocc(ndns),index,
+     $    index,g_tmp2,1,nvirt(ndns),1,nocc(ndns))
         if (ocphfprint) then
           if(ga_nodeid().eq.0)write(LuOut,*)
           if(ga_nodeid().eq.0)write(LuOut,*) 'g_tmp2 ',ind
@@ -516,20 +525,19 @@ c
         if (ocphfprint) then
           if(ga_nodeid().eq.0)write(LuOut,*)
           if(ga_nodeid().eq.0)
-     .         write(LuOut,*) 'g_sol after CPHF for ind ',ind
+     $         write(LuOut,*) 'g_sol after CPHF for ind ',ind
           call ga_print(g_sol)
         endif
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
-        endif
       enddo
-        if (.not.ga_destroy(g_tmp)) call errquit
-     $    ('cannot destroy g_tmp ',555)
-        if (.not.ga_destroy(g_tmp2)) call errquit
-     $    ('cannot destroy g_tmp2 ',555)
-        if (.not.ga_destroy(g_sol)) call errquit
-     $    ('cannot destroy g_sol ',555)
       enddo
+      if (.not.ga_destroy(g_tmp)) call errquit
+     $  ('cannot destroy g_tmp ',555)
+      if (.not.ga_destroy(g_tmp2)) call errquit
+     $  ('cannot destroy g_tmp2 ',555)
+      if (.not.ga_destroy(g_sol)) call errquit
+     $  ('cannot destroy g_sol ',555)
 c
 c Print intermediate result
 c
