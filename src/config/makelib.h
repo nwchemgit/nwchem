@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.5 1994-08-22 02:18:00 d3g681 Exp $
+# $Id: makelib.h,v 1.6 1994-08-22 02:51:02 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -43,16 +43,14 @@
 # a.o b.o c.o test.o: simple.h
 #
 
-# Problem with library target is that adding into the library needs
-# to be single threaded but parallel make is important
-# LIBOBJ = $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJ))
-#
-#$(LIBDIR)/$(LIBRARY):	$(LIBOBJ)
-#	$(RANLIB) $@
+ LIBOBJ = $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJ))
 
-$(LIBDIR)/$(LIBRARY):	$(OBJ)
+$(LIBDIR)/$(LIBRARY):   $(LIBOBJ) 
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 	$(RANLIB) $@
+
+(%.o):  %.o
+	@ :
 
 ifdef SUBDIRS
 $(LIBDIR)/$(LIBRARY):	subdirs
