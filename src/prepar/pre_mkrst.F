@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.15 1998-07-14 17:29:24 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.16 1998-07-15 21:18:10 d3j191 Exp $
 c
       implicit none
 c
@@ -15,8 +15,8 @@ c
       external pre_rdgeom,pre_orient,pre_slvsiz,pre_slvrd,pre_slvnum
       logical pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
-      logical pre_rdrst,pre_disres,pre_fix
-      external pre_rdrst,pre_disres,pre_fix
+      logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz
+      external pre_rdrst,pre_disres,pre_fix,pre_rstsiz
       logical util_nwchemrc_get
       external util_nwchemrc_get
 c
@@ -29,7 +29,7 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
       integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -412,7 +412,28 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(.not.pre_rdrst(lfnrst,filnam,npbtyp,box,
+      if(.not.pre_rstsiz(lfnrst,filrst,nnwm,nnwa,nnsa))
+     + call errquit('pre_rstsiz failed',9999)
+      if(nnwm.gt.mwm) then
+      if(lsolva) then
+      if(.not.ma_free_heap(l_xw))
+     + call errquit('ma_free_heap failed on l_xw',9999)
+      if(.not.ma_free_heap(l_vw))
+     + call errquit('ma_free_heap failed on l_vw',9999)
+      if(.not.ma_free_heap(l_iwmr))
+     + call errquit('ma_free_heap failed on l_iwmr',9999)
+      lsolva=.false.
+      endif
+      mwm=nnwm
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"xw",l_xw,i_xw))
+     + call errquit('ma_alloc_get failed for xw',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwm,"vw",l_vw,i_vw))
+     + call errquit('ma_alloc_get failed for vw',9999)
+      if(.not.ma_alloc_get(mt_int,mwm,"iwmr",l_iwmr,i_iwmr))
+     + call errquit('ma_alloc_get failed for iwmr',9999)
+      lsolva=.true.
+      endif
+      if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,

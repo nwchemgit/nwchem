@@ -1,13 +1,14 @@
-      logical function pre_rdrst(lfnrst,filrst,npbtyp,box,
+      logical function pre_rdrst(lfnout,lfnrst,filrst,npbtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_rdrst.F,v 1.2 1998-04-29 18:35:22 d3j191 Exp $
+c $Id: pre_rdrst.F,v 1.3 1998-07-15 21:18:11 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnrst,mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
+      integer lfnrst,lfnout
+      integer mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
       integer npbtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
@@ -17,6 +18,8 @@ c
       integer i,j,k,length,kinsep,nprev,idummy
       character*10 rstdat,rsttim
       real*8 rdummy
+c
+#include "util.fh"
 c
 c     open the restart file
 c     ---------------------
@@ -29,8 +32,7 @@ c
       call arg_swatch(rstdat,rsttim)
 c
       read(lfnrst,1001) rdummy,rstdat,rsttim
- 1001 format('This is an automatically generated restart file',/,
-     + ' ',/,' ',/,f12.6,2a10)
+ 1001 format(///,f12.6,2a10)
       read(lfnrst,1002) npbtyp,box
  1002 format(i5,3f12.6)
       read(lfnrst,1003) kinsep
@@ -46,11 +48,33 @@ c
       read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nprev,noe
  1005 format(5i10,20x,2i5)
 c
-      if(nwa.gt.mwa) goto 9999
-      if(nwm-nwmc.gt.mwm) goto 9999
-      if(noe.gt.mnoe) goto 9999
-      if(nwmc.gt.mwmc) goto 9999
-      if(nsa.gt.msa) goto 9999
+      if(nwa.gt.mwa) then
+      write(lfnout,3001) nwa,mwa
+ 3001 format('Number of solvent atoms is ',i5,' while expecting ',i5)
+      goto 9999
+      endif
+      if(nwm-nwmc.gt.mwm) then
+      write(lfnout,3002) nwm-nwmc,mwm
+ 3002 format('Number of solvent molecules is ',i5,
+     + ' while expecting ',i5)
+      goto 9999
+      endif
+      if(noe.gt.mnoe) then
+      write(lfnout,3003) noe,mnoe
+ 3003 format('Number of NOE constraints is ',i5,' while expecting ',i5)
+      goto 9999
+      endif
+      if(nwmc.gt.mwmc) then
+      write(lfnout,3004) nwmc,mwmc
+ 3004 format('Number of crystal solvent molecules is ',i5,' 
+     + while expecting ',i5)
+      goto 9999
+      endif
+      if(nsa.gt.msa) then
+      write(lfnout,3005) nsa,msa
+ 3005 format('Number of solute atoms is ',i5,' while expecting ',i5)
+      goto 9999
+      endif
 c
       if(nprev.gt.0) then
       read(lfnrst,1016) idummy
@@ -132,6 +156,11 @@ c
       endif
 c
       close(unit=lfnrst)
+c
+      if(util_print('where',print_default)) then
+      write(lfnout,3000) filrst(1:length)
+ 3000 format(' Read restart',t40,a,/)
+      endif
 c
       pre_rdrst=.true.
       return
