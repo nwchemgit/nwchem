@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.144 2004-09-29 17:53:21 marat Exp $
+c     $Id: msgids.fh,v 1.145 2004-10-11 19:43:08 edo Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2
@@ -505,6 +505,7 @@ c
 c
       integer msg_nbo_icd
       integer msg_efgs_col
+      integer msg_perfm_sum,msg_perfm_max,msg_perfm_min
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -1157,3 +1158,7 @@ c
       parameter(msg_qmmm_c1=msg_ftn_base-849) 
 c
       parameter(msg_efgs_col=msg_ftn_base-870)
+c
+      parameter(msg_perfm_sum=msg_ftn_base-871)
+      parameter(msg_perfm_max=msg_ftn_base-872)
+      parameter(msg_perfm_min=msg_ftn_base-873)
