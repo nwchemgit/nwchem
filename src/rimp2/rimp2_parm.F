@@ -1,6 +1,6 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2_parm.F,v 1.4 1998-03-17 17:16:02 bernhold Exp $
+C$Id: rimp2_parm.F,v 1.5 1998-03-17 17:23:04 bernhold Exp $
       Implicit NONE
       Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
@@ -19,11 +19,8 @@ C     **********************
 C     * Integral Threshold *
 C     **********************
 C
-      If ( .NOT. RTDB_Get( RTDB, 'mp2:thresh',
-     $  MT_Dbl, 1, Thresh) ) then
-         If ( .NOT. RTDB_Get( RTDB, 'scf:thresh',
-     $      MT_Dbl, 1, Thresh) ) Thresh = 1.0d-12
-      EndIf
+      If ( .NOT. RTDB_Get( RTDB, 'mp2:aotol2e', MT_Dbl, 1, Thresh) )
+     $     Thresh = 1.0d-9      ! consistent with semi-direct MP2
 C
 C     ***************
 C     * Batch sizes *
