@@ -1,0 +1,47 @@
+
+start si2cl6
+
+title "disilicon hexachloride McM-D general contraction test"
+
+geometry units angstrom autosym
+  Si  0.0     0.0      0.0 
+  Si  1.35    1.35     1.35
+  Cl  2.5     2.5      0.2 
+  Cl  2.5     0.2      2.5 
+  Cl  0.2     2.5      2.5 
+  Cl -1.15   -1.15     1.15
+  Cl -1.15    1.15    -1.15
+  Cl  1.15   -1.15    -1.15
+end
+
+basis segbas spherical noprint
+  Si library cc-pvdz
+  Cl  library aug-cc-pvdz
+end
+
+basis genbas nosegment spherical noprint
+  Si library cc-pvdz
+  Cl  library aug-cc-pvdz
+end
+
+set atomscf:tags_z Si Cl
+set atomscf:z +1.5 -0.5
+set int:cando_txs logical false
+set int:cando_hnd logical false
+
+scf
+ thresh 1e-10
+ vectors atomic
+end
+set "ao basis" segbas
+task scf
+
+scf
+ thresh 1e-10
+ vectors atomic
+end
+set "ao basis" genbas
+task scf
+
+eof
+
