@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.30 1997-12-03 10:54:50 d3e129 Exp $
+c     $Id: stpr_walk.F,v 1.31 1997-12-28 10:43:36 d3e129 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -13,6 +13,9 @@ c
 #include "pstat.fh"
 #include "util.fh"
 #include "stdio.fh"
+c
+*      logical geom_print_distance, geom_print_angles
+*      external geom_print_distance, geom_print_angles
 c     
       integer rtdb              ! [input] run-time-data-base handle
 c     
@@ -179,6 +182,12 @@ c
          if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &        call errquit
      &        ('stpr_walk: geom_rtdb_store (of copy) failed',911)
+         if (.not.geom_print(geom)) call errquit(
+     &       'stpr_walk: geom_print failed',911)
+*         if (.not.geom_print_distance(geom))call errquit(
+*     &       'stpr_walk: geom_print_distance failed',911)
+*         if (.not.geom_print_angles(geom))call errquit(
+*     &       'stpr_walk: geom_print_angles failed',911)
 c     
 C**** #define ECCE
 #if defined(ECCE)
