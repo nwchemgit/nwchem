@@ -1,4 +1,4 @@
-C$Id: nxtask.F,v 1.1 2004-09-30 23:45:00 edo Exp $
+C$Id: nxtask.F,v 1.2 2004-10-21 01:36:52 edo Exp $
       subroutine nxtask_init(rtdb)
       implicit none
 #include "rtdb.fh"
@@ -100,4 +100,23 @@ c
 *      write(6,*) ga_nodeid(), ' got task ', nxtask
 *      call forflush(6)
 c     
+      end
+      logical function util_statldb(lstatic)
+      implicit none
+      logical lstatic
+c
+c     set static load balancing if lstatic eq t
+c     set dynamic load balancing if lstatic eq f
+c     return value = true if old oldb is static
+c
+      logical odlb
+      common /dlbinfo/ odlb
+      
+      util_statldb=.not.odlb
+      if(lstatic) then
+         odlb=.false.
+      else
+         odlb=.true.
+      endif
+      return
       end
