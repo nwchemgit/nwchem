@@ -1,4 +1,4 @@
-      subroutine prp_step(mdstep,stime,eww,esw,ess,epme)
+      subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme)
 c
       implicit none
 c
@@ -9,14 +9,14 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
-      real*8 epot,stime
+      real*8 epot,stime,esk(msf)
 c
-      call prp_proper(mdstep,stime,eww,esw,ess,epme,epot)
-      if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,epme)
+      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,epot)
+      if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
 c
       return
       end
-      subroutine prp_proper(mdstep,stime,eww,esw,ess,epme,epot)
+      subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,epot)
 c
       implicit none
 c
@@ -28,10 +28,10 @@ c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,epot
       real*8 eq,el,ep,ek,et,ewp
-      real*8 tempw,temps,stime,esk,ewk
+      real*8 tempw,temps,stime,esk(msf),ewk
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
-      integer i,j,k,it
+      integer i,j,k,it,maxp
       character*10 pdate,ptime
       real*8 facs,fact,tfacs,tfact
 c
@@ -80,7 +80,7 @@ c     if using cafe get properties from it
 c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
-     + ewk,esk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits)
+     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits)
       endif
 c
 c     if using space get properties from it
@@ -90,9 +90,11 @@ c
 c
       ep=ep+epme
       eq=eq+epme
-      ek=ewk+esk
+      ek=ewk
+      do 111 i=1,msf
+      ek=ek+esk(i)
+  111 continue
       et=ep+ek
-      epot=ep
 c
 c     fill the property vector
 c
@@ -121,32 +123,40 @@ c
       p(18)=temps
       p(21)=tmpscl
       p(22)=tmsscl
+      p(27)=ek
+      p(32)=ek
+      p(64)=ewk
+      p(67)=ewk
+      endif
       p(24)=eq
       p(25)=el
       p(26)=ep
-      p(27)=ek
-      p(32)=ep+ek
+      p(32)=p(32)+ep
       p(54)=eww(6,1)+eww(8,1)
       p(55)=eww(5,1)
       p(56)=eww(1,1)
       p(57)=eww(2,1)
       p(58)=eww(3,1)
       p(59)=eww(4,1)
-      p(64)=ewk
       p(66)=ewp
-      p(67)=ewk+ewp
-      endif
+      p(67)=p(67)+ewp
 c
       isprop=96
+      maxp=isprop
       if(nsf.gt.0) then
       do 33 i=1,nsf
       it=isprop+(i-1)*27
+      p(it+2)=ess(i,i,6,1)
+      p(it+3)=ess(i,i,5,1)
       p(it+5)=esw(i,6,1)
       p(it+6)=esw(i,5,1)
       p(it+7)=ess(i,i,1,1)
       p(it+8)=ess(i,i,2,1)
       p(it+9)=ess(i,i,3,1)
       p(it+10)=ess(i,i,4,1)
+      if(me.eq.0) then
+      p(it+16)=esk(i)
+      endif
    33 continue
       it=it+27
       if(nsf.gt.1) then
@@ -159,6 +169,7 @@ c
    36 continue
    35 continue
       endif
+      maxp=it
       endif
 c
       if(np.gt.0) then
@@ -168,16 +179,18 @@ c
       p(10)=zero
       p(11)=zero
       endif
-      call ga_dgop(mrg_d43,p,22,'+')
+      call ga_dgop(mrg_d45,p,maxp,'+')
       call ga_dgop(mrg_d40,eww,mpe,'+')
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
       call ga_dgop(mrg_d43,epme,1,'+')
       endif
 c
+      epot=p(32)
+c
       return
       end
-      subroutine prp_stat(mdstep,stime,eww,esw,ess,epme)
+      subroutine prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
 c
       implicit none
 c
@@ -189,7 +202,7 @@ c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
       real*8 eq,el,ep,ek,et,ewp
-      real*8 tempw,temps,stime,esk,ewk
+      real*8 tempw,temps,stime,esk(msf),ewk
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
       integer i,j,k,it

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
       implicit none
 c
@@ -513,7 +513,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
       implicit none
 c
@@ -1196,7 +1196,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
       implicit none
 c
@@ -2067,9 +2067,9 @@ c
       return
       end
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc)
+     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2116,7 +2116,7 @@ c
 c      integer idsb(msb),jdsb(msb),isbs(msb)
 c      real*8 cdsb(msb,6),ddsb(msb,6),rdsb(msb),usb(msb)
 c
-      logical lpbc
+      logical lpbc,lupden
 c
       integer natoms,ndim
       integer igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
@@ -2219,8 +2219,10 @@ c
 c     evaluate energies and forces
 c
       rbnd(isb,2)=half*for*dbond*dbond
+      if(lupden) then
       ess(isf,isf,1,1)=ess(isf,isf,1,1)+half*factu*rbnd(isb,2)
       ess(jsf,jsf,1,1)=ess(jsf,jsf,1,1)+half*factu*rbnd(isb,2)
+      endif
       dfor=for*dbond*rssi
       dfs1=dfor*xs1
       dfs2=dfor*xs2
@@ -2316,8 +2318,10 @@ c      rsi=one/rss
       ferfc=one-erfc(ealpha*rss)
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rssi
+      if(lupden) then
       ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*ferfc*qij*rssi
       ess(jsf,jsf,8,1)=ess(jsf,jsf,8,1)-half*ferfc*qij*rssi
+      endif
       dfor=-(qij*rssi*rssi*(ferfc*rssi-fderfc))
       dfs1=dfor*xs1
       dfs2=dfor*xs2
@@ -2345,9 +2349,9 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
-c     cf_forsb returns forces and energies for solute angles
+c     cf_fsh returns forces and energies for solute angles
 c
 c     =======================================================
 c
@@ -2565,7 +2569,6 @@ c
       if(ipme.ne.0) then
       isf=imol(isa)
       ksf=imol(ksa)
-c      qij=qs(isa)*qs(ksa)
       qij=chg(ichg(isa),1,1)*chg(ichg(ksa),1,1)
       xs1=xs(isa,1)-xs(ksa,1)
       xs2=xs(isa,2)-xs(ksa,2)
@@ -2604,7 +2607,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2931,7 +2934,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3243,7 +3246,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3558,7 +3561,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.2 1999-03-15 21:19:47 d3j191 Exp $
+c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
 c
       implicit none
 c

@@ -3,7 +3,7 @@
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
-     + iislow,tempi,tempwi,tempsi,compr)
+     + iislow,tempi,tempwi,tempsi,compr,ntyp)
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
       real*8 rcs,rcl,rqm,compr
-      integer iitmps,iiprss,iislow,nodpme
+      integer iitmps,iiprss,iislow,nodpme,ntyp
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
 c
       integer i
@@ -139,6 +139,10 @@ c
 c
       wbox=zero
 c
+      ithint=0
+      ipert1=0
+      ipert2=0
+c
       call cf_rdtop(lfntop,filtop)
 c
 c     particle-mesh Ewald initialization
@@ -156,6 +160,15 @@ c
       call cf_alpha
       call pme_start(alpha,morder,1,nodpme,ngx,ngy,ngz,mwm,mwa,msa)
       endif
+c
+      call cf_pardif(dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),
+     + int_mb(i_iwa),int_mb(i_iwq),
+     + mbt(1),numb(1),mbp(1),dbl_mb(i_bnd(1)),
+     + mht(1),numh(1),mhp(1),dbl_mb(i_ang(1)),
+     + mdt(1),numd(1),mdp(1),dbl_mb(i_dih(1)),
+     + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
+     + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
+     + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
 c
       return
       end
@@ -426,7 +439,7 @@ c
       if(.not.ma_push_get(mt_dbl,mbt(id)*mbp(id)*6,'bnd',
      + l_bnd(id),i_bnd(id)))
      + call errquit('Allocation failed for bnd',0)
-      if(.not.ma_push_get(mt_int,mbt(id)*mbp(id)*4,'ibnd',
+      if(.not.ma_push_get(mt_int,mbt(id)*mbp(id)*3,'ibnd',
      + l_ibnd(id),i_ibnd(id)))
      + call errquit('Allocation failed for ibnd',0)
       if(.not.ma_push_get(mt_dbl,mbt(id)*2,'rbnd',
@@ -438,7 +451,7 @@ c
       if(.not.ma_push_get(mt_dbl,mht(id)*mhp(id)*6,'ang',
      + l_ang(id),i_ang(id)))
      + call errquit('Allocation failed for ang',0)
-      if(.not.ma_push_get(mt_int,mht(id)*mhp(id)*5,'iang',
+      if(.not.ma_push_get(mt_int,mht(id)*mhp(id)*4,'iang',
      + l_iang(id),i_iang(id)))
      + call errquit('Allocation failed for iang',0)
       if(.not.ma_push_get(mt_dbl,mht(id)*2,'rang',
@@ -450,7 +463,7 @@ c
       if(.not.ma_push_get(mt_dbl,mdt(id)*mdp(id)*6,'dih',
      + l_dih(id),i_dih(id)))
      + call errquit('Allocation failed for dih',0)
-      if(.not.ma_push_get(mt_int,mdt(id)*mdp(id)*6,'idih',
+      if(.not.ma_push_get(mt_int,mdt(id)*mdp(id)*5,'idih',
      + l_idih(id),i_idih(id)))
      + call errquit('Allocation failed for idih',0)
       if(.not.ma_push_get(mt_dbl,mdt(id)*2,'rdih',
@@ -462,7 +475,7 @@ c
       if(.not.ma_push_get(mt_dbl,mit(id)*mip(id)*6,'imp',
      + l_imp(id),i_imp(id)))
      + call errquit('Allocation failed for imp',0)
-      if(.not.ma_push_get(mt_int,mit(id)*mip(id)*6,'iimp',
+      if(.not.ma_push_get(mt_int,mit(id)*mip(id)*5,'iimp',
      + l_iimp(id),i_iimp(id)))
      + call errquit('Allocation failed for iimp',0)
       if(.not.ma_push_get(mt_dbl,mit(id)*2,'rimp',
@@ -534,6 +547,7 @@ c
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error in parbnd',0)
       if(idp.lt.1.or.idp.gt.mbt(id)) call errquit('Error in parbnd',0)
+      if(id.eq.2.and.ip(3).lt.0) nmult(1)=nmult(1)+1
 c
       call cf_pcopy(idp,ip,p,4,mbp(id),int_mb(i_ibnd(id)),
      + dbl_mb(i_bnd(id)),mbt(id))
@@ -552,6 +566,7 @@ c
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parang',0)
       if(idp.lt.1.or.idp.gt.mht(id)) call errquit('Error 2 in parang',0)
+      if(id.eq.2.and.ip(4).lt.0) nmult(2)=nmult(2)+1
 c
       call cf_pcopy(idp,ip,p,5,mhp(id),int_mb(i_iang(id)),
      + dbl_mb(i_ang(id)),mht(id))
@@ -570,6 +585,7 @@ c
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in pardih',0)
       if(idp.lt.1.or.idp.gt.mdt(id)) call errquit('Error 2 in pardih',0)
+      if(id.eq.2.and.ip(5).lt.0) nmult(3)=nmult(3)+1
 c
       call cf_pcopy(idp,ip,p,6,mdp(id),int_mb(i_idih(id)),
      + dbl_mb(i_dih(id)),mdt(id))
@@ -588,6 +604,7 @@ c
 c
       if(id.le.0.or.id.gt.nbs) call errquit('Error 1 in parimp',0)
       if(idp.lt.1.or.idp.gt.mit(id)) call errquit('Error 2 in parimp',0)
+      if(id.eq.2.and.ip(5).lt.0) nmult(4)=nmult(4)+1
 c
       call cf_pcopy(idp,ip,p,6,mip(id),int_mb(i_iimp(id)),
      + dbl_mb(i_imp(id)),mit(id))
@@ -713,6 +730,9 @@ c
       j=iabs(ip(i,1))
       if(j.gt.0) ip(j,1)=i
     1 continue
+      do 2 i=1,np
+      if(ip(i,1).lt.0) ip(i,1)=ip(i-1,1)
+    2 continue
 c
       return
       end
@@ -746,7 +766,7 @@ c
       if(.not.ma_alloc_get(mt_int,mscr,'s1i6',l_s1i6,i_s1i6))
      + call errquit('Failed to allocate scratch array s1i6',0)
 c
-      lenscr=max(nsatot,2*mscr)
+      lenscr=max(nsatot,3*mscr)
       if(.not.ma_alloc_get(mt_int,lenscr,'s2i1',l_s2i1,i_s2i1))
      + call errquit('Failed to allocate scratch array s2i1',0)
 c
@@ -815,7 +835,8 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      if(.not.lscr) call errquit('Error 1 in cf_sfree',0)
+c      if(.not.lscr) call errquit('Error 1 in cf_sfree',0)
+      if(.not.lscr) return
 c
       if(ipme.gt.0) then
       if(.not.ma_free_heap(l_dtheta))
@@ -920,10 +941,12 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      if(.not.llst) call errquit('Error 1 in cf_lfree',0)
+c      if(.not.llst) call errquit('Error 1 in cf_lfree',0)
 c
+      if(llst) then
       if(.not.ma_free_heap(l_list))
      + call errquit('Failed to free list',0)
+      endif
 c
       llst=.false.
       llist=.false.
@@ -959,6 +982,7 @@ c
       lpair=lp
       llong=llng
 c
+      ntest=0
       m=1
       if(llong) m=2
 c
@@ -1025,8 +1049,153 @@ c
 c
       return
       end
-      
-
-
-
-
+      subroutine cf_lstmul(ixmul,imul,
+     + msb,ibnd,msh,iang,msd,idih,mso,iimp)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer ixmul(mmuli),imul(mmult,4)
+      integer msb,msh,msd,mso
+      integer ibnd(msb,3),iang(msh,4),idih(msd,5),iimp(mso,5)
+c
+      integer i,j,k,m
+c
+      k=0
+      m=0
+c
+      if(nmult(1).gt.0) then
+      do 1 i=1,numb(2)
+      if(ibnd(i,3).lt.0) then
+      m=m+1
+      ixmul(m)=i
+      do 2 j=1,k
+      if(ibnd(i,1).eq.imul(k,1)) goto 3
+    2 continue
+      k=k+1
+      imul(k,1)=ibnd(i,1)
+    3 continue
+      do 4 j=1,k
+      if(ibnd(i,2).eq.imul(k,1)) goto 1
+    4 continue
+      k=k+1
+      imul(k,1)=ibnd(i,2)
+      endif
+    1 continue
+      endif
+c
+      if(nmult(2).gt.0) then
+      do 5 i=1,numh(2)
+      if(iang(i,4).lt.0) then
+      m=m+1
+      ixmul(m)=i
+      do 6 j=1,k
+      if(iang(i,1).eq.imul(k,1)) goto 7
+    6 continue
+      k=k+1
+      imul(k,1)=iang(i,1)
+    7 continue
+      do 8 j=1,k
+      if(iang(i,2).eq.imul(k,1)) goto 9
+    8 continue
+      k=k+1
+      imul(k,1)=iang(i,2)
+    9 continue
+      do 10 j=1,k
+      if(iang(i,3).eq.imul(k,1)) goto 5
+   10 continue
+      k=k+1
+      imul(k,1)=iang(i,3)
+      endif
+    5 continue
+      endif
+c
+      if(nmult(3).gt.0) then
+      do 11 i=1,numd(2)
+      if(idih(i,5).lt.0) then
+      m=m+1
+      ixmul(m)=i
+      do 12 j=1,k
+      if(idih(i,1).eq.imul(k,1)) goto 13
+   12 continue
+      k=k+1
+      imul(k,1)=idih(i,1)
+   13 continue
+      do 14 j=1,k
+      if(idih(i,2).eq.imul(k,1)) goto 15
+   14 continue
+      k=k+1
+      imul(k,1)=idih(i,2)
+   15 continue
+      do 16 j=1,k
+      if(idih(i,3).eq.imul(k,1)) goto 17
+   16 continue
+      k=k+1
+      imul(k,1)=idih(i,3)
+   17 continue
+      do 18 j=1,k
+      if(idih(i,4).eq.imul(k,1)) goto 11
+   18 continue
+      k=k+1
+      imul(k,1)=idih(i,4)
+      endif
+   11 continue
+      endif
+c
+      if(nmult(4).gt.0) then
+      do 19 i=1,numi(2)
+      if(iimp(i,5).lt.0) then
+      m=m+1
+      ixmul(m)=i
+      do 20 j=1,k
+      if(iimp(i,1).eq.imul(k,1)) goto 21
+   20 continue
+      k=k+1
+      imul(k,1)=iimp(i,1)
+   21 continue
+      do 22 j=1,k
+      if(iimp(i,2).eq.imul(k,1)) goto 23
+   22 continue
+      k=k+1
+      imul(k,1)=iimp(i,2)
+   23 continue
+      do 24 j=1,k
+      if(iimp(i,3).eq.imul(k,1)) goto 25
+   24 continue
+      k=k+1
+      imul(k,1)=iimp(i,3)
+   25 continue
+      do 26 j=1,k
+      if(iimp(i,4).eq.imul(k,1)) goto 19
+   26 continue
+      k=k+1
+      imul(k,1)=iimp(i,4)
+      endif
+   19 continue
+      endif
+c
+      nmul=k
+c
+      return
+      end
+      subroutine cf_pardif(wgt,vdw,chg,iwat,iwqt,mwb,nwb,nbp,bndw,
+     + mwh,nwh,nhp,angw,mwd,nwd,ndp,dihw,mwo,nwo,nop,oopw,
+     + msb,npb,bnds,msh,nph,angs,msd,npd,dihs,mso,npo,oops)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 wgt(mat,6),vdw(mat,mat,map,6),chg(mqt,mqp,6)
+      integer iwat(mwa),iwqt(mwa)
+      integer mwb,mwh,mwd,mwo,nbp,nhp,ndp,nop
+      integer nwb,nwh,nwd,nwo
+      integer msb,msh,msd,mso,npb,nph,npd,npo
+      real*8 bndw(mwb,nbp,6),angw(mwh,nhp,6)
+      real*8 dihw(mwd,ndp,6),oopw(mwo,nop,6)
+      real*8 bnds(msb,npb,6),angs(msh,nph,6)
+      real*8 dihs(msd,npd,6),oops(mso,npo,6)
+c
+      return
+      end

@@ -28,7 +28,7 @@ c
      + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
-     + 0,temp,tempw,temps,compr)
+     + 0,temp,tempw,temps,compr,ntype)
 c
 c     start the property API
 c
@@ -85,6 +85,8 @@ c
      + call errquit('Failed to allocate memory for esw',0)
       if(.not.ma_push_get(mt_dbl,2*mpe*msf*msf,'ess',l_ess,i_ess))
      + call errquit('Failed to allocate memory for ess',0)
+      if(.not.ma_push_get(mt_dbl,msf,'esk',l_esk,i_esk))
+     + call errquit('Failed to allocate memory for esk',0)
 c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
@@ -256,7 +258,7 @@ c
 c
 c     set defaults
 c
-      titinp(1)='NWChem:nwARGOS input'
+      titinp(1)='NWChem:MD input'
       titinp(2)=' '
       titinp(3)=' '
 c

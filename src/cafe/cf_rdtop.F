@@ -32,6 +32,10 @@ c      nsm=0
 c      nsf=0
       nwc=0
       nsc=0
+      nmult(1)=0
+      nmult(2)=0
+      nmult(3)=0
+      nmult(4)=0
 c
  1000 format(a)
       read(lfntop,1001,end=9997,err=9998) title
@@ -265,20 +269,30 @@ c
       call ga_brdcst(mcf_26,int_mb(i_itrd(2)),2*(mtt(2)+1)*numbi,0)
       call ga_brdcst(mcf_27,int_mb(i_ixcl(1)),2*(mxt(1)+1)*numbi,0)
       call ga_brdcst(mcf_28,int_mb(i_ixcl(2)),2*(mxt(2)+1)*numbi,0)
-c      call ga_brdcst(mcf_29,q14fac,numbd,0)
+      call ga_brdcst(mcf_29,nmult,4*numbi,0)
+c
+      itemp(1)=nwc
+      itemp(2)=nsc
+      call ga_brdcst(mcf_30,itemp,2*ma_sizeof(mt_int,1,mt_byte),0)
+      nwc=itemp(1)
+      nsc=itemp(2)
 c
       endif
 c
-      if(np.gt.1) then
-      itemp(1)=nsf
-      itemp(2)=nsm
-      itemp(3)=nwc
-      itemp(4)=nsc
-      call ga_brdcst(mcf_29,itemp,4*ma_sizeof(mt_int,1,mt_byte),0)
-c      nsf=itemp(1)
-c      nsm=itemp(2)
-      nwc=itemp(3)
-      nsc=itemp(4)
+      mmult=2*nmult(1)+3*nmult(2)+4*(nmult(3)+nmult(4))
+      mmuli=nmult(1)+nmult(2)+nmult(3)+nmult(4)
+      if(mmult.gt.0) then
+      if(.not.ma_push_get(mt_int,mmuli,'ixmul',l_ixmul,i_ixmul))
+     + call errquit('Failed to allocate memory for ixmul',0)
+      if(.not.ma_push_get(mt_int,4*mmult,'imul',l_imul,i_imul))
+     + call errquit('Failed to allocate memory for imul',0)
+      if(.not.ma_push_get(mt_dbl,3*mmult,'xmul',l_xmul,i_xmul))
+     + call errquit('Failed to allocate memory for xmul',0)
+      if(.not.ma_push_get(mt_dbl,3*mmult,'fmul',l_fmul,i_fmul))
+     + call errquit('Failed to allocate memory for fmul',0)
+      call cf_lstmul(int_mb(i_ixmul),int_mb(i_imul),
+     + mbt(2),int_mb(i_ibnd(2)),mht(2),int_mb(i_iang(2)),
+     + mdt(2),int_mb(i_idih(2)),mit(2),int_mb(i_iimp(2)))
       endif
 c
       factmw=zero

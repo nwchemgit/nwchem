@@ -381,7 +381,7 @@ c
       return
       end
       subroutine cf_mdstep(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwgmn,isgan)
 c
       implicit none
 c
@@ -389,7 +389,7 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa),iwgmn(mwm)
+      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
@@ -399,7 +399,7 @@ c
       if(mdalgo.eq.1) then
       call cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
-     + dbl_mb(i_mas),iwgmn)
+     + dbl_mb(i_mas),iwgmn,isgan)
       elseif(mdalgo.eq.2) then
       else
       call errquit('Unknown integration algorithm',mdalgo)
@@ -428,7 +428,7 @@ c
       return
       end
       subroutine cf_lpfrog(iwdt,xw,yw,vw,vwt,fw,numw,
-     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn)
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn,isgan)
 c
       implicit none
 c
@@ -436,7 +436,7 @@ c
 #include "mafdecls.fh"
 c
       integer numw,nums
-      integer iwdt(mwm),isdt(msa),isat(msa),iwgmn(mwm)
+      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),iwgmn(mwm)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
@@ -446,6 +446,11 @@ c
       integer iwa,iwm,isa,ix
       real*8 factor
 c
+c      write(70,7000) (iwgmn(iwm),(xw(iwm,ix,1),ix=1,3),
+c     + (fw(iwm,ix,1),ix=1,3), iwm=1,numw)
+c 7000 format(i5,3f10.3,3f12.3)
+c      write(71,7000) (isgan(isa),(xs(isa,ix),ix=1,3),
+c     + (fs(isa,ix),ix=1,3),isa=1,nums)
       if(numw.gt.0) then
       do 1 iwa=1,mwa
       factor=tstep/wgt(iwat(iwa),iset)
@@ -589,7 +594,8 @@ c
       return
       end
       subroutine cf_final(xw,xwm,yw,vw,vwt,numw,
-     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,zs,nums,bx,prs,tmp,tmpw,tmps)
+     + xs,xsm,ys,vs,vst,isat,ismol,isdyn,isfrc,zs,esk,nums,
+     + bx,prs,tmp,tmpw,tmps)
 c
       implicit none
 c
@@ -602,12 +608,12 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 xs(msa,3),xsm(msm,3),ys(msa,3),vs(msa,3),vst(msa,3)
-      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps
-      integer isat(msa),ismol(msa),isdyn(msa)
+      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps,esk(msf)
+      integer isat(msa),ismol(msa),isdyn(msa),isfrc(msa)
       integer numw,nums
 c
       integer i,j,k
-      real*8 z,prssc3,rdata(4),xwcd,xscd
+      real*8 z,prssc3,rdata(4),xwcd,xscd,eskin
 c
       if(ltwin) then
       do 8 i=1,3
@@ -688,17 +694,22 @@ c
       endif
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
-      call cf_vs(xs,ys,vs,vst,nums,isat,ismol,dbl_mb(i_mas))
+      call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
 c
       if(np.gt.1) then
       call ga_dgop(mcf_33,ewk,1,'+')
-      call ga_dgop(mcf_34,esk,1,'+')
+      call ga_dgop(mcf_34,esk,msf,'+')
       call ga_dgop(mcf_35,ewkc,1,'+')
       endif
 c
+      eskin=zero
+      do 123 i=1,nsf
+      eskin=eskin+esk(i)
+  123 continue
+c
       tempw=factmw*ewk
-      temps=factms*esk
-      temp=factmp*(ewk+esk)
+      temps=factms*eskin
+      temp=factmp*(ewk+eskin)
 c
       prs=pres
       tmp=temp
@@ -779,7 +790,7 @@ c
 c
       return
       end
-      subroutine cf_vs(xs,ys,vs,vst,nums,isat,ismol,wgt)
+      subroutine cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,wgt)
 c
       implicit none
 c
@@ -788,13 +799,16 @@ c
 #include "msgids.fh"
 c
       integer nums
-      integer isat(msa),ismol(msa)
+      integer isat(msa),ismol(msa),isfrc(msa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),wgt(mat,6)
+      real*8 esk(msf)
 c
       integer i,j,k
       real*8 vv(4)
 c
-      esk=zero
+      do 11 i=1,msf
+      esk(i)=zero
+   11 continue
       if(nums.gt.0) then
       do 1 j=1,3
       if(mdalgo.eq.1) then
@@ -802,16 +816,16 @@ c
       vst(i,j)=vs(i,j)
       vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
       vst(i,j)=half*(vs(i,j)+vst(i,j))
-      esk=esk+wgt(isat(i),iset)*vst(i,j)*vst(i,j)
+      esk(isfrc(i))=esk(isfrc(i))+
+     + half*wgt(isat(i),iset)*vst(i,j)*vst(i,j)
     2 continue
       else
       do 3 i=1,nums
       vs(i,j)=(xs(i,j)-ys(i,j))*tstepi
-      esk=esk+wgt(isat(i),iset)*vs(i,j)*vs(i,j)
+      esk(isfrc(i))=esk(isfrc(i))+half*wgt(isat(i),iset)*vs(i,j)*vs(i,j)
     3 continue
       endif
     1 continue
-      esk=half*esk
       endif
 c
       eskc=zero
@@ -826,32 +840,33 @@ c
       vv(4)=vv(4)+wgt(isat(i),iset)
       if(mdalgo.eq.1) then
       do 6 j=1,3
-      vv(1)=vv(1)+vst(i,j)
+      vv(j)=vv(j)+wgt(isat(i),iset)*vst(i,j)
     6 continue
       else
       do 7 j=1,3
-      vv(1)=vv(1)+vs(i,j)
+      vv(j)=vv(j)+wgt(isat(i),iset)*vs(i,j)
     7 continue
       endif
       endif
     5 continue
       endif
       if(np.gt.1) call ga_dgop(mcf_34,vv,4,'+')
-      eskc=eskc+half*vv(4)*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))
+      eskc=eskc+half*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))/vv(4)
     4 continue
 c
       return
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
-     + ewkin,eskin,
-     + nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs)
+     + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,eskin
-      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,nshw,nshs
+      real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin
+      integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
+c
+      integer i
 c
       vol=volume
       tmp=temp
@@ -863,7 +878,6 @@ c
       psc=pscale
 c
       ewkin=ewk
-      eskin=esk
 c
       nwwl=llww
       nwws=lsww
@@ -936,6 +950,117 @@ c
       endif
 c
       fnorm=sqrt(fnorm)
+      fmax=sqrt(fmax)
+c
+      return
+      end
+      subroutine cf_multi(nums,xs,fs,isgan,isfrc,isdyn,isct1,ess)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer nums
+      real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
+      integer isgan(msa),isfrc(msa),isdyn(msa),isct1(msa)
+c
+      if(mmult.eq.0) return
+c
+      call cf_mlist(nums,xs,fs,isgan,isfrc,isdyn,isct1,
+     + mbt(2),int_mb(i_ibnd(2)),mht(2),int_mb(i_iang(2)),
+     + mdt(2),int_mb(i_idih(2)),mit(2),int_mb(i_iimp(2)),
+     + int_mb(i_ixmul),int_mb(i_imul),dbl_mb(i_xmul),dbl_mb(i_fmul),ess)
+c
+      return
+      end
+      subroutine cf_mlist(nums,xs,fs,isgan,isfrc,isdyn,isct1,
+     + msb,ibnd,msh,iang,msd,idih,mso,iimp,ixmul,imul,xmul,fmul,ess)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer nums
+      real*8 xs(msa,3),fs(msa,3)
+      integer isgan(msa),isfrc(msa),isdyn(msa),isct1(msa)
+      integer msb,msh,msd,mso
+      integer ibnd(msb,3),iang(msh,4),idih(msd,5),iimp(mso,5)
+      integer ixmul(mmuli),imul(mmult,4)
+      real*8 xmul(mmult,3),fmul(mmult,3),ess(msf,msf,mpe,2)
+c
+      integer i,j,k,ix
+c
+      do 1 i=1,nmul
+      fmul(i,1)=zero
+      fmul(i,2)=zero
+      fmul(i,3)=zero
+      xmul(i,1)=zero
+      xmul(i,2)=zero
+      xmul(i,3)=zero
+      imul(i,2)=0
+      imul(1,3)=0
+      imul(1,4)=0
+      do 2 j=1,nums
+      if(isgan(j).eq.imul(i,1)) then
+      imul(i,2)=isfrc(j)
+      imul(i,3)=isdyn(j)
+      imul(i,4)=isct1(j)
+      xmul(i,1)=xs(j,1)
+      xmul(i,2)=xs(j,2)
+      xmul(i,3)=xs(j,3)
+      endif
+    2 continue
+      if(me.gt.0) imul(i,1)=0
+    1 continue
+c
+      call ga_dgop(mrg_d48,xmul,3*mmult,'+')
+      call ga_igop(mrg_d49,imul,4*mmult,'+')
+c
+      if(nmult(1).gt.0) then
+      ix=1
+      call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
+     + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
+     + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
+     + xmul,fmul,ess,.true.,me.eq.0)
+      endif
+c
+      if(nmult(2).gt.0) then
+      ix=1+nmult(1)
+      call cf_fsh(nmult(2),ixmul(ix),mht(2),mhp(2),
+     + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
+     + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
+     + xmul,fmul,ess,.true.,me.eq.0)
+      endif
+c
+      if(nmult(3).gt.0) then
+      ix=1+nmult(1)+nmult(2)
+      call cf_fsd(nmult(3),ixmul(ix),mdt(2),mdp(2),
+     + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
+     + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
+     + xmul,fmul,ess,.true.,me.eq.0)
+      endif
+c
+      if(nmult(4).gt.0) then
+      ix=1+nmult(1)+nmult(2)+nmult(3)
+      call cf_fso(nmult(4),ixmul(ix),mit(2),mip(2),
+     + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
+     + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
+     + xmul,fmul,ess,.true.,me.eq.0)
+      endif
+c
+      do 3 i=1,nmul
+      do 4 j=1,nums
+      if(isgan(j).eq.imul(i,1)) then
+      fs(j,1)=fs(j,1)+fmul(i,1)
+      fs(j,2)=fs(j,2)+fmul(i,2)
+      fs(j,3)=fs(j,3)+fmul(i,3)
+      endif
+    4 continue
+    3 continue
 c
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.1 1999-03-15 21:22:23 d3j191 Exp $
+c $Id: md_common.fh,v 1.2 1999-04-02 22:36:06 d3j191 Exp $
 c
 c     parameters
 c
@@ -235,14 +235,14 @@ c
       integer mpe
       parameter(mpe=10)
 c
-c      nwa_mpp : node and global array related variables
+c      md_mpp : node and global array related variables
 c      -------------------------------------------------
 c
       integer me,np,npx,npy,npz,mex,mey,mez,nbx,nby,nbz,
      + ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_it,ga_rt,ga_rc,ga_sl,ga_flg,
      + ga_qzw,ga_qzs,ga_hw,ga_hs,
      + l_g,l_c
-      common/nwa_mpp/me,np,npx,npy,npz,mex,mey,mez,nbx,nby,nbz,
+      common/md_mpp/me,np,npx,npy,npz,mex,mey,mez,nbx,nby,nbz,
      + ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_it,ga_rt,ga_rc,ga_sl,ga_flg,
      + ga_qzw,ga_qzs,ga_hw,ga_hs,
      + l_g,l_c
@@ -251,26 +251,26 @@ c
      + i_xw,l_xw,i_xs,l_xs,i_vw,l_vw,i_vs,l_vs,i_rtos,l_rtos,
      + i_fw,l_fw,i_fs,l_fs,i_yw,l_yw,i_ys,l_ys,i_eww,l_eww,i_esw,l_esw,
      + i_ess,l_ess,i_zs,l_zs,i_xsm,l_xsm,i_iwz,l_iwz,i_isz,l_isz,
-     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr
+     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr,i_esk,l_esk
       common/new_ptr/i_iw,l_iw,i_is,l_is,i_xwcr,l_xwcr,i_xwm,l_xwm,
      + i_xw,l_xw,i_xs,l_xs,i_vw,l_vw,i_vs,l_vs,i_rtos,l_rtos,
      + i_fw,l_fw,i_fs,l_fs,i_yw,l_yw,i_ys,l_ys,i_eww,l_eww,i_esw,l_esw,
      + i_ess,l_ess,i_zs,l_zs,i_xsm,l_xsm,i_iwz,l_iwz,i_isz,l_isz,
-     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr
+     + i_vwt,l_vwt,i_vst,l_vst,i_xscr,l_xscr,i_esk,l_esk
 c
       logical lpair,llong,ltwin
-      common/nwa_log/lpair,llong,ltwin
+      common/md_log/lpair,llong,ltwin
 c
       real*8 eww(mpe,2)
-      common/nwa_pro/eww
+      common/md_pro/eww
 c
-c     nwa_rtdb : run time database handle
+c     md_rtdb : run time database handle
 c     -----------------------------------
 c
       integer irtdb
-      common/nwa_rtdb/irtdb
+      common/md_rtdb/irtdb
 c
-c     nwa_tit : titles, dates and times
+c     md_tit : titles, dates and times
 c     ---------------------------------
 c
       character*5 clam
@@ -278,12 +278,12 @@ c
       character*10 today,now,dattop,datrst,datinp,timtop,timrst,timinp
       character*15 tdgstr
       character*80 tittop,titrst,titinp,messg
-      common/nwa_tit/
+      common/md_tit/
      + tittop(3),titrst(3),titinp(3),dattop,datrst,datinp,timtop,timrst,
      + timinp,today,now,datein,timein,messg,wnam,clam,
      + tdgstr(diagOff:diagOff+nUsedDiag-1)
 c
-c     nwa_nam : filenames
+c     md_nam : filenames
 c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum
@@ -292,7 +292,7 @@ c
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
-      common/nwa_nam/
+      common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filcoo,filprp,filfld,
      + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
      + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
@@ -300,7 +300,7 @@ c
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + fdarg,fdlog,fsum
 c
-c     nwa_lfn : logical file numbers and filename lengths
+c     md_lfn : logical file numbers and filename lengths
 c     ---------------------------------------------------
 c
       integer
@@ -311,7 +311,7 @@ c
      + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,
      + ibl,iun,ldarg,ldlog,lfsum,lfout6
-      common/nwa_lfn/
+      common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
@@ -320,20 +320,20 @@ c
      + lfntim,lfnsyn,lfnrdi,lfntst,
      + ibl,iun,ldarg,ldlog,lfsum,lfout6
 c
-c     nwa_pnm : property descriptions
+c     md_pnm : property descriptions
 c     -------------------------------
 c
       character*50 ffield,pronam
       character*4 fftnam
-      common/nwa_pnm/ffield,pronam(mpr),fftnam(2)
+      common/md_pnm/ffield,pronam(mpr),fftnam(2)
 c
-c     nwa_prl : property tags
+c     md_prl : property tags
 c     ----------------------- 
 c
       integer lprtag(mpr),lprndx(mpr)
-      common/nwa_prl/lprtag,lprndx
+      common/md_prl/lprtag,lprndx
 c
-c     nwa_inp : variables from rtdbin and rdinp
+c     md_in : variables from rtdbin and rdinp
 c     -----------------------------------------
 c
 c     all variables in this block are initialized before the first
@@ -375,7 +375,7 @@ c
      + lbpair,npprev,ireset,ndistr,ndaver,idevel,itime(mtimes),nftime,
      + mftime,nfdrss,itload,ihess,mmulti,nmulti,latom,nqt,icomm,maxpro,
      + izii
-      common/nwa_inp/ptol,tstep,elam,
+      common/md_in/ptol,tstep,elam,
      + ddacq,edacq,fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,
      + dxmsd,dxsdmx,dx0cg,dxmcg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,
      + prsext,prsrlx,compr,tmpext,tmprlx,tmsrlx,tgauss,factld,sil,
@@ -412,20 +412,20 @@ c
      + lbpair,npprev,ireset,ndistr,ndaver,idevel,itime,nftime,mftime,
      + nfdrss,itload,ihess,mmulti,nmulti,latom,nqt,icomm,maxpro,izii
 c
-c     nwa_dim : dimensions of dynamically assigned arrays
+c     md_dim : dimensions of dynamically assigned arrays
 c     ---------------------------------------------------
 c
       integer izdr,memory,memloc,mavail,mempty,memchr,mbox,maxbox,
      + mat,mwm,mwa,mwb,mwh,mwd,mwo,mwt,mwn,msa,msb,msh,msd,mso,msp,
      + mwr,msr,mst,msx,mxx,mpn,mgc,mgl,mgr,maxw,maxhis,maxdis,mda,
      + nprop,nprx,mxwork,lenwrk,mxpair,mgx,mgy,mgz,mqt,msm,msf,izdi
-      common/nwa_dim/izdr,memory,memloc,mavail,mempty,memchr,mbox,
+      common/md_dim/izdr,memory,memloc,mavail,mempty,memchr,mbox,
      + maxbox,mat,mwm,mwa,mwb,mwh,mwd,mwo,mwt,mwn,msa,msb,msh,msd,
      + mso,msp,mwr,msr,mst,msx,mxx,mpn,mgc,mgl,mgr,maxw,maxhis,
      + maxdis,mda,nprop,nprx,mxwork,lenwrk,mxpair,mgx,mgy,mgz,mqt,
      + msm,msf,izdi
 c
-c     nwa_ptr : pointers to memory broadcasted from node 0
+c     md_ptr : pointers to memory broadcasted from node 0
 c     ----------------------------------------------------
 c
       integer izgr,igownr,igboxs,igboxr,iglbbl,ignan,igfndx,
@@ -455,7 +455,7 @@ c
      + igkto,igknod,iglnod,iggcnt,igpmf,iglpmf,igxpmf,igslab,igidrs,
      + igddrs,igrdrs,igxdrs,ignodp,igjtmp,igktmp,ighw,ighs,igimul,
      + igjmul,igrmul,igfmul,igchg,izgi
-      common/nwa_ptr/izgr,igownr,igboxs,igboxr,iglbbl,ignan,igfndx,
+      common/md_ptr/izgr,igownr,igboxs,igboxr,iglbbl,ignan,igfndx,
      + igipl,igjpl,igdlb,igbbl,igiwl,igisl,igrtmp,igitmp,igatnm,igwma,
      + igvdw,igca6,igcb6,igca12,igcb12,igiass,igwwa,igwwai,igwwaf,igwsm,
      + igwatm,igqwa,igpwa,igpwai,igidwa,igiwbs,igidwb,igjdwb,igcdwb,
@@ -483,23 +483,23 @@ c
      + igddrs,igrdrs,igxdrs,ignodp,igjtmp,igktmp,ighw,ighs,igimul,
      + igjmul,igrmul,igfmul,igchg,izgi
 c
-c     nwa_lpt : pointers to memory assigned by each node
+c     md_lpt : pointers to memory assigned by each node
 c     --------------------------------------------------
 c
       integer igfacu,igrwx,igrwc,igrw,igrwi1,igrwi2,igrwi6,igf,
      + igh,igxi,igxj,igfi,igfj,igpi,igpj,igisal,igjsal,igisrx,igu,
      + igjmal,igjfal,igpair,igwndx,igwork
-      common/nwa_lpt/igfacu,igrwx,igrwc,igrw,igrwi1,igrwi2,igrwi6,igf,
+      common/md_lpt/igfacu,igrwx,igrwc,igrw,igrwi1,igrwi2,igrwi6,igf,
      + igh,igxi,igxj,igfi,igfj,igpi,igpj,igisal,igjsal,igisrx,igu,
      + igjmal,igjfal,igpair,igwndx,igwork
 c
-c     nwa_buf : pointers and dimensions for the buffer arrays
+c     md_buf : pointers and dimensions for the buffer arrays
 c     -------------------------------------------------------
 c
       integer igbuff,igbuf2,mibuf,mwbuf,msbuf,msbuf2
-      common/nwa_buf/igbuff,igbuf2,mibuf,mwbuf,msbuf,msbuf2
+      common/md_buf/igbuff,igbuf2,mibuf,mwbuf,msbuf,msbuf2
 c
-c     nwa_gap : global array pointers
+c     md_gap : global array pointers
 c     -------------------------------
 c
       integer gl_xw,gh_xw,gl_xwm,gh_xwm,gl_fw,gh_fw,gl_vw,gh_vw,
@@ -507,13 +507,13 @@ c
      + gm_pwp,gh_pwp,gl_xs,gh_xs,gl_vs,gh_vs,gl_xscr,gh_xscr,gl_qsa,
      + gh_qsa,gl_psa,gh_psa,gl_fs,gh_fs,gl_ps,gm_ps,gh_ps,
      + gl_psp,gm_psp,gh_psp
-      common/nwa_gap/gl_xw,gh_xw,gl_xwm,gh_xwm,gl_fw,gh_fw,gl_vw,gh_vw,
+      common/md_gap/gl_xw,gh_xw,gl_xwm,gh_xwm,gl_fw,gh_fw,gl_vw,gh_vw,
      + gl_xwcr,gh_xwcr,gl_pw,gm_pw,gh_pw,gl_pwp,gl_gw,gh_gw,gl_gs,gh_gs,
      + gm_pwp,gh_pwp,gl_xs,gh_xs,gl_vs,gh_vs,gl_xscr,gh_xscr,gl_qsa,
      + gh_qsa,gl_psa,gh_psa,gl_fs,gh_fs,gl_ps,gm_ps,gh_ps,
      + gl_psp,gm_psp,gh_psp
 c
-c     nwa_par : parameters determined in setup phase
+c     md_par : parameters determined in setup phase
 c     ----------------------------------------------
 c
       real*8 tstepi,approx,rshrt2,rlong2,
@@ -522,17 +522,17 @@ c
      + rnwm,rnwmi,wwm,wwmf,wbm
       integer icptr,igptr,nwc,nsc,nmol,ndegfr,npmfc
       logical lpbc0,lpbc
-      common/nwa_par/tstepi,rshrt2,rlong2,approx(15),
+      common/md_par/tstepi,rshrt2,rlong2,approx(15),
      + qfac,facpsc,factmp,third,pi,twopi,rcrst2,qfaci,fcctmp,fcstmp,
      + fcwtmp,rndfw,rndfs,rlngmx,rshtmx,bxminx,bxminy,bxminz,rnmoli,
      + rnwm,rnwmi,wwm,wwmf,wbm,
      + icptr,igptr,nwc,nsc,nmol,ndegfr,npmfc,lpbc0,lpbc
 c
-c     nwa_prp : general simulation related variables
+c     md_prp : general simulation related variables
 c     ----------------------------------------------
 c
       real*8 box,boxh,prsscl,tmpscl,tmsscl,urlow,
-     + temp,esddif,ecgdif,edif,espi,espt,tnewtn,zw,zwt,z,zt,xbc,
+     + temp,esddif,ecgdif,espi,espt,tnewtn,zw,zwt,z,zt,xbc,
      + rffww,rffsw,rffss,ewwr,ewwa,probab,boltzm,utemps,ewb,ewh,ewd,ewo,
      + ewl,ewq,ewa,ewwl,ewwq,elong,ekscw,ekscs,eksc,ewdc,eckt,eckr,
      + eckts,eckrs,ewk,ewt,tek,tekv,ttemp,rek,rekv,rtemp,ewp,eq,el,ep,
@@ -545,8 +545,8 @@ c
      + niterw,niters,nbbl,mbbl,nwwl,nwwls,nswl,nswls,nssl,nssls,ntravl,
      + neighb,nbbdif,nwmloc,nsaloc,nswi1,nswi2,nwwlen,nswlen,nsslen,
      + mwroom,msroom,lupdat,itprop,nbbloc
-      common/nwa_prp/box(3),boxh(3),prsscl,tmpscl,tmsscl,urlow,zt(3,3),
-     + temp,esddif,ecgdif,edif,espi,espt,tnewtn,zw(3,2),zwt,z,
+      common/md_prp/box(3),boxh(3),prsscl,tmpscl,tmsscl,urlow,zt(3,3),
+     + temp,esddif,ecgdif,espi,espt,tnewtn,zw(3,2),zwt,z,
      + xbc(3),rffww,rffsw,rffss,ewwr(2),ewwa(2),probab,boltzm,utemps,
      + ewb,ewh,ewd,ewo,ewl,ewq,ewa,ewwl(2),ewwq(2),elong(3),ekscw,ekscs,
      + eksc,ewdc(6),eckt,eckr,eckts,eckrs,ewk,ewt,tek,tekv,ttemp,rek,
@@ -561,14 +561,14 @@ c
      + neighb(27,2),nbbdif,nwmloc,nsaloc,nswi1,nswi2,nwwlen(2),
      + nswlen(2),nsslen(2),mwroom,msroom,lupdat,itprop,nbbloc
 c
-c     nwa_msm : property arrays for solute fractions
+c     md_msm : property arrays for solute fractions
 c     ----------------------------------------------
 c
 c      real*8 esb,esh,esd,eso,esl,esq,esa,eswl,eswq,eswa,esk,esp,est,esx,
 c     + dsr,eskc,espol,difcos,psind,psprm,zst,pstot,eswr,esdc,wsmi,wsmf,
 c     + essr,essl,essq,essa,zs,cdac,traag,gmi,gmi1,wsf,eselfs
 c      integer idscb,igends
-c      common/nwa_cmsm/esb(msf),esh(msf),esd(msf),eso(msf),esl(msf),
+c      common/md_cmsm/esb(msf),esh(msf),esd(msf),eso(msf),esl(msf),
 c     + esq(msf),esa(msf),eswl(msf,2),eswq(msf,2),eswa(msf,2),esk(msf),
 c     + esp(msf),est(msf),esx(msf),eskc(msf),espol(msf),difcos(msf),
 c     + psind(msf),psprm(msf),zst(msf),pstot(msf),eswr(msf,2),
@@ -577,7 +577,7 @@ c     + essl(msf,msf,2),essq(msf,msf,2),essa(msf,msf,2),zs(msf,3,2),
 c     + cdac(15),traag(msf),gmi(msf),gmi1(msf),wsf(msf),eselfs(msf),
 c     + idscb(msf),igends
 c
-c     nwa_gib : free energy related variables
+c     md_gib : free energy related variables
 c     ---------------------------------------
 c
       real*8 deriv,derivs,frds,
@@ -585,50 +585,50 @@ c
      + glam,gdrift,acfalp,rlam1,rlam2,dlam,dp1sum,dp12sm,dp2sum,dp22sm,
      + frep1s,frep2s,freep1,freep2,ep1,ep2,umpert
       integer ipert1,ipert2,ithint,ip1,ip2,ith
-      common/nwa_gib/deriv(24,4),derivs(24),frds(24),
+      common/md_gib/deriv(24,4),derivs(24),frds(24),
      + dfrees,dfrfac,drfrew,dffrew,sfree,sfreer,sfreew,sfrewr,fprobs,
      + glam,gdrift,acfalp,rlam1,rlam2,dlam,dp1sum,dp12sm,dp2sum,dp22sm,
      + frep1s,frep2s,freep1,freep2,ep1(4),ep2(4),umpert(3),
      + ipert1,ipert2,ithint,ip1(18),ip2(18),ith(24)
 c
-c     nwa_emi : energy minimization related variables
+c     md_emi : energy minimization related variables
 c     -----------------------------------------------
 c
       integer isdit,icgit,iem,nemit
-      common/nwa_emi/isdit,icgit,iem,nemit
+      common/md_emi/isdit,icgit,iem,nemit
 c
-c     nwa_qmd : quantum MD simulation and QMMM related variables
+c     md_qmd : quantum MD simulation and QMMM related variables
 c     ----------------------------------------------------------
 c
       real*8 uqmmol ! total qm energy
       real*8 uqmatm ! sum of atomic energies of separated atoms 
       logical oqmmm ! is this qmmm ? T/F
       logical osepatset ! did user define a separated atom energy ? T/F
-      common/nwa_qmd/uqmmol,uqmatm
-      common/nwa_qmmm_l/oqmmm,osepatset
+      common/md_qmd/uqmmol,uqmatm
+      common/md_qmmm_l/oqmmm,osepatset
 c
-c     nwa_pol : polarization related variables
+c     md_pol : polarization related variables
 c     ----------------------------------------
 c
       real*8 poldmx
       integer npolit
-      common/nwa_pol/poldmx,npolit
+      common/md_pol/poldmx,npolit
 c
-c     nwa_fft : Fourier transform related variables
+c     md_fft : Fourier transform related variables
 c     ---------------------------------------------
 c
       integer lfftok,icntxt
-      common/nwa_fft/lfftok,icntxt
+      common/md_fft/lfftok,icntxt
 c
-c     nwa_pme : particle mesh ewald related variables
+c     md_pme : particle mesh ewald related variables
 c     -----------------------------------------------
 c
       real*8 eself,eselfw
       integer lpmewr,lpmewi,ngzloc,lslab,maxxx,minxx,maxyy,minyy,ipnode
-      common/nwa_pme/eself,eselfw,
+      common/md_pme/eself,eselfw,
      + lpmewr,lpmewi,ngzloc,lslab(216),maxxx,minxx,maxyy,minyy,ipnode
 c
-c     nwa_new : variables related to new functionalities
+c     md_new : variables related to new functionalities
 c     --------------------------------------------------
 c
       real*8 pwtot,gfactr,gfact2,umbene,upssum
@@ -636,24 +636,24 @@ c
      + iwrest,ipopt,nor,ifrrst,irstt,nogaus,nfem0,ichirl,iropt,ibound,
      + nacfl,kapprx,klarge,mxdacq,iuser1,iuser2,idock,
      + lscndx,notime,mfsind,iabort
-      common/nwa_new/pwtot,gfactr,gfact2,umbene(3),upssum(3),nsu(4),
+      common/md_new/pwtot,gfactr,gfact2,umbene(3),upssum(3),nsu(4),
      + nsbu(8),nshu(4),nsdu(4),nsou(4),
      + movo,irest,nsarst,nsaunr,isrest,iwrest,ipopt,nor,ifrrst,
      + irstt,nogaus,nfem0,ichirl,iropt,ibound,nacfl,kapprx(15),
      + klarge,mxdacq,iuser1(80),iuser2(80),idock,lscndx(0:7),notime,
      + mfsind,iabort
 c
-c     nwa_ldb : load balancing related variables
+c     md_ldb : load balancing related variables
 c     --------------------------------------------------
 c
       real*8 tsyncp,tldpme,tlspme,tlsfor,tldfor
       integer nldup,ntload
-      common/nwa_ldb/tsyncp,tldpme,tlspme,tlsfor,tldfor,nldup,ntload
+      common/md_ldb/tsyncp,tldpme,tlspme,tlsfor,tldfor,nldup,ntload
 c
-c     nwa_dia : timing and diagnostics related variables
+c     md_dia : timing and diagnostics related variables
 c     --------------------------------------------------
 c
       real*8 timstr,cpustr,timtsk,cputsk,dtstep,ccall,tcall
       integer ncall,lgtsrt,kcall
-      common/nwa_dia/timstr,cpustr,timtsk,cputsk,dtstep,ccall(mtimes),
+      common/md_dia/timstr,cpustr,timtsk,cputsk,dtstep,ccall(mtimes),
      + tcall(mtimes),ncall(mtimes),lgtsrt(2),kcall(mtimes)

@@ -8,6 +8,8 @@ c
 c     deallocate memory for coordinates, velocities, etc.
 c     ---------------------------------------------------
 c
+      if(.not.ma_pop_stack(l_esk))
+     + call errquit('Failed to deallocate memory for esk',0)
       if(.not.ma_pop_stack(l_ess))
      + call errquit('Failed to deallocate memory for ess',0)
       if(.not.ma_pop_stack(l_esw))

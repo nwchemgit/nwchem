@@ -822,6 +822,7 @@ c
     3 continue
 c
       do 4 isb=1,numb(2)
+      if(idb(isb,3).ge.0) then
       nbi=itemp(idb(isb,1))
       if(nbi.gt.0) then
       nbi=nbi+itemp(idb(isb,2))
@@ -832,6 +833,7 @@ c
       if(nbonds.gt.mbonds)
      + call errquit('Insufficient memory for bond list',0)
       lbonds(nbonds)=isb
+      endif
       endif
       endif
       endif
@@ -1177,6 +1179,8 @@ c      integer isl(msa,mis2)
       integer itemp(nsatot),istemp(msa)
       logical lself
 c
+      nthird=0
+c
       if(numt(2).eq.0) return
 c
 c     This subroutine evaluates the solute third neighbor list
@@ -1185,8 +1189,6 @@ c
       isato=isto
       jsafr=jsfr
       jsato=jsto
-c
-      nthird=0
 c
       do 1 isa=1,nsatot
       itemp(isa)=0

@@ -127,6 +127,7 @@ c
       pronam( 62)='Energy solvent reaction field               kJ/mol'
       pronam( 63)='Energy solvent kinetic translations         kJ/mol'
       pronam( 64)='Energy solvent kinetic                      kJ/mol'
+      lp(64)=nwm.gt.0
       pronam( 65)='Energy solvent potential long range         kJ/mol'
       pronam( 66)='Energy solvent potential                    kJ/mol'
       pronam( 67)='Energy solvent total                        kJ/mol'
@@ -166,7 +167,9 @@ c
       it=isprop+(i-1)*27
       pronam(it+1)='Energy solute     intra-polarization        kJ/mol'
       pronam(it+2)='Energy solute     intra-Coulombic           kJ/mol'
+      lp(it+2)=.true.
       pronam(it+3)='Energy solute     intra-Lennard-Jones       kJ/mol'
+      lp(it+3)=.true.
       pronam(it+4)='Energy solute    -solvent polarization      kJ/mol'
       pronam(it+5)='Energy solute    -solvent Coulombic         kJ/mol'
       lp(it+5)=nwm.gt.0
@@ -186,6 +189,7 @@ c
       pronam(it+14)='Energy solute     Lennard-Jones             kJ/mol'
       pronam(it+15)='Energy solute     kinetic translations      kJ/mol'
       pronam(it+16)='Energy solute     kinetic                   kJ/mol'
+      lp(it+16)=.true.
       pronam(it+17)='Energy solute     potential                 kJ/mol'
       pronam(it+18)='Energy solute     total                     kJ/mol'
       pronam(it+19)='Virial solute                               kJ/mol'

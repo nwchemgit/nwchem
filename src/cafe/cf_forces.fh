@@ -130,6 +130,8 @@ c
      + iwfr,iwto,jwfr,jwto,xs,xsm,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
+      if(.not.ma_verify_allocator_stuff())
+     + call errquit('Oops',me)
 c
 c     forces
 c     ------
@@ -149,7 +151,6 @@ c
      + int_mb(i_iimp(1)),dbl_mb(i_imp(1)),dbl_mb(i_rimp(1)),
      + mtt(1),numt(1),int_mb(i_itrd(1)),
      + mxt(1),numx(1),int_mb(i_ixcl(1)))
-c
       endif
 c
 c     solvent-solvent forces
@@ -252,7 +253,7 @@ c
       call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,ess,lpbc)
+     + xs,fs,ess,lpbc,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -288,7 +289,7 @@ c     solute improper dihedral forces
 c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
-      call cf_fso(npairs,int_mb(lptr+1),mdt(2),mdp(2),
+      call cf_fso(npairs,int_mb(lptr+1),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
      + xs,fs,ess,lpbc,lupden)

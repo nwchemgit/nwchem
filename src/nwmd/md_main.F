@@ -52,6 +52,8 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      integer i_pcgw,l_pcgw,i_pcgs,l_pcgs
+c
       llong=ltwin
 c
 c     center of mass coordinates
@@ -72,7 +74,18 @@ c
      + int_mb(i_is),nsaloc)
 c
       if(msdit.gt.0) call md_stdesc()
-      if(mcgit.gt.0) call md_congra()
+c
+      if(mcgit.gt.0) then
+      if(.not.ma_push_get(mt_dbl,3*mwa*mwm,'pcgw',l_pcgw,i_pcgw))
+     + call errquit('Failed to allocate memory for pcgw',me)
+      if(.not.ma_push_get(mt_dbl,3*msa,'pcgs',l_pcgs,i_pcgs))
+     + call errquit('Failed to allocate memory for pcgs',me)
+      call md_congra(dbl_mb(i_pcgw),dbl_mb(i_pcgs))
+      if(.not.ma_pop_stack(l_pcgs))
+     + call errquit('Failed to deallocate memory for pcgs',me)
+      if(.not.ma_pop_stack(l_pcgw))
+     + call errquit('Failed to deallocate memory for pcgw',me)
+      endif
 c
       return
       end
@@ -83,7 +96,8 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 epot,epsd,dxf,dxmax
+      real*8 epot,edif,epsd,dx,dxf,dxmax
+      character*1 cqrs
 c
       isdit=1
 c
@@ -99,13 +113,14 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),epme,epot)
-      print*,'epot0=',epot
 c
       epsd=epot
-      dxf=dx0sd/fmax
+      dx=dx0sd
       mdstep=0
 c
     1 continue
+c
+      dxf=dx/fmax
 c
       call cf_emstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
      + dbl_mb(i_yw),dbl_mb(i_fw),dbl_mb(i_vw),nwmloc,
@@ -134,7 +149,6 @@ c
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),epme,epot)
-      print*,'epott=',epot
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -144,33 +158,63 @@ c
      + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
      + dbl_mb(i_vs),nsaloc)
 c
-      dxf=half*dxf
+      dx=half*dx
       goto 1
       endif
 c
+      edif=epot-epsd
       epsd=epot
 c
-      if(mod(isdit,nfqrs).eq.0)
-     + call sp_wrtrst(lfnqrs,filqrs,pres,temp,tempw,temps,
+      cqrs=' '
+      if(mod(isdit,nfqrs).eq.0) then
+      call sp_wrtrst(lfnqrs,filqrs,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      cqrs='*'
+      endif
 c
-c     print to output
-      print*,'epsd =',epsd
+      if(me.eq.0) then
+      write(lfnout,600) isdit,cqrs,edif,epsd,dxmax
+  600 format(' sd',i7,1x,a1,3x,2(1pe13.5),0pf12.8)
+      endif
 c
-      dxf=1.2d0*dxf
+      dx=min(1.2d0*dx,dxmsd)
 c
       if(dxmax.gt.dxsdmx.and.isdit.lt.msdit) goto 1
 
       return
       end
-      subroutine md_congra()
+      subroutine md_congra(pcgw,pcgs)
 c
       implicit none
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      real*8 pcgw(mwm,3,mwa),pcgs(msa,3)
+c
+      real*8 epot,edif,epcg,dx,dxf,dxmax,beta1
+      character*1 cqrs
+c
+      icgit=1
+c
+c     initialize cf
+c
+      call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
+     + dbl_mb(i_esw),dbl_mb(i_ess))
+c
+c     atomic forces and potential energies
+c
+      call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+c
+      call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme,epot)
+c
+      epcg=epot
+      dx=dx0cg
+      beta1=zero
+      mdstep=0
 c
       return
       end
@@ -180,6 +224,7 @@ c
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
 c
 c     equilibration
 c
@@ -194,7 +239,7 @@ c
       call md_newton()
 c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme)
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
       if(mod(mdstep,nfrest).eq.0)
      + call sp_wrtrst(lfnrst,filrst,pres,temp,tempw,temps,
@@ -271,7 +316,8 @@ c
      + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_fw),nwmloc,
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
-     + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm))
+     + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm),
+     + int_mb(i_is+(lsgan-1)*msa))
 c
 c     shake
 c
@@ -290,8 +336,9 @@ c
      + dbl_mb(i_vw),dbl_mb(i_vwt),nwmloc,
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_zs),nsaloc,box,pres,temp,tempw,temps)
+     + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+     + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
+     + dbl_mb(i_esk),nsaloc,box,pres,temp,tempw,temps)
 c
 c     update decomposition module
 c
@@ -366,6 +413,8 @@ c
       implicit none
 c
 #include "md_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
@@ -417,6 +466,9 @@ c
       logical lself
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
+c
+      call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
+     + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
 c
       if(iewald.gt.0) then
       call pme_chgrid(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),isl(1,lsct1),

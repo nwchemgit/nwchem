@@ -374,7 +374,7 @@ c
       real*8 vw(mwm,3,mwa),vs(msa,3)
       real*8 bxw(nw,3,mwa),bxs(ns,3),brw(nw,3)
       real*8 bvw(nw,3,mwa),bvs(ns,3)
-      integer ibw(mwm,2),ibs(msa,mis2)
+      integer ibw(nw,2),ibs(ns,mis2)
       real*8 boxsiz(maxbox,3)
       integer ndx(nw)
       real*8 temp,tempw,temps
