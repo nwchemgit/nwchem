@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.55 1999-01-18 23:28:32 mdupuis Exp $
+C$Id: opt_drv.F,v 1.56 1999-05-08 19:10:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -901,7 +901,7 @@ c
       if(nzmat.gt.0) then
          call hnd_bandbi(geom,nat,c)
          call hnd_zmtprt(geom)
-         write(iw,9997)
+         if (ga_nodeid().eq.0) write(iw,9997)
       endif
 c
       if (task_energy(rtdb)) then
