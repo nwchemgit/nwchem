@@ -2,7 +2,7 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.7 2003-08-18 17:35:32 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.8 2003-08-19 21:02:03 d3j191 Exp $
 c
       implicit none
 c
@@ -37,7 +37,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_setup.F,v 1.7 2003-08-18 17:35:32 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.8 2003-08-19 21:02:03 d3j191 Exp $
 c
       implicit none
 c
@@ -106,6 +106,7 @@ c      real*8 deq(mxar),aneq(mxar)
 c      real*8 e12fxy(maxpar,3),defe12(maxpar,7),zpef(maxpar,6),
 c     + tdsgl(maxpar,6),tunnel(maxpar,7),tstval(maxpar,5) 
 c
+      print*,'qhop_setup'
 c
       fileinp='qhop.par'
       open(unit=lfnhdb,file=fileinp(1:index(fileinp,' ')-1),err=112)
@@ -204,6 +205,9 @@ c 1212 format(a5,3i5)
       nbnat=0
       larat=larat+1
       do 14 j=1,nbnd
+      if(latm(10,lbnd(1,j)).gt.0.or.latm(10,lbnd(2,j)).gt.0) then
+c      write(*,'(5i5)')
+c     + j,lbnd(1,j),lbnd(2,j),latm(10,lbnd(1,j)),latm(10,lbnd(2,j))
       do 28 m=1,2
       l=2**(2-m)
       if(lbnd(m,j).eq.k.and.(latm(10,k).lt.0.or.latm(10,lbnd(l,j))
@@ -244,6 +248,7 @@ c     + +arat(larat+arat(larat,1),1)
       endif    
       endif
    28 continue
+      endif
    14 continue
    13 continue
       endif      
@@ -271,6 +276,9 @@ c      print*,'setup 2 ',ptat(1),ptat(2)
       nbnat=0
       larat=larat+1
       do 16 j=1,nbnd
+      if(latm(10,lbnd(1,j)).gt.0.or.latm(10,lbnd(2,j)).gt.0) then
+c      write(*,'(5i5)')
+c     + j,lbnd(1,j),lbnd(2,j),latm(10,lbnd(1,j)),latm(10,lbnd(2,j))
       do 29 m=1,2
       l=2**(2-m)
       if(lbnd(m,j).eq.k.and.(latm(10,k).lt.0.or.latm(10,lbnd(l,j))
@@ -304,6 +312,7 @@ c
       endif       
       endif
    29 continue
+      endif
    16 continue
    15 continue
 c      print*,'fine loop k'

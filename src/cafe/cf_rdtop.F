@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.29 2003-08-07 20:14:26 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.30 2003-08-19 21:02:01 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -396,13 +396,17 @@ c
       factmw=zero
       factms=zero
       factmp=zero
-      nsad=nsa-ndums
+      if(noshak.eq.2.or.noshak.eq.3) then
+      nsad=3*nsa-3*ndums
+      else
+      nsad=3*nsa-2*ndums
+      endif
       if(nwm*(3*nwa-nwc)-3*islow.gt.0)
      + factmw=two/(rgas*dble(nwm*(3*nwa-nwc)-3*islow))
-      if(3*nsad-nsc-3*islow.gt.0)
-     + factms=two/(rgas*dble(3*nsad-nsc-3*islow))
-      if(nwm*(3*nwa-nwc)+3*nsad-nsc-3*islow.gt.0)
-     + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+3*nsad-nsc-3*islow))
+      if(nsad-nsc-3*islow.gt.0)
+     + factms=two/(rgas*dble(nsad-nsc-3*islow))
+      if(nwm*(3*nwa-nwc)+nsad-nsc-3*islow.gt.0)
+     + factmp=two/(rgas*dble(nwm*(3*nwa-nwc)+nsad-nsc-3*islow))
 c
       if(.not.ma_verify_allocator_stuff()) then
       call errquit('ERROR IN MEMORY USE AFTER RDTOP',0)

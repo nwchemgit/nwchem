@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.24 2003-08-07 20:14:26 d3j191 Exp $
+c $Id: cf_shake.F,v 1.25 2003-08-19 21:02:01 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -17,7 +17,8 @@ c
 c
       return
       end
-      subroutine cf_shakes(lhandl,xs,ys,igan,isat,isdt,ishp,isfr,isto)
+      subroutine cf_shakes(lhandl,xs,ys,igan,isat,isgm,isdt,ishp,
+     + isfr,isto)
 c
       implicit none
 c
@@ -26,7 +27,7 @@ c
 c
       integer lhandl,isfr,isto
       real*8 xs(msa,3),ys(msa,3)
-      integer igan(msa),isat(msa),isdt(msa),ishp(msa)
+      integer igan(msa),isat(msa),isgm(msa),isdt(msa),ishp(msa)
 c
       integer lptr,nbonds
 c
@@ -35,7 +36,8 @@ c
       if(nbonds.gt.0) then
       call cf_shks(nbonds,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
-     + isto,msa,igan,isat,isdt,ishp,xs,ys,dbl_mb(i_mas))
+     + isto,msa,igan,isat,isgm,isdt,ishp,xs,ys,dbl_mb(i_mas),
+     + int_mb(i_lseq))
       endif
 c
       return
@@ -83,7 +85,7 @@ c
       integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf),xpmf(4,4,numpmf),ypmf(4,3,numpmf)
       real*8 wgt(mat,mset),ft(4,3),rv(2),w(4)
-      integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4),ihp(4)
+      integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4),ihp(4),isg(4)
 c
       integer i,j,k,l,m
       logical skip
@@ -156,6 +158,7 @@ c
       ign(j)=j
       iml(j)=j
       idt(j)=0
+      isg(j)=1
       ihp(i)=0
       ich(j)=1
       do 8 k=1,3
@@ -166,8 +169,8 @@ c
       ip(1)=1
       ip(2)=2
       ip(3)=1
-      call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,idt,ihp,
-     + xpmf(1,1,i),ypmf(1,1,i),w)
+      call cf_shks(1,it,1,3,ip,rpmf,rv,2,4,ign,iml,isg,idt,ihp,
+     + xpmf(1,1,i),ypmf(1,1,i),w,int_mb(i_lseq))
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.2) m=3
@@ -391,7 +394,7 @@ c
       return
       end
       subroutine cf_shks(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,matoms,igan,isat,isdt,ishp,xs,ys,wgt)
+     + natoms,matoms,igan,isat,isgm,isdt,ishp,xs,ys,wgt,lseq)
 c
       implicit none
 c
@@ -404,12 +407,13 @@ c
       integer indexl(nbonds)
       integer matoms,natoms
       integer igan(matoms),isat(matoms),isdt(matoms),ishp(matoms)
+      integer isgm(matoms),lseq(mseq)
       real*8 xs(matoms,3),ys(matoms,3)
       real*8 wgt(mat,mset)
 c
       real*8 wsai,wsaj
       logical ready,dtl
-      integer i,j,k,isb,isa,jsa,isbmax,ndtl
+      integer i,j,k,isb,isa,jsa,isbmax,ndtl,icset
       integer isaglo,jsaglo
       real*8 dmax,bs,ts,w,rsx1,rsx2,rsx3,rsi1,dif1,dif2,dif3,rsi2
       real*8 rsi6,ff1,ff2,ff3
@@ -432,7 +436,6 @@ c
       do 2 i=1,nbonds
 c
       isb=indexl(i)
-      if(iand(ibnd(isb,3),icnstr).ne.0) then
 c
       isa=0
       jsa=0
@@ -441,19 +444,29 @@ c
       if(ibnd(isb,2).eq.igan(j)) jsa=j
     3 continue
 c
+      if(nfhop.eq.0) then
+      icset=iset
+      else
+      icset=lseq(isgm(isa))
+      endif
+c
+      if(iand(ibnd(isb,3),icnstr).ne.0.and.
+     + bnd(isb,2,icset).gt.zero) then
+c
       rsx1=xs(isa,1)-xs(jsa,1)
       rsx2=xs(isa,2)-xs(jsa,2)
       rsx3=xs(isa,3)-xs(jsa,3)
       rbnd(isb,1)=sqrt(rsx1*rsx1+rsx2*rsx2+rsx3*rsx3)
       rbnd(isb,2)=zero
+c      write(*,'(5i5,f12.6)') isb,isa,jsa,ishp(isa),ishp(jsa),rbnd(isb,1)
 c
       if(iand(isdt(isa),mfixed).ne.lfixed.or.
      + iand(isdt(jsa),mfixed).ne.lfixed) then
 c
-      bs=bnd(isb,1,iset)*bnd(isb,1,iset)
+      bs=bnd(isb,1,icset)*bnd(isb,1,icset)
       ts=bs*tolsha
-      wsai=one/wgt(isat(isa),iset)
-      wsaj=one/wgt(isat(jsa),iset)
+      wsai=one/wgt(isat(isa),icset)
+      wsaj=one/wgt(isat(jsa),icset)
       w=wsai+wsaj
       rsi1=bs-rsx1**2-rsx2**2-rsx3**2
       if(abs(rsi1).gt.dmax) then

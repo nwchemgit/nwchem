@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.147 2003-08-18 17:35:29 d3j191 Exp $
+c $Id: md_start.F,v 1.148 2003-08-19 21:02:06 d3j191 Exp $
 c
       implicit none
 c
@@ -189,7 +189,7 @@ c     calculate mass factors
 c     ----------------------
 c
       call cf_weight(nwmloc,nsaloc,int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsmol-1)*msa),wbox)
+     + int_mb(i_is+(lsmol-1)*msa),int_mb(i_is+(lshop-1)*msa),wbox)
 c
 c     calculate centers of mass
 c     -------------------------

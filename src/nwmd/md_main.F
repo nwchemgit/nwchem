@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.169 2003-08-18 17:35:29 d3j191 Exp $
+c $Id: md_main.F,v 1.170 2003-08-19 21:02:06 d3j191 Exp $
 c
       implicit none
 c
@@ -1854,7 +1854,7 @@ c
       do 4 ibbl=1,nbbl
       call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
       if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
-     + isl(1,lsdyn),isl(1,lshop),isfr,isto)
+     + isl(1,lssgm),isl(1,lsdyn),isl(1,lshop),isfr,isto)
     4 continue
       do 5 i=1,nsaloc
       dmax=max(dmax,(xs(i,1)-ys(i,1))**2+(xs(i,2)-ys(i,2))**2+
@@ -2598,7 +2598,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.169 2003-08-18 17:35:29 d3j191 Exp $
+c $Id: md_main.F,v 1.170 2003-08-19 21:02:06 d3j191 Exp $
 c
       implicit none
 c

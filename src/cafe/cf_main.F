@@ -1,14 +1,14 @@
-      subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.158 2003-08-07 20:14:25 d3j191 Exp $
+      subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
+c $Id: cf_main.F,v 1.159 2003-08-19 21:02:01 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer numw,nums,isat(msa),isml(msa)
+      integer numw,nums,isat(msa),isml(msa),ishop(msa)
       real*8 wbx
 c
-      call cf_wbox(numw,nums,int_mb(i_iwa),isat,isml,
+      call cf_wbox(numw,nums,int_mb(i_iwa),isat,isml,ishop,
      + dbl_mb(i_wsm),dbl_mb(i_mas))
 c
       wbx=wbox
@@ -87,7 +87,7 @@ c
 c
       return
       end
-      subroutine cf_wbox(numw,nums,iwat,isat,isml,wsm,wgt)
+      subroutine cf_wbox(numw,nums,iwat,isat,isml,ishop,wsm,wgt)
 c
       implicit none
 c
@@ -96,7 +96,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer numw,nums,iwat(mwa),isat(msa),isml(msa)
+      integer numw,nums,iwat(mwa),isat(msa),isml(msa),ishop(msa)
       real*8 wsm(msm),wgt(mat,mset)
 c
       integer i
@@ -116,8 +116,10 @@ c
 c
       if(nums.gt.0) then
       do 3 i=1,nums
+      if(iand(ishop(i),1).ne.1) then
       wbox=wbox+wgt(isat(i),iset)
       wsm(isml(i))=wsm(isml(i))+wgt(isat(i),iset)
+      endif
     3 continue
       endif
 c
@@ -1928,7 +1930,8 @@ c
       call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),imul(1,4),dbl_mb(i_chg),
-     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti))
+     + xmul,fmul,ess,.true.,.true.,me.eq.0,me.eq.0,dbl_mb(i_sti),
+     + int_mb(i_lseq))
       endif
 c
       if(nmult(2).gt.0) then
@@ -2593,7 +2596,7 @@ c
       real*8 xwm(mwm,3),xs(msa,3)
 c
       integer i,j,ndof(3),ifix,ifr,ito,l,len,number,itarget,ntotal(2)
-      integer ib,jb
+      integer ib,jb,nsad
       real*8 fact(3),xtarget(3),rfix,dist2,rfix2
       character*80 string,target,residu
       character*16 tag
@@ -2965,12 +2968,17 @@ c
       factmw=zero
       factms=zero
       factmp=zero
+      if(noshak.eq.2.or.noshak.eq.3) then
+      nsad=3*ndof(2)-3*ndums
+      else
+      nsad=3*ndof(2)-2*ndums
+      endif
       if(ndof(1)*(3*nwa-nwc)-3*islow.gt.0)
      + factmw=two/(rgas*dble(ndof(1)*(3*nwa-nwc)-3*islow))
       if(3*ndof(2)-nsc-3*islow.gt.0)
-     + factms=two/(rgas*dble(3*ndof(2)-nsc-3*islow))
-      if(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow.gt.0)
-     + factmp=two/(rgas*dble(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow))
+     + factms=two/(rgas*dble(nsad-nsc-3*islow))
+      if(ndof(1)*(3*nwa-nwc)+nsad-nsc-3*islow.gt.0)
+     + factmp=two/(rgas*dble(ndof(1)*(3*nwa-nwc)+nsad-nsc-3*islow))
 c
       fact(1)=factmw
       fact(2)=factms
