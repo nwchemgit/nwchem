@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.39 2004-04-22 23:18:23 edo Exp $
+* $Id: util_legal.F,v 1.40 2004-05-21 20:10:47 windus Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003, 2004                          *
@@ -172,19 +172,19 @@ c
      &    /,12x,
      &    'obtained with NWChem:'
      &    /,/,
-     + 12x,'T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis,',
-     + ' E. J. Bylaska,',/,
-     + 12x,'W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler,',
-     + ' L. Pollack,',/,
-     + 12x,'R. J. Harrison, J. Nieplocha, V. Tipparaju,',
-     + ' M. Krishnan, A. A. Auer,',/,
-     + 12x,'E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,', 
-     + ' J. Garza, K. Hirao,',/,
-     + 12x,'R. Kendall, J. A. Nichols, K. Tsemekhman,',
-     + ' M. Valiev,',/,
-     + 12x,'K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,',
-     + ' T. Clark,'/,
-     + 12x,'D. Clerc, H. Dachsel, M. Deegan, K. Dyall,',
+     + 12x,'T. P. Straatsma, E. Apra, T. L. Windus,',
+     + ' E. J. Bylaska, W. de Jong,',/,
+     + 12x,'S. Hirata, M. Valiev, M. T. Hackler,',
+     + ' L. Pollack, R. J. Harrison,',/,
+     + 12x,'M. Dupuis, D. M. A. Smith, J. Nieplocha,',
+     + ' V. Tipparaju,',/,
+     + 12x,'M. Krishnan, A. A. Auer, E. Brown,',
+     + ' G. Cisneros, G. I. Fann,',/,
+     + 12x,'H. Fruchtl, J. Garza, K. Hirao, R. Kendall,',
+     + ' J. A. Nichols,',/,
+     + 12x,'K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,',
+     + ' P. Borowski,',/,
+     + 12x,'T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,',
      + ' D. Elwood,',/,
      + 12x,'E. Glendening, M. Gutowski, A. Hess, J. Jaffe,',
      + ' B. Johnson, J. Ju,',/,
