@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.8 1996-12-04 23:14:23 mdupuis Exp $
+C$Id: opt_drv.F,v 1.9 1996-12-04 23:39:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1106,6 +1106,10 @@ C
       LOGICAL NATURL 
       LOGICAL SYMTRC
       LOGICAL INDEP
+      CHARACTER*8 HGUESS
+      CHARACTER*8 GUESS
+      CHARACTER*8 GUESS1
+      CHARACTER*8 GUESS2
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_MOLNUC/NUC(MXATOM)
@@ -1165,7 +1169,7 @@ C
      5   1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
      6   1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
 C
-      DATA GUESS,GUESS1,GUESS2 /8HGUESS   ,8HGUESS1  ,8HGUESS2  /
+      DATA GUESS,GUESS1,GUESS2 /'GUESS   ','GUESS1  ','GUESS2  '/
 C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1                   (C(2,IAT)-C(2,JAT))**2+
