@@ -56,7 +56,6 @@ c
       call dfill((nva*nva),zero,p_ab_a,1)
       call dfill((nob*nob),zero,p_ij_b,1)
       call dfill((nvb*nvb),zero,p_ab_b,1)
-      write(6,*) 'inside pijab'
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          do a_a=nva_lo_local,nva_hi_local 
@@ -136,10 +135,10 @@ c
       call ga_dgop(msg_p_ab_b_sum,p_ab_b,nvb*nvb,'+')
       call ga_sync()
       if(ga_nodeid().eq.0)then
-      call ga_put(g_p_ij_a,1,noa,1,noa,p_ij_a,noa)
-      call ga_put(g_p_ij_b,1,nob,1,nob,p_ij_b,nob)
-      call ga_put(g_p_ab_a,1,nva,1,nva,p_ab_a,nva)
-      call ga_put(g_p_ab_b,1,nvb,1,nvb,p_ij_a,nvb)
+         call ga_put(g_p_ij_a,1,noa,1,noa,p_ij_a,noa)
+         call ga_put(g_p_ij_b,1,nob,1,nob,p_ij_b,nob)
+         call ga_put(g_p_ab_a,1,nva,1,nva,p_ab_a,nva)
+         call ga_put(g_p_ab_b,1,nvb,1,nvb,p_ij_a,nvb)
       endif
       end
       
