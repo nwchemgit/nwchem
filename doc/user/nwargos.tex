@@ -29,8 +29,7 @@ package developed by T.P.Straatsma at the University of Houston.
 The parallel implementation is based on the spacial decomposition of 
 the molecular system.
 The distribution of data based on a spacial decomposition of a
-chemical system as one of the different possible approaches to
-parallelizing molecular dynamics simulations offers the most
+chemical system offers the most
 efficient implementation in terms of both memory requirement and
 communication cost. This is especially important for simulations
 of large molecular systems on massively parallel computing systems.
@@ -40,9 +39,9 @@ chemistry includes a parallel implementation of a computational
 module for classical molecular dynamics simulation of pure liquids,
 solutions and macromolecular systems.
 Inter-processor communication using the global array tools and the
-design of a datastructure allowing distribution based on spacial
+design of a data structure allowing distribution based on spacial
 decomposition are the key elements in taking advantage of
-the distribution of memory requirements and computational work at
+the distribution of memory requirements and computational work with
 minimal communication.
 \par
 In the spacial decomposition approach, the physical simulation
@@ -61,33 +60,36 @@ very large molecular systems.
 \par
 To improve efficiency, solvent and solute are treated separately.
 Solvent molecules are assigned to the domains according to their
-center of geometry. This avoids bonded interactions crossing nodeboundaries.
-Solute molecules are broken up into segments, and each of the segments
-is assigned based on its center of geometry. This limits the number
+center of geometry. This avoids bonded interactions crossing node
+boundaries. Solute molecules are broken up into segments, with each 
+segment assigned to a processor based on its center of geometry. 
+This limits the number
 of solute bonded interactions that cross node boundaries.
 The processor to which a domain is assigned is responsible for
 the calculation of interactions of atoms within the domain.
-For the  calculation of forces and energies in which atoms are involved
-on neighboring domains assigned to different processors, information
+For the  calculation of forces and energies in which atoms in
+domains assigned to different processors are involved, information
 from these domains need to be exchanged between processors. The
 number of neighboring domains is determined by the size and shape
-of the domains and the range of interaction specified. It is this exchange
-of information that represents the main communication requirement, which
-is taking place every simulation time step. Consequently, one of the
-main efforts is to design a structure that minimizes the cost of this
+of the domains and the range of interaction. It is this exchange
+of information that takes place every simulation time step
+that represents the main communication requirements.
+Consequently, one of the main efforts is to design algorithms and
+data structures that minimize the cost of this
 communication. However, for very large molecular systems, memory
 requirements also need to be taken into account. A compromise between
-these requirements is found in performing the communication in
+these requirements is found by performing the communication in
 successive point to point communications rather than using the
 shift algorithm which reduces the number of communication calls
 for the same amount of communicated data.
 \par
-For inhomogeneous systems, differences in computational resources needed
-to evaluate interactions for a domain may appear between the different
-domains. This will generally lead to load imbalance between the processors.
-Two algorithms have been implemented that allow for dynamically balancing
-the workload of each processor. A coarse but effective method is the
-dynamic redistribution of intra-node domain-domain interactions. The
+For inhomogeneous systems, computational resources needed to evaluate 
+interactions for a domain may differ between the domains. 
+This will generally lead to load imbalance between the processors.
+In \nwargos\ two algorithms have been implemented that allow for 
+dynamically balancing the workload of each processor. 
+A coarse but effective method is the dynamic redistribution of 
+intra-node domain-domain interactions. The
 second implemented method is the dynamic resizing of each domain.
 \subsubsection{Topology}
 \label{topology}
@@ -100,15 +102,14 @@ electrostatic interactions, and a complete connectivity in terms
 of bonds, angles and dihedrals.
 \par
 In \nwargos, molecular systems are composed of {\it solvent} and 
-{\it solute}, which are treated separately. Solvent, is a collection 
-of identical molecules defined only once in the topology file. In the
+{\it solute}, which are treated separately. A solvent molecule is 
+defined only once in the topology file. In the
 current implementation only one solvent can be defined. Everything
-else in the molecular system is solute. Solute is the collection of
-molecules in the system of which each atom is explicitly defined in
-the topology. 
+else in the molecular system is solute. Each solute atom in the
+system is explicitly defined in the topology. 
 \par
 Molecular systems are defined in terms of {\it segment}s. Molecules
-can be defined in a single segment, or as a collection of segments.
+can be defined as a single segment, or as a collection of segments.
 Typically, repetitive parts of a molecule are each defined as a single
 segment. Segment files ({\bf sgm}) can be quite complicated to define 
 and are, therefore, collected in a set of database libraries. 
@@ -131,13 +132,11 @@ File names used by \nwargos\  need to have the form
 topology file (\ref{topology}), which should be named {\bf project.top}.
 Anything that refers to the definition of the chemical system can be used
 for {\bf project}, as long as no periods or underlines are used.
-\par
 The identifier {\bf id} can be anything that refers to the type of 
 calculation to be performed for the system.
-\par
 This file naming convention allows for the creation of a single topology file
-{\bf project.top} for a chemical system with which a number of different 
-calculations, identified with different {\bf id}.
+{\bf project.top} that can be used for a number of 
+different calculations, each identified with a different {\bf id}.
 For example, if {\bf crown.top} is the name of the topology file for
 a crown ether, {\bf crown\_em}, {\bf crown\_md}, {\bf crown\_mcti} could
 be used with appropriate extensions for the filenames for energy
@@ -151,7 +150,6 @@ The extensions {\bf ext}
 identify the kind of information on the file, and are determined by the 
 programs. Examples of extensions are {\bf top} for the topology file and 
 {\bf rst} for the restart file.
-\par
 The complete list of extensions used is
 \begin{tabbing}
 xxxxx\=\kill
@@ -198,10 +196,8 @@ The user is responsible for the private level {\bf u} and {\bf r} databases.
 Other database files include the force field independent fragment libraries 
 and the solvation restart files.
 \par
-It is not practical to have the database files available in each directory
-in which other files are created that depend on these databases. The paths
-to these databases may be defined in a file {\bf .nwargos} that needs to
-reside in a user's home directory.
+Paths to databases may be defined in a file {\bf .nwargos} in a user's 
+home directory.
 \subsubsection{Force fields}
 \label{forcefields}
 Force fields supported by \nwargos\ are
@@ -334,11 +330,11 @@ V-4   & i5     & bond type \\
 V-5   & i5     & bond parameter origin\\
       &        & 0: from database \\
       &        & 1: from next card\\
-VI-1  & f12.6  & bond lenght in nm, set 1\\
+VI-1  & f12.6  & bond length in nm, set 1\\
 VI-2  & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 1 \\
-VI-3  & f12.6  & bond lenght in nm, set 2\\
+VI-3  & f12.6  & bond length in nm, set 2\\
 VI-4  & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 2 \\
-VI-5  & f12.6  & bond lenght in nm, set 3\\
+VI-5  & f12.6  & bond length in nm, set 3\\
 VI-6  & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
 \hline
 \end{tabular}\\
@@ -447,7 +443,7 @@ non-bonded interactions, such as van der Waals and Coulombic interactions.
 \par
 The topology (\ref{topology}) of a molecular system is 
 generated by the topology generator \nwtop. The molecular system
-is described in terms of segments taken out of a database of predefined
+is described in terms of segments taken from a database of predefined
 segments. Segments that are not available in one of the database files
 can be generated bye a utility program \nwsgm\ (\ref{nwsgm}).
 \par
@@ -455,7 +451,7 @@ The command line to run \nwtop\ is
 \begin{verbatim}
 nwtop project forcefield
 \end{verbatim}
-where {\tt project} is the name of a sequence on one of the
+where {\tt project} refers to the name of a sequence in one of the
 sequence databases or a local file {\bf project.seq}, and
 {\tt forcefield} is the name of one of the 
 available force fields (\ref{forcefields}).
@@ -483,7 +479,7 @@ The directives taken from {\tt project}{\bf.rin} can be any of
 \begin{verbatim}
 title
 \end{verbatim}
-The three lines following this directive will be read as title.
+reading three lines as title immediately following the directive
 
 \item
 \begin{verbatim}
@@ -525,8 +521,8 @@ where {\tt filrst} is a restart file
 \begin{verbatim}
 solvate [box [<r bx>[<r by>[<r bz>]]]]
 \end{verbatim}
-Solvates the system in a rectangular box with dimensions 
-bx $\times$ by $\times$ bz in nm.
+solvates the system in a rectangular box with dimensions 
+bx $\times$ by $\times$ bz in nm
 
 \item
 \begin{verbatim}
@@ -553,7 +549,7 @@ x, y and z direction respectively
 \begin{verbatim}
 boxsize
 \end{verbatim}
-to resize the box to just fit all atoms present
+to resize the box to fit all atoms present
 
 \item
 \begin{verbatim}
@@ -595,7 +591,7 @@ to stop the restart file generation
 \subsection{System specification}
 The chemical system for a calculation is specified in the topology
 and restart files. These files should be created using the utilities
-\nwtop\ and \nwrst\ before a simulation can be done.
+\nwtop\ and \nwrst\ before a simulation can be performed.
 \begin{itemize}
 \item
 The names of these files are determined from the required project directive
@@ -617,7 +613,7 @@ where {\bf iset} is the parameter set in [1,2,3] found on the
 topology file. The default for {\bf iset} is 1.
 \end{itemize}
 \subsection{Energy minimization}
-The energy minimization of the system as found on the restart file 
+The energy minimization of the system as found in the restart file 
 is performed with the following directives.
 \begin{itemize}
 \item
@@ -625,7 +621,7 @@ To specify the parameter set
 \begin{verbatim}
 em [set <i iset>] 
 \end{verbatim}
-where {\bf iset} is the parameter set in [1,2,3] found on the
+where {\bf iset} is the parameter set in [1,2,3] found in the
 topology file. The default for {\bf iset} is 1.
 \item
 To specify the steepest descent steps
@@ -652,12 +648,12 @@ is the number of conjugate gradient steps after which the gradient history
 is discarded for which the default is 10.
 \end{itemize}
 The \verb+em+ directives may be combined in a single directive. Steepest
-descent energy minimization preceeds conjugate gradient minimization is
-both are specified.
+descent energy minimization always preceeds conjugate gradient minimization
+if both are specified.
 \subsection{Molecular dynamics simulation}
 \begin{itemize}
 \item
-A molecular dynamics simulation is specified as
+A molecular dynamics simulation is specified by
 \begin{verbatim}
 md [set <i iset>]
 \end{verbatim}
@@ -741,7 +737,7 @@ where {\bf mequi} is the number of equilibration steps, with a default
 of 100, and {\bf mdacq} is the number of data gathering steps with a
 default of 500. In multiconfiguration thermodynamic integrations
 {\bf mequi} and {\bf mdacq} are for each of the ensembles, and
-variable {\bf ldacq} specifies the minimum numberof datagathering steps 
+variable {\bf ldacq} specifies the minimum number of datagathering steps 
 in each ensemble. In regular molecular dynamics simulations {\bf ldacq}
 is not used. The default value for {\bf ldacq} is the value of {\bf mdacq}.
 \item
@@ -775,7 +771,7 @@ To specify a constant pressure ensemble using Berendsen's piston
 \end{verbatim}
 where {\bf prsext} is the external temperature with a default of 1.025~10$^5$ Pa,
 {\bf prsrlx} is the pressure relaxation time in ps with a default of 0.5, and
-{\bf compr} is the system compressibility in with a default of.
+{\bf compr} is the system compressibility in xx with a default of yy.
 \end{itemize}
 \subsection{Velocity reassignments}
 Velocities can be periodically reassigned to reflect a certain temperature.
@@ -804,10 +800,10 @@ frequency of {\bf nflong} molecular dynamics steps. The default value
 for both {\bf rshort} and {\bf rlong} is 0.9~nm.
 \end{itemize}
 \subsection{Polarization}
-Polarizable models are currently not implemented. For development only
+Polarizable models are currently not implemented. For development only:
 \begin{itemize}
 \item
-The use polarizable potentials is specified by
+The use of polarizable potentials is specified by
 \begin{verbatim}
 [polar [first | scf [<r ptol>]]]
 \end{verbatim}
@@ -854,8 +850,8 @@ information to the output file. If the keyword {\bf extra} is specified
 additional energetic data are printed for solvent and solute separately.
 If the keyword {\bf energy} is specified, information is printed for
 all bonded solute interactions.
-The default for {\bf nfoutp} is 0. For molecular dynamics simulation
-this frequency is in time steps, for multiconfiguration thermodynamic
+The default for {\bf nfoutp} is 0. For molecular dynamics simulations
+this frequency is in time steps, and for multiconfiguration thermodynamic
 integration in $\lambda$ steps.
 \item
 Printing statistical information
@@ -878,10 +874,10 @@ Updating pairlists
 \begin{verbatim}
 [update [pairs <i nfpair>]]
 \end{verbatim}
-where {\bf nfpair} is the frequency of updating the pairlists in
-molecular dynamics steps. The default for the frequency is 1.
+where {\bf nfpair} is the frequency in molecular dynamics steps of 
+updating the pairlists. The default for the frequency is 1.
 In addition, pairlists are also updated after each step in which
-recording of the restart or trajectory files is done. Updating
+recording of the restart or trajectory files is performed. Updating
 the pairlists includes the redistribution of atoms that changed
 domain and load balancing, if specified.
 \item
@@ -889,8 +885,8 @@ Updating long range forces
 \begin{verbatim}
 [update [long <i nflong>]]
 \end{verbatim}
-where {\bf nflong} is the frequency of updating the long range
-forces in molecular dynamics steps. The default frequency is 1.
+where {\bf nflong} is the frequency in molecular dynamics steps 
+of updating the long range forces. The default frequency is 1.
 The distinction of short range and long range forces is only
 made if the long range cutoff radius was specified to be larger
 than the short range cutof radius. Updating the long range forces
@@ -982,6 +978,22 @@ The free energy file, file extension {\bf gib}
 where {\bf nffree} is the frequency in multiconfiguration
 thermodynamic integration simulations to record data to this file.
 The default is 1, i.e.\ to record at every $\lambda$.
+\item
+The free energy convergence file, file extension {\bf cnv}
+\begin{verbatim}
+[record cnv]
+\end{verbatim}
+\item
+\item
+The free energy derivative autocorrelation file, file extension {\bf acf}
+\begin{verbatim}
+[record acf]
+\end{verbatim}
+\item
+The free energy vs. time file, file extension {\bf fet}
+\begin{verbatim}
+[record fet]
+\end{verbatim}
 \item
 The synchronization time file, file extension {\bf syn}
 \begin{verbatim}
