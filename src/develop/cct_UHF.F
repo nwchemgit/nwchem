@@ -717,9 +717,9 @@ c
       character*(*) typeA,typeB
 c
       logical ga_create,ga_destroy
-      integer ga_memory_avail,ga_nnodes,avail_ga,avail_ga
+      integer ga_memory_avail,ga_nnodes,avail_ga
       integer g_MATA,g_MATB,size
-      integer se,sf,sbk,eb,ee,fb,fe,la,lc,lea,lcf,lbk,llbk,len
+      integer se,sf,sbk,ee,fe,la,lc,lea,lcf,lbk,llbk,len
       integer batch,nbatch,bkb,bke
       integer spina,spine,spinc,spinf,spinb,spink
       integer occe,occf,occb,occk
@@ -877,7 +877,7 @@ c
       integer g_R,g_T,na,nc,ne,nf
       integer a,c,f
       integer ihi_R,ilo_R,jlh_R,ilh_T,jlo_T,jhi_T
-      integer l_R,k_R,l_T,k_T,ga_nodeid,ga_nnodes
+      integer l_R,k_R,l_T,k_T
       integer type_cct_sum
       data type_cct_sum/42/
       double precision sum,ddot
@@ -1045,9 +1045,9 @@ c
       character*(*) typeA,typeB
 c
       logical ga_create,ga_destroy
-      integer ga_memory_avail,ga_nnodes,avail_ga,avail_ga
+      integer ga_memory_avail,ga_nnodes,avail_ga
       integer g_MATA,g_MATB,size
-      integer se,sf,sbk,eb,ee,fb,fe,la,lc,lea,lcf,lbk,llbk,len
+      integer se,sf,sbk,ee,fe,la,lc,lea,lcf,lbk,llbk,len
       integer batch,nbatch,bkb,bke
       integer spina,spine,spinc,spinf,spinb,spink
       integer occe,occf,occb,occk
