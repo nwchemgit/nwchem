@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.37 1995-05-27 00:53:58 vg038 Exp $
+# $Id: GNUmakefile,v 1.38 1995-05-27 20:29:48 gg502 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -57,9 +57,14 @@
 
       LIBRARY =	libddscf.a
 
-    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F ao_fock_2e.F k2cf.F \
+    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F \
                 uhf.F scf_movecs.F scf_vectors_guess.F riscf_trans_int.F \
-                int2e_file.F fock_2e_shell_to_labels.F
+		int2e_file.F fock_2e_shell_to_labels.F fock_2e_a.F \
+		rhf_dens_to_mo.F scf.F schwarz_init.F vectors.F \
+		movecs_project.F fock_2e_b.F rohf.F rohf_nr_solve.F \
+		rohf_search_precond.F scf_vectors_guess.F \
+		fock_2e_from_file.F rohf_fock.F rohf_hessv_2e.F \
+		scf_get_info.F ao_fock_2e.F
 
 #
  LIB_DEFINES = 

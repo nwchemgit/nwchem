@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.30 1995-05-17 16:30:35 mg650 Exp $
+#$Id: GNUmakefile,v 1.31 1995-05-27 20:29:25 gg502 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -23,7 +23,7 @@ OBJ_OPTIMIZE = \
 	      moints_2x.F \
               moints_6x.F \
 	      moints_ccsd.F \
-              moints_aux2.F 
+              moints_aux2.F direct_mp2.F mointdriver.F
 
 LIB_DEFINES =  -DDEBUG_PRINT
 
