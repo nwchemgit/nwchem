@@ -424,6 +424,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	  
 	  indx++;
 	}
+	else {
+	  dlarnv_(&IONE, iseed, &blksiz, dscrat);
+	}
       }
     }
     
