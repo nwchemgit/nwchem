@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.22 2003-10-17 22:57:13 carlfahl Exp $
+* $Id: cpsdv5.F,v 1.23 2003-11-08 02:07:51 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -76,12 +76,23 @@
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
       integer i,j,k,ia,n,nn
-      integer ii,jj,index
+      integer ii,jj,indx
       integer icount,it_in,it_out
       real*8 w,sumall,virial
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
+
+      logical value,psi_nogrid
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3)
+      integer ind
+      character*30 filename
+      character*30 control_input_psi
+      external     control_input_psi
+      logical  wvfnc_expander
+      external wvfnc_expander
+
   
 
 
@@ -240,6 +251,64 @@
      >                     'psi1',psi1(2),psi1(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+
+*     *****  read initial wavefunctions into psi2  ****
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+
+        call ga_sync()
+        value = rtdb_parallel(.false.)
+        call ga_sync()
+        if (taskid.eq.MASTER) then
+
+          filename =  control_input_psi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        call ga_sync()
+        value = rtdb_parallel(.true.)
+
+      end if
+
+      end if
 
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
@@ -475,11 +544,11 @@
                ii = i-n1(ms)
                do j=n1(ms),n2(ms)
                   jj = j-n1(ms)
-                  index = (ii+1) + jj*n +(ms-1)*nn
+                  indx = (ii+1) + jj*n +(ms-1)*nn
                   write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+index-1),
-     >                           dbl_mb(lmd(1)+index-1),
-     >             dbl_mb(hml(1)+index-1)-dbl_mb(lmd(1)+index-1)
+     >                           dbl_mb(hml(1)+indx-1),
+     >                           dbl_mb(lmd(1)+indx-1),
+     >             dbl_mb(hml(1)+indx-1)-dbl_mb(lmd(1)+indx-1)
                end do
             end do
          end do
@@ -544,9 +613,9 @@ c    >              dbl_mb(lmd(1)),ierr)
             jj = j-n1(ms)
             do i=n1(ms),n2(ms)
                ii = i-n1(ms)
-               index = (ii+1) + jj*n + (ms-1)*nn
+               indx = (ii+1) + jj*n + (ms-1)*nn
              
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+index-1),
+               call Pack_cc_daxpy(1,dbl_mb(hml(1)+indx-1),
      >                            dcpl_mb(psi1(1)+(i-1)*npack1),
      >                            dcpl_mb(psi2(1)+(j-1)*npack1))
             end do
@@ -629,9 +698,9 @@ c    >              dbl_mb(lmd(1)),ierr)
            do ms=1,ispin
            do i=n1(ms),n2(ms)
              ii = i-n1(ms)
-             index = (ii+1) + ii*n +(ms-1)*nn
+             indx = (ii+1) + ii*n +(ms-1)*nn
              write(6,1341) ms,ii+1,ii+1,
-     >                       dbl_mb(hml(1)+index-1)
+     >                       dbl_mb(hml(1)+indx-1)
            end do
            end do
 
