@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: rimp2_denom.F,v 1.4 2000-11-04 02:14:33 edo Exp $
+C     $Id: rimp2_denom.F,v 1.5 2005-01-04 19:46:54 edo Exp $
 C
       Subroutine RIMP2_Denom(G_Ints, BaseI, BaseJ, NVirI, NVirJ,
      $   OccEigI, OccEigJ, VirEigI, VirEigJ)
@@ -45,6 +45,9 @@ C INCLUDE FILES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer   H_Int,Ailo,AIhi,BJlo,BJhi,LD
+#ifdef  BAD_GACCESS 
+      integer l_local
+#endif
 C
 C     First, find out what patch of the matrix we have.  First index
 C     is combined index AI, second is BJ
@@ -57,13 +60,31 @@ C     on it).
 C     
       If ( (AIhi-AIlo+1) * (BJHi-BJLo+1) .ne. 0) then
 C        
+#ifdef  BAD_GACCESS
+      if(.not.ma_push_get(MT_DBL,(aihi-ailo+1)*(bjhi-bjlo+1),
+     $  'scratch buff', l_local, h_int)) call
+     $  errquit('rimp2denom: pushget failed',0,0)
+      ld=aihi-ailo+1
+         write(0,*) ' a ',ailo,aihi,aihi-ailo+1
+         write(0,*) ' b ',bjlo,bjhi,bjhi-bjlo+1
+         write(0,*) ' ld ',ld,(aihi-ailo+1)*(bjhi-bjlo+1)
+      call ga_get(g_ints,ailo,aihi,bjlo,bjhi,dbl_mb(H_Int),ld)
+#else
          Call GA_Access( G_Ints, AIlo, AIhi, BJlo, BJhi, H_Int, LD)
+#endif
       call rimp2_denom_a(g_ints,
      ,     AIlo, AIhi, BJlo, BJhi, dbl_mb(H_Int), LD,
      ,     nviri,nvirj,basei,basej,
      ,     occeigi,occeigj,vireigi,vireigj)
 C        
+#ifdef  BAD_GACCESS 
+      call ga_put(g_ints,ailo,aihi,bjlo,bjhi,
+     $     dbl_mb(h_int),ld)
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('denom: popstack failed',0,0)
+#else
          Call GA_Release_Update( G_Ints, AIlo, AIhi, BJlo, BJhi)
+#endif
       EndIf
 C     
       Return

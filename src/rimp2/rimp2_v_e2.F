@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.28 2003-02-26 20:37:23 edo Exp $
+C     $Id: rimp2_v_e2.F,v 1.29 2005-01-04 19:46:54 edo Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
@@ -86,8 +86,13 @@ C
       Double Precision Sum_Pairs
       Integer LNBlnk
       External LNBlnk
-      External GA_DDot_Patch_DP
+#ifdef BAD_GACCESS
+      External rimp2_ddotp
+      Double precision rimp2_ddotp
+#else
+     External GA_DDot_Patch_DP
       Double precision GA_DDot_Patch_DP
+#endif
 c$$$C
 c$$$      External GA_DASum_Patch, GA_DAMax_Patch
 c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
@@ -321,7 +326,11 @@ C
                   If ( ISpin .eq. JSpin .AND. JLo .ge. ILo
      $               .AND. JHi .le. IHi) then
                      Call GA_Sync
+#ifdef BAD_GACCESS
+                     Call rimp2_copypp('N',
+#else
                      Call GA_Copy_Patch_DP('N',
+#endif
      $                  G_BigI, (JLo-ILo)*NVir(JSpin)+1,
      $                          (JHi-ILo+1)*NVir(JSpin), 1, NFit,
      $                  G_bigJ, 1, NJ*NVir(JSpin),       1, NFit )
@@ -436,7 +445,11 @@ C                          the patch to be copies will just fall through
 C                          and immediately go on to the next loop
 C                          iteration.
 C
+#ifdef BAD_GACCESS
+                     Call rimp2_copypp('T',
+#else
                            Call GA_Copy_Patch_DP('T',
+#endif
      $                        G_bigA, (I-ILo)*NVir(ISpin)+1,
      $                                (I-ILo+1)*NVir(ISpin),
      $                                (J-JLo)*NVir(JSpin)+1,
@@ -528,7 +541,11 @@ C
 C
                      Do J = JLo, JTop2
 C
+#ifdef BAD_GACCESS
+                     paire=rimp2_ddotp(
+#else
                         PairE = GA_DDot_Patch_DP(
+#endif
      $                     G_bigA, 'N', (I-ILo)*NVir(ISpin)+1,
      $                                  (I-ILo+1)*NVir(ISpin),
      $                                  (J-JLo)*NVir(JSpin)+1,
@@ -686,3 +703,100 @@ C
       RIMP2_V_E2 = .TRUE.
       Return
       End
+#ifdef BAD_GACCESS
+      double precision function rimp2_ddotp(
+     $                     g_a, tra, ailo,aihi,ajlo,ajhi,
+     $                     g_b, trb, bilo,bihi,bjlo,bjhi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      integer g_a, ailo,aihi,ajlo,ajhi,
+     $        g_b, bilo,bihi,bjlo,bjhi
+      character *1 tra,trb
+      double precision ddot
+      external ddot
+c
+      integer n,lda,ldb
+      integer k_a,l_a,k_b,l_b
+      integer me,iloa,ihia,jloa,jhia
+c
+      if(tra.ne.'N'.or.trb.ne.'N') call errquit(
+     $ 'rimp2ddot not ready ',0,0)
+      lda=aihi-ailo+1
+      me=ga_nodeid()
+      rimp2_ddotp=0d0
+c
+c     check intersect
+c
+      call ga_distribution(g_a, me,iloa,ihia,jloa,jhia)
+      if( ihia.lt. ailo.or. aihi.lt.iloa) return 
+      if( jhia.lt.ajlo.or. ajhi.lt.jloa) return 
+
+      ldb=bihi-bilo+1
+      n=(ajhi-ajlo+1)*(aihi-ailo+1)
+      if(.not.ma_push_get(MT_DBL,(aihi-ailo+1)*(ajhi-ajlo+1),
+     $  'scratch buff', l_a, k_a)) call
+     $  errquit('rimp2_ddot: pushget failed',0,0)
+      if(.not.ma_push_get(MT_DBL,(bihi-bilo+1)*(bjhi-bjlo+1),
+     $  'scratch buff', l_b, k_b)) call
+     $  errquit('rimp2_ddot: pushget failed',0,0)
+
+      call ga_get(g_a,ailo,aihi,ajlo,ajhi,dbl_mb(k_a),lda)
+      call ga_get(g_b,bilo,bihi,bjlo,bjhi,dbl_mb(k_b),ldb)
+      rimp2_ddotp=ddot(n,dbl_mb(k_a),1,dbl_mb(k_b),1)
+      if(.not.ma_pop_stack(l_b)) call 
+     $  errquit('riddot: popstack failed',0,0)
+      if(.not.ma_pop_stack(l_a)) call 
+     $  errquit('riddot: popstack failed',0,0)
+c
+      return
+      end
+      subroutine rimp2_copypp(trans, g_a, ailo, aihi, ajlo, ajhi,
+     *     g_b, bilo, bihi, bjlo, bjhi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      character *1 trans 
+      integer g_a, ailo, aihi, ajlo, ajhi,
+     *     g_b, bilo, bihi, bjlo, bjhi
+c
+      integer n,lda,ldb
+      integer k_a,l_a,k_b,l_b
+      integer me,iloa,ihia,jloa,jhia
+c
+      lda=aihi-ailo+1
+      ldb=bihi-bilo+1
+      n=(ajhi-ajlo+1)*(aihi-ailo+1)
+c
+c     check intersect
+c
+      me=ga_nodeid()
+      call ga_distribution(g_a, me,iloa,ihia,jloa,jhia)
+      if( ihia.lt. ailo.or. aihi.lt.iloa) return 
+      if( jhia.lt.ajlo.or. ajhi.lt.jloa) return 
+      if(.not.ma_push_get(MT_DBL,(aihi-ailo+1)*(ajhi-ajlo+1),
+     $  'scratch buff', l_a, k_a)) call
+     $  errquit('rimp2_ddot: pushget failed',0,0)
+      if (trans.ne.'N') then
+         if(.not.ma_push_get(MT_DBL,(bihi-bilo+1)*(bjhi-bjlo+1),
+     $        'scratch buff', l_b, k_b)) call
+     $        errquit('rimp2_ddot: pushget failed',0,0)
+      endif
+
+      call ga_get(g_a,ailo,aihi,ajlo,ajhi,dbl_mb(k_a),lda)
+      if(trans.eq.'N') then
+         call ga_put(g_b,bilo,bihi,bjlo,bjhi,dbl_mb(k_a),ldb)
+      else
+         call util_transpose(dbl_mb(k_a),lda,dbl_mb(k_b),ldb,
+     @  aihi-ailo+1,ajhi-ajlo+1)
+         call ga_put(g_b,bilo,bihi,bjlo,bjhi,dbl_mb(k_b),ldb)
+      endif
+      if (trans.ne.'N') then
+         if(.not.ma_pop_stack(l_b)) call 
+     $        errquit('ricopyp: popstack failed',0,0)
+      endif
+      if(.not.ma_pop_stack(l_a)) call 
+     $  errquit('ricopyp: popstack failed',0,0)
+      return
+      end
+#endif

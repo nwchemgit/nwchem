@@ -4,7 +4,7 @@ C     sum_pairs -- Sum up a matrix of pair energies to give an MBPT(2)
 C     energy.
 C
 C REVISION
-C     $Id: sum_pairs.F,v 1.3 2000-11-04 07:14:45 edo Exp $
+C     $Id: sum_pairs.F,v 1.4 2005-01-04 19:46:54 edo Exp $
 C
 C SYNOPSIS
       Double Precision Function Sum_Pairs( G_PairE, LowTri)
@@ -34,6 +34,10 @@ C INCLUDE FILES
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer ILo, IHi, JLo, JHi, LD,  I_Pair
+#ifdef BAD_GACCESS
+      integer l_local
+#endif
+
 C
       Sum_Pairs = FP_Zero
 C
@@ -41,14 +45,27 @@ C     Find out what patch we have and if there is anything, grab it.
 C
       Call GA_Distribution(G_PairE, GA_NodeID(), ILo, IHi, JLo, JHi)
       If ( (IHi-ILo+1) * (JHi-JLo+1) .gt. 0) then
+#ifdef  BAD_GACCESS
+      if(.not.ma_push_get(MT_DBL,(ihi-ilo+1)*(jhi-jlo+1),
+     $  'scratch buff', l_local, i_pair)) call
+     $  errquit('sumpairs: pushget failed',0,0)
+      ld=ihi-ilo+1
+      call ga_get(g_paire,ilo,ihi,jlo,jhi,dbl_mb(i_pair),ld)
+#else
          Call GA_Access(G_PairE, ILo, IHi, JLo, JHi, I_Pair, LD)
+#endif
 C
 C        For simplicity, we just loop over the whole patch and pick
 C        up the bits we need.
 C
       call sum_pairs_0(G_PairE, ILo, IHi, JLo, JHi, 
      ,dbl_mb(I_Pair), LD, Sum_Pairs, LowTri)
+#ifdef  BAD_GACCESS
+      if(.not.ma_pop_stack(l_local)) call 
+     $  errquit('sumpairs: popstack failed',0,0)
+#else
          Call GA_Release(G_PairE, ILo, IHi, JLo, JHi)
+#endif
       EndIf
 C
 C     Collect up everyone's partial sums so we all return the right 
