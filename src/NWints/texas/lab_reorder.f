@@ -1,5 +1,5 @@
       subroutine reorder(ncs,inx,iny,ncshell,ncfunct)
-c $Id: lab_reorder.f,v 1.2 1996-01-19 07:30:40 d3g681 Exp $
+c $Id: lab_reorder.f,v 1.3 1996-02-09 01:15:30 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
@@ -23,10 +23,10 @@ c      maybe this latter is not needed
 c find the lowest ang. momentum, and within that the highest contr.
 c length and within that the lowest atom number in the new
 c atomic ordering       
-c     write(*,*) 'original basis set'
-c     do 100 ics=1,ncs
-c      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
-c100  continue
+d     write(*,*) 'original basis set'
+d     do 100 ics=1,ncs
+d      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
+d100  continue
 c------------------------------------
  400  continue
       iexch=0
@@ -73,12 +73,12 @@ c       end of contr= beginning+(shell-size)*(1+number of gen. contr.)
  700  continue
       if (iexch.eq.1) go to 400
 c------------------------------------
-c     write(*,*) 'reordered basis set'
-c     do 600 ics=1,ncs
-c      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
-c666    format(' ics=',i3,' ib=',i3,' nat=',i3,' shz=',i3,' gc=',i3,
-c    1  ' ie=',i3,' lcf=',i3,' fcf=',i3, ' type=',i2)
-c600  continue
+d     write(*,*) 'reordered basis set'
+d     do 600 ics=1,ncs
+d      write(*,666) ics,(inx(ii,ics),ii=1,5),(inx(9+ii,ics),ii=1,3)
+d666    format(' ics=',i3,' ib=',i3,' nat=',i3,' shz=',i3,' gc=',i3,
+d    1  ' ie=',i3,' lcf=',i3,' fcf=',i3, ' type=',i2)
+d600  continue
 c------------------------------------
 c  set up a basis set relation between 
 c  original (PNL) and re-ordered (TXS)

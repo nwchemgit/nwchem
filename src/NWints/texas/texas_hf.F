@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.9 1996-01-19 07:31:12 d3g681 Exp $
+c $Id: texas_hf.F,v 1.10 1996-02-09 01:15:45 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -64,7 +64,6 @@ c--------------------------------------------------------
 c--------------------------------------------------------
       end
 c=================================================================
-c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
       subroutine mul_quart(icspnl,jcspnl,kcspnl,lcspnl,nquart,q4,use_q4,
      *                     ra,rb,rc,rd,use_r, bl   ,l_blscr,eri,leri,
      *                     icf,jcf,kcf,lcf,integ_nx,labels, more_int)
@@ -81,7 +80,7 @@ c----------------------------------------------------------------
       common /pnl001/ ispec,ijpres2,klpres2, ijblock,klblock,iqorder
       common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
 c----------------------------------------------------------------
-      common /pnl006/ nsplit,isplit,isbl_split
+      common /pnl006/ nsplit,isplit,isbl_split, isbl_part
 c----------------------------------------------------------------
       common /pnl_time1/ time_pt,time_setup
       common /pnl_time2/ time_calc2,time_do2,time_do4,time_doqrt
@@ -106,8 +105,7 @@ c
 c     call getmem(0,last11)
 c     call retmem(1)
 c----------------------------------------------------------------
-c if more_int is true it means that it is called for the same quartet
-c again :
+c MORE_INT=true means that it is called for the same request again 
 c
   999 continue
 c
@@ -140,7 +138,8 @@ c
       call txs_setup(bl,inx,ncs,leri,
      *               nquart,icspnl,jcspnl,kcspnl,lcspnl,labels)
 c
-c  8 calls to getmem 
+c  9 calls to getmem 
+c 10 calls to getmem
 c if(.not.labels) +1 call to getmem
 c
       call txs_second(tim_2setup)
@@ -148,10 +147,6 @@ c
 c----------------------------------------------------------------
 c if this pnl-request is too big (too many integrals at once) 
 c
-c-->  if( isplit.gt.0 ) then
-          write(8,*)'pnl-request no=',ncall_pnl,' size=,',nquart,
-     *              ' is split into ',isplit+1,' pieces'
-c-->  endif
       if( isplit.gt.0 ) then
           more_int=.true.
           nsplit=0
@@ -198,12 +193,12 @@ c
 c
       if(.not.more_int) then
          if(.not.labels) then
-CCCCCC      call retmem( 9)
-            call retmem(10)
+c013196     call retmem(10)
+            call retmem(11)
             call retint(1)
          else
-CCCCC       call retmem( 8)
-            call retmem( 9)
+c013196     call retmem( 9)
+            call retmem(10)
             call retint(1)
          endif
 c-------------------------
@@ -311,7 +306,7 @@ c
       common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
       common /pnl004/ isize,jsize,ksize,lsize,itxspnl
       common /pnl005/ isblsize,isblqrts
-      common /pnl006/ nsplit,isplit,isbl_split
+      common /pnl006/ nsplit,isplit,isbl_split, isbl_part
       common /pnlRJH/ isblcall
       dimension icspnl(*),jcspnl(*),kcspnl(*),lcspnl(*)  ! dim=nquart
       dimension inx(12,*)
@@ -388,12 +383,23 @@ c
      *     bl(isblsize),bl(isblqrts) )
 c       1 call to getmem
 c---------------------------------------------------------
+c check current sizes of super-blocks against maximum sizes
+c and available size of integral's buffer (leri):
+c (maximum sizes calculated in blksizer (spec_block.f) )
+c
+      call getmem(nsupblk,isbl_part)
+      call supblks_split(bl(mxsize),leri,inx,
+     *                   bl(iisd),bl(jjsd),bl(ijbld),nbl2,
+     *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
+c
+c---------------------------------------------------------
 c calculate the size of the request and split it if needed
 c
       call getmem(nsupblk+2,isbl_split)
       call request_split(leri,inx,bl(iisd),bl(jjsd),nbl2,
-     *     bl(ijpres2),bl(klpres2),
-     *     bl(isblsize),bl(isblqrts),bl(isbl_split),isplit )
+     *     bl(ijpres2),bl(klpres2),bl(isblsize),bl(isblqrts),
+     *     bl(isbl_part),bl(mxsize),
+     *     bl(isbl_split),isplit )
 c
       call retmem(1)
       call getmem(isplit+2, isbl_split)
@@ -742,70 +748,6 @@ c  66 format('ii=',i3,1x,'itxspnl(ii)=',i3)
 c
       end
 c=====================================================================
-      subroutine request_split(leri,inx,iis,jjs,nbl2,
-     *                         ijpres2,klpres2,isbl_s,isbl_q,
-     *                         isbl_split,isplit)
-c--------------------------------------------------------
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
-      dimension inx(12,*)
-      dimension iis(*),jjs(*)
-      dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
-      dimension isbl_q(*) ! dimension nquart
-      dimension ijpres2(*),klpres2(*)  ! dimension nquart
-      dimension isbl_split(0:*)
-c-----------------------------------
-c
-         isplit=0
-         integrals=0
-         ipoint=0
-ctest
-cccc      RETURN
-ctest
-         do 60 ibl=1,nbl2
-         iibl=ibl*(ibl-1)/2
-         do 60 kbl=1,ibl
-         isupb=iibl+kbl
-         isbl_size=isbl_s(isupb)
-         if(isbl_size.eq.0) go to 60
-c
-           iq1=isbl_q(ipoint+1)
-           ijcs1=ijpres2(iq1)
-           klcs1=klpres2(iq1)
-           ics1=iis(ijcs1)
-           jcs1=jjs(ijcs1)
-           kcs1=iis(klcs1)
-           lcs1=jjs(klcs1)
-           integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
-           integ=integ1*isbl_size
-           if(integ.gt.leri) then
-              write(6,*)' integrals buffer =',leri,' too small;'
-              write(6,*)' nedded=size*integ=',isbl_size,'*',integ1
-              write(6,*)' increase LERI  or decrease LIMPAIR'
-              stop ' stoped in request_split routine'
-           endif
-           if((integrals+integ).gt.leri) then
-              isplit=isplit+1
-              integrals=integ
-              isbl_split(isplit)=isupb
-c       write(6,*) 'split current PNL request no=',ncall_pnl,' at :' 
-c       write(6,*) ' super-block no=',isupb,' ibl=',ibl,' kbl=',kbl
-c       write(6,*) ' number of integrals to process =',integrals
-           else
-              integrals=integrals+integ
-           endif
-           ipoint=ipoint+isbl_size
-   60    continue
-c
-         isblast=nbl2*(nbl2+1)/2
-         isbl_split(0)=1
-         isbl_split(isplit+1)=isblast+1
-c---------------------------------------------------------
-c     write(6,*)' from request_split : isbl_split '
-c     write(6,66)(isbl_split(ii),ii=0,isplit+1)
-c 66  format(' isbl_split(ii)=',i3)
-c---------------------------------------------------------
-      end
-c=====================================================================
       subroutine switch_scr(bltxs, blscr,l_blscr)
       implicit real*8 (a-h,o-z)
 c
@@ -879,5 +821,159 @@ c
       ib(ii)=ia(ii)
    10 continue
 c
+      end
+c=====================================================================
+      subroutine supblks_split(maxsize,leri,inx,iis,jjs,ijbl,nbl2,
+     *                         ijpres2,klpres2,isbl_s,isbl_part)
+c--------------------------------------------------------------------
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+      dimension maxsize(*)
+      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*)
+      dimension isbl_s(*) ! dimension nbl2*(nbl2+1)/2  num of super-blks
+      dimension ijpres2(*),klpres2(*)  ! dimension nquart
+      dimension isbl_part(*)  ! dimension nbl2*(nbl2+1)/2
+c--------------------------------------------------------------------
+c first re-define maximum size according to leri :
+c
+      if(ncall_pnl.eq.1) then
+         isupb=0
+         do 10 ibl=1,nbl2
+         ijcs1=ijbl(ibl,1)
+         ics1=iis(ijcs1)
+         jcs1=jjs(ijcs1)
+         do 10 kbl=1,ibl
+            isupb=isupb+1 
+            maxm_size=maxsize(isupb)
+            klcs1=ijbl(kbl,1)
+            kcs1=iis(klcs1)
+            lcs1=jjs(klcs1)
+            integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
+            integ=integ1*maxm_size
+            if(integ.gt.leri) then
+               nqrts=leri/integ1
+               if(nqrts.eq.0) nqrts=1
+               write(8,*)' maximum size of the super-block=',isupb,
+     *         ' changed from ',maxsize(isupb),' to ',nqrts,
+     *         ' according to LERI'
+               maxsize(isupb)=nqrts
+            endif
+   10    continue
+      endif
+c
+c split each super-block in parts if its current pnl-size is greater
+c than maximum-size allowed :
+c
+         nblock_split=0
+         nparts_total=0
+         do 60 ibl=1,nbl2
+         iibl=ibl*(ibl-1)/2
+         do 60 kbl=1,ibl
+         isupb=iibl+kbl
+         isbl_size=isbl_s(isupb)
+         maxm_size=maxsize(isupb)
+         isbl_part(isupb)=1
+         if(isbl_size.gt.maxm_size) then
+            nblock_split=nblock_split+1
+c
+            nparts=isbl_size/maxm_size
+            nrem=mod(isbl_size,maxm_size)
+            if(nrem.gt.0) nparts=nparts+1
+            isbl_part(isupb)=nparts
+            nparts_total=nparts_total+nparts
+c           write(8,*)
+c    *      ' sup-blk no=',isupb,' too big; size=',isbl_size,
+c    *      ' max.=',maxm_size,';split into ',nparts,'parts'
+         endif
+   60    continue
+c---------------------------------------------------------
+c     if(nblock_split.gt.0) then
+c        write(8,*)'in pnl-request no.=',ncall_pnl,' ',nblock_split,
+c    *             ' blocks are too big ---> ',nparts_total,' parts'
+c     endif
+c---------------------------------------------------------
+c     write(8,*)' from supblks_split : isbl_part :'
+c     write(8,66)(isbl_part(ii),ii=1,nbl2*(nbl2+1)/2 )
+c 66  format(' isbl_part(ii)=',i3)
+c---------------------------------------------------------
+      end
+c=====================================================================
+      subroutine request_split(leri,inx,iis,jjs,nbl2,ijpres2,klpres2,
+     *                         isbl_s,isbl_q, isbl_part,maxsize,
+     *                         isbl_split,isplit)
+c--------------------------------------------------------------------
+c if a given pnl-request is too big then it is devided into parts:
+c--------------------------------------------------------------------
+      common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+      dimension inx(12,*)
+      dimension iis(*),jjs(*)
+      dimension isbl_s(*)               ! dimension nbl2*(nbl2+1)/2  
+      dimension isbl_q(*)               ! dimension nquart
+      dimension ijpres2(*),klpres2(*)   ! dimension nquart
+      dimension isbl_part(*),maxsize(*) ! dim. nbl2*(nbl2+1)/2
+      dimension isbl_split(0:*)
+c-----------------------------------
+c
+         itotal=0
+         isplit=0
+         integrals=0
+         ipoint=0
+c
+         do 60 ibl=1,nbl2
+         iibl=ibl*(ibl-1)/2
+         do 60 kbl=1,ibl
+         isupb=iibl+kbl
+         isbl_size=isbl_s(isupb)
+         maxm_size=maxsize(isupb)
+         nparts=isbl_part(isupb)
+         if(isbl_size.eq.0) go to 60
+c
+           iq1=isbl_q(ipoint+1)
+           ijcs1=ijpres2(iq1)
+           klcs1=klpres2(iq1)
+           ics1=iis(ijcs1)
+           jcs1=jjs(ijcs1)
+           kcs1=iis(klcs1)
+           lcs1=jjs(klcs1)
+           integ1=inx(3,ics1)*inx(3,jcs1)*inx(3,kcs1)*inx(3,lcs1)
+c
+c  splitting among super-blocks :
+c
+           if(nparts.eq.1) then
+              integ=integ1*isbl_size
+              if((integrals+integ).gt.leri) then
+                 itotal=itotal+1
+                 isplit=isplit+1
+                 integrals=integ
+                 isbl_split(isplit)=isupb
+              else
+                 integrals=integrals+integ
+              endif
+           else 
+c  splitting inside of one super-block :
+              itotal=itotal+nparts
+              isplit=isplit+1
+              integrals=0
+              isbl_split(isplit)=isupb
+           endif
+c
+           ipoint=ipoint+isbl_size
+   60    continue
+c
+         isblast=nbl2*(nbl2+1)/2
+         isbl_split(0)=1
+         isbl_split(isplit+1)=isblast+1
+c
+c---------------------------------------------------------
+      if( isplit.gt.0 ) then
+          write(8,*)'pnl-request no=',ncall_pnl,' size=',nqrtpnl,
+     *              ' split into ',itotal+1,' pieces'
+ccc  *              ' split into ',isplit+1,' pieces'
+      endif
+c---------------------------------------------------------
+c     write(6,*)' from request_split : isplit=',isplit+1
+c     write(6,66)(isbl_split(ii),ii=0,isplit+1)
+c 66  format(' isbl_split(ii)=',i3)
+c---------------------------------------------------------
       end
 c=====================================================================

@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.13 1996-01-22 21:49:27 d3e129 Exp $
+c $Id: texas_face.F,v 1.14 1996-02-09 01:15:43 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -362,9 +362,9 @@ c
 c--------------------------------------------------
 c ONLY for TESTS : calculate two-electron integrals  
 c---
-**       call test_calc2(nshells, l_blsize)
+c      call test_calc2(nshells, l_blsize)
 c---
-c End of tests; program wiil be stopped in test_calc2.
+c End of tests; program will be stopped in test_calc2.
 c--------------------------------------------------
 *rak:      write(6,*)'i h_txs_basnuc ',h_txs_basnuc
 *rak:      write(6,*)'i h_txs_mapp1  ',h_txs_mapp1
@@ -591,6 +591,8 @@ c------------------------------------
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
       common /ilepar/ lpartot,lpareal
 c------------------------------------
+      common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+c------------------------------------
       dimension basnuc(*)
 c------------------------------------
 c initialize commons number,ener,ganz,type :
@@ -598,6 +600,8 @@ c
       call txs_initial
 c
 c------------------------------------
+      ncall_pnl=0
+      nqrts_pnl=0
 c
       xbluse=0.d0
       nbluse=0
@@ -641,7 +645,7 @@ c
 c
       if (.not. MA_alloc_get(MT_DBL,isize_from_ma, 'txs-pnl mapping1',
      &                       h_txs_mapp1, k_txs_mapp1))
-     &    call errquit('texas_init: alloc for texas basis/nuc failed',
+     &    call errquit('texas_init: alloc for texas mapping1 failed',
      &    911)
 c
       ncfunct=k_txs_mapp1

@@ -1,4 +1,4 @@
-c $Id: memoha.f,v 1.2 1996-01-22 18:32:13 d3g681 Exp $
+c $Id: memoha.f,v 1.3 1996-02-09 01:15:31 d3g681 Exp $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)
