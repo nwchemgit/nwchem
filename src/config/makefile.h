@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.338 2000-10-20 20:31:18 edo Exp $
+# $Id: makefile.h,v 1.339 2000-10-27 19:56:13 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1531,16 +1531,16 @@ else
   CORE_LIBS += -ltcgmsg 
 endif 
 # lower level libs used by communication libraries 
-
-ifdef COMM_LIBS 
- CORE_LIBS += $(COMM_LIBS) 
-endif 
  
 #the new GA uses ARMCI library
 ifndef OLD_GA
       CORE_LIBS += -larmci
 endif
 
+
+ifdef COMM_LIBS 
+ CORE_LIBS += $(COMM_LIBS) 
+endif 
 
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
