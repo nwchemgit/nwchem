@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_trp.F,v 1.1 1995-05-17 16:18:26 mg650 Exp $
+c  $Id: moints_trp.F,v 1.2 1995-05-18 07:46:58 mg650 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -86,6 +86,10 @@ c
 c
        integer moints_numgr, gr_len
        external moints_numgr, gr_len
+c
+       double precision half
+       data half/0.5d00/
+c
 c
 c
 c These are options that should be set
@@ -181,7 +185,7 @@ c
            jlen = jbfhi - jbflo + 1
            schw_ij = schwarz_shell(ish,jsh)
            scale = 1.d0
-           if (ish.eq.jsh) scale = scale*0.5d0
+           if (ish.eq.jsh) scale = scale*half
            if (schw_ij*schwarz_max().ge.tol2e) then
              if (next.eq.ploop) then
                tottask = tottask + 1
@@ -219,7 +223,7 @@ c
                      tz = tcgtime()
                      call moints_trf1( nbf, mo1_lo, mo1_hi,
      $                                 ilen, jlen, kbflo, kbfhi,
-     $                                 lbflo, lbfhi, 0.5d0,
+     $                                 lbflo, lbfhi, half,
      $                                 dbl_mb(k_ssbb),
      $                                 dbl_mb(k_ssbb), cmo,
      $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )

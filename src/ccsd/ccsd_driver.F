@@ -53,6 +53,9 @@ capr
        data algo/'twofold'/
 capr
        data charge/0.d0/
+       double precision zip,one,two
+       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
+c
 c
 c
 c
@@ -83,25 +86,25 @@ c Reconcile number of electrons and occupied/virtual orbitals
 c
        nelec = int(nuclear_charge - charge)
        status = MA_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
-       call dfill(nbf, 0.0d0, dbl_mb(k_occ), 1)
+       call dfill(nbf, zip, dbl_mb(k_occ), 1)
        if (.not. rtdb_get(rtdb, 'scfoccupation', MT_DBL, nbf,
      $      dbl_mb(k_occ))) then
          nocc = nelec/2
          nopen = mod(nelec,2)
          nact = nopen
          do i = 1, nocc
-            dbl_mb(i-1+k_occ) = 2.0d0
+            dbl_mb(i-1+k_occ) = two
          enddo
          do i = 1, nact
-           dbl_mb(i-1+nocc+k_occ) = 1.d0
+           dbl_mb(i-1+nocc+k_occ) = one
          enddo
        else
          nocc = 0
          nact = 0
          do i=1,nbf
-           if (dbl_mb(k_occ+i-1).eq.2.d0) then
+           if (dbl_mb(k_occ+i-1).eq.two) then
              nocc = nocc + 1
-           else if (dbl_mb(k_occ+i-1).ne.0.d0) then
+           else if (dbl_mb(k_occ+i-1).ne.zip) then
              nact = nact + 1
            endif
          enddo
@@ -304,7 +307,7 @@ c
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
      $                        l_epair, k_epair)
          ii = 0
-         emp2 = 0.0d0
+         emp2 = zip
          do i=occ_lo,nocc
            do j=occ_lo,i
              ij = ((i-occ_frozen)*(i-occ_frozen-1))/2 + j - occ_frozen

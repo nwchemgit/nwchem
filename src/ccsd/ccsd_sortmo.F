@@ -7,6 +7,9 @@ c
       integer iam,ga_nodeid
       integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av
       double precision xx,gmoint2
+      double precision zip
+      data zip/0.0d00/
+c
       if (iprt.gt.5)print *,' sort_ccsd '
 c      call ga_summarize(.true.)
 c      call ga_print(g_coul)
@@ -15,7 +18,7 @@ c
       iam = ga_nodeid()
       call ga_distribution(g_coul,iam,jlo,jhi,ilo,ihi)
       ndima=nocc*nocc*nocc*(nocc+1)/2
-      call dfill(ndima,0.0d00,aint,1)
+      call dfill(ndima,zip,aint,1)
       do ij=1,nocc*(nocc+1)/2
        if (ij.ge.ilo.and.ij.le.ihi)then
         call ga_get(g_exch,1,nocc*nbf,ij,ij,scr,nocc*nbf)
