@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.8 1996-03-06 18:13:11 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.9 1996-03-13 22:52:32 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -15,6 +15,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "sym.fh"
+#include "util.fh"
 #include "msgids.fh"
 #include "mcscfprof.fh"
 c
@@ -51,6 +52,7 @@ c
        double precision xx, yy, eold, hmax, hmin, maxx
        integer g_afock, g_ifock, g_gfock
        integer g_newvecs, g_grad, g_kvec, g_srch, g_hdiag
+       logical olsrchprint
 c
        double precision linesrch
        external linesrch
@@ -71,6 +73,7 @@ c
          if (.not. rtdb_get(rtdb,'scf:lshift',MT_DBL,1,lshift0))
      $     lshift0 = 0.1d0
        endif
+       lshift = lshift0
        if (.not.geom_nuc_rep_energy( geom, enrep ))
      $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
        molo = nclosed + 1
@@ -147,6 +150,9 @@ c
          hmin = min(hmin,yy)
          if (abs(yy).lt.0.05d0) ismall = ismall + 1
        enddo
+       call ga_sync()
+       call ga_dgop(Msg_HessMin,hmin,1,'min')
+       call ga_dgop(Msg_HessMax,hmax,1,'max')
        if (hmin.lt.0.1d0) then
          do i=ga_nodeid()+1,vlen,ga_nnodes()
            call ga_get(g_hdiag,i,i,1,1,yy,1)
@@ -187,12 +193,11 @@ c
 c
 c  Info
 c
+       olsrchprint = (ga_nodeid().eq.0).and.
+     $               (util_print('linesrch',print_default))
        if (ga_nodeid().eq.0) write(6,966) (snorm/gnorm), lshift
  966   format(/,'Scaled search norm:',5x,e12.2,
      $        /,'Level shift:',15x,f12.3)
-c$$$       IF (GA_NODEID().EQ.0) WRITE(6,967)
-c$$$ 967   FORMAT(/,15X,'ALPHA',15X,'ENERGY',12X,'GPROJ',4X,
-c$$$     $              'GPROJSCALED',/,14X,60('-'))
 c
 c  Line search...
 c
@@ -204,7 +209,7 @@ c
        do iter=1,maxlinsrch
          nstep = iter
          if (line_search( nstep, maxlinsrch, eev, gsv, av, 1.d-8,
-     $       2.d-1, .true. )) goto 100
+     $       2.d-1, olsrchprint )) goto 100
          alpha = av(nstep-1)
          call ga_dadd( alpha, g_srch, 0.d0, g_kvec, g_kvec )
          call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
@@ -299,7 +304,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.8 1996-03-06 18:13:11 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.9 1996-03-13 22:52:32 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch
