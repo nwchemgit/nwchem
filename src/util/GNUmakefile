@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.7 1994-08-17 06:23:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.8 1994-08-20 00:27:45 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -14,6 +14,7 @@ endif
 
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
+              util_hostname.o util_date.o \
               ga_iter_orthog.o ga_iter_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_minimize.o line_search.o $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
