@@ -1,5 +1,5 @@
 c
-c $Id: aorbs_formatter.F,v 1.2 2001-11-30 00:56:03 bylaska Exp $
+c $Id: aorbs_formatter.F,v 1.3 2002-01-04 23:20:01 bylaska Exp $
 c
 
 *     ***************************************
@@ -50,7 +50,12 @@ c
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.pspw_filefind(psp_filename)) then
         call psp_generator_auto(atom,lmax,locp,rlocal)
+
+*     **** get lmax,locp,and rlocal from rtdb ****
+      else
+         call control_pspparameters(atom,lmax,locp,rlocal)
       end if
+
 
 *     **** cell information ****
       version = control_version()

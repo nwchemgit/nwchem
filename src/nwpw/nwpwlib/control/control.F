@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.17 2001-12-28 20:58:44 bylaska Exp $
+* $Id: control.F,v 1.18 2002-01-04 23:20:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -1342,4 +1342,49 @@
       return
       end
 
+*     *****************************
+*     *                	 		  *
+*     *   control_pspparameters   *
+*     *                 	 	  *
+*     *****************************
+      subroutine control_pspparameters(atom,lmax,locp,rlocal)
+      implicit none
+      character*2 atom
+      integer     lmax,locp
+      real*8      rlocal
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer l,k
+      character*4  element
+      character*20 rtdb_name
+
+      element = '    '
+      element = atom
+      l = index(element,' ') - 1
+      rtdb_name = '                   '
+      rtdb_name       = element(1:l)//':lmax'
+      k = index(rtdb_name,' ') - 1
+      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_int,1,lmax)) 
+     >  lmax = -1
+
+      rtdb_name = '                   '
+      rtdb_name       = element(1:l)//':locp'
+      k = index(rtdb_name,' ') - 1
+      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_int,1,locp)) 
+     >  locp = -1
+
+      rtdb_name = '                   '
+      rtdb_name       = element(1:l)//':rlocal'
+      k = index(rtdb_name,' ') - 1
+      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rlocal)) 
+     >  rlocal = 1.0d0
+      
+      return
+      end
 

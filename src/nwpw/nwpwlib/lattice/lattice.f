@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.2 2001-12-12 02:42:27 bylaska Exp $
+* $Id: lattice.f,v 1.3 2002-01-04 23:20:00 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -159,10 +159,12 @@ c     call D3dB_nz(1,nz)
       if (gg3.lt.gg) gg=gg3
 
       ecut = 0.5d0*gg
-      wcut = ecut
-
       if (ecut0.lt.ecut) then
          ecut = ecut0
+      end if
+
+      wcut = ecut
+      if (wcut0.lt.wcut) then
          wcut = wcut0
       end if
 

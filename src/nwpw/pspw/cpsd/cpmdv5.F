@@ -13,7 +13,7 @@
 
       logical function cpmdv5(rtdb)
 *
-* $Id: cpmdv5.F,v 1.8 2001-11-30 00:56:03 bylaska Exp $
+* $Id: cpmdv5.F,v 1.9 2002-01-04 23:20:01 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -838,7 +838,7 @@
 *                |***************************|
 
 *     **** calculate spin contamination ****
-      call Calculate_psi_spin2(ispin,ne,nfft3d,dcpl_mb(psi2(1)),
+      call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi2(1)),
      >                         dipole)
 
 *     **** calculate the Dipole ***

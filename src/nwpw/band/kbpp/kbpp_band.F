@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.1 2001-12-13 03:51:23 bylaska Exp $
+* $Id: kbpp_band.F,v 1.2 2002-01-04 23:19:59 bylaska Exp $
 *
 
 *     **************************************
@@ -38,8 +38,8 @@
 *     **** 1d pseudopotential data ****
       character*2 atom
       double precision zv,amass
-      integer lmax0,lmmax
-      double precision rc(0:9)
+      integer lmax0,lmmax,lmax1,locp1
+      double precision rc(0:9),rlocal1
       integer nrho
       double precision drho
       integer rho_indx,vp_indx,wp_indx,sc_r_indx,sc_k_indx
@@ -79,7 +79,7 @@
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
       read(11,'(A2)',ERR=9999,END=9999) atom
-      read(11,*,ERR=9999,END=9999) zv,amass,lmax0
+      read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
       end if
@@ -96,10 +96,12 @@
 
 
 *     **** set the maximum angular momentum ****
+      if (lmax.eq.-1)    lmax = lmax1
       if (lmax.gt.lmax0) lmax = lmax0
       if (lmax.lt.0)     lmax = lmax0
 
 *     **** set the local potential ****
+      if (locp.eq.-1)   locp = locp1
       if (locp.gt.lmax) locp = lmax
       if (locp.lt.0)    locp = lmax
 

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.5 2001-12-28 19:04:24 bylaska Exp $
+* $Id: cpsi.F,v 1.6 2002-01-04 23:19:59 bylaska Exp $
 *
 
 
@@ -1002,10 +1002,12 @@ c      end
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
 
-      if (psi_get_version().eq.3) 
-     >  value= pspw_reformat_c_wvfnc()
-      if (.not. value) 
-     >   call errquit('cpsi_initialize: error reformatting psi',0)
+      nbrillioun = brillioun_nbrillioun()
+      if (psi_get_version().eq.3) then
+        value= pspw_reformat_c_wvfnc(nbrillioun)
+        if (.not. value) 
+     >    call errquit('cpsi_initialize: error reformatting psi',0)
+      end if
 
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)

@@ -1,9 +1,10 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.1 2001-12-20 00:30:51 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.2 2002-01-04 23:20:00 bylaska Exp $
 *
 
-      logical function  pspw_reformat_c_wvfnc()
+      logical function  pspw_reformat_c_wvfnc(nbrill)
       implicit none
+      integer nbrill
 
 #include "mafdecls.fh"
  
@@ -13,11 +14,11 @@
       character*255 full_filename,full_filename2
       character*255 full_filename3
       integer version,ierr
-      integer ne(2),ispin
-      integer ngrid(3),nbrill
+      integer ne(2),ispin,neall
+      integer ngrid(3)
       integer cfull(2),cfull_out(2)
       integer nfft3d,n2ft3d,nfft3d_out
-      integer ms,n,l
+      integer ms,n,l,nb
 
       double precision unita(3,3)
 
@@ -29,7 +30,6 @@
       value = .false.
       version = 3
 
-      nbrill = 1
 
       wavefunction_filename = control_input_psi() 
       call util_file_name_noprefix(wavefunction_filename,
@@ -82,25 +82,29 @@
   109 format(' filename converted    : ',A)
   110 format(' pspw filename moved to: ',A)
 
- 
+      neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = MA_alloc_get(mt_dcpl,nfft3d*neall,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
       if (.not.value) call errquit("out of memory",0)
 
-
+       
+      call  dread(5,dcpl_mb(cfull(1)),n2ft3d*neall)
+      do nb=1,nbrill
       do ms=1,ispin
         do n=1,ne(ms)
-          write(*,*) "converting ... psi:", n," spin:",ms
-          call  dread(5,dcpl_mb(cfull(1)),n2ft3d)
+          write(*,*) "converting ... psi:", n," spin:",ms," nb:",nb
           call  convert_real_to_complex(ngrid(1),ngrid(2),ngrid(3),
-     >                                  dcpl_mb(cfull(1)),
+     >                                  dcpl_mb(cfull(1)
+     >                                         +(ispin-1)*ne(1)*nfft3d
+     >                                         +(n-1)*nfft3d),
      >                                  dcpl_mb(cfull_out(1)))
           call dwrite(6,dcpl_mb(cfull_out(1)),2*nfft3d_out)
         end do
+      end do
       end do
       call closefile(5)
       call closefile(6)

@@ -1,5 +1,5 @@
 c
-c $Id: cgsd_input.F,v 1.6 2001-11-30 17:30:28 bylaska Exp $
+c $Id: cgsd_input.F,v 1.7 2002-01-04 23:20:01 bylaska Exp $
 c
       subroutine cgsd_input(rtdb)
       implicit none
@@ -358,10 +358,10 @@ c
       allow_translation            = .false.
       fake_mass = 400000.0d0
       time_step = 5.8d0
-      loop(1) = 25
+      loop(1) = 10
       loop(2) = 100
-      tolerances(1) = 1.0d-9
-      tolerances(2) = 1.0d-9
+      tolerances(1) = 1.0d-7
+      tolerances(2) = 1.0d-7
       tolerances(3) = 1.0d-4
       ecut=9000.0d0
       wcut=9000.0d0

@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.5 2001-11-29 18:39:50 edo Exp $
+ $Id: pspsolve.c,v 1.6 2002-01-04 23:20:00 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,6 +25,9 @@
 void FATR pspsolve_
 #if defined(USE_FCD)
                    (Integer *debug_ptr,
+                    Integer *lmax_ptr,
+                    Integer *locp_ptr,
+                    double  *rlocal_ptr,
 			  const _fcd fcd_sdir_name,
                     Integer *n9,
 			  const _fcd fcd_dir_name,
@@ -40,8 +43,12 @@ void FATR pspsolve_
   char *out_filename = _fcdtocp(fcd_out_filename);
 
 #else
-             (debug_ptr,sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
+             (debug_ptr,lmax_ptr,locp_ptr,rlocal_ptr,
+			  sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
 Integer	*debug_ptr;
+Integer	*lmax_ptr;
+Integer	*locp_ptr;
+double 	*rlocal_ptr;
 char	sdir_name[];
 Integer	*n9;
 char	dir_name[];
@@ -65,6 +72,8 @@ Integer	*n2;
    double   *vall, *rgrid;
    char     name[255];
     
+   int      lmax_out,locp_out;
+   double   rlocal_out;
 
    FILE *fp;
 
@@ -77,7 +86,11 @@ Integer	*n2;
 
    char *full_filename = (char *) malloc(m9+25+5);
    
+   
    debug = *debug_ptr;
+   lmax_out   = *lmax_ptr;
+   locp_out   = *locp_ptr;
+   rlocal_out = *rlocal_ptr;
 
    (void) strncpy(infile, sdir_name, m9);
    infile[m9] = '\0';
@@ -199,10 +212,11 @@ Integer	*n2;
 
 
       /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
-      printf("Creating datafile for Kleinman-Bylander input: %s\n",outfile);
+      printf(" Creating datafile for Kleinman-Bylander input: %s\n",outfile);
       fp = fopen(outfile,"w+");
       fprintf(fp,"%s\n",name_Atom());
-      fprintf(fp,"%lf %lf %d\n",Zion_Psp(),Amass_Atom(),lmax_Psp());
+      fprintf(fp,"%lf %lf %d   %d %d %lf\n",Zion_Psp(),Amass_Atom(),lmax_Psp(),
+					                        lmax_out,locp_out,rlocal_out);
       for (p=0; p<=lmax_Psp(); ++p)
          fprintf(fp,"%lf ", rcut_Psp(p));
       fprintf(fp,"\n");

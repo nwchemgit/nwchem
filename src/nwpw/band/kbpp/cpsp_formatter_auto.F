@@ -50,7 +50,12 @@
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.pspw_filefind(psp_filename)) then
         call psp_generator_auto(atom,lmax,locp,rlocal)
+
+*     **** get lmax,locp,and rlocal from rtdb ****
+      else
+         call control_pspparameters(atom,lmax,locp,rlocal)
       end if
+
 
 *     **** cell information ****
       version = control_version()

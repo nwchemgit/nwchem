@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.9 2001-12-21 01:49:29 bylaska Exp $
+* $Id: band_minimizer.F,v 1.10 2002-01-04 23:20:00 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -100,7 +100,12 @@
       external cpsp_semicore,psi_filefind,cpsi_initialize
       real*8   c_cgsd_energy
       external c_cgsd_energy
-
+      integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
+      external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
+      real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
+      external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
+      character*2 cpsp_atom
+      external    cpsp_atom
 
 
 *****************************|  PROLOGUE  |****************************
@@ -224,6 +229,18 @@
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0)
          END IF
+         write(6,1140)
+         do ia = 1,cpsp_npsp()
+           write(6,1150) ia,cpsp_atom(ia),
+     >                    cpsp_zv(ia),cpsp_lmax(ia)
+           write(6,1152) cpsp_lmax(ia)
+           write(6,1153) cpsp_locp(ia)
+           write(6,1154) cpsp_lmmax(ia)
+           if (cpsp_semicore(ia))
+     >         write(6,1155) cpsp_rcore(ia),cpsp_ncore(ia)
+           write(6,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
+         end do
+
          write(6,1180)
          write(6,1190) (I,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),

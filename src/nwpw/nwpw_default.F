@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.4 2001-11-30 17:30:28 bylaska Exp $
+c $Id: nwpw_default.F,v 1.5 2002-01-04 23:19:59 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -12,7 +12,7 @@ c
 *     ***** local variables *****
       integer ind               
       logical      value
-      character*30 cell_name
+      character*30 cell_name,zone_name
       character*30 input_wavefunction_filename
       character*30 output_wavefunction_filename
       character*30 exchange_correlation
@@ -34,6 +34,7 @@ c
 
 *     ***** initializations ****
       cell_name             = 'cell_default'
+      zone_name             = 'zone_default'
       call util_file_prefix('movecs',input_wavefunction_filename)
       call util_file_prefix('movecs',output_wavefunction_filename)
       exchange_correlation         = 'vosko'
@@ -42,10 +43,10 @@ c
       allow_translation            = .false.
       fake_mass = 400000.0d0
       time_step = 5.8d0
-      loop(1) = 25
+      loop(1) = 10
       loop(2) = 100
-      tolerances(1) = 1.0d-9
-      tolerances(2) = 1.0d-9
+      tolerances(1) = 1.0d-7
+      tolerances(2) = 1.0d-7
       tolerances(3) = 1.0d-4
       ecut=9000.0d0
       wcut=9000.0d0
@@ -81,10 +82,17 @@ c
 
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
+      value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+
+      ind = index(zone_name,' ') - 1
+      value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
 
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
      >        rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'band:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
 
 *     *********************************
@@ -94,10 +102,16 @@ c
       value = value.and.
      >        rtdb_cput(rtdb,'cg_pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'band:input vectors',
+     >                    1,input_wavefunction_filename(1:ind))
 
       ind = index(output_wavefunction_filename,' ') - 1
       value = value.and.
      >        rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+     >                    1,output_wavefunction_filename(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'band:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
 
       value = value.and.
@@ -107,35 +121,64 @@ c
      >        rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
      >                       mulliken)
       value = value.and.
+     >        rtdb_put(rtdb,'band:mulliken',mt_log,1,
+     >                       mulliken)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,
+     >                       allow_translation)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:allow_translation',mt_log,1,
      >                       allow_translation)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:npsp',     mt_int,1,npsp)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
       value = value.and.
+     >        rtdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
       value = value.and.
+     >        rtdb_put(rtdb,'band:loop',mt_int,2,loop)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
       value = value.and.
+     >        rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
       value = value.and.
+     >        rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
       ind = index(exchange_correlation,' ') - 1
       value = value.and.
      >        rtdb_cput(rtdb,'cgsd:exchange_correlation',
+     >                    1,exchange_correlation(1:ind))
+      value = value.and.
+     >        rtdb_cput(rtdb,'band:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
 
       value = value.and.
      >        rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
       value = value.and.
+     >        rtdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
+      value = value.and.
      >        rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
+      value = value.and.
+     >        rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
 
 
 *     **** unit cell stuff ****

@@ -6,7 +6,7 @@
 
       logical function psp_formatter(rtdb)
 c
-c $Id: psp_formatter.F,v 1.3 2001-10-31 02:09:14 edo Exp $
+c $Id: psp_formatter.F,v 1.4 2002-01-04 23:20:01 bylaska Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -172,8 +172,13 @@ c
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.pspw_filefind(psp_filename)) then
-        call psp_generator_auto(atom,lmax,locp,rlocal)
+         call psp_generator_auto(atom,lmax,locp,rlocal)
+
+*     **** get lmax,locp,and rlocal from rtdb ****
+      else
+         call control_pspparameters(atom,lmax,locp,rlocal)
       end if
+
 
 *     **** cell information ****
       version = control_version()

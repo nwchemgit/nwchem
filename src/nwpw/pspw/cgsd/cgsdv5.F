@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.13 2001-12-31 22:52:59 bylaska Exp $
+* $Id: cgsdv5.F,v 1.14 2002-01-04 23:20:01 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -508,15 +508,16 @@ c     end if
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
- 1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1220 FORMAT(/' number of active electrons: spin up=',I3,
+     >        '  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
- 1241 FORMAT(5x,' lattice: a1=<',3f8.3,' >')
- 1242 FORMAT(5x,'          a2=<',3f8.3,' >')
- 1243 FORMAT(5x,'          a3=<',3f8.3,' >')
- 1244 FORMAT(5x,'          b1=<',3f8.3,' >')
- 1245 FORMAT(5x,'          b2=<',3f8.3,' >')
- 1246 FORMAT(5x,'          b3=<',3f8.3,' >')
+ 1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
+ 1242 FORMAT(5x,'             a2=<',3f8.3,' >')
+ 1243 FORMAT(5x,'             a3=<',3f8.3,' >')
+ 1244 FORMAT(5x,' reciprocal: b1=<',3f8.3,' >')
+ 1245 FORMAT(5x,'             b2=<',3f8.3,' >')
+ 1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
  1250 FORMAT(5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
@@ -526,7 +527,7 @@ c     end if
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   mandelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
- 1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
+ 1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)',E12.3,' (ion)')
  1300 FORMAT(//)

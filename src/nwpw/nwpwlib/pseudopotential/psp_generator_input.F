@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.8 2001-12-11 19:02:40 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.9 2002-01-04 23:20:00 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -435,9 +435,14 @@ c
       k = index(psp_out,' ') - 1
 
       call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
-      write(*,*) "need to generate 1d psp for ",atom
+      lmax=nwpw_libglmax(atom)
+      locp=nwpw_libglocp(atom)
+      rlocal=nwpw_libgrlocal(atom)
+      write(*,*) "Generating 1d pseudopotential for ",atom
       debug = 0
-      call pspsolve(debug,sdir_name(1:h),h,
+      call pspsolve(debug,
+     >     lmax,locp,rlocal,
+     >     sdir_name(1:h),h,
      >     dir_name(1:i),i,
      >     psp_in(1:j),j,
      >     psp_out(1:k),k)
@@ -445,12 +450,6 @@ c
       open(unit=99,file='junk.inp',status='old')
       close(unit=99,status='delete')
 
-c     **** routines needed by psp_formatter_auto ****
-      lmax=nwpw_libglmax(atom)
-      locp=nwpw_libglocp(atom)
-      rlocal=nwpw_libgrlocal(atom)
-c  or
-c     call nwpw_library_get_parameter(atom,1,mt_type,value)
       end if
       call ga_sync()
 

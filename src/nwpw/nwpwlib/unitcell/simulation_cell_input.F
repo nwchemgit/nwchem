@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.3 2001-11-29 22:59:02 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.4 2002-01-04 23:20:01 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -15,7 +15,7 @@ c
 
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 6)
+      parameter (num_dirs = 12)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -36,6 +36,12 @@ c
      >            'lattice_vectors:',
      >            'ngrid:',
      >            'lattice',
+     >            'cell_name',
+     >            'boundary_conditions',
+     >            'lattice_vectors',
+     >            'ngrid',
+     >            'boundary_conditions:',
+     >            'boundry_conditions',
      >            'end'/
 
       data tokens /'lat_a', 'lat_b', 'lat_c',
@@ -75,6 +81,8 @@ c
 
 
       goto ( 100,  200, 300, 400, 500, 
+     >       100,  200, 300, 400,
+     >       200,  200,
      >      9999) ind
       call errquit(
      >      'simulation_cell_input: unimplemented directive', ind)
