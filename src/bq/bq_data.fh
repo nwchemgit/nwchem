@@ -1,0 +1,20 @@
+*
+* $Id: bq_data.fh,v 1.1 2005-03-30 02:21:41 marat Exp $
+*
+
+      integer max_bq
+      parameter(max_bq=10)
+     
+      logical bq_active(max_bq)
+      integer bq_ncent(max_bq) 
+      integer bq_charge(max_bq) 
+      integer bq_coord(max_bq) 
+      character bq_name(max_bq)*72
+
+      common /bq_data/ 
+     &                   bq_ncent,
+     &                   bq_active,
+     &                   bq_charge,
+     &                   bq_coord,
+     &                   bq_name
+
