@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.370 2001-08-28 00:54:34 edo Exp $
+# $Id: makefile.h,v 1.371 2001-09-22 17:35:21 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1245,7 +1245,7 @@ ifeq ($(LINUXCPU),x86)
   endif
 endif
 
-ifeq ($(_CPU),ppc)
+ifeq ($(LINUXCPU),ppc)
 # this are for PowerPC
   FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
   FOPTIMIZE  = -g -O2
