@@ -170,6 +170,7 @@ C
      $   msg_cc_diis1, msg_cc_diis2, msg_cc_term1, msg_cc_term2,
      $   msg_cc_term3, msg_cc_term4, msg_cc_term5, msg_cc_term6,
      $   msg_cc_t1a, msg_cc_t1b
+      Integer msg_ccden_1, msg_ccden_2, msg_ccden_3, msg_ccden_4 
 c
       integer msg_qmmm_node, msg_qmmm_nat1, msg_qmmm_nat2,
      &    msg_qmmm_solute, msg_qmmm_solvent
@@ -190,7 +191,6 @@ c
       integer mrp_i07
 c
       integer mrp_999
-
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -485,8 +485,8 @@ c
       parameter(mrp_i06=msg_ftn_base-245) ! pme_init
       parameter(mrp_i07=msg_ftn_base-246) ! pme_init
       parameter(mrp_999=msg_ftn_base-259) ! pme
-
-
-
-
-
+C
+      parameter (msg_ccden_1   = msg_ftn_base - 260) ! ccsd density
+      parameter (msg_ccden_2   = msg_ftn_base - 261) ! ccsd density
+      parameter (msg_ccden_3   = msg_ftn_base - 262) ! ccsd density
+      parameter (msg_ccden_4   = msg_ftn_base - 263) ! ccsd density
