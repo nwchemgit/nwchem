@@ -74,3 +74,4 @@ Aug 10 1998	 Add missing initialization angle constraints
 Aug 13 1998	 Add POx in charge determination
 Aug 18 1998	 Repair memory leak in pre_charge
 		 Initialization bug fix in pre_mklist
+		 Destroy geometry object when no longer needed in pre_mkseq

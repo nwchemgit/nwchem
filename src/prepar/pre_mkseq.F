@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.16 1998-08-18 16:45:47 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.17 1998-08-18 19:21:54 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -375,6 +375,11 @@ c
      + call errquit('Memory deallocation failed for catm',9999)
       if(.not.ma_pop_stack(l_latm))
      + call errquit('Memory deallocation failed for latm',9999)
+c
+      if(source(1:3).ne.'pdb') then
+      if(.not.geom_destroy(igeom))
+     + call errquit('pre_mkseq: geom_destroy failed',9999)
+      endif
 c
       pre_mkseq=.true.
       return
