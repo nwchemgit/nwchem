@@ -4,7 +4,7 @@
      &                     rho, delrho, rhoat, scr, rchi_atom,
      &                     rdelchi_atom, rdens_atom, cetobfr)
 c
-c$Id: xc_rhogen.F,v 1.14 1997-12-08 23:48:54 d3h449 Exp $
+c$Id: xc_rhogen.F,v 1.15 1997-12-11 08:07:27 d3e129 Exp $
 c
       implicit none
 c
@@ -219,8 +219,8 @@ c
 c
       implicit none
 c
-      double precision rho(nq,ipol), delrho(nq,3,ipol), reset, max_neg
       integer nq, ipol, n_neg, i, n
+      double precision rho(nq,ipol), delrho(nq,3,ipol), reset, max_neg
       logical grad
 c
       n_neg = 0
