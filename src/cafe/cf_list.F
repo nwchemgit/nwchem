@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.19 2003-04-04 17:59:18 d3j191 Exp $
+c $Id: cf_list.F,v 1.20 2003-05-14 23:09:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -743,6 +743,14 @@ c
    58 continue
       endif
    57 continue
+c
+      if(iqmmm.ne.0) then
+      do 159 jsa=jsafr,jsato
+      if(iand(idt(iisa),lquant).ne.0.and.
+     + iand(idt(jsa),lquant).ne.0) list(jsa,3)=0
+  159 continue
+      endif
+      
 c
 c     remove interactions between dummy atoms
 c
