@@ -1,5 +1,5 @@
       subroutine int_mem(max1e, maxg, mscratch_1e, mscratch_2e)
-c $Id: int_mem.F,v 1.5 1995-05-09 18:00:59 d3e129 Exp $
+c $Id: int_mem.F,v 1.6 1996-07-10 10:10:55 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 c::functions
@@ -137,5 +137,23 @@ c
       write(luout,*)' mem_2e2c : ',mem_2e2c
       write(luout,*)' isz_3ov  : ',isz_3ov
       write(luout,*)' mem_3ov  : ',mem_3ov
+      write(luout,*)' iszb_2e4c: ',iszb_2e4c
+      write(luout,*)' memb_2e4c: ',memb_2e4c
 10000 format(//)
+      end
+      subroutine intb_mem_2e4c(maxg, mscratch_2e)
+      implicit none
+#include "apiP.fh"
+c::functions
+      logical int_chk_init
+      external int_chk_init
+c::passed
+      integer maxg, mscratch_2e
+c
+      if (int_chk_init('intb_mem_2e4c')) then
+        maxg        = iszb_2e4c
+        mscratch_2e = memb_2e4c
+      else
+        call errquit('intb_mem_2e4c: int_init was not called' ,0)
+      endif
       end

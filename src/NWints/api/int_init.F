@@ -1,5 +1,5 @@
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.22 1995-11-29 02:13:09 d3e129 Exp $
+c $Id: int_init.F,v 1.23 1996-07-10 10:10:54 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -38,6 +38,8 @@ c
       mem_2e2c  = 0
       isz_3ov   = 0
       mem_3ov   = 0
+      iszb_2e4c = 0
+      memb_2e4c = 0
       init_intd = 0
       DCexp     = 0.0D00
       DCcoeff   = 1.0D00
