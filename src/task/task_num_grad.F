@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.29 2000-10-23 16:24:06 windus Exp $
+* $Id: task_num_grad.F,v 1.30 2003-01-29 17:51:31 sohirata Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -30,8 +30,30 @@ c
       if ((theory.eq.'ccsd(t)') .or. (theory.eq.'ccsd+t(ccsd)'))
      $     theory = 'ccsd'
 c
-C     Construct the names for the energy and gradietn RTDB entries
-C
+c     TCE module also covers multiple theories
+c
+      if ((theory.eq.'uccd').or.
+     1    (theory.eq.'ulccd').or.
+     2    (theory.eq.'uccsd').or.
+     3    (theory.eq.'ulccsd').or.
+     4    (theory.eq.'uccsdt').or.
+     5    (theory.eq.'uccsdtq'))
+     6   theory = 'tce'
+      if ((theory.eq.'uqcisd').or.
+     1    (theory.eq.'ucisd').or.
+     2    (theory.eq.'ucisdt').or.
+     3    (theory.eq.'ucisdtq'))
+     4   theory = 'tce'
+      if ((theory.eq.'umbpt2').or.
+     1    (theory.eq.'umbpt3').or.
+     2    (theory.eq.'umbpt4').or.
+     3    (theory.eq.'ump2').or.
+     4    (theory.eq.'ump3').or.
+     5    (theory.eq.'ump4'))
+     6   theory = 'tce'
+c
+c     Construct the names for the energy and gradietn RTDB entries
+c
       write(ename,'(a,'':energy'')') theory(1:inp_strlen(theory))
       write(gname,'(a,'':gradient'')') theory(1:inp_strlen(theory))
 C

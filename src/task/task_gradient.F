@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.33 2002-11-20 19:13:38 sohirata Exp $
+* $Id: task_gradient.F,v 1.34 2003-01-29 17:51:31 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.33 2002-11-20 19:13:38 sohirata Exp $
+* $Id: task_gradient.F,v 1.34 2003-01-29 17:51:31 sohirata Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -231,6 +231,86 @@ c
       else if (theory .eq. 'tddft') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'tce') then
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'uccd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'ccd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ulccd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'lccd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'uccsd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ulccsd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'lccsd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'uqcisd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'qcisd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'uccsdt') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdt'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'uccsdtq') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdtq'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ucisd') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'cisd'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ucisdt') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdt'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ucisdtq') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdtq'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ump2') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ump3') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'ump4') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'umbpt2') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'umbpt3') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'umbpt4') then
+         prefix = 'tce'
+         if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
+     1   call errquit('task_gradient: failed writing to rtdb',0)
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory.eq.'pspw') then
          status = pspw_gradient(rtdb)
