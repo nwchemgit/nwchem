@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat)
 c
-c $Id: pre_mkrst.F,v 1.61 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.62 2000-09-22 03:26:28 d3j191 Exp $
 c
       implicit none
 c
@@ -1082,6 +1082,15 @@ c
       write(lfnout,1016) touch
  1016 format(' Envelope',t40,f12.6,/)
       endif
+      endif
+c
+c     rshell
+c     ------
+c
+      if(card(1:6).eq.'rshell') then
+      read(card(8:19),'(f12.6)') rshell
+      write(lfnout,1022) rshell
+ 1022 format(' Rshell',t40,f12.6,/)
       endif
 c
 c     fix

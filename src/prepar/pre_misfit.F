@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.24 2000-09-21 16:57:14 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.25 2000-09-22 03:26:28 d3j191 Exp $
 c
       implicit none
 c
@@ -59,9 +59,11 @@ c
       if(i.eq.iz+ioff.and.isfnd(ioff+jz).ne.0.and.
      + isfnd(ioff+kz).ne.0.and.isfnd(ioff+lz).ne.0) then
       if(md_zmat(xs(1,i),xs(1,ioff+jz),xs(1,ioff+kz),xs(1,ioff+lz),
-     + dz,az,tz)) isfnd(i)=1
+     + dz,az,tz)) then
+      isfnd(i)=1
       write(*,'(a,i7,a,a,3f10.5)') ' Generated from z-matrix: ',
      + isg,':',csa(i),(xs(k,i),k=1,3)
+      endif
       else
       goto 31
       endif

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.70 2000-09-21 23:33:29 d3j191 Exp $
+c $Id: pre_input.F,v 1.71 2000-09-22 03:26:28 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
-      real*8 scale,cpk
+      real*8 scale,cpk,rshell
       integer irepeat,nrepeat,iopt
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
@@ -1009,6 +1009,8 @@ c
       if(.not.lslvnt) write(68,7805)
  7805 format('solvnt ')
       lslvnt=.true.
+      if(inp_f(rshell)) write(68,7806) rshell
+ 7806 format('rshell ',f12.6)
       if(.not.inp_a(item)) then
       write(68,6805) xpnd
  6805 format('period ',/,'solvat cube ',/,
