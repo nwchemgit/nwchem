@@ -1,27 +1,51 @@
-      subroutine ccsd_trpdrv(t1,buff,bufo,lbfo,bufv,lbfv,
+      subroutine ccsd_trpdrv(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     eccsdt,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
-     &     oseg_lo,oseg_hi)
-C     $Id: ccsd_trpdrv.F,v 2.7 1997-10-22 23:06:00 d3g681 Exp $
+     &     oseg_lo,oseg_hi,
+     $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
+     $     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
+C     $Id: ccsd_trpdrv.F,v 2.8 1997-10-27 18:04:54 d3g681 Exp $
       implicit none
-      double precision t1(*),buff(*),bufo(*),
-     &     bufv(*),f1n(*),f1t(*),f2n(*),
+c
+#include "global.fh"
+#include "ccsd_len.fh"
+c     
+      double precision t1(*),
+     &     f1n(*),f1t(*),f2n(*),
      &     f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
      &     emp4,emp5
-      integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
+      double precision Tij(*), Tkj(*), Tia(*), Tka(*), Xia(*), Xka(*), 
+     $     Jia(*), Jka(*), Kia(*), Kka(*),
+     $     Jij(*), Jkj(*), Kij(*), Kkj(*), Dja(*), Djka(*), Djia(*)
+
+      integer g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &     g_exch,oseg_lo,oseg_hi
 c     
       double precision eaijk,eccsdt
-      integer a,i,j,k,aold,av,inode,t2j,eintc,eintx,
-     &     dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
+      integer a,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
      &     next,nxtval
+      external nxtval
 C     
       Integer Nodes, IAm
-C     
-#include "ccsd_len.fh"
-#include "global.fh"
 c     
+*      double precision Tij(1000), Tkj(10000) ! lnvv and kchunk*lnvv
+c     
+*      double precision Tia(1000), Tka(10000) ! lnov and kchunk*lnov
+*      double precision Xia(1000), Xka(10000) ! lnov and kchunk*lnov
+c     
+*      double precision Jia(1000), Jka(10000) ! lnvv and kchunk*lnvv
+*      double precision Kia(1000), Kka(10000) ! lnvv and kchunk*lnvv
+c     
+*      double precision Jij(1000), Jkj(10000) ! lnov and kchunk*lnov
+*      double precision Kij(1000), Kkj(10000) ! lnov and kchunk*lnov
+c     
+c     rjh: D is something to do with the (T) correction ?
+*      double precision Dja(1000), Djka(1000), Djia(100) ! lnov, nvir*kchunk, nvir
+c     
+      integer klo, khi, start, end
+      integer kchunk
+C     
       double precision zip
       data zip/0.0d00/
 c     
@@ -33,134 +57,227 @@ C
       call ga_sync()
       call qenter('trpdrv',0)
       inode=-1
-      aold=0
       next=nxtval(nodes)
-      do a=oseg_lo,oseg_hi
-         av=a-ncor-nocc
-         do j=1,nocc
-            inode=inode+1
-            if (inode.eq.next)then
-c     print *,'iam,a,j',iam,a,j
-               t2j=1
-               eintc=t2j+lnovv
-               eintx=eintc+lnoov
-               len=eintx+lnoov-1
-               call ga_get(g_objo,1,len,j,j,bufo,len)
-               if (iprt.gt.10)then
-                  print *,'t2j ',a,j,iam
-                  write(6,4859)(bufo(i),i=t2j,t2j+lnovv-1)
-                  print *,'eintc ',a,j,iam
-                  write(6,4859)(bufo(i),i=eintc,eintc+lnoov-1)
-                  print *,'eintx ',a,j,iam
-                  write(6,4859)(bufo(i),i=eintx,eintx+lnoov-1)
-               end if
-               if (aold.ne.a)then
-                  dint=1
-                  t2c=dint+lnoov
-                  t2x=t2c+lnoov
-                  len=t2x+lnoov-1
-                  call ga_get(g_objv,1,len,av,av,bufv,len)
-                  fintc=1
-                  fintx=fintc+lnovv
-c     - make fints
-C     RK note change - unsure
-                  ad1=(a-oseg_lo)*nocc
-                  call ga_get(g_coul,1,lnvv,ad1+1,ad1+nocc,
-     $                 buff(fintc),lnvv)
-                  call ga_get(g_exch,1,lnvv,ad1+1,ad1+nocc,
-     $                 buff(fintx),lnvv)
 c     
-                  if (iprt.gt.10)then
-                     print *,'fintc ',a,iam
-                     write(6,4859)(buff(i),i=fintc,fintc+lnovv-1)
-                     print *,'fintx ',a,iam
-                     write(6,4859)(buff(i),i=fintx,fintx+lnovv-1)
- 4859                format(1x,5e14.4)
-                     print *,'t2c ',a,iam
-                     write(6,4859)(bufv(i),i=t2c,t2c+lnoov-1)
-                     print *,'t2x ',a,iam
-                     write(6,4859)(bufv(i),i=t2x,t2x+lnoov-1)
-                     print *,'dint ',a,iam
-                     write(6,4859)(bufv(i),i=dint,dint+lnoov-1)
-                  end if
-                  aold=a
-               end if
+      do klo = 1, nocc, kchunk
+         akold=0
+         khi = min(nocc, klo+kchunk-1)
+         do a=oseg_lo,oseg_hi
+            av=a-ncor-nocc
+            do j=1,nocc
+               inode=inode+1
+               if (inode.eq.next)then
 c     
-               do i=1,nocc
-                  do k=1,i
-                     call dfill(lnvv,zip,f1n,1)
-                     call dfill(lnvv,zip,f1t,1)
-                     call dfill(lnvv,zip,f2n,1)
-                     call dfill(lnvv,zip,f2t,1)
-                     call dfill(lnvv,zip,f3n,1)
-                     call dfill(lnvv,zip,f3t,1)
-                     call dfill(lnvv,zip,f4n,1)
-                     call dfill(lnvv,zip,f4t,1)
-                     ad1=(i-1)*lnvv
-                     ad2=(k-1)*lnvv
-                     call ccsd_dovvv(buff(ad1+fintc),buff(ad1+fintx),
-     $                    bufo(ad2+t2j),f1n,f2n,f3n,f4n,nocc,nvir)
-                     call ccsd_dovvv(buff(ad2+fintc),buff(ad2+fintx),
-     $                    bufo(ad1+t2j),f1t,f2t,f3t,f4t,nocc,nvir)
-                     ad1=(k-1)*lnov
-                     ad2=(i-1)*lnov
-                     call ccsd_doooo(bufo(ad1+eintc),bufo(ad1+eintx),
-     $                    bufv(ad2+t2c),bufv(ad2+t2x),f1n,f2n,
-     $                    f3n,f4n,nocc,nvir)
-                     call ccsd_doooo(bufo(ad2+eintc),bufo(ad2+eintx),
-     $                    bufv(ad1+t2c),bufv(ad1+t2x),f1t,f2t,
-     $                    f3t,f4t,nocc,nvir)
-                     if (iprt.gt.50)then
-                        call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-     $                       nvir)
-                     end if
-                     eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)-
-     $                    eorb(a)
-                     ad1=(j-1)*lnov+(i-1)*nvir
-                     ad2=(i-1)*lnov+(j-1)*nvir
-                     ad3=(k-1)*nvir+1
-                     call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
-     &                    bufv(dint+ad1),bufv(dint+ad2),
-     $                    t1(ad3),eorb,eaijk,emp4,emp5,
-     $                    ncor,nocc,nvir)
-c     write(6,2234)i,k,iam,a,j,emp4,emp5
-c     2234     format(' te1 iam aijk',5i5,2e15.5)
-                     if (i.ne.k)then
-                        ad1=(j-1)*lnov+(k-1)*nvir
-                        ad2=(k-1)*lnov+(j-1)*nvir
-                        ad3=(i-1)*nvir+1
-                        call ccsd_tengy(f1t,f1n,f2t,f2n,
-     $                       f3t,f3n,f4t,f4n,
-     &                       bufv(dint+ad1),bufv(dint+ad2),
+c     Get Dja = Dci,ja for given j, a, all ci
+c     
+                  start = 1 + (j-1)*lnov
+                  len   = lnov
+                  end   = start + len - 1
+                  call ga_get(g_objv,start,end,av,av,Dja,len)
+c     
+c     Get Tkj = T(b,c,k,j) for given j, klo<=k<=khi, all bc
+c     
+                  start = (klo-1)*lnvv + 1
+                  len   = (khi-klo+1)*lnvv
+                  end   = start + len - 1
+                  call ga_get(g_objo,start,end,j,j,Tkj,len)
+c     
+c     Get Jkj = J(c,l,k,j) for given j, klo<=k<=khi, all cl
+c     
+                  start = lnovv + (klo-1)*lnov + 1
+                  len   = (khi-klo+1)*lnov
+                  end   = start + len - 1
+                  call ga_get(g_objo,start,end,j,j,Jkj,len)
+c     
+c     Get Kkj = K(c,l,k,j) for given j, klo<=k<=khi, all cl
+c     
+                  start = lnovv + lnoov + (klo-1)*lnov + 1
+                  len   = (khi-klo+1)*lnov
+                  end   = start + len - 1
+                  call ga_get(g_objo,start,end,j,j,Kkj,len)
+c     
+                  if (akold .ne. a) then
+                     akold = a
+c     
+c     Get Jka = J(b,c,k,a) for given a, klo<=k<=khi, all bc
+c     
+                     start = (a-oseg_lo)*nocc + klo
+                     len   = (khi-klo+1)
+                     end   = start + len - 1
+                     call ga_get(g_coul,1,lnvv,start,end,Jka,lnvv)
+c     
+c     Get Kka = K(b,c,k,a) for given a, klo<=k<=khi, all bc
+c     
+                     start = (a-oseg_lo)*nocc + klo
+                     len   = (khi-klo+1)
+                     end   = start + len - 1
+                     call ga_get(g_exch,1,lnvv,start,end,Kka,lnvv)
+c     
+c     Get Tka = Tbl,ka for given a, klo<=k<=khi, all bl
+c     
+                     start = 1 + lnoov + (klo-1)*lnov
+                     len   = (khi-klo+1)*lnov
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Tka,len)
+c     
+c     Get Xka = Tal,kb for given a, klo<=k<=khi, all bl
+c     
+                     start = 1 + lnoov + lnoov + (klo-1)*lnov
+                     len   = (khi-klo+1)*lnov
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Xka,len)
+                  endif
+c     
+c     Get Djka = Dcj,ka for given j, a, klo<=k<=khi, all c
+c     
+                  do k = klo, khi
+                     start = 1 + (j-1)*nvir + (k-1)*lnov
+                     len   = nvir
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,
+     $                    Djka(1+(k-klo)*nvir),len)
+                  enddo
+c     
+                  do i=1,nocc
+c     
+c     Get Tij = T(b,c,i,j) for given j, i, all bc
+c     
+                     start = (i-1)*lnvv + 1
+                     len   = lnvv
+                     end   = start + len - 1
+                     call ga_get(g_objo,start,end,j,j,Tij,len)
+c     
+c     Get Jij = J(c,l,i,j) for given j, i, all cl
+c     
+                     start = lnovv + (i-1)*lnov + 1
+                     len   = lnov
+                     end   = start + len - 1
+                     call ga_get(g_objo,start,end,j,j,Jij,len)
+c     
+c     Get Kij = K(c,l,i,j) for given j, i, all cl
+c     
+                     start = lnovv + lnoov + (i-1)*lnov + 1
+                     len   = lnov
+                     end   = start + len - 1
+                     call ga_get(g_objo,start,end,j,j,Kij,len)
+c     
+c     Get Jia = J(b,c,i,a) for given a, i, all bc
+c     
+                     start = (a-oseg_lo)*nocc + i
+                     len   = 1
+                     end   = start + len - 1
+                     call ga_get(g_coul,1,lnvv,start,end,Jia,lnvv)
+c     
+c     Get Kia = K(b,c,i,a) for given a, i, all bc
+c     
+                     start = (a-oseg_lo)*nocc + i
+                     len   = 1
+                     end   = start + len - 1
+                     call ga_get(g_exch,1,lnvv,start,end,Kia,lnvv)
+c     
+c     Get Dia = Dcj,ia for given j, i, a, all c
+c     
+                     start = 1 + (j-1)*nvir + (i-1)*lnov
+                     len   = nvir
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Djia,len)
+c     
+c     Get Tia = Tbl,ia for given a, i, all bl
+c     
+                     start = 1 + lnoov + (i-1)*lnov
+                     len   = lnov
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Tia,len)
+c     
+c     Get Xia = Tal,ib for given a, i, all bl
+c     
+                     start = 1 + lnoov + lnoov + (i-1)*lnov
+                     len   = lnov
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Xia,len)
+c     
+                     do k=klo,min(khi,i)
+                        call dfill(lnvv,zip,f1n,1)
+                        call dfill(lnvv,zip,f1t,1)
+                        call dfill(lnvv,zip,f2n,1)
+                        call dfill(lnvv,zip,f2t,1)
+                        call dfill(lnvv,zip,f3n,1)
+                        call dfill(lnvv,zip,f3t,1)
+                        call dfill(lnvv,zip,f4n,1)
+                        call dfill(lnvv,zip,f4t,1)
+c     
+c     sum(d) (Jia, Kia)bd * Tkj,cd -> Fbc
+c     
+                        call ccsd_dovvv(Jia, Kia,
+     $                       Tkj(1+(k-klo)*lnvv),f1n,f2n,f3n,f4n,
+     $                       nocc,nvir)
+c     
+c     sum(d) (Jka, Kka)bd * Tij,cd -> Fbc
+c     
+                        call ccsd_dovvv(Jka(1+(k-klo)*lnvv),
+     $                       Kka(1+(k-klo)*lnvv),
+     $                       Tij,f1t,f2t,f3t,f4t,nocc,nvir)
+c     
+                        ad1=(k-1)*lnov
+                        ad2=(i-1)*lnov
+c     
+c     sum(l) (Jij, Kij)cl  * Tkl,ab -> Fbc
+c     
+                        call ccsd_doooo(Jkj(1+(k-klo)*lnov),
+     $                       Kkj(1+(k-klo)*lnov),
+     $                       Tia,Xia,
+     $                       f1n,f2n,
+     $                       f3n,f4n,nocc,nvir)
+c     
+c     sum(l) (Jkj, Kkj)cl  * Tli,ba -> Fbc
+c     
+                        call ccsd_doooo(Jij, Kij,
+     $                       Tka(1+(k-klo)*lnov),Xka(1+(k-klo)*lnov),
+     $                       f1t,f2t,
+     $                       f3t,f4t,nocc,nvir)
+                        if (iprt.gt.50)then
+                           call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
+     $                          f4t, nvir)
+                        end if
+                        eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)-
+     $                       eorb(a)
+                        ad1=(j-1)*lnov+(i-1)*nvir
+                        ad2=(i-1)*lnov+(j-1)*nvir
+                        ad3=(k-1)*nvir+1
+                        call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
+     $                       f4t,
+     &                       Dja(1+(i-1)*nvir),Djia,
      $                       t1(ad3),eorb,eaijk,emp4,emp5,
      $                       ncor,nocc,nvir)
-c     write(6,3234)i,k,iam,a,j,emp4,emp5
-c     3234     format(' te2 iam aijk',5i5,2e15.5)
-                     end if
+c     
+                        if (i.ne.k)then
+                           ad1=(j-1)*lnov+(k-1)*nvir
+                           ad2=(k-1)*lnov+(j-1)*nvir
+                           ad3=(i-1)*nvir+1
+                           call ccsd_tengy(f1t,f1n,f2t,f2n,
+     $                          f3t,f3n,f4t,f4n,
+     &                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
+     $                          t1(ad3),eorb,eaijk,emp4,emp5,
+     $                          ncor,nocc,nvir)
+c     
+                        end if
+                     end do
                   end do
-               end do
-               if (iprt.gt.50)then
-                  write(6,1234)iam,a,j,emp4,emp5
- 1234             format(' iam aijk',3i5,2e15.5)
+                  if (iprt.gt.50)then
+                     write(6,1234)iam,a,j,emp4,emp5
+ 1234                format(' iam aijk',3i5,2e15.5)
+                  end if
+                  next=nxtval(nodes)
                end if
-               next=nxtval(nodes)
-            end if
+            end do
          end do
       end do
-c     print *,'end of loops'
 c     
-      call ga_sync
       next=nxtval(-nodes)
       call ga_sync
       call qexit('trpdrv',0)
-      return
+c     
       end
-
-
-
-
-
-
 
       subroutine ccsd_doooo(eintc,eintx,t2c,t2x,f1,f2,f3,f4,nocc,nvir)
       implicit none

@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e)
       implicit none
-C     $Id: aoccsd2.F,v 2.20 1997-10-22 16:40:53 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.21 1997-10-27 18:04:52 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -36,18 +36,33 @@ c ccsd
       integer g_t2,g_ht2
       integer ad1,ad2,ad3,ad4
 c triples
-      integer lbfo,lbfv,lbfscr,mem_avail
+      integer lbfo,lbfv,mem_avail
       integer l_f1n,l_f1t,l_f2n,l_f2t,l_f3n,l_f3t,l_f4n,l_f4t,
-     &        l_buf1,l_buf2,l_buff,l_bufo,l_bufv,l_tk
+     &        l_buf1,l_buf2,l_tk
       integer k_f1n,k_f1t,k_f2n,k_f2t,k_f3n,k_f3t,k_f4n,k_f4t,
-     &        k_buf1,k_buf2,k_buff,k_bufo,k_bufv,k_tk
+     &        k_buf1,k_buf2,k_tk
       integer g_objo
-      integer nvpass,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
-     &        npass
+      integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
+     &        nvpass
       integer ga_create_jkblocked
       logical oexch,ocoul,ohalf
       double precision eccsdt,eccsd,empt(2),tx(3)
-      Integer Nodes, IAm, memdrv
+      Integer Nodes, IAm, memdrv, memtrn
+c
+      integer kchunk,nkpass,    ! For reduced-memory triples
+     $        k_trp_Tij, k_trp_Tkj, k_trp_Tia, 
+     $        k_trp_Tka, k_trp_Xia, k_trp_Xka, 
+     $        k_trp_Jia, k_trp_Jka, k_trp_Kia, 
+     $        k_trp_Kka, k_trp_Jij, k_trp_Jkj, 
+     $        k_trp_Kij, k_trp_Kkj, k_trp_Dja,
+     $        k_trp_Djka, k_trp_Djia,
+     $        l_trp_Tij, l_trp_Tkj, l_trp_Tia, 
+     $        l_trp_Tka, l_trp_Xia, l_trp_Xka, 
+     $        l_trp_Jia, l_trp_Jka, l_trp_Kia, 
+     $        l_trp_Kka, l_trp_Jij, l_trp_Jkj, 
+     $        l_trp_Kij, l_trp_Kkj, l_trp_Dja,
+     $        l_trp_Djka, l_trp_Djia
+c
       
       integer moints_trp_mem
       external moints_trp_mem
@@ -248,7 +263,7 @@ c
       stat=stat.and.ma_pop_stack(l_scra)
 c
       lnobj=2*lnoov+max(lnoov,lnooo)
-      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,
+      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',1,1,
      &                   g_objv))
      &     call errquit('ga_create g_objv failed',0)
       call ga_zero(g_objv)
@@ -463,19 +478,21 @@ c
  293  format(//,'*********triples calculation*********',/)
       lbfo=lnovv+lnoov+lnoov
       lbfv=lnoov+lnoov+lnoov
-      lbfscr=lnovv+lnovv
       lbfv=max(lbfv,nbf*nbf)
-      lbfscr=max(lbfscr,3)
-      lnobj=max(lbfv,lbfo)
-      lnobj=max(lnobj,2*lnoov+lnooo)
+      lnobj=max(2*lnoov+lnooo,3*lnoov)
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,lnov,'t1',l_t1,k_t1)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'buf1',l_buf1,k_buf1)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'buf2',l_buf2,k_buf2)
-      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
+c
+*      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
+*     &     call errquit('ga_create failed for g_objo',0)
+      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',1,1,g_objo))
      &     call errquit('ga_create failed for g_objo',0)
+c
       call ga_zero(g_objo)
-      call ccsd_rdtrpo(dbl_mb(k_t1),dbl_mb(k_buf1),dbl_mb(k_buf2),
+      call ccsd_rdtrpo
+     $     (dbl_mb(k_t1),dbl_mb(k_buf1),dbl_mb(k_buf2),
      $                 g_objo,g_objv,nocc,nvir,iprt)
       stat=.true.
       stat=stat.and.ma_pop_stack(l_buf2)
@@ -485,41 +502,61 @@ c
 c      print *,' ga allocated before trpdrv '
 c      call ga_summarize(.true.)
 c
-      memdrv = 8*lnvv + lbfscr + lbfo + lbfv
+c     Iteratively determine nvpass (vchunk) and 
+c     internal chunking for the tripes (kchunk)
 c
-c     Iteratively determine npass (nvpass)
+      mem_avail = ma_inquire_avail(MT_DBL)
+      call ga_igop(msg_cc_mem, mem_avail, 1, 'min')
 c
-      npass = 1
+      nvpass = 1
 c
- 7651 nvpass = (nvir - 1) / npass + 1
-      mem_avail = ma_inquire_avail(MT_DBL) - 
-     $     max(memdrv, moints_trp_mem(basis, nvpass, blen))
+ 7651 nkpass = 1
+ 7652 kchunk = (nocc - 1)/nkpass + 1
+      vchunk = (nvir - 1)/nvpass + 1
 c
-      call ga_sync()
-      call ga_igop(msg_cc_mem,mem_avail,1,'min')
-*
-*     This will overflow 32 bit integers ... avoid computing total
-*     and in any case the arrays are distrubuted in nbf*nbf chunks.
-*      mem_avail=nodes*mem_avail/2
-
-      noper=nodes*(mem_avail/(nbf*nbf + nbf*nvir))
-      if (nvpass .gt. max(min(nvir,noper/nocc),1)) then
-         npass = npass + 1
-         if (npass .gt. nvir) call errquit
-     $        ('ccsd triples: too many passes ', npass)
-         goto 7651
+      memdrv = lnvv*(11+3*kchunk) + lnov*(5+4*kchunk) + nvir*(1+kchunk)
+      memtrn = moints_trp_mem(basis, vchunk, blen)
+c
+      if (iam .eq. 0) then
+         write(6,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
+ 1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i8,
+     $        '; memtrn=',i8,'; memavail=',i8)
+         call util_flush(6)
       endif
 c
-      noper=nocc*nvpass
+      noper = nodes * 
+     $     ((mem_avail - max(memdrv, memtrn))/(nbf*nbf + nbf*nvir))
+      if (vchunk .gt. max(min(nvir,noper/nocc),1)) then
 c
-      if (iam.eq.0)write(*,845)mem_avail,nvir,nvpass,npass
+c     If the triples part is using more memory than the 4-index
+c     then increase nkpass, otherwise increase nvpass
+c
+         if (memdrv .gt. memtrn) then
+            nkpass = nkpass + 1
+            if (nkpass .gt. nocc) call errquit
+     $           ('ccsd triples: too many k passes', nkpass)
+            goto 7652
+         else
+            nvpass = nvpass + 1
+            if (nvpass .gt. nvir) call errquit
+     $           ('ccsd triples: too many v passes ', nvpass)
+            goto 7651
+         endif
+      endif
+c
+      noper=nocc*vchunk
+c
+      if (iam.eq.0)write(*,845)mem_avail,nvir,vchunk,nvpass,
+     $     kchunk,nkpass
   845 format(' memory available/node                ',i8,/,
      &       ' total number of virtual orbitals     ',i5,/,
      &       ' number of virtuals per integral pass ',i5,/,
-     &       ' number of integral evaluations       ',i5,/)
+     &       ' number of integral evaluations       ',i5,/,
+     $       ' number of occupied per triples pass  ',i5,/,
+     $       ' number of triples passes             ',i5/)
       g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
       g_exch = ga_create_JKblocked(noper,nbf,nvir,'X oper')
-      npass=0
+      nvpass=0
       occ_lo = ncor+1
       vir_lo = ncor+nocc+1
       vir_hi = ncor+nocc+nvir
@@ -527,53 +564,109 @@ c
       empt(1)=zip
       empt(2)=zip
       do while (oseg_hi.lt.vir_hi)
-         npass = npass + 1
+         nvpass = nvpass + 1
          oseg_lo = oseg_hi + 1
-         oseg_hi = min(oseg_hi+nvpass,vir_hi)
-         if (iam.eq.0)write(*,846)npass
+         oseg_hi = min(oseg_hi+vchunk,vir_hi)
+         if (iam.eq.0)write(*,846)nvpass
  846     format(' commencing integral evaluation ',i8)
          tx(1)=tcgtime()
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
      &      blen, cmo, ncor, nocc, nvir, Tol2E)
-c        print *,'call trpdrv ',npass
+c        print *,'call trpdrv ',nvpass
 
 *          if (iam .eq. 0) then
 *            write(6,*) ' Out of MOINTS '
 *            call util_flush(6)
 *          endif
 
-         stat=.true.
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f2n',l_f2n,k_f2n)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f2t',l_f2t,k_f2t)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f3n',l_f3n,k_f3n)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f3t',l_f3t,k_f3t)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f4n',l_f4n,k_f4n)
-         stat=stat.and.ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t)
-         stat=stat.and.ma_push_get(MT_DBL,lbfscr,'buff',l_buff,k_buff)
-         stat=stat.and.ma_push_get(MT_DBL,lbfo,'bufo',l_bufo,k_bufo)
-         stat=stat.and.ma_push_get(MT_DBL,lbfv,'bufv',l_bufv,k_bufv)
-         if (.not.stat)call errquit('trpdrv: cannot allocate stack?',0)
-
-*         trace1 = ga_ddot(g_coul,g_coul)
-*         trace2 = ga_ddot(g_exch,g_exch)
-*         trace3 = ga_ddot(g_objo,g_objo)
-*         trace4 = ga_ddot(g_objv,g_objv)
-*         if (iam .eq. 0) write(6,*) trace1,trace2,trace3,trace4
-*         if (iam .eq. 0) call ga_summarize(1)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
+     $        call errquit('aoccsd2:triples f1n',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t))
+     $        call errquit('aoccsd2:triples f1t',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f2n',l_f2n,k_f2n))
+     $        call errquit('aoccsd2:triples f2n',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f2t',l_f2t,k_f2t))
+     $        call errquit('aoccsd2:triples f2t',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f3n',l_f3n,k_f3n))
+     $        call errquit('aoccsd2:triples f3n',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f3t',l_f3t,k_f3t))
+     $        call errquit('aoccsd2:triples f3t',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f4n',l_f4n,k_f4n))
+     $        call errquit('aoccsd2:triples f4n',lnvv)
+         if (.not. ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t))
+     $        call errquit('aoccsd2:triples f4t',lnvv)
+c
+      if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Tij',
+     $        l_trp_Tij,k_trp_Tij))
+     $     call errquit('aoccsd2: triples: k_trp_Tij ', lnvv)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Tkj',
+     $     l_trp_Tkj,k_trp_Tkj))
+     $     call errquit('aoccsd2: triples: k_trp_Tkj ', kchunk*lnvv)
+      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Tia',
+     $     l_trp_Tia,k_trp_Tia))
+     $     call errquit('aoccsd2: triples: k_trp_Tia ', lnov)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Tka',
+     $     l_trp_Tka,k_trp_Tka))
+     $     call errquit('aoccsd2: triples: k_trp_Tka ', kchunk*lnov)
+      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Xia',
+     $     l_trp_Xia,k_trp_Xia))
+     $     call errquit('aoccsd2: triples: k_trp_Xia ', lnov)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Xka',
+     $     l_trp_Xka,k_trp_Xka))
+     $     call errquit('aoccsd2: triples: k_trp_Xka ', kchunk*lnov)
+      if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Jia',
+     $     l_trp_Jia,k_trp_Jia))
+     $     call errquit('aoccsd2: triples: k_trp_Jia ', lnvv)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Jka',
+     $     l_trp_Jka,k_trp_Jka))
+     $     call errquit('aoccsd2: triples: k_trp_Jka ', kchunk*lnvv)
+      if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Kia',
+     $     l_trp_Kia,k_trp_Kia))
+     $     call errquit('aoccsd2: triples: k_trp_Kia ', lnvv)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Kka',
+     $     l_trp_Kka,k_trp_Kka))
+     $     call errquit('aoccsd2: triples: k_trp_Kka ', kchunk*lnvv)
+      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Jij',
+     $     l_trp_Jij,k_trp_Jij))
+     $     call errquit('aoccsd2: triples: k_trp_Jij ', lnov)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Jkj',
+     $     l_trp_Jkj,k_trp_Jkj))
+     $     call errquit('aoccsd2: triples: k_trp_Jkj ', kchunk*lnov)
+      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Kij',
+     $     l_trp_Kij,k_trp_Kij))
+     $     call errquit('aoccsd2: triples: k_trp_Kij ', lnov)
+      if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Kkj',
+     $     l_trp_Kkj,k_trp_Kkj))
+     $     call errquit('aoccsd2: triples: k_trp_Kkj ', kchunk*lnov)
+      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Dja',
+     $     l_trp_Dja,k_trp_Dja))
+     $     call errquit('aoccsd2: triples: k_trp_Dja ', lnov)
+      if (.not. ma_push_get(MT_DBL, nvir*kchunk,'k_trp_Djka',
+     $     l_trp_Djka,k_trp_Djka))
+     $     call errquit('aoccsd2: triples: k_trp_Djka ', nvir*kchunk)
+      if (.not. ma_push_get(MT_DBL, nvir,'k_trp_Djia',
+     $     l_trp_Djia,k_trp_Djia))
+     $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir)
+c
 
          call ga_sync
          tx(2)=tcgtime()
-         call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_buff),dbl_mb(k_bufo),
-     $      lbfo,dbl_mb(k_bufv),lbfv,dbl_mb(k_f1n),
-     $      dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $      dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $      dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
-     $      g_coul,g_exch,ncor,nocc,nvir,iprt,
-     $      empt(1),empt(2),oseg_lo,oseg_hi)
+c
+         call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_f1n),
+     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
+     $        dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
+     $        g_coul,g_exch,ncor,nocc,nvir,iprt,
+     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
+     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia), 
+     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka), 
+     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia), 
+     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj), 
+     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
+     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
+c
          tx(3)=tcgtime()
 
          if (.not. ma_chop_stack(l_f1n)) call errquit
@@ -581,10 +674,10 @@ c        print *,'call trpdrv ',npass
 
          if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
      &       'Time for integral evaluation pass ',
-     $       npass,tx(2)-tx(1)
+     $       nvpass,tx(2)-tx(1)
          if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
      &       'Time for triples evaluation pass  ',
-     $      npass,tx(3)-tx(2)
+     $      nvpass,tx(3)-tx(2)
       enddo
       empt(1)=empt(1)+empt(1)
       empt(2)=empt(2)+empt(2)
