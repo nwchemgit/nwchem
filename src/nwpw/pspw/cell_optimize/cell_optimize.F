@@ -60,7 +60,7 @@
         write(*,*) '  *      version last updated 5/23/01        * '
         write(*,*) '  *                                          * '
         write(*,*) '  ******************************************** '
-        call message(1)
+        call nwpw_message(1)
 
         write(*,*) 
         write(*,*) ' Optimizing cell_name       :',cell_name

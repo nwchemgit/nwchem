@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.11 2002-01-14 21:41:11 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.12 2002-02-13 20:02:06 edo Exp $
 c
       implicit none
 #include "inp.fh"
@@ -402,7 +402,7 @@ c
      >              dir_name(1:i),    i,
      >              pspgenerator(1:j),j,
      >              pseudopotential_filename(1:k),k)
-      call message(4) 
+      call nwpw_message(4) 
 
       return
       end

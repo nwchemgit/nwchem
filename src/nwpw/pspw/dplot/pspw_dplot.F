@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.7 2002-01-18 23:29:51 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.8 2002-02-13 20:02:07 edo Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -67,7 +67,7 @@
          write(6,1010)
          write(6,1000)
          write(6,*)
-         call message(1)
+         call nwpw_message(1)
          write(6,1110)
          call util_flush(6)
       end if
@@ -225,7 +225,7 @@
          write(6,*) 'cputime in seconds'
          write(6,*) 'total       : ',(cpu2-cpu1)
          write(6,*) 
-         call message(4)
+         call nwpw_message(4)
       end if
 
       pspw_dplot = value

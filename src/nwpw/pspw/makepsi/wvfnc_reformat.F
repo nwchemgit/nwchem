@@ -1,6 +1,6 @@
       logical function wvfnc_reformat(rtdb)
 *
-* $Id: wvfnc_reformat.F,v 1.1 2001-08-30 00:39:46 edo Exp $
+* $Id: wvfnc_reformat.F,v 1.2 2002-02-13 20:02:08 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -85,7 +85,7 @@
       write(*,*) '  -------------------------  '
       write(*,*) ' | adjusting wavefunctions | '
       write(*,*) '  -------------------------  '
-      call message(1)
+      call nwpw_message(1)
       write(*,*)
 
       write(*,109) old_wavefunction_filename
@@ -141,7 +141,7 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
         WRITE(6,*) ' JOB HAS BEEN TERMINATED DUE TO CODE=',IERR
         value = .false.
       ENDIF
-      call message(4)
+      call nwpw_message(4)
       write(*,*)
       
       wvfnc_reformat = value

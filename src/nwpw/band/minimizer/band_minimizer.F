@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.18 2002-01-21 00:49:46 bylaska Exp $
+* $Id: band_minimizer.F,v 1.19 2002-02-13 20:02:06 edo Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -140,7 +140,7 @@
          write(6,1043)
          write(6,1010)
          write(6,1000)
-         call message(1)
+         call nwpw_message(1)
          write(6,1110)
       end if
       
@@ -450,7 +450,7 @@
          write(6,*) '  masking and packing        : ', nwpw_timing(9),
      >                          nwpw_timing(9)/dble(c_electron_count())
          write(6,*)
-         CALL MESSAGE(4)
+         CALL nwpw_MESSAGE(4)
       end if 
 
 

@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.4 2002-02-13 00:51:58 edo Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.5 2002-02-13 20:02:06 edo Exp $                       
 *
 
 *     ***************************
@@ -72,7 +72,7 @@ c      call cphafac_k()
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) call message(2)
+      if (taskid.eq.MASTER) call nwpw_message(2)
       if (taskid.eq.MASTER) call util_flush(6)
       if (newpsi) call c_sdminimize(5)
    2  continue
@@ -112,7 +112,7 @@ c      call cphafac_k()
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
-      if (taskid.eq.MASTER) CALL MESSAGE(3)
+      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
 
 
 *     **** diagonalize hamiltonian and rotate psi ****

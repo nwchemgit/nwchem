@@ -1,6 +1,6 @@
       logical function v_wvfnc_init(rtdb)
 *
-* $Id: v_wvfnc_init.F,v 1.1 2001-08-30 00:39:46 edo Exp $
+* $Id: v_wvfnc_init.F,v 1.2 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -121,7 +121,7 @@
         WRITE(6,*) ' JOB HAS BEEN TERMINATED DUE TO CODE=',IERR
         value = .false.
       ENDIF
-      call message(4)
+      call nwpw_message(4)
       
       v_wvfnc_init = value
       return 

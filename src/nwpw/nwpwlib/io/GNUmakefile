@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 01:56:20 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2002-02-13 20:02:06 edo Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
 	      	compressed_io.o \
-            message.o \
+            nwpw_message.o \
             second.o
 
 

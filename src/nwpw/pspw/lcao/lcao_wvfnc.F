@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.9 2002-01-24 18:32:14 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.10 2002-02-13 20:02:07 edo Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -149,7 +149,7 @@
         write(*,1010)
         write(*,1000)
         write(*,1110) 
-        call message(1)
+        call nwpw_message(1)
 
 
          write(6,1121) control_boundry(),control_version()

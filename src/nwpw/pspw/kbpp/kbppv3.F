@@ -8,7 +8,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3.F,v 1.5 2002-01-04 23:40:20 bylaska Exp $
+* $Id: kbppv3.F,v 1.6 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -203,7 +203,7 @@
       write(*,*) "     * developed by the group of                *"
       write(*,*) "     * Prof. John H. Weare                      *"
       write(*,*) "     ********************************************"
-      call message(1)
+      call nwpw_message(1)
       write(*,*)
       write(*,*) "Pseudpotential Data"
       write(*,*) "-------------------"
@@ -306,7 +306,7 @@
       value = MA_free_heap(G_hndl)
 
       
-      if ((taskid.eq.MASTER).and.(oprint)) call message(4)
+      if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       kbppv3 = value
       return
 

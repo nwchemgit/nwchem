@@ -1,10 +1,11 @@
-c     $Id: sdminimize.F,v 1.4 2002-01-09 19:02:18 bylaska Exp $                       
+c     $Id: sdminimize.F,v 1.5 2002-02-13 20:02:07 edo Exp $                       
 
       subroutine sdminimize(flag)
       implicit none
       integer flag
 
 #include "mafdecls.fh"
+#include "stdio.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -32,7 +33,7 @@ c     $Id: sdminimize.F,v 1.4 2002-01-09 19:02:18 bylaska Exp $
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(*,'(A,I3,A)') "     - ",
+        write(luout,'(A,I3,A)') "     - ",
      >             it_in," steepest descent iterations performed"
       end if
   

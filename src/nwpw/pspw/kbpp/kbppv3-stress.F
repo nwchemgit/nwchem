@@ -8,7 +8,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3-stress.F,v 1.2 2002-01-21 06:31:35 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.3 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -188,7 +188,7 @@
       write(*,*) "     *      version last updated 4/15/99           *"
       write(*,*) "     *                                             *"
       write(*,*) "     ***********************************************"
-      call message(1)
+      call nwpw_message(1)
       write(*,*)
       write(*,*) "Pseudpotential Data"
       write(*,*) "-------------------"
@@ -254,7 +254,7 @@
       value = value.and.MA_free_heap(G_hndl)
 
       
-      if ((taskid.eq.MASTER).and.(oprint)) call message(4)
+      if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
 
       kbppv3_stress = value
       return

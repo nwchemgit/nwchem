@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.15 2002-02-13 00:53:48 edo Exp $
+* $Id: cpsdv5.F,v 1.16 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
       integer rtdb
@@ -165,7 +165,7 @@
          write(6,1043)
          write(6,1010)
          write(6,1000)
-         call message(1)
+         call nwpw_message(1)
          write(6,1110)
       end if
       
@@ -401,7 +401,7 @@
 *                |***************************|
 
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) CALL MESSAGE(2)
+      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(2)
       it_in  = control_it_in()
       it_out = control_it_out()
       icount = 0
@@ -437,7 +437,7 @@
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
    2  continue
-      if (taskid.eq.MASTER) CALL MESSAGE(3)
+      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
       if (taskid.eq.MASTER) call current_second(cpu3)
 
 
@@ -714,7 +714,7 @@
          write(6,*) '  allocate and deallocate    : ',nwpw_timing(12)
          write(6,*) '  Hpsi and update            : ',nwpw_timing(13)
          write(6,*)
-         CALL MESSAGE(4)
+         CALL nwpw_MESSAGE(4)
       end if 
 
 

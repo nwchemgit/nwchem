@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.6 2002-01-24 18:22:33 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.7 2002-02-13 20:02:07 edo Exp $
 *
 *     **************************************
 *     *                                    *
@@ -185,7 +185,7 @@
       write(*,*) "     * developed by the group of                *"
       write(*,*) "     * Prof. John H. Weare                      *"
       write(*,*) "     ********************************************"
-      call message(1)
+      call nwpw_message(1)
       write(*,*)
       write(*,*) "Pseudpotential Data"
       write(*,*) "-------------------"
@@ -271,7 +271,7 @@
       value = value.and.MA_free_heap(G_hndl)
 
       
-      if ((taskid.eq.MASTER).and.(oprint)) call message(4)
+      if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       kbpp_orb = value
       return
 

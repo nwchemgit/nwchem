@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.12 2002-02-13 20:02:07 edo Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -7,6 +7,7 @@ c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $
 
       real*8 function cgsd_energy(newpsi)
       implicit none
+#include "stdio.fh"
       logical newpsi
       integer MASTER
       parameter (MASTER=0)
@@ -51,14 +52,14 @@ c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
-         write(6,1300)
-         write(6,1301)
-         write(6,1302)
-         write(6,1304)
-         if (minimizer.eq.1) write(6,1305)
-         if (minimizer.eq.2) write(6,1306)
-         if (minimizer.eq.3) write(6,1307)
-         call util_flush(6)
+         write(luout,1300)
+         write(luout,1301)
+         write(luout,1302)
+         write(luout,1304)
+         if (minimizer.eq.1) write(luout,1305)
+         if (minimizer.eq.2) write(luout,1306)
+         if (minimizer.eq.3) write(luout,1307)
+         call util_flush(luout)
       end if
 
       stalled = .false.
@@ -70,8 +71,8 @@ c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $
       tole   = control_tole()
       tolc   = control_tolc()
       E(1)=0.0d0
-      if (taskid.eq.MASTER) call message(2)
-      if (taskid.eq.MASTER) call util_flush(6)
+      if (taskid.eq.MASTER) call nwpw_message(2)
+      if (taskid.eq.MASTER) call util_flush(luout)
       if (newpsi) call sdminimize(5)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
    2  continue
@@ -101,30 +102,30 @@ c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $
          end if
 
          if (taskid.eq.MASTER) then 
-           write(6,1310) icount*it_in,E(1),deltae,deltac
-           call util_flush(6)
+           write(luout,1310) icount*it_in,E(1),deltae,deltac
+           call util_flush(luout)
          end if
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** Energy going up.  iteration terminated.'
+     >       write(luout,*) ' *** Energy going up.  iteration terminated.'
             go to 3
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
      >       (deltac.lt.tolc)) then
             if (taskid.eq.MASTER) 
-     >       write(6,*) ' *** tolerance ok.     iteration terminated.'
+     >       write(luout,*) ' *** tolerance ok.     iteration terminated.'
             go to 3
          end if
       if (icount.lt.it_out) go to 2
       if (taskid.eq.MASTER) 
-     > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(luout,*) '*** arived at the Maximum iiteration.   terminated.'
 
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
    3  continue
       if (minimizer.gt.1) call pspw_Grsm_list_end()
-      if (taskid.eq.MASTER) CALL MESSAGE(3)
+      if (taskid.eq.MASTER) CALL NWPW_MESSAGE(3)
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
@@ -142,66 +143,66 @@ c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $
 *:::::::::::::::::   report summary of results  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
          neall = (psi_ne(1)+psi_ne(2))
-         write(6,1304)
-         write(6,1410)
+         write(luout,1304)
+         write(luout,1410)
 
-c        write(6,1420)
-c        write(6,1190)(i,ion_aname(I),
+c        write(luout,1420)
+c        write(luout,1190)(i,ion_aname(I),
 c    >                 (ion_rion(K,I),K=1,3),
 c    >                 ion_amass(i)/1822.89d0,
 c    >                I=1,ion_nion())
-c        write(6,1200) CX,CY,CZ
-c        write(6,1210) GX,GY,GZ
+c        write(luout,1200) CX,CY,CZ
+c        write(luout,1210) GX,GY,GZ
 c
 c        call pspw_qmmm_Print(6)
 c        call pspw_charge_Print(6)
 
-         write(6,*)
-         write(6,1320) en(1),en(psi_ispin()),' (real space)'
-         write(6,1430) E(1),E(1)/ion_nion()
-         write(6,1440) E(2),E(2)/neall
-         write(6,1450) E(3),E(3)/neall
-         write(6,1460) E(4),E(4)/neall
-         write(6,1470) E(5),E(5)/ion_nion()
+         write(luout,*)
+         write(luout,1320) en(1),en(psi_ispin()),' (real space)'
+         write(luout,1430) E(1),E(1)/ion_nion()
+         write(luout,1440) E(2),E(2)/neall
+         write(luout,1450) E(3),E(3)/neall
+         write(luout,1460) E(4),E(4)/neall
+         write(luout,1470) E(5),E(5)/ion_nion()
 
-         write(6,1480) E(6),E(6)/neall
+         write(luout,1480) E(6),E(6)/neall
          if (pspw_qmmm_found()) then
-            write(6,1491) E(7),E(7)/neall
+            write(luout,1491) E(7),E(7)/neall
          else
-            write(6,1490) E(7),E(7)/neall
+            write(luout,1490) E(7),E(7)/neall
          end if
-         write(6,1495) E(8),E(8)/neall
-         write(6,1496) E(9),E(9)/neall
-         write(6,1497) E(10),E(10)/neall
+         write(luout,1495) E(8),E(8)/neall
+         write(luout,1496) E(9),E(9)/neall
+         write(luout,1497) E(10),E(10)/neall
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(6,1498) virial
+         write(luout,1498) virial
 
         if (pspw_qmmm_found()) then
-            write(6,1700)
-            write(6,1701)
-            write(6,1702) E(11)
-            write(6,1703) E(12)
-            write(6,1704) E(13)
-            write(6,1705) E(14)
-            write(6,1706) E(15)
+            write(luout,1700)
+            write(luout,1701)
+            write(luout,1702) E(11)
+            write(luout,1703) E(12)
+            write(luout,1704) E(13)
+            write(luout,1705) E(14)
+            write(luout,1706) E(15)
          end if
         if (pspw_charge_found()) then
-            write(6,1800)
-            write(6,1801)
-            write(6,1802) E(16)
-            write(6,1803) E(17)
+            write(luout,1800)
+            write(luout,1801)
+            write(luout,1802) E(16)
+            write(luout,1803) E(17)
         end if
 
 
-         write(6,1500)
+         write(luout,1500)
          NN=psi_ne(1)-psi_ne(2)
          EV=27.2116
          DO I=1,NN
-           write(6,1510) psi_eigenvalue(1,I),
+           write(luout,1510) psi_eigenvalue(1,I),
      >                   psi_eigenvalue(1,I)*EV
          end do
          DO I=1,psi_ne(2)
-           write(6,1510)  psi_eigenvalue(1,I+NN),
+           write(luout,1510)  psi_eigenvalue(1,I+NN),
      >                    psi_eigenvalue(1,I+NN)*EV,
      >                    psi_eigenvalue(2,I),
      >                    psi_eigenvalue(2,I)*EV
@@ -273,6 +274,7 @@ c        call pspw_charge_Print(6)
 
       subroutine cgsd_energy_gradient(G1)
       implicit none
+#include "stdio.fh"
       real*8 G1(3,*)
 
       logical allow_translation
@@ -332,39 +334,39 @@ c        call pspw_charge_Print(6)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(6,1300)
-        write(6,1301)
-        write(6,1302)
-        write(6,1304)
-        if (.not.allow_translation) write(6,1400) fmx,fmy,fmz
-        write(6,1304)
-        write(6,1410)
-        write(6,1420)
-        write(6,1190)(i,ion_aname(I),
+        write(luout,1300)
+        write(luout,1301)
+        write(luout,1302)
+        write(luout,1304)
+        if (.not.allow_translation) write(luout,1400) fmx,fmy,fmz
+        write(luout,1304)
+        write(luout,1410)
+        write(luout,1420)
+        write(luout,1190)(i,ion_aname(I),
      >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
         if (pspw_qmmm_found()) then
           do i=1,pspw_qmmm_nion()
             i1 = ion_nion() + i
-            write(6,1190) i1,pspw_qmmm_aname(i),
+            write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (pspw_qmmm_rion(K,i),K=1,3)
           end do
         end if
 
-        write(6,1421)
-        write(6,1190)(i,ion_aname(I),
+        write(luout,1421)
+        write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
         if (pspw_qmmm_found()) then
           do i=1,pspw_qmmm_nion()
             i1 = ion_nion() + i
-            write(6,1190) i1,pspw_qmmm_aname(i),
+            write(luout,1190) i1,pspw_qmmm_aname(i),
      >                    (G1(K,i1),K=1,3)
           end do
         end if
 
-        write(6,1210) fmx2,fmy2,fmz2  
-        write(6,1425)
-        write(6,1426) dsqrt(GG)
+        write(luout,1210) fmx2,fmy2,fmz2  
+        write(luout,1425)
+        write(luout,1426) dsqrt(GG)
       end if
 
 c     call dscal(3*nion,(-1.0d0),G1,1)

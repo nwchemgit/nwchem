@@ -1,6 +1,6 @@
       logical function wvfnc_expander(rtdb)
 *
-* $Id: wvfnc_expander.F,v 1.1 2001-08-30 00:39:46 edo Exp $
+* $Id: wvfnc_expander.F,v 1.2 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -139,7 +139,7 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
         WRITE(6,*) ' JOB HAS BEEN TERMINATED DUE TO CODE=',IERR
         value = .false.
       ENDIF
-      call message(4)
+      call nwpw_message(4)
       
       wvfnc_expander = value
       return 

@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.19 2002-01-20 23:49:22 bylaska Exp $
+* $Id: cgsdv5.F,v 1.20 2002-02-13 20:02:07 edo Exp $
 *
       implicit none
       integer rtdb
@@ -143,7 +143,7 @@
          write(6,1043)
          write(6,1010)
          write(6,1000)
-         call message(1)
+         call nwpw_message(1)
          write(6,1110)
       end if
       
@@ -466,7 +466,7 @@ c     end if
          write(6,*) '  masking and packing        : ', nwpw_timing(9),
      >                          nwpw_timing(9)/dble(electron_count())           
          write(6,*)
-         CALL MESSAGE(4)
+         CALL nwpw_MESSAGE(4)
       end if 
 
 
