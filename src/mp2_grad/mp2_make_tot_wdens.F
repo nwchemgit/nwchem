@@ -4,7 +4,7 @@
      $     nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
 *
-* $Id: mp2_make_tot_wdens.F,v 1.6 1997-04-23 01:12:46 d3g681 Exp $
+* $Id: mp2_make_tot_wdens.F,v 1.7 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -31,10 +31,12 @@ c
       one=1.0d0
       zero=0.0d0
       two=2.0d0
-      if(.not.ga_create(mt_dbl,nva,noa_hi,'wai_a_tr',nva,1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nva,noa_hi,'wai_a_tr',nva,0,
      $     g_w_ai_a_tr))call errquit(
      $     'could not alloc wai_a_tr',1)
-      if(.not.ga_create(mt_dbl,nvb,nob_hi,'wai_b_tr',nvb,1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nvb,nob_hi,'wai_b_tr',nvb,0,
      $     g_w_ai_b_tr))call errquit(
      $     'could not alloc wai_b_tr',1)
 c     
@@ -76,9 +78,11 @@ c
 c     
 c...  transform to AO basis and write
 c     
-      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
      $     call errquit('mp2_grad: scratch',1)
-      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',1,1,g_tmp))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',0,0,g_tmp))
      $     call errquit('mp2_grad: scratch',2)
 c
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_w_tot_a,g_vecs_a,

@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.8 1998-02-11 10:36:13 d3e129 Exp $
+* $Id: wnbofile.F,v 1.9 1999-06-16 00:10:27 d3e129 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -146,15 +146,18 @@ c
       endif 
 
       if (restricted) then
+*ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: MOs',
-     $       1, 1, g_movecs(1))) call errquit('wnbofile: MOs', 0)
+     $       0, 0, g_movecs(1))) call errquit('wnbofile: MOs', 0)
         call ga_zero(g_movecs(1))
       else
+*ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: alpha MOs',
-     $       1, 1, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0)
+     $       0, 0, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0)
         call ga_zero(g_movecs(1))
+*ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: beta MOs',
-     $       1, 1, g_movecs(2))) call errquit('wnbofile: beta MOs', 0)
+     $       0, 0, g_movecs(2))) call errquit('wnbofile: beta MOs', 0)
         call ga_zero(g_movecs(2))
       endif
 c
@@ -565,16 +568,18 @@ c       bond order matrix, gamma   =  | N*SUM C  C    |
 c                               ij     \   i   ji ik /
 c
       if( restricted) then
+*ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: bond order', 
-     $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
         call ga_zero(g_bo(1))
       else 
 
+*ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: a bond order', 
-     $     1, 1, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
         call ga_zero(g_bo(1))
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: b bond order', 
-     $     1, 1, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0)
+     $     0, 0, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0)
         call ga_zero(g_bo(2))
 
       endif 
@@ -609,8 +614,9 @@ c
 *        call ga_print(g_bo(1))
       endif
 
+*ga:1:0
       if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: scratch', 
-     $     1, 1, g_scr)) call errquit('wnbofile: scratch', 0)
+     $     0, 0, g_scr)) call errquit('wnbofile: scratch', 0)
       call ga_zero(g_scr)
 c                                                t
 c>>>  Form the product (Movecs)(Gamma_mo)(Movecs)  = Bond order matrix.
@@ -709,16 +715,19 @@ c
 c>>>  Create Fock matrix in AO basis.
 c
       if(restricted) then
+*ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: Fock matrix', 
-     $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
         call ga_zero(g_fock(1))
       else 
 
+*ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: alpha Fock', 
-     $     1, 1, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
         call ga_zero(g_fock(1))
+*ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: beta Fock', 
-     $     1, 1, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0)
+     $     0, 0, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0)
         call ga_zero(g_fock(2))
 
       endif 

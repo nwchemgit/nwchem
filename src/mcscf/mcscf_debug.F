@@ -1,6 +1,6 @@
       subroutine hv_write(lun,ix,len,x)
 *
-* $Id: mcscf_debug.F,v 1.11 1997-11-04 09:59:42 d3e129 Exp $
+* $Id: mcscf_debug.F,v 1.12 1999-06-16 00:10:21 d3e129 Exp $
 *
       implicit none
       integer lun, ix, len
@@ -357,17 +357,23 @@ c
 c
 c  Allocate Fock and gradient matrices
 c
-       if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
      $      call errquit('mcscf: cannot allocate active Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,1,g_ifock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
      $      call errquit('mcscf: cannot allocate inactive Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
      $      call errquit('mcscf: cannot allocate general Fock',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Gradient',1,1,g_grad))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,orlen,1,'Gradient',0,0,g_grad))
      $      call errquit('rohf_head: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Product',1,1,g_prod))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,orlen,1,'Product',0,0,g_prod))
      $      call errquit('rohf_head: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,orlen,1,'Arg vec',1,1,g_x))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,orlen,1,'Arg vec',0,0,g_x))
      $      call errquit('rohf_head: cannot allocate',0)
 c
 c  Create occupation vectors
@@ -611,15 +617,20 @@ c$$$       if (.not.ga_duplicate(g_exch, g_exch2, 'Exch Copy'))
 c$$$     $      call errquit('mcscf: cannot allocate Exch copy',0)
 c$$$       if (.not.ga_duplicate(g_grad, g_grad2, 'Grad Copy'))
 c$$$     $      call errquit('mcscf: cannot allocate Exch copy',0)
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Unitary',nbf,1,g_u))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Unitary',nbf,0,g_u))
 c$$$     $      call errquit('mcscf: cannot allocate unitrary',0)
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,1,g_tmp))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,0,g_tmp))
 c$$$     $      call errquit('mcscf: cannot allocate tmp',0) 
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp 2',nbf,1,g_tmp2))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'Temp 2',nbf,0,g_tmp2))
 c$$$     $      call errquit('mcscf: cannot allocate tmp',0) 
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'B',nbf,1,g_b))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'B',nbf,0,g_b))
 c$$$     $      call errquit('mcscf: cannot allocate B',0)
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'new G Fock',nbf,1,g_newgfock))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'new G Fock',nbf,0,g_newgfock))
 c$$$     $      call errquit('mcscf: cannot allocate new GFock',0)
 c
 c  Step and generate U = exp(K) (2x2 rotation)
@@ -791,11 +802,14 @@ c
 c
 c  Fock build and 1e-Hessian vector product
 c
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CV Fock',nbf,1,g_fcv))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CV Fock',nbf,0,g_fcv))
 c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'PV Fock',nbf,1,g_fpv))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'PV Fock',nbf,0,g_fpv))
 c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
-c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CP Fock',nbf,1,g_fcp))
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nbf,nbf,'CP Fock',nbf,0,g_fcp))
 c$$$     $      call errquit('mcscf: cannot allocate active Fock',0)
 c
 c  ROHF Gradient

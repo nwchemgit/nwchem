@@ -3,7 +3,7 @@
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.25 1999-06-09 00:53:50 edo Exp $
+c     $Id: dft_fitvc.F,v 1.26 1999-06-16 00:10:26 d3e129 Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -118,8 +118,9 @@ c
         CD_coef_max = max(shmax, CD_coef_max)
     5 continue
       if (IOLGC)then
+*ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-     &                       nbf_cd, 1, g_2ceri)) 
+     &                       nbf_cd, 0, g_2ceri)) 
      &      call errquit('dft_fitvc: error creating g_2ceri',0)
         if (me.eq.0)then
            lmiss = 0

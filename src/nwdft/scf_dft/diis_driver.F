@@ -2,7 +2,7 @@
      &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
      &                       g_tmp, g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver.F,v 1.12 1999-02-05 01:55:51 d3h449 Exp $
+C$Id: diis_driver.F,v 1.13 1999-06-16 00:10:27 d3e129 Exp $
 c
       implicit none
 c      
@@ -102,8 +102,9 @@ c
 c        call gacrea(geom,AO_bas_han,
 c     &    nbf,nbf*(2*mxhist*ipol),
 c     &    'diis bufs',g_diis,'row')
+*ga:1:0
          if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist*ipol), 
-     &                       'diis bufs', nbf, 1, g_diis)) 
+     &                       'diis bufs', nbf, 0, g_diis)) 
      &      call errquit('diis_driver: error creating g_diis',0)
          call ga_zero(g_diis)
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',

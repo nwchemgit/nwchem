@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.11 1997-03-25 18:02:40 d3e129 Exp $
+C$Id: riscf_init.F,v 1.12 1999-06-16 00:10:13 d3e129 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -106,8 +106,10 @@ C     get and fill indexing array, determine space needed for 3c-ERIs
       status = bas_numcont (ao_basis, nsh)
       status = bas_numcont (ri_basis, nsh_F)
       nsqhalf = (nsh*(nsh+1))/2
-      status = ga_create (MT_INT, nsh, nsh,'3c index', nsh, 1, g_indx)
-*     status = ga_create (MT_INT, nsh, nsh,'3c index', 1, nsh, g_indx)
+*ga:1:0
+      status = ga_create(MT_INT, nsh, nsh,'3c index', nsh, 0, g_indx)
+*ga:1:0
+*     status = ga_create(MT_INT, nsh, nsh,'3c index', 0, nsh, g_indx)
       if (.not.status) call errquit ('RI-SCF: can''t get indx arr.',110)
 C     does this work for integer arrays?
       call ga_zero (g_indx)
@@ -176,7 +178,8 @@ C       switch to in-core and jump back
             write (LUOUT,*)
           endif
         endif
-        status = ga_create ( MT_DBL, npair, Nff, '3c-eri', npair, 1, 
+*ga:1:0
+        status = ga_create( MT_DBL, npair, Nff, '3c-eri', npair, 0, 
      $                      g_three )
         if (.not.status) 
      $       call errquit ('RI-SCF: can''t allocate 3c-eri array',110)

@@ -5,7 +5,7 @@ c     is incorrect.  What else in this file is dead?
 c
 c
 c$$$       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-c$$$C$Id: moints_mp2.F,v 1.27 1998-08-27 06:23:33 d3g681 Exp $
+c$$$C$Id: moints_mp2.F,v 1.28 1999-06-16 00:10:22 d3e129 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
@@ -20,7 +20,8 @@ c$$$       double precision xx,denom
 c$$$       double precision moints_epair_eval
 c$$$
 c$$$       nnt = (nocc*(nocc+1))/2
-c$$$       if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
+*ga:1:0
+c$$$       if (.not.ga_create(MT_DBL,nnt,1,'epair',0,0,g_epair)) call
 c$$$     $      errquit('moints_mp2_eval: cannot allocate',0)
 c$$$       nbf = nocc + nvir
 c$$$       my_id = ga_nodeid()

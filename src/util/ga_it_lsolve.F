@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.9 1999-01-31 17:21:33 d3g681 Exp $
+C$Id: ga_it_lsolve.F,v 1.10 1999-06-16 00:10:28 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -111,13 +111,16 @@ c
 c
 c     Allocate and zero the temporary global arrays
 c
-      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_lsolve: w', 1,
-     $     1, g_w))
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_lsolve: w', 0,
+     $     0, g_w))
      $     call errquit('ga_iter_lsolve: ga_create of w', 1)
-      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: x', 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: x', 0,
      $     maxsub, g_x))
      $     call errquit('ga_iter_lsolve: ga_create of x', maxsub)
-      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: p', 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: p', 0,
      $     maxsub, g_p))
      $     call errquit('ga_iter_lsolve: ga_create of p', maxsub)
       call ga_zero(g_x)

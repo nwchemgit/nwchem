@@ -2,7 +2,7 @@
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b, scftype, nfrozen,
      $     title)
 *
-* $Id: mp2_make_nos.F,v 1.3 1997-09-25 20:35:23 d3g681 Exp $
+* $Id: mp2_make_nos.F,v 1.4 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "util.fh"
@@ -47,14 +47,18 @@ c
      $     call errquit('mp2_nos: allocating eval?', nbf)
       call dfill(2*nbf, 0.0d0, dbl_mb(k_eval), 1)
 c
-      if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos a', nmo, 1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos a', nmo, 0,
      $     g_dens)) call errquit('mp2_nos: ga_create a failed',0)
-      if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos b', nmo, 1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos b', nmo, 0,
      $     g_work)) call errquit('mp2_nos: ga_create b failed',0)
-      if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos c', nbf, 1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos c', nbf, 0,
      $     g_nos(1))) call errquit('mp2_nos: ga_create c failed',0)
       if (scftype .eq. 'UHF') then
-         if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos d', nbf, 1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos d', nbf, 0,
      $        g_nos(2))) call errquit('mp2_nos: ga_create d failed',0)
       endif
 c

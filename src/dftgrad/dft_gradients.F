@@ -150,7 +150,8 @@ c
 c     
 c     forces on atoms (3xnat)
 c     
-      status = ga_create (mt_dbl, 3, nat, 'forces', 3, 1, g_force)
+*ga:1:0
+      status = ga_create(mt_dbl, 3, nat, 'forces', 3, 0, g_force)
       call ga_zero (g_force)
 c     
 c     local replication (separate for the different pieces)

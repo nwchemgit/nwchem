@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.5 1997-11-14 19:25:46 d3g681 Exp $
+C     $Id: ccsd_z2pm.F,v 2.6 1999-06-16 00:10:12 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -23,8 +23,9 @@ c
 C
       lnoo=nocc*nocc
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'sz2t',
-     &                   nbf*nbf,1,g_sz2t))
+     &                   nbf*nbf,0,g_sz2t))
      &     call errquit('ccsd_z2pm: ga_create g_sz2t failed',0)
 c
       call ga_distribution(g_nz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -199,16 +200,18 @@ c ------------------------------------------------------------
 c - transform ao indices of hz2 array into the mo basis
 c ------------------------------------------------------------
 
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2t',
-     &                   nbf*nbf,1,g_shz2t))
+     &                   nbf*nbf,0,g_shz2t))
      &     call errquit('ccsd_hz2pm: ga_create g_shz2t failed',0)
 
       call ga_transpose(g_shz2,g_shz2t)
 c - redefine g_shz2
       if (.not.ga_destroy(g_shz2))
      &    call errquit('ga_dest g_shz2 fail',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2',
-     &                   nbf*nbf,1,g_shz2))
+     &                   nbf*nbf,0,g_shz2))
      &     call errquit('ccsd_hz2pm: ga_create g_shz2 failed',0)
 
       call ga_distribution(g_nhz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)

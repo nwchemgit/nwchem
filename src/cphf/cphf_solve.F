@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.19 1999-05-08 13:02:26 bjohnson Exp $
+* $Id: cphf_solve.F,v 1.20 1999-06-16 00:10:13 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -101,12 +101,14 @@ c
 c
       if (nmo .ne. nbf) then
          if (.not. ga_destroy(g_movecs(1))) call errquit('cphf: ga',1)
+*ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs a',
-     $        1, 1, g_movecs(1))) call errquit('scf_v_g: tmp MOs', 0)
+     $        0, 0, g_movecs(1))) call errquit('scf_v_g: tmp MOs', 0)
          if (scftype .eq. 'UHF') then
             if (.not. ga_destroy(g_movecs(2)))call errquit('cphf: ga',2)
+*ga:1:0
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs b',
-     $           1, 1, g_movecs(2))) call errquit('scf_v_g: tmp MOs', 0)
+     $           0, 0, g_movecs(2))) call errquit('scf_v_g: tmp MOs', 0)
          endif
       endif
 c         
@@ -147,15 +149,17 @@ c
      $          '  max. iter = ', i4/)
       endif
 c
-      if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',1,1,g_grad))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',0,0,g_grad))
      $     call errquit('cphf_solve: ga_cre grad',vlen)
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
       if(.not.file_read_ga(cphf_rhs, g_grad))
      $     call errquit('cphf_solve: could not read cphf_rhs',1)
 c
+*ga:1:0
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: grad',
-     $     1,1,g_work))call errquit('cphf_solve: ga_cre grad',0)
+     $     0,0,g_work))call errquit('cphf_solve: ga_cre grad',0)
 c
 c     Compute necessary Fock matrices
 c

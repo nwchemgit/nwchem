@@ -191,7 +191,8 @@ c
 c
        aoff = nclosed + 1
        aend = nclosed + nact
-       if (.not.ga_create(MT_DBL,nact,nact,'1PDM',nact,1,g_dm1))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nact,nact,'1PDM',nact,0,g_dm1))
      $   call errquit('mcscf_occ2dens: cannot create 1PDM',0)
        if (ga_nodeid().eq.0)
      $   call ga_put(g_dm1,1,nact,1,nact,dm1,nact)
@@ -663,7 +664,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.27 1998-12-03 01:44:37 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.28 1999-06-16 00:10:20 d3e129 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -725,7 +726,8 @@ c
 c         g   =  F   -  F
 c          ti     it     ti
 c
-       if (.not.ga_create(MT_DBL,nact,nclosed,'crap',nact,1,g_tmp))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nact,nclosed,'crap',nact,0,g_tmp))
      $      call errquit('mcscf_gfock2grad: cannot allocate',0)
        call ga_copy_patch('t', g_gfock, 1, nclosed, aoff, aend,
      $                         g_tmp, 1, nact, 1, nclosed )
@@ -1139,12 +1141,15 @@ c
 c
 c  Inactive orbitals
 c
-      if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,1,g_v))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,0,g_v))
      $  call errquit('mcscf_canonical: cannot allocate v',0)
       call ga_zero(g_v)
-      if (.not.ga_create(MT_DBL,nclosed,nclosed,'tmp',nclosed,1,g_tmp))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nclosed,nclosed,'tmp',nclosed,0,g_tmp))
      $  call errquit('mcscf_canonical: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL,nclosed,nclosed,'u',nclosed,1,g_u))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nclosed,nclosed,'u',nclosed,0,g_u))
      $  call errquit('mcscf_canonical: cannot allocate u',0)
       call ga_copy_patch( 'n', g_gfock, 1, nclosed, 1, nclosed,
      $                         g_tmp, 1, nclosed, 1, nclosed )
@@ -1165,9 +1170,11 @@ c  Active orbitals
 c
       aoff = nclosed + 1
       aend = nclosed + nact
-      if (.not.ga_create(MT_DBL,nact,nact,'tmp',nact,1,g_tmp))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nact,nact,'tmp',nact,0,g_tmp))
      $  call errquit('mcscf_canonical: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL,nact,nact,'u',nact,1,g_u))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nact,nact,'u',nact,0,g_u))
      $  call errquit('mcscf_canonical: cannot allocate u',0)
       call ga_copy_patch( 'n', g_gfock, aoff, aend, aoff, aend,
      $                         g_tmp, 1, nact, 1, nact )
@@ -1188,9 +1195,11 @@ c  Virtual orbitals
 c
       aoff = nclosed + nact + 1
       nvir = nbf - nclosed - nact
-      if (.not.ga_create(MT_DBL,nvir,nvir,'tmp',nvir,1,g_tmp))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nvir,nvir,'tmp',nvir,0,g_tmp))
      $  call errquit('mcscf_canonical: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL,nvir,nvir,'u',nvir,1,g_u))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nvir,nvir,'u',nvir,0,g_u))
      $  call errquit('mcscf_canonical: cannot allocate u',0)
       call ga_dadd_patch( 2.d0, g_ifock, aoff, nbf, aoff, nbf,
      $                    2.d0, g_afock, aoff, nbf, aoff, nbf,
@@ -1211,7 +1220,8 @@ c
 c
 c  Transform MOs
 c
-      if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,1,g_z))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,0,g_z))
      $  call errquit('mcscf_canonical: cannot allocate z',0)
       call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs,
      $                g_v, 0.d0, g_z )
@@ -1279,7 +1289,8 @@ c
 c
 c
 c
-      if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,0,g_tmp))
      $   call errquit('mcscf_save_vecs: cannot allocate tmp',0)
       if (.not.rtdb_get(rtdb, 'mcscf:movecs lock', MT_LOG,
      $     1, olock)) olock = .false.

@@ -3,7 +3,7 @@
      $     nmo,map_a, map_b,
      $     g_vecs_a,g_vecs_b,basis,scftype)
 *
-* $Id: mp2_make_tot_dens.F,v 1.11 1997-03-27 08:49:59 d3e129 Exp $
+* $Id: mp2_make_tot_dens.F,v 1.12 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -95,9 +95,11 @@ c
       call ga_copy_patch('n',g_p_ab_b,1,nvb,1,nvb,g_p_tot_b,
      $     nob+1,nmo,nob+1,nmo)
 c     
-      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
      $     call errquit('mp2_grad: scratch',1)
-      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',1,1,g_tmp))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',0,0,g_tmp))
      $     call errquit('mp2_grad: scratch',2)
 c     
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_p_tot_a,g_vecs_a,

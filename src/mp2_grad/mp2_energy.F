@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.48 1999-01-21 00:16:42 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.49 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -149,9 +149,11 @@ c
 c     
 c     Get the MO vectors, swap and then symmetry block them
 c     
-      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,0,
      $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
-      if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,g_vecs_b))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,0,g_vecs_b))
      $     call errquit('mp2_energy: ga_create failed',0)
 c     
       if(.not.ma_push_get(mt_dbl,nbf*2,'occ alpha',
@@ -339,46 +341,60 @@ c...  and beta spin with _b. With this in mind, naming of arrays is obvious
 c...  when Chem. Phys. Letts. 166 (1990) 275 is consulted.
 c     
       if(task.eq.'gradient')then
+*ga:1:0
          if(.not.ga_create(mt_dbl,noa,noa,'g_p_ij_a',
-     $        noa,1,g_p_ij_a))call errquit(
-     $        'could not alloc g_p_ij_a',1)
+     $        noa,0,g_p_ij_a))call errquit(
+     $        'could not galloc g_p_ij_a',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nob,nob,'g_p_ij_b',
-     $        nob,1,g_p_ij_b))call errquit(
-     $        'could not alloc g_p_ij_b',1)
+     $        nob,0,g_p_ij_b))call errquit(
+     $        'could not galloc g_p_ij_b',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nva,nva,'g_p_ab_a',
-     $        nva,1,g_p_ab_a))call errquit(
-     $        'could not alloc g_p_ab_a',1)
+     $        nva,0,g_p_ab_a))call errquit(
+     $        'could not galloc g_p_ab_a',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nvb,nvb,'g_p_ab_b',
-     $        nvb,1,g_p_ab_b))call errquit(
-     $        'could not alloc g_p_ab_b',1)
+     $        nvb,0,g_p_ab_b))call errquit(
+     $        'could not galloc g_p_ab_b',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,noa,noa,'g_w_ij_a',
-     $        noa,1,g_w_ij_a))call errquit(
-     $        'could not alloc g_w_ij_a',1)
+     $        noa,0,g_w_ij_a))call errquit(
+     $        'could not galloc g_w_ij_a',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nob,nob,'g_w_ij_b',
-     $        nob,1,g_w_ij_b))call errquit(
-     $        'could not alloc g_w_ij_b',1)
+     $        nob,0,g_w_ij_b))call errquit(
+     $        'could not galloc g_w_ij_b',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nva,nva,'g_w_ab_a',
-     $        nva,1,g_w_ab_a))call errquit(
-     $        'could not alloc g_w_ab_a',1)
+     $        nva,0,g_w_ab_a))call errquit(
+     $        'could not galloc g_w_ab_a',1)
+*ga:1:0
          if(.not.ga_create(mt_dbl,nvb,nvb,'g_w_ab_b',
-     $        nvb,1,g_w_ab_b))call errquit(
-     $        'could not alloc g_w_ab_b',1)
+     $        nvb,0,g_w_ab_b))call errquit(
+     $        'could not galloc g_w_ab_b',1)
 c
-         if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,1,g_lai_a))
+*ga:1:0
+         if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,0,g_lai_a))
      $        call errquit('could not alloc ga for lai_a',1)
-         if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,1,g_lai_b))
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,0,g_lai_b))
      $        call errquit('could not alloc ga for lai_b',1)
-         if(.not.ga_create(mt_dbl,noa,nva,'wai_a',noa,1,g_w_ai_a))
+*ga:1:0
+         if(.not.ga_create(mt_dbl,noa,nva,'wai_a',noa,0,g_w_ai_a))
      $        call errquit('could not alloc ga for wai_a',1)
-         if(.not.ga_create(mt_dbl,nob,nvb,'wai_b',nob,1,g_w_ai_b))
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nob,nvb,'wai_b',nob,0,g_w_ai_b))
      $        call errquit('could not alloc ga for wai_b',1)
 c
          if (noa_frozen .gt. 0) then
+*ga:1:0
             if(.not.ga_create(mt_dbl,noa-noa_frozen,noa_frozen,'lyi_a',
-     $           1,1,g_liy_a))
+     $           0,0,g_liy_a))
      $           call errquit('could not alloc ga for lyi_a',1)
+*ga:1:0
             if(.not.ga_create(mt_dbl,nob-nob_frozen,nob_frozen,'lyi_b',
-     $           1,1,g_liy_b))
+     $           0,0,g_liy_b))
      $           call errquit('could not alloc ga for lyi_b',1)
 c
             call ga_zero(g_liy_a)
@@ -557,8 +573,9 @@ c
             grad_length=noa*nva
          end if
 c     
+*ga:1:0
          if(.not.ga_create(mt_dbl,grad_length,1,'mp2g: rhs',
-     $        1,1,g_rhs))call errquit('mp2: ga_rhs',0)
+     $        0,0,g_rhs))call errquit('mp2: ga_rhs',0)
 c     
          call mp2_make_cphf_rhs(scftype, transform,basis,nmo,nbf,
      $        noa,nva,nob,nvb,int_mb(k_irs_a),int_mb(k_irs_b),
@@ -590,10 +607,12 @@ c
             if (ga_nodeid().eq.0) write(6,771) 'Norm of soln', norm
          end if
 c     
-         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,0,
      $        g_p_tot_a))call errquit(
      $        'mp2_energy: ga_create failed',0)
-         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,0,
      $        g_p_tot_b))call errquit(
      $        'mp2_energy: ga_create failed',0)
 c     
@@ -633,10 +652,12 @@ c
             call mp2_print_trace_norm(g_w_ij_b,'w_ij_b',nob)
          end if
 c     
-         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha wdens',nmo,1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha wdens',nmo,0,
      $        g_w_tot_a))call errquit(
      $        'mp2_energy: ga_create failed',0)
-         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta wdens',nmo,1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta wdens',nmo,0,
      $        g_w_tot_b))call errquit(
      $        'mp2_energy: ga_create failed',0)
          call mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,

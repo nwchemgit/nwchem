@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.23 1997-07-30 02:06:24 d3g681 Exp $
+C     $Id: moints_full.F,v 1.24 1999-06-16 00:10:22 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -141,8 +141,9 @@ c
      $     call errquit('moints: failed to alloc irs ',nmo)
       if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_map, k_map))
      $     call errquit('moints: failed to alloc map ',nmo)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
-     $     1, 1, g_vecs)) call errquit('moints: ga failed', 0)
+     $     0, 0, g_vecs)) call errquit('moints: ga failed', 0)
       if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs))
      $     call errquit('moints: cannot read MO vectors',0)
@@ -417,10 +418,12 @@ c
       if (util_print('AO FZC fock',print_debug)) 
      $     call ga_print(g_hcore)
 c
-      if (.not. ga_create(MT_DBL, nbf, nmo(1), 'tmp', 1, 1, g_tmp)) 
+*ga:1:0
+      if (.not. ga_create(MT_DBL, nbf, nmo(1), 'tmp', 0, 0, g_tmp)) 
      $     call errquit('moints: ga create of tmp failed', nmo(1)*nbf)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nmo(1), nmo(1), 'MO fock', 
-     $     1, 1, g_mofock)) 
+     $     0, 0, g_mofock)) 
      $     call errquit('moints: ga create of tmp failed', nmo(1)**2)
 c
       if (util_print('vectors',print_debug)) call ga_print(g_vecs)

@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.31 1999-02-14 17:53:03 d3g681 Exp $
+c     $Id: grad_force.F,v 1.32 1999-06-16 00:10:16 d3e129 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -278,7 +278,8 @@ C     # of eigenvalues and density matrices
 C     allocate and initialize global and local memory
 
 C     forces on atoms(3xnat)
-      if (.not. ga_create(mt_dbl, 3, nat, 'forces', 3, 1, g_force))
+*ga:1:0
+      if (.not. ga_create(mt_dbl, 3, nat, 'forces', 3, 0, g_force))
      $     call errquit('gradients: failed to create force GA',0)
       call ga_zero(g_force)
 
@@ -367,7 +368,8 @@ C     energy weighted density(NxN)
 
 C     eigenvalue diagonal matrix for forming energy weighted density
       nocc = nopen + nclosed
-      if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 1, nocc, 
+*ga:1:0
+      if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 0, nocc, 
      $     g_eigen_diag)) call errquit('gradients: ga diags?',nocc*nocc)
       call ga_zero(g_eigen_diag)
 

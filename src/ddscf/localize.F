@@ -66,8 +66,9 @@ c
          call ga_zero(g_over)
          call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
 c     
+*ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
-     $        nbf, 1, g_sc)) call errquit('testlocalize: sc',0)
+     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0)
          call ga_dgemm('n', 'n', nbf, nmo, nbf, 
      $        1.0d0, g_over, g_movecs, 0.0d0, g_sc)
 c     
@@ -118,12 +119,14 @@ c
      $        'Foster-Boys orbital localization', 40, .true.)
 c
          do x= 1, 4
+*ga:1:0
             if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
-     $           nbf, 1, g_uc(x))) call errquit('testlocalize: uc',x)
+     $           nbf, 0, g_uc(x))) call errquit('testlocalize: uc',x)
          end do
          call int_dip_ga(basis, basis, g_uc(1), g_uc(2), g_uc(3))
+*ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
-     $        nbf, 1, g_sc)) call errquit('testlocalize: sc',0)
+     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0)
          do x = 1, 3
             call ga_dgemm('n', 'n', nbf, nmo, nbf, 
      $           1.0d0, g_uc(x), g_movecs, 0.0d0, g_sc)

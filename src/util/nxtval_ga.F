@@ -1,6 +1,6 @@
       block data nxtval_ga_data
 *
-* $Id: nxtval_ga.F,v 1.2 1997-10-31 20:45:34 d3e129 Exp $
+* $Id: nxtval_ga.F,v 1.3 1999-06-16 00:10:28 d3e129 Exp $
 *
       implicit none
       integer g_x
@@ -14,7 +14,8 @@
       integer g_x
       common/c_nxtval_ga/g_x
 c
-      if (.not. ga_create(MT_INT, 1, 1, 'nxtval_ga', 1, 1, g_x))
+*ga:1:0
+      if (.not. ga_create(MT_INT, 1, 1, 'nxtval_ga', 0, 0, g_x))
      $     call errquit('nxtval_ga: ga_create failed', 1)
       call ga_zero(g_x)
 c

@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.7 1999-01-26 02:50:21 edo Exp $
+C$Id: movecs_proj.F,v 1.8 1999-06-16 00:10:13 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -91,8 +91,9 @@ c
       if (file_nbf .ne. old_nbf) call errquit
      $     ('movecs_project: nbf on file inconsistent with basis', 0)
 c
+*ga:1:0
       if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
-     $     1, 1, g_old_vecs)) call errquit
+     $     0, 0, g_old_vecs)) call errquit
      $     ('movecs_project: failed creating old vectors', 0)
       if (.not. ma_push_get(mt_dbl, old_nbf, 'Old occ',
      $     l_old_occ, k_old_occ)) call errquit
@@ -139,11 +140,13 @@ c
       basis_handles(1) = basis
       basis_handles(2) = old_basis
 
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Mixed overlap',
-     $     1, 1, g_over)) call errquit
+     $     0, 0, g_over)) call errquit
      $     ('movecs_project: create mixed overlap', 0)
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
-     $     1, 1, g_mix)) call errquit
+     $     0, 0, g_mix)) call errquit
      $     ('movecs_project: create temp', 0)
       call ga_zero(g_mix)
       call ga_zero(g_over)
@@ -175,8 +178,9 @@ c
 *     Make and invert plain overlap
 
       g_over = ga_create_atom_blocked(geom, basis, 'Overlap')
+*ga:1:0
 *      if (.not. ga_create(mt_dbl, nbf, nbf, 'Overlap',
-*     $     1, 1, g_over)) call errquit
+*     $     0, 0, g_over)) call errquit
 *     $     ('movecs_project: failed making overlap', 0)
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)

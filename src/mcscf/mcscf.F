@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.59 1997-11-19 05:23:01 d3j191 Exp $
+* $Id: mcscf.F,v 1.60 1999-06-16 00:10:19 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -278,7 +278,8 @@ c
 c     
 c     Create and get MO vectors 
 c     
-      if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,1,g_movecs))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,0,g_movecs))
      $     call errquit('mcscf: cannot allocate MO vectors',0)
 
       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
@@ -318,9 +319,11 @@ c
 c     
 c     Create conjugacy vectors
 c     
-      if (.not.ga_create(MT_DBL,orlen,1,'Conj',1,1,g_conj))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,orlen,1,'Conj',0,0,g_conj))
      $     call errquit('mcscf: cannot allocate',0)
-      if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',1,1,g_gradold))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',0,0,g_gradold))
      $     call errquit('mcscf: cannot allocate',0)
       call ga_zero(g_conj)
       call ga_zero(g_gradold)

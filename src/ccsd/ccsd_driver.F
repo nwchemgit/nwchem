@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.26 1998-12-03 01:38:34 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.27 1999-06-16 00:10:12 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -222,8 +222,9 @@ c
 c
 c Allocate pair energy array
 c
+*ga:1:0
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
-     $      'epair',1,1,g_epair))
+     $      'epair',0,0,g_epair))
      $      call errquit('cannot create epair array',0)
 c
 c Print info

@@ -6,7 +6,7 @@
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
 *
-* $Id: mcscf_prcnd.F,v 1.9 1997-11-04 09:59:46 d3e129 Exp $
+* $Id: mcscf_prcnd.F,v 1.10 1999-06-16 00:10:22 d3e129 Exp $
 *
        implicit none
 #include "global.fh"
@@ -63,13 +63,17 @@ c
 c
 c
 c
-       if (.not.ga_create(MT_DBL,vlen,maxbas,'basis',1,maxbas,g_basis))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,maxbas,'basis',0,maxbas,g_basis))
      $    call errquit('mcscf_precond: failed to allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,maxbas,'sigma',1,maxbas,g_sigma))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,maxbas,'sigma',0,maxbas,g_sigma))
      $    call errquit('mcscf_precond: failed to allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,1,'x vector',1,1,g_xv))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'x vector',0,0,g_xv))
      $    call errquit('mcscf_precond: failed to allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,1,'prod vector',1,1,g_axv))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'prod vector',0,0,g_axv))
      $    call errquit('mcscf_precond: failed to allocate',0)
 1010       nbas = 0
        if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,937) 

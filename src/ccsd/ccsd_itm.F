@@ -3,7 +3,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.9 1997-10-22 16:40:55 d3g681 Exp $
+C     $Id: ccsd_itm.F,v 2.10 1999-06-16 00:10:12 d3e129 Exp $
       implicit none
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
@@ -43,11 +43,13 @@ c - test x and c by doing its contribution to (2j-k)*(2t-t)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
      &                   nocc,nocc,g_aitm))
      &     call errquit('ccsd_itm: ga_create g_aitm failed',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt1',
-     &                   lnvv,1,g_tmt1))
+     &                   lnvv,0,g_tmt1))
      &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',
-     &                   lnvv,1,g_tmt2))
+     &                   lnvv,0,g_tmt2))
      &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0)
 c
       call dfill(lnvv,0.0d00,habe,1)

@@ -5,7 +5,7 @@
      $     sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
 *
-* $Id: mp2_make_cphf_rhs.F,v 1.6 1997-03-27 08:49:54 d3e129 Exp $
+* $Id: mp2_make_cphf_rhs.F,v 1.7 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -29,9 +29,11 @@
       integer g_lai_a_tr,g_lai_b_tr
 c     
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
-      if(.not.ga_create(mt_dbl,nva,noa,'temp',1,1,g_lai_a_tr))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nva,noa,'temp',0,0,g_lai_a_tr))
      $     call errquit('could not alloc tran array',1)
-      if(.not.ga_create(mt_dbl,nvb,nob,'temp',1,1,g_lai_b_tr))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nvb,nob,'temp',0,0,g_lai_b_tr))
      $     call errquit('could not alloc tran array',1)
       call ga_transpose(g_lai_a,g_lai_a_tr)
       call ga_transpose(g_lai_b,g_lai_b_tr)

@@ -5,7 +5,7 @@ c     BGJ - 8/98
 c
       logical function cphf_poliz(rtdb)
 *
-* $Id: cphf_poliz.F,v 1.10 1998-09-09 13:04:42 bjohnson Exp $
+* $Id: cphf_poliz.F,v 1.11 1999-06-16 00:10:13 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -90,10 +90,12 @@ c
       if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
      $     l_eval_a,k_eval_a))
      $     call errquit('cphf_poliz: problem with ma for a evals',1)
-      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,1,
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,0,
      $     g_vecs_a))call errquit('cphf_poliz: ga_create failed',0)
       if (scftype .eq. 'UHF') then
-         if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,
+*ga:1:0
+         if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,0,
      $        g_vecs_b))call errquit('cphf_poliz: ga_create failed',0)
          if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
      $        l_occ_b,k_occ_b))
@@ -157,8 +159,9 @@ c
 c     Generate dipole integrals
 c
       do ix = 1, 3
+*ga:1:0
          if(.not. ga_create(mt_dbl,nbf,nbf,' ao integs x ',
-     $        1,1,g_dip(ix))) call errquit('cphf_poliz: ga',ix)
+     $        0,0,g_dip(ix))) call errquit('cphf_poliz: ga',ix)
       enddo
 c
       call int_init(rtdb,1,basis)
@@ -170,13 +173,17 @@ c
 c
 c     Assemble the RHS vectors ... currently just solve one at a  time
 c
-      if(.not.ga_create(mt_dbl, nbf, nbf,'scratch', 1, 1,g_scratch)) 
+*ga:1:0
+      if(.not.ga_create(mt_dbl, nbf, nbf,'scratch', 0, 0,g_scratch)) 
      $     call errquit('cphf_poliz: ga create of scratch', nbf)
-      if(.not.ga_create(mt_dbl, nmo, nmo,'tmp', 1, 1,g_tmp)) 
+*ga:1:0
+      if(.not.ga_create(mt_dbl, nmo, nmo,'tmp', 0, 0,g_tmp)) 
      $     call errquit('cphf_poliz: ga create of tmp', nbf)
-      if(.not.ga_create(mt_dbl, vlen, 1,'rhs', 1, 1,g_rhs)) 
+*ga:1:0
+      if(.not.ga_create(mt_dbl, vlen, 1,'rhs', 0, 0,g_rhs)) 
      $     call errquit('cphf_poliz: ga create of rhs', vlen)
-      if(.not.ga_create(mt_dbl, vlen, 1,'sol', 1, 1,g_sol)) 
+*ga:1:0
+      if(.not.ga_create(mt_dbl, vlen, 1,'sol', 0, 0,g_sol)) 
      $     call errquit('cphf_poliz: ga create of sol', vlen)
 c
       call ga_print(g_vecs_a)

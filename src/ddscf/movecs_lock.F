@@ -1,6 +1,6 @@
       subroutine movecs_lock(geom, basis, g_old, g_new, evals, occ)
 *
-* $Id: movecs_lock.F,v 1.5 1997-11-07 11:35:13 d3e129 Exp $
+* $Id: movecs_lock.F,v 1.6 1999-06-16 00:10:13 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -36,11 +36,13 @@ c
 c     Allocate workspace and form Snew-old
 c
       call ga_inquire(g_old, type, nbf, nmo)
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'movecs_lock:tmp',
-     $     nbf, 1, g_tmp)) call errquit
+     $     nbf, 0, g_tmp)) call errquit
      $     ('movecs_lock: ga_create of tmp failed',nbf*nmo)
+*ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'movecs_lock:sno',
-     $     nmo, 1, g_sno)) call errquit
+     $     nmo, 0, g_sno)) call errquit
      $     ('movecs_lock: ga_create of Sno failed',nmo*nmo)
       if (.not. ma_push_get(mt_dbl, nmo, 'movecs_lock:e',l_e, k_e))
      $     call errquit('movecs_lock: insufficient memory',nmo)

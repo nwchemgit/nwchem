@@ -1,5 +1,5 @@
       program test
-C$Id: testsolve.F,v 1.11 1996-11-10 17:53:59 d3g681 Exp $
+C$Id: testsolve.F,v 1.12 1999-06-16 00:10:28 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -37,15 +37,20 @@ c
 c     
 c     create the arrays to test the linear equation solver
 c
-*      status = ga_create(MT_DBL, n, n, 'test:v', 1, 1, g_v)
-      status = ga_create(MT_DBL, n, n, 'test:a', 1, 1, g_a)
+*ga:1:0
+*     status = ga_create(MT_DBL, n, n, 'test:v', 0, 0, g_v)
+*ga:1:0
+      status = ga_create(MT_DBL, n, n, 'test:a', 0, 0, g_a)
       write(6,*) ga_nodeid(), ' created'
       call util_flush(6)
       call ga_sync()
 
-*      status = ga_create(MT_DBL, n, 1, 'test:soln', 1, 1, g_soln)
-*      status = ga_create(MT_DBL, n, 1, 'test:b', 1, 1, g_b)
-*      status = ga_create(MT_DBL, n, 1, 'test:resid', 1, 1, g_resid)
+*ga:1:0
+*      status = ga_create(MT_DBL, n, 1, 'test:soln', 0, 0, g_soln)
+*ga:1:0
+*      status = ga_create(MT_DBL, n, 1, 'test:b', 0, 0, g_b)
+*ga:1:0
+*      status = ga_create(MT_DBL, n, 1, 'test:resid', 0, 0, g_resid)
       junk = drandm(ga_nodeid()*37*2 + 1)
       do i = ga_nodeid()+1, n, ga_nnodes()
          if (i .le. 3) then
@@ -143,7 +148,8 @@ c
       tol = 0.01d0
 c
       status = ga_destroy(g_soln)
-      if (.not. ga_create(MT_DBL, n, 3, 'test:soln', 1, 1, g_soln))
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 3, 'test:soln', 0, 0, g_soln))
      $     call errquit('gac failed', 0)
 c      
       call ga_zero(g_soln)
@@ -238,15 +244,20 @@ c
       logical print, conjugacy, status
       data print /.true./, conjugacy /.true./
 c
-      if (.not. ga_create(MT_DBL, n, n, 'testpcg: matrix', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, n, 'testpcg: matrix', 0, 0,
      $     g_a)) call errquit('testpcg: a', n)
-      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: grad', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: grad', 0, 0,
      $     g_grad)) call errquit('testpcg: grad', n)
-      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: work', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: work', 0, 0,
      $     g_work)) call errquit('testpcg: work', n)
-      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: step', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: step', 0, 0,
      $     g_s)) call errquit('testpcg: step', n)
-      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: x', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 1, 'testpcg: x', 0, 0,
      $     g_x)) call errquit('testpcg: step', n)
 c
 c     Initial guess for solution x

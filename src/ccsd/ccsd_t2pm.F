@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.13 1997-10-27 18:07:12 d3g681 Exp $
+C     $Id: ccsd_t2pm.F,v 2.14 1999-06-16 00:10:12 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &        offsh(nsh,nsh)
@@ -78,16 +78,18 @@ c ------------------------------------------------------------
 c - transform ao indices of ht2 array into the mo basis
 c ------------------------------------------------------------
 
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'sht2t',
-     &                   nbf*nbf,1,g_sht2t))
+     &                   nbf*nbf,0,g_sht2t))
      &     call errquit('ga_create g_sht2t failed',0)
 
       call ga_transpose(g_sht2,g_sht2t)
 c - redefine g_sht2
       if (.not.ga_destroy(g_sht2))
      &    call errquit('ga_dest g_sht2 fail',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,nact*nact,lnoo,'sht2',
-     &                   nact*nact,1,g_sht2))
+     &                   nact*nact,0,g_sht2))
      &     call errquit('ga_create g_sht2 failed',0)
 
       call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -168,8 +170,9 @@ c
       iam=ga_nodeid()
       lnoo=nocc*nocc
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'st2t',
-     &                   nbf*nbf,1,g_st2t))
+     &                   nbf*nbf,0,g_st2t))
      &     call errquit('ga_create g_st2t failed',0)
 c
       call ga_distribution(g_st2t,iam,g_jlo,g_jhi,g_ilo,g_ihi)

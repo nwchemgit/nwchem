@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.10 1997-11-14 00:06:49 d3g681 Exp $
+C     $Id: ccsd_pampt3.F,v 2.11 1999-06-16 00:10:12 d3e129 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
@@ -41,21 +41,25 @@ c
 c ------------------------------------------------------------
 c create global arrays
 c ------------------------------------------------------------
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x',
-     &                   nbf*nbf,1,g_x))
+     &                   nbf*nbf,0,g_x))
      &     call errquit('ccsd_pampt3: ga_create g_x failed',0)
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c',
-     &                   nbf*nbf,1,g_c))
+     &                   nbf*nbf,0,g_c))
      &     call errquit('ccsd_pampt3: ga_create g_c failed',0)
 c -- global array for ht2 with 2 ao indices
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2',
-     &                   nocc*nocc,1,g_sht2))
+     &                   nocc*nocc,0,g_sht2))
      &     call errquit('ccsd_pampt3: ga_create g_sht2 failed',0)
 c
 c -- global array for t2 with 2 ao indices
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
-     &                   nocc*nocc,1,g_st2))
+     &                   nocc*nocc,0,g_st2))
      &     call errquit('ccsd_pampt3: ga_create g_st2 failed',0)
 c
 c ------------------------------------------------------------

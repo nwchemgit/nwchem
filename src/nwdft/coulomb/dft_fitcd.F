@@ -4,7 +4,7 @@
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.29 1999-05-10 23:49:20 edo Exp $
+* $Id: dft_fitcd.F,v 1.30 1999-06-16 00:10:26 d3e129 Exp $
 *
       implicit none
 c
@@ -519,8 +519,9 @@ c
       if (IOLGC)then
 c         call gacrea(geom,CD_bas_han,
 c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
+*ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-     &                       nbf_cd, 1, g_cdinv)) 
+     &                       nbf_cd, 0, g_cdinv)) 
      &      call errquit('dft_fitcd: error creating g_cdinv',0)
         if (me.eq.0)then
            lmiss = 0

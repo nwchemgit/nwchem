@@ -1,6 +1,6 @@
       subroutine scf_movecs_read
 *
-* $Id: scf_movecs.F,v 1.9 1997-11-07 11:35:18 d3e129 Exp $
+* $Id: scf_movecs.F,v 1.10 1999-06-16 00:10:14 d3e129 Exp $
 *
       implicit none
 #include "cscf.fh"
@@ -77,8 +77,9 @@ c
 c
 c     Allocate space for the old vectors
 c
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'scf_movecs_lock:old',
-     $     nmo, 1, g_old)) call errquit
+     $     nmo, 0, g_old)) call errquit
      $     ('scf_movecs_lock: ga_create of old failed',nmo*nbf)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_e, k_e))
      $     call errquit('movecs_lock: insufficient memory',nbf)

@@ -7,7 +7,7 @@
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.13 1998-07-08 21:58:02 d3g681 Exp $
+* $Id: mp2_make_tuhf.F,v 1.14 1999-06-16 00:10:24 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -69,9 +69,11 @@ c
      $     l_ia_jb, k_ia_jb)) call errquit
      $     ('mp2_make_t: no room for ia_jb', max(noa*nva,nob*nvb))
 c
-      if(.not.ga_create(mt_dbl,noa*nva,nva,'T_a',(noa*nva),1,g_t_a))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,noa*nva,nva,'T_a',(noa*nva),0,g_t_a))
      $     call errquit('could not alloc ga for T_a',1)
-      if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),1,g_t_b))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),0,g_t_b))
      $     call errquit('could not alloc ga for T_b',1) 
       tunitptra=1
       tunitptrb=1

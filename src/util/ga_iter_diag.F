@@ -1,6 +1,6 @@
       logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
-C$Id: ga_iter_diag.F,v 1.7 1995-02-02 18:09:26 d3g681 Exp $
+C$Id: ga_iter_diag.F,v 1.8 1999-06-16 00:10:28 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -95,15 +95,19 @@ c
 c     
 c     Allocate and zero the temporary global arrays
 c     
-      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: x', 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: x', 0,
      $     maxsub, g_x))
      $     call errquit('ga_iter_diag: ga_create of x', maxsub)
-      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: p', 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: p', 0,
      $     maxsub, g_p))
      $     call errquit('ga_iter_diag: ga_create of p', maxsub)
-      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_diag: v', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 0, 'ga_iter_diag: v', 1, 1,
      $     g_v)) call errquit('ga_iter_diag: ga_create of v', n)
-      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_diag: w', 1, 1,
+*ga:1:0
+      if (.not. ga_create(MT_DBL, n, 0, 'ga_iter_diag: w', 1, 1,
      $     g_w)) call errquit('ga_iter_diag: ga_create of w', n)
       call ga_zero(g_x)
       call ga_zero(g_p)

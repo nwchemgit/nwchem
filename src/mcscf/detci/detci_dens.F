@@ -2,7 +2,7 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F,v 1.9 1997-11-04 09:59:50 d3e129 Exp $
+* $Id: detci_dens.F,v 1.10 1999-06-16 00:10:22 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -36,7 +36,8 @@ c
 c
 c
       myid = ga_nodeid()
-      if (.not.(ga_create(MT_DBL, norb, norb, 'd', norb, 1, g_dtmp )))
+*ga:1:0
+      if (.not.(ga_create(MT_DBL, norb, norb, 'd', norb, 0, g_dtmp )))
      $   call errquit('detci_twopdm: cannot create global',0)
       call ga_zero(g_dtmp)
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
@@ -161,7 +162,8 @@ c
 c
       myid = ga_nodeid()
       nn = norb*norb
-*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
+*ga:1:0
+*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 0, g_dentmp )))
 *     $   call errquit('detci_twopdm: cannot create global',0)
 *      call ga_zero(g_dentmp)
       call ga_distribution( g_civect, myid, rlo, rhi, dilo, dihi )
@@ -422,7 +424,8 @@ c   Initialize parallel stuff
 c
       tx = util_cpusec()
       nn = norb*norb
-*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 1, g_dentmp )))
+*ga:1:0
+*      if (.not.(ga_create(MT_DBL, nn, nn, 'g dens', nn, 0, g_dentmp )))
 *     $   call errquit('detci_twopdm_ab: cannot create global',0)
 *      call ga_zero(g_dentmp)
 *      if (ga_nodeid().eq.0)

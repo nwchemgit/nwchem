@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.12 1999-01-04 19:11:57 edo Exp $
+C$Id: xc_fitv.F,v 1.13 1999-06-16 00:10:27 d3e129 Exp $
 c
       implicit none
 c
@@ -111,8 +111,9 @@ c
 c      if (IOLGC)call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 
 c     &                     'XCinv', g_xcinv, 'row')
       if (IOLGC)then
+*ga:1:0
         if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
-     &                      nbf_xc, 1, g_xcinv)) 
+     &                      nbf_xc, 0, g_xcinv)) 
      &     call errquit('xc_fitv: error creating g_xcinv',0)
       endif
 c

@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.53 1997-12-08 19:47:12 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.54 1999-06-16 00:10:23 d3e129 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -175,8 +175,9 @@ c  Create GA exchange buffer
 c
 c
       itmp = nvir/numnodes + min(mod(nvir,numnodes),1)
+*ga:1:0
       if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, 'transp Kbuf',
-     $                     (mxrlen*nseg), 1, g_kbuf )))
+     $                     (mxrlen*nseg), 0, g_kbuf )))
      $   call errquit('moints_semi: cannot allocate K buffer',0)
       call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
       if ((clo.eq.0).and.(chi.eq.-1)) then
@@ -851,8 +852,9 @@ c
 c$$$       do i=1,nnbf
 c$$$         write(6,*) 'k_v',int_mb(k_v+i-1)
 c$$$       enddo
+*ga:1:0
       if (.not.ga_create( MT_DBL, (nvir*nvir), nocc, 'exch',
-     $                    (nvir*nvir), 1, g_exch))
+     $                    (nvir*nvir), 0, g_exch))
      $    call errquit('moints_semimp2: cannot allocate exch',0)
       call ga_distribution(g_exch, myid, rlo, rhi, clo, chi )
       call ga_inquire(g_epair,gtype,dim1,oomax)

@@ -33,7 +33,7 @@ c
       gg_dens = g_dens
 
 c
-c$$$      if (.not. ga_create(mt_dbl, 9*nbf, nbf, 'xlm', 1, 1, 
+c$$$      if (.not. ga_create(mt_dbl, 9*nbf, nbf, 'xlm', 0, 0, 
 c$$$     $     g_xlm)) call errquit(' ga_xlm ? ',0)
 c$$$c
 c$$$      center(1) = 0.0d0

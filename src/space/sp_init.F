@@ -362,9 +362,11 @@ c
       if(.not.ga_create(mt_dbl,np*msa,isize,'s',msa,isize,ga_s))
      + call errquit('Failed to create global array s',0)
 c
-      if(.not.ga_create(mt_int,np*mwm,1,'iwz',mwm,1,ga_iwz))
+*ga:1:0
+      if(.not.ga_create(mt_int,np*mwm,1,'iwz',mwm,0,ga_iwz))
      + call errquit('Failed to create global array iwz',0)
-      if(.not.ga_create(mt_int,np*msa,1,'isz',msa,1,ga_isz))
+*ga:1:0
+      if(.not.ga_create(mt_int,np*msa,1,'isz',msa,0,ga_isz))
      + call errquit('Failed to create global array isz',0)
 c
       return

@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.43 1997-12-15 01:28:06 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.44 1999-06-16 00:10:22 d3e129 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -156,8 +156,9 @@ c
        if (nbf.ne.nbf_vecs)  call errquit(
      $    'direct_mp2: number of basis fun does not match input',0)
 c
+*ga:1:0
        if (.not. ga_create(mt_dbl, nbf, nmo, 'Molecular orbital', 
-     $      nbf, 1, g_vecs)) call errquit
+     $      nbf, 0, g_vecs)) call errquit
      $      ('direct_mp2: failed to create GA for MOs',0)
 c
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
@@ -227,8 +228,9 @@ c
 c
 c Allocate pair energy array
 c
+*ga:1:0
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
-     $      'epair',1,1,g_epair))
+     $      'epair',0,0,g_epair))
      $      call errquit('direct_mp2:cannot create epair array',0)
 c
 c Dummy loop to count number of passes

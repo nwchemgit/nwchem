@@ -1,5 +1,5 @@
       subroutine ga_orthog_mos(basis, g_vecs)
-C$Id: ga_orth_mos.F,v 1.2 1996-01-31 02:24:28 d3g681 Exp $
+C$Id: ga_orth_mos.F,v 1.3 1999-06-16 00:10:13 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "global.fh"
@@ -22,7 +22,7 @@ c
      $  ('orthog mos: bas_geom?', 0)
 c
 *      if (.not. ga_create(MT_DBL, nbf, nbf, 'orthog_mos:overlap',
-*     $    nbf, 1, g_over)) call errquit
+*     $    nbf, 0, g_over)) call errquit
 *     $    ('orthog_mos: failed to create overlap matrix', 0)
       g_over = ga_create_atom_blocked(geom, basis, 
      $     'orthog_mos: overlap')

@@ -89,7 +89,8 @@ c
 c
 c     create the flag array
 c
-      if(.not.ga_create(mt_int,np,1,'flg',1,1,ga_flg))
+*ga:1:0
+      if(.not.ga_create(mt_int,np,1,'flg',0,0,ga_flg))
      + call errquit('Failed to allocate global array flg',0)
       call pme_flag(0,me)
 c

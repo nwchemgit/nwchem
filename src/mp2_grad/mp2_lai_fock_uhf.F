@@ -14,10 +14,12 @@ c     allocated here.  This is in preparation for building
 c     L3+l4. It used to be part of lai_fock_uhf but has
 c     been pulled out so that that routine can be used by the RIMP2.
 c
+*ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: p_a',
-     $     1, 1, g_p_a)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_p_a)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+*ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: p_b',
-     $     1, 1, g_p_b)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_p_b)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
 c
       call ga_zero(g_p_a)
       call ga_copy_patch('n',
@@ -44,7 +46,7 @@ c
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b, rtdb, tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.14 1998-12-03 01:45:38 d3g681 Exp $
+* $Id: mp2_lai_fock_uhf.F,v 1.15 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -101,8 +103,9 @@ c
       if (no_a+nv_a.ne.nmo .or. no_b+nv_b.ne.nmo)
      $     call errquit('mp2_grad: weird nmo?',0)
 c     
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp',
-     $     1, 1, g_tmp)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_tmp)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
 c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
      $     g_p_a, zero, g_tmp)
@@ -223,8 +226,9 @@ c     Workspace
 c     
       call ga_inquire(g_vecs_a, gtype, nbf, nmo)
 c     
+*ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp2',
-     $     1, 1, g_tmp2)) call errquit('mp2_wij_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_tmp2)) call errquit('mp2_wij_fock_uhf: GA', nmo*nmo)
 c     
 c     Transform the densities and symmetrize
 c     

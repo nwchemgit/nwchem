@@ -3,7 +3,7 @@
      &                       hia,t1,z1,hz1,idiis,g_nt2,g_nz2,
      &                       g_nhz2,g_ncoul,g_nexch,tklst)
       implicit none
-C     $Id: ccsd_pzamp.F,v 2.5 1997-11-14 19:25:45 d3g681 Exp $
+C     $Id: ccsd_pzamp.F,v 2.6 1999-06-16 00:10:12 d3e129 Exp $
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nz2,g_nhz2,g_aitm,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
@@ -48,35 +48,43 @@ c
 c ------------------------------------------------------------
 c create global arrays
 c ------------------------------------------------------------
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x',
-     &                   nbf*nbf,1,g_x))
+     &                   nbf*nbf,0,g_x))
      &     call errquit('ga_create g_x failed',0)
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c',
-     &                   nbf*nbf,1,g_c))
+     &                   nbf*nbf,0,g_c))
      &     call errquit('ga_create g_c failed',0)
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'zx',
-     &                   nbf*nbf,1,g_zx))
+     &                   nbf*nbf,0,g_zx))
      &     call errquit('ga_create g_zx failed',0)
 c
+*ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'zc',
-     &                   nbf*nbf,1,g_zc))
+     &                   nbf*nbf,0,g_zc))
      &     call errquit('ga_create g_zc failed',0)
 c -- global array for t2 with 2 ao indices
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
-     &                   nocc*nocc,1,g_st2))
+     &                   nocc*nocc,0,g_st2))
      &     call errquit('ga_create g_st2 failed',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sz2',
-     &                   nocc*nocc,1,g_sz2))
+     &                   nocc*nocc,0,g_sz2))
      &     call errquit('ga_create g_sz2 failed',0)
 c
 c -- global array for ht2 with 2 ao indices
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2',
-     &                   nocc*nocc,1,g_sht2))
+     &                   nocc*nocc,0,g_sht2))
      &     call errquit('ga_create g_sht2 failed',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'shz2',
-     &                   nocc*nocc,1,g_shz2))
+     &                   nocc*nocc,0,g_shz2))
      &     call errquit('ga_create g_shz2 failed',0)
 c
 c

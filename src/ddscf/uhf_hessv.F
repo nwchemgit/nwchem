@@ -1,6 +1,6 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.4 1997-11-07 11:35:19 d3e129 Exp $
+* $Id: uhf_hessv.F,v 1.5 1999-06-16 00:10:14 d3e129 Exp $
 *
       implicit none
 #include "cuhf.fh"
@@ -75,10 +75,12 @@ c
          vbase = nocc+1         ! First virtual
 c
          if (nocc*nvir .gt. 0) then
+*ga:1:0
             if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv1e: tmp1',
-     $           1, 1, g_tmp1)) call errquit('uhf_hv1e: tmp1', 0)
+     $           0, 0, g_tmp1)) call errquit('uhf_hv1e: tmp1', 0)
+*ga:1:0
             if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv1e: tmp2',
-     $           1, 1, g_tmp2)) call errquit('uhf_hv1e: tmp2', 0)
+     $           0, 0, g_tmp2)) call errquit('uhf_hv1e: tmp2', 0)
 c
             do ivec = 1, nvec
                call ga_copy_patch('n',
@@ -168,10 +170,12 @@ c
          nvir  = nmo - nocc
          iend = istart + nocc*nvir - 1
          vbase = nocc+1         ! First virtual
+*ga:1:0
          if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp1',
-     $        1, 1, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+     $        0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+*ga:1:0
          if (.not. ga_create(MT_DBL, nvir, nbf, 'uhf_hv2e: tmp2',
-     $        1, 1, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
+     $        0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
          do ivec = 1, nvec
             g_d = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens')
             g_j = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens')
@@ -276,14 +280,18 @@ c
         iend_diff = istart_diff + nocc_diff*nvir_diff - 1
         vbase = nocc+1          ! First virtual
         vbase_diff = nocc_diff+1          ! First virtual
+*ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nocc, 'uhf_hv2e: tmp1',
-     $       1, 1, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+     $       0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+*ga:1:0
         if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp2',
-     $       1, 1, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
+     $       0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
+*ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nocc_diff, 'uhf_hv2e: tmp3',
-     $       1, 1, g_tmp3)) call errquit('uhf_hv2e: tmp3', 0)
+     $       0, 0, g_tmp3)) call errquit('uhf_hv2e: tmp3', 0)
+*ga:1:0
         if (.not. ga_create(MT_DBL,nvir_diff,nocc_diff,'uhf_hv2e: tmp4',
-     $       1, 1, g_tmp4)) call errquit('uhf_hv2e: tmp4', 0)
+     $       0, 0, g_tmp4)) call errquit('uhf_hv2e: tmp4', 0)
         do ivec = 1, nvec
            g_j = g_fock(isetoff+1,ivec)
            g_k = g_fock(isetoff+2,ivec)

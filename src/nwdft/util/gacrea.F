@@ -1,5 +1,5 @@
       subroutine gacrea(geom,basis,n,m,name,ihand,how)
-C$Id: gacrea.F,v 1.8 1995-11-02 23:37:06 og845 Exp $
+C$Id: gacrea.F,v 1.9 1999-06-16 00:10:27 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -16,9 +16,10 @@ c
       integer ihand,  i
       ok=.false.
       if(how.eq.'row')then
-        ok=ga_create(MT_DBL, n, m, name, n, 1, ihand)
+*ga:1:0
+        ok=ga_create(MT_DBL, n, m, name, n, 0, ihand)
       elseif(how.eq.'column')then
-        ok=ga_create(MT_DBL, n, m, name, 1, m, ihand)
+        ok=ga_create(MT_DBL, n, m, name, 0, m, ihand)
       elseif(how.eq.'atom')then
         ihand=ga_create_atom_blocked(geom, basis, name)
         ok=.true.

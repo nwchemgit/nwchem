@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.15 1997-06-24 02:51:34 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.16 1999-06-16 00:10:21 d3e129 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -490,11 +490,14 @@ c
       nocc = nclosed+nact
       odebug = util_print('graddebug',print_debug)
 c
-      if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
      $     call errquit('mcscf_orb: cannot allocate active Fock',0)
-      if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,1,g_ifock))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
      $     call errquit('mcscf_orb: cannot allocate inactive Fock',0)
-      if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
      $     call errquit('mcscf_orb: cannot allocate general Fock',0)
 c      
       call mcscf_fock( geom, basis, nbf, nclosed, nact,

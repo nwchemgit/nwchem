@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.23 1999-04-10 00:15:35 windus Exp $
+c $Id: rhf_hessian.F,v 1.24 1999-06-16 00:10:18 d3e129 Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -1834,7 +1834,8 @@ C     energy weighted density (NxN)
 
 C     eigenvalue diagonal matrix
       nocc = nopen + nclosed
-      status = ga_create ( MT_DBL, nocc, nocc,'eigen_diag', 1, nocc, 
+*ga:1:0
+      status = ga_create( MT_DBL, nocc, nocc,'eigen_diag', 0, nocc, 
      $                       g_eigen_diag )
       call ga_zero ( g_eigen_diag )
 
@@ -17993,19 +17994,24 @@ c           -Y^a -  at x(i30)
 
 c     ----- create ga blocks -----
 
-      if(.not.ga_create(mt_dbl,nocc,nvir,'g_wax',1,1,g_wax))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nocc,nvir,'g_wax',0,0,g_wax))
      &     call errquit('could not alloc wax array',1)
 
-      if(.not.ga_create(mt_dbl,nvir,nocc,'g_wax_tr',1,1,g_wax_tr))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nvir,nocc,'g_wax_tr',0,0,g_wax_tr))
      &     call errquit('could not alloc tran array',1)
 
+*ga:1:0
       if(.not.ga_create(mt_dbl,nvir*nocc,1,'cphf_rhs:hnd_cphf',
-     $    1,1,g_rhs))call errquit('hnd_cphf: cphf_rhs',0)
+     $    0,0,g_rhs))call errquit('hnd_cphf: cphf_rhs',0)
 
-      if(.not.ga_create(mt_dbl,nvir,nocc,'g_ya',1,1,g_ya))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nvir,nocc,'g_ya',0,0,g_ya))
      &     call errquit('could not alloc ya array',1)
 
-      if(.not.ga_create(mt_dbl,nocc,nvir,'g_ya_tr',1,1,g_ya_tr))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nocc,nvir,'g_ya_tr',0,0,g_ya_tr))
      &     call errquit('could not alloc ya_tr arrayy',1)
 
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
@@ -18097,9 +18103,11 @@ c     ----- add - W_x^a * x^b - contributions to -fcm_ab -----
 
 c     ----- create ga block -----
 
-      if(.not.ga_create(mt_dbl,nbov,nc,'g_wax_tot',1,1,g_wax_tot))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbov,nc,'g_wax_tot',0,0,g_wax_tot))
      &     call errquit('could not alloc wax_tot array',1)
-      if(.not.ga_create(mt_dbl,nbov,nc,'g_xa_tot' ,1,1,g_xa_tot ))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nbov,nc,'g_xa_tot' ,0,0,g_xa_tot ))
      &     call errquit('could not alloc xa_tot  array',1)
 
 c     ----- copy from local memory to global array -----

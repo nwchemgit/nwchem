@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.7 1997-04-16 16:52:25 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.8 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -71,8 +71,9 @@ c
 c
 c     Apply rotation to orbitals and fock matrix
 c
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_canon: tmp',
-     $     1, 1, g_tmp)) call errquit
+     $     0, 0, g_tmp)) call errquit
      $     ('rohf_canon: ga failed for tmp', 0)
 c
       call ga_copy(g_movecs, g_tmp)
@@ -151,11 +152,13 @@ c
          enddo
          if (n .gt. 0) then
 c
+*ga:1:0
             if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
-     $           1, 1, g_tmp)) call errquit
+     $           0, 0, g_tmp)) call errquit
      $           ('rohf_canon: ga failed for tmp', 0)
+*ga:1:0
             if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: v',
-     $           n, 1, g_v)) call errquit
+     $           n, 0, g_v)) call errquit
      $           ('rohf_canon: ga failed for v', 0)
 c
             call ga_sync
@@ -216,8 +219,9 @@ c
 *         if (map(i) .ne. i) write(6,*) ' FLIP ', i, map(i)
 *      enddo
       n = ihi - ilo + 1
+*ga:1:0
       if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
-     $        n, 1, g_tmp)) call errquit
+     $        n, 0, g_tmp)) call errquit
      $        ('rohf_canon: ga failed for tmp', 0)
       do i = ilo+ga_nodeid(),ihi,ga_nnodes()
          call ga_get(g_u,ilo,ihi, map(i), map(i), tmp(ilo), 1)

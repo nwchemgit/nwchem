@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.3 1997-02-13 01:14:16 d3g681 Exp $
+C     $Id: rohf_diis.F,v 1.4 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -78,27 +78,35 @@ c
 c     
 c     Allocate global arrays.  
 c     
-      if (.not. ga_create(MT_DBL, vlen, 1, 'diis:grad', 1, 1, g_grad))
+*ga:1:0
+      if (.not. ga_create(MT_DBL, vlen, 1, 'diis:grad', 0, 0, g_grad))
      $     call errquit('diis:grad', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, (nbf*nbf), (2*mxdiisbas),
-     $     'diis:basis', 1, 1, g_gdiis)) call errquit('diis: work', 0)
+     $     'diis:basis', 0, 0, g_gdiis)) call errquit('diis: work', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:fock',
-     $     1, 1, g_fock)) call
+     $     0, 0, g_fock)) call
      $     errquit('rohf_diis_solve: ga failed for fock', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:over',
-     $     1, 1, g_over)) call
+     $     0, 0, g_over)) call
      $     errquit('rohf_diis_solve: ga failed for over', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:xorth',
-     $     1, 1, g_xorth)) call
+     $     0, 0, g_xorth)) call
      $     errquit('rohf_diis_solve: ga failed for xorth', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:tmp',
-     $     1, 1, g_tmp)) call
+     $     0, 0, g_tmp)) call
      $     errquit('rohf_diis_solve: ga failed for tmp', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:tmp2',
-     $     1, 1, g_tmp2)) call
+     $     0, 0, g_tmp2)) call
      $     errquit('rohf_diis_solve: ga failed for tmp2', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, (nbf*nbf), 1, 'rohf_diis_solve:err',
-     $     1, 1, g_err)) call
+     $     0, 0, g_err)) call
      $     errquit('rohf_diis_solve: ga failed for error', 0)
 c
 c  Generate overlap and orthonormalization matrix

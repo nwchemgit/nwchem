@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_qitm,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.6 1997-11-14 19:25:48 d3g681 Exp $
+C     $Id: ccsd_zsig2.F,v 2.7 1999-06-16 00:10:12 d3e129 Exp $
       implicit none
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &        g_sht2,g_zx,g_zc,g_tz3,iprt
@@ -36,11 +36,13 @@ C
       lnov=nocc*nvir
       lnvv=nvir*nvir
 C
+*ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmp',
-     &                   lnvv,1,g_tmp))
+     &                   lnvv,0,g_tmp))
      &     call errquit('ga_create g_tmp failed',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmp2',
-     &                   lnvv,1,g_tmp2))
+     &                   lnvv,0,g_tmp2))
      &     call errquit('ga_create g_tmp2 failed',0)
 c
       do a=1,nvir

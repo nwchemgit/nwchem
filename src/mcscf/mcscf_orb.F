@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.41 1998-05-14 21:17:54 d3e129 Exp $
+c  $Id: mcscf_orb.F,v 1.42 1999-06-16 00:10:21 d3e129 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -130,22 +130,29 @@ c
 c
 c  Allocate MO matrices
 c
-       if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
      $      call errquit('mcscf_orb: cannot allocate active Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,1,g_ifock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
      $      call errquit('mcscf_orb: cannot allocate inactive Fock',0)
-       if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
      $      call errquit('mcscf_orb: cannot allocate general Fock',0)
        if (oe2approx) then
          nnact = (nact*(nact+1))/2
-         if (.not.ga_create(MT_DBL,nbf,nbf,'Unitrary',nbf,1,g_u))
+*ga:1:0
+         if (.not.ga_create(MT_DBL,nbf,nbf,'Unitrary',nbf,0,g_u))
      $        call errquit('mcscf_orb: cannot allocate unitrary',0)
-         if (.not.ga_create(MT_DBL,nbf,nbf,'B matrix',nbf,1,g_b))
+*ga:1:0
+         if (.not.ga_create(MT_DBL,nbf,nbf,'B matrix',nbf,0,g_b))
      $        call errquit('mcscf_orb: cannot allocate B',0)
-         if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,1,g_tmp))
+*ga:1:0
+         if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,0,g_tmp))
      $        call errquit('mcscf_orb: cannot allocate B',0)
+*ga:1:0
          if (.not.ga_create(MT_DBL,(nact*nact),nnact,'Act Ints',
-     $                      (nact*nact), 1, g_actints ))
+     $                      (nact*nact), 0, g_actints ))
      $        call errquit('mcscf_orb: cannot allocate active ints',0)
        endif
        if (.not.ga_duplicate(g_movecs,g_newvecs,'New MO vectors'))
@@ -153,13 +160,17 @@ c
 c
 c  Allocate gradient vectors
 c
-       if (.not.ga_create(MT_DBL,vlen,1,'Gradient',1,1,g_grad))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'Gradient',0,0,g_grad))
      $      call errquit('mcscf_orbsolve: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,1,'K vector',1,1,g_kvec))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'K vector',0,0,g_kvec))
      $      call errquit('mcscf_orbsolve: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,1,'Search',1,1,g_srch))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'Search',0,0,g_srch))
      $      call errquit('mcscf_orbsolve: cannot allocate',0)
-       if (.not.ga_create(MT_DBL,vlen,1,'Hess Diag',1,1,g_hdiag))
+*ga:1:0
+       if (.not.ga_create(MT_DBL,vlen,1,'Hess Diag',0,0,g_hdiag))
      $      call errquit('mcscf_orbsolve: cannot allocate',0)
        call ga_zero(g_kvec)
        call ga_zero(g_srch)

@@ -2,7 +2,7 @@
       subroutine riscf_put_dra ( da_three, scr, indx, nij, Nff, npair, 
      $             ndone, g_three, req )
 *
-* $Id: riscf_io.F,v 1.5 1999-06-14 23:55:46 d3e129 Exp $
+* $Id: riscf_io.F,v 1.6 1999-06-16 00:10:13 d3e129 Exp $
 *
       implicit none
 
@@ -57,7 +57,8 @@ C     only for debugging purposes, needs global array of full size
       character*80 name, file
 
       istat = dra_inquire(da, type, dim1, dim2, name, file)
-      status = ga_create (type, dim1, dim2, name, dim1, 1, ga)
+*ga:1:0
+      status = ga_create(type, dim1, dim2, name, dim1, 0, ga)
       if ( status ) then
         istat = dra_read(ga, da, req)
         call ga_print ( ga )

@@ -3,7 +3,7 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.24 1998-12-03 01:38:33 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.25 1999-06-16 00:10:12 d3e129 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -181,11 +181,13 @@ c
 c
         lhoo=nocc*(nocc+1)/2
         lhoov=nvir*nocc*(nocc+1)/2
+*ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_t2', 
-     &                   mxvec*lhoov,1,g_t2))
+     &                   mxvec*lhoov,0,g_t2))
      &     call errquit('ga_create failed for g_t2',0)
+*ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
-     &                   mxvec*lhoov,1,g_ht2))
+     &                   mxvec*lhoov,0,g_ht2))
      &     call errquit('ga_create failed for g_ht2',0)
 c      
       call ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -265,7 +267,8 @@ c
       stat=stat.and.ma_pop_stack(l_scra)
 c
       lnobj=2*lnoov+max(lnoov,lnooo)
-      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',1,1,
+*ga:1:0
+      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',0,0,
      &                   g_objv))
      &     call errquit('ga_create g_objv failed',0)
       call ga_zero(g_objv)
@@ -489,9 +492,11 @@ c
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'buf1',l_buf1,k_buf1)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'buf2',l_buf2,k_buf2)
 c
-*      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
+*ga:1:0
+*      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,0,g_objo))
 *     &     call errquit('ga_create failed for g_objo',0)
-      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',1,1,g_objo))
+*ga:1:0
+      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',0,0,g_objo))
      &     call errquit('ga_create failed for g_objo',0)
 c
       call ga_zero(g_objo)

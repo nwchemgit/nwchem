@@ -1,5 +1,5 @@
       block data ga_block_project
-C$Id: ga_it_proj.F,v 1.1 1995-12-13 01:37:30 d3g681 Exp $
+C$Id: ga_it_proj.F,v 1.2 1999-06-16 00:10:28 d3e129 Exp $
       implicit none
 #include "cproject.fh"
 c
@@ -40,7 +40,8 @@ c
 c     
          nroot_proj = nroot
          n_proj     = n
-         if (.not. ga_create(MT_DBL, n, nroot, 'ga_project', 1, nroot,
+*ga:1:0
+         if (.not. ga_create(MT_DBL, n, nroot, 'ga_project', 0, nroot,
      $        g_proj)) call errquit('ga_init_project: ga_create?', 0)
          call ga_zero(g_proj)
       else

@@ -7,7 +7,7 @@ c
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
 *
-* $Id: detci_intf.F,v 1.25 1998-02-27 00:54:29 d3g681 Exp $
+* $Id: detci_intf.F,v 1.26 1999-06-16 00:10:22 d3e129 Exp $
 *
       implicit none
 c
@@ -410,8 +410,9 @@ c
 c
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
+*ga:1:0
       ga_civec_create = ga_create( MT_DBL, nstrb, nstra, label,
-     $                             nstrb, 1, g_a )
+     $                             nstrb, 0, g_a )
 c
       return
       end
@@ -570,11 +571,13 @@ c
 c   beta-beta using transpose vectors
 c
       tx = util_cpusec()
+*ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp CI',
-     $                    nstra, 1, g_ct ))
+     $                    nstra, 0, g_ct ))
      $   call errquit('detci_sigma: cannot allocate transp ci',0)
+*ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp sig',
-     $                    nstra, 1, g_st ))
+     $                    nstra, 0, g_st ))
      $   call errquit('detci_sigma: cannot allocate transp sig',0)
       call ga_transpose( g_civec, g_ct )
       call ga_zero(g_st)
@@ -818,8 +821,9 @@ c
 c
 c
       tx = util_cpusec()
+*ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'civec transp',
-     $                    nstra, 1, g_civect ))
+     $                    nstra, 0, g_civect ))
      $    call errquit('detci_density: cannot create CI transp.',0)
       call ga_transpose( g_civec, g_civect )
 c

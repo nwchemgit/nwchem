@@ -1,7 +1,7 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 *
-* $Id: mp2_make_dip_mom.F,v 1.8 1997-07-25 16:54:16 d3g681 Exp $
+* $Id: mp2_make_dip_mom.F,v 1.9 1999-06-16 00:10:23 d3e129 Exp $
 *
       implicit none
 #include "util.fh"
@@ -30,12 +30,15 @@ c
 c
 c     Generate dipole integrals
 c
+*ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs x ',
-     $     1,1,g_x)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_x)) call errquit('mp2_dipole: ga',0)
+*ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs y ',
-     $     1,1,g_y)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_y)) call errquit('mp2_dipole: ga',0)
+*ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs z',
-     $     1,1,g_z)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_z)) call errquit('mp2_dipole: ga',0)
 c
       call int_init(rtdb,1,basis)
       call int_dip_ga(basis, basis, g_x, g_y, g_z)
@@ -43,8 +46,9 @@ c
 c
 c     Generate SCF AO density
 c
+*ga:1:0
       if(.not.ga_create(mt_dbl, nbf, nbf,' AO density  ',
-     $     1,1,g_dens)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_dens)) call errquit('mp2_dipole: ga',0)
       call ga_dgemm('n', 't', nbf, nbf, noa, 1.0d0, g_vecs_a,
      $     g_vecs_a, 0.0d0, g_dens)
       call ga_dgemm('n', 't', nbf, nbf, nob, 1.0d0, g_vecs_b,
@@ -56,7 +60,8 @@ c
 c
 c     Form the MP2 AO density
 c
-      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
+*ga:1:0
+      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
      $     call errquit('mp2_grad: scratch',1)
       call ga_dgemm('n','t',nmo,nbf,nmo,1.0d0,g_p_tot_a,g_vecs_a,
      $     0.0d0,g_scratch)

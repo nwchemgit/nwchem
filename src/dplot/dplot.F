@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.7 1997-11-04 10:10:37 d3e129 Exp $
+* $Id: dplot.F,v 1.8 1999-06-16 00:10:16 d3e129 Exp $
 *
       Implicit None
 *     
@@ -379,8 +379,9 @@ c
 c      this call seems stupid but this is the proper translation 
 c      of gacrea.F to ga_create (JAN).
 c
+*ga:1:0
       if (.not. ga_create(mt_dbl, nPoint, 1, 'Vls', 
-     &                    1, 1, g_Vls)) 
+     &                    0, 0, g_Vls)) 
 c
 c     
 c

@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.10 1996-10-03 23:54:43 vg038 Exp $
+C$Id: riscf_fock.F,v 1.11 1999-06-16 00:10:13 d3e129 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -105,7 +105,8 @@ C     block of square matrix
       status = ma_alloc_get (MT_DBL, mxints, 'RI 3c integrals full',
      $                       l_sthree, k_sthree)
 C     full 3c square matrix (ij|t) (range of t fixed)
-      status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri square', 1, nbf, 
+*ga:1:0
+      status = ga_create(MT_DBL, n_t*nbf, nbf,'3c-eri square', 0, nbf, 
      $     g_sthree)
       if (.not.status) 
      $     call errquit ('riscf_fock: error creating 3c square', 110)
@@ -115,22 +116,26 @@ C       Ken Dyalls MO-vector method
 
         if ( scftype .ne. 'ROHF' .and. scftype .ne. 'RHF' )
      $        call errquit ('Dyall method only for ROHF', 110)
-        status = ga_create (MT_DBL, n_t*nbf, nocc, 'Dyall tmp 1',1, 
+*ga:1:0
+        status = ga_create(MT_DBL, n_t*nbf, nocc, 'Dyall tmp 1',0, 
      $       nocc, g_x1)
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating g_x1', 110)
-        status = ga_create (MT_DBL, nbf, n_t*nocc, 'Dyall tmp 2',1, 
+*ga:1:0
+        status = ga_create(MT_DBL, nbf, n_t*nocc, 'Dyall tmp 2',0, 
      $       nocc, g_x2)
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating g_x2', 110)
       else
 C       intermediate array T
-        status = ga_create (MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 1, nbf,
+*ga:1:0
+        status = ga_create(MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 0, nbf,
      $       g_T)
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating g_T', 110)
 C       scratch array for transposition of T-blocks
-        status = ga_create (MT_DBL, nbf, nbf,'scr', 1, nbf, g_tr)
+*ga:1:0
+        status = ga_create(MT_DBL, nbf, nbf,'scr', 0, nbf, g_tr)
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating g_tr', 110)
       endif
@@ -155,11 +160,12 @@ C       last (partial) loop not covered by Nff / n_t
 #ifdef RISCF_USE_DRA
 C       global arrays to store part of three-center integrals read from da
 C       two of them to read asynchronously
-        status = ga_create (MT_DBL, npair, n_t,'3c-eri #1', 1, nbf, 
+*ga:1:0
+        status = ga_create(MT_DBL, npair, n_t,'3c-eri #1', 0, nbf, 
      $       g_three_io(1) )
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating io array 1', 110)
-        status = ga_create (MT_DBL, npair, n_t,'3c-eri #2', 1, nbf, 
+        status = ga_create(MT_DBL, npair, n_t,'3c-eri #2', 0, nbf, 
      $       g_three_io(2) )
         if (.not.status) 
      $       call errquit ('riscf_fock: error creating io array 2', 110)

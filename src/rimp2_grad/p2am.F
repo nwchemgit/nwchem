@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.6 1999-05-28 16:04:01 bernhold Exp $
+C     $Id: p2am.F,v 1.7 1999-06-16 00:10:28 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
@@ -45,8 +45,9 @@ C
          Length = Length + (NVir(ISpin) * (NFrzO(ISpin)+NAct(ISpin) ) )
       EndDo
 C
+*ga:1:-1
       If ( .NOT. GA_Create(MT_Dbl, Length, 1, 'RI-MP2 CPHF RHS/Soln', 
-     $     1, 1, g_RHS ) ) Call ErrQuit(
+     $     -1, -1, g_RHS ) ) Call ErrQuit(
      $     'RIMP2_P2am: can''t allocate RHS', 0)
 C
 C     Copy appropriate bits of L into RHS

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.25 1999-05-10 22:46:33 edo Exp $
+c     $Id: dft_main0d.F,v 1.26 1999-06-16 00:10:26 d3e129 Exp $
 c     
       implicit none
 c
@@ -96,8 +96,9 @@ c
          endif 
          lmiss = 1
          if (IOLGC)then
+*ga:1:0
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
-     &                          nbf_xc, 1, g_xcinv)) 
+     &                          nbf_xc, 0, g_xcinv)) 
      &         call errquit('dft_main0d: error creating g_xcinv',0)
             call ga_zero(g_xcinv)
             if (me.eq.0) then
@@ -118,13 +119,15 @@ c
 c           Compute the matrix inverse of the 2-ctr OIs.
 c     
             if (.not.IOLGC)then
+*ga:1:0
                if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
-     &                             nbf_xc, 1, g_xcinv)) 
+     &                             nbf_xc, 0, g_xcinv)) 
      &            call errquit('dft_main0d: error creating g_xcinv',0)
                call ga_zero(g_xcinv)
             endif
+*ga:1:0
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'g_oi', 
-     &                          nbf_xc, 1, g_oi)) 
+     &                          nbf_xc, 0, g_oi)) 
      &         call errquit('dft_main0d: error creating g_oi',0)
             call ga_zero(g_oi)
             call xc_get2oi(XC_bas_han, g_oi)
@@ -202,13 +205,15 @@ c
 c     
 c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
+*ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
-     &                       nbf_cd, 1, g_2ceri)) 
+     &                       nbf_cd, 0, g_2ceri)) 
      &      call errquit('dft_main0d: error creating g_2ceri',0)
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri, geom)
+*ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-     &                       nbf_cd, 1, g_cdinv)) 
+     &                       nbf_cd, 0, g_cdinv)) 
      &      call errquit('dft_main0d: error creating g_cdinv',0)
          call ga_zero(g_cdinv)
          lmiss = 1

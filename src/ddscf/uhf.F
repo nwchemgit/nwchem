@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
+C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
+C     $Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -261,12 +261,15 @@ c
 c     Allocate global arrays.  Gradient, search direction
 c     and work space for the PCG routine.
 c     
+*ga:1:0
       if (.not. ga_create(MT_DBL, cuhf_vlen, 1, 'uhf_nr_solve: grad',
-     $     1, 1, g_grad)) call errquit('uhf_nr_solve: ga_cre grad', 0)
+     $     0, 0, g_grad)) call errquit('uhf_nr_solve: ga_cre grad', 0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, cuhf_vlen, 1, 'uhf_nr_solve: serch',
-     $     1, 1, g_search)) call errquit('uhf_nr_solve: ga_cre grad',0)
+     $     0, 0, g_search)) call errquit('uhf_nr_solve: ga_cre grad',0)
+*ga:1:0
       if (.not. ga_create(MT_DBL, cuhf_vlen, 1, 'uhf_nr_solve: work',
-     $     1, 1, g_work)) call errquit('uhf_nr_solve: ga_cre work', 0)
+     $     0, 0, g_work)) call errquit('uhf_nr_solve: ga_cre work', 0)
 c     
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
@@ -503,7 +506,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
+C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -594,7 +597,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1080,7 +1083,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.49 1998-08-26 16:24:57 d3g681 Exp $
+C$Id: uhf.F,v 1.50 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

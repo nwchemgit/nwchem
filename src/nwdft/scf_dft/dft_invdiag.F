@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(geom, basis, g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.9 1998-08-20 23:52:18 d3e129 Exp $
+C$Id: dft_invdiag.F,v 1.10 1999-06-16 00:10:26 d3e129 Exp $
       implicit none
 c      
       integer geom,basis
@@ -22,7 +22,8 @@ c
       nproc=ga_nnodes()
       call ga_sync
 c      call gacrea(geom,basis,n,n,'ga temp2',g_tmp2,'row')
-      if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 1, g_tmp2)) 
+*ga:1:0
+      if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 0, g_tmp2)) 
      &   call errquit('dft_main0d: error creating g_xcinv',0)
 c
       if(.not.MA_Push_Get(MT_Dbl,n,'evals',lev,iev))

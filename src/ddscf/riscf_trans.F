@@ -2,7 +2,7 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.5 1996-10-03 23:54:46 vg038 Exp $
+C$Id: riscf_trans.F,v 1.6 1999-06-16 00:10:14 d3e129 Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -38,8 +38,9 @@ C$Id: riscf_trans.F,v 1.5 1996-10-03 23:54:46 vg038 Exp $
 
       if ( odisk ) then
 C       first collect them in a temporary global array
-        status = ga_create (MT_DBL, nproc*max_bf_ri*max_bf_ri, Nff, 
-     $       '3c tmp', Nff, 1, g_tmp)
+*ga:1:0
+        status = ga_create(MT_DBL, nproc*max_bf_ri*max_bf_ri, Nff, 
+     $       '3c tmp', Nff, 0, g_tmp)
         if (.not. status ) call errquit ('couldn''t create 3c tmp ga',
      $       110)
       endif

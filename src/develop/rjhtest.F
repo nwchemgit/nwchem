@@ -1,6 +1,6 @@
       logical function rjhtest(rtdb)
 *     
-*     $Id: rjhtest.F,v 1.20 1998-12-17 18:04:48 d3e129 Exp $
+*     $Id: rjhtest.F,v 1.21 1999-06-16 00:10:15 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -73,7 +73,8 @@ c
       write(6,*) ' No. of occupied SOs:       ', nocc
       write(6,*) ' No. of virtual SOs:        ', nvirt
 c
-      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 1, 1, g_tmp))
+*ga:1:0
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 0, 0, g_tmp))
      &     call errquit('scf_v_g: tmp', 0)
       if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
      $     call errquit('ma occ', nbf)

@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.10 1997-12-08 19:47:17 d3g681 Exp $
+c  $Id: moints_trp.F,v 2.11 1999-06-16 00:10:12 d3e129 Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -128,7 +128,8 @@ c
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_trp: no memory for syms?',0)
-          if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
+*ga:1:0
+          if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,0,g_tmp))
      $      call errquit('moints_trp: cannot ga_create tmp',0)
           if (ga_nodeid() .eq. 0) call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
 	  call ga_sync

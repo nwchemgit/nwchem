@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.3 1998-12-17 22:25:18 d3e129 Exp $
+*     $Id: rjhtrans.F,v 1.4 1999-06-16 00:10:15 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -135,7 +135,8 @@ c
       if (.not. ma_push_get(mt_dbl, nbf*nactive,'tmp', 
      $     l_tmp, k_tmp)) call errquit('Joop: tmp', nbf*nactive)
 c
-      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 1, 1, g_tmp))
+*ga:1:0
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 0, 0, g_tmp))
      &     call errquit('scf_v_g: tmp', 0)
 c
       if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_aeval), 
@@ -181,8 +182,9 @@ c
 c
 c     Trying reading something from a file ... all 3-c integrals
 c
+*ga:1:0
       if (.not. ga_create(mt_dbl, nvirta*nocca, nvirta*nvirta, 
-     $     'tmp', 1, 1, g_tmp))
+     $     'tmp', 0, 0, g_tmp))
      &     call errquit('scf_v_g: tmp', 0)
       call get_cct(g_tmp, '<ba||ek>(bkea)', 
      $     1, nvirta*nocca, 1, 1, 

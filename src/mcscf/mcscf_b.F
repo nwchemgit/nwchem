@@ -12,7 +12,7 @@ c
      $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
 *
-* $Id: mcscf_b.F,v 1.7 1997-11-04 09:59:41 d3e129 Exp $
+* $Id: mcscf_b.F,v 1.8 1999-06-16 00:10:20 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -46,13 +46,17 @@ c
 c
 c
 c
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_tmp))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp))
      $   call errquit('mcscf_b: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_tmp2))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp2))
      $   call errquit('mcscf_b: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_tmp3))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp3))
      $   call errquit('mcscf_b: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'T', nbf, 1, g_t))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'T', nbf, 0, g_t))
      $   call errquit('mcscf_b: cannot allocate T',0)
 c
 c  T = U - 1    
@@ -175,11 +179,14 @@ c
 c
 c
 c
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_dens))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_dens))
      $   call errquit('mcscf_b: cannot allocate tmp',0)
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_deltadc))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltadc))
      $   call errquit('mcscf_b: cannot allocate dD',0)
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_deltad))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltad))
      $   call errquit('mcscf_b: cannot allocate dD',0)
       g_d1 = ga_create_atom_blocked( geom, basis, 'Density 1')
       g_d2 = ga_create_atom_blocked( geom, basis, 'Density 2')
@@ -591,7 +598,8 @@ c
 c
       aoff = nclosed + 1
       aend = nclosed + nact
-      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 1, g_deltadc))
+*ga:1:0
+      if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltadc))
      $   call errquit('mcscf_b: cannot allocate dD',0)
       call ga_zero(g_deltadc)
       if (odelta_core) then
