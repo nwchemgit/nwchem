@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.9 1997-02-17 21:08:46 d3g681 Exp $
+        $Id: INSTALL,v 1.10 1997-09-18 00:05:36 mg201 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -32,6 +32,7 @@
     SGI         SGI ?                  IRIX         double
     SGITFP      SGI PowerChallenge     IRIX         double
     CRAY_T3D    Cray T3D               UNICOS       single
+    CRAY_T3E    Cray T3E               UNICOS       single
     PARAGON     Intel Paragon          OSF/1        double
     DELTA       Intel Delta            NX           double
     SP1         IBM SP1,SP2            AIX          double
