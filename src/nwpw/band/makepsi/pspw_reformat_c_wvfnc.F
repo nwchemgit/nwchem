@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.5 2002-01-18 01:54:32 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.6 2002-01-21 00:55:49 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -94,18 +94,15 @@
        
       call  dread(5,dcpl_mb(cfull(1)),n2ft3d*neall)
       do nb=1,nbrill
-      do ms=1,ispin
-        do n=1,ne(ms)
-          write(*,111) "converting ... psi:", n," spin:",ms," nb:",nb
+        do n=1,neall
+          write(*,111) "converting ... psi:",n," nb:",nb
   111 format(A,I4,A,I2,A,I4)
           call  convert_real_to_complex(ngrid(1),ngrid(2),ngrid(3),
      >                                  dcpl_mb(cfull(1)
-     >                                         +(ispin-1)*ne(1)*nfft3d
      >                                         +(n-1)*nfft3d),
      >                                  dcpl_mb(cfull_out(1)))
           call dwrite(6,dcpl_mb(cfull_out(1)),2*nfft3d_out)
         end do
-      end do
       end do
       call closefile(5)
       call closefile(6)
@@ -132,6 +129,7 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       pspw_reformat_c_wvfnc = value
       return 
       end
+
       subroutine convert_real_to_complex(nx,ny,nz,A,B)
       implicit none
       integer nx,ny,nz
