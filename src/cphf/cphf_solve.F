@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.17 1997-11-07 11:36:37 d3e129 Exp $
+* $Id: cphf_solve.F,v 1.18 1998-09-09 13:04:43 bjohnson Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -13,6 +13,9 @@
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+c!!! BGJ
+#include "bgj.fh"
+c!!! BGJ
       integer rtdb              ! [input] database handle
       double precision eone,etwo,enrep,energy
       integer g_grad, g_work
@@ -41,6 +44,10 @@ c
       logical int_normalize
       external int_normalize
 c
+      logical hf_job
+c
+      hf_job = .not. bgj_have_xc()      
+c
 c     Print levels assume that CPHF is being invoked from within
 c     another application.  By default be informative.
 c     At low print, just indicate convergence or failure.
@@ -53,8 +60,20 @@ c
 c
 c     Must use the same vectors as the converged SCF
 c
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $     call errquit('cphf: no SCF MO vectors',0)
+      if (hf_job) then
+         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $        call errquit('cphf: no SCF MO vectors',0)
+      else
+         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+     $        call errquit('cphf_solve: no DFT MO vectors',0)
+c !!! Hack to set up scftype properly for later code !!! ??? need this?
+         if (bgj_restricted()) then
+            scftype = 'RHF'
+         else
+            scftype = 'UHF'
+         endif
+      endif
+c      write(*,*)'*** cphf_solve: scftype ',scftype
 c     
       call scf_init(rtdb)
       if (.not.int_normalize(basis))
@@ -132,6 +151,12 @@ c
 c
 c     Compute necessary Fock matrices
 c
+c !!! BGJ
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 1))
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+c !!! BGJ
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
@@ -139,6 +164,12 @@ c
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
       endif
+c !!! BGJ
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',1)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+c !!! BGJ
 c
       residual = sqrt(ga_ddot(g_work, g_work))
       if (residual .gt. 1d-4) then
@@ -154,6 +185,12 @@ c
       call ga_zero(g_work)      ! Essential to get default initial guess
 c
 c
+c !!! BGJ
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+c !!! BGJ
       if (scftype .eq. 'UHF') then
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $        max_precond_sub, precond_tol, 
@@ -167,6 +204,12 @@ c
      $        g_grad, g_work, precond_acc,precond_iter))
      $        call errquit('cphf did not converge', precond_iter)
       endif
+c !!! BGJ
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+c !!! BGJ
 c
       if (oprint_conv) then
          write(6,174) precond_acc, precond_iter

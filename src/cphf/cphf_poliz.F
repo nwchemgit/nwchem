@@ -1,6 +1,11 @@
+c
+c     Generalized to handle DFT as well as HF
+c
+c     BGJ - 8/98
+c
       logical function cphf_poliz(rtdb)
 *
-* $Id: cphf_poliz.F,v 1.9 1997-11-07 11:36:35 d3e129 Exp $
+* $Id: cphf_poliz.F,v 1.10 1998-09-09 13:04:42 bjohnson Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -9,6 +14,9 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "util.fh"
+c !!! BGJ
+#include "bgj.fh"
+c !!! BGJ
       integer rtdb              ! [input] database handle
 c
       logical movecs_read,movecs_read_header, cphf, file_write_ga,
@@ -29,11 +37,14 @@ c
       integer geom, basis
       integer g_vecs_a, g_vecs_b, g_dip(3),ix, g_tmp, g_rhs, g_scratch
       integer g_sol
+      integer noc(2)
+      logical hf_job
 c
 c     Compute the SCF polarizability by solving the CPHF equations
 c
 c     Get MO vectors etc.
 c
+      hf_job = .not. bgj_have_xc()
       if(.not.rtdb_cget(rtdb, 'title', 1, title)) title = ' '
       if(.not.geom_create(geom, 'geometry'))
      $     call errquit('cphf_poliz: geom_create?', 0)
@@ -45,10 +56,25 @@ c
      $     call errquit('cphf_poliz: no ao basis ', 0)
       if (.not.int_normalize(basis))
      $     call errquit('cphf_poliz: int_normalize failed ', 0)
-      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
-     $     call errquit('cphf_poliz: no SCF MO vectors',0)
-      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $     call errquit('cphf_poliz: scftype', 0)
+      if (hf_job) then
+         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
+     $        call errquit('cphf_poliz: no SCF MO vectors',0)
+c         write(*,*)'*** cphf_poliz: hf movecs: ',movecs
+         if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
+     $        call errquit('cphf_poliz: scftype', 0)
+      else
+c         write(*,*)'*** cphf_poliz: dft case:'
+         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs))
+     $        call errquit('cphf_poliz: no DFT MO vectors',0)
+c         write(*,*)'*** cphf_poliz: dft movecs: ',movecs
+c !!! Hack to set up scftype properly for later code
+         if (bgj_restricted()) then
+            scftype = 'RHF'
+         else
+            scftype = 'UHF'
+         endif
+      endif
+c      write(*,*)'cphf_poliz: scftype: ',scftype
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('cphf_poliz: could not get nbf',0)
 c
@@ -76,20 +102,35 @@ c
      $        l_eval_b,k_eval_b))
      $        call errquit('cphf_poliz: problem with ma for b evals',1)
       endif
-      if(scftype.eq.'UHF')then
-         if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
-     $        call errquit('no alphas',1)
-         if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
-     $        call errquit('no betas',1)
-      else if(scftype.eq.'RHF')then
-         if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
-     $        call errquit('no occ',1)
-         noa=nclosed
-         nob=nclosed
-         nopen = 0
+      if (hf_job) then
+         if(scftype.eq.'UHF')then
+            if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
+     $           call errquit('no alphas',1)
+            if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
+     $           call errquit('no betas',1)
+         else if(scftype.eq.'RHF')then
+            if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nclosed))
+     $           call errquit('no occ',1)
+            noa=nclosed
+            nob=nclosed
+            nopen = 0
+         else
+            call errquit('mp2_grad: unknown SCFTYPE ', 0)
+         end if
       else
-         call errquit('mp2_grad: unknown SCFTYPE ', 0)
-      end if
+         if (.not. rtdb_get(rtdb,'dft:noc',mt_int,2,noc))
+     &        call errquit('cphf_poliz: rtdb_get of noc failed',0)
+c         write(*,*)'cphf_poliz: dft noc:',noc
+         noa=noc(1)
+         if (scftype.eq.'UHF') then
+            nob=noc(2)
+         else
+            nclosed=noa
+            nob=noa
+         endif
+      endif
+      if (bgj_print() .gt. 0)
+     &     write(*,*)'*** cphf_poliz: noa nob',noa,nob
       nopen = 0
       nva=nmo-noa
       nvb=nmo-nob
@@ -98,6 +139,8 @@ c
       else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
          nvirt = nmo - nclosed - nopen
          vlen = nclosed*(nopen+nvirt) + nopen*nvirt
+         if (bgj_print() .gt. 0)
+     &   write(*,*)'nvirt,nmo,nclosed,nopen',nvirt,nmo,nclosed,nopen
       else
          call errquit('cphf: unknown SCF type',0)
       endif
@@ -168,6 +211,8 @@ c
 c
       enddo
 c
+      if (bgj_print() .gt. 0)
+     &     write(*,*)'*** cphf_poliz: done with x y z loop'
       if (.not. ga_destroy(g_vecs_a)) call errquit('cphf_poliz: ga',1)
       if (scftype .eq. 'UHF') then
          if (.not. ga_destroy(g_vecs_b))call errquit('cphf_poliz: ga',2)
