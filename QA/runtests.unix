@@ -56,6 +56,9 @@ foreach argument ($argv)
         set args_2_use = ($args_2_use $argument)
     endif
 end   
+if ($NPROC == 1) then
+@ NPROC = 0
+endif
 #
 # now remove first dummy argument from args_2_use
 set args_2_use = ($args_2_use[2-])
