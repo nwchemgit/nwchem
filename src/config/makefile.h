@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.330 2000-06-07 21:14:25 edo Exp $
+# $Id: makefile.h,v 1.331 2000-06-08 21:02:44 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1331,7 +1331,8 @@ endif
 
 ifeq ($(FC),pgf77)
   DEFINES   += -DPGLINUX
-  FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical
+# added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
+  FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
 # for pentium
   FOPTIONS  += -tp p5  
 # for Pentium Pro or Pentium II
