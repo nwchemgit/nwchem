@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.315 2000-04-25 20:10:00 windus Exp $
+# $Id: makefile.h,v 1.316 2000-04-26 23:25:11 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -895,23 +895,23 @@ endif
 #              -brename:.ztrsv_,.ztrsv 
 #              -brename:.dsymm_,.dsymm \
 
-#              -brename:.dznrm2_,.dznrm2 \
-#              -brename:.zaxpy_,.zaxpy \
-#              -brename:.zcopy_,.zcopy \
-#              -brename:.zdotc_,.zdotc \
-#              -brename:.zdscal_,.zdscal \
+              -brename:.dznrm2_,.dznrm2 \
+              -brename:.zaxpy_,.zaxpy \
+              -brename:.zcopy_,.zcopy \
+              -brename:.zdotc_,.zdotc \
+              -brename:.zdscal_,.zdscal \
 
-#              -brename:.zgemv_,.zgemv \
-#              -brename:.zgerc_,.zgerc \
+              -brename:.zgemv_,.zgemv \
+              -brename:.zgerc_,.zgerc \
 #              -brename:.zhemm_,.zhemm \
-#              -brename:.zhemv_,.zhemv \
-#              -brename:.zher2_,.zher2 \
-#              -brename:.zher2k_,.zher2k \
+              -brename:.zhemv_,.zhemv \
+              -brename:.zher2_,.zher2 \
+              -brename:.zher2k_,.zher2k \
 #              -brename:.zherk_,.zherk \
-#              -brename:.zscal_,.zscal \
-#              -brename:.zswap_,.zswap \
-#              -brename:.ztrmm_,.ztrmm \
-#              -brename:.ztrmv_,.ztrmv \
+              -brename:.zscal_,.zscal \
+              -brename:.zswap_,.zswap \
+              -brename:.ztrmm_,.ztrmm \
+              -brename:.ztrmv_,.ztrmv \
 #              -brename:.ztrsm_,.ztrsm \
 #
 
