@@ -1,50 +1,22 @@
-C $Id: rel_pot.F,v 1.3 1998-09-23 22:23:50 mg201 Exp $
+C $Id: rel_pot.F,v 1.4 1998-09-24 21:36:15 mg201 Exp $
 ************************************************************************
-*                                                                      *
+c:tex-\subsection{rel\_pot}
+c:tex-This routine assembles the relativistic (small-small) potential 
+c:tex-energy integrals from a set of potential energy integrals for 
+c:tex-shifted angular momenta. The routine uses the modified Dirac 
+c:tex-formalism, and returns integrals in various formats, depending
+c:tex-on the input parameter ntyp, which also determines how many 
+c:tex-integral blocks are returned.
+c:tex-
+c:tex-\noindent Author: K. G. Dyall
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine rel_pot (Vpp,Vpm,Vmp,Vmm,Vrel,nints,ntyp,
      &    l_a,np_a,n_a,nm_a,n_cont_A,
      &    l_b,np_b,n_b,nm_b,n_cont_B,
      &    DryRun,scr,lscr,ibug)
-*                                                                      *
-*   Given the integrals for shifted angular momenta, assemble the      *
-*   small component potential energy integrals in the modified Dirac   *
-*   formalism. The output consists of the spin-free and spin-orbit     *
-*   integrals or the 3x3 array of gradient integrals.                  *
-*                                                                      *
-*   Argument (status) - description                                    *
-*                                                                      *
-*   Vpp (inp) - integrals for l_B+1, l_A+1                             *
-*   Vpm (inp) - integrals for l_B+1, l_A-1                             *
-*   Vmp (inp) - integrals for l_B-1, l_A+1                             *
-*   Vmm (inp) - integrals for l_B-1, l_A-1                             *
-*   Vrel (out) - final integral array                                  *
-*   nints (inp) - number of integrals of each type                     *
-*   ntyp (inp) - gives type of integral output, also acts as dimension *
-*                ntyp = 1 : scalar integrals only                      *
-*                ntyp = 3 : spin-orbit integrals only                  *
-*                ntyp = 4 : scalar and spin-orbit integrals            *
-*                ntyp = 9 : derivative integrals                       *
-*   l_A (inp) - angular momentum of functions on centre A              *
-*   np_A (inp) - number of cartesians for l_A+1                        *
-*   n_A (inp) - number of cartesians for l_A                           *
-*   nm_A (inp) - number of cartesians for l_A-1                        *
-*   n_cont_A (inp) - number of contracted functions on centre A        *
-*   l_B (inp) - angular momentum of functions on centre B              *
-*   np_B (inp) - number of cartesians for l_B+1                        *
-*   n_B (inp) - number of cartesians for l_B                           *
-*   nm_B (inp) - number of cartesians for l_B-1                        *
-*   n_cont_B (inp) - number of contracted functions on centre B        *
-*   DryRun (inp) - logical for dry run. If true, routine only returns  *
-*                  maximum scratch space needed, if false, integrals   *
-*                  are returned.                                       *
-*   scr (scr) - scratch array for work space                           *
-*   lscr (i/o) - length of scratch array. Value returned if DryRun is  *
-*                true, used as dimension if false.                     *
-*   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
-*          array printing, 3 for both.                                 *
-*                                                                      *
-*   Written by K. G. Dyall                                             *
-*                                                                      *
+c:tex-\end{verbatim}
 ************************************************************************
       implicit none
 #include "stdio.fh"
@@ -52,17 +24,19 @@ C $Id: rel_pot.F,v 1.3 1998-09-23 22:23:50 mg201 Exp $
       double precision zero
       parameter (zero = 0.0d00)
 *
+c:tex-{\it Argument list:}
+c:tex-\begin{verbatim}
       integer nints    ! [input] number of integrals of each type
       integer ntyp     ! [input] integral type
       integer l_A      ! [input] - angular momentum of shell A
-      integer np_A     ! [input] number of cartesians for l_A+1
-      integer n_A      ! [input] number of cartesians for l_A
-      integer nm_A     ! [input] number of cartesians for l_A-1
+      integer np_A     ! [input] number of cartesian components for l_A+1
+      integer n_A      ! [input] number of cartesian components for l_A
+      integer nm_A     ! [input] number of cartesian components for l_A-1
       integer n_cont_A ! [input] number of contracted functions on centre A
       integer l_B      ! [input] angular momentum of functions on centre B
-      integer np_B     ! [input] number of cartesians for l_B+1
-      integer n_B      ! [input] number of cartesians for l_B
-      integer nm_B     ! [input] number of cartesians for l_B-1
+      integer np_B     ! [input] number of cartesian components for l_B+1
+      integer n_B      ! [input] number of cartesian components for l_B
+      integer nm_B     ! [input] number of cartesian components for l_B-1
       integer n_cont_B ! [input] number of contracted functions on centre B
       integer lscr     ! [i/o] - length of scratch array/memory needed
       integer ibug     ! debug flag. 
@@ -73,25 +47,34 @@ C $Id: rel_pot.F,v 1.3 1998-09-23 22:23:50 mg201 Exp $
       double precision Vrel(nints,ntyp) ! [output] final relativistic integrals
       double precision scr(lscr) ! scratch array
       logical DryRun   ! [input] logical for dry run
+c:tex-\end{verbatim}
+c:tex-The possible values for ntyp are
+c:tex-{\leftskip 4pc\obeylines
+c:tex-ntyp = 1 : scalar integrals only
+c:tex-ntyp = 3 : spin-orbit integrals only
+c:tex-ntyp = 4 : scalar and spin-orbit integrals
+c:tex-ntyp = 9 : derivative integrals}
+c:tex-The possible values for ibug are
+c:tex-{\leftskip 4pc\obeylines
+c:tex-ibug = 0 for no debug, 
+c:tex-ibug = 1 for address printing, 
+c:tex-ibug = 2 for array printing, 
+c:tex-ibug = 3 for both.}
+c:tex-
+c:tex-Note that n_cont_A and n_cont_B are essentially only the second and
+c:tex-fourth dimensions of the integral array; the code does not make use
+c:tex-of their significance as number of contracted functions, so there
+c:tex-is no reason why these cannot be used for the two-electron integrals.
 *
-*                ntyp = 1 : scalar integrals only                      *
-*                ntyp = 3 : spin-orbit integrals only                  *
-*                ntyp = 4 : scalar and spin-orbit integrals            *
-*                ntyp = 9 : derivative integrals                       *
-*                 ibug = 0 for no debug, 
-*                 ibug = 1 for address printing, 
-*                 ibug = 2 for array printing, 
-*                 ibug = 3 for both.
-*
-      integer n_all_A ! total basis functions on A
-      integer n_all_B ! total basis functions on B
+      integer n_all_A  ! total basis functions on A
+      integer n_all_B  ! total basis functions on B
       integer n_allp_B ! total basis functions on B for l_B+1
       integer n_allm_B ! total basis functions on B for l_B-1
-      integer np ! no. gradient integrals for l_B+1
-      integer nm ! no. gradient integrals for l_B-1
-      integer nab ! no. integrals of a given type
-      integer nn ! no. second derivative integrals
-      integer i_scr ! address of scratch space
+      integer np  ! no. gradient integrals for l_B+1
+      integer nm  ! no. gradient integrals for l_B-1
+      integer nab ! size of integral block
+      integer nn  ! no. second derivative integrals
+      integer i_scr  ! address of scratch space
       integer i_grdp ! address of gradient integrals for l_B+1
       integer i_grdm ! address of gradient integrals for l_B+1
       integer i_free ! address of free space in scr
