@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.88 2000-12-13 00:28:39 d3j191 Exp $
+c $Id: cf_main.F,v 1.89 2001-01-17 00:29:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1501,10 +1501,10 @@ c
       df(1)=dfor*dx(1)
       df(2)=dfor*dx(2)
       df(3)=dfor*dx(3)
-      if(me.eq.0) then
-      write(*,2222) k,d,(rdrs(i,j),j=1,3),en,dfor,df
- 2222 format(i3,4f12.6,e12.5,4f15.3)
-      endif
+c      if(me.eq.0) then
+c      write(*,2222) k,d,(rdrs(i,j),j=1,3),en,dfor,df
+c 2222 format(i3,4f12.6,e12.5,4f15.3)
+c      endif
       do 5 j=1,nums
       if(isgan(j).eq.idrs(i,1)) then
       fs(j,1)=fs(j,1)-df(1)
