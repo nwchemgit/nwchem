@@ -1,6 +1,8 @@
       Subroutine xc_vwn_4(tol_rho, fac, lfac, nlfac, rho, Amat, nq, 
      &                    ipol, Ec, qwght, ldew, func)
-c
+*
+* $Id: xc_vwn_4.F,v 1.5 1997-11-01 00:10:05 d3e129 Exp $
+*
       implicit none
 c
       integer nq, ipol

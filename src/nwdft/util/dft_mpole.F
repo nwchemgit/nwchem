@@ -1,4 +1,7 @@
       subroutine dft_mpole(rtdb, ao_bas_han, ipol, g_adens, g_bdens)
+*
+* $Id: dft_mpole.F,v 1.11 1997-11-01 00:10:02 d3e129 Exp $
+*
       implicit none
 #include "util.fh"
 #include "rtdb.fh"

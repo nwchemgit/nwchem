@@ -9,6 +9,9 @@ c     potentials (vcup,vcdn), derivatives of ec wrt rs (ecrs) & zet (eczet)
 c
 c     output: correlation contribution (alfc) to the spin stiffness
 c
+*
+* $Id: xc_pw91lda.F,v 1.8 1997-11-01 00:10:03 d3e129 Exp $
+*
       implicit none
       double precision fac ! [input]
       integer nq, ipol      ! [input]
