@@ -1,5 +1,5 @@
       Subroutine matchNxyz(lambda,ic,Nxyz)
-c $Id: matchNxyz.F,v 1.1 1994-10-29 16:41:23 d3g681 Exp $
+c $Id: matchNxyz.F,v 1.2 2001-10-25 21:22:21 edo Exp $
       implicit none
 
       integer lambda, ic, Nxyz(3)
@@ -18,10 +18,11 @@ c
       if( lambda.le.linit )then
 
        l = lambda - 1
-       l3 = ((l+1)*(l+2)*(l+3))/6
-
-       do ic = 1, ((l+2)*(l+3))/2
-          nc = l3 + ic
+cedo       l3 = ((l+1)*(l+2)*(l+3))/6
+       l3 = ((l+2)*(l+3))/2
+       nc =l3*(l+1)/3
+       do ic = 1, l3
+          nc = nc +1
           if (
      $         Nxyz(1) .eq. Ixyz(1,nc) .and.
      $         Nxyz(2) .eq. Ixyz(2,nc) .and.
