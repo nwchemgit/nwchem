@@ -4,7 +4,7 @@
      &       CONVGG, NATD, NMODE,
      &       TRACK, BCKSTP, RPATH , rtdb, step_number)
 c
-c $Id: stpr_face.F,v 1.6 1995-01-05 04:13:39 og845 Exp $
+c $Id: stpr_face.F,v 1.7 1995-01-20 01:36:20 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb, him, kim, step_number, maxiter
@@ -655,6 +655,8 @@ c
      &      ('stpr_load_rtdb: error freeing hlog',911)
 c
 00001 continue
+c
+      call util_flush(6)
 c
       end
       block data stpr_data
