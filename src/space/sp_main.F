@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa)
 c
-c $Id: sp_main.F,v 1.26 1999-10-26 19:32:30 d3j191 Exp $
+c $Id: sp_main.F,v 1.27 1999-10-26 21:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -32,6 +32,7 @@ c
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
       endif
 c
+      if(iguide.gt.0) then
       do 1 k=1,mwa
       do 2 j=1,3
       do 3 i=1,mwm
@@ -44,6 +45,7 @@ c
       gs(i,j)=zero
     5 continue
     4 continue
+      endif
 c
       return
       end
