@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.38 2001-11-16 22:12:17 edo Exp $
+c$Id: grid_rtrunc.F,v 1.39 2001-11-16 22:13:42 edo Exp $
 c
       implicit none
 c      
@@ -289,7 +289,6 @@ c
       external grid_rnegl
       double precision grid_rnegl,shift_2g,rrr
 c
-      oprint=.true.
       range_max=0d0
       shiftm_2g=0d0
       l_iat=ldiff(iat)
@@ -337,7 +336,6 @@ c               if(iat.ne.jat) range=range+6d0/rrr
      ,        ' lprod = ',l_iat+ldiff(iat_diff),
      ,        ' range = ',range_max, ' acc ',my_acc,
      ,        ' sh ',shiftm_2g
-               oprint=.false.
          return
  1234          format(A,2f15.9,A,I3,A,f12.2,A,d10.2)
          end
