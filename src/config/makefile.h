@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.481 2004-09-29 22:35:58 edo Exp $
+# $Id: makefile.h,v 1.482 2004-09-30 23:45:47 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1425,8 +1425,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
            FOPTIONS += -i4 
          endif
        else
-         FOPTIONS += -i8 
-         DEFINES  += -DEXT_INT  
+         FOPTIONS += -i8
+         DEFINES  += -DEXT_INT
        endif
   MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
@@ -1568,7 +1568,6 @@ endif # end of ia32 bit
            @exit 1
        endif
         FOPTIONS += -align -mp1 -w -g -vec_report3
-        FOPTIONS += -mcmodel=medium
         ifdef  USE_GPROF
           FOPTIONS += -qp
         endif
@@ -1588,24 +1587,21 @@ endif # end of ia32 bit
         FOPTIONS   +=    -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
-        FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
+        FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O0 
         DEFINES  += -DCHKUNDFLW -DPGLINUX
       endif
       ifeq ($(FC),pathf90)
-#pathscale 1.0 compiler
-# crosscompilation on a x86 with RHEL WS3
-# make FC=pathf90 _FC=pathf90 _CPU=x86_64
+#pathscale 1.3 compiler
+# tested Sep 30 2004 on RH AW3
         FOPTIONS   += -cpp -Wp,-P
-        FOPTIONS   += -fno-second-underscore -fixedform 
-        FOPTIONS   += -align64 
-        FOPTIMIZE   = -O3 -LNO:opt=0
+        FOPTIONS   += -fno-second-underscore -fixedform
+        FOPTIONS   += -align64
+        FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=2:fold_reassociate=OFF#:div_split=OFF:fast_nint=OFF
         FVECTORIZE  = -O3 -OPT:Ofast -fno-math-errno
-        DEFINES  += -DCHKUNDFLW
-        FDEBUG = -g -O0
-        DEFINES  += -DPSCALE
+        DEFINES  += -DCHKUNDFLW -DPSCALE
+        FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
-#        LDOPTIONS += -static
       endif
       ifeq ($(FC),g77)
         FOPTIONS  +=  -fno-globals -Wno-globals 

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.53 2004-05-18 00:57:23 edo Exp $
+#$Id: GNUmakefile,v 1.54 2004-09-30 23:45:45 edo Exp $
 
  LIBRARY = libnwcutil.a
 
@@ -15,6 +15,9 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
+  ifeq ($(FC),pathf90)
+            FDEBUG += -O1 -g -LANG:heap_allocation_threshold=0
+  endif
   ifeq ($(FC),efc)
 	    FOPTIONS += -save
             FOPTIMIZE += -O0
