@@ -138,6 +138,12 @@ c
 c
       integer msg_grad_xc
       integer msg_max_3c_incore, msg_min_stack_avail, msg_min_ga_avail
+C
+      integer msg_cc_emp2, msg_cc_empt, msg_cc_ecc, msg_cc_mem,
+     $   msg_cc_diis1, msg_cc_diis2, msg_cc_term1, msg_cc_term2,
+     $   msg_cc_term3, msg_cc_term4, msg_cc_term5, msg_cc_term6,
+     $   msg_cc_t1a, msg_cc_t1b
+
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -367,3 +373,19 @@ c
       parameter (msg_min_stack_avail = msg_ftn_base - 205) ! dft: igop on stack avail
       parameter (msg_min_ga_avail = msg_ftn_base - 206) ! dft: igop on ga avail
 c     
+      parameter (msg_cc_emp2   = msg_ftn_base - 207) ! ccsd
+      parameter (msg_cc_empt   = msg_ftn_base - 208) ! ccsd
+      parameter (msg_cc_ecc    = msg_ftn_base - 209) ! ccsd
+      parameter (msg_cc_mem    = msg_ftn_base - 210) ! ccsd
+      parameter (msg_cc_diis1  = msg_ftn_base - 211) ! ccsd
+      parameter (msg_cc_diis2  = msg_ftn_base - 212) ! ccsd
+      parameter (msg_cc_term1  = msg_ftn_base - 213) ! ccsd
+      parameter (msg_cc_term2  = msg_ftn_base - 214) ! ccsd
+      parameter (msg_cc_term3  = msg_ftn_base - 215) ! ccsd
+      parameter (msg_cc_term4  = msg_ftn_base - 216) ! ccsd
+      parameter (msg_cc_term5  = msg_ftn_base - 217) ! ccsd
+      parameter (msg_cc_term6  = msg_ftn_base - 218) ! ccsd
+      parameter (msg_cc_t1a    = msg_ftn_base - 219) ! ccsd
+      parameter (msg_cc_t1b    = msg_ftn_base - 220) ! ccsd
+
+

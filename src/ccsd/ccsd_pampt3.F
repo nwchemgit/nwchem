@@ -221,7 +221,7 @@ c
 c
       nfik=nfi*nfk
       do ii=1,nocc
-        call sgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
+        call dgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
      &             snsi(1,1,1,ii),nbf,0.0d00,scra,nbf)
         do jj=1,nocc
           do ik=1,nfik
@@ -231,7 +231,7 @@ c
         ad1=offki
         ad2=(ii-1)*nocc
         call ga_put(g_x,ad1+1,ad1+nfik,ad2+1,ad2+nocc,scrb,nfik)
-        call sgemm('n','n',nbf*nfi,nocc,nfk,1.0d00,scra,nbf*nfi,
+        call dgemm('n','n',nbf*nfi,nocc,nfk,1.0d00,scra,nbf*nfi,
      &               cmo(klo,1),nbf,0.0d00,scrb,nbf*nfi)
         ad1=(ilo-1)*nbf
         ad2=(ii-1)*nocc
@@ -239,7 +239,7 @@ c
      &              nbf*nfi,1.0d00)
 c
         if (ilo.ne.klo)then
-          call sgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
+          call dgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
      &               sisn(1,1,1,ii),nbf,0.0d00,scra,nbf)
           do jj=1,nocc
             do ik=1,nfik
@@ -249,7 +249,7 @@ c
           ad1=offik
           ad2=(ii-1)*nocc
           call ga_put(g_x,ad1+1,ad1+nfik,ad2+1,ad2+nocc,scrb,nfik)
-          call sgemm('n','n',nbf*nfk,nocc,nfi,1.0d00,scra,nbf*nfk,
+          call dgemm('n','n',nbf*nfk,nocc,nfi,1.0d00,scra,nbf*nfk,
      &                 cmo(ilo,1),nbf,0.0d00,scrb,nbf*nfk)
           ad1=(klo-1)*nbf
           ad2=(ii-1)*nocc
@@ -299,14 +299,14 @@ c // here
                 enddo
               enddo
             enddo
-            call sgemm('t','n',nbf,nbf,nbf,1.0d00,cmo,nbf,
+            call dgemm('t','n',nbf,nbf,nbf,1.0d00,cmo,nbf,
      &                 scrb,nbf,0.0d00,scra,nbf)
-            call sgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
+            call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
      &                 cmo,nbf,0.0d00,scrb,nbf)
             call ga_put(g_x,1,nbf*nbf,ad2,ad2,scrb,nbf*nbf)
 c
             call ga_get(g_c,1,nbf*nbf,ad2,ad2,scra,nbf*nbf)
-            call sgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
+            call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
      &                 cmo,nbf,0.0d00,scrb,nbf)
             call ga_put(g_c,1,nbf*nbf,ad2,ad2,scrb,nbf*nbf)
           endif
@@ -354,8 +354,8 @@ c - here is the n**6, note inside a 4 fold loop over nbf which is
 c - restricted twice, giving a factor of 1/4
 c - the two daxpy give nocc*nocc ops
 c
-              call saxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call saxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
+              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
+              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
             enddo
           enddo
         enddo

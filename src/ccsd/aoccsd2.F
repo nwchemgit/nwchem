@@ -1,11 +1,15 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nbf,nact,maxit,
      &                  convi,iprt,cmo,eorb,blen,g_objv,
-     &                  g_coul,g_exch,g_ncoul, g_nexch)
+     &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
+     $   CC_Theory, rtdb)
       implicit none
 c
       integer basis,ncor,nocc,nvir,ndel,nbf,nact,mxov,maxit,convi,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch
       double precision cmo(nbf,nbf),eorb(nbf)
+      Double Precision RefEner
+      Character*(*) CC_Theory
+      Integer RTDB
 c
       integer nodes,iam,rsize,isize
       common/para1/nodes,iam,rsize,isize
@@ -18,6 +22,9 @@ c
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "msgids.fh"
 c
 c ccsd
       logical stat
@@ -38,10 +45,10 @@ c triples
       integer g_objo
       integer nvpass,noper,occ_lo,occ_hi,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        npass
-      integer ga_create_jblocked,ga_create_kblocked
+      integer ga_create_jkblocked
       logical oexch,ocoul,ohalf
       double precision eccsdt,escf,eccsd,empt(2),tx(3),rx(2)
-c
+C
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
       double precision zip
@@ -75,8 +82,10 @@ c
       endif
       convi=-convi
       if (iam.eq.0)then
-      write(*,1318)ncor,nocc,nvir,ndel,nbf,nsh,basis
- 1318 format(//,' number of core     ',i5,/,
+      write (*,1318) CC_Theory( :Inp_StrLen(CC_Theory) ),
+     $      ncor,nocc,nvir,ndel,nbf,nsh,basis
+ 1318 format(//,' level of theory    ',A,/
+     $          ' number of core     ',i5,/,
      &          ' number of occupied ',i5,/,
      &          ' number of virtual  ',i5,/,
      &          ' number of deleted  ',i5,/,
@@ -168,15 +177,39 @@ c
       call ga_sync()
       call qexit('aoccsd',0)
 c
-c End GA tracing
-c
-CRK   call trace_end(iam)
-c
-c
-c
-c      if (kword(1:3).ne.'CCT')go to 999
-       goto 999
-CRK    iprt=100
+      If ( IAm .eq. 0) then
+         Call Banner(LuOut,
+     $      'CCSD Energy', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+         Write (LuOut, '(1X, A, F30.15)') 'Reference energy:  ',
+     $      RefEner
+         Write (LuOut, '(1X, A, F30.15)') 'CCSD corr. energy: ',
+     $      eccsd
+         Write (LuOut, '(1X, A, F30.15)') 'Total CCSD energy: ',
+     $      RefEner + eccsd
+      EndIf
+C
+C     Write our energy out to the database
+C
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd correlation energy',
+     $   MT_Dbl, 1, Eccsd) )
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1)
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd energy', MT_Dbl, 1,
+     $   RefEner+eccsd) ) 
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+C
+C     Do we continue to the triples or not?
+C     Note: task_energy expects ccsd:energy as a marker of successful
+C     completion.  Therefore, we don't want to write it unless we
+C     are certain we have completed the expected task.
+C
+      If ( .NOT. ( Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory)
+     $   .OR. Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) ) then
+         If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
+     $      RefEner+eccsd) ) 
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 3)
+         Goto 999
+      EndIf
 c
 c ----------------------------
 c the new parallel triples
@@ -226,7 +259,7 @@ c      call ga_summarize(.true.)
 c
       mem_avail = ma_inquire_avail(MT_DBL)
       call ga_sync()
-      call ga_igop(943,mem_avail,1,'min')
+      call ga_igop(msg_cc_mem,mem_avail,1,'min')
       mem_avail=nodes*mem_avail/2
       noper=mem_avail/(nbf*nbf)
       nvpass=min(nvir,noper/nocc)
@@ -238,8 +271,8 @@ c
      &       ' total number of virtual orbitals     ',i5,/,
      &       ' number of virtuals per integral pass ',i5,/,
      &       ' number of integral evaluations       ',i5,/)
-      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
-      g_exch = ga_create_Kblocked(noper,nbf,nvir,'X oper')
+      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
+      g_exch = ga_create_JKblocked(noper,nbf,nvir,'X oper')
       npass=0
       occ_lo = ncor+1
       occ_hi = ncor+nocc
@@ -249,54 +282,97 @@ c
       empt(1)=zip
       empt(2)=zip
       do while (oseg_hi.lt.vir_hi)
-       npass = npass + 1
-       oseg_lo = oseg_hi + 1
-       oseg_hi = min(oseg_hi+nvpass,vir_hi)
-       if (iam.eq.0)write(*,846)npass
-  846  format(' commencing integral evaluation ',i5)
-       tx(1)=tcgtime()
-       call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     &                      vir_lo, vir_hi,
-     &                      g_coul, ocoul, g_exch, oexch,
-     &                      blen, cmo, ncor, ndel, nocc, nvir)
-c       print *,'call trpdrv ',npass
+         npass = npass + 1
+         oseg_lo = oseg_hi + 1
+         oseg_hi = min(oseg_hi+nvpass,vir_hi)
+         if (iam.eq.0)write(*,846)npass
+ 846     format(' commencing integral evaluation ',i5)
+         tx(1)=tcgtime()
+         call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
+     &      vir_lo, vir_hi,
+     &      g_coul, ocoul, g_exch, oexch,
+     &      blen, cmo, ncor, ndel, nocc, nvir)
+c        print *,'call trpdrv ',npass
 c
-      tx(2)=tcgtime()
-       call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_buff),dbl_mb(k_bufo),
-     $                  lbfo,dbl_mb(k_bufv),lbfv,dbl_mb(k_f1n),
-     $                  dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
-     $                  dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
-     $                  dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
-     $                  g_coul,g_exch,ncor,nocc,nvir,ndel,iprt,
-     $                  empt(1),empt(2),oseg_lo,oseg_hi)
-      tx(3)=tcgtime()
-      if (iam.eq.0)write(6,*)'Time for integral evaluation pass ',
-     $                        npass,tx(2)-tx(1)
-      if (iam.eq.0)write(6,*)'Time for triples evaluation pass ',
-     $                        npass,tx(3)-tx(2)
+         tx(2)=tcgtime()
+         call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_buff),dbl_mb(k_bufo),
+     $      lbfo,dbl_mb(k_bufv),lbfv,dbl_mb(k_f1n),
+     $      dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $      dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
+     $      dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
+     $      g_coul,g_exch,ncor,nocc,nvir,ndel,iprt,
+     $      empt(1),empt(2),oseg_lo,oseg_hi)
+         tx(3)=tcgtime()
+         if (iam.eq.0)write(6,*)'Time for integral evaluation pass ',
+     $      npass,tx(2)-tx(1)
+         if (iam.eq.0)write(6,*)'Time for triples evaluation pass ',
+     $      npass,tx(3)-tx(2)
       enddo
       empt(1)=empt(1)+empt(1)
       empt(2)=empt(2)+empt(2)
-      call ga_dgop(917,empt,2, '+')
+      call ga_dgop(msg_cc_emp2,empt,2, '+')
       eccsdt=empt(1)+empt(2)
       if (iam.eq.0)then
        write(6,100)empt(1),empt(2),eccsdt
- 100   format(/,' e(mp4) ',e22.14,/,
-     &        ' e(mp5) ',e22.14,/,' e(t)   ',e22.14,/)
+ 100   format(/,' pseudo-e(mp4) ',e22.14,/,
+     &        ' pseudo-e(mp5) ',e22.14,/,' e(t)   ',e22.14,/)
       endif
 
       stat=ga_destroy(g_coul)
       stat=stat.and.ga_destroy(g_exch)
 c
-      if (iam.eq.0)then
-      write(6,210)escf,eccsd,eccsdt,escf+eccsd+eccsdt
- 210  format(//,20x,15(1h-),'summary',15(1h-),/,
-     &                20x,' scf energy     ',f20.14,/,
-     &                20x,' ccsd energy    ',f20.14,/,
-     &                20x,' triples energy ',f20.14,/,
-     &                20x,' total energy   ',f20.14,/,
-     &                20x,37(1h-),/)
-      endif
+      If ( IAm .eq. 0) then
+         Call Banner(LuOut,
+     $      'CCSD(T) Energy', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+         Write (LuOut, '(1X, A, F30.15)') 'Reference energy:          ',
+     $      RefEner
+         Write (LuOut, '(1X)')
+         Write (LuOut, '(1X, A, F30.15)') 'CCSD corr. energy:         ',
+     $      eccsd
+         Write (LuOut, '(1X, A, F30.15)') 'T(CCSD) corr. energy:      ',
+     $      empt(1)
+         write (LuOut, '(1X, A, F30.15)') 'Total CCSD+T(CCSD) energy: ',
+     $      RefEner + eccsd + empt(1)
+         Write (LuOut, '(1X)')
+         Write (LuOut, '(1X, A, F30.15)') 'CCSD corr. energy:         ',
+     $      eccsd
+         Write (LuOut, '(1X, A, F30.15)') '(T) corr. energy:          ',
+     $      eccsdt
+         Write (LuOut, '(1X, A, F30.15)') 'Total CCSD(T) energy:      ',
+     $      RefEner + eccsd + eccsdt
+      EndIf
+C
+C     Write our energy out to the database
+C
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd+t(ccsd) correlation energy',
+     $   MT_Dbl, 1, Eccsd+empt(1) ) )
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 10)
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd+t(ccsd) energy', MT_Dbl, 1,
+     $   RefEner+eccsd+empt(1) ) ) 
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 11)
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd(t) correlation energy',
+     $   MT_Dbl, 1, Eccsd+eccsdt) )
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 12)
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd(t) energy', MT_Dbl, 1,
+     $   RefEner+eccsd+eccsdt) ) 
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 13)
+C
+C     This reports back to task_energy that the requested task has been
+C     completed successfully.
+C
+      If ( Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory) ) then
+         If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
+     $      RefEner+eccsd+eccsdt) ) 
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)
+      ElseIf ( Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) then
+         If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
+     $      RefEner+eccsd+empt(1) ) ) 
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)
+      EndIf
+C
+C
+C
       stat=.true.
       stat=stat.and.ma_pop_stack(l_bufv)
       stat=stat.and.ma_pop_stack(l_bufo)
@@ -331,15 +407,3 @@ c      endif
       call qstat()
       return
       end
-c      block data
-c      implicit integer (a-z)
-c      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-c     &             dos(15),dod(15)
-c      data doa/15*1/
-c      data dob/15*1/
-c      data dog/15*1/
-c      data doh/15*1/
-c      data dojk/15*1/
-c      data dos/15*1/
-c      data dod/15*1/
-c      end

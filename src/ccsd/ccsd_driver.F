@@ -8,6 +8,9 @@
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "context.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "msgids.fh"
 c
 c
 c
@@ -33,9 +36,15 @@ c
        integer i,j,ij
        integer ii
        logical oexch,ocoul,oprint,status,ohalf
-       double precision emp2, e2pair
+       double precision emp2, e2pair, RefEner, TotEner
        double precision tpass
        character*7 algo
+       Integer Me
+       Integer ALo, AHi, IJLo, IJHi, LD, Off
+C
+       Logical OUseSym, OBlk
+       Integer MaxBfSh
+       Character*80 CC_Theory
 capr
       integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
       common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
@@ -50,6 +59,7 @@ c
        data oexch,ocoul/.true.,.true./
        data oprint/.true./
        data ohalf/.true./
+       Data OUseSym /.FALSE./
 capr
        data algo/'twofold'/
 capr
@@ -64,8 +74,8 @@ c
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
-       integer ga_create_Jblocked,ga_create_Kblocked
-       external ga_create_Jblocked,ga_create_Kblocked
+       integer ga_create_JKblocked
+       external ga_create_JKblocked
        integer moints_numoper
        external moints_numoper
        integer moints_occrange
@@ -73,6 +83,7 @@ c
 c
 c
 c
+       Me = GA_NodeID()
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
 c
@@ -133,6 +144,9 @@ c
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
      $      errquit('ccsddriver: cannot read MO vectors',0)
+
+       If ( Util_Print('reference', Print_High) )
+     $    Call GA_Print(G_Vecs)
 c
 c Get frozen core & virtual offsets
 c
@@ -143,8 +157,6 @@ c
 c
 c Set index ranges
 c
-c$$$       vir_lo = nocc + 1
-c$$$       vir_hi = nbf - vir_frozen
        occ_lo = occ_frozen + 1
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
@@ -159,8 +171,13 @@ c$$$       vir_hi = nbf - vir_frozen
 c
 c Get Block-length
 c
-       if (.not.rtdb_get(rtdb,'block',MT_INT,1,blen))
-     $      blen = 10
+       if (.not. bas_nbf_cn_max(basis,maxbfsh))
+     $    call errquit('ccsd_driver: cannot get basis info',0)
+       if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
+     $    1,blen)) blen = 16
+       blen = max(blen,maxbfsh)
+       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,
+     $    1,oblk)) oblk = .false.
 c
 c Initialise integrals and screening
 c
@@ -215,12 +232,12 @@ c
 c Allocate operator matrices
 c
        if (ocoul)
-     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
+     $      g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
        if (oexch) then
          if ((algo.eq.'twofold').and.(.not.(ohalf))) then
-           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
+           g_exch = ga_create_JKblocked(noper,nbf,nmo2,'X oper')
          else
-           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
+           g_exch = ga_create_JKblocked(noper,nbf,nbf,'X oper')
          endif
        endif
 c
@@ -232,7 +249,7 @@ c
 c
 c Print info
 c
-       if (ga_nodeid().eq.0) then
+       if (Me.eq.0) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
@@ -265,7 +282,7 @@ c
 c
 c Loop over segments of occupied orbitals
 c
-       if (ga_nodeid().eq.0) write(6,*)
+       if (Me.eq.0) write(6,*)
        npass = 0
        oseg_hi = occ_lo - 1
  22    continue
@@ -277,15 +294,15 @@ c
 c  J & K build routines
 c
        if (algo.eq.'sixfold') then
-         call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
+         call moints_build_6x(basis,  OUseSym, occ_lo, oseg_lo, oseg_hi,
      $                        nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen )
+     $                        blen, OBlk )
        else
-         call moints_build_2x(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     $                        vir_lo, vir_hi, g_vecs,
+         call moints_build_2x(basis,  ohalf, OUseSym,
+     $       occ_lo, oseg_lo, oseg_hi, nmo_lo, nmo_hi, g_vecs,
      $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen )
+     $                        blen, OBlk )
        endif
 c
 c
@@ -294,13 +311,13 @@ c
 capr insert oexch
        if (oexch)then
         call moints_e2pair( nocc, occ_lo, oseg_lo, oseg_hi, nvir,
-     $                      g_exch, dbl_mb(k_evals), g_epair )
+     $       nmo2, nbf, g_exch, dbl_mb(k_evals), g_epair )
        endif
 c
 c
 c
        tpass = tcgtime() - tpass
-       if (ga_nodeid().eq.0) write(6,772) npass, oseg_lo, oseg_hi, tpass
+       if (Me.eq.0) write(6,772) npass, oseg_lo, oseg_hi, tpass
  772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
      $        5x,'Time:',f10.2)
        if (oseg_hi.lt.occ_hi) goto 22
@@ -309,9 +326,52 @@ c End multipass loop
 c
 C       call moints_stats_print(algo)
 c
-c Evaluate mp2 correction from pair energies
-c
-       if ((oexch).and.ga_nodeid().eq.0) then
+c      Evaluate mp2 correction from pair energies
+C
+c      Eventually this should be replaced with a derivative of
+C      rimp2/sum_pairs (currently understands only rectangular
+C      g_epair arrays, not triangular).
+C
+C      Note that these are not strictly pair energies -- the diagonals
+C      are off by a factor of two.
+C
+       If ( OExch ) then
+          If ( Util_Print('pair energies', Print_Debug) ) then
+             If ( Me .eq. 0 ) Call Banner( LuOut,
+     $          'MP2 Pair Correlation Energies', '-',
+     $          .TRUE., .TRUE., .FALSE.)
+             Call GA_Sync
+             Call GA_Print( G_EPair )
+          EndIf
+C
+          EMP2 = zip
+          Call GA_Distribution(G_EPair, GA_NodeID(),
+     $       Alo, AHi, IJLo, IJHi)
+          If ( ALo .ne. 1 .OR. AHi .ne. 1) Call ErrQuit(
+     $       'CCSD: Internal error: G_EPair has wrong shape', 0)
+          Write (LuOut, *) 'Epair sum distribution ', GA_NodeID(),
+     $       Alo, Ahi, IJLo, IJHi
+C
+C         GA_Access gets upset if there is nothing local
+C
+          If ( IJHi - IJLo + 1 .gt. 0 ) then
+             Call GA_Access(G_EPair, ALo, AHi, IJLo, IJHi, K_EPair, LD)
+             Off = 0
+             Do IJ = IJLo, IJHi
+                EMP2 = EMP2 + Dbl_MB(K_EPair + Off)
+                Off = Off + LD
+             EndDo
+             Call GA_Release(G_EPair, ALo, AHi, IJLo, IJHi)
+          EndIf
+          Call GA_DGOp(msg_cc_emp2, EMP2, 1, '+')
+          Call GA_Sync
+          Write (LuOut, '(1X, A, F30.15)') 'MP2 Corr. energy: ',
+     $       EMP2
+       EndIF
+C
+C
+C
+       if ((oexch).and. Me.eq.0) then
          npairs = (nocc_correl*(nocc_correl+1))/2
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
      $                        l_epair, k_epair)
@@ -329,20 +389,47 @@ c
 c
 c Print out pair energies
 c 
-c$$$         write(6,997)
-c$$$ 997     format(//,15x,'Pair Energies',/)
-c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
-c$$$ 998     format(8f10.5)
-c
-c Print out total correlation correction
-c
-         write(6,999) emp2
- 999     format(//,15x,31('-'),
-     $          /,15x,'MP2 Correction:',f16.10,
-     $          /,15x,31('-'),/)
+         write(6,997)
+ 997     format(//,15x,'Pair Energies',/)
+         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+ 998     format(8f10.5)
          status = ma_pop_stack(l_epair)
-       endif
-       call ga_sync()
+      EndIf
+C
+C     Also get the SCF energy so we can report the total energy
+C
+      If ( .NOT. RTDB_Get(RTDB, 'scf:energy', MT_Dbl, 1, RefEner)
+     $   ) then
+         RefEner = Zip
+         If ( Me .eq. 0) Write ( LuOut, *)
+     $      'CCSD: Warning! Unable to get scf:energy from RTDB.'
+      EndIf
+C
+      TotEner = RefEner + EMP2
+c
+c     Print out total correlation correction
+c
+      If ( Me .eq. 0) then
+         Call Banner(LuOut,
+     $      'MP2 Energy (coupled cluster initial guess)', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+         Write (LuOut, '(1X, A, F30.15)') 'Reference energy: ',
+     $      RefEner
+         Write (LuOut, '(1X, A, F30.15)') 'MP2 Corr. energy: ',
+     $      EMP2
+         Write (LuOut, '(1X, A, F30.15)') 'Total MP2 energy: ',
+     $      TotEner
+      EndIf
+C
+C     Write our energy out to the database
+C
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:mp2 correlation energy',
+     $   MT_Dbl, 1, EMP2) )
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1)
+      If ( .NOT. RTDB_Put( RTDB, 'ccsd:mp2 energy', MT_Dbl, 1,
+     $   TotEner) ) 
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+      call ga_sync()
 c
       status = ga_destroy(g_epair)
 capr
@@ -350,22 +437,7 @@ c
 c Start CCSD part here
 c
 c
-CRK   lnof=nbf*nocc
-CRK   lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
-CRK   lnobj=max(lnoov+lnoov+lnooo,lnobj)
-CRK   lnobj=max(lnobj,nbf*nocc)
-c
-CRK   if (.not.ga_create(MT_DBL,lnobj,nvir_correl+1,'objv',lnobj,1,
-CRK  &                   g_objv))
-CRK  &     call errquit('ga_create g_objv failed',0)
-CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
-CRK  &                   nbf,nbf,g_ncoul))
-CRK  &     call errquit('ga_create g_ncoul failed',0)
-CRK   if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
-CRK  &                   nbf,nbf,g_nexch))
-CRK  &     call errquit('ga_create g_nexch failed',0)
-c
-      call ccsd_get_param(rtdb,maxit,convi,iprt)
+      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory)
       irstrt=0
       ncor=occ_frozen
       ndel=vir_frozen
@@ -388,7 +460,8 @@ c
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
-     &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch)
+     &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, RefEner,
+     $   CC_Theory, RTDB)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)
@@ -397,12 +470,7 @@ c
       status=status.and.ga_destroy(g_objv)
       if (.not.status)call errquit('deallocate after aoccsd',0)
 c
-CRK   status=status.and.ga_destroy(g_coul)
-CRK   status=status.and.ga_destroy(g_exch)
       if (.not.status) call errquit('error after aoccsd',0)
-capr
-capr       if (ocoul) status = ga_destroy(g_coul)
-capr       if (oexch) status = ga_destroy(g_exch)
       status = ma_pop_stack(l_evals)
 c
 c Cleanup
@@ -411,9 +479,6 @@ c
       status = status.and.ma_pop_stack(l_occ)
       if (.not.status) call errquit('moints: cannot pop stack?',0)
       status = ga_destroy(g_vecs)
-      if (ga_nodeid().eq.0) then
-        call MA_summarize_allocated_blocks()
-      endif
       call int_terminate()
       call ga_sync()
 c

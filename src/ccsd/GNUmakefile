@@ -19,11 +19,11 @@
 		ccsd_rdtrpo.o \
 		ccsd_tengy.o \
 		ccsd_trpdrv.o \
-		ccint_2e4c.o \
 		moints_trp.o \
 		qstat.o \
 		cputime.o \
-		rddcom.o
+		rddcom.o \
+		ccsd_input.o
 
     LIBRARY = libccsd.a
 

@@ -18,6 +18,7 @@ c
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "msgids.fh"
 c
       integer doa,dob,dog,doh,dojk,dos,dod
       common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
@@ -95,7 +96,7 @@ c
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
             call ga_get(g_sht2,1,nbf*nbf,ij,ij,scre,nbf*nbf)
-            call sscal(nbf*nbf,2.0d00,scre,1)
+            call dscal(nbf*nbf,2.0d00,scre,1)
 c
 c H2
             do k=1,nocc
@@ -106,8 +107,8 @@ c H2
         enddo
       enddo
 c
-      call scopy(lnoo,hiu,1,giu,1)
-      call scopy(lnvv,habe,1,gabe,1)
+      call dcopy(lnoo,hiu,1,giu,1)
+      call dcopy(lnvv,habe,1,gabe,1)
       call dfill(lnov,0.0d00,hia,1)
 c
       if (iprt.gt.5.and.iam.eq.0)print *,'forming aitm'
@@ -128,7 +129,7 @@ c A1
             if (doa(1).eq.2)then
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
      &                    scrb,nocc)
-              call saxpy(nocc*nocc,0.5d00,scrb,1,scra,1)
+              call daxpy(nocc*nocc,0.5d00,scrb,1,scra,1)
             endif
 c---------------------------------------------------------
 c  S5, D1, D6 and D7 
@@ -151,7 +152,7 @@ c D1,D7
 c
             ad1=(i-1)*nocc+j
             call ga_get(g_c,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
-            call scopy(nbf*nbf,scrb,1,scre,1)
+            call dcopy(nbf*nbf,scrb,1,scre,1)
 c
 c H8
             do a=nocc+1,nbf
@@ -170,7 +171,7 @@ c G4
 c
             ad1=(i-1)*nocc+j
             call ga_get(g_x,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
-            call scopy(nbf*nbf,scrb,1,scre,1)
+            call dcopy(nbf*nbf,scrb,1,scre,1)
 c
 c H8
             do a=nocc+1,nbf
@@ -237,7 +238,7 @@ c
 c
             call ga_get(g_sht2,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
             call dfill(nbf*nbf,0.0d00,scre,1)
-            call saxpy(nbf*nbf,2.0d00,scrb,1,scre,1)
+            call daxpy(nbf*nbf,2.0d00,scrb,1,scre,1)
 c
 c S6
             do a=nocc+1,nbf
@@ -261,10 +262,10 @@ c  B2 and B3 intermediate and their contribution to D3
 c-----------------------------------------------------------------------
             if (dob(2).eq.2)then
             ad1=nocc+1
-            call sgemm('n','n',nvir,nvir,nocc,1.0d00,scrb(ad1),
+            call dgemm('n','n',nvir,nvir,nocc,1.0d00,scrb(ad1),
      &                 nbf,t1,nocc,0.0d00,scra,nvir)
             ad1=nocc*nbf+1
-            call sgemm('t','n',nvir,nvir,nocc,1.0d00,t1,nocc,
+            call dgemm('t','n',nvir,nvir,nocc,1.0d00,t1,nocc,
      &                 scrb(ad1),nbf,1.0d00,scra,nvir)
             ad1=(i-1)*nvir
             ad2=(j-1)*nvir
@@ -276,11 +277,11 @@ c
         enddo
       enddo
 c
-      call ga_dgop(900,hiu,lnoo, '+')
-      call ga_dgop(901,habe,lnvv, '+')
-      call ga_dgop(902,giu,lnoo, '+')
-      call ga_dgop(903,hia,lnov, '+')
-      call ga_dgop(904,gabe,lnvv, '+')
+      call ga_dgop(msg_cc_term1,hiu,lnoo, '+')
+      call ga_dgop(msg_cc_term2,habe,lnvv, '+')
+      call ga_dgop(msg_cc_term3,giu,lnoo, '+')
+      call ga_dgop(msg_cc_term4,hia,lnov, '+')
+      call ga_dgop(msg_cc_term5,gabe,lnvv, '+')
 c
 c-----------------------------------------------------------------------
 c  D2 (product of A intermediate and Tau)
@@ -369,7 +370,7 @@ c
             if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
               call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                    scre,nvir)
-              call sgemm('n','n',nvir,nvir,nvir,1.0d00,gabe,
+              call dgemm('n','n',nvir,nvir,nvir,1.0d00,gabe,
      &                   nvir,scre,nvir,0.0d00,scrd,nvir)
               call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
      &                    scrd,nvir,1.0d00)
@@ -392,7 +393,7 @@ c
         inode=inode+1
         if (inode.eq.next)then
             call ga_get(g_nt2,1,lnov,ad1,ad1,scre,1)
-            call sgemm('n','n',nvir,nocc,nocc,-1.0d00,scre,
+            call dgemm('n','n',nvir,nocc,nocc,-1.0d00,scre,
      &                 nvir,giu,nocc,0.0d00,scrf,nvir)
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d00)
       next=nxtval(nodes)
@@ -420,9 +421,9 @@ c-----------------------------------------------------------------------
 c
             call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
      &                  scrd,nbf)
-            call sgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
+            call dgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
      &                 nbf,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nbf)
-            call saxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
+            call daxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
             call ga_acc(g_x,1,nbf*nbf,ij,ij,scrd,nbf*nbf,1.0d00)
           endif
         enddo
@@ -437,9 +438,9 @@ c
             ad2=(j-1)*nbf
             call ga_get(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
      &                    scrd,nbf)
-            call sgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
+            call dgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
      &                 nbf,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nbf)
-            call saxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
+            call daxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
             call ga_acc(g_c,1,nbf*nbf,ij,ij,scrd,nbf*nbf,1.0d00)
 c
           endif
@@ -586,9 +587,9 @@ c
             ad2=(j-1)*nbf
             call dfill(nbf*nbf,0.0d00,scra,1)
               call ga_get(g_x,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
-              call saxpy(nbf*nbf,1.0d00,scrb,1,scra,1)
+              call daxpy(nbf*nbf,1.0d00,scrb,1,scra,1)
               call ga_get(g_c,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
-              call saxpy(nbf*nbf,-0.5d00,scrb,1,scra,1)
+              call daxpy(nbf*nbf,-0.5d00,scrb,1,scra,1)
             ad1=0
             do a=nocc+1,nbf
               do b=nocc+1,nbf
@@ -729,7 +730,7 @@ c -- end parallel task --
 c
        enddo
       enddo
-      call ga_dgop(913,ht1,lnov, '+')
+      call ga_dgop(msg_cc_term6,ht1,lnov, '+')
       next=nxtval(-nodes)
 c
       call qexit('itm',0)

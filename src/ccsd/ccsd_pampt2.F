@@ -26,6 +26,7 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "msgids.fh"
 c
       double precision tol2e
       data tol2e/1.d-12/
@@ -36,7 +37,7 @@ c
       integer l_offsh,k_offsh
       integer lssni,l_snsi,k_snsi,l_sisn,k_sisn,l_t1ao,k_t1ao
       logical stat
-      double precision xdot,sdot,eccsd,eccsd1,eccsd2
+      double precision xdot,ddot,eccsd,eccsd1,eccsd2
 c
       integer ibflo,ibfhi,jbflo,jbfhi
       integer max2e,mem2,max1e,mem1
@@ -73,7 +74,7 @@ c
         ht1(icnt)=ht1(icnt)/(eorb(i)-eorb(a))
        enddo
       enddo
-      call saxpy(lnov,-one,ht1,1,t1,1)
+      call daxpy(lnov,-one,ht1,1,t1,1)
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
        call ga_put(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,ht1,1)
        call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,t1,1)
@@ -139,7 +140,7 @@ c -- parallel task --
          enddo
         enddo
 c -- compute error vector in t2 location
-        call saxpy(lnoov,-one,scrb,1,scra,1)
+        call daxpy(lnoov,-one,scrb,1,scra,1)
         call ga_put(g_t2,offt2+1,offt2+lnoov,bv,bv,scrb,lnoov)
         call ga_put(g_ht2,offt2+1,offt2+lnoov,bv,bv,scra,lnoov)
        endif
@@ -177,7 +178,7 @@ c$$$  129  format('<<<<<',4i3,4e15.5)
 c -- end parallel task --
 c
       enddo
-      call ga_dgop(914,eccsd2,1, '+')
+      call ga_dgop(msg_cc_ecc,eccsd2,1, '+')
       eccsd=eccsd1+eccsd1+eccsd2
       if (iprt.gt.5.and.iam.eq.0)then
        write(6,1238)eccsd1,eccsd2,eccsd

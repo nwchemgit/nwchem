@@ -65,6 +65,12 @@ c
          status = direct_mp2(rtdb)
       else if (theory .eq. 'ccsd') then
          status = ccsd(rtdb)
+      else if (theory .eq. 'ccsd(t)') then
+         prefix = 'ccsd'
+         status = ccsd(rtdb)
+      else if (theory .eq. 'ccsd+t(ccsd)') then
+         prefix = 'ccsd'
+         status = ccsd(rtdb)
       else if (theory .eq. 'mcscf') then
          status = mcscf(rtdb)
       else if (theory .eq. 'selci') then

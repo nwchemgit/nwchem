@@ -115,9 +115,9 @@ c - redefine g_sht2
                   enddo
                 enddo
               enddo
-              call sgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
+              call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
      &                   cmo(1,1),nbf,0.0d00,scrb,nbf)
-              call sgemm('t','n',nbf,nbf,nbf,1.0d00,cmo(1,1),nbf,
+              call dgemm('t','n',nbf,nbf,nbf,1.0d00,cmo(1,1),nbf,
      &                   scrb,nbf,0.0d00,scra,nbf)
               ad3=(i-1)*nocc+j
               call ga_put(g_sht2,1,nbf*nbf,ad3,ad3,
@@ -188,9 +188,9 @@ c
                   scra(ad3)=scra(ad3)+t1(i,a)*t1(j,b)
                 enddo
               enddo
-              call sgemm('n','t',nvir,nbf,nvir,1.0d00,scra,nvir,
+              call dgemm('n','t',nvir,nbf,nvir,1.0d00,scra,nvir,
      &                   cmo(1,nocc+1),nbf,0.0d00,scrb,nvir)
-              call sgemm('n','n',nbf,nbf,nvir,1.0d00,cmo(1,nocc+1),nbf,
+              call dgemm('n','n',nbf,nbf,nvir,1.0d00,cmo(1,nocc+1),nbf,
      &                   scrb,nvir,0.0d00,scra,nbf)
               ad3=0
               do ksh=1,nsh
@@ -253,9 +253,9 @@ c ------------------------------------------------------------
                   scrb(ipp)=scra(iijj)+scra(iijj)
                 enddo
                 if (x.eq.y)then
-                  call sscal(lnoo,0.25d00,scrb,1)
+                  call dscal(lnoo,0.25d00,scrb,1)
                 else
-                  call sscal(lnoo,0.5d00,scrb,1)
+                  call dscal(lnoo,0.5d00,scrb,1)
                 endif
                 call ga_put(g_st2,1,lnoo,xy,xy,scrb,lnoo)
               endif
@@ -279,7 +279,7 @@ c
       double precision tol2e,eri1(max2e),eri2(max2e),scre(mem2),
      &                 t1(nocc*nvir),cmo(nbf,nbf),scra(lscr),
      &                 scrb(lscr),snsi(lssni),sisn(lssni),
-     &                 t1ao(nocc*nbf),sdot,tx(2)
+     &                 t1ao(nocc*nbf),ddot,tx(2)
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -321,7 +321,7 @@ c ------------------------------------------------------------
 c ------------------------------------------------------------
 c create t1ao
 c ------------------------------------------------------------
-      call sgemm('n','t',nbf,nocc,nvir,1.0d00,cmo(1,ncor+nocc+1),
+      call dgemm('n','t',nbf,nocc,nvir,1.0d00,cmo(1,ncor+nocc+1),
      &           nbf,t1,nocc,0.0d00,t1ao,nbf)
 c
 c ------------------------------------------------------------
@@ -370,13 +370,13 @@ c
                 if (schwarz1.ge.tol2e.or.schwarz2.ge.tol2e)then
                   lnijkl=nfi*nfj*nfk*nfl
                   if (schwarz1.ge.tol2e)then
-                    call ccint_2e4c(basis, ish, jsh, basis, ksh, lsh,
+                    call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                            mem2, scre, max2e, eri1 )
                   else
                     call dfill(lnijkl,0.0d00,eri1,1)
                   endif
                   if (schwarz2.ge.tol2e)then
-                    call ccint_2e4c(basis, ish, lsh, basis, ksh, jsh,
+                    call int_2e4c(basis, ish, lsh, basis, ksh, jsh,
      $                            mem2, scre, max2e, eri2 )
                   else
                     call dfill(lnijkl,0.0d00,eri2,1)
@@ -385,8 +385,8 @@ c
      &                       eri2,g_st2,g_sht2,scra,scrb,lnoo,nocc,
      &                       nbf)
                   if (ish.eq.ksh)then
-                    call sscal(lnijkl,0.5d00,eri1,1)
-                    call sscal(lnijkl,0.5d00,eri2,1)
+                    call dscal(lnijkl,0.5d00,eri1,1)
+                    call dscal(lnijkl,0.5d00,eri2,1)
                   endif
                   call ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nbf,
      &                           nocc,ilo,ihi,klo,khi,jlo,llo)

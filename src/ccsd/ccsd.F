@@ -1,4 +1,4 @@
-       subroutine ccsd(rtdb)
+       Logical Function ccsd(rtdb)
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -6,6 +6,7 @@
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "util.fh"
 c
 c
 c
@@ -19,8 +20,10 @@ c
        logical do_old
 c
 c
-       if (.not. context_push('atwtest'))
-     $      call errquit('atwtest: context_push failed',0)
+       if (.not. context_push('ccsd'))
+     $      call errquit('ccsd: context_push failed',0)
+       Call Util_Print_Push
+       Call Util_Print_RTDB_Load(RTDB, 'ccsd')
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -66,8 +69,11 @@ c ------NEW AO CCSD CODE
 c
 c
 c
-       if (.not. context_pop('atwtest'))
+       if (.not. context_pop('ccsd'))
      $     call errquit('context_pop failed',0)
+C
+       ccsd = .TRUE.
+       Return
        end
 
 
