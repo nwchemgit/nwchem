@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.27 2000-02-28 21:41:47 d3g270 Exp $
+ $Id: pstebz10.c,v 1.28 2000-03-21 23:22:21 d3g270 Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -245,7 +245,10 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    DoublePrecision leig, reig, eps, shift, tmp1, dummy, tmp; 
    extern void dlasq1_();
    extern DoublePrecision dlamch_();
-   
+
+   FILE *file;
+   char filename[40];
+   sprintf( filename, "pdspevx.%d", me);
 
 /*
  *  ---------------------------------------------------------------
@@ -613,6 +616,14 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    if ( *info != 0 ) {
      if ( me == 0 )
        printf(" PeIGS error from dstebz %d ...trying dsterf \n", *info );
+
+     file = fopen(filename, "a+");
+     fprintf(file, "info = %d \n", linfo);
+     fprintf(file, "%d \n", msize);
+     for ( iii = 0; iii < msize; iii++)
+       fprintf(file, "%d %20.16f %20.16f \n", iii, d[iii], e[iii]);
+     fflush(file);
+     fclose(file);
      
      for (i = 0; i < msize; i++ )
        work[i] = d[i];
@@ -630,8 +641,15 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    psigma = 0.e0;
    psgn = 1.0;
-   if ( eval[0] < sqrt(sqrt(DLAMCHE)))
+
+   /*
+   if ( eval[0] < sqrt(sqrt(DLAMCHS)))
      psigma = -fabs(eval[0])-sqrt(sqrt(DLAMCHE));
+     */
+   
+   if ( eval[0] < sqrt(sqrt(2.2250738585072028E-308)))
+     psigma = -fabs(eval[0])-sqrt(sqrt(2.2250738585072028E-308));
+   
 
 #ifdef DEBUG99   
    printf("eval %g shift %f sqrt %f  \n", eval[0], psigma, sqrt(sqrt(DLAMCHE)));
