@@ -1,8 +1,8 @@
 c
-* $Id: numb_qP.fh,v 1.4 1996-07-22 19:04:39 d3e129 Exp $
+* $Id: numb_qP.fh,v 1.5 1996-09-03 06:02:52 d3e129 Exp $
 c
-      logical more_ints_txs, using_texas
+      logical more_ints_txs, txs_b2e4c
       integer num_q_start, num_q_last
       common /c_intb/ num_q_start, num_q_last, more_ints_txs,
-     &    using_texas
+     &    txs_b2e4c
 c

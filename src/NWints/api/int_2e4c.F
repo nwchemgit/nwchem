@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.22 1996-07-18 23:57:52 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.23 1996-09-03 06:02:48 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -125,7 +125,7 @@ c... stat sp
       status_sp = cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)
 
 c... stat texas
-      texas_ang_limit = 2
+      texas_ang_limit = 8   ! (ff|pp) or greater integral
       ucont   = (sf_ibs_cn2ucn(ish,bra))
       La      = infbs_cont(CONT_TYPE ,ucont,bra)
       a_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
@@ -139,18 +139,14 @@ c... stat texas
       Ld      = infbs_cont(CONT_TYPE ,ucont,ket)
       d_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
       status_txs = cando_txs(brain,ish,jsh).and.cando_txs(ketin,ksh,lsh)
-      status_txs = status_txs .and. brain.eq.ketin
       status_gen = max(a_gen,b_gen,c_gen,d_gen).gt.1
       if (.not.status_gen) then
         status_txs = status_txs .and.
-     &        ( (La.gt.texas_ang_limit).or.
-     &        (Lb.gt.texas_ang_limit).or.
-     &        (Lc.gt.texas_ang_limit).or.
-     &        (Ld.gt.texas_ang_limit)  )
+     &        ( (La+Lb+Lc+Ld).gt.texas_ang_limit  )
       endif
-      status_txs = status_txs .and. .not.any_spherical
 c... stat nw
       status_nw  = cando_nw(brain,ish,jsh).and.cando_nw(ketin,ksh,lsh)
+      status_nw  = status_nw.and. (.not. status_gen)
       if (status_sp) then
 c
         call genr70(

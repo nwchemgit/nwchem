@@ -1,6 +1,6 @@
       subroutine int_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri)
-c $Id: int_2e2c.F,v 1.8 1996-07-26 17:02:56 pg481 Exp $
+c $Id: int_2e2c.F,v 1.9 1996-09-03 06:02:43 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -20,9 +20,11 @@ c::external subroutines used
 c errquit
 c::functions
       logical cando_nw
+      logical cando_sp
       logical int_chk_sh
       logical int_chk_init
       external cando_nw
+      external cando_sp
       external int_chk_sh
       external int_chk_init
 #define USE_TEXAS
@@ -40,8 +42,9 @@ c:: local
       integer p_geom, q_geom, ucont
       integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
       integer Lq, q_prim, q_gen, q_iexp, q_icfp, q_cent
-      logical status_nw
+      logical status_nw, status_sp
 #if defined(USE_TEXAS)
+      logical status_gen
       logical status_txs
       integer num_quart, dummy_lab(2)
       double precision roff(3), q4 
@@ -75,14 +78,6 @@ c
       call int_nospherical_check(brain,'int_2e2c')
       call int_nospherical_check(ketin,'int_2e2c')
 c
-c set status variables
-c
-      status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
-#if defined(USE_TEXAS)
-      status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
-#endif
-
-c
 c     define center information required 
 c
       bra = brain + BASIS_HANDLE_OFFSET
@@ -100,8 +95,36 @@ c
       p_cent  = (sf_ibs_cn2ce(ish,bra))
       q_cent  = (sf_ibs_cn2ce(jsh,ket))
 c
+      ucont   = (sf_ibs_cn2ucn(ish,bra))
+      Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
+      p_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
+c
+      ucont   = (sf_ibs_cn2ucn(jsh,ket))
+      Lq      = infbs_cont(CONT_TYPE ,ucont,ket)
+      q_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+c
+c set status variables
+c
+      status_nw = cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)
+      status_sp = cando_sp(brain,ish,0).and.cando_sp(ketin,jsh,0)
 #if defined(USE_TEXAS)
-      if (status_txs) then
+      status_txs = cando_txs(brain,ish,0).and.cando_txs(ketin,jsh,0)
+      status_gen = (max(p_gen,q_gen)) .gt. 1 ! if general contraction texas is only option
+*        greater than (f|f) do texas
+      if (.not.status_gen)
+     &    status_txs = status_txs .and. ((Lp+Lq).gt.6)
+#endif
+
+c
+      if (status_sp) then
+        call genr70(
+     &         brain,ish,coords(1,p_cent,p_geom),
+     &                 0,coords(1,p_cent,p_geom),
+     &         ketin,jsh,coords(1,q_cent,q_geom),
+     &                 0,coords(1,q_cent,q_geom),
+     &         eri)
+#if defined(USE_TEXAS)
+      else if (status_txs) then
         num_quart = 1
         dummy_lab(1) = 0
         dummy_lab(2) = 0
@@ -122,11 +145,9 @@ c
      &      eri, leri, dummy_lab, dummy_lab, dummy_lab, dummy_lab,
      &      nint, .false., dum_log, scr, lscr)
 
-      else if(status_nw) then
-#else
-      if(status_nw) then
 #endif
 c
+      else if(status_nw) then
         ucont   = (sf_ibs_cn2ucn(ish,bra))
         Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
         p_prim  = infbs_cont(CONT_NPRIM,ucont,bra)

@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.4 1996-07-22 19:04:38 d3e129 Exp $  
+c $Id: intb_init4c.F,v 1.5 1996-09-03 06:02:50 d3e129 Exp $  
       implicit none
 *
 c
@@ -21,11 +21,29 @@ c
       double precision block_eff  ! [output] blocking efficiency parameter
 #include "numb_qP.fh"
 c
+      logical status
+      integer i_q
+c
+      logical cando_txs
+      external cando_txs
+c
       num_q_start = 1
       num_q_last  = -1
 c
       more_ints_txs = .false. 
       intb_init4c = .true.
       block_eff = -1.0d00
-      using_texas = .false.
+*
+*.... check shells for txs only after intb_init is called and established        
+      txs_b2e4c = .true.
+      status = .true.
+*.... check first 20 quartets but every other one
+      do i_q = 1,min(20,num_q),2
+        status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
+        status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
+        if (.not.status) then
+          txs_b2e4c = .false.
+          return
+        endif
+      enddo
       end

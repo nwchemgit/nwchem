@@ -2,7 +2,7 @@
      &    num_q, q4, use_q4, zerotol, canonicalize,
      &    ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.10 1996-07-22 19:04:37 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.11 1996-09-03 06:02:49 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -42,7 +42,6 @@ c::local
       integer ip_int, leri_left
       integer numint, numinti, numintj, numintk, numintl, nint_for_q
       integer i_q, i_q_done
-      logical status
 c
 #include "bas_ibs_sfn.fh"
 c
@@ -50,24 +49,9 @@ c
       ket = ketin + BASIS_HANDLE_OFFSET
 c
       intb_2e4c = .true.
-*.... using texas
-      if (.not.using_texas) then
-*.... check shells for txs only after intb_init is called and established        
-        status = .true.
-        status = (bra .eq. ket) .and. status
-        do i_q = num_q_start,min((num_q_start+10),num_q)
-          status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
-          status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
-          if (.not.status) goto 00001
-        enddo
-      endif
-*... checking all is costly check first 10
-*rak:      do i_q = num_q_start,num_q
-*rak:        status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
-*rak:        status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
-*rak:        if (.not.status) goto 00001
-*rak:      enddo
-      using_texas = .true.
+c
+      if (.not.txs_b2e4c) goto 00001
+c
       call dfill(3,0.0d00,roff,1)
       call texas_hf2_m(brain,icl,jcl,ketin,kcl,lcl,num_q,
      &    q4,use_q4,
@@ -89,7 +73,6 @@ c
       return
 *.... using nwchem
 00001 continue
-      intb_2e4c = .true.
       ip_int = 1
       leri_left = l_erilab
       i_q_done = num_q_start - 1
