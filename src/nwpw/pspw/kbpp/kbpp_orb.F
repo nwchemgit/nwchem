@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.11 2004-02-24 21:47:31 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.12 2004-07-14 21:23:06 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -102,12 +102,16 @@
 
 *     **** set the maximum angular momentum ****
 *      if (lmax.eq.-1)    lmax = lmax1
-      if (lmax.eq.-1)    lmax = lmax0  ! make lmax as large as possible
-      if (lmax.gt.lmax0) lmax = lmax0
-      if (lmax.lt.0)     lmax = lmax0
+      !if (lmax.eq.-1)    lmax = lmax0  ! make lmax as large as possible
+      !if (lmax.gt.lmax0) lmax = lmax0
+      !if (lmax.lt.0)     lmax = lmax0
+
+      lmax = lmax0
 
 *     **** set the local potential ****
       locp = lmax
+
+      
       
 
 *     **** allocate rho, vp, and wp ****
