@@ -3,7 +3,7 @@
 
   # TESTING := 1
 
-  OBJ = potential.o ga_xlm.o
+  OBJ = potential.o
 
   OPTIM := xlm_poles.o fmm.o cheby.o dposv.o fastj.o anlfit.o cart_trans.o \
            gauleg.o solver.o vsint.o dgels.o pot_shell.o  fastj_direct.o \
