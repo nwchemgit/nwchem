@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.412 2003-05-14 17:24:37 edo Exp $
+# $Id: makefile.h,v 1.413 2003-05-15 02:00:04 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1070,8 +1070,7 @@ ifeq ($(TARGET),LAPI64)
      MPILIB = 
 LARGE_FILES = YES
 
-#  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -g -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64_map
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -q64  -bloadmap:nwchem.lapi64_map $(LAPI64LIBS)
    LINK.f   = mpcc_r   $(LDFLAGS)
 
    FOPTIONS = -qEXTNAME -qnosave -q64 -qalign=4k 
