@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.34 2005-02-03 04:06:32 edo Exp $
+# $Id: GNUmakefile,v 1.35 2005-02-15 01:54:47 edo Exp $
 #
 
 
@@ -49,6 +49,10 @@ include ../config/makelib.h
 ifeq ($(TARGET),CRAY-T3E)
 # vector 3 breaks code in this directory only
             FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
+endif
+ifeq ($(_IFCV81),Y)
+   FOPTIMIZE=-O3
+   COPTIONS=-O0 -g
 endif
 
  LIBS = $(LIBRARY_PATH) $(LIBDIR)/libtcgmsg.a
