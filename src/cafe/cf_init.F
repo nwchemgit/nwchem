@@ -148,6 +148,13 @@ c
 c
       call cf_rdtop(lfntop,filtop)
 c
+      if(ithint) then
+      do 3 i=1,24
+      ip2(i)=ith(i)
+      ip3(i)=ith(i)
+    3 continue
+      endif
+c
 c     particle-mesh Ewald initialization
 c     ----------------------------------
 c
