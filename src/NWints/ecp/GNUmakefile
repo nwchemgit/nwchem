@@ -12,7 +12,6 @@ OBJ_OPTIMIZE = \
       ecp_c2snorm.o  \
       ecp_c2srecur.o \
       ecp_cart_xpd.o \
-      ecp_cartsph.o  \
       ecp_contract.o \
       ecp_cstrans.o  \
       ecp_down_m.o   \
@@ -22,7 +21,6 @@ OBJ_OPTIMIZE = \
       ecp_int1.o     \
       ecp_int2.o     \
       ecp_integral.o \
-      ecp_matp.o     \
       ecp_matpi.o    \
       ecp_matpr.o    \
       ecp_radint0.o  \
@@ -48,14 +46,18 @@ OBJ_OPTIMIZE = \
       ecp_local.o    \
       int_ecp.o      
 
-USES_BLAS = ecp_integral.f \
-      ecp_int0.f \
-      ecp_int1.f \
-      ecp_int2.f \
-      ecp_radint0.f \
-      ecp_radint1.f \
-      ecp_radint2.f \
-      ecp_cartsph.f 
+USES_BLAS = ecp_cart_xpd.f \
+      ecp_cstrans.f  \
+      ecp_int0.F     \
+      ecp_int1.F     \
+      ecp_int2.F     \
+      ecp_integral.F \
+      ecp_local.F    \
+      ecp_radint0.F  \
+      ecp_radint1.F  \
+      ecp_radint2.F  \
+      ecp_s2ccoef.f  \
+      int_ecp.F      
 
 LIBRARY = libnwints.a
 
