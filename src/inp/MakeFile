@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 2000-11-25 15:40:46 bjohnson Exp $	
+#	$Id: MakeFile,v 1.4 2001-08-28 01:01:21 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -13,7 +13,7 @@ OBJ =          $(OBJDIR)\c_inp.obj \
 
 HEADERS =      inp.fh
 
-LIBRARY = util.lib
+LIBRARY = nwcutil.lib
 
 LIB_TARGETS = $(OBJDIR)\test.obj test $(OBJDIR)\hnd_rdfree.obj hnd_rdfree
 

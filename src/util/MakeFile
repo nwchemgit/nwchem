@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.14 2001-08-19 21:13:37 bjohnson Exp $	
+#	$Id: MakeFile,v 1.15 2001-08-28 01:01:21 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -116,7 +116,7 @@ HEADERS =      util.fh \
                bgj_common.fh \
                nwc_const.fh
 
-LIBRARY = util.lib
+LIBRARY = nwcutil.lib
 LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
               -DPERM_DEF_DIR=$(PERM_DEF_DIR) \
               -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
