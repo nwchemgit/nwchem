@@ -912,7 +912,7 @@ c
 c
 c     return the effective nuclear repulsion energy etc.
 c
-      geom_nuc_rep_energy = geom_check_handle(geom)
+      geom_nuc_rep_energy = geom_check_handle(geom, 'geom_nuc_rep_e')
       if (.not. geom_nuc_rep_energy) return
       energy = erep(geom)
 c
@@ -927,7 +927,7 @@ c
 c
 c     return the sum of the nuclear charges
 c
-      geom_nuc_charge = geom_check_handle(geom)
+      geom_nuc_charge = geom_check_handle(geom, 'geom_nuc_charge')
       if (.not. geom_nuc_charge) return
 c
       total_charge = 0.0d0
