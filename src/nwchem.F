@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.68 1996-03-07 01:22:47 d3e129 Exp $
+c     $Id: nwchem.F,v 1.69 1996-03-07 02:25:39 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -199,6 +199,8 @@ c
  1          format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
             call util_flush(6)
          endif
+         if (util_print('citation', print_low))
+     &       call util_cite()
       endif
       call ga_sync()
 c
