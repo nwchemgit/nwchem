@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.61 1997-03-30 21:12:00 d3g681 Exp $
+C     $Id: geom_input.F,v 1.62 1997-05-28 17:18:45 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2888,7 +2888,7 @@ C
  9018 FORMAT(' NO -$ZMAT- OR -$ZMT- NAMELISTS FOUND; PROCEED ...')
  9008 FORMAT(' ERROR IN $ZMAT INPUT . STOP')
       END
-      SUBROUTINE HND_ZMTSYM(IZMAT,MXIZMT,NZMOD)
+      SUBROUTINE HND_ZMTSYM
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       RETURN
       END
@@ -2950,7 +2950,7 @@ C
       IF(.NOT.MA_PUSH_GET(MT_DBL,1          ,'MEM I20 ',I_I20,I20))
      & CALL ERRQUIT('HND_ZMTLIN, MALLOC OF I20  FAILED',911)
 C
-      DO IJ=1,NZVAR*NZVAR
+      DO IJ=1,NDIM *NDIM 
          DBL_MB(IJ+I10-1)=ZERO
       ENDDO
       DO I=1,NZVAR        
@@ -3580,7 +3580,7 @@ C
       INDEP =NATZMT.EQ.2              
 C
       IF(OUT) THEN
-         WRITE(IW,9984) NZVAR,NVAR,NCART
+         WRITE(IW,9984) NZVAR,NVAR,NCART,NDIM
          WRITE(IW,9999) NATURL,SYMTRC,INDEP,NATZMT
          IF(NATURL) WRITE(IW,9998)
          IF(SYMTRC) WRITE(IW,9997)
@@ -3926,7 +3926,7 @@ C
  9987 FORMAT(/,' - G**(-1) - ') 
  9986 FORMAT(/,' -Bi- IN ..... CHOSEN .....        COORDINATES ')
  9985 FORMAT(/,' -B - IN (NON-REDUNDANT+REDUNDANT) COORDINATES ')
- 9984 FORMAT(/,' IN -BINVR- NZVAR,NVAR,NCART = ',3I5)
+ 9984 FORMAT(/,' IN -BINVR- NZVAR,NVAR,NCART,NDIM = ',4I5)
  9983 FORMAT(/,' CHECK OF ( Bi * B = K * K(T) )')
  9982 FORMAT(/,' -Bi(T) = B * ( G**(-1) )(T)')
  9981 FORMAT(/,' K * K(T) PROJECTOR ')         
@@ -3945,7 +3945,6 @@ C
 C
 C     ----- CALCULATE -B- AND -BI- MATRICES -----
 C
-      LOGICAL GEOM
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW
       COMMON/HND_OUTPUT/NPRINT
