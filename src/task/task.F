@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.64 2004-11-03 00:45:52 edo Exp $
+* $Id: task.F,v 1.65 2004-11-30 03:44:42 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -69,11 +69,18 @@ c
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
+#ifdef USE_SUBGROUPS
+      logical util_sgstart
+      external util_sgstart
+#endif
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
       task_cpu  = -util_cpusec()
 *
+#ifdef USE_SUBGROUPS
+      if(util_sgstart(rtdb)) then
+#endif
 
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
@@ -259,6 +266,10 @@ c
           call util_flush(6)
         endif
       endif
+#ifdef USE_SUBGROUPS
+      endif
+      call util_sgend(rtdb)
+#endif
       call ecce_print1('single task cpu time',mt_dbl,task_cpu,1)
       call ecce_print1('single task wall time',mt_dbl,task_wall,1)
       call ga_sync()
