@@ -3,11 +3,11 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.7 1998-10-09 21:23:16 bernhold Exp $
+C     $Id: driver_e.F,v 1.8 1999-05-28 15:29:45 bernhold Exp $
 C
 C SYNOPSIS
-      Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame, FN_Int,
-     $     D_Int, FN_Gam, D_Gam,
+      Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame,
+     $     D_Int, D_Gam,
      $     TopSpin, NMO, NFrzO, NOcc, NVir, NFit, FitBas, Eig, LDEig,
      $     Contrib, E2, Mem_Opt, IBlock, JBlock, DoGrad, G_P2)
       Implicit NONE
@@ -22,7 +22,6 @@ C
       Character*(*) Mem_Opt
       Logical DoGrad
       Integer D_Int(MaxSpin, 2, 2), D_Gam(TopSpin)
-      Character*(*) FN_Int(MaxSpin, 2, 2), FN_Gam(TopSpin)
 C
 C ARGUMENTS
 C     D_Int    Handles for integral files [IN]
@@ -43,8 +42,6 @@ C     IBlock   User-requested blocksize [IN]
 C     JBlock   User-requested blocksize [IN]
 C     DoGrad   Gradient calculation required [IN]
 C     G_P2     1-density [OUT]
-C     FN_Int   Integral filenames [IN]
-C     FN_Gam   Gamma3 filenames [IN]
 C
 C RETURN VALUE
 C     .TRUE.   If calculation completed successfully.
@@ -258,49 +255,6 @@ C
      $     ' (gradient terms also evaluated)')
  9110 Format(1X, A)
 C
-C     **************
-C     * Open files *
-C     **************
-C     Open both bra and ket files if they are distinct, otherwise
-C     simply duplicate the bra handle.
-C
-      Do ISpin = 1, TopSpin
-C
-C        Integrals
-C
-         If ( DRA_Open(
-     $        FN_Int(ISpin, 1, 1)(:Inp_StrLen(FN_Int(ISpin, 1, 1))),
-     $        DRA_R, D_Int(ISpin, 1, 1) ) .ne. 0) then 
-            Write (LuErr, *) 'RIMP2_Driver_E:  Problems opening ',
-     $         'integral file for spin ', ISpin, '!'
-            RIMP2_Driver_E = .FALSE.
-            Return
-         EndIf
-         If ( BraKetSame ) then
-            D_Int(ISpin, 2, 1) = D_Int(ISpin, 1, 1)
-         Else
-            If ( DRA_Open(
-     $           FN_Int(ISpin, 2, 1)(:Inp_StrLen(FN_Int(ISpin, 2, 1))),
-     $           DRA_R, D_Int(ISpin, 2, 1) ) .ne. 0) then 
-               Write (LuErr, *) 'RIMP2_Driver_E:  Problems opening ',
-     $              'integral file for spin ', ISpin, '!'
-               RIMP2_Driver_E = .FALSE.
-               Return
-            EndIf
-         EndIf
-         If ( DoGrad ) then
-            If ( DRA_Create(MT_Dbl, NOcc(ISpin)*NVir(ISpin), NFit,
-     $           'MO 3-center gamma',
-     $           FN_Gam(ISpin)(:Inp_StrLen(FN_Gam(ISpin))),
-     $           DRA_RW, NVir(ISpin), NFit, D_Gam(ISpin) ) .ne. 0) then
-               Write (LuErr, *) 'RIMP2_Driver_E:  Problems creating ',
-     $              'gamma3 file for spin ', ISpin, '!'
-               RIMP2_Driver_E = .FALSE.
-               Return
-            EndIf ! DRA_Create
-         EndIf    ! DoGrad
-      EndDo       ! ISpin
-C
 C     *****************************************************************
 C     * Loop over occupied orbitals of both spins for the first index *
 C     *****************************************************************
@@ -412,54 +366,6 @@ C
             EndDo               ! JSpin
          EndDo                  ! I (blocks)
       EndDo                     ! ISpin
-C
-C     ************************
-C     * Close & delete files *
-C     ************************
-C
-      Do ISpin = 1, TopSpin
-C
-C        If we're doing gradients, we still need to keep them,
-C        otherwise we can delete them entirely.
-C
-         If ( DoGrad ) then
-            If ( DRA_Close(D_Int(ISpin, 1, 1)) .ne. 0) then
-               Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $              'integral file(s)!'
-               RIMP2_DRIVER_E = .FALSE.
-               Return
-            EndIf
-            If ( .NOT. BraKetSame ) then
-               If ( DRA_Close(D_Int(ISpin, 2, 1)) .ne. 0) then
-                  Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $                 'integral file(s)!'
-                  RIMP2_DRIVER_E = .FALSE.
-                  Return
-               EndIf
-            EndIf
-            If ( DRA_Close(D_Gam(ISpin)) .ne. 0) then
-               Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $              'gamma3 file(s)!'
-               RIMP2_DRIVER_E = .FALSE.
-               Return
-            EndIf
-         Else       ! .NOT. DoGrad
-            If ( DRA_Delete(D_Int(ISpin, 1, 1)) .ne. 0) then
-               Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $              'integral file(s)!'
-               RIMP2_DRIVER_E = .FALSE.
-               Return
-            EndIf
-            If ( .NOT. BraKetSame ) then
-               If ( DRA_Delete(D_Int(ISpin, 2, 1)) .ne. 0) then
-                  Write (LuErr, *) 'RIMP2_DRIVER_E:  Problems closing ',
-     $                 'integral file(s)!'
-                  RIMP2_DRIVER_E = .FALSE.
-                  Return
-               EndIf
-            EndIf
-         EndIf ! DoGrad
-      EndDo    ! ISpin
 C
 C     Print amplitude statistics if requested & clean up
 C

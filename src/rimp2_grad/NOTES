@@ -32,6 +32,9 @@ o p2am.F requires only Vx(C+A) block of L.  Irrelevant AxC block added
   in mk_l.F.  Probably can compute less of L1-4, but CHECK NEEDS FOR
   P2(iy) and W2 (all in mk_l.F)
 
+nonsep2
+o g_V should probably be distirbuted on shell blocks
+
 Helpful debugging tips:
 o Run jobs for which number of number of virtuals < occupied
 o Run jobs for which number of frozen core > actives
