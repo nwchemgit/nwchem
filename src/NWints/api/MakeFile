@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.8 2002-04-11 15:22:14 windus Exp $	
+#	$Id: MakeFile,v 1.9 2002-06-17 22:28:31 bert Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -81,7 +81,8 @@ OBJ =          $(OBJDIR)\cando_sp.obj \
                $(OBJDIR)\int_1epxvpe.obj \
                $(OBJDIR)\int_1er.obj \
                $(OBJDIR)\intd_1eso.obj \
-               $(OBJDIR)\intso_1e.obj
+               $(OBJDIR)\intso_1e.obj \
+               $(OBJDIR)\intdd_1eecp1.obj
 
 HEADERS =      int_tim.fh \
                apiP.fh \
