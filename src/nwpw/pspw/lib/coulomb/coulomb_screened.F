@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.10 2003-01-28 21:11:45 edo Exp $
+* $Id: coulomb_screened.F,v 1.11 2003-02-05 01:36:56 bylaska Exp $
 
 
 *
@@ -19,17 +19,18 @@
 
       logical value
       integer npack0,nfft3d,G(3),n2ft3d
-      integer i,j,k
+      integer i,j,k,k1,k2,k3,p,q,index
       integer zero,qzero,pzero,taskid
-      integer nx,ny,nz,nxh
+      integer nx,ny,nz,nxh,nyh,nzh
       real*8  pi,twopi,fourpi,gg,x,y,z,temp,dV,pp2,scal1
-      integer gk(2),glr(2),rgrid(2),gk2(2)
+      real*8  a(3,3)
+      integer gk(2),glr(2),gk2(2)
 
 *     **** external functions ****
       integer  G_indx
-      real*8   util_erf,lattice_omega
+      real*8   util_erf,lattice_omega,lattice_unita
       external G_indx
-      external util_erf,lattice_omega
+      external util_erf,lattice_omega,lattice_unita
 
       call nwpw_timing_start(7)
       call Parallel_taskid(taskid)
@@ -51,8 +52,6 @@
      >        MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
       if (.not. value) call errquit('out of stack memory',0)
 
 
@@ -60,11 +59,19 @@
       call D3dB_ny(1,ny)
       call D3dB_nx(1,nx)
       nxh = nx/2
+      nyh = ny/2
+      nzh = nz/2
 
       pi     = 4.0d0*datan(1.0d0)
       twopi  = 2.0d0*pi
       fourpi = 4.0d0*pi
 
+*     **** elemental vectors ****
+      do i=1,3
+         a(i,1) = lattice_unita(i,1)/nx
+         a(i,2) = lattice_unita(i,2)/ny
+         a(i,3) = lattice_unita(i,3)/nz
+      end do
       dV     = lattice_omega()/dble(nx*ny*nz)
       scal1  = 1.0d0/dble(nx*ny*nz)
 
@@ -104,22 +111,42 @@
 
 *     **** long-range part of Greens function ****
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
-      call lattice_r_grid(dbl_mb(rgrid(1)))
-      do i=1,n2ft3d
+      do k3=-nzh,nzh-1
+      do k2=-nyh,nyh-1
+      do k1=-nxh,nxh-1
+         i = k1
+         j = k2
+         k = k3
+         if (i.lt.0) i=i+nx
+         if (j.lt.0) j=j+ny
+         if (k.lt.0) k=k+nz
 
-         x    = dbl_mb(rgrid(1) +     3*(i-1))
-         y    = dbl_mb(rgrid(1) + 1 + 3*(i-1))
-         z    = dbl_mb(rgrid(1) + 2 + 3*(i-1))
-         temp = dsqrt(x*x + y*y + z*z)
+         call D3dB_ktoqp(1,k+1,q,p)
+         if (p .eq. taskid) then
+            index = (q-1)*(nx+2)*ny
+     >            + j    *(nx+2)
+     >            + i+1
 
-         if (temp .gt. 1.0d-10) then
-            temp = (util_erf(EPSILON*temp)/temp) 
-         else
-            temp = 2.0d0*EPSILON/dsqrt(pi)
+*           **** reverse y and z ****
+            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+            temp = dsqrt(x*x + y*y + z*z)
+
+            if (temp .gt. 1.0d-10) then
+              temp = (util_erf(EPSILON*temp)/temp) 
+            else
+              temp = 2.0d0*EPSILON/dsqrt(pi)
+            end if
+ 
+            dbl_mb(glr(1)+index-1) = temp*dV
+ 
          end if
 
-         dbl_mb(glr(1)+i-1) = temp*dV
       end do
+      end do
+      end do
+
 
 *     **** add long-range part to short-range part  ****
       call D3dB_rr_Sum(1,dcpl_mb(gk(1)),
@@ -127,15 +154,36 @@
      >                 dbl_mb(glr(1)))
 
 *     **** Multiply by the screening function ****
-      do i=1,n2ft3d
-         x    = dbl_mb(rgrid(1) +     3*(i-1))
-         y    = dbl_mb(rgrid(1) + 1 + 3*(i-1))
-         z    = dbl_mb(rgrid(1) + 2 + 3*(i-1))
-         temp = dsqrt(x*x + y*y + z*z)
+      do k3=-nzh,nzh-1
+      do k2=-nyh,nyh-1
+      do k1=-nxh,nxh-1
+         i = k1
+         j = k2
+         k = k3
+         if (i.lt.0) i=i+nx 
+         if (j.lt.0) j=j+ny 
+         if (k.lt.0) k=k+nz 
 
-         dbl_mb(glr(1)+i-1) 
-     >      = dbl_mb(glr(1)+i-1)
-     >      * (1.0d0-(1.0d0-dexp(-(temp/rcut)**pp2))**pp)
+         call D3dB_ktoqp(1,k+1,q,p)
+         if (p .eq. taskid) then
+            index = (q-1)*(nx+2)*ny
+     >            + j    *(nx+2)
+     >            + i+1
+
+*           **** reverse y and z ****
+            x = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+            y = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
+            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
+            temp = dsqrt(x*x + y*y + z*z)
+
+            dbl_mb(glr(1)+index-1) 
+     >        = dbl_mb(glr(1)+index-1)
+     >       * (1.0d0-(1.0d0-dexp(-(temp/rcut)**pp2))**pp)
+
+         end if
+
+      end do
+      end do
       end do
 
 
@@ -153,16 +201,19 @@
       call Pack_t_pack(0,dbl_mb(gk2(1)))
       call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc_indx))
 
-      value = MA_pop_stack(rgrid(2))
-      value = value.and.MA_pop_stack(glr(2))
+      value = MA_pop_stack(glr(2))
       value = value.and.MA_pop_stack(gk2(2))
       value = value.and.MA_pop_stack(gk(2))
+      if (.not. value) 
+     >  call errquit('coulomb_screened_init: poppingstack memory',0)
 
 
       call nwpw_timing_end(7)
 
 *     ***** DEBUG printing *****
-      call coulomb_screened_init_print(rcut,pp)
+c      call coulomb_screened_init_print(rcut,pp)
+
+
 
       return
       end
@@ -405,8 +456,9 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
       end
 
 
+
       subroutine sub_coulomb_screened_init_print(vc,rcut,pp)
-      implicit none 
+      implicit none
       real*8 vc(*)
       real*8 rcut,pp
 
@@ -417,8 +469,11 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
-      real*8  a(3,3),r,pp2,dV
+      real*8  a(3,3),r,pp2,dV,scal1
 
+      integer rtdb
+      integer  control_rtdb
+      external control_rtdb
 
 *     **** external functions ****
       real*8   lattice_unita,lattice_omega
@@ -444,17 +499,22 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
          a(i,2) = lattice_unita(i,2)/np2
          a(i,3) = lattice_unita(i,3)/np3
       end do
-      dV = lattice_omega()/dble(np1*np2*np3)
+      scal1 = 1.0d0/dble(np1*np2*np3)
+      dV    = lattice_omega()/dble(np1*np2*np3)
 
+
+      call D3dB_r_SMul(1,scal1,vc,vc)
 
 *     **** grid points in coordination space ****
       k3=0
       k2=0
       do k1 = -nph1, nph1-1
-
-         i = k1 + nph1
-         j = k2 + nph2
-         k = k3 + nph3
+         i = k1
+         j = k2
+         k = k3
+         if (i.lt.0) i=i+np1
+         if (j.lt.0) j=j+np2
+         if (k.lt.0) k=k+np3
 
          call D3dB_ktoqp(1,k+1,q,p)
          if (p .eq. taskid) then
@@ -463,21 +523,25 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
      >            + i+1
 
 *         **** reverse y and z ****
-          r = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
+          r = a(1,1)*k1
+          !r = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
           !r(2) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
           !r(3) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
           if (dabs(r).gt.1.0d-4) then
-          write(56,*) r,vc(index)/(dble(np1*np2*np3)),
+          write(56,*) r,vc(index),
      >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
           else
-          write(56,*) r,vc(index)/(dble(np1*np2*np3)),0.0d0
+          write(56,*) r,vc(index),0.0d0
           end if
 
          end if
       end do
-
       call util_flush(56)
+
+      rtdb = control_rtdb()
+      call dplot_gcube_write(rtdb,"kernel.cube",0,
+     >          "Screened Coulomb KERNEL",vc)
 
       return
       end
