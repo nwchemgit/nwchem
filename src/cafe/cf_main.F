@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.80 2000-09-20 22:41:18 d3j191 Exp $
+c $Id: cf_main.F,v 1.81 2000-09-20 22:48:44 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2190,7 +2190,7 @@ c
       endif
       else
       do 7 i=1,nums
-      if(issgm(i).ge.ifr.anf.issgm(i).le.ito) then
+      if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
       tag=snam(i)
       do 71 j=1,16
       if(target(j:j).eq.'?') tag(j:j)='?'
