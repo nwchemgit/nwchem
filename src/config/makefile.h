@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.312 2000-03-13 19:52:02 edo Exp $
+# $Id: makefile.h,v 1.313 2000-04-07 16:40:49 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1165,16 +1165,30 @@ ifeq ($(TARGET),DECOSF)
 # -fpe2 and call to util/dec_fpe.f from nwchem.F necessary to avoid
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
-#              FOPTIONS = -i8 -assume noaccuracy_sensitive -align dcommons -math_library fast -fpe2 -check nounderflow
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
-              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower
+              FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow 
+
               COPTIONS = 
-             FOPTIMIZE = -O 
+              LDOPTIONS = -O
+             FOPTIMIZE = -O  -tune ev6 -arch ev6
+             FVECTORIZE = -fast -O5 -tune ev6 -arch ev6
              COPTIMIZE = -O
 
-               DEFINES = -DDECOSF -DEXT_INT
-             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+               DEFINES = -DDECOSF -DEXT_INT -DPARALLEL_DIAG
+             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs   -llapack -lblas 
+#             CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs  -latlas -llapack -lblas -latlas
             EXTRA_LIBS = -laio -lpthreads 
+ifeq ($(BUILDING_PYTHON),python)
+      EXTRA_LIBS += -lX11
+
+ifdef LARGE_FILES
+  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
+  EXTRA_LIBS += $(shell getconf LFS_LIBS)
+  DEFINES    += -DLARGE_FILES
+endif
+
+
+endif
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
