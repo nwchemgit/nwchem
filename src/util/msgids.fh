@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.24 1995-12-29 22:11:58 vg038 Exp $
+C$Id: msgids.fh,v 1.25 1996-02-07 00:37:11 vg038 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -54,6 +54,8 @@ C
       integer msg_sym_1, msg_sym_2
       integer msg_int2e_file
       integer msg_riscf_mem
+      integer msg_riscf_put_1
+      integer msg_riscf_put_2
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -189,5 +191,7 @@ c
       parameter (msg_int2e_file = msg_ftn_base - 94)  ! ddscf: int2e_file.F
 c
       parameter (msg_riscf_mem = msg_ftn_base - 95)  ! ddscf: riscf_fock.F
+      parameter (msg_riscf_put_1 = msg_ftn_base - 96)! ddscf: riscf_io.F
+      parameter (msg_riscf_put_2 = msg_ftn_base - 97)! ddscf: riscf_io.F
 
 
