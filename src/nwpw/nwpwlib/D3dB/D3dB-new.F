@@ -2,7 +2,7 @@ c  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.21 2004-03-14 14:36:25 bylaska Exp $
+* $Id: D3dB-new.F,v 1.22 2004-03-14 17:28:49 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1991,104 +1991,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       return
       end
 
+             
 #ifdef MPI
-*     ***********************************
-*     *					*
-*     *	   D3dB_c_transpose_jk_init	*
-*     *					*
-*     ***********************************
-
-      subroutine D3dB_c_transpose_jk_init(nb)
-      implicit none
-      integer nb
-
-#include "mafdecls.fh"
-
-      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
-      common	/ D3dB / nq,nx,ny,nz
-
-c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
-c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)
-c     integer i1_start(NFFT3+1)
-c     integer i2_start(NFFT3+1)
-      integer iq_to_i1(2,NBLOCKS)
-      integer iq_to_i2(2,NBLOCKS)
-      integer i1_start(2,NBLOCKS)
-      integer i2_start(2,NBLOCKS)
-      common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
-
-*     **** local variables ****
-      integer proc_to,proc_from
-      integer pto,qto,np,taskid
-      integer pfrom,qfrom
-      integer phere,qhere
-      integer index1,index2,itmp
-      integer i,j,k,it
-      logical value
-
-*     **** allocate trans_blk common block ****
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
-     >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
-     >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
-
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
-     >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
-     >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
-
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
-
-      index1 = 1 
-      index2 = 1
-      do it=0,np-1
-         proc_to   = mod(taskid+it,np)
-         proc_from = mod(taskid-it+np,np)
-c        i1_start(it+1) = index1
-c        i2_start(it+1) = index2
-         int_mb(i1_start(1,nb)+it) = index1
-         int_mb(i2_start(1,nb)+it) = index2
-
-         do k=1,nz(nb)
-         do j=1,ny(nb)
-
-*           **** packing scheme **** 
-            call D3dB_ktoqp(nb,k,qhere,phere)
-            call D3dB_ktoqp(nb,j,qto,pto)
-            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
-               do i=1,(nx(nb)/2+1)
-                  itmp = i + (j-1)*(nx(nb)/2+1) 
-     >                     + (qhere-1)*(nx(nb)/2+1)*ny(nb)
-c                 iq_to_i1(itmp) = index1
-                  int_mb(iq_to_i1(1,nb)+itmp-1) = index1
-                  index1 = index1 + 1
-               end do
-            end if
-             
-*           **** unpacking scheme ****
-            call D3dB_ktoqp(nb,j,qhere,phere)
-            call D3dB_ktoqp(nb,k,qfrom,pfrom)
-            if ((phere.eq.taskid).and.(pfrom.eq.proc_from)) then
-               do i=1,(nx(nb)/2+1)
-                  itmp = i + (k-1)*(nx(nb)/2+1) 
-     >                     + (qhere-1)*(nx(nb)/2+1)*ny(nb)
-c                 iq_to_i2(itmp) = index2
-                  int_mb(iq_to_i2(1,nb)+itmp-1) = index2
-                  index2 = index2 + 1
-               end do
-            end if
-         end do
-         end do
-      end do
-c     i1_start(np+1) = index1
-c     i2_start(np+1) = index2
-      int_mb(i1_start(1,nb)+np) = index1
-      int_mb(i2_start(1,nb)+np) = index2
-
-      return
-      end
-             
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_jk		*
@@ -2141,19 +2045,21 @@ c     integer i2_start(NFFT3+1)
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
-      integer status(512),request(512),reqcnt
+      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer taskid,np
       
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
 *     **** pack A(i) array ****
+!DIR$ ivdep
       do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
+!DIR$ ivdep
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
@@ -2194,7 +2100,6 @@ c     integer msgid
          msgtype   = 1
       
          if (msglen.gt.0) then
-*           reqcnt = reqcnt + 1
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
@@ -2207,6 +2112,7 @@ c     integer msgid
       call MPI_WAITALL(reqcnt,request,status,mpierr)
 
 *     **** unpack A(i) array ****
+!DIR$ ivdep
       do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
@@ -2216,7 +2122,6 @@ c     integer msgid
 #endif
 
 
-#ifdef TCGMSG
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_jk_init	*
@@ -2446,7 +2351,8 @@ c     i2_start(np+1) = index2
       full_ps=value
       return
       end
-             
+
+#ifdef TCGMSG
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_jk		*
@@ -2561,6 +2467,7 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** unpack A(i) array ****
+!DIR$ ivdep
       do i=1,(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
