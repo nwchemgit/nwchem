@@ -24,7 +24,6 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
     JButton doneButton = new JButton("done");
     
     double time,rms1,rms2;
-    int ndx[] = new int [1000];
     
     public nwchem_RMS(){
 	
@@ -66,6 +65,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	rmsPlot.setTitle("RMS Deviation vs Time");
 	rmsaPlot.setTitle("Atomic RMS Deviation");
 	rmsrPlot.setTitle("Segment RMS Deviation");
+	rmsrPlot.setBars(1.0,0.0);
 	rmsPlot.setSize(700,300);
 	rmsaPlot.setSize(350,300);
 	rmsrPlot.setSize(350,300);
@@ -92,30 +92,19 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	    rmsPlot.fillPlot();
 	    card=br.readLine();
 	    int numa=0;
-	    int m,n;
-            int ndxs=-1;
-	    int mprev=-1;
 	    first=true;
 	    while(!card.startsWith("Analysis")){
 		rms1=Double.valueOf(card.substring(27,38)).doubleValue();
-		m=Integer.parseInt(card.substring(11,16).trim());
-                if(m!=mprev){mprev=m; ndxs++;}; 
-		n=Integer.parseInt(card.substring(17,21).trim());
-		ndx[ndxs]=n;
 		numa++;
 		rmsaPlot.addData(1,numa,rms1,!first,false); first=false;
 		card=br.readLine();
 	    };
 	    numa=0;
+            int n;
 	    first=true;
 	    while((card=br.readLine()) != null){
 		rms1=Double.valueOf(card.substring(12,23)).doubleValue();
-		if(numa==0){
-		    rmsrPlot.addData(0,0,rms1,!first,false); first=false;
-		} else {
-		    rmsrPlot.addData(0,ndx[numa-1],rms1,!first,false);
-		}; 
-		rmsrPlot.addData(0,ndx[numa],rms1,!first,false); numa++;
+		rmsrPlot.addData(0,numa,rms1,!first,false); numa++;
 	    };
 	    rmsaPlot.fillPlot();
 	    br.close();
@@ -128,17 +117,6 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	setVisible(true);
 
     }
-
-    //    void plot_rms(String s){
-    //	int ndx = Integer.parseInt(s);
-    //	System.out.println("Plot index "+ndx);
-    //	boolean first=true;
-    //	for(int i=0; i<numdat; i++){
-    //	    rmsPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
-    //	};
-    //	rmsPlot.fillPlot();
-    //	iset++;
-    // };
 
     void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
 			  int wx, int wy){
