@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.14 2001-05-05 05:20:43 edo Exp $
+* $Id: create_contour.F,v 1.15 2002-03-02 19:58:27 edo Exp $
 *
       Implicit None
 *
@@ -94,7 +94,7 @@ cedo      double precision rdens_atom(natom*natom)
       nxyz    = 3*nAtom
       LResult = MA_Push_Get(MT_Dbl,nxyz,'xyz',l_xyz,k_xyz)
       Call ErrMem(LResult,'C_C: Failed to allocate xyz',0)
-      LResult = MA_alloc_get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
+      LResult = MA_alloc_get(MT_Byte,nAtom*16,'CTags',l_Tags,k_Tags)
       Call ErrMem(LResult,'C_C: Failed to allocate Tags',0)
       LResult = MA_Push_Get(MT_Dbl,nAtom,'Charge',l_Charge,k_Charge)
       Call ErrMem(LResult,'C_C: Failed to allocate Charge',0)
@@ -113,10 +113,10 @@ cedo      double precision rdens_atom(natom*natom)
          End Do
       End If
 *
-      LResult = MA_Pop_Stack(l_Charge)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Charge',0)
-!      LResult = MA_Pop_Stack(l_Tags)
-!      Call ErrMem(LResult,'C_C: Failed to deallocate Tags',0)
+      if(.not.MA_Pop_Stack(l_Charge))
+     .     Call errquit('C_C: Failed to deallocate Charge',0)
+!      if(.not.MA_Pop_Stack(l_Tags)) 
+!     .     call errquit('C_C: Failed to deallocate CTags',0)
 *
       LResult = MA_Push_Get(MT_Dbl,nGrPP*nAtom,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
@@ -304,7 +304,6 @@ c
 !            call dplot_nobq(natom,byte_mb(k_tags),
 !     .           int_mb(k_iniz),int_mb(k_ifin),
 !     ,           dbl_mb(irchi_atom),dbl_mb(k_rdat))
-            if(.not.ma_free_heap(l_tags)) call errquit(' cc: heap',0)
 *
 
          call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
@@ -333,32 +332,9 @@ c
       End If
 *
 *---- Deallocate Scratch memory
-      LResult = MA_Pop_Stack(l_Scr4)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Scr4',0)
-      LResult = MA_Pop_Stack(l_Scr3)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Scr3',0)
-      LResult = MA_Pop_Stack(l_Hess)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Hess',0)
-      LResult = MA_Pop_Stack(l_Scr2)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Scr2',0)
-      LResult = MA_Pop_Stack(l_Scr1)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Scr1',0)
-      LResult = MA_Pop_Stack(l_ibf)
-      Call ErrMem(LResult,'C_C: Failed to deallocate ibf',0)
-      LResult = MA_Pop_Stack(l_Coef)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Coef',0)
-      LResult = MA_Pop_Stack(l_Expo)
-      Call ErrMem(LResult,'C_C: Failed to deallocate Expo',0)
-      LResult = MA_Pop_Stack(l_ifin)
-      Call ErrMem(LResult,'C_C: Failed to deallocate ifin',0)
-      LResult = MA_Pop_Stack(l_iniz)
-      Call ErrMem(LResult,'C_C: Failed to deallocate iniz',0)
-      LResult = MA_Pop_Stack(l_rq0)
-      Call ErrMem(LResult,'C_C: Failed to deallocate rq0',0)
-      LResult = MA_Pop_Stack(l_rq)
-      Call ErrMem(LResult,'C_C: Failed to deallocate rq',0)
-      LResult = MA_Pop_Stack(l_xyz)
-      Call ErrMem(LResult,'C_C: Failed to deallocate xyz',0)
+      if(.not.ma_free_heap(l_tags)) call errquit(' cc: heap',0)
+      if(.not.MA_chop_Stack(l_xyz))
+     .  Call errquit('C_C: Failed to deallocate xyz',0)
 *
 *---- Put values into the global array and synchronize
       Call GA_Put(g_Vls,iOffG,iOffG+nGrPP-1,1,1,Values(iOffG),nGrPP)
@@ -422,7 +398,7 @@ c
       Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, ibf, zprim, nzprim, acc_gauss)
 c
-C$Id: create_contour.F,v 1.14 2001-05-05 05:20:43 edo Exp $
+C$Id: create_contour.F,v 1.15 2002-03-02 19:58:27 edo Exp $
 c
       implicit none
 c      
