@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.2 2000-06-08 21:54:42 bert Exp $	
+#	$Id: MakeFile,v 1.3 2000-07-18 18:09:47 edo Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
