@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.26 2002-01-01 00:14:06 windus Exp $
+C $Id: hess_init.F,v 1.27 2002-01-14 20:40:51 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -161,7 +161,9 @@ c     Get information about fitting and scale factors
 c
         if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
      $        ocdfit = .false.
-        write(0,*) ' ocdfit ',ocdfit
+        if(oprint) then
+           write(luout,*) ' ocdfit ',ocdfit
+        endif
         if (ocdfit) jfac(1) = 0.0d0 
         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
      $        call errquit('gradients: xfac not in rtdb ', 0)

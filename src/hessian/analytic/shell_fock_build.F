@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.20 2002-01-09 00:54:47 windus Exp $
+c $Id: shell_fock_build.F,v 1.21 2002-01-14 20:40:51 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -741,6 +741,8 @@ c
 #include "global.fh"
 #include "bgj.fh"
 #include "mafdecls.fh"
+#include "util.fh"
+#include "stdio.fh"
       integer geom
       integer basis
       double precision jfac(*),kfac(*)
@@ -752,12 +754,17 @@ c
       integer g_xc
       integer ifock
       integer i
+      logical oprint
       character*4 scftype
 c
       scftype='RHF'
       if(ndens.eq.2) scftype='UHF'
-      write(0,*) ' newfockxc nder ',nder, ' nfock ',nfock,
-     ,     ' ndens ',ndens
+      oprint= util_print('fock_xc',print_debug) 
+      if(oprint) then
+         write(luout,*) ' newfockxc nder ',nder, ' nfock ',nfock,
+     ,        ' ndens ',ndens
+         call util_flush(luout)
+      endif
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
@@ -773,8 +780,9 @@ c
      ,      ndens,  g_dens, g_xc,scftype,.true.)
       call ga_add(1d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
-      if (bgj_print() .gt. 1) then
-         write(*,*)'*** fock_2e: fock matrix',ifock
+      if (oprint) then
+         write(luout,*)'*** fock_2e: fock matrix',ifock
+         call util_flush(luout)
          call ga_print(g_fock)
       endif
       if (.not.ga_destroy(g_xc)) then
