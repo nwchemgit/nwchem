@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.42 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: psi.F,v 1.43 2003-10-20 16:46:18 bylaska Exp $
 *
 
 
@@ -1011,28 +1011,37 @@
 *     **** local variables ****
       logical done
       integer i,j,neall,maxit_orb,maxit_orbs
-      real*8 error,error_out
+      real*8 error,error_out,tim1,tim2,tim
 
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
+      tim = 0.0d0
       neall = ne(1)+ne(2)
       maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
       j = 0
  2    j = j+1
         error = 0.0d0
-        do i=neall,1,-1
+        !do i=neall,1,-1
+        do i=1,neall
+          call current_second(tim1)
           call psi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                         maxerror,
      >                         0.1d0,i,error_out)
+          call current_second(tim2)
+c          write(*,*) "outeriteration ",j,"orbital ",i,
+c     >               " time=",(tim2-tim1)
+c          write(*,*)
+          tim = tim + (tim2-tim1)
           error = error+error_out
         end do
         error = error/dble(neall)
 
         done = ((j.gt.maxit_orbs).or.(error.lt.maxerror))
       if (.not.done) go to 2
+c      write(*,*) "TIME ALL=",tim
 
       return
       end
@@ -1194,6 +1203,8 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
+c      write(*,*) "iterations=",it," eig=",e0," error=",error_out,
+c     >           theta
       error_out = dabs(e0-eold)
       return
       end
@@ -1502,8 +1513,9 @@ c     write(*,*)
 
 *     **** local variables ****
       logical ok
-      integer n,psi_ptr,np
+      integer ii,n,psi_ptr,np
       integer x(2)
+      real*8  sum
 
       call Parallel_np(np)
 
@@ -1522,61 +1534,59 @@ c     write(*,*)
 
 *     **** spin up orbital **** 
       if (i.le.ne(1)) then
+
+c       call Pack_ccmn_dot(1,ne(1),1,
+c    >                     dcpl_mb(psi_ptr),
+c    >                     Horb,
+c    >                     dbl_mb(x(1)))
 c       do n=1,(ne(1))
-c       !if (n.ne.i) then
-c          call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-c    >                      Horb,
-c    >                      dbl_mb(x(1)+n-1))
-c       !end if
+c          call daxpy(2*npack1,
+c    >               (-dbl_mb(x(1)+n-1)),
+c    >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
+c    >               Horb,1) 
 c       end do     
-c       if (np.gt.1)
-c    >    call D3dB_Vector_SumAll(ne(1),dbl_mb(x(1)))
 
-        call Pack_ccmn_dot(1,ne(1),1,
-     >                     dcpl_mb(psi_ptr),
-     >                     Horb,
-     >                     dbl_mb(x(1)))
-
-        do n=1,(ne(1))
-        !if (n.ne.i) then
-c          call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-1)),
-c    >                        dcpl_mb(psi_ptr+(n-1)*npack1),
-c    >                        Horb) 
+        ii = i
+        do n=1,(ii)
+           call Pack_cc_dot(1,
+     >            dcpl_mb(psi_ptr +(n-1)*npack1),
+     >            Horb,
+     >            sum)
            call daxpy(2*npack1,
-     >               (-dbl_mb(x(1)+n-1)),
+     >               (-sum),
      >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
      >               Horb,1) 
-        !end if
         end do     
+
+
 
 *     **** spin down orbital ****      
       else       
+
+c       call Pack_ccmn_dot(1,ne(2),1,
+c    >                     dcpl_mb(psi_ptr+ne(1)*npack1),
+c    >                     Horb,
+c    >                     dbl_mb(x(1)))
 c       do n=(ne(1)+1),(ne(1)+ne(2))
-c       !if (n.ne.i) then
-c          call Pack_cc_idot(1,dcpl_mb(psi_ptr+(n-1)*npack1),
-c    >                      Horb,
-c    >                      dbl_mb(x(1)+n-ne(1)-1))
-c       !end if
+c          call daxpy(2*npack1,
+c    >               (-dbl_mb(x(1)+n-ne(1)-1)),
+c    >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
+c    >               Horb,1) 
 c       end do     
-c       if (np.gt.1)
-c    >   call D3dB_Vector_SumAll(ne(2),dbl_mb(x(1)))
 
-        call Pack_ccmn_dot(1,ne(2),1,
-     >                     dcpl_mb(psi_ptr+ne(1)*npack1),
-     >                     Horb,
-     >                     dbl_mb(x(1)))
-
-        do n=(ne(1)+1),(ne(1)+ne(2))
-        !if (n.ne.i) then
-c          call Pack_cc_daxpy(1,(-dbl_mb(x(1)+n-ne(1)-1)),
-c    >                        dcpl_mb(psi_ptr+(n-1)*npack1),
-c    >                        Horb) 
+        ii = i - ne(1)
+        do n=(ne(1)+1),(ne(1)+ii)
+           call Pack_cc_dot(1,
+     >            dcpl_mb(psi_ptr +(n-1)*npack1),
+     >            Horb,
+     >            sum)
            call daxpy(2*npack1,
-     >               (-dbl_mb(x(1)+n-ne(1)-1)),
+     >               (-sum),
      >               dcpl_mb(psi_ptr+(n-1)*npack1),1,
      >               Horb,1) 
-        !end if
         end do     
+
+
       end if
 
 *     **** release stack memory ****
@@ -1772,6 +1782,46 @@ c    >                        Horb)
      >           dcpl_mb(psi1(1)),1)
 
 c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))  
+      return
+      end
+
+
+*     ***************************
+*     *				*
+*     *		psi_1get_psi	*
+*     *				*
+*     ***************************
+      subroutine psi_1get_psi(rpsi)
+      implicit none
+      complex*16 rpsi(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+      call zcopy(npack1*(ne(1)+ne(2)),
+     >           dcpl_mb(psi1(1)),1,
+     >           rpsi,1)
+
+      return
+      end
+
+
+*     ***************************
+*     *				*
+*     *		psi_2get_psi	*
+*     *				*
+*     ***************************
+      subroutine psi_2get_psi(rpsi)
+      implicit none
+      complex*16 rpsi(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+   
+      call zcopy(npack1*(ne(1)+ne(2)),
+     >           dcpl_mb(psi2(1)),1,
+     >           rpsi,1)
+
       return
       end
 
@@ -2407,6 +2457,69 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          value = MA_pop_stack(MM(2))
          if (.not. value) 
      >    call errquit(
+     >         'error popping stack memory in psi_1check_Tangent',0)
+
+ 101     continue
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_2check_Tangent      *
+*     *                                 *
+*     ***********************************
+*
+*   This routine checks the accuracy of the tangent vector.
+*   MM = Yt*H = Yt*(I-Y*Yt)*G = Yt*G - Yt*Y*Yt*G = Yt*G - Yt*G == 0
+
+*     Updated - 5-18-2002
+*
+      subroutine psi_2check_Tangent(H)
+      implicit none
+      complex*16 H(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+      integer ms,n,indx,i,j
+      integer MM(2)
+      real*8 sum
+
+      do ms=1,ispin
+         n = ne(ms)
+         if (n.eq.0) go to 101  !*** ferromagnetic check ***
+         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         if (.not. value)
+     >   call errquit('out of stack memory in psi_1check_Tangent',0)
+
+         indx = (ms-1)*ne(1)*npack1
+
+*        **** calculate MM = Yt*H ****
+         call Grsm_ggm_dot(npack1,n,
+     >                     dcpl_mb(psi2(1)+indx),
+     >                     H(1+indx),
+     >                     dbl_mb(MM(1)))
+
+*        **** write out MM matrix  ****
+         sum = 0.0d0
+         do j=1,n
+         do i=1,n
+            sum = sum + dbl_mb(MM(1)+(i-1)+(j-1)*n)
+         end do
+         end do
+         write(*,*) "psi_2check_Tangent:",sum
+
+
+
+         value = MA_pop_stack(MM(2))
+         if (.not. value)
+     >    call errquit(
      >         'error popping stack memory in psi_1check_Tangent',0,
      &       MA_ERR)
 
@@ -2415,6 +2528,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       return
       end
+
 
 
 *     ***********************************
@@ -2474,11 +2588,96 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
+     > call errquit('psi_1get_Tgradient:error popping stack',1)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		psi_1get_Gradient	*
+*     *					*
+*     ***********************************
+
+*     THpsi = Hpsi ! used by Projected Grassman minimizers
+*
+      subroutine psi_1get_Gradient(THpsi,Eout)
+      implicit none
+      complex*16 THpsi(*)
+      real*8 Eout
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+ 
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
+      call electron_run(dcpl_mb(psi1(1)),
+     >                   dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)),
+     >                   dbl_mb(rho1_all(1)))
+
+      Eout =  electron_energy(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
+
+      call electron_get_Gradient(THpsi)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		psi_1gen_Tangent	*
+*     *					*
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Y^t*Hpsi ! used by Grassman minimizers
+*
+      subroutine psi_1gen_Tangent(THpsi)
+      implicit none
+      complex*16 THpsi(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+      integer tmp1(2),ii,jj
+
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('psi_1gen_Tangent:out of stack memory',0)
+
+      call electron_gen_psiTangenthml(dcpl_mb(psi1(1)),
+     >                                THpsi,
+     >                                dbl_mb(tmp1(1)))
+      call electron_gen_Tangent(dcpl_mb(psi1(1)),
+     >                          dbl_mb(tmp1(1)),
+     >                          THpsi)
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
      > call errquit('error popping stack memory in psi_1get_Tradient',0,
      &       MA_ERR)
 
       return
       end
+
+
 
 
 
@@ -2536,11 +2735,91 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
+     >call errquit('psi_2get_Tgradient:error popping stack',1)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *		psi_2get_Gradient	*
+*     *					*
+*     ***********************************
+      subroutine psi_2get_Gradient(option,THpsi,Eout)
+      implicit none
+      integer    option
+      complex*16 THpsi(*)
+      real*8     Eout
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     *** local variables ****
+
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
+      if (option.le.1) then
+        call electron_run(dcpl_mb(psi2(1)),
+     >                     dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                     dbl_mb(rho2_all(1)))
+      end if
+
+      Eout =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
+
+      call electron_get_Gradient(THpsi)
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		psi_2gen_Tangent	*
+*     *					*
+*     ***********************************
+      subroutine psi_2gen_Tangent(THpsi)
+      implicit none
+      complex*16 THpsi(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     *** local variables ****
+      logical value
+      integer tmp1(2)
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('psi_2gen_Tangent: out of stack memory',0)
+
+      call electron_gen_psiTangenthml(dcpl_mb(psi2(1)),
+     >                                THpsi,
+     >                                dbl_mb(tmp1(1)))
+      call electron_gen_Tangent(dcpl_mb(psi2(1)),
+     >                          dbl_mb(tmp1(1)),
+     >                          THpsi)
+      
+      value = MA_pop_stack(tmp1(2))
+      if (.not. value) 
      > call errquit('error popping stack memory in psi_1get_Tradient',0,
      &       MA_ERR)
 
       return
       end
+
+
 
 
 *     ***********************************
@@ -3337,6 +3616,36 @@ c    >                            dcpl_mb(dng1(1)))
 #include "psi.fh"
 
 c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		psi_1Shml 	      	*
+*     *					*
+*     ***********************************
+      subroutine psi_1Shml(S0,S0hml)
+      implicit none
+      complex*16 S0(*)
+      complex*16 S0hml(*)
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      integer ms,n,shift1,shift2
+
+      call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(hml(1)))
+      do ms=1,ispin
+            shift1 = 1 + (ms-1)*ne(1)*npack1
+            shift2 =     (ms-1)*ne(1)*ne(1)
+            n     = ne(ms)
+            call DGEMM('N','N',2*npack1,n,n,
+     >                (1.0d0),
+     >                S0(shift1),            2*npack1,
+     >                dbl_mb(hml(1)+shift2), n,
+     >                (0.0d0),
+     >                S0hml(shift1),         2*npack1)
+      end do
       return
       end
 
