@@ -75,13 +75,9 @@ c               write(6,*) ' sigma: j=',j
       goto 40
 c
 1000  continue
-c     collapse the individual components using the hamitonian
-c     i/o buffer as work space for ga_dgop
+c
       do 1010 iroot = 1, nroot
-         do 1020 i = 1, nci, lenbuf
-            ndgop = min(lenbuf, nci-i+1)
-            call ga_dgop (99, si(i, iroot), ndgop, '+', rbuff)
-1020     continue
+         call ga_dgop (99, si(1, iroot), nci, '+')
 1010  continue
 c
       end

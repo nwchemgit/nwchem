@@ -19,8 +19,8 @@ c
 c
       if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',0)
       call ga_list_nodeid(pmap, ga_nnodes()) ! Map to msg passing layer
-      write(6,*) ga_nodeid(),' processor map ', 
-     $     (pmap(i),i=0,ga_nnodes()-1)
+*      write(6,*) ga_nodeid(),' processor map ', 
+*     $     (pmap(i),i=0,ga_nnodes()-1)
       node0 = pmap(0)
 c
       if (ga_nodeid().gt.0) then

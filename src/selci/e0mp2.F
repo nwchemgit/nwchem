@@ -15,25 +15,26 @@ c
 c subroutine to get orbital eigenvalues to be used in MP pt.
 c currently reads ascii eigenvalues from a file called 'eigins'
 c
-      if (norbs.gt.norbsmx) then
-         call errquit('norbs > norbsmx = ',norbsmx)
-      endif
-      isitthere = .false.
-      inquire(file=eigins,exist=isitthere)
-      if (.not.isitthere) then
-         call errquit(' file eigins missing ',911)
-      endif
-      open(unit=ifleig,form='formatted',access='sequential',
-     &     status='old',file=eigins)
-      read(ifleig,*)(eps(i),i=1,norbs)
-      call dscal(norbs,0.5d00,eps,1)
-c
-c:debug 2
-      write(6,*) ' Orbital eigenvalues '
-      write(ifllog,10000) (eps(i),i=1,norbs)
-10000 format(1x,6f12.6)
-c
-      return
+      call errquit('select: MP denominators not functional',0)
+c$$$      if (norbs.gt.norbsmx) then
+c$$$         call errquit('norbs > norbsmx = ',norbsmx)
+c$$$      endif
+c$$$      isitthere = .false.
+c$$$      inquire(file=eigins,exist=isitthere)
+c$$$      if (.not.isitthere) then
+c$$$         call errquit(' file eigins missing ',911)
+c$$$      endif
+c$$$      open(unit=ifleig,form='formatted',access='sequential',
+c$$$     &     status='old',file=eigins)
+c$$$      read(ifleig,*)(eps(i),i=1,norbs)
+c$$$      call dscal(norbs,0.5d00,eps,1)
+c$$$c
+c$$$c:debug 2
+c$$$      write(6,*) ' Orbital eigenvalues '
+c$$$      write(ifllog,10000) (eps(i),i=1,norbs)
+c$$$10000 format(1x,6f12.6)
+c$$$c
+c$$$      return
       end
       double precision function selci_e0mp2(iocc)
 #include "implicit.fh"

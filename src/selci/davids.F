@@ -4,7 +4,7 @@
 #include "mptr.fh"
 #include "cselcifiles.fh"
 #include "global.fh"
-      parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
+      parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 10)
 c
       dimension q(lword)
       dimension roots(*)        ! Return eigenvalues to calling code
@@ -70,7 +70,7 @@ c     allocate core
 c
       nrm = nroot*maxvec
       nnrm = nrm*(nrm+1)/2
-      iwork = selci_mptr( max(nnrm+2*maxvec, nroot*nci) )
+      iwork = selci_mptr( max(nnrm+2*nroot*maxvec, nroot*nci) )
       iroots = selci_mptr(nroot)
       ihd = selci_mptr(nci)
       ialpha = selci_mptr(nrm*nrm)
@@ -109,7 +109,7 @@ c
 #include "cbuff.fh"
 #include "mptr.fh"
 #include "global.fh"
-      parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 5)
+      parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 10)
 c
       dimension work(*), roots(nroot), hd(nci), alpha(*), redh(*),
      $     conv(nroot), de(nroot), ci(nci, nroot, maxvec),
@@ -131,9 +131,9 @@ c
 c
 c     make the starting guesses
 c
-        write(6,*) ' Diagonal elements '
-        call selci_analci(hd,indxci,ioconf,nci,noconf,
-     $       norbs,nintpo,nbitpi,1)
+*        write(6,*) ' Diagonal elements '
+*        call selci_analci(hd,indxci,ioconf,nci,noconf,
+*     $       norbs,nintpo,nbitpi,1)
         call selci_makges(nci,nroot,ci,hd,iflciv,roots)
         do 4 ir = 1,nroot
            write(6,*)
@@ -147,18 +147,12 @@ c
 c     iterate the ci
 c
       iter = 1
-      itermx = 50
+      itermx = 150
       nvec = 1
  20   continue
       call util_flush(6)
       call ga_brdcst(101, ci(1,1,nvec), mdtob(nroot*nci), 0)
-      if (iter.eq.1) then
-         call selci_sigsav(iflham,nci,nroot,hd,
-     $        ci(1,1,nvec),si(1,1,nvec))
-      else
-         call selci_sigma(iflham,nci,nroot,hd,
-     $        ci(1,1,nvec),si(1,1,nvec))
-      endif
+      call selci_sigma(iflham,nci,nroot,hd,ci(1,1,nvec),si(1,1,nvec))
 c      do 41 ir = 1,nroot
 c         write(6,*)
 c         write(6,*) ' sigma vectors ',ir,nvec
@@ -224,7 +218,7 @@ c     a previous (related?) calculation?
 c
       rewind iflciv
       read(iflciv,end=5) nnroot, nnci
-      if (nnroot.eq.nroot .and. nnci.eq.nci) then
+      if (nnroot.ge.nroot .and. nnci.eq.nci) then
          write(6,1)
  1       format(/' Using trial vectors from disk '/)
          call selci_sread(iflciv,roots,nroot)
@@ -322,25 +316,28 @@ c
  10      continue
  5    continue
 c
-c      write(6,*) ' reduced h matrix '
-c      call selci_prtri(redh,nvec*nroot)
+*      write(6,*) ' reduced h matrix '
+*      call selci_prtri(redh,nvec*nroot)
       nrnv = ih
       iredh = 1
       ibig = iredh + nrnv
       iibig = ibig + nvec*nroot
+c
       call dcopy(nrnv,redh,1,work(iredh),1)
       call selci_yacobi(work(iredh),alpha,nroot*nvec,
      $     work(ibig),work(iibig))
-c      write(6,*) ' reduced h e-vectors'
-c      call selci_output(alpha,1,nroot*nvec,1,nroot*nvec,nroot*nvec,
-c     $     nroot*nvec,1)
+*      write(6,*) ' reduced h e-vectors'
+*      call selci_output(alpha,1,nroot*nvec,1,nroot*nvec,nroot*nvec,
+*     $     nroot*nvec,1)
+*      write(6,*) ' reduced h evals '
+*      call selci_output(work(ibig),1,nroot*nvec,1,1,nroot*nvec,1,1)
       do 25 iroot = 1,nroot
          rnew = work(ibig-1 + iroot)
-         if (nvec.eq.nnvec) de(iroot) = rnew - roots(iroot)
+         if (nvec.eq.nnvec) then
+            de(iroot) = rnew - roots(iroot)
+         endif
          roots(iroot) = rnew
  25   continue
-c      write(6,*) ' the new roots '
-c      call selci_output(roots,1,nroot*nvec,1,1,nroot*nvec,1,1)
 c
 c     if nvec = maxvec then take lowest nroot eigen vectors
 c     as the new expansion set, put nvec = 1 and rediagonalise

@@ -1,7 +1,6 @@
       logical function selci(rtdb)
       implicit none
 #include "rtdb.fh"
-#include "context.fh"
 #include "util.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -10,6 +9,9 @@
       integer rtdb              ! [input]
 c
 c     Driver for the selected CI code
+c
+c     0) Run SCF program unless MCSCF keyword is present in which
+c        case run that.
 c
 c     1) The configuration generate can be run at either input
 c        time or now from default (SCF/MCSCF with FZC) generated input.
@@ -36,12 +38,26 @@ c
       double precision stols(max_thresh)
       integer nroot, iwpt
       double precision diag_tol, roots(max_roots), rootspt(max_roots)
+      character*10 reference
+      logical scf, mcscf
+      external scf, mcscf
 c
       call ga_sync()
 c
       status = rtdb_parallel(.true.)
-      if (.not. context_push('selci'))
-     $     call errquit('selci: context_push failed', 0)
+c
+c     First generate the orbitals using SCF/MCSCF
+c
+      if (.not. rtdb_cget(rtdb, 'selci:reference', 1, reference))
+     $     reference = 'scf'
+      if (reference .eq. 'scf') then
+         selci = scf(rtdb)
+      else
+         selci = mcscf(rtdb)
+      endif
+c
+      if (.not. selci) return
+c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'selci')
       oprint = util_print('information', print_low)
@@ -119,18 +135,25 @@ c
       if (mode .eq. 'ci+davids') then
          call selci_ci(dbl_mb(k_mem), lword)
          call selci_davids(dbl_mb(k_mem), lword, nroot, diag_tol, roots)
+         if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
+     $        call errquit('selci: failed to store CI roots',nroot)
+         if (.not. rtdb_put(rtdb,'selci:energy',mt_dbl,1,roots(nroot)))
+     $        call errquit('selci: failed to store CI energy',nroot)
       else if (mode .eq. 'select') then
          if (.not. rtdb_get_info(rtdb, 'selci:selection thresholds', 
-     $        ma_type, nthresh, date)) call errquit
-     $        ('selci: no selection thresholds in database', 0)
-         if (nthresh .gt. max_thresh) call errquit
-     $        ('selci: too many selection thresholds', max_thresh)
-         if (.not. rtdb_get(rtdb, 'selci:selection thresholds', 
-     $        mt_dbl, max_thresh, stols)) call errquit
-     $        ('selci: no selection thresholds in database?', 0)
+     $        ma_type, nthresh, date)) then
+            nthresh = 1
+            stols(1) = 1.0d99   ! i.e., don't select any new configuration
+         else
+            if (nthresh .gt. max_thresh) call errquit
+     $           ('selci: too many selection thresholds', max_thresh)
+            if (.not. rtdb_get(rtdb, 'selci:selection thresholds', 
+     $           mt_dbl, max_thresh, stols)) call errquit
+     $           ('selci: no selection thresholds in database?', 0)
+         endif
          if (.not. rtdb_get(rtdb, 'selci:selection criterion',
      $        mt_int, 1, iwpt)) iwpt = 0
-         
+c         
          do i = 1, nthresh
             call selci_ci(dbl_mb(k_mem), lword)
             call selci_davids(dbl_mb(k_mem),lword,nroot,diag_tol,roots)
@@ -142,24 +165,28 @@ c
      $              mt_dbl, nthresh-i, stols(i+1))) call errquit
      $              ('selci: failed writing thresholds to database?', 0)
             else
-               if (.not. rtdb_delete(rtdb,'selci:selection thresholds'))
-     $              call errquit('selci: failed deleting thresholds',0)
+               status = rtdb_delete(rtdb,'selci:selection thresholds')
             endif
          enddo
-         if (.not. rtdb_put(rtdb, 'selcipt:roots',mt_dbl,nroot,rootspt))
+         if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
+     $        call errquit('selci: failed to store CI roots',nroot)
+         if (.not. rtdb_put(rtdb, 'selci:roots+pt',
+     $        mt_dbl, nroot, rootspt))
      $        call errquit('selci: failed to store CI+PT roots',nroot)
-         if (.not. rtdb_put(rtdb, 'selcipt:energy',mt_dbl,1,
+         if (.not. rtdb_put(rtdb, 'selci:energy',mt_dbl,1,
      $        rootspt(nroot)))
      $        call errquit('selci: failed to store CI+PT energy',nroot)
       else
          call errquit('selci: unknown mode', 0)
       endif
-      if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
-     $     call errquit('selci: failed to store CI roots',nroot)
-      if (.not. rtdb_put(rtdb, 'selci:energy', mt_dbl, 1, roots(nroot)))
-     $     call errquit('selci: failed to store CI energy',nroot)
 c
 c     What files need deleting?
+c
+      call util_file_unlink(hamil)
+      if (ga_nodeid() .eq. 0) then
+         call util_file_unlink(hamdg)
+         call util_file_unlink(wmatrx)
+      endif
 c
 c     That's it!
 c

@@ -49,21 +49,22 @@ htoa:	htoa.o
 	$(FC) -o $@ $^
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(e0mp2.o):	./implicit.fh ./cmp2.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(select.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./ciinfo.fh 
+$(LIBRARY_PATH)(stool.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
+$(LIBRARY_PATH)(ptidy.o):	./implicit.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(selci.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(upkcon.o):	./bitops.fh 
 $(LIBRARY_PATH)(tester.o):	./mptr.fh ./implicit.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(stool.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(slect.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./ciinfo.fh ./bitops.fh 
 $(LIBRARY_PATH)(sigsav.o):	$(INCDIR)/global.fh ./cbuff.fh 
 $(LIBRARY_PATH)(sigma.o):	$(INCDIR)/global.fh ./cbuff.fh 
-$(LIBRARY_PATH)(select.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./ciinfo.fh 
-$(LIBRARY_PATH)(selci.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cselcifiles.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(restk.o):	./cselcifiles.fh 
 $(LIBRARY_PATH)(restin.o):	$(INCDIR)/global.fh ./cselcifiles.fh 
 $(LIBRARY_PATH)(rdhint.o):	./implicit.fh 
 $(LIBRARY_PATH)(rdhead.o):	./implicit.fh ./cselcifiles.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(readh.o):	./implicit.fh 
 $(LIBRARY_PATH)(putinb.o):	./implicit.fh ./cbuff.fh 
-$(LIBRARY_PATH)(ptidy.o):	./implicit.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(prtri.o):	./implicit.fh 
 $(LIBRARY_PATH)(popcnt32.o):	./cbits.fh ./bitops.fh 
 $(LIBRARY_PATH)(pkcon.o):	./bitops.fh 
@@ -101,7 +102,6 @@ $(LIBRARY_PATH)(eijkj.o):	./implicit.fh ./ciinfo.fh
 $(LIBRARY_PATH)(eijil.o):	./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eijeji.o):	./implicit.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(eij.o):	./implicit.fh ./ciinfo.fh ./ceij.fh 
-$(LIBRARY_PATH)(e0mp2.o):	./implicit.fh ./cmp2.fh ./ciinfo.fh 
 $(LIBRARY_PATH)(davids.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./cbuff.fh 
 $(LIBRARY_PATH)(conf.o):	$(INCDIR)/rtdb.fh ./mptr.fh $(INCDIR)/mafdecls.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./cconf.fh ./bitops.fh 
 $(LIBRARY_PATH)(ci.o):	./mptr.fh ./implicit.fh $(INCDIR)/global.fh ./cselcifiles.fh ./ciinfo.fh 
