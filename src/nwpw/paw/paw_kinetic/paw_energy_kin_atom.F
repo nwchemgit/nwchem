@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_kin_atom.F,v 1.2 2003-02-11 01:41:23 edo Exp $
+* $Id: paw_energy_kin_atom.F,v 1.3 2003-02-23 21:02:04 marat Exp $
 *
 
 
@@ -34,6 +34,7 @@
         ia = ion_katm(in)
         nb = paw_basis_nbasis(ia)
         i_mtr0 = int_mb(i_paw_kin_matrix(1) + ia - 1)
+        ekin = ekin + paw_basis_core_kin_energy(ia)
         do i=1,nb
           li = paw_basis_orb_l(i,ia)
           do mi=-li,li
