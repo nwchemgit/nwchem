@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.8 1996-03-12 10:00:55 d3e129 Exp $
+c $Id: int_spcart.F,v 1.9 1996-03-12 10:27:18 d3e129 Exp $
 * 
 * initialization of spherical to cartesean tranformation array
 *... stored on heap.  
@@ -1627,7 +1627,7 @@ c
       endif
 c
 10000 format('<ket=',i7,'|j=',i6,'|i=',i6,':count=',i10,
-     &    '> =',1pdf20.10)
+     &    '> =',1pd20.10)
       end
       subroutine spcart_ket2etran(
      &    buf, scr,
