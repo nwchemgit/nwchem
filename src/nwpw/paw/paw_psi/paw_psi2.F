@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.5 2004-09-05 02:18:26 bylaska Exp $
+* $Id: paw_psi2.F,v 1.6 2004-09-06 16:20:06 bylaska Exp $
 *
 
 
@@ -1495,7 +1495,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end if
       Eout =  paw_electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
-     >                        dcpl_mb(dng2(2)))
+     >                        dcpl_mb(dng2(1)))
 
       call paw_electron_gen_hml(dcpl_mb(psi2(1)),             ! tmp = <psi|Hpsi>
      >                       dbl_mb(tmp1(1)))

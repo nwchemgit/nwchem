@@ -1,5 +1,5 @@
 c
-c     $Id: paw_bfgsminimize.F,v 1.1 2004-09-05 02:18:25 bylaska Exp $                       
+c     $Id: paw_bfgsminimize.F,v 1.2 2004-09-06 16:20:06 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -189,6 +189,7 @@ c     dte = 1.0d0
          call paw_psi_2get_residual(2,dcpl_mb(S0(1)),dcpl_mb(G0(1)),E0)
          call dcopy(2*neall*npack1,dcpl_mb(S0(1)),1,dcpl_mb(G0(1)),1)
          call paw_psi_2gen_Tangent(dcpl_mb(G0(1)))
+
 
          call paw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
