@@ -1,0 +1,38 @@
+start hess_nh3
+
+# This input tests the accuracy of the finite difference
+# MP2 hessian.  The original calculation was compared with
+# analytic results supplied by the original reporter of
+# the problem.  The lowest frequency computed by NWChem 3.2.1
+# differed only by 0.1 wavenumbers whereas the highest differed
+# only by 0.02 wavenumbers.
+
+# On the IBM SP it took 5600s on 27 nodes.
+
+title: hessian calculation for (NH3)3 MP2/aug-cc-pVDZ
+
+geometry
+ symmetry C3
+ n          -1.012873    1.533487    0.000000
+ h           0.000000    1.365090    0.000000
+ h          -1.215037    2.113846    0.814152
+ h          -1.215037    2.113846   -0.814152
+end
+
+basis spherical
+ n   library aug-cc-pvdz
+ h   library aug-cc-pvdz
+end
+
+mp2
+  freeze atomic
+  tight
+end
+
+task mp2 gradient
+
+mp2
+  print none
+end
+
+task mp2 freq
