@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.40 1996-07-26 20:24:49 d3g681 Exp $
+# $Id: make_nwchem_config,v 1.41 1996-07-30 16:52:24 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -131,7 +131,7 @@ MOD_LIBS := $(strip $(MOD_LIBS))
 STUBROUTINES = $(EXCLUDED_SUBDIRS)
 
 STUBROUTINES := $(patsubst selci,selci selci_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst mp2_grad,mp2_grad ,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst mp2_grad,mp2_grad semi_dir_mp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
