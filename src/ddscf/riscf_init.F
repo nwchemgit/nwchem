@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.12 1999-06-16 00:10:13 d3e129 Exp $
+C$Id: riscf_init.F,v 1.13 2000-02-04 01:25:15 mg201 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -57,7 +57,7 @@ C     get basis set information
 C     initialize for integral calculation
       bases(1) = ao_basis
       bases(2) = ri_basis
-      if (.not.int_normalize (ri_basis))
+      if (.not.int_normalize (ri_basis,rtdb))
      &    call errquit('RI-SCF: int_normalize failed', 12)
       call int_init (rtdb, 2, bases)
       call schwarz_init(geom, ao_basis)

@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, geom, basis, g_vecs)
-C$Id: movecs_proj.F,v 1.8 1999-06-16 00:10:13 d3e129 Exp $
+C$Id: movecs_proj.F,v 1.9 2000-02-04 01:25:15 mg201 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -75,7 +75,7 @@ c
      $     ('movecs_project: bas_create', 0)
       if (.not. bas_rtdb_load(rtdb, geom, old_basis, old_basis_name))
      $     call errquit('movecs_project: no old basis?', 0)
-      if (.not.int_normalize(old_basis))
+      if (.not.int_normalize(old_basis,rtdb))
      $     call errquit('movecs_project: int_normalize failed', 0)
       if (.not. movecs_read_header(old_filename, old_title,
      $     basis_name_from_file, old_scftype, 
