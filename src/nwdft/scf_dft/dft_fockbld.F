@@ -10,7 +10,7 @@
      ,     g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.3 2000-04-24 19:37:15 edo Exp $
+c     $Id: dft_fockbld.F,v 1.4 2000-04-24 19:56:16 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -36,7 +36,7 @@ c
       double precision ecore, ecoul,exc(2) ! [out]
       integer ntotel,n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd
       logical IOLGC
-      logical test_sic ! [in]
+      integer test_sic ! [in]
       integer exact_pot
       double precision ecoul_aux(2),dif_lamda,totsic
       double precision rho_n ![out]
