@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.46 2003-01-06 04:13:29 edo Exp $
+# $Id: GNUmakefile,v 1.47 2003-02-04 16:56:45 bert Exp $
  
 include ../../config/makefile.h
 
@@ -62,7 +62,7 @@ endif
 include ../../config/makelib.h
 ifeq ($(FC),efc)
         FDEBUG=
-	FOPTIONS+= $(FOPTIMIZE) -mP3OPT_ecg_fp_control_safety=TRUE  
+	FOPTIONS+= $(FOPTIMIZE) -mP3OPT_ecg_fp_control_safety=TRUE  -g -save
 else
         FOPTIONS+= $(FOPTIMIZE)
 endif
