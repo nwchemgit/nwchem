@@ -1,4 +1,4 @@
-c     $Id: c_sdminimize.F,v 1.1 2001-12-17 23:31:13 bylaska Exp $                       
+c     $Id: c_sdminimize.F,v 1.2 2002-01-09 19:02:18 bylaska Exp $                       
 
       subroutine c_sdminimize(flag)
       implicit none
@@ -32,7 +32,7 @@ c     $Id: c_sdminimize.F,v 1.1 2001-12-17 23:31:13 bylaska Exp $
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(*,*) "     - ",
+        write(*,'(A,I3,A)') "     - ",
      >             it_in," steepest descent iterations performed"
       end if
   

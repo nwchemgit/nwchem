@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.2 2002-01-04 23:20:00 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.3 2002-01-09 19:02:17 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -96,7 +96,8 @@
       do nb=1,nbrill
       do ms=1,ispin
         do n=1,ne(ms)
-          write(*,*) "converting ... psi:", n," spin:",ms," nb:",nb
+          write(*,111) "converting ... psi:", n," spin:",ms," nb:",nb
+  111 format(A,I4,A,I2,A,I4)
           call  convert_real_to_complex(ngrid(1),ngrid(2),ngrid(3),
      >                                  dcpl_mb(cfull(1)
      >                                         +(ispin-1)*ne(1)*nfft3d
