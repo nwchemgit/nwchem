@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0b.F,v 1.20 2001-06-16 00:00:47 edo Exp $
+c$Id: grid_quadv0b.F,v 1.21 2001-06-21 19:14:28 zzhang Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -40,11 +40,11 @@ c !!! temp !!! ***
       double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
-      integer ldmat,idmat,i, grid_nbfm
+      integer ldmat,idmat,i, grid_nbfm, j
       double precision dabsmax,wmax
       external dabsmax
       external grid_nbfm
-      integer iscf_rho,iscf_delrho
+      integer iscf_rho,iscf_delrho, iq
       logical grid_sicinit,grid_sicend
       external grid_sicinit,grid_sicend
       double precision acc_xc_gauss
@@ -127,7 +127,6 @@ c
      .     call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
       
-      
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
@@ -200,6 +199,15 @@ c
                iscf_rho = 1
                iscf_delrho = 1
             endif
+      if(do_cpks_l.and.ipol.eq.2)then
+         call dfill(nqpts, 0.d0, rho(iscf_rho+2*nqpts), 1)
+         call dcopy(nqpts, rho(iscf_rho+nqpts), 1, 
+     &        rho(iscf_rho+2*nqpts), 1)
+         call dcopy(nqpts, rho(iscf_rho), 1, 
+     &        rho(iscf_rho+nqpts), 1)
+         call daxpy(nqpts, 1.d0, rho(iscf_rho+2*nqpts), 1,
+     &        rho(iscf_rho), 1)
+      endif     
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r)
@@ -227,18 +235,18 @@ c
      &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
      &           AO_bas_han, 
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
-     &        rchi_atom, rdelchi_atom,
+     &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr)
             else if (do_cpks_l) then
 #ifdef QUADV0_REVERT
-            call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &           AO_bas_han, 
-     &           natoms, iniz, ifin, g_vxc, ibf_ao,
-     &        rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr)
+               call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     &              Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
+     &              Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
+     &              nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
+     &              AO_bas_han, 
+     &              natoms, iniz, ifin, g_vxc, ibf_ao,
+     &              rchi_atom, rdelchi_atom,
+     &              rdens_atom, cetobfr)
 #else
 c
 c     Combine derivs of functional with deriv densities to get coeffs
@@ -247,6 +255,7 @@ c     delrho
 c
                call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
      &              delrho(iscf_delrho), nmat, ipol, nqpts, GRAD)
+
                call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
      &              delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
      &              Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
