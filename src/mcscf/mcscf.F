@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.57 1997-11-04 09:59:40 d3e129 Exp $
+* $Id: mcscf.F,v 1.58 1997-11-14 22:40:11 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -47,6 +47,9 @@ c
       logical ohalf, oaodisk, oblk, oaokeep, oaoreuse      ! toggles for 4-index
       logical ocisolve
       integer ciiterlo, ciiterhi      ! Iteration range for CI solution
+c
+      double precision time_iter_start
+      integer time_prev_iter
 c     
       character*255 title, movecs_in
 c     
@@ -384,6 +387,7 @@ c
       ocanon = .false.
       ocivecprint = util_print('civec',print_debug)
       do iter=1,maxiter
+         time_iter_start = util_wallsec()
          if (oprconv) write(6,996) iter
  996     format(///,10x,'%%%%% MacroIteration ',i3,' %%%%%',/)
          if (mod(iter,5) .eq. 0) call ga_orthog_mos(basis, g_movecs)
@@ -461,6 +465,12 @@ c
          ocjrst = ocjrst.or.ocanon
          if (omcscfprof) call pstat_off(ps_orb)
          if (oconverged) goto 27
+c
+         time_prev_iter = util_wallsec() - time_iter_start
+         time_iter_start = util_wallsec()
+         if (.not. util_test_time_remaining(rtdb,time_prev_iter*2))
+     $        goto 27
+c         
       enddo
 c     
 c     Print convergence status
