@@ -1,4 +1,4 @@
-## $Id: GNUmakefile,v 1.20 1999-11-05 06:47:05 d3g270 Exp $
+## $Id: GNUmakefile,v 1.21 2000-01-19 22:36:16 d3e129 Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
@@ -87,7 +87,7 @@ COBJ  = clustrfix.o \
 
 
 all:		$(COBJ)
-		$(peigs_AR) $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libpeigs.a $?
+		$(peigs_AR) $(peigs_LIB) $?
 
 .EXPORT_ALL_VARIABLES:
 

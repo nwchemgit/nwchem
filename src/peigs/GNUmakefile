@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 1999-08-03 23:10:49 d3e129 Exp $
+# $Id: GNUmakefile,v 1.27 2000-01-19 22:36:16 d3e129 Exp $
 #
 
 LIBRARY = libpeigs.a
@@ -53,8 +53,8 @@ lib:
 	(cd ./comm; $(MAKE))
 	(cd ./ctof; $(MAKE))
 	-rm -f libpeigs.a
-	$(peigs_AR) $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a comm/*.o ctof/*.o src/c/*.o src/f77/*.o
-	$(peigs_RANLIB) $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
+	$(peigs_AR) $(peigs_LIB) comm/*.o ctof/*.o src/c/*.o src/f77/*.o
+	$(peigs_RANLIB) $(peigs_LIB)
 #	($(MAKE) clean)
 
 examples:
