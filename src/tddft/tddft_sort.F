@@ -1,6 +1,6 @@
       subroutine tddft_sort(n,value,vector,order)
 c
-c $Id $
+c $Id: tddft_sort.F,v 1.3 2002-04-28 19:09:14 sohirata Exp $
 c
 c Sort the eigenvalues and eigenvectors 
 c in an ascending/descending order

@@ -1,6 +1,6 @@
       subroutine tddft_schmidt(n,vector)
 c
-c $Id $
+c $Id: tddft_schmidt.F,v 1.4 2002-04-28 19:09:13 sohirata Exp $
 c
 c Schmidt orthonormalize vectors
 c Written by So Hirata, Feb 2002.

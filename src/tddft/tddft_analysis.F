@@ -1,9 +1,9 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
-     1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_prod_p,
-     2  apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
-     3  target,targetsym,mult)
+     1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_buffer1,
+     2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
+     4  target,targetsym,mult,algorithm)
 c
-c $Id: tddft_analysis.F,v 1.8 2002-04-16 01:39:05 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.9 2002-04-28 19:09:13 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -25,6 +25,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "dra.fh"
 c
       double precision thresh  ! Threshold for printing
       parameter (thresh=5.0d-2)
@@ -41,7 +42,8 @@ c
       integer nmo(2)           ! Number of orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer g_trials(2)      ! GA handle for trial vectors
-      integer g_prod_p(2)      ! GA handle for (A+B) product vectors
+      integer g_buffer1(2)     ! GA handle for buffer vectors
+      integer d_trials(2)      ! DRA handle for trial vectors
       integer ntrials          ! Current number of trial vectors
       logical tda              ! True if Tamm-Dancoff approximation
       logical oskel            ! True if symmetry is used in integral evaluation
@@ -66,6 +68,7 @@ c
       double precision energy  ! DFT/TDDFT energy
       double precision tenergy ! Excitation energy of target root
       integer mult             ! Ground state spin multiplicity
+      integer algorithm        ! Algorithm
 c
       integer g_ovlp           ! GA handle for AO overlap matrix
       integer g_corr           ! GA handle for alpha-beta MO correlation matrix
@@ -83,6 +86,7 @@ c
       integer l_x(2),k_x(2)
       integer l_y(2),k_y(2)
       double precision corr(nbf_ao,nbf_ao)
+      integer dummy,request
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -180,9 +184,19 @@ c
           call ga_zero(g_x(i))
           do n=1,nroots
             do m=1,ntrials
-              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                          1.0d0,g_x(i),1,nov(i),n,n,
-     2                                g_x(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                            1.0d0,g_x(i),1,nov(i),n,n,
+     2                                  g_x(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,d_trials(i),1,nov(i),m,m,
+     2            request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                            1.0d0,g_x(i),1,nov(i),n,n,
+     2                                  g_x(i),1,nov(i),n,n)
+              endif 
             enddo
           enddo
         enddo
@@ -197,12 +211,25 @@ c
           call ga_zero(g_y(i))
           do n=1,nroots
             do m=1,ntrials
-              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                          1.0d0,g_x(i),1,nov(i),n,n,
-     2                                g_x(i),1,nov(i),n,n)
-              call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                          1.0d0,g_y(i),1,nov(i),n,n,
-     2                                g_y(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                            1.0d0,g_x(i),1,nov(i),n,n,
+     2                                  g_x(i),1,nov(i),n,n)
+                call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                            1.0d0,g_y(i),1,nov(i),n,n,
+     2                                  g_y(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,d_trials(i),1,nov(i),m,m,
+     2            request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                            1.0d0,g_x(i),1,nov(i),n,n,
+     2                                  g_x(i),1,nov(i),n,n)
+                call ga_add_patch(ambvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                            1.0d0,g_y(i),1,nov(i),n,n,
+     2                                  g_y(i),1,nov(i),n,n)
+              endif
             enddo
           enddo
           call ga_add(0.5d0,g_x(i), 0.5d0,g_y(i),g_x(i))

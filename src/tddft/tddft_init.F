@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,mult)
 c
-c $Id: tddft_init.F,v 1.4 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_init.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -395,7 +395,17 @@ c -------------
         endif
         write(LuOut,9070) maxvecs
         write(LuOut,9130) maxiter
-        write(LuOut,9140) algorithm
+        if (algorithm.eq.1) then
+          write(LuOut,9140) 'Incore multiple tensor contraction'
+        else if (algorithm.eq.2) then
+          write(LuOut,9140) 'Incore single tensor contraction'
+        else if (algorithm.eq.3) then
+          write(LuOut,9140) 'Disk-based multiple tensor contraction'
+        else if (algorithm.eq.4) then
+          write(LuOut,9140) 'Disk-based single tensor contraction'
+        else
+          write(LuOut,9140) 'Unknown'
+        endif
         if ((ipol.eq.1).and.(singlet)) write(LuOut,9080)
         if ((ipol.eq.1).and.(triplet)) write(LuOut,9090)
         write(LuOut,9110) thresh
@@ -428,7 +438,7 @@ c -------------
  9150 format(3x,'        Target symmetry :',2x,i8)
  9160 format(3x,'        Target symmetry : not specified')
  9130 format(3x,'         Max iterations :',2x,i8)
- 9140 format(3x,'              Algorithm :',2x,i8)
+ 9140 format(3x,'              Algorithm : ',a)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
  9400 format(/,2x,

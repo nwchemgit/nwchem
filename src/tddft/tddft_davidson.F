@@ -1,10 +1,11 @@
       subroutine tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
-     2  g_movecs,evl,ntrials,nproducts,
-     3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
-     4  maxiter,target,targetsym,algorithm,mult)
+     2  g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
+     3  g_movecs,evl,ntrials,nproducts,
+     4  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
+     5  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.8 2002-04-16 01:40:55 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.9 2002-04-28 19:09:13 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -97,6 +98,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "dra.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
@@ -112,6 +114,11 @@ c
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for A+B product vectors
       integer g_prod_m(2)      ! GA handle for A-B product vectors
+      integer g_buffer1(2)     ! GA handle for buffer vectors
+      integer g_buffer2(2)     ! GA handle for buffer vectors
+      integer d_trials(2)      ! DRA handle for trial vectors
+      integer d_prod_p(2)      ! DRA handle for A+B product vectors
+      integer d_prod_m(2)      ! DRA handle for A-B product vectors
       integer g_residuals_1(2) ! GA handle for residual vectors 1
       integer g_residuals_2(2) ! GA handle for residual vectors 2
       integer g_movecs(2)      ! GA handle for MO eigenvectors
@@ -165,6 +172,7 @@ c
       integer nvectors         ! Number of trial vectors to be processed at once
       logical nodezero
       integer i,n
+      integer dummy,request
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -248,11 +256,11 @@ c
         if (iter.gt.maxiter) call errquit
      1    ('tddft_davidson: exceeded maxiter',0)
 c
-c ===========================================
-c Algorithm 1 (multiple product vector build)
-c ===========================================
+c ================================================
+c Algorithms 1 & 3 (multiple product vector build)
+c ================================================
 c
-        if (algorithm.eq.1) then
+        if ((algorithm.eq.1).or.(algorithm.eq.3)) then
 c
 c -----------------------------------------------
 c Allocate NGA trial and product density matrices
@@ -282,8 +290,19 @@ c MO to AO transformation
 c -----------------------
 c
           do n=nproducts+1,ntrials
-            call tddft_transfm(n,g_trials,g_movecs,
-     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            if (algorithm.eq.1) then
+              call tddft_transfm(n,g_trials,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            else
+              do i=1,ipol
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              call tddft_transfm(1,g_buffer1,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            endif
             do i=1,ipol
               alo(1)=1
               ahi(1)=nbf_ao
@@ -349,11 +368,32 @@ c             bhi(1)=(n-nproducts-1)*ipol+i
               if (.not.tda) call nga_copy_patch
      1          ('N',g_nprd_m,blo,bhi,g_qd(i),alo,ahi)
             enddo
-            call tddft_transfm(n,g_prod_p,g_movecs,
-     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
-            if (.not.tda) then
-              call tddft_transfm(n,g_prod_m,g_movecs,
-     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+            if (algorithm.eq.1) then
+              call tddft_transfm(n,g_prod_p,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
+              if (.not.tda) then
+                call tddft_transfm(n,g_prod_m,g_movecs,
+     1            nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+              endif
+            else
+              call tddft_transfm(1,g_buffer1,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
+              do i=1,ipol
+                dummy=dra_write_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              if (.not.tda) then
+                call tddft_transfm(1,g_buffer1,g_movecs,
+     1            nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+                do i=1,ipol
+                  dummy=dra_write_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+              endif
             endif
           enddo
           ccpu=ccpu+util_cpusec()
@@ -371,15 +411,57 @@ c Add (epsilon_a-epsilon_i) contribution
 c --------------------------------------
 c
           do n=nproducts+1,ntrials
-            call tddft_epsilon(n,g_trials,g_prod_p,
-     1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
-            if (.not.tda) then
-              call tddft_epsilon(n,g_trials,g_prod_m,
+            if (algorithm.eq.1) then
+              call tddft_epsilon(n,g_trials,g_prod_p,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              if (.not.tda) then
+                call tddft_epsilon(n,g_trials,g_prod_m,
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              endif
+            else
+              do i=1,ipol
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+                dummy=dra_read_section(.false.,
+     1            g_buffer2(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              call tddft_epsilon(1,g_buffer1,g_buffer2,
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              do i=1,ipol
+                dummy=dra_write_section(.false.,
+     1            g_buffer2(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              if (.not.tda) then
+                do i=1,ipol
+                  dummy=dra_read_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_trials(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                  dummy=dra_read_section(.false.,
+     1              g_buffer2(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+                call tddft_epsilon(1,g_buffer1,g_buffer2,
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+                do i=1,ipol
+                  dummy=dra_write_section(.false.,
+     1              g_buffer2(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+              endif
             endif
-            if (nodezero.and.util_print('trial vectors',print_debug))
+            if (util_print('trial vectors',print_debug))
      1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
-     2        g_prod_p,g_prod_m,n,ntrials,n,tda)
+     2          g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,
+     3          d_prod_m,n,ntrials,n,tda,algorithm)
           enddo
           nproducts=ntrials
           ccpu=ccpu+util_cpusec()
@@ -405,11 +487,11 @@ c
      1        ('tddft_davidson: failed to deallocate g_nprd_m',0)
           endif
 c
-c ==========================================
-c Algorithm 2 (one product vector at a time)
-c ==========================================
+c ===============================================
+c Algorithms 2 & 4 (one product vector at a time)
+c ===============================================
 c
-        else if (algorithm.eq.2) then
+        else if ((algorithm.eq.2).or.(algorithm.eq.4)) then
 c
 c ---------------------------
 c Loop over all trial vectors
@@ -421,8 +503,19 @@ c ------------------------------------------------
 c MO to AO transformation of the i-th trial vector       
 c ------------------------------------------------
 c
-            call tddft_transfm(n,g_trials,g_movecs,
-     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            if (algorithm.eq.2) then
+              call tddft_transfm(n,g_trials,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            else
+              do i=1,ipol
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              call tddft_transfm(1,g_buffer1,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
+            endif
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
             if (nodezero.and.util_print('timings',print_high))
@@ -455,11 +548,32 @@ c ------------------------------------------------
 c MO to AO transformation of the i-th trial vector       
 c ------------------------------------------------
 c
-            call tddft_transfm(n,g_prod_p,g_movecs,
-     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
-            if (.not.tda) then
-              call tddft_transfm(n,g_prod_m,g_movecs,
-     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+            if (algorithm.eq.2) then
+              call tddft_transfm(n,g_prod_p,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
+              if (.not.tda) then
+                call tddft_transfm(n,g_prod_m,g_movecs,
+     1            nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+              endif
+            else
+              call tddft_transfm(1,g_buffer1,g_movecs,
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
+              do i=1,ipol
+                dummy=dra_write_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              if (.not.tda) then
+                call tddft_transfm(1,g_buffer1,g_movecs,
+     1            nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
+                do i=1,ipol
+                  dummy=dra_write_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+              endif
             endif
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
@@ -475,11 +589,52 @@ c --------------------------------------
 c Add (epsilon_a-epsilon_i) contribution
 c --------------------------------------
 c
-            call tddft_epsilon(n,g_trials,g_prod_p,
-     1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
-            if (.not.tda) then
-              call tddft_epsilon(n,g_trials,g_prod_m,
+            if (algorithm.eq.2) then
+              call tddft_epsilon(n,g_trials,g_prod_p,
      1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              if (.not.tda) then
+                call tddft_epsilon(n,g_trials,g_prod_m,
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              endif
+            else
+              do i=1,ipol
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+                dummy=dra_read_section(.false.,
+     1            g_buffer2(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              call tddft_epsilon(1,g_buffer1,g_buffer2,
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+              do i=1,ipol
+                dummy=dra_write_section(.false.,
+     1            g_buffer2(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),n,n,request)
+                dummy=dra_wait(request)
+              enddo
+              if (.not.tda) then
+                do i=1,ipol
+                  dummy=dra_read_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_trials(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                  dummy=dra_read_section(.false.,
+     1              g_buffer2(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+                call tddft_epsilon(1,g_buffer1,g_buffer2,
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+                do i=1,ipol
+                  dummy=dra_write_section(.false.,
+     1              g_buffer2(i),1,nov(i),1,1,
+     2              d_prod_m(i),1,nov(i),n,n,request)
+                  dummy=dra_wait(request)
+                enddo
+              endif
             endif
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
@@ -490,9 +645,10 @@ c
             memleft=ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
             if (nodezero.and.util_print('trial vectors',print_high))
      1        write(LuOut,9200) memleft
-            if (nodezero.and.util_print('trial vectors',print_debug))
+            if (util_print('trial vectors',print_debug))
      1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
-     2        g_prod_p,g_prod_m,n,ntrials,n,tda)
+     2          g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,
+     3          d_prod_m,n,ntrials,n,tda,algorithm)
           enddo
           nproducts=ntrials
         else
@@ -527,7 +683,9 @@ c
 c Make (A+B) and (A-B)
 c
         call tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1    g_prod_p,g_prod_m,ntrials,tda,dbl_mb(k_apb),dbl_mb(k_amb))
+     1    g_prod_p,g_prod_m,g_buffer1,g_buffer2,d_trials,
+     2    d_prod_p,d_prod_m,ntrials,tda,dbl_mb(k_apb),dbl_mb(k_amb),
+     3    algorithm)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
@@ -560,11 +718,12 @@ c Form residual vectors, new trial vectors, and check convergence
 c ---------------------------------------------------------------
 c 
         call tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,dbl_mb(k_apbvec),
-     2    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
-     3    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
-     4    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
-     5    evl,nconverged,nnewtrials,nresiduals)
+     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,g_buffer1,
+     2    d_trials,d_prod_p,d_prod_m,dbl_mb(k_apbvec),
+     3    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
+     4    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
+     5    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
+     6    evl,nconverged,nnewtrials,nresiduals,algorithm)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
@@ -602,9 +761,10 @@ c Analysis of the results
 c -----------------------
 c
           call tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,ipol,
-     1      nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_prod_p,
-     2      dbl_mb(k_apbvec),dbl_mb(k_apbval),dbl_mb(k_ambvec),
-     3      g_movecs,evl,singlet,triplet,target,targetsym,mult)
+     1      nocc,nmo,nfc,nfv,ntrials,tda,oskel,g_trials,g_buffer1,
+     2      d_trials,dbl_mb(k_apbvec),dbl_mb(k_apbval),dbl_mb(k_ambvec),
+     3      g_movecs,evl,singlet,triplet,target,targetsym,mult,
+     4      algorithm)
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()
           if (nodezero.and.util_print('timings',print_high))

@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.4 2002-04-16 01:51:56 sohirata Exp $
+c $Id: tddft_input.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -99,7 +99,8 @@ c
       if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
-c     ALGORITHM (algorithm: =1 multiple fock build; =2: conventional)
+c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
+c                           =3 disk-multiple fock build;   =4: disk-single fock build)
 c
       algorithm=1
       if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
@@ -231,7 +232,8 @@ c
         if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
      1    call errquit('tddft_input: failed writing to rtdb',0)
 c
-c     ALGORITHM (algorithm: =1 multiple fock build; =2: conventional)
+c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
+c                           =3 disk-multiple fock build;   =4: disk-single fock build)
 c
       else if (inp_compare(.false.,test,'algorithm')) then
         if (.not.inp_i(algorithm)) then

@@ -1,10 +1,11 @@
       Subroutine tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1  ntrials,tda,g_trials,g_prod_p,g_prod_m,apbvec,apbval,
-     2  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
-     3  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
-     4  nconverged,nnewtrials,nresiduals)
+     1  ntrials,tda,g_trials,g_prod_p,g_prod_m,g_buffer1,d_trials,
+     2  d_prod_p,d_prod_m,apbvec,apbval,
+     3  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
+     4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
+     5  nconverged,nnewtrials,nresiduals,algorithm)
 c
-c $Id: tddft_residual.F,v 1.5 2002-04-16 01:46:28 sohirata Exp $
+c $Id: tddft_residual.F,v 1.6 2002-04-28 19:09:13 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -37,6 +38,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "dra.fh"
 c
       integer nroots           ! Number of roots sought
       integer nresiduals       ! Number of residual vectors
@@ -48,6 +50,10 @@ c
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for (A+B) product vectors
       integer g_prod_m(2)      ! GA handle for (A-B) product vectors
+      integer g_buffer1(2)     ! GA handle for buffer vectors
+      integer d_trials(2)      ! DRA handle for trial vectors
+      integer d_prod_p(2)      ! DRA handle for (A+B) product vectors
+      integer d_prod_m(2)      ! DRA handle for (A-B) product vectors
       integer g_residuals_1(2) ! GA handle for the residual vectors 1
       integer g_residuals_2(2) ! GA handle for the residual vectors 2
       integer ntrials          ! Current number of trial vectors
@@ -66,6 +72,7 @@ c
       double precision evl(nbf_ao,2)    ! Orbital energies
       integer nconverged       ! Number of converged roots
       integer nnewtrials       ! Number of trial vectors in the next iteration
+      integer algorithm        ! Algorithm
 c
       integer i,j,k,l,n,m
       integer nov(2)
@@ -73,6 +80,7 @@ c
       logical nodezero
       integer iproc
       integer ilo,ihi,jlo,jhi
+      integer dummy,request
 c
       iproc=ga_nodeid()
       nodezero=(ga_nodeid().eq.0)
@@ -98,9 +106,19 @@ c Form X
 c
           do n=1,min(nresiduals,ntrials)
             do m=1,ntrials
-              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     2                                 g_residuals_1(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                   g_residuals_1(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                    g_residuals_1(i),1,nov(i),n,n)
+              endif
             enddo
 c
 c Multiply (-w) to X
@@ -111,9 +129,19 @@ c
 c Add AX to form AX-wX
 c
             do m=1,ntrials
-              call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     2                                 g_residuals_1(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                   g_residuals_1(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                    g_residuals_1(i),1,nov(i),n,n)
+              endif
             enddo
           enddo
         enddo  
@@ -131,12 +159,25 @@ c Form (X+Y) and (X-Y)
 c
           do n=1,min(nresiduals,ntrials)
             do m=1,ntrials
-              call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     2                                 g_residuals_1(i),1,nov(i),n,n)
-              call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_2(i),1,nov(i),n,n,
-     2                                 g_residuals_2(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(apbvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                   g_residuals_1(i),1,nov(i),n,n)
+                call ga_add_patch(ambvec(m,n),g_trials(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                   g_residuals_2(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                    g_residuals_1(i),1,nov(i),n,n)
+                call ga_add_patch(ambvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                    g_residuals_2(i),1,nov(i),n,n)
+              endif
             enddo
 c
 c Multiply (-w) to X+Y and X-Y
@@ -150,12 +191,29 @@ c Add (A-B)(X-Y) and (A+B)(X+Y)
 c to form (A-B)(X-Y)-w(X+Y) and (A+B)(X+Y)-w(X-Y)
 c
             do m=1,ntrials
-              call ga_add_patch(ambvec(m,n),g_prod_m(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     2                                 g_residuals_1(i),1,nov(i),n,n)
-              call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
-     1                           1.0d0,g_residuals_2(i),1,nov(i),n,n,
-     2                                 g_residuals_2(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(ambvec(m,n),g_prod_m(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                   g_residuals_1(i),1,nov(i),n,n)
+                call ga_add_patch(apbvec(m,n),g_prod_p(i),1,nov(i),m,m,
+     1                             1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                   g_residuals_2(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_prod_m(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(ambvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     2                                    g_residuals_1(i),1,nov(i),n,n)
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_prod_p(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(apbvec(m,n),g_buffer1(i),1,nov(i),1,1,
+     1                              1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     2                                    g_residuals_2(i),1,nov(i),n,n)
+              endif
             enddo
           enddo
         enddo  
@@ -263,13 +321,32 @@ c
           do m=1,nnewtrials
             r=0.0d0
             do i=1,ipol
-              r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
-     1                          g_trials(i),     'N',1,nov(i),m,m)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
+     1                            g_trials(i),     'N',1,nov(i),m,m)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                r=r+ga_ddot_patch(g_residuals_1(i),'N',1,nov(i),n,n,
+     1                            g_buffer1(i),    'N',1,nov(i),1,1)
+              endif
             enddo
             do i=1,ipol
-              call ga_add_patch(1.0d0,g_residuals_1(i),1,nov(i),n,n,
-     1                          -r,   g_trials(i),     1,nov(i),m,m,
-     2                                g_residuals_1(i),1,nov(i),n,n)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_add_patch(1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     1                            -r,   g_trials(i),     1,nov(i),m,m,
+     2                                  g_residuals_1(i),1,nov(i),n,n)
+              else
+                dummy=dra_read_section(.false.,
+     1            g_buffer1(i),1,nov(i),1,1,
+     2            d_trials(i),1,nov(i),m,m,request)
+                dummy=dra_wait(request)
+                call ga_add_patch(1.0d0,g_residuals_1(i),1,nov(i),n,n,
+     1                            -r,   g_buffer1(i),    1,nov(i),1,1,
+     2                                  g_residuals_1(i),1,nov(i),n,n)
+              endif
             enddo
           enddo
 c
@@ -285,8 +362,15 @@ c
             nnewtrials=nnewtrials+1
             do i=1,ipol
               call ga_scale_patch(g_residuals_1(i),1,nov(i),n,n,1.0d0/r)
-              call ga_copy_patch('N',g_residuals_1(i),1,nov(i),n,n,
-     1          g_trials(i),1,nov(i),nnewtrials,nnewtrials)
+              if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                call ga_copy_patch('N',g_residuals_1(i),1,nov(i),n,n,
+     1            g_trials(i),1,nov(i),nnewtrials,nnewtrials)
+              else
+                dummy=dra_write_section(.false.,
+     1            g_residuals_1(i),1,nov(i),n,n,
+     2            d_trials(i),1,nov(i),nnewtrials,nnewtrials,request)
+                dummy=dra_wait(request)
+              endif
             enddo
           endif
         endif
@@ -325,13 +409,32 @@ c
             do m=1,nnewtrials
               r=0.0d0
               do i=1,ipol
-                r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
-     1                            g_trials(i),     'N',1,nov(i),m,m)
+                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                  r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
+     1                              g_trials(i),     'N',1,nov(i),m,m)
+                else
+                  dummy=dra_read_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_trials(i),1,nov(i),m,m,request)
+                  dummy=dra_wait(request)
+                  r=r+ga_ddot_patch(g_residuals_2(i),'N',1,nov(i),n,n,
+     1                              g_buffer1(i),    'N',1,nov(i),1,1)
+                endif
               enddo
               do i=1,ipol
-                call ga_add_patch(1.0d0,g_residuals_2(i),1,nov(i),n,n,
-     1                            -r,   g_trials(i),     1,nov(i),m,m,
-     2                                  g_residuals_2(i),1,nov(i),n,n)
+                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                  call ga_add_patch(1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     1                              -r,   g_trials(i),     1,nov(i),m,m,
+     2                                    g_residuals_2(i),1,nov(i),n,n)
+                else
+                  dummy=dra_read_section(.false.,
+     1              g_buffer1(i),1,nov(i),1,1,
+     2              d_trials(i),1,nov(i),m,m,request)
+                  dummy=dra_wait(request)
+                  call ga_add_patch(1.0d0,g_residuals_2(i),1,nov(i),n,n,
+     1                              -r,   g_buffer1(i),    1,nov(i),1,1,
+     2                                    g_residuals_2(i),1,nov(i),n,n)
+                endif
               enddo
             enddo
 c
@@ -348,8 +451,15 @@ c
               do i=1,ipol
                 call ga_scale_patch
      1            (g_residuals_2(i),1,nov(i),n,n,1.0d0/r)
-                call ga_copy_patch('N',g_residuals_2(i),1,nov(i),n,n,
-     1            g_trials(i),1,nov(i),nnewtrials,nnewtrials)
+                if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+                  call ga_copy_patch('N',g_residuals_2(i),1,nov(i),n,n,
+     1              g_trials(i),1,nov(i),nnewtrials,nnewtrials)
+                else
+                  dummy=dra_write_section(.false.,
+     1              g_residuals_2(i),1,nov(i),n,n,
+     2              d_trials(i),1,nov(i),nnewtrials,nnewtrials,request)
+                  dummy=dra_wait(request)
+                endif
               enddo
             endif
           endif

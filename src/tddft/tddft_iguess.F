@@ -1,8 +1,8 @@
       subroutine tddft_iguess(rtdb,nbf_ao,ipol,
-     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_movecs,evl,
-     2  ntrials,nproducts)
+     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,d_trials,
+     2  g_movecs,evl,ntrials,nproducts,algorithm)
 c
-c $Id: tddft_iguess.F,v 1.4 2002-04-16 01:48:05 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.5 2002-04-28 19:09:13 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -24,6 +24,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "dra.fh"
 c
       integer rtdb             ! Runtime database handle
       integer nbf_ao           ! Number of AO basis functions
@@ -34,10 +35,13 @@ c
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer g_trials(2)      ! GA handle for trial vectors
+      integer g_buffer1(2)     ! GA handle for buffer vectors
+      integer d_trials(2)      ! DRA handle for trial vectors
       integer g_movecs(2)      ! GA handle for MO eigenvectors
       double precision evl(nbf_ao,2)   ! Eigenvalues
       integer ntrials          ! Current number of trial vectors
       integer nproducts        ! Current number of product vectors
+      integer algorithm        ! Algorithm
 c
       double precision tiny,huge,swap
       parameter (tiny=1.0d-6)  ! Tolerance for judging near degeneracy
@@ -51,6 +55,8 @@ c
       integer l_t(2),k_t(2)    ! MA handles for work array
       integer i,j,k,l,m,n
       logical nodezero
+      integer request
+      integer dummy
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -201,7 +207,14 @@ c
      1      dbl_mb(k_t(i)+(int_mb(k_sorto+m-1)-nfc(i)-1)
      2        *((nmo(i)-nfv(i))-nocc(i))
      3        +(int_mb(k_sortv+m-1)-nocc(i)-1))=1.0d0
-          call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),1)
+          if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+            call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),1)
+          else
+            call ga_put(g_buffer1(i),1,nov(i),1,1,dbl_mb(k_t(i)),1)
+            dummy=dra_write_section(.false.,g_buffer1(i),1,nov(i),1,1,
+     1        d_trials(i),1,nov(i),m,m,request)
+            dummy=dra_wait(request)
+          endif
         enddo
       enddo
       ntrials=nroots

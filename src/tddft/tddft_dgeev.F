@@ -1,10 +1,10 @@
       SUBROUTINE TDDFT_DGEEV
      $    ( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id: tddft_dgeev.F,v 1.1 2002-04-12 22:45:46 sohirata Exp $
-c The subdoutine is identical to origonal but had to be renamed
-c for IBM SP2, since otherwise, dynamically linked other subroutine
-c is going to be used rather than this.
+c $Id: tddft_dgeev.F,v 1.2 2002-04-28 19:09:13 sohirata Exp $
+c The subdoutine is identical to the original dgeev but had to be renamed,
+c since otherwise, for IBM SP2, dynamically linked dgeev having different
+c interface syntax is going to be used rather than this.
 *
 *  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

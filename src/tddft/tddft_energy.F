@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.5 2002-04-12 22:55:52 sohirata Exp $
+c $Id: tddft_energy.F,v 1.6 2002-04-28 19:09:13 sohirata Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -10,19 +10,15 @@ c (2) Spin-restricted singlets and triplets,
 c (3) Spin-unrestricted doublets etc.,
 c (4) Transition moments and oscillator strengths,
 c (5) Characterizes symmetry of excited states,
-c (6) Uses Davidson's trial vector algorithm.
+c (6) Uses Davidson's trial vector algorithm,
+c (7) Spin (S**2) expectation values,
+c (8) Incore/disk-based multiple/single tensor contraction,
+c (9) Numerical gradients, optimization, and frequencies.
 c
 c See, e.g., Bauernschmitt & Ahlrichs, CPL 256, 454 (1996);
 c Hirata & Head-Gordon, CPL 302, 375 (1999), for formalisms.
 c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
-c
-c NOTE ON PARALLELIZATION: parallelized portion of this code
-c is almost entirely hidden in shell_fock_build.F and GA routines.
-c While we forbid nodes other than zero to print any routine
-c outputs, the only other parts that explicitly refer to node id are
-c tddft_epsilon and tddft_residuals, where we add or devide by
-c (epsilon_a-epsilon_i) by node zero only.
 c
 c CAUTION: numfunc=30 hardwired from "cdft.fh".  It is nicer if it
 c is read from runtime database.
@@ -38,6 +34,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "dra.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
@@ -51,6 +48,7 @@ c
       integer numfunc          ! Number of functionals implemented
       parameter (numfunc=30)   ! Must be consistent with "cdft.fh"
       character*255 movecs_out ! MO vector file name
+      character*255 civecs_tmp ! CI vector file name
       character*40 xname(numfunc)       ! Names of X functionals
       character*40 cname(numfunc)       ! Names of C functionals
       character*40 xcname(numfunc)      ! Names of XC functionals
@@ -79,6 +77,11 @@ c
       integer g_trials(2)      ! GA handle for trial vectors (XY)
       integer g_prod_p(2)      ! GA handle for A+B product vectors (XY)
       integer g_prod_m(2)      ! GA handle for A-B product vectors (XY)
+      integer d_trials(2)      ! DRA handle for trial vectors (XY)
+      integer d_prod_p(2)      ! DRA handle for A+B product vectors (XY)
+      integer d_prod_m(2)      ! DRA handle for A-B product vectors (XY)
+      integer g_buffer1(2)     ! GA handle for a buffer vector for disk algorithms
+      integer g_buffer2(2)     ! GA handle for a buffer vector for disk algorithms
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
@@ -88,7 +91,8 @@ c
       double precision energy  ! Target excited state energy
       logical xc_active_save   ! Previous value for xc_active
       integer calc_type_save   ! Previous value for calc_type
-      logical algorithm        ! =1 multiple fock build; =2: conventional
+      integer algorithm        ! =1 incore-multiple fock build; =2: incore-single fock build
+                               ! =3 disk-multiple fock build;   =4: disk-single fock build
       integer mult             ! Ground state spin multiplicity
 c
       logical dft_energy
@@ -96,6 +100,7 @@ c
 c
       integer i
       integer memleft
+      integer dummy
       logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
@@ -141,19 +146,66 @@ c ----------------------------------------------------
 c Allocate global arrays for trial and product vectors
 c ----------------------------------------------------
 c
-      do i=1,ipol
-        if (.not.ga_create(mt_dbl,nov(i),maxvecs,
-     1    'trial vectors',-1,maxvecs,g_trials(i)))
-     2    call errquit('tddft_energy: failed to create g_trials',0)
-        if (.not.ga_duplicate(g_trials(i),g_prod_p(i),
-     1    'product vectors'))
-     2    call errquit('tddft_energy: failed to create g_prod_p',0)
-        if (.not.tda) then
-          if (.not.ga_duplicate(g_trials(i),g_prod_m(i),
+      if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+        do i=1,ipol
+          if (.not.ga_create(mt_dbl,nov(i),maxvecs,
+     1      'trial vectors',-1,maxvecs,g_trials(i)))
+     2      call errquit('tddft_energy: failed to create g_trials',0)
+          if (.not.ga_duplicate(g_trials(i),g_prod_p(i),
      1      'product vectors'))
-     2      call errquit('tddft_energy: failed to create g_prod_m',0)
+     2      call errquit('tddft_energy: failed to create g_prod_p',0)
+          if (.not.tda) then
+            if (.not.ga_duplicate(g_trials(i),g_prod_m(i),
+     1        'product vectors'))
+     2        call errquit('tddft_energy: failed to create g_prod_m',0)
+          endif
+        enddo
+c
+c -----------------------------------------------------------
+c Allocate disk resident arrays for trial and product vectors
+c -----------------------------------------------------------
+c
+      else if ((algorithm.eq.3).or.(algorithm.eq.4)) then
+        do i=1,ipol
+          if (.not.ga_create(mt_dbl,nov(i),1,
+     1      'buffer vector 1',-1,1,g_buffer1(i)))
+     2      call errquit('tddft_energy: failed to create g_buffer1',0)
+          if (.not.ga_duplicate(g_buffer1(i),g_buffer2(i),
+     1      'buffer vector 2'))
+     2      call errquit('tddft_energy: failed to create g_buffer2',0)
+        enddo
+c
+c Six DRA's for 10 GB of total disk space and 10 MB of memory buffer
+c see also tddft_memory.F when the following line is to be modified
+c
+        dummy=dra_init(6,1.0d10,1.0d10,1.0d7)
+        call util_file_name('tvector1',.true.,.false.,civecs_tmp)
+        dummy=dra_create(mt_dbl,nov(1),maxvecs,
+     1    'trial vectors',civecs_tmp,DRA_RW,-1,maxvecs,d_trials(1))
+        call util_file_name('pvector1',.true.,.false.,civecs_tmp)
+        dummy=dra_create(mt_dbl,nov(1),maxvecs,
+     1    'product vectors',civecs_tmp,DRA_RW,-1,maxvecs,d_prod_p(1))
+        if (.not.tda) then
+          call util_file_name('mvector1',.true.,.false.,civecs_tmp)
+          dummy=dra_create(mt_dbl,nov(1),maxvecs,'product vectors',
+     1      civecs_tmp,DRA_RW,-1,maxvecs,d_prod_m(1))
         endif
-      enddo
+        if (ipol.eq.2) then
+          call util_file_name('tvector2',.true.,.false.,civecs_tmp)
+          dummy=dra_create(mt_dbl,nov(2),maxvecs,
+     1      'trial vectors',civecs_tmp,DRA_RW,-1,maxvecs,d_trials(2))
+          call util_file_name('pvector2',.true.,.false.,civecs_tmp)
+          dummy=dra_create(mt_dbl,nov(2),maxvecs,
+     1      'product vectors',civecs_tmp,DRA_RW,-1,maxvecs,d_prod_p(2))
+          if (.not.tda) then
+            call util_file_name('mvector2',.true.,.false.,civecs_tmp)
+            dummy=dra_create(mt_dbl,nov(2),maxvecs,'product vectors',
+     1        civecs_tmp,DRA_RW,-1,maxvecs,d_prod_m(2))
+          endif
+        endif
+      else
+        call errquit('tddft_energy: unknown algorithm',0)
+      endif
       memleft=ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
       if (nodezero.and.util_print('trial vectors',print_high))
      1  write(LuOut,9010) memleft
@@ -195,12 +247,13 @@ c
 c Generate initial guess trial vectors
 c
           call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
-     2      ntrials,nproducts)
-          if (nodezero.and.util_print('trial vectors',print_debug)) then
+     1      nroots,maxvecs,g_trials,g_buffer1,d_trials,
+     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+          if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
+     1          g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
+     2          i,ntrials,nproducts,tda,algorithm)
             enddo
           endif
 c
@@ -210,9 +263,10 @@ c
      1      call errquit('tddft_energy: failed to set triplet',0)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
-     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
-     3      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
-     4      maxiter,target,targetsym,algorithm,mult)
+     2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
+     3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
+     4      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
+     5      maxiter,target,targetsym,algorithm,mult)
         endif
 c
 c -------------------
@@ -224,12 +278,13 @@ c
 c Generate initial guess trial vectors
 c
           call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
-     2      ntrials,nproducts)
-          if (nodezero.and.util_print('trial vectors',print_debug)) then
+     1      nroots,maxvecs,g_trials,g_buffer1,d_trials,
+     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+          if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
+     1          g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
+     2          i,ntrials,nproducts,tda,algorithm)
             enddo
           endif
 c
@@ -239,9 +294,10 @@ c
      1      call errquit('tddft_energy: failed to set triplet',0)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
-     2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
-     3      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
-     4      maxiter,target,targetsym,algorithm,mult)
+     2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
+     3      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
+     4      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
+     5      maxiter,target,targetsym,algorithm,mult)
         endif
 c
 c ------------
@@ -253,12 +309,13 @@ c
 c Generate initial guess trial vectors
 c
         call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1    nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
-     2    ntrials,nproducts)
-        if (nodezero.and.util_print('trial vectors',print_debug)) then
+     1    nroots,maxvecs,g_trials,g_buffer1,d_trials,
+     2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm)
+        if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
-     1        g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
+     1        g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
+     2        i,ntrials,nproducts,tda,algorithm)
           enddo
         endif
 c
@@ -266,9 +323,10 @@ c Davidson iteration
 c
         call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1    nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
-     2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
-     3    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
-     4    maxiter,target,targetsym,algorithm,mult)
+     2    g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
+     3    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
+     4    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
+     5    maxiter,target,targetsym,algorithm,mult)
       endif
 c
 c And we close the 2-e integral evaluators
@@ -301,15 +359,30 @@ c
      1  tddft_energy=.true.
       call tddft_finalize(geom,ao_bas_han,ipol,g_movecs,l_evl,k_evl,
      1  l_occ,k_occ)
-      do i=1,ipol
-        if (.not.ga_destroy(g_trials(i))) call errquit
-     1    ('tddft_energy: failed to destroy g_trials',0)
-        if (.not.ga_destroy(g_prod_p(i))) call errquit
-     1    ('tddft_energy: failed to destroy g_prod_p',0)
-        if (.not.tda) then
-          if (.not.ga_destroy(g_prod_m(i))) call errquit
-     1      ('tddft_energy: failed to destroy g_prod_q',0)
-        endif
-      enddo
+      if ((algorithm.eq.1).or.(algorithm.eq.2)) then
+        do i=1,ipol
+          if (.not.ga_destroy(g_trials(i))) call errquit
+     1      ('tddft_energy: failed to destroy g_trials',0)
+          if (.not.ga_destroy(g_prod_p(i))) call errquit
+     1      ('tddft_energy: failed to destroy g_prod_p',0)
+          if (.not.tda) then
+            if (.not.ga_destroy(g_prod_m(i))) call errquit
+     1        ('tddft_energy: failed to destroy g_prod_q',0)
+          endif
+        enddo
+      else
+        do i=1,ipol
+          if (.not.ga_destroy(g_buffer1(i))) call errquit
+     1      ('tddft_energy: failed to destroy g_buffer1',0)
+          if (.not.ga_destroy(g_buffer2(i))) call errquit
+     1      ('tddft_energy: failed to destroy g_buffer2',0)
+          dummy=dra_delete(d_trials(i))
+          dummy=dra_delete(d_prod_p(i))
+          if (.not.tda) then
+            dummy=dra_delete(d_prod_m(i))
+          endif
+        enddo
+        dummy=dra_terminate()
+      endif
       return
       end
