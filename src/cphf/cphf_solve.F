@@ -79,18 +79,18 @@ c$$$     $        max_sub,accuracy,
 c$$$     $        rohf_hessv_precond,rohf_hessv,oprint, 
 c$$$     $        g_grad,g_work,precond_acc,precond_iter))
 c$$$     $        call errquit('cphf did not converge',1)
-         pol=ga_ddot(g_work,g_grad)
-         if(ga_nodeid().eq.0)then
-            write(6,999) pol
- 999        format(//,15x,40('-'),
-     $           /,15x,'RHF/ROHF Polarizability is:',f16.6,
-     $           /,15x,40('-'),/)
-         endif
+c$$$         pol=ga_ddot(g_work,g_grad)
+c$$$         if(ga_nodeid().eq.0)then
+c$$$            write(6,999) pol
+c$$$ 999        format(//,15x,40('-'),
+c$$$     $           /,15x,'RHF/ROHF Polarizability is:',f16.6,
+c$$$     $           /,15x,40('-'),/)
+c$$$         endif
          call int_1e_uncache_ga()
          call schwarz_tidy()
          call int_terminate()
          call rohf_tidy
-         call scf_tidy 
+         call scf_tidy (rtdb)
          if(.not.ga_destroy(g_grad))call errquit(
      $        'could not destroy gradient handle',1)
          if(.not.ga_destroy(g_work))call errquit(
@@ -134,18 +134,18 @@ c$$$     $        max_sub,accuracy,
 c$$$     $        uhf_precond,uhf_hessv,oprint, 
 c$$$     $        g_grad,g_work,precond_acc,precond_iter))
 c$$$     $        call errquit('cphf did not converge',1)
-         pol=ga_ddot(g_work,g_grad)
-         if(ga_nodeid().eq.0)then
-            write(6,911) pol
- 911        format(//,15x,40('-'),
-     $           /,15x,'UHF Polarizability is:',f16.6,
-     $           /,15x,40('-'),/)
-         endif
+c$$$         pol=ga_ddot(g_work,g_grad)
+c$$$         if(ga_nodeid().eq.0)then
+c$$$            write(6,911) pol
+c$$$ 911        format(//,15x,40('-'),
+c$$$     $           /,15x,'UHF Polarizability is:',f16.6,
+c$$$     $           /,15x,40('-'),/)
+c$$$         endif
          call int_1e_uncache_ga()
          call schwarz_tidy()
          call int_terminate()
          call uhf_tidy(rtdb)
-         call scf_tidy
+         call scf_tidy(rtdb)
          if(.not.ga_destroy(g_grad))call errquit(
      $        'could not destroy gradient handle',1)
          if(.not.file_write_ga(cphf_sol,g_work))
