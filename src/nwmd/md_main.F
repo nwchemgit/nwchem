@@ -231,6 +231,7 @@ c
       external frequency
 c
       integer iequi,idacq
+      logical lxw,lvw,lxs,lvs
 c
 c     equilibration
 c
@@ -249,6 +250,18 @@ c
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+c
+      if(lxw.or.lvw.or.lxs.or.lvs) then
+      call sp_wrttrj(lfncoo,lxw,lvw,lxs,lvs,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+      endif
 c
       call timer_stop(1)
     2 continue

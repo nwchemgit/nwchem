@@ -190,7 +190,7 @@ c
       filinp=filnam(1:ibl)//'.inp'
       filrst=filnam(1:ibl)//'.rst'
       filtop=filnam(1:iun)//'.top'
-      filcoo=filnam(1:ibl)//'.coo'
+      filcoo=filnam(1:ibl)//'.trj'
       filprp=filnam(1:ibl)//'.prp'
       filvel=filnam(1:ibl)//'.vel'
       filgib=filnam(1:ibl)//'.gib'
@@ -1029,6 +1029,15 @@ c
       endif
 c
       ltwin=rlong.gt.rshort
+c
+c     open trajectory file
+c
+      if(me.eq.0) then
+      if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
+      open(unit=lfncoo,file=filcoo(1:index(filcoo,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      endif
 c
       return
       end
