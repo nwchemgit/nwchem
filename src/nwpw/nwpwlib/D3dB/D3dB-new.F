@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.2 2001-12-17 23:31:13 bylaska Exp $
+* $Id: D3dB-new.F,v 1.3 2002-01-08 23:06:36 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1914,6 +1914,7 @@ c     integer i2_start(NFFT3+1)
       integer p_from, p_here,q
       integer k,index
       integer dest,source,status,msglen
+      integer dum,dum_msglen
 
       call Parallel_taskid(taskid)
 
@@ -1940,6 +1941,9 @@ c     integer i2_start(NFFT3+1)
      >                       status,mpierr)
 #endif
 #ifdef TCGMSG
+               dum = 99
+               dum_msglen = 1
+               call SND(9+MSGINT,dum,mitob(dum_msglen),rcv_proc,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
 #endif
@@ -1967,6 +1971,9 @@ c     integer i2_start(NFFT3+1)
      >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
 #endif
 #ifdef TCGMSG
+               dum_msglen = 1
+               call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
+     >                       source,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 #endif
             end if
