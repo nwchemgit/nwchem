@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.4 2002-04-08 18:51:51 windus Exp $
+* $Id: trobsa.F,v 1.5 2002-05-03 00:18:43 edo Exp $
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have
@@ -1136,24 +1136,41 @@ c------------------------------------------------------
           kcr=icoor(knp)
           knm=nmxyz(kcr,kn0)
 c
+          if(knm.gt.0) then
+             do in0=nfu(i0e)+1,nfu(i0b+1)
+                inp=npxyz(kcr,in0)
+                inm=nmxyz(kcr,in0)
+      if(inm.gt.0) then
+                do  i=1,nbls
+       xt1(i,in0,knp)=p1234(i,kcr)*xt2(i,in0,kn0)-abcd(i)*xt2(i,inp,kn0)
+     +  +habcd(i,kcr,kn0)*xt3(i,in0,knm)
+     +  +habcd(i,kcr,in0)*xt2(i,inm,kn0)
+                enddo
+             else
+                do  i=1,nbls
+       xt1(i,in0,knp)=p1234(i,kcr)*xt2(i,in0,kn0)-abcd(i)*xt2(i,inp,kn0)
+     +  +habcd(i,kcr,kn0)*xt3(i,in0,knm)
+                   enddo
+                endif
+c
+      enddo
+          else
              do 1000 in0=nfu(i0e)+1,nfu(i0b+1)
              inp=npxyz(kcr,in0)
              inm=nmxyz(kcr,in0)
+      if(inm.gt.0) then
+                do 1002 i=1,nbls
+       xt1(i,in0,knp)=p1234(i,kcr)*xt2(i,in0,kn0)-abcd(i)*xt2(i,inp,kn0)
+     +                  +habcd(i,kcr,in0)*xt2(i,inm,kn0)
+ 1002           continue
+             else
                 do 1001 i=1,nbls
        xt1(i,in0,knp)=p1234(i,kcr)*xt2(i,in0,kn0)-abcd(i)*xt2(i,inp,kn0)
  1001           continue
-      if(inm.gt.0) then
-                do 1002 i=1,nbls
-       xt1(i,in0,knp)=xt1(i,in0,knp)+habcd(i,kcr,in0)*xt2(i,inm,kn0)
- 1002           continue
-      endif
-      if(knm.gt.0) then
-                do 1003 i=1,nbls
-       xt1(i,in0,knp)=xt1(i,in0,knp)+habcd(i,kcr,kn0)*xt3(i,in0,knm)
- 1003           continue
-      endif
+             endif
 c
  1000        continue
+          endif
  2005     continue
 c
       if(nrec.ge.nqkl) then
