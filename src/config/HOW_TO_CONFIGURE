@@ -9,7 +9,7 @@ entire description through!
 
 When the code is checked out of the repository, it will, by default,
 build in the same way it always has.  You can change the configuration
-with the command
+with the following command invoked in the src directory:
 	make nwchem_config NWCHEM_MODULES="list of modules"
 (assuming NWCHEM_TOP and NWCHEM_TARGET are set via environment
 variables). You can look in src/config/NWCHEM_CONFIG for a listing of
