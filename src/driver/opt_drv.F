@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.12 1997-02-06 18:58:55 mdupuis Exp $
+C$Id: opt_drv.F,v 1.13 1997-02-26 07:42:21 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -344,7 +344,9 @@ c
       call hnd_opt_input
 c
       opt_input=.true.
-      status=rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
+      status=rtdb_put(rtdb,'opt:driver',mt_log,1,opt_input)
+      status=status.and.
+     &    rtdb_put(rtdb,'driver:opt',mt_log,1,opt_input)
       if(.not.status) then
          call errquit('driver_input : rtdb_put failed',911)
       endif
