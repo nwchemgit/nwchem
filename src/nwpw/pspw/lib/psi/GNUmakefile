@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2003-04-07 21:12:53 windus Exp $
+# $Id: GNUmakefile,v 1.14 2004-05-07 23:31:47 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -8,7 +8,8 @@
 		psi.o \
 		psi_spin2.o \
 		geodesic.o \
-		geodesic2.o skew.o \
+		geodesic2.o \
+		skew.o \
 		Grassman.o \
 		psi_read.o \
 		psi_write.o \
@@ -22,7 +23,6 @@
 
 
 
-	  OBJ = 
 
       LIBRARY = libpspw.a
 
@@ -33,4 +33,8 @@
 
 include ../../../../config/makefile.h
 include ../../../../config/makelib.h
+
+ifeq ($(_G77V33),Y)
+FOPTIMIZE += -O0
+endif
 
