@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.17 1997-06-24 19:58:00 mdupuis Exp $
+* $Id: prp.F,v 1.18 1997-06-24 20:12:26 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -3958,10 +3958,10 @@ C     ----- PRINT AND PUNCH -----
 C
       NORB=NORB+NPAIR
       CALL HND_PRSQL(X(I10),NORB,L1,L1)
-      WRITE(IP,9997)
-      WRITE(IP,9996) VECWRD
-      CALL HND_PUSQL(X(I10),NORB,L1,L1)
-      WRITE(IP,9996) ENDWRD
+c--   WRITE(IP,9997)
+c--   WRITE(IP,9996) VECWRD
+c--   CALL HND_PUSQL(X(I10),NORB,L1,L1)
+c--   WRITE(IP,9996) ENDWRD
 C
       NA=NORB
       NB=NORB
@@ -4688,9 +4688,9 @@ C
          IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
      1   WRITE(IW,9995) IPT,XP,YP,ZP,ELPOTT,ELPOTE
   230    CONTINUE
-      IF(NPTGRD.GT.0.and.ga_nodeid().eq.0)
-     &   WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
-      if(ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(NPTGRD.GT.0.and.ga_nodeid().eq.0)
+c--  &   WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
+c--   if(ga_nodeid().eq.0) WRITE(IP,9988)
 C
 C     ----- RELEASE MEMORY BLOCK -----
 C
@@ -6420,10 +6420,10 @@ C
          WRITE(IW,9993)
          WRITE(IW,9997)
 C
-         WRITE(IP,9991)
-         WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
-         WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
-         WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
+*        WRITE(IP,9991)
+*        WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
+*        WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
+*        WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
       endif
 C
       DO 130  IPT=1,NPTMAX
@@ -6434,9 +6434,9 @@ C
          IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
      &      WRITE(IW,9995) IPT,XP,YP,ZP,ELDENE
   130    CONTINUE
-      IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
-     &     WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
-      if (ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
+c--  &     WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
+c--   if (ga_nodeid().eq.0) WRITE(IP,9988)
 C
       GO TO 500
   200 CONTINUE
@@ -6508,10 +6508,10 @@ C
          IF(MO(IMO).LT.0) WRITE(IW,9982) ABS(MO(IMO))
          IF(MO(IMO).LT.0) WRITE(IW,9980)
 C
-         WRITE(IP,9991)
-         WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
-         WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
-         WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
+*        WRITE(IP,9991)
+*        WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
+*        WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
+*        WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
       endif
 C
       CALL HND_ELWFNC(NPTMAX,X(I00),X(I12),X(I20+
@@ -6526,9 +6526,9 @@ C
       IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
      &   WRITE(IW,9995) IPT,XP,YP,ZP,ELDENE
   220 CONTINUE
-      IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
-     &   WRITE(IP,9989) (X(IPT+I12-1),IPT=1,NPTGRD)
-      if (ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
+c--  &   WRITE(IP,9989) (X(IPT+I12-1),IPT=1,NPTGRD)
+c--   if (ga_nodeid().eq.0) WRITE(IP,9988)
   230 CONTINUE
 C
       IF((WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
@@ -6544,10 +6544,10 @@ C
          IF(MOB(IMO).LT.0) WRITE(IW,9981) ABS(MOB(IMO))
          IF(MOB(IMO).LT.0) WRITE(IW,9980)
 C
-         WRITE(IP,9991)
-         WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
-         WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
-         WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
+*        WRITE(IP,9991)
+*        WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
+*        WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
+*        WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
       endif
 C
       CALL HND_ELWFNC(NPTMAX,X(I00),X(I12),X(I30+
@@ -6562,9 +6562,9 @@ C
       IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT) 
      &  WRITE(IW,9995) IPT,XP,YP,ZP,ELDENE
   240 CONTINUE
-      IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
-     &  WRITE(IP,9989) (X(IPT+I12-1),IPT=1,NPTGRD)
-      if (ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
+c--  &  WRITE(IP,9989) (X(IPT+I12-1),IPT=1,NPTGRD)
+c--   if (ga_nodeid().eq.0) WRITE(IP,9988)
   250 CONTINUE
 C
   300 CONTINUE
@@ -6605,10 +6605,10 @@ C
          WRITE(IW,9992)
          WRITE(IW,9997)
 C
-         WRITE(IP,9987)
-         WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
-         WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
-         WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
+*        WRITE(IP,9987)
+*        WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
+*        WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
+*        WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
        endif
 C
       DO 370 IPT=1,NPTMAX
@@ -6619,19 +6619,19 @@ C
       IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
      &   WRITE(IW,9995) IPT,XP,YP,ZP,SPNDEN
   370 CONTINUE
-      IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
-     &   WRITE(IP,9989) (X(IPT+I11-1),IPT=1,NPTGRD)
-      if (ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
+c--  &   WRITE(IP,9989) (X(IPT+I11-1),IPT=1,NPTGRD)
+c--   if (ga_nodeid().eq.0) WRITE(IP,9988)
       ENDIF
 C
       if (ga_nodeid().eq.0) then
          WRITE(IW,9993)
          WRITE(IW,9997)
 C
-         WRITE(IP,9991)
-         WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
-         WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
-         WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
+*        WRITE(IP,9991)
+*        WRITE(IP,9990) XRANGE(1),XRANGE(2),XRANGE(3),NXGRD
+*        WRITE(IP,9990) YRANGE(1),YRANGE(2),YRANGE(3),NYGRD
+*        WRITE(IP,9990) ZRANGE(1),ZRANGE(2),ZRANGE(3),NZGRD
       endif
 C
       DO 380 IPT=1,NPTMAX
@@ -6642,9 +6642,9 @@ C
       IF(ga_nodeid().eq.0.and.IPT.GT.NPTGRD.OR.OUT)
      &   WRITE(IW,9995) IPT,XP,YP,ZP,ELDENE
   380 CONTINUE
-      IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
-     &  WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
-      if(ga_nodeid().eq.0) WRITE(IP,9988)
+c--   IF(ga_nodeid().eq.0.and.NPTGRD.GT.0) 
+c--  &  WRITE(IP,9989) (X(IPT+I10-1),IPT=1,NPTGRD)
+c--   if(ga_nodeid().eq.0) WRITE(IP,9988)
 C
   500 CONTINUE
 
@@ -7736,13 +7736,11 @@ C
 C
 C     ----- PUNCH ATOMIC COORDINATES -----
 C
-      WRITE(IP,9991)
-c%%%
+C     WRITE(IP,9991)
 C     DO 110 IAT=1,NAT
 C     ZNUC=NUC(IAT)
 C 110 WRITE(IP,9990) ANAM(IAT),BNAM(IAT),ZNUC,(C(I,IAT),I=1,3)
-c%%%
-      WRITE(IP,9989)
+C     WRITE(IP,9989)
 C
       RETURN
  9999 FORMAT(1H ,'--- $GRID - DEFINING VECTORS ARE COLINEAR, STOP')
