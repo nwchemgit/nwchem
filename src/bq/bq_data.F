@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.3 2005-03-31 03:20:30 marat Exp $
+c $Id: bq_data.F,v 1.4 2005-04-01 02:30:30 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.3 2005-03-31 03:20:30 marat Exp $
+C$Id: bq_data.F,v 1.4 2005-04-01 02:30:30 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -61,6 +61,31 @@ c      local variables
        end do
         
        bq_active(handle) = .true.
+       
+       return
+       end
+
+      function bq_deactivate(handle)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       logical bq_deactivate
+c      local variables
+
+       bq_deactivate = .true.
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_deactivate = .false.
+         return
+       end if
+       if(bq_ncent(handle).eq.0) then
+         bq_deactivate = .false.
+         return
+       end if
+
+       bq_active(handle) = .false.
        
        return
        end
@@ -152,7 +177,6 @@ c      local variables
        integer h_q,h_c
        logical bq_pset
 c      local variables
-       integer i
        character(32) pname
 
        pname = "bq_pset"
@@ -453,6 +477,27 @@ c      local variables
      &      pname//' unable to locate charge handle',
      &      0, MA_ERR)
 
+       return
+       end
+
+      function bq_on()
+      implicit none
+#include "bq_data.fh"
+#include "errquit.fh"
+       integer handle
+       logical bq_on
+c      local variables
+       integer i
+
+       bq_on = .false.
+
+       do i=1,max_bq
+        if(bq_active(i)) then
+          bq_on = .true.
+          return
+        end if
+       end do
+        
        return
        end
 
