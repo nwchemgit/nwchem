@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.26 1997-02-14 06:34:17 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.27 1997-02-17 07:12:30 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -754,7 +754,7 @@ c
 c
 c     inpana could have modified ipol
 c
-      if (.not. rtdb_put(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
+      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol ))
      $     call errquit('inpana: dft:ipol put failed', 0)
 c
       if( iproc.eq.0 .and. util_print('information', print_low))then
