@@ -1,0 +1,21 @@
+c
+c...  cct_table_uhf
+c
+      integer maxorb
+      parameter (maxorb=4000)
+      common/cct_table/nirr,mult(8,8),muls(2,2),occ(2),virt(2),orb,
+     1                 nocc(8,2),nvirt(8,2),
+     1                 iro(maxorb*2),iocc(maxorb*2),ispin(maxorb*2),
+     1                 socc(9,2),svirt(9,2),
+     2                 lenij(8,2,2),lenbk(8,2,2),lenab(8,2,2)
+      equivalence (socc,s_occ_virt),(iro,isym)
+      equivalence (nocc,n_occ_virt)
+      equivalence (lenxy,lenij)
+      integer nirr,mult,muls,occ,virt,orb
+      integer nocc,nvirt,n_occ_virt(8,2,2)
+      integer iro,iocc,ispin,isym(maxorb*2,3)
+      integer socc,svirt,s_occ_virt(9,2,2)
+      integer lenij,lenbk,lenab,lenxy(8,2,2,2:4)
+      common/factor/fac(maxorb*2)
+      double precision fac
+c
