@@ -1,4 +1,4 @@
-c$Id: util_ndim_test.F,v 1.1 2003-03-08 01:58:13 sohirata Exp $
+c$Id: util_ndim_test.F,v 1.2 2003-03-08 02:09:16 sohirata Exp $
 #define  MAXLOOP 100
 
       subroutine util_ndim_test
@@ -30,13 +30,13 @@ c     if(.not. status) call ga_error("ma_init failed",0)
 c
 c
       if(ga_nodeid().eq.0) then
-       write(6,'(A)'),' Checking 3-Dimensional Arrays'
+       write(6,'(A)') ' Checking 3-Dimensional Arrays'
        write(6,*)
       endif
       call testit()
       if(ga_nodeid().eq.0) then
        write(6,*)
-       write(6,'(A)'),' Checking 4-Dimensional Arrays'
+       write(6,'(A)') ' Checking 4-Dimensional Arrays'
        write(6,*)
       endif
       call testit4()
