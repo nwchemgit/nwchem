@@ -1,4 +1,3 @@
-c $Id: memoha.f,v 1.3 1996-02-09 01:15:31 d3g681 Exp $
 c====================================================================
 c kw Feb. 18,1994
 c there is the new subroutine memo5 (memory handling for pairs)
@@ -497,7 +496,250 @@ c
       end
 c
 c================================================================
-      subroutine memo5a(npij,mmax1)
+      subroutine memo5a_2(npij,mmax1)
+c------------------------------------------
+c Memory handling for left-hand pairs:
+c
+c 1: for individual shells (2 quantities)
+c   cis,cjs - contr coef. dimensions are (lci), (lcj)
+c
+c 2: for : xab(ijpar,3) and xp, xpn, xpp all (ijpar,3,lcij)
+c
+c 3: for : apb, rapb, factij, (lcij)
+c          ceofij and sij all (ijpar,lcij)
+c
+c 4. for : txab(ijpar,3,lcij)
+c
+c Total number of calls of Getmem is 11 or 12 (if gen.con.)
+c------------------------------------------
+      common /cpu/ intsize,iacc,icache,memreal
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+      common /memor5x/ ieab,iecd
+      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
+     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
+     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
+      common /memor5c/ itxab,itxcd,iabcd,ihabcd
+      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+c------------------------------------------
+      ijpar=npij
+c------------------------------------------
+c reserve memory for left-hand pairs IJ :
+c
+       ndi=   ijpar*lci
+       ndj=   ijpar*lcj
+c
+      call getmem(lci,icis)       ! for cis(lci)                 1
+      call getmem(lcj,icjs)       ! for cjs(lcj)                 2
+      call getmem(ijpar*3,ixab)   ! for xab(ijpar,3)             3
+c
+       ndij=ndi*lcj
+       ndij3=ndij*3
+c
+ckw Do not change this order
+      call getmem(ndij3,ixp)     ! for xp(ijpar,3,lcij)          4
+      call getmem(ndij3,ixpn)    ! for xpn(ijpar,3,lcij)         5
+      call getmem(ndij3,ixpp)    ! for xpp(ijpar,3,lcij)         6
+ckw up to here.
+c
+      call getmem(lcij,ifij)     ! for factij(lcij)              7 
+      call getmem(ndij,icij)     ! for coefij(ijpar,lcij)        8
+      call getmem(ndij,ieab)     ! for eab(ijpar,lcij)           9
+      call getmem(ndij3,itxab)   ! for txab(ijpar,3,lcij)       10
+c
+      ndijm=lcij*mmax1
+      call getmem(ndijm,iabnia)  ! for abnia(mmax-1,lcij)       11
+c
+c------------------------------------------
+c for general contraction on IJ-pairs
+c
+      ngci1=ngci+1
+      ngcj1=ngcj+1
+      ngck1=ngck+1
+      ngcl1=ngcl+1
+      ngcd=ngci1*ngcj1*ngck1*ngcl1
+c
+c-----
+c
+      igcij=1
+      if(ngcd.gt.1) then
+        ndijg=lcij*ngci1*ngcj1
+        call getmem(ndijg,igcij)              !               12
+      endif
+c
+c------------------------------------------
+      end
+c================================================================
+      subroutine memo5b_2(npkl,mmax1)
+      common /cpu/ intsize,iacc,icache,memreal
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+c------------------------------------------
+c Memory handling for right-hand pairs:
+c------------------------------------------
+      common /memor5x/ ieab,iecd
+      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
+     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
+     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
+      common /memor5c/ itxab,itxcd,iabcd,ihabcd
+      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+c------------------------------------------
+      klpar=npkl
+c------------------------------------------
+c reserve memory for right-hand pairs KL :
+c
+       ndk=   klpar*lck
+       ndl=   klpar*lcl
+c
+      call getmem(lck,icks)       ! for cks(lck)                1
+      call getmem(lcl,icls)       ! for cls(lcl)                2
+      call getmem(klpar*3,ixcd)  ! for xcd(klpar,3)             3
+c
+       ndkl=ndk*lcl
+       ndkl3=ndkl*3
+c
+ckw Do not change this order
+      call getmem(ndkl3,ixq)     ! for xq(klpar,3,lckl)         4
+      call getmem(ndkl3,ixqn)    ! for xqn(klpar,3,lckl)        5
+      call getmem(ndkl3,ixqq)    ! for xqq(klpar,3,lckl)        6
+ckw up to here.
+c
+      call getmem(ndkl,ifkl)     ! for factkl(klapr,lckl)       7
+      call getmem(ndkl,ickl)     ! for coefkl(klapr,lckl)       8
+      call getmem(ndkl,iecd)     ! for ecd(klapr,lckl)          9
+      call getmem(ndkl3,itxcd)   ! for txcd(klpar,3,lckl)      10
+c
+      ndklm=lckl*mmax1
+      call getmem(ndklm,icdnia)  ! for cdnia(mmax-1,lckl)      11
+c------------------------------------------
+c for general contraction on KL-pairs
+c
+      ngci1=ngci+1
+      ngcj1=ngcj+1
+      ngck1=ngck+1
+      ngcl1=ngcl+1
+      ngcd=ngci1*ngcj1*ngck1*ngcl1
+c-----
+      igckl=1
+      if(ngcd.gt.1) then
+        ndklg=lckl*ngck1*ngcl1
+        call getmem(ndklg,igckl)      !               12
+      endif
+c------------------------------------------
+      end
+c================================================================
+      subroutine memo5c_2(nbls,mmax1,npij,npkl,nfumax)
+      common /cpu/ intsize,iacc,icache,memreal
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+c------------------------------------------
+c Memory handling 
+c
+c 3: and quartets precalculations (12 quantities)
+c (for whole block of contracted quartets and 
+c        one primitive quartet )
+c
+c Total number of calls of Getmem is 21 or 23 (if gen.cont)
+c------------------------------------------
+      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
+     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
+     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
+      common /memor5b/ irppq,
+     * irho,irr1,irys,irhoapb,irhocpd,iconst,ixwp,ixwq,ip1234,
+     * idx1,idx2,indx
+      common /memor5c/ itxab,itxcd,iabcd,ihabcd
+      common /memor5d/ iabnix,icdnix,ixpnx,ixqnx,ihabcdx
+      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+      common /memor5f/ indxp
+c------------------------------------------
+c reserve memory for quartets ijkl
+c------------------------------------------
+      nblsi=nbls
+      if(intsize.ne.1) nblsi=nbls/intsize+1
+c------------------------------------------
+      call getmem(nblsi,indxp)   !                    1
+      call getmem(nblsi,idx1)    ! for indxij         2
+      call getmem(nblsi,idx2)    ! for indxkj         3
+      call getmem(nblsi,indx)    ! for index          4
+c
+      call getmem(1   ,irppq)    ! for rppq(1   )     5
+      call getmem(nbls,irr1)     ! for rr1(nbls)      6  
+c
+      call getmem(1   ,irhoapb)  ! for rhoapb(1   )   7
+      call getmem(1   ,irhocpd)  ! for rhocpd(1   )   8
+c
+      nbls3=nbls*3
+      call getmem(nbls3,ixpnx)   !                    9
+      call getmem(nbls3,ixwp)    ! for xwp(nbls,3)   10
+      call getmem(nbls3,ixqnx)   !                   11
+      call getmem(nbls3,ixwq)    ! for xwq(nbls,3)   12
+      call getmem(nbls3,ip1234)  ! for p1234(nbls,3) 13
+      call getmem(1   ,iabcd)    ! for abcd(1   )    14
+      call getmem(nbls,iconst)   ! for const(nbls)   15
+      call getmem(nbls,irys)     ! for rys(nbls)     16
+c
+      nfha=3*nfumax*max(lcij,lckl)
+      call getmem(nfha,ihabcd)    !                  17
+c------------------------------------------
+c for general contraction
+c
+      ngci1=ngci+1
+      ngcj1=ngcj+1
+      ngck1=ngck+1
+      ngcl1=ngcl+1
+      ngcd=ngci1*ngcj1*ngck1*ngcl1
+c
+c------------------------------------------
+c for both gen.contr. and segmented basis sets
+c because of the common Destiny
+c
+      call getmem(ngcd,icfg)        !               18
+      call getmem(ngcd,jcfg)        !               19
+      call getmem(ngcd,kcfg)        !               20
+      call getmem(ngcd,lcfg)        !               21
+c
+c------------------------------------------
+c for general contraction
+c
+      indgc=1
+      igcoef=1
+c
+      if(ngcd.gt.1) then
+        call getmem(nbls,indgc)       !             22
+        call getmem(nbls*ngcd,igcoef) !             23
+      endif
+c
+c------------------------------------------
+      end
+c====================================================================
+      subroutine memo6(npij,npkl)
+      common /memor6/ ixyab,ixycd
+c**************
+c
+c Memory handling for NMR derivatives
+c reserve memory for pair quantities :
+c
+c  ( Xa*Yb - Ya*Xb ) = xyab(ijpar,3)  - contributes to Z deriv.
+c  (-Xa*Zb + Za*Xb ) = xyab(ijpar,2)  - contributes to Y deriv.
+c  ( Ya*Zb + Za*Yb ) = xyab(ijpar,1)  - contributes to X deriv.
+c
+c  ( Xc*Yd - Yc*Xd ) = xycd(klpar,3)  - contributes to Z deriv.
+c  (-Xc*Zd + Zc*Xd ) = xycd(klpar,2)  - contributes to Y deriv.
+c  ( Yc*Zd + Zc*Yd ) = xycd(klpar,1)  - contributes to X deriv.
+c
+c**************
+c
+      npij3=3*npij
+      npkl3=3*npkl
+c
+      call getmem(npij3,ixyab)
+      call getmem(npkl3,ixycd)
+c
+      end
+c================================================================
+c used when iroute=1 (old) :
+c
+      subroutine memo5a_1(npij,mmax1)
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
 c------------------------------------------
@@ -522,7 +764,7 @@ c------------------------------------------
 c
       common /memor5c/ itxab,itxcd,iabcd,ihabcd
       common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
 c
 c------------------------------------------
       ijpar=npij
@@ -582,7 +824,7 @@ c
 c------------------------------------------
       end
 c================================================================
-      subroutine memo5b(npkl,mmax1)
+      subroutine memo5b_1(npkl,mmax1)
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
 c------------------------------------------
@@ -607,7 +849,7 @@ c------------------------------------------
 c
       common /memor5c/ itxab,itxcd,iabcd,ihabcd
       common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
 c
 c------------------------------------------
       klpar=npkl
@@ -666,13 +908,9 @@ c
 c------------------------------------------
       end
 c================================================================
-CPNL  subroutine memo5c(nbls,mmax1,nfha,nfumax)
-      subroutine memo5c(nbls_txs,nbls_pnl,mmax1,nfha,nfumax)
+      subroutine memo5c_1(nbls,mmax1,npij,npkl,nfha,nfumax)
       common /cpu/ intsize,iacc,icache,memreal
       common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
-c------------------------------------------
-c nbls_txs   - txs_size of a block
-c nbls_pnl   - pnl_size of a Super-block
 c------------------------------------------
 c Memory handling 
 c
@@ -693,16 +931,14 @@ c
       common /memor5c/ itxab,itxcd,iabcd,ihabcd
       common /memor5d/ iabnix,icdnix,ixpnx,ixqnx,ihabcdx
       common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
 c
       common /memor5f/ indxp
 c------------------------------------------
 c reserve memory for quartets ijkl
 c------------------------------------------
-cccc  nblsi=nbls
-cccc  if(intsize.ne.1) nblsi=nbls/intsize+1
-      nblsi=nbls_txs
-      if(intsize.ne.1) nblsi=nbls_txs/intsize+1
+      nblsi=nbls
+      if(intsize.ne.1) nblsi=nbls/intsize+1
 c------------------------------------------
       call getmem(nblsi,indxp)   !                    3
 c------------------------------------------
@@ -711,13 +947,10 @@ c
       call getmem(nblsi,idx2)    ! for indxkj         5
       call getmem(nblsi,indx)    ! for index          6
 c
-c FOR pnl replace nbls (txs) by nblspec (pnl) size :
-c
-      nbls=nbls_pnl
-ctxs  nbls=nbls_txs
-c
       call getmem(nbls,irppq)    ! for rppq(nbls)     7    
+cNOT  call getmem(nbls,irho)     ! for rho(nbls)      8   
       call getmem(nbls,irr1)     ! for rr1(nbls)      9  
+c       
 c
       call getmem(nbls,irhoapb)  ! for rhoapb(nbls)   10
       call getmem(nbls,irhocpd)  ! for rhocpd(nbls)   11
@@ -771,28 +1004,3 @@ c
 c------------------------------------------
       end
 c====================================================================
-      subroutine memo6(npij,npkl)
-      common /memor6/ ixyab,ixycd
-c**************
-c
-c Memory handling for NMR derivatives
-c reserve memory for pair quantities :
-c
-c  ( Xa*Yb - Ya*Xb ) = xyab(ijpar,3)  - contributes to Z deriv.
-c  (-Xa*Zb + Za*Xb ) = xyab(ijpar,2)  - contributes to Y deriv.
-c  ( Ya*Zb + Za*Yb ) = xyab(ijpar,1)  - contributes to X deriv.
-c
-c  ( Xc*Yd - Yc*Xd ) = xycd(klpar,3)  - contributes to Z deriv.
-c  (-Xc*Zd + Zc*Xd ) = xycd(klpar,2)  - contributes to Y deriv.
-c  ( Yc*Zd + Zc*Yd ) = xycd(klpar,1)  - contributes to X deriv.
-c
-c**************
-c
-      npij3=3*npij
-      npkl3=3*npkl
-c
-      call getmem(npij3,ixyab)
-      call getmem(npkl3,ixycd)
-c
-      end
-c================================================================

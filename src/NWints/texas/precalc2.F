@@ -1,8 +1,9 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.7 1996-02-09 01:15:33 d3g681 Exp $
+c $Id: precalc2.F,v 1.8 1996-02-12 19:44:35 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
+      common /route/ iroute
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
       common /primij/ iabprim, ijdim ,ijpar1 
@@ -29,14 +30,25 @@ c---------------------------------------
       call dimenij(ibl,inx,nparij,nbl2, iis,jjs,ijbl,ijdim,ijcont)
 c---------------------------------------
       ijpar1=nparij
-      call getmem(3*ijdim,iabprim)
 c---------------------------------------
-         call ab_prim(ibl,nparij,ijbl,nbl2,
-     *                dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
-     *                bl(iabprim),ijcont,
-     *                nij_uniqe,bl(ij_uniqe_p), 
-     *                bl(map_ij),ijcs_b,ijcs_e )
-c
+      IF( iroute.eq.1 ) THEN
+         call getmem(3*ijdim,iabprim)
+         call ab_prim_1(ibl,nparij,ijbl,nbl2,
+     *                  dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
+     *                  bl(iabprim),ijcont,
+     *                  nij_uniqe,bl(ij_uniqe_p), 
+     *                  bl(map_ij),ijcs_b,ijcs_e )
+      ELSE
+         call getmem(2*ijcont+ijdim,iabprim)
+         iapb =iabprim
+         i1apb=iabprim+ijcont
+         isab =iabprim+ijcont*2
+         call ab_prim_2(ibl,nparij,ijbl,nbl2,
+     *                  dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
+     *                  bl(iapb),bl(i1apb),bl(isab),ijcont,
+     *                  nij_uniqe,bl(ij_uniqe_p), 
+     *                  bl(map_ij),ijcs_b,ijcs_e )
+      ENDIF
 c---------------------------------------
       call txs_second(tprec2e)
       tprec2=tprec2+tprec2e-tprec2b
@@ -47,6 +59,7 @@ c=======================
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
+      common /route/ iroute
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
       common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
       common /primkl/ kabprim, kldim ,klpar1 
@@ -71,20 +84,31 @@ c---------------------------------------
       call dimenij(ibl,inx,nparkl,nbl2, iis,jjs,ijbl,kldim,klcont)
 c---------------------------------------
       klpar1=nparkl
-      call getmem(3*kldim,kabprim)
 c---------------------------------------
-         call ab_prim(ibl,nparkl,ijbl,nbl2,
-     *                dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
-     *                bl(kabprim),klcont,
-     *                nij_uniqe,bl(ij_uniqe_p), 
-     *                bl(map_kl),klcs_b,klcs_e )
-c
+      IF( iroute.eq.1 ) THEN
+         call getmem(3*kldim,kabprim)
+         call ab_prim_1(ibl,nparkl,ijbl,nbl2,
+     *                  dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
+     *                  bl(kabprim),klcont,
+     *                  nij_uniqe,bl(ij_uniqe_p), 
+     *                  bl(map_kl),klcs_b,klcs_e )
+      ELSE
+         call getmem(2*klcont+kldim,kabprim)
+         icpd =kabprim
+         i1cpd=kabprim+klcont
+         iscd =kabprim+klcont*2
+         call ab_prim_2(ibl,nparkl,ijbl,nbl2,
+     *                  dbl_mb(inuc),dbl_mb(ibas),inx,iis,jjs,
+     *                  bl(icpd),bl(i1cpd),bl(iscd),klcont,
+     *                  nij_uniqe,bl(ij_uniqe_p), 
+     *                  bl(map_kl),klcs_b,klcs_e )
+      ENDIF
 c---------------------------------------
       call txs_second(tprec2e)
       tprec2=tprec2+tprec2e-tprec2b
 c---------------------------------------
       end
-c=======================
+c====================================================================
       subroutine dimenij(ibl,inx,nparij,nbl2, iis,jjs,ijbl,ijdim,ijcont)
       dimension inx(12,*),iis(*),jjs(*), ijbl(nbl2,*)
 c
@@ -96,11 +120,244 @@ c
       ijcont=icont*jcont
       ijdim=nparij*ijcont
       end
-c=======================
-      subroutine ab_prim(ibl,nparij,ijbl,nbl2,
-     *                   datnuc,datbas,inx,iis,jjs,
-     *                   abprim,ijcont,
-     *                   nij_uniqe,ij_uniqe,map,ij1,ij2)
+c====================================================================
+      subroutine precdiag
+      implicit real*8 (a-h,o-z)
+c---------------------------------------------------------------
+      common /route/ iroute
+      common /memor5x/ ieab,iecd
+      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
+     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
+     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
+      common /memor5c/ itxab,itxcd,iabcd,ihabcd
+      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+c---------------------------------------------------------------
+c* for a diagonal case : npklx=0
+c
+c* since this is for a diagonal block
+c* pairs IJ and KL are the same
+c
+      ixcd=ixab
+      ixq =ixp
+      ixqn=ixpn
+      ixqq=ixpp
+c   
+      icpd=iapb
+      i1cpd=i1apb
+      ickl=icij
+      ifkl=ifij
+      iscd=isab
+c
+      icc=iaa
+      idd=ibb
+c
+      icks=icis
+      icls=icjs
+c
+      iecd=ieab
+c
+      itxcd=itxab
+c
+      icdnia=iabnia
+c-----------------------------------
+      IF( iroute.eq.1 ) THEN
+        igck=igci
+        igcl=igcj
+      ELSE
+        igckl=igcij
+      ENDIF
+c-----------------------------------
+      end
+c====================================================================
+      subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
+     *                   buf,buf1, const,rysx,xpqr,txxr,
+     *                   ngcd,indgc,gcoef,ijkln)
+c****
+c Works with Transpose BUF array 
+c****
+      implicit real*8 (a-h,o-z)
+      logical first
+      common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
+     1i,acc
+      common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
+     * nqi,nqj,nqk,nql,nsij,nskl,
+     * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
+c
+c******************************************************
+c
+      dimension bl(*)
+      dimension index(*),indxij(*),indxkl(*)
+      dimension xpqr(3,*),txxr(3,*)
+      dimension const(*),rysx(*)
+      dimension buf(ngcd,nbls,ijkln),buf1(nbls1,*)
+      dimension indgc(nbls)
+      dimension gcoef(ngcd,nbls)
+c
+c***************************************************************
+c**     FOR GENERAL CONTRACTED SHELLS
+c**  this subroutine constitues the special code for
+c**  two types of integrals over nbls quartets of primitive shells
+c**  1. (ss|ss)
+c**  2. (xs|ss),(sx|ss),(ss|xs),(ss|sx) where x=p 
+c**  these integrals are also contracted here.
+c**
+c**  input
+c**  ------
+c**  all precalculated values for whole block :
+c**
+c**  const(nbls) - contains consts=pi3*sabcd/(pq*sqrt(ppq)) for all int.
+c**  rysx(nbls) - contains  xrys i.e. arguments for fm,ft0 routines
+c**  xp,xp      - geometry for p,q
+c**
+c**  output
+c**  ------
+c**  buf(ngcd,nbls,ijkln) - contains final integrals
+c***************************************************************
+c
+c* memory for f00,f11 :
+c
+      call getmem(nbls1,if00)
+      call getmem(nbls1,if11)
+c
+      if00=if00-1
+      if11=if11-1
+c
+c*******
+c
+c*
+      do 100 i=1,nbls1
+      xrys=rysx(i)
+      call ft0
+      bl(if00+i)=f0
+      bl(if11+i)=f1
+  100 continue
+c
+c *** special code for (ss ss) integrals
+c
+      if(mmax.eq.1) then
+          do 2031 i=1,nbls1
+          buf1(i,1)=const(i)*bl(if00+i)
+ 2031     continue
+      go to 203
+      endif
+c
+c *** special code for (ps ss), (sp ss) (ss ps) and (ss sp)
+c
+cxxxx if(mmax.eq.2) then
+      if (ityp.gt.1) then
+        do 101 i=1,nbls1
+        xpqr(1,i)=xpqr(1,i)*bl(if11+i) - txxr(1,i)*bl(if00+i)
+        xpqr(2,i)=xpqr(2,i)*bl(if11+i) - txxr(2,i)*bl(if00+i)
+        xpqr(3,i)=xpqr(3,i)*bl(if11+i) - txxr(3,i)*bl(if00+i)
+ 101    continue
+      else if (jtyp.gt.1) then
+        do 102 i=1,nbls1
+        xpqr(1,i)=xpqr(1,i)*bl(if11+i) + txxr(1,i)*bl(if00+i)
+        xpqr(2,i)=xpqr(2,i)*bl(if11+i) + txxr(2,i)*bl(if00+i)
+        xpqr(3,i)=xpqr(2,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
+ 102    continue
+      else if (ktyp.gt.1) then
+        do 103 i=1,nbls1
+        xpqr(1,i)=-xpqr(1,i)*bl(if11+i) - txxr(1,i)*bl(if00+i)
+        xpqr(2,i)=-xpqr(2,i)*bl(if11+i) - txxr(2,i)*bl(if00+i)
+        xpqr(3,i)=-xpqr(3,i)*bl(if11+i) - txxr(3,i)*bl(if00+i)
+ 103    continue
+      else
+        do 104 i=1,nbls1
+        xpqr(1,i)=-xpqr(1,i)*bl(if11+i) + txxr(1,i)*bl(if00+i)
+        xpqr(2,i)=-xpqr(2,i)*bl(if11+i) + txxr(2,i)*bl(if00+i)
+        xpqr(3,i)=-xpqr(3,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
+ 104    continue
+      endif
+c*************
+        do 106 i=1,nbls1
+          buf1(i,1)=-xpqr(1,i)*const(i)
+          buf1(i,2)=-xpqr(2,i)*const(i)
+          buf1(i,3)=-xpqr(3,i)*const(i)
+106     continue
+c
+c**********************************************************
+c
+  203 continue
+c
+      if(first) then
+c
+           do 204 icx=1,lnijkl
+           do 204 i=1,nbls1
+           xint=buf1(i,icx)
+             ijkl=index(i)
+             ngcq=indgc(ijkl)
+             do 2041 iqu=1,ngcq
+             buf(iqu,ijkl,icx)=xint*gcoef(iqu,ijkl)
+ 2041        continue
+  204    continue
+c
+         first=.false.
+      else
+c
+           do 205 icx=1,lnijkl
+           do 205 i=1,nbls1
+           xint=buf1(i,icx)
+             ijkl=index(i)
+             ngcq=indgc(ijkl)
+             do 2051 iqu=1,ngcq
+             buf(iqu,ijkl,icx)=buf(iqu,ijkl,icx)+xint*gcoef(iqu,ijkl)
+ 2051        continue
+  205    continue
+c
+      endif
+c
+c* relise memory
+c
+      call retmem(2)
+c*
+      return
+      end
+c====================================================================
+      subroutine make_map(ibl,ijbl,nbl2,npar,bl,map_ij,ijcs_b,ijcs_e)
+      implicit real*8 (a-h,o-z)
+      dimension bl(*)
+      dimension ijbl(nbl2,*), npar(nbl2)
+c------------------------------------------------------------------
+c find dimensions :
+c
+      nparij=npar(ibl)
+c
+      ijcs1=ijbl(ibl,1)
+      ijcs2=ijbl(ibl,nparij)
+c
+      ijdim=ijcs2-ijcs1+1
+      call getmem(ijdim,map_ij)
+      ijcs_b=ijcs1
+      ijcs_e=ijcs2
+      call map_pairs(ibl,nparij,ijbl,nbl2,ijcs1,ijcs2,bl(map_ij))
+c
+c     write(6,*)' make_map: npairs=',npairs,' ijcs1,2=',ijcs1,ijcs2
+c
+      end
+c================================================================
+      subroutine map_pairs(ibl,nparij,ijbl,nbl2,ijcs1,ijcs2,map_ij)
+      dimension ijbl(nbl2,*), map_ij(ijcs1:ijcs2)
+c----------------------------------------------------------------
+c construct a mapping array that shows map(ijcs)--> ijpar (pnl):
+c needed only for pnl
+c----------------------------------------------------------------
+      do 50 ijpar=1,nparij
+      ijcs=ijbl(ibl,ijpar)
+      map_ij(ijcs)=ijpar
+   50 continue
+c
+      end
+c================================================================
+      subroutine ab_prim_1(ibl,nparij,ijbl,nbl2,
+     *                     datnuc,datbas,inx,iis,jjs,
+     *                     abprim,ijcont,
+     *                     nij_uniqe,ij_uniqe,map,ij1,ij2)
       implicit real*8 (a-h,o-z)
       common /neglect/ eps,eps1,epsr
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
@@ -185,12 +442,11 @@ c----------------------------------
   100 continue
       end
 c============================================================
-      subroutine precalc2(isupb,bl,mmax,mmax1,nhabcd,nfumax, nbl2,nbls,
-     *                       inx,iis,jjs,ijbl,nblok1,
-     *                       ibl,nijbeg,nijend,npij,
-     *                       kbl,nklbeg,nklend,npklx,npkl)
+      subroutine precalc2_1(isupb,bl,mmax,mmax1,nhabcd,nfumax,nbl2,nbls,
+     *                      inx,iis,jjs,ijbl,nblok1,
+     *                      ibl,nijbeg,nijend,npij,
+     *                      kbl,nklbeg,nklend,npklx,npkl)
       implicit real*8 (a-h,o-z)
-      character*3 reuse
 #include "mafdecls.fh"
 c-----------------------------------------------------------
       common /begin/ ijbegin,klbegin
@@ -211,19 +467,30 @@ c
       common /memor5c/ itxab,itxcd,iabcd,ihabcd
       common /memor5d/ iabnix,icdnix,ixpnx,ixqnx,ihabcdx
       common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
 c
       common /map4uniq/ map_ij,ijcs_b,ijcs_e, map_kl,klcs_b,klcs_e
 c
       dimension bl(*), inx(12,*),iis(*),jjs(*), ijbl(nbl2,*)
       dimension nblok1(2,*)
 c---------------------------------------------------------------
+      common /pnl008/ last_isupb,last_nparts
+c---------------------------------------------------------------
+c     if(isupb.eq.last_isupb) then
+c        lpartot=lpartot+1
+c        if(kbl.eq.ibl) then
+c            kabprim=iabprim
+c            kldim  =ijdim
+c            klpar1 =ijpar1
+c            call precdiag
+c        endif
+c        RETURN
+c     endif
+c---------------------------------------------------------------
 c get unique pairs :
 c
       call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
       call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
-c---------------------------------------------------------------
-      reuse='no '
 c---------------------------------------------------------------
 c For PNL applications there are NO SMALL BLOCKS thus, no re-use !
 CPNL  call reuseij(ibl,nbls,mmax,nblok1,reuse)
@@ -233,27 +500,25 @@ c-----------------------------------------------------------
 c-----------------------------------------------------------
 c precalculations for pairs ij
 c
-      call precal2x(iabprim,ijdim,iapb,i1apb,isab)
+      call precal2x_1(iabprim,ijdim,iapb,i1apb,isab)
 c--------
       lpartot=lpartot+1
-      if(reuse.eq.'no ') then
-          lpareal=lpareal+1
-          call precal2a(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npij,
-     *                  ibl,ijbl,nbl2,nijbeg,nijend,
-     *                  bl(iabprim      ),ijpar1 ,
-     *                  lcij,bl(iaa),bl(ibb),bl(ieab),bl(icis),bl(icjs),
-     *                  bl(ixab),bl(ixp),bl(icij),bl(ifij), bl(itxab),
-     *                  bl(igci),bl(igcj),ngci1,ngcj1,'left ',
-     *                  nij_uniqe,bl(ij_uniqe_p),
-     *                  bl(map_ij),ijcs_b,ijcs_e)
+      lpareal=lpareal+1
+      call precal2a_1(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npij,
+     *              ibl,ijbl,nbl2,nijbeg,nijend,
+     *              bl(iabprim      ),ijpar1 ,
+     *              lcij,bl(iaa),bl(ibb),bl(ieab),bl(icis),bl(icjs),
+     *              bl(ixab),bl(ixp),bl(icij),bl(ifij), bl(itxab),
+     *              bl(igci),bl(igcj),ngci1,ngcj1,'left ',
+     *              nij_uniqe,bl(ij_uniqe_p),
+     *              bl(map_ij),ijcs_b,ijcs_e)
 c----------
 c for abnia
-          if(mmax.gt.2) then
-             call precal2b(mmax1,lcij,npij, bl(i1apb),
-     *                     ijpar1,ijbegin, bl(iabnia),
-     *                     nij_uniqe,bl(ij_uniqe_p),
-     *                     bl(map_ij),ijcs_b,ijcs_e)
-          endif
+      if(mmax.gt.2) then
+         call precal2b_1(mmax1,lcij,npij, bl(i1apb),
+     *                 ijpar1,ijbegin, bl(iabnia),
+     *                 nij_uniqe,bl(ij_uniqe_p),
+     *                 bl(map_ij),ijcs_b,ijcs_e)
       endif
 c----------------------------------------
 c precalculations for pairs kl
@@ -264,11 +529,11 @@ c
           klpar1 =ijpar1
       endif
       if(npkl.ne.0) then
-          call precal2x(kabprim,kldim,icpd,i1cpd,iscd)
+          call precal2x_1(kabprim,kldim,icpd,i1cpd,iscd)
 c
           lpartot=lpartot+1
           lpareal=lpareal+1
-          call precal2a(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npkl,
+          call precal2a_1(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npkl,
      *                  kbl,ijbl,nbl2,nklbeg,nklend,
      *                  bl(kabprim      ),klpar1 ,
      *                  lckl,bl(icc),bl(idd),bl(iecd),bl(icks),bl(icls),
@@ -279,7 +544,7 @@ c
 c--
 c for cdnia
          if(mmax.gt.2) then
-            call precal2b(mmax1,lckl,npklx,bl(i1cpd),
+            call precal2b_1(mmax1,lckl,npklx,bl(i1cpd),
      *                    klpar1,klbegin, bl(icdnia),
      *                    nkl_uniqe,bl(kl_uniqe_p),
      *                    bl(map_kl),klcs_b,klcs_e)
@@ -291,7 +556,7 @@ c----------------------------------------
 c for habcd
 c
       if(mmax.gt.2) then
-         call precal2c(npij,npklx,npkl, bl(i1apb),bl(i1cpd),
+         call precal2c_1(npij,npklx,npkl, bl(i1apb),bl(i1cpd),
      *                 ijpar1,klpar1, bl(ihabcd),nhabcd,nfumax ,
      *               nij_uniqe,bl(ij_uniqe_p),bl(map_ij),ijcs_b,ijcs_e,
      *               nkl_uniqe,bl(kl_uniqe_p),bl(map_kl),klcs_b,klcs_e)
@@ -299,125 +564,7 @@ c
 c---------------------------------------------------------------
       end
 c====================================================================
-c********************************************************************
-c**       Description of the PRECAL2A subroutine
-c**  This subroutine is used to calculate some pair-quantities
-c**  for left-hand as well as for right-hand pairs
-c**
-c**  This subroutine calculates 26 quantities for contracted
-c**  shell pairs which belong to a given block of contracted
-c**  quartets. There are NPIJ pairs <IJ and NPKL pairs KL>  
-c**  which form a given block of contracted quartets. The 
-c**  relationship between IJKL quartet and these pairs is
-c**  through vectors INDXIJ and INDXKL :
-c**    <IJ = INDXIJ( ijkl )  and      KL> = INDXKL( ijkl ) 
-c
-c  INPUT :
-c
-c     INX(12,ICS)     - informations about ICS contracted shell
-c     DATNUC(5,iatom) - charge,position,.. for atom IATOM
-c     DATBAS(13,ips)   - basis set data for IPS primitive shell
-c    
-c     LCIJ, LCKL      - lci*lcj  and lck*lcl where lci,lcj,lck,lcl are
-c                       contraction lengths for ICS,JCS,KCS,LCS shells
-c
-c     NGCI1,NGCJ1,NGCK1,NGCL1 - depth of General Contraction
-c                               for shells ICS,JCS,KCS,LCS
-c     
-c
-c   Information about PAIRS of contracted shells :
-c      ( comes from Blkprep routine )
-c
-c     NBL2  - number of blocks of contracted PAIRS 
-c     IJBL(ibl,ij) - IJCS pair as the IJth pair from IBL block
-c
-c     IIS(ijcs) -> ICS - gives first (ICS) contracted shell in IJCS pair
-c     JJS(ijcs) -> JCS - gives last  (JCS) contracted shell in IJCS pair
-c
-c   For a given block of contracted Quartets it is needed to 
-c   consider here :
-c  
-c    NPIJ pairs <IJ  -  from NIJBEG to NIJEND in IJBL(ibl,nijbeg-nijend)
-c    NPKL pairs KL>  -  from NKLBEG to NKLEND in IJBL(kbl,nklbeg-nklend)
-c
-c    NPKLX  - is 0 if this subroutine is called for a diagonal block
-c                  (IJ,IJ), or it is NPKL otherwise.
-c*************
-c
-c  OUTPUT :
-c
-c     INDXIJ(ijkl)  - gives the first  pair IJ for IJKL quartet
-c     INDXKL(ijkl)  - gives the second pair KL for IJKL quartet
-c
-c     AAA, CIS(ij,ips) - exponent and re-scaled contracion coefficient
-c                        of each IPS primitive shell from ICS contracted
-c                        shell belonging to the pair IJ
-c     BBB, CJS(ij,jps) - like above for JPS primitive shell from
-c                        JCS contracted shell
-c     CCC, CKS(kl,kps) - like above for KPS, KCS and pair KL
-c     DDD, CLS(kl,lps) - like above for LPS, LCS 
-c
-c     XAB(ij,3) - coordinaties x,y,z  of (A-B)  for each pair IJ 
-c     XCD(kl,3) - coordinaties x,y,z  of (C-D)  for each pair KL 
-c
-c* Matrices XPARIJ, XPARKL and YPARIJ, YPARKL 
-c* have the following meaning :
-c* (a,b,c,d- exponents,  A,B,C,D- orbital centers ,
-c*     csi,cpi-  s- and p-contraction coefficients )
-c
-c  XPARIJ(npij,3,lcij,1) =  XP(npij,3,lcij)   -   ( a*A + b*B )/(a+b)
-c  XPARIJ(npij,3,lcij,2) = XPN(npij,3,lcij)   -   XP - A  or XP -B
-c  XPARIJ(npij,3,lcij,3) = XPP(npij,3,lcij)   -   a*A  +  b*B
-c
-c  XPARKL(npkl,3,lckl,1) =  XQ(npkl,3,lckl)   - like above for centers
-c  XPARKL(npkl,3,lckl,2) = XQN(npkl,3,lckl)        C,D --> Q, QN, QQ
-c  XPARKL(npkl,3,lckl,3) = XQQ(npkl,3,lckl)      
-c
-c  YPARIJ(npij,lcij,1)  =    APB(npij,lcij)   -      a+b
-c  YPARIJ(npij,lcij,2)  =   RAPB(npij,lcij)   -    1/(a+b)
-c  YPARIJ(npij,lcij,3)  = FACTIJ(npij,lcij)   - only when ICS and JCS
-c                                                are L-shells :
-c                			       csi/cpi * csj/cpj
-c
-c  YPARIJ(npij,lcij,4) = COEFIJ(npij,lcij)   - (csi or cpi)*(csj or cpj)
-c                                                   *sab/(a+b)
-c  YPARIJ(npij,lcij,5) =    SAB(npij,lcij)   - pure overlap sab
-c
-c  YPARKL(npkl,lckl,1)  =   CPD(npkl,lckl)   -      c+d         
-c  YPARKL(npkl,lckl,2)  =  RCPD(npkl,lckl)   -   1/(c+d)
-c  YPARKL(npkl,lckl,3)  = FACTKL(npkl,lckl)  - only when KCS and LCS
-c                                                are L-shells :
-c                			       csk/cpk * csl/cpl
-c  YPARKL(npkl,lckl,4)  = COEFKL(npkl,lckl)  - (csk or cpk)*(csl or cpl)
-c                                                 8*scd/(c+d)
-c  YPARKL(npkl,lckl,5)  =    SCD(npkl,lckl)  -  scd *(2/pi)**3
-c
-c  TXAB(IJ,3,lcij) - coordinates XAB re-scaled by exponents a or b
-c  TXCD(KL,3,lckl) - coordinates XAB re-scaled by exponents c or d
-c                   Txab and Txcd are used in XWPQ routine to calculate
-c                   P1234(ijkl,3) needed in Trobsa / ijkl-quartet /
-c
-c  GCI(npij,ngci1,lci)- general contraction coef. for ICS 
-c  GCJ(npij,ngcj1,lcj)- general contraction coef. for JCS 
-c  GCk(npkl,ngck1,lck)- general contraction coef. for KCS 
-c  GCL(npkl,ngcl1,lcl)- general contraction coef. for LCS 
-c
-c*******************
-c     NOTE :
-c
-c* Here SAB, SCD as well as Coefij, Coefkl are not "symmetrical" :
-c*
-c*      SAB=sab  without any factors (pure overlap)
-c*      SCD=scd  multiplied by (2/pi)**3
-c* These two above are used as a prodauct in Negelect only.
-c*
-c* Coefij and Coefkl as a product are used in Neglect only
-c* to calculate Const. They are :
-c* Coefij  is    sab * contraction ij  * 1/(a+b)
-c* Coefkl  is  8*scd * contraction kl  * 1/(c+d)
-c
-c********************************************************************
-      subroutine precal2a(datbas,datnuc,iis,jjs,inx,npij,
+      subroutine precal2a_1(datbas,datnuc,iis,jjs,inx,npij,
      * ibl,ijbl,nbl2,nijbeg,nijend,
      * abprim,ijpar1,lcij, aaa,bbb,estab,cis,cjs,
      * xab,xparij,coefij,factij,txab, gci,gcj,ngci1,ngcj1,which ,
@@ -710,76 +857,15 @@ c
 c--------------
       end
 c====================================================================
-      subroutine precdiag
-      implicit real*8 (a-h,o-z)
-c---------------------------------------------------------------
-      common /memor5x/ ieab,iecd
-      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
-     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
-     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
-      common /memor5c/ itxab,itxcd,iabcd,ihabcd
-      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
-     *                 icfg,jcfg,kcfg,lcfg
-c---------------------------------------------------------------
-c* for a diagonal case : npklx=0
-c
-c* since this is for a diagonal block
-c* pairs IJ and KL are the same
-c
-      ixcd=ixab
-      ixq =ixp
-      ixqn=ixpn
-      ixqq=ixpp
-c   
-      icpd=iapb
-      i1cpd=i1apb
-      ickl=icij
-      ifkl=ifij
-      iscd=isab
-c
-      icc=iaa
-      idd=ibb
-c--
-      iecd=ieab
-c
-      icks=icis
-      icls=icjs
-c
-      itxcd=itxab
-c
-      igck=igci
-      igcl=igcj
-c
-      icdnia=iabnia
-c-----------------------------------
-      end
-c====================================================================
-      subroutine precal2b(mmax1,lcij,npij, rapb,ijpar1,ijbegin, abnia,
-     *                    nij_uniqe,ij_uniqe,map_ij,ijcs_b,ijcs_e)
+      subroutine precal2b_1(mmax1,lcij,npij,rapb,ijpar1,ijbegin,abnia,
+     *                      nij_uniqe,ij_uniqe,map_ij,ijcs_b,ijcs_e)
 c-------------------------------------------------------------------
-c  Description :
-c
-c  This subroutine calculates 1 quantity for contracted shell pairs 
-c  which belong to a given block of contracted shell quartets .
-c    This subroutine is called (from Blockint) only for blocks
-c  with total angular momentum MMAX > 2 ,where MMAX is the sum 
-c  of angular momentum of four contracted shells (+1) /for exemple :
-c  (ss ss):mmax=1, (pp,ps):mmax=4, (dd,ll):mmax=7, (ff,ff):mmax=13 /
-c
-c  INPUT 
-c  ------
-c  MMAX1 = MMAX-1 , where MMAX is the sum of angular momentum 
-c  NPIJ  - number of pairs <IJ in a given block of contracted quartets
-c  RAPB(ij,lcij) - 1/(a+b) : reversed sum of exponents of each
-c                     pair of primitive shells from IJth pair of  
-c                     contracted shells.
 c  OUTPUT
 c  -------
 c  For each pair of primitive shells ij (kl) from IJ (KL) contracted
 c  pair belonging to a given block of quartets with total ang.mom. MMAX
 c
 c  1. ABNIA(IJ,L,ij) -   L*( 0.5/(a+b) )  with L=1,2,...MMAX-1
-c
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
 c---> dimension rapb(npij,*), abnia(npij,mmax1,*)
@@ -803,32 +889,11 @@ c--------------------------
 c
       end
 c====================================================================
-      subroutine precal2c(npij,npkl,npklx, rapb,rcpd,ijpar1,klpar1,
-     *                    habcd,nhabcd,nfumax, 
-     *                    nij_uniqe,ij_uniqe,map_ij, ijcs_b,ijcs_e,
-     *                    nkl_uniqe,kl_uniqe,map_kl, klcs_b,klcs_e )
+      subroutine precal2c_1(npij,npkl,npklx, rapb,rcpd,ijpar1,klpar1,
+     *                      habcd,nhabcd,nfumax, 
+     *                      nij_uniqe,ij_uniqe,map_ij, ijcs_b,ijcs_e,
+     *                      nkl_uniqe,kl_uniqe,map_kl, klcs_b,klcs_e )
 c-----------------------------------------------------------------------
-c  Description of the PRECAL2b subroutine
-c
-c  This subroutine calculates 1 quantity for contracted shell pairs 
-c  which belong to a given block of contracted shell quartets .
-c    This subroutine is called (from Blockint) only for blocks
-c  with total angular momentum MMAX > 2 ,where MMAX is the sum 
-c  of angular momentum of four contracted shells (+1) /for exemple :
-c  (ss ss):mmax=1, (pp,ps):mmax=4, (dd,ll):mmax=7, (ff,ff):mmax=13 /
-c
-c  INPUT 
-c  ------
-c
-c    NPIJ, NPKL  - number of pairs <IJ  nd KL> in a given block
-c                  of contracted quartets
-c    NPKLX  - is 0 if this subroutine is called for a diagonal block
-c                  (IJ,IJ), or it is NPKL otherwise.
-c    RAPB(ij,lcij) - 1/(a+b) : reversed sum of exponents of each
-c                     pair of primitive shells from IJth pair of  
-c                     contracted shells.
-c    RCPD(kl,lckl) - 1/(c+d)  : like above for pairs KL>
-c
 c  OUTPUT
 c  ------
 c  For each pair of primitive shells ij (kl) from IJ (KL) contracted
@@ -906,13 +971,13 @@ ccccccc      do 290 ijpar=1,npij
 c
       end
 c====================================================================
-      subroutine prec4neg(isbl_size,isbl_point, isbl_q,ijpres2,klpres2,
-     *                    npij,npkl,ndiag,ij,kl,
-     *                    ijpar1,lc12, klpar1,lc34,
-     *                    estab,estcd, apb,cpd,coefij,coefkl,xp,xq, 
-     *                    map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
+      subroutine prec4neg_1(isbl_size,isbl_point,isbl_q,ijpres2,klpres2,
+     *                      npij,npkl,ndiag,ij,kl,
+     *                      ijpar1,lc12, klpar1,lc34,
+     *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq, 
+     *                      map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
 coutput
-     *                    rppq,rhoapb,rhocpd,rys,const,nbls1,index)
+     *                      rppq,rhoapb,rhocpd,rys,const,nbls1,index)
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
@@ -1006,15 +1071,15 @@ c
 c
       end
 c====================================================================
-      subroutine precspec(isbl_size,isbl_point,
-     *                    isbl_q,ijpres2,klpres2,
-     *                    npij,npkl,ndiag, ij,kl,
-     *                    ijpar1,lc12, klpar1,lc34, indxij,indxkl,
-     *                    estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
-     *                    rapb,rcpd,txab,txcd,
-     *                    map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
+      subroutine precspec_1(isbl_size,isbl_point,
+     *                      isbl_q,ijpres2,klpres2,
+     *                      npij,npkl,ndiag, ij,kl,
+     *                      ijpar1,lc12, klpar1,lc34, indxij,indxkl,
+     *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
+     *                      rapb,rcpd,txab,txcd,
+     *                      map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
 c output
-     *                    rys,const,xpqr,txxr,nbls1,index)
+     *                      rys,const,xpqr,txxr,nbls1,index)
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
@@ -1144,43 +1209,12 @@ c
 c
       end
 c====================================================================
-      subroutine xwpq(nbls1,xwp,xwq,p1234,
-     1     ijpar1,lc12, klpar1,lc34,
-     *        lcij,lckl,npij,npkl,
-     *        indxij,indxkl,index,
-     *        rppq,xp,xq,xpp,xqq,
-     *        txab,txcd,abcd,apb,rcpd,cpd,rapb)
+      subroutine xwpq_1(nbls1,xwp,xwq,p1234,ijpar1,lc12, klpar1,lc34,
+     *                  lcij,lckl,npij,npkl,indxij,indxkl,index,
+     *                  rppq,xp,xq,xpp,xqq,
+     *                  txab,txcd,abcd,apb,rcpd,cpd,rapb)
 c-----------------------------------------------
-c  Description of the XWPQ     subroutine
-c
-c  For two primitive pairs lcij and lckl which contribute 
-c  to all NBLS1 contracted quartets IJKL in a given block
-c  4 quatities are calculated for each quartet (xwp,xwq,p1234,abcd)
-c
-c  INPUT :
-c*******
-c 
-c  NBLS1 - blocksize
-c  lcij, lckl - pairs of primitive shells
-c  NPIJ,NPKL  - number of contracted pairs
-c  INDEX(ijkl1) - for ijkl1 quartet in Reduced block shows 
-c                 the ijkl  quartet in Original block
-c  INDXIJ(ijkl) - shows the contracted pair IJPAR for ijkl quartet
-c  INDXKL(ijkl) - shows the contracted pair KLPAR for ijkl quartet
-c  RPPQ(ijkl1)  = 1/(a+b+c+d)         where a,b,c,d, are exponents
-c  XP(ijpar,3,lcij) - coordinates of P
-c  XQ(klpar,3,lckl) - coordinates of Q
-c  XPP(ijpar,3,lcij)- coordinates of ( a*A + b*B)
-c  XQQ(klpar,3,lckl)- coordinates of ( c*C + d*D)
-c  TXAB(ijpar,3,  )  - coordinates XAB re-scaled by exponents a or b
-c  TXCD(klpar,3,  )  - coordinates XAB re-scaled by exponents c or d
-c  APB(ijpar,lcij) =a+b
-c  CPD(klpar,lckl) =c+d
-c  RAPB(ijpar,lcij)=1/(a+b)
-c  RCPD(klpar,lckl)=1/(c+d)
-c
 c  OUTPUT
-c********
 c
 c  XWP(ijkl1) - coordinates of W-P,  where W=(XPP+XQQ)/(a+b+c+d)
 c  XWQ(ijkl1) - coordinates of W-Q
@@ -1278,10 +1312,10 @@ c
       return
       end
 c====================================================================
-      subroutine specase(bl,first,nbls,nbls1, index,indxij,indxkl,
-     *                   npij,npkl,ii,jj,kk,ll,
-     *                   cis,cjs,cks,cls,
-     *                   buf,buf1, const,rysx,xpqr,txxr,concoe)
+      subroutine specase_1(bl,first,nbls,nbls1, index,indxij,indxkl,
+     *                     npij,npkl,ii,jj,kk,ll,
+     *                     cis,cjs,cks,cls,
+     *                     buf,buf1, const,rysx,xpqr,txxr,concoe)
 c****
       implicit real*8 (a-h,o-z)
       logical first
@@ -1452,41 +1486,934 @@ c*
       return
       end
 c====================================================================
-      subroutine specasg(bl,first,nbls,nbls1, index,indxij,indxkl,
-     *                   buf,buf1, const,rysx,xpqr,txxr,
-     *                   ngcd,indgc,gcoef,ijkln)
-c****
-c Works with Transpose BUF array 
-c****
+      subroutine precal2x_1(iabprim,ijdim,iapb,i1apb,isab)
+c-------------------------------------------------------------
+c* precalculations for the pairs IJ :
+c
+      iapb =iabprim
+      i1apb=iabprim   + ijdim
+      isab =iabprim   + ijdim*2
+c--------------
+      end
+c====================================================================
+      subroutine ab_prim_2(ibl,nparij,ijbl,nbl2,
+     *                     datnuc,datbas,inx,iis,jjs,
+     *                     apb,rapb,sab,ijcont,
+     *                     nij_uniqe,ij_uniqe,map,ij1,ij2)
+      implicit real*8 (a-h,o-z)
+      common /neglect/ eps,eps1,epsr
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
+     1i,acc
+c
+      dimension datbas(13,*),datnuc(5,*)
+cccc  dimension abprim(nparij,ijcont,3)
+      dimension apb(ijcont),rapb(ijcont),sab(nparij,ijcont)
+      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*)
+c
+      dimension ij_uniqe(nij_uniqe), map(ij1:ij2)
+c
+      dimension sqrtx(400),eexx(400)
+c---------------------------------------------------------------
+cccc  do 100 ijpar=1,nparij
+cccc  ijcs=ijbl(ibl,ijpar)
+cnew
+      do 100 ij_u =1,nij_uniqe
+      ijcs=ij_uniqe(ij_u)
+      ijpar=map(ijcs)
+c
+      ics=iis(ijcs)
+      jcs=jjs(ijcs)
+      ia=inx(1,ics)+1
+      ie=inx(5,ics)
+      iat=inx(2,ics)
+        ja=inx(1,jcs)+1
+        je=inx(5,jcs)
+        jat=inx(2,jcs)
+        xab=datnuc(2,iat)-datnuc(2,jat)
+        yab=datnuc(3,iat)-datnuc(3,jat)
+        zab=datnuc(4,iat)-datnuc(4,jat)
+        rr=xab*xab+yab*yab+zab*zab
+           ij=0
+           do 200 is=ia,ie
+           aa=datbas(1,is)
+c----------------------------------
+             do 200 js=ja,je
+             bb=datbas(1,js)
+             ij=ij+1
+c----------------------------------
+             if(aa.gt.zero .and. bb.gt.zero) then
+cnew            if(ijpar.eq.1) then
+                if(ij_u .eq.1) then
+                  axb=aa*bb
+                  apb(ij)=aa+bb
+                  rapb(ij)=one/apb(ij)
+                  e=axb*rapb(ij)
+                  eexx(ij)=e
+                  sqrtx(ij)=sqrt(sqrt(axb))**3
+                  sqrt3=sqrtx(ij)
+                else
+                  sqrt3=sqrtx(ij)
+                  e=eexx(ij)
+                endif
+                sab(ijpar,ij)=rapb(ij)*sqrt3*exp(-e*rr)
+             else
+c center23:
+                if(aa.le.zero .and. bb.gt.zero) then
+                   write(8,*)' exp_a=zero ; ics=',ics
+cnew               if(ijpar.eq.1) then
+                   if(ij_u .eq.1) then
+                      apb(ij)=aa+bb
+                      rapb(ij)=one/apb(ij)
+                      sqrtx(ij)=sqrt(half*sqrt(bb)) ! sqrt(Sbb)
+                      sqrt3=sqrtx(ij)
+                   else
+                      sqrt3=sqrtx(ij)
+                   endif
+                   sab(ijpar,ij)=sqrt3                ! sqrt(Sbb)
+                endif
+                if(aa.gt.zero .and. bb.le.zero) then
+                   write(8,*)' exp_b=zero ; jcs=',jcs
+cnew               if(ijpar.eq.1) then
+                   if(ij_u .eq.1) then
+                      apb(ij)=aa+bb
+                      rapb(ij)=one/apb(ij)
+                      sqrtx(ij)=sqrt(half*sqrt(aa)) ! sqrt(Saa)
+                      sqrt3=sqrtx(ij)
+                   else
+                      sqrt3=sqrtx(ij)
+                   endif
+                   sab(ijpar,ij)=sqrt3              ! sqrt(Saa)
+                endif
+                if(aa.le.zero .and. bb.le.zero) then
+                   apb(ij)=zero
+                   rapb(ij)=zero
+                   sab(ijpar,ij)=zero
+                endif
+             endif
+c
+c----------------------------------
+  200     continue
+  100 continue
+      end
+c============================================================
+cccc  subroutine precalc2_2(isupb,bl,mmax,mmax1,nhabcd,nfumax,nbl2,nbls,
+      subroutine precalc2_2(isupb,bl,mmax,mmax1,       nfumax,nbl2,nbls,
+     *                      inx,iis,jjs,ijbl,nblok1,
+     *                      ibl,nijbeg,nijend,npij,
+     *                      kbl,nklbeg,nklend,npklx,npkl)
+      implicit real*8 (a-h,o-z)
+#include "mafdecls.fh"
+c-----------------------------------------------------------
+      common /begin/ ijbegin,klbegin
+      common /primij/ iabprim, ijdim ,ijpar1
+      common /primkl/ kabprim, kldim ,klpar1
+      common /ilepar/ lpartot,lpareal
+c
+      common /infob/ inuc,ibas,na,nbf,nsh,ncf,ncs
+c
+      common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+      common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
+c
+      common /memor5x/ ieab,iecd
+      common /memor5a/ iaa,ibb,icc,idd,icis,icjs,icks,icls,
+     * ixab,ixp,ixpn,ixpp,iabnia,iapb,i1apb,ifij,icij,isab,
+     * ixcd,ixq,ixqn,ixqq,icdnia,icpd,i1cpd,ifkl,ickl,iscd
+      common /memor5c/ itxab,itxcd,iabcd,ihabcd
+      common /memor5d/ iabnix,icdnix,ixpnx,ixqnx,ihabcdx
+      common /memor5e/ igci,igcj,igck,igcl,indgc,igcoef,
+     *                 icfg,jcfg,kcfg,lcfg, igcij,igckl
+c
+      common /map4uniq/ map_ij,ijcs_b,ijcs_e, map_kl,klcs_b,klcs_e
+c
+      dimension bl(*), inx(12,*),iis(*),jjs(*), ijbl(nbl2,*)
+      dimension nblok1(2,*)
+c---------------------------------------------------------------
+      common /pnl008/ last_isupb,last_nparts
+c---------------------------------------------------------------
+c     if(isupb.eq.last_isupb) then
+c        lpartot=lpartot+1
+c        if(kbl.eq.ibl) then
+c            kabprim=iabprim
+c            kldim  =ijdim
+c            klpar1 =ijpar1
+c            call precdiag
+c        endif
+c        RETURN
+c     endif
+c---------------------------------------------------------------
+c get unique pairs :
+c
+      call get_uniq(ibl,nij_uniqe,ij_uniqe_p,bl)
+      call get_uniq(kbl,nkl_uniqe,kl_uniqe_p,bl)
+c---------------------------------------------------------------
+c For PNL applications there are NO SMALL BLOCKS thus, no re-use !
+CPNL  call reuseij(ibl,nbls,mmax,nblok1,reuse)
+c-----------------------------------------------------------
+      ijbegin=nijbeg
+      klbegin=nklbeg
+c-----------------------------------------------------------
+c precalculations for pairs ij
+c
+      call precal2x_2(iabprim,lcij,iapb,i1apb,isab)
+c--------
+      lpartot=lpartot+1
+      lpareal=lpareal+1
+      call precal2a_2(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npij,
+     *              ibl,ijbl,nbl2,nijbeg,nijend,
+     *                  bl(iabprim+lcij),bl(iabprim+2*lcij),ijpar1,
+     *                  lcij,bl(ieab), bl(icis),bl(icjs),
+     *              bl(ixab),bl(ixp),bl(icij),bl(ifij), bl(itxab),
+     *                  bl(igcij),ngci1,ngcj1,'left ',
+     *              nij_uniqe,bl(ij_uniqe_p),
+     *              bl(map_ij),ijcs_b,ijcs_e)
+c----------
+c for abnia
+      if(mmax.gt.2) then
+         call precal2b_2(mmax1,lcij, bl(i1apb),bl(iabnia))
+      endif
+c----------------------------------------
+c precalculations for pairs kl
+c
+      if(kbl.eq.ibl) then
+          kabprim=iabprim
+          kldim  =ijdim
+          klpar1 =ijpar1
+      endif
+      if(npkl.ne.0) then
+          call precal2x_2(kabprim,lckl,icpd,i1cpd,iscd)
+c
+          lpartot=lpartot+1
+          lpareal=lpareal+1
+          call precal2a_2(dbl_mb(ibas),dbl_mb(inuc),iis,jjs,inx, npkl,
+     *                  kbl,ijbl,nbl2,nklbeg,nklend,
+     *                  bl(kabprim+lckl),bl(kabprim+2*lckl),klpar1,
+     *                  lckl,bl(iecd),bl(icks),bl(icls),
+     *                  bl(ixcd),bl(ixq),bl(ickl),bl(ifkl), bl(itxcd),
+     *                  bl(igckl),ngck1,ngcl1,'right',
+     *                  nkl_uniqe,bl(kl_uniqe_p),
+     *                  bl(map_kl),klcs_b,klcs_e)
+c--
+c for cdnia
+         if(mmax.gt.2) then
+            call precal2b_2(mmax1,lckl, bl(i1cpd),bl(icdnia))
+         endif
+      else
+          call precdiag
+      endif
+c----------------------------------------
+c for habcd
+c
+      if(mmax.gt.2) then
+         call precal2c_2(lcij,lckl,bl(i1apb),bl(i1cpd),
+     *                   bl(ihabcd),nfumax )
+      endif
+c---------------------------------------------------------------
+      end
+c====================================================================
+      subroutine precal2a_2(datbas,datnuc,iis,jjs,inx,npij,
+     *                    ibl,ijbl,nbl2,nijbeg,nijend,
+     *                    rapb,sab,ijpar1, lcij,estab, cis,cjs,
+     *                    xab,xparij,coefij,factij,txab,
+     *                    gcij,ngci1,ngcj1,which ,
+     *                nij_uniqe,ij_uniqe,map_ij,ijcs_b,ijcs_e)
+c
+      implicit real*8 (a-h,o-z)
+      character*5 which
+c
+      COMMON /types/itype,jtype,ktype,ltype,ityp,jtyp,ktyp,ltyp
+      common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lc12,lc34
+      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
+     1i,acc
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+c
+      common /neglect/ eps,eps1,epsr
+c---------------------------------------------------------------
+      dimension rapb(lcij),sab(ijpar1,lcij) 
+      dimension datbas(13,*),datnuc(5,*)
+      dimension inx(12,*),iis(*),jjs(*),ijbl(nbl2,*)
+c
+      dimension cis(*),cjs(*)
+      dimension xab(npij,3), xparij(npij,3,lcij,3)
+      dimension estab (npij,lcij)
+      dimension coefij(npij,lcij), factij(lcij)
+      dimension xa(3),xb(3),txab(npij,3,*)
+      dimension gcij(ngci1,ngcj1,lcij)
+      dimension aexp(100),bexp(100)
+c
+      dimension ij_uniqe(nij_uniqe), map_ij(ijcs_b:ijcs_e)
+c---------------------------------------------------------------
+cnot  par268=eps1*8.d0
+      par268=     8.d0
+c---------------------------------------------------------------
+c
+      if(which.eq.'left ') then
+          itypp=ityp
+          jtypp=jtyp
+          ngcii=ngci
+          ngcjj=ngcj
+          nqii=nqi
+          nqjj=nqj
+          lcii=lci
+          lcjj=lcj
+      else
+          itypp=ktyp
+          jtypp=ltyp
+          ngcii=ngck
+          ngcjj=ngcl
+          nqii=nqk
+          nqjj=nql
+          lcii=lck
+          lcjj=lcl
+      endif
+c
+c-------------------------------------------------------------
+c for integral neglect (to massage contraction coef.)
+c
+      contrij=dble(lcii*lcjj)
+      contrij=sqrt(contrij)
+c-------------------------------------------------------------
+c* for gen.contr
+c
+      ngctot=ngci+ngcj+ngck+ngcl
+c---------------
+c precalculations for the pairs IJ :
+c
+      do 100 ij_u=1,nij_uniqe
+        ijcs=ij_uniqe(ij_u)
+        ijp  =map_ij(ijcs)
+        ijpar=ijp
+c
+        ics=iis(ijcs)
+        jcs=jjs(ijcs)
+        fact1=one
+cpnl    if(ics.eq.jcs) then
+cpnl       if(ngctot.eq.0) fact1=fact1*half
+cpnl    endif
+c
+c      starting contr
+        ia=inx(1,ics)+1
+        ja=inx(1,jcs)+1
+c      last contr
+        ie=inx(5,ics)
+        je=inx(5,jcs)
+c       number of general contr.
+c       ngci=inx(4,ics)
+c       ngcj=inx(4,jcs)
+c in the common block contr
+c
+        iatom=inx(2,ics)
+        jatom=inx(2,jcs)
+c
+c center23 (atom number 0 is the one with s-orbital/zero-exp.)
+c
+        if(iatom.eq.0) iatom=jatom
+        if(jatom.eq.0) jatom=iatom
+c
+          do 150 i=1,3
+          if(iatom.eq.0 .and. jatom.eq.0) then
+            xa(i)=zero
+            xb(i)=zero
+          else
+            xa(i)=datnuc(1+i,iatom)
+            xb(i)=datnuc(1+i,jatom)
+          endif
+          xab(ijpar,i)=xa(i)-xb(i)
+  150     continue
+c
+         ji=0
+         is1=0
+         do 200 is=ia,ie
+            is1=is1+1
+            aa=datbas(1,is)
+            aexp(is1)=aa
+               if(ngctot.eq.0) then
+                  csi=datbas(2,is)
+                  cpi=datbas(3,is)
+                  coefi=csi
+                  est_is=csi
+                  est_ip=one
+                  if(itypp.eq.3) then
+                     est_ip=cpi
+                     coefi=cpi
+                     csi=csi/cpi
+                     facti=csi
+                  endif
+                  coefi=coefi*fact1
+                  if(which.eq.'right') coefi=coefi*par268
+                  cis(is1)=csi
+               endif
+c
+         js1=0
+         do 200 js=ja,je
+            js1=js1+1
+            ji=ji+1
+            bb=datbas(1,js)
+            bexp(js1)=bb
+               if(ngctot.eq.0) then
+                  csj=datbas(2,js)
+                  cpj=datbas(3,js)
+                  coefj=csj
+                  est_js=csj
+                  est_jp=one
+                  if(jtypp.eq.3) est_jp=cpj
+                  if(jtypp.eq.3) coefj=cpj
+                  coefij(ijpar,ji )=coefi*coefj
+                  if(jtypp.eq.3) then
+                     csj=csj/cpj
+                     factj=csj
+                     if(itypp.eq.3) then
+                       factij(ji)=facti*factj
+                     endif
+                  endif
+                  cjs(js1)=csj
+               else              
+c                 gen.contr.
+                  est_is=one
+                  est_js=one
+                  coefij(ijpar,ji )=one
+                  if(which.eq.'right') coefij(ijpar,ji)=par268
+               endif
+c
+c--------------------------------
+c for general contractions :
+               if(ngctot.gt.0 .and. ijpar.eq.1) then
+                  do 210 ig=0,ngcii
+                  gci=datbas(ig+2,is)
+                     do 210 jg=0,ngcjj
+                       gcj=gci*datbas(jg+2,js)
+                       gcij(ig+1,jg+1,ji)=gcj
+  210                continue
+               endif
+c--------------------------------
+c
+            rapb1=rapb(ji)
+            sab1 =sab(ijp,ji)
+            aa1=aa*rapb1
+            bb1=bb*rapb1
+c
+c-overlap   coefij(ijpar,ji)=coefij(ijpar,ji)*rapb1*sab1
+            coefij(ijpar,ji)=coefij(ijpar,ji)      *sab1
+c
+            do 230 l=1,3
+            xparij(ijpar,l,ji,1)=aa1*xa(l) + bb1*xb(l)  ! xp(ijpar,l,ji
+                xxl=xa(l)
+                if(nqii.lt.nqjj) xxl=xb(l)
+            xparij(ijpar,l,ji,2)=xparij(ijpar,l,ji,1)-xxl  ! xpn
+            xparij(ijpar,l,ji,3)=aa*xa(l)+bb*xb(l)         ! xpp
+c center23:
+            if(aa.le.zero .or. bb.le.zero) then
+               xparij(ijpar,l,ji,2)=zero
+            endif
+c
+  230       continue
+c------------------------------------------------------------------
+c For integral neglect :
+c no l-shells
+                if(itypp.ne.3 .and. jtypp.ne.3) then
+                   factab=abs( est_is*est_js )
+                endif
+c l-shells
+                if(itypp.eq.3 .and. jtypp.ne.3) then
+                   fcts= abs( est_is*est_js )
+                   fctp= abs( est_ip*est_js )
+                   factab=max( fcts , fctp )
+                endif
+                if(itypp.ne.3 .and. jtypp.eq.3) then
+                   fcts= abs( est_is*est_js )
+                   fctp= abs( est_is*est_jp )
+                   factab=max( fcts , fctp )
+                endif
+                if(itypp.eq.3 .and. jtypp.eq.3) then
+                   fctss= abs( est_is*est_js )
+                   fctsp= abs( est_is*est_jp )
+                   fctps= abs( est_ip*est_js )
+                   fctpp= abs( est_ip*est_jp )
+                   factab=max(fctss,fctsp,fctps,fctpp)
+                endif
+c
+c----
+            factab=factab*contrij
+            if(factab.gt.1.d0) factab=1.d0
+c----
+            estab(ijpar,ji)=factab*sab1
+            estab(ijpar,ji)=estab(ijpar,ji)*estab(ijpar,ji)
+c
+c------------------------------------------------------------------
+c
+  200    continue
+  100 continue
+c
+ctxab
+c
+      if(nqii.ge.nqjj) then
+         ijs1=0
+         do 151 is1=1,lcii
+         aa1=aexp(is1)
+         do 151 js1=1,lcjj
+         bb1=bexp(js1)
+         ijs1=ijs1+1
+cold     do 151 ijpar=1,npij
+         do 151 ij_u=1,nij_uniqe
+         ijcs=ij_uniqe(ij_u)
+         ijpar=map_ij(ijcs)
+            txab(ijpar,1,ijs1)=-bb1*xab(ijpar,1)
+            txab(ijpar,2,ijs1)=-bb1*xab(ijpar,2)
+            txab(ijpar,3,ijs1)=-bb1*xab(ijpar,3)
+c center23:
+            if(aa1.le.zero) then
+               txab(ijpar,1,ijs1)=zero
+               txab(ijpar,2,ijs1)=zero
+               txab(ijpar,3,ijs1)=zero
+            endif
+  151    continue
+      else
+         ijs1=0
+         do 152 is1=1,lcii
+         aa1=aexp(is1)
+         do 152 js1=1,lcjj
+         bb1=bexp(js1)
+         ijs1=ijs1+1
+cold     do 152 ijpar=1,npij
+         do 152 ij_u=1,nij_uniqe
+         ijcs=ij_uniqe(ij_u)
+         ijpar=map_ij(ijcs)
+            txab(ijpar,1,ijs1)= aa1*xab(ijpar,1)
+            txab(ijpar,2,ijs1)= aa1*xab(ijpar,2)
+            txab(ijpar,3,ijs1)= aa1*xab(ijpar,3)
+c center23:
+            if(bb1.le.zero) then
+               txab(ijpar,1,ijs1)=zero
+               txab(ijpar,2,ijs1)=zero
+               txab(ijpar,3,ijs1)=zero
+            endif
+  152    continue
+      endif
+c 
+c for the case with mmax=2 - special cases
+c
+      if ( mmax.eq.2 ) then
+         if (itypp.gt.1 .or. jtypp.gt.1 ) then
+           do 153 ijs1=1,lcij
+           rapb1=rapb(ijs1)
+cold       do 153 ijpar=1,npij
+           do 153 ij_u=1,nij_uniqe
+           ijcs=ij_uniqe(ij_u)
+           ijpar=map_ij(ijcs)
+            txab(ijpar,1,ijs1)=txab(ijpar,1,ijs1)*rapb1
+            txab(ijpar,2,ijs1)=txab(ijpar,2,ijs1)*rapb1
+            txab(ijpar,3,ijs1)=txab(ijpar,3,ijs1)*rapb1
+  153      continue
+         endif
+      endif
+c--------------
+      end
+c====================================================================
+      subroutine precal2b_2(mmax1,lcij, rapb, abnia)
+      implicit real*8 (a-h,o-z)
+      dimension rapb(*), abnia(mmax1,*)
+      data half /0.5d0/
+c--------------------------
+c     ijstart=ijbegin-1
+c--------------------------
+      do 150 ij=1,lcij
+            apb2=half*rapb(ij)
+            abnia(1,ij)=apb2
+               do 250 i=2,mmax1
+               abnia(i,ij)=abnia(i-1,ij)+apb2
+  250          continue
+  150 continue
+c
+      end
+c====================================================================
+      subroutine precal2c_2(lcij,lckl,rapb,rcpd,habcd,nfumax)
+      implicit real*8 (a-h,o-z)
+c     common /begin/ ijbegin,klbegin
+c     common /contr/ ngci,ngcj,ngck,ngcl,lci,lcj,lck,lcl,lcij,lckl
+      common /logicd/ hnia(3,1)
+c
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+c
+cccc  dimension rapb(ijpar1,*),rcpd(klpar1,*)
+cccc  dimension habcd(nhabcd,3,nfumax,*)
+      dimension rapb(*),rcpd(*), habcd(3,nfumax,*)
+c
+      data half /0.5d0/
+c
+c-----------------------
+c     ijstart=ijbegin-1
+c     klstart=klbegin-1
+c-----------------------
+c Do it only for one pair (the first one)
+c
+      if(nsij.ge.nskl) then
+c-----
+         do 170 kl=1,lckl
+         rcpdkl=rcpd(kl)
+           do 180 ifu=1,nfumax
+           hx=hnia(1,ifu)
+           hy=hnia(2,ifu)
+           hz=hnia(3,ifu)
+             habcd(1,ifu,kl)=hx*rcpdkl
+             habcd(2,ifu,kl)=hy*rcpdkl
+             habcd(3,ifu,kl)=hz*rcpdkl
+  180      continue
+  170    continue
+c-----
+      else
+c-------
+         do 270 ij=1,lcij
+         rapbij=rapb(ij)
+           do 280 ifu=1,nfumax
+           hx=hnia(1,ifu)
+           hy=hnia(2,ifu)
+           hz=hnia(3,ifu)
+             habcd(1,ifu,ij)=hx*rapbij
+             habcd(2,ifu,ij)=hy*rapbij
+             habcd(3,ifu,ij)=hz*rapbij
+  280      continue
+  270    continue
+c-------
+      endif
+c
+      end
+c====================================================================
+      subroutine prec4neg_2(isbl_size,isbl_point,isbl_q,ijpres2,klpres2,
+     *                      npij,npkl,ndiag,ij,kl, lc12, lc34,
+     *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq, 
+     *                      map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
+coutput
+     *                      rppq,rhoapb,rhocpd,rys,const,nbls1,index)
+c--------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+ccc   common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
+      common /neglect/ eps,eps1,epsr
+c-------
+      dimension map_ij(ijcs_b:ijcs_e),map_kl(klcs_b:klcs_e)
+      dimension isbl_q(*),ijpres2(*),klpres2(*)
+      dimension index(*)
+c-------
+cold  dimension apb(ijpar1,lc12),cpd(klpar1,lc34)
+      dimension apb(lc12),cpd(lc34)
+      dimension coefij(npij,lc12),coefkl(npkl,lc34)
+      dimension  estab(npij,lc12), estcd(npkl,lc34)
+      dimension xp(npij,3,*),xq(npkl,3,*)
+c----output
+ccc   dimension rppq(*),rhoapb(*),rhocpd(*),rys(*),const(*)
+c now scalars:  rppq,rhoapb,rhocpd  
+      dimension rys(*),const(*)
+c
+      data zero,one /0.d0 , 1.d0/
+c---------------------------------------------------------------
+c not par268=eps1*8.d0
+      par268=     8.d0
+c---------------------------------------------------------------
+c NEWER
+         apb1=apb(ij)
+         cpd1=cpd(kl)
+c
+         abpcd1=apb1+cpd1
+         abxcd=apb1*cpd1
+         abpcdr=one/abpcd1
+         rho1=abxcd*abpcdr
+c        
+         sqrpold=sqrt(abpcdr)
+c
+         rppq  =abpcdr
+         rhoapb=abpcdr*cpd1
+         rhocpd=abpcdr*apb1
+c-----------------------------------------------------------------
+      ijkl1=0
+      ijklp=0
+      do 100 iqp=1,isbl_size
+      iq=isbl_q(isbl_point+iqp)
+      if(iq.eq.0) go to 100
+c
+         ijklp=ijklp+1
+c
+         ijcsq=ijpres2(iq)
+         klcsq=klpres2(iq)
+         ijpar=map_ij(ijcsq)
+         klpar=map_kl(klcsq)
+c
+         coef1=coefij(ijpar,ij)
+         esti1=estab (ijpar,ij)
+c
+         coef2=coefkl(klpar,kl)
+         esti2=estcd (klpar,kl)
+c
+         estim=esti1*esti2*abpcdr
+         if(estim.gt.epsr) then
+            coef12=coef1*coef2
+            if(ndiag.eq.0) coef12=coef12*par268
+            ijkl1=ijkl1+1
+            index(ijkl1)=ijklp
+c
+            x1= xp(ijpar,1,ij) - xq(klpar,1,kl)
+            x2= xp(ijpar,2,ij) - xq(klpar,2,kl)
+            x3= xp(ijpar,3,ij) - xq(klpar,3,kl)
+            rr2=x1*x1 + x2*x2 + x3*x3
+c
+            rys(ijkl1)=rr2*rho1
+c
+            const(ijkl1)=coef12*sqrpold
+cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
+cpnl           const(ijkl1)=const(ijkl1)*0.5d0
+cpnl        endif
+         endif
+ 100  continue
+c
+      nbls1=ijkl1
+c
+      end
+c====================================================================
+      subroutine precspec_2(isbl_size,isbl_point,
+     *                      isbl_q,ijpres2,klpres2,
+     *                      npij,npkl,ndiag, ij,kl,
+     *                      lc12, lc34, indxij,indxkl,
+     *                      estab,estcd, apb,cpd,coefij,coefkl,xp,xq,
+     *                      rapb,rcpd,txab,txcd,
+     *                      map_ij,ijcs_b,ijcs_e,map_kl,klcs_b,klcs_e,
+c output
+     *                      rys,const,xpqr,txxr,nbls1,index)
+c-------------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
+      common /neglect/ eps,eps1,epsr
+      common /begin/ ijbegin,klbegin
+c---------------
+      dimension map_ij(ijcs_b:ijcs_e),map_kl(klcs_b:klcs_e)
+      dimension isbl_q(*),ijpres2(*),klpres2(*)
+      dimension indxij(*),indxkl(*),index(*)
+c---------------
+      dimension apb(lc12),cpd(lc34)
+      dimension rapb(lc12),rcpd(lc34)
+      dimension coefij(npij,lc12),coefkl(npkl,lc34)
+      dimension  estab(npij,lc12), estcd(npkl,lc34)
+c-------
+      dimension txab(npij,3,*),txcd(npkl,3,*)
+      dimension xp(npij,3,*),xq(npkl,3,*)
+      dimension        rys(*),const(*)
+      dimension xpqr(3,*),txxr(3,*)
+c
+      data zero,one /0.d0 , 1.d0/
+c---------------------------------------------------------------
+      par268=     8.d0
+c---------------------------------------------------------------
+c NEWER
+         apb1=apb(ij)
+         cpd1=cpd(kl)
+c
+         abpcd1=apb1+cpd1
+         abxcd=apb1*cpd1
+         abpcd1r=abpcd1
+         abpcdr=one/abpcd1r
+         rho1=abxcd*abpcdr
+c        
+         sqrpold=sqrt(abpcdr)
+c------------
+      ijkl1=0
+      ijklp=0
+      do 100 iqp=1,isbl_size
+      iq=isbl_q(isbl_point+iqp)
+      if(iq.eq.0) go to 100
+c
+         ijklp=ijklp+1
+c
+         ijcsq=ijpres2(iq)
+         klcsq=klpres2(iq)
+         ijpar=map_ij(ijcsq)
+         klpar=map_kl(klcsq)
+c
+         coef1=coefij(ijpar,ij)
+         esti1=estab (ijpar,ij)
+c
+         coef2=coefkl(klpar,kl)
+         esti2=estcd (klpar,kl)
+c
+         estim=esti1*esti2*abpcdr
+         if(estim.gt.epsr) then
+            coef12=coef1*coef2
+            if(ndiag.eq.0) coef12=coef12*par268
+            ijkl1=ijkl1+1
+            index(ijkl1)=ijklp
+c
+            x1= xp(ijpar,1,ij) - xq(klpar,1,kl)
+            x2= xp(ijpar,2,ij) - xq(klpar,2,kl)
+            x3= xp(ijpar,3,ij) - xq(klpar,3,kl)
+c
+            xpqr(1,ijkl1)=x1*rho1
+            xpqr(2,ijkl1)=x2*rho1
+            xpqr(3,ijkl1)=x3*rho1
+c
+            rr2=x1*x1 + x2*x2 + x3*x3
+            rys(ijkl1)=rr2*rho1
+c
+            const(ijkl1)=coef12*sqrpold
+cpnl        if(ndiag.eq.0.and.ijpar.eq.klpar) then
+cpnl           const(ijkl1)=const(ijkl1)*0.5d0
+cpnl        endif
+c
+         endif
+ 100  continue
+c
+      nbls1=ijkl1
+      if(nbls1.eq.0) return
+c
+cnew
+      if (ityp.gt.1 .or. jtyp.gt.1 ) then
+          rapbxxx=rapb(ij)
+        do 210 i=1,nbls1
+        ijkl=index(i)
+        ijpar=indxij(ijkl)
+        xpqr(1,i)=xpqr(1,i)*rapbxxx 
+        xpqr(2,i)=xpqr(2,i)*rapbxxx 
+        xpqr(3,i)=xpqr(3,i)*rapbxxx
+c
+        txxr(1,i)=txab(ijpar,1,ij)
+        txxr(2,i)=txab(ijpar,2,ij)
+        txxr(3,i)=txab(ijpar,3,ij)
+  210   continue
+      endif
+c
+      if (ktyp.gt.1 .or. ltyp.gt.1 ) then
+          rcpdxxx=rcpd(kl)
+        do 220 i=1,nbls1
+        ijkl=index(i)
+        klpar=indxkl(ijkl)
+        xpqr(1,i)=xpqr(1,i)*rcpdxxx     
+        xpqr(2,i)=xpqr(2,i)*rcpdxxx    
+        xpqr(3,i)=xpqr(3,i)*rcpdxxx   
+c
+        txxr(1,i)=txcd(klpar,1,kl)
+        txxr(2,i)=txcd(klpar,2,kl)
+        txxr(3,i)=txcd(klpar,3,kl)
+  220   continue
+      endif
+c
+      end
+c====================================================================
+      subroutine xwpq_2(nbls1,xwp,xwq,p1234,
+     1        ijpar1,lc12, klpar1,lc34,
+     *        lcij,lckl,npij,npkl,
+     *        indxij,indxkl,index,
+     *        rppq,xp,xq,xpp,xqq,
+     *        txab,txcd,abcd,apb,rcpd,cpd,rapb)
+c---------------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+      common /flops/ iflop(20)
+      common /begin/ ijbegin,klbegin
+      common/obarai/
+     * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,MMAX,
+     * NQI,NQJ,NQK,NQL,NSIJ,NSKL,
+     * NQIJ,NQIJ1,NSIJ1,NQKL,NQKL1,NSKL1,ijbeg,klbeg
+c
+      dimension xwp(nbls1,3),xwq(nbls1,3),p1234(nbls1,3)
+      dimension indxij(*),indxkl(*),index(*)
+      dimension xp(npij,3,*),xq(npkl,3,*)
+      dimension xpp(npij,3,*),xqq(npkl,3,*)
+      dimension txab(npij,3,*),txcd(npkl,3,*)
+cnowy
+      dimension apb(lc12),rapb(lc12)
+      dimension cpd(lc34),rcpd(lc34)
+c---------------------------------------------------------------
+      ijstart=ijbegin-1
+      klstart=klbegin-1
+c---------------------------------------------------------------
+      rppq1=rppq
+C
+      do 100 i=1,nbls1
+      ijkl=index(i)
+      ijpar=indxij(ijkl)
+      klpar=indxkl(ijkl)
+c
+      xwl=( xpp(ijpar,1,lcij) + xqq(klpar,1,lckl) )*rppq1
+      ywl=( xpp(ijpar,2,lcij) + xqq(klpar,2,lckl) )*rppq1
+      zwl=( xpp(ijpar,3,lcij) + xqq(klpar,3,lckl) )*rppq1
+c
+      XWP(i,1)=xwl-XP(ijpar,1,lcij)
+      XWP(i,2)=ywl-XP(ijpar,2,lcij)
+      XWP(i,3)=zwl-XP(ijpar,3,lcij)
+c
+      XWQ(i,1)=XWL-XQ(klpar,1,lckl)
+      XWQ(i,2)=YWL-XQ(klpar,2,lckl)
+      XWQ(i,3)=ZWL-XQ(klpar,3,lckl)
+c
+  100 CONTINUE
+c
+c
+c  for tracy1 :
+c
+      if(nsij.ge.nskl) then
+c-new
+          rcpd1=rcpd(lckl)
+          abcd=apb(lcij)*rcpd1
+c
+          do 210 i=1,nbls1
+          ijkl=index(i)
+          ijpar=indxij(ijkl)
+          klpar=indxkl(ijkl)
+c
+          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rcpd1
+          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rcpd1
+          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rcpd1
+  210     continue
+c
+      else
+c-new
+          rapb1 =rapb(lcij)
+          abcd  =cpd(lckl)*rapb1
+c
+          do 310 i=1,nbls1
+          ijkl=index(i)
+          ijpar=indxij(ijkl)
+          klpar=indxkl(ijkl)
+c
+          p1234(i,1)=(txab(ijpar,1,lcij)+txcd(klpar,1,lckl))*rapb1
+          p1234(i,2)=(txab(ijpar,2,lcij)+txcd(klpar,2,lckl))*rapb1
+          p1234(i,3)=(txab(ijpar,3,lcij)+txcd(klpar,3,lckl))*rapb1
+  310     continue
+c
+      endif
+c
+      end
+c====================================================================
+      subroutine specase_2(bl,first,nbls,nbls1, index,
+     *                     npij,npkl,ii,jj,kk,ll,
+     *                     cis,cjs,cks,cls,
+     *                     buf,buf1, const,rysx,xpqr,txxr,concoe)
       implicit real*8 (a-h,o-z)
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
       common /rys/ xrys,rysr(10),rysw(10),t,f0,f1,f2,f3,f4,f5,nroots
-c
       common/obarai/
      * lni,lnj,lnk,lnl,lnij,lnkl,lnijkl,mmax,
      * nqi,nqj,nqk,nql,nsij,nskl,
      * nqij,nqij1,nsij1,nqkl,nqkl1,nskl1,ijbeg,klbeg
 c
-c******************************************************
-c
       dimension bl(*)
-      dimension index(*),indxij(*),indxkl(*)
+      dimension index(*)
       dimension xpqr(3,*),txxr(3,*)
-      dimension const(*),rysx(*)
-      dimension buf(ngcd,nbls,ijkln),buf1(nbls1,*)
-      dimension indgc(nbls)
-      dimension gcoef(ngcd,nbls)
-c
-c***************************************************************
-c**     FOR GENERAL CONTRACTED SHELLS
+      dimension cis(*),cjs(*),cks(*),cls(*)
+      dimension const(*),rysx(*),concoe(*)
+      dimension buf(nbls,*),buf1(nbls1,4)
+c---------------------------------------------------------------
 c**  this subroutine constitues the special code for
 c**  two types of integrals over nbls quartets of primitive shells
 c**  1. (ss|ss)
-c**  2. (xs|ss),(sx|ss),(ss|xs),(ss|sx) where x=p 
+c**  2. (xs|ss),(sx|ss),(ss|xs),(ss|sx) where x=p or l
 c**  these integrals are also contracted here.
+c**
+c**  this routine is called from the twoe subroutine.
+c**
 c**
 c**  input
 c**  ------
@@ -1498,8 +2425,8 @@ c**  xp,xp      - geometry for p,q
 c**
 c**  output
 c**  ------
-c**  buf(ngcd,nbls,ijkln) - contains final integrals
-c***************************************************************
+c**  buf(nbls,*) -contains final contracted integrals
+c---------------------------------------------------------------
 c
 c* memory for f00,f11 :
 c
@@ -1531,6 +2458,7 @@ c
 c *** special code for (ps ss), (sp ss) (ss ps) and (ss sp)
 c
 cxxxx if(mmax.eq.2) then
+      intct=0
       if (ityp.gt.1) then
         do 101 i=1,nbls1
         xpqr(1,i)=xpqr(1,i)*bl(if11+i) - txxr(1,i)*bl(if00+i)
@@ -1556,102 +2484,77 @@ cxxxx if(mmax.eq.2) then
         xpqr(3,i)=-xpqr(3,i)*bl(if11+i) + txxr(3,i)*bl(if00+i)
  104    continue
       endif
-c*************
+c------------------- NEW ------------------------
+        if( max(ityp,jtyp,ktyp,ltyp).eq.3) then
+c
+          if(ityp.eq.3) then
+            coeff=cis(ii)
+            do 1051 i=1,nbls1
+            concoe(i)=const(i)*coeff 
+ 1051       continue
+          endif
+          if(jtyp.eq.3) then
+            coeff=cjs(jj)
+            do 1052 i=1,nbls1
+            concoe(i)=const(i)*coeff
+ 1052       continue
+          endif
+          if(ktyp.eq.3) then
+            coeff=cks(kk)
+            do 1053 i=1,nbls1
+            concoe(i)=const(i)*coeff 
+ 1053       continue
+          endif
+          if(ltyp.eq.3) then
+            coeff=cls(ll)
+            do 1054 i=1,nbls1
+            concoe(i)=const(i)*coeff
+ 1054       continue
+          endif
+           do 105 i=1,nbls1
+           buf1(i,1)=concoe(i)*bl(if00+i)
+  105      continue
+           intct=1
+        endif
+c------------------- NEW end --------------------
         do 106 i=1,nbls1
-          buf1(i,1)=-xpqr(1,i)*const(i)
-          buf1(i,2)=-xpqr(2,i)*const(i)
-          buf1(i,3)=-xpqr(3,i)*const(i)
+          buf1(i,intct+1)=-xpqr(1,i)*const(i)
+          buf1(i,intct+2)=-xpqr(2,i)*const(i)
+          buf1(i,intct+3)=-xpqr(3,i)*const(i)
 106     continue
-c
-c**********************************************************
-c
+c------------------------------------------------
   203 continue
-c
       if(first) then
-c
-           do 204 icx=1,lnijkl
-           do 204 i=1,nbls1
-           xint=buf1(i,icx)
-             ijkl=index(i)
-             ngcq=indgc(ijkl)
-             do 2041 iqu=1,ngcq
-             buf(iqu,ijkl,icx)=xint*gcoef(iqu,ijkl)
- 2041        continue
+         do 204 icx=1,lnijkl
+         do 204 i=1,nbls1
+         ijkl=index(i)
+         buf(ijkl,icx)=buf1(i,icx)
   204    continue
-c
          first=.false.
       else
-c
-           do 205 icx=1,lnijkl
-           do 205 i=1,nbls1
-           xint=buf1(i,icx)
-             ijkl=index(i)
-             ngcq=indgc(ijkl)
-             do 2051 iqu=1,ngcq
-             buf(iqu,ijkl,icx)=buf(iqu,ijkl,icx)+xint*gcoef(iqu,ijkl)
- 2051        continue
+         do 205 icx=1,lnijkl
+         do 205 i=1,nbls1
+         ijkl=index(i)
+         buf(ijkl,icx)=buf(ijkl,icx)+buf1(i,icx)
   205    continue
-c
       endif
 c
-c* relise memory
+c relise memory
 c
       call retmem(2)
-c*
-      return
+c
       end
 c====================================================================
-      subroutine precal2x(iabprim,ijdim,
-     *                  iapb,i1apb,isab)
+      subroutine precal2x_2(iabprim,lcij, iapb,i1apb,isab)
 c-------------------------------------------------------------
 c* precalculations for the pairs IJ :
 c
+c     iapb =iabprim
+c     i1apb=iabprim   + ijdim
+c     isab =iabprim   + ijdim*2
       iapb =iabprim
-      i1apb=iabprim   + ijdim
-      isab =iabprim   + ijdim*2
+      i1apb=iabprim+lcij
+      isab =iabprim+2*lcij
 c--------------
       end
 c====================================================================
-      subroutine make_map(ibl,ijbl,nbl2,npar,bl,map_ij,ijcs_b,ijcs_e)
-      implicit real*8 (a-h,o-z)
-      dimension bl(*)
-      dimension ijbl(nbl2,*), npar(nbl2)
-c------------------------------------------------------------------
-c find dimensions :
-c
-      nparij=npar(ibl)
-c
-c     ijcs1=10000000
-c     ijcs2=       0
-c     do 10 ijpar=1,nparij
-c     ijcs=ijbl(ibl,ijpar)
-c     if(ijcs.gt.ijcs2) ijcs2=ijcs
-c     if(ijcs.lt.ijcs1) ijcs1=ijcs
-c  10 continue
-c
-      ijcs1=ijbl(ibl,1)
-      ijcs2=ijbl(ibl,nparij)
-c
-      ijdim=ijcs2-ijcs1+1
-      call getmem(ijdim,map_ij)
-      ijcs_b=ijcs1
-      ijcs_e=ijcs2
-      call map_pairs(ibl,nparij,ijbl,nbl2,ijcs1,ijcs2,bl(map_ij))
-c
-c     write(6,*)' make_map: npairs=',npairs,' ijcs1,2=',ijcs1,ijcs2
-c
-      end
-c================================================================
-      subroutine map_pairs(ibl,nparij,ijbl,nbl2,ijcs1,ijcs2,map_ij)
-      dimension ijbl(nbl2,*), map_ij(ijcs1:ijcs2)
-c----------------------------------------------------------------
-c construct a mapping array that shows map(ijcs)--> ijpar (pnl):
-c needed only for pnl
-c----------------------------------------------------------------
-      do 50 ijpar=1,nparij
-      ijcs=ijbl(ibl,ijpar)
-      map_ij(ijcs)=ijpar
-   50 continue
-c
-      end
-c================================================================

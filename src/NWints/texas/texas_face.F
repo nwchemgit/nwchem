@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.14 1996-02-09 01:15:43 d3g681 Exp $
+c $Id: texas_face.F,v 1.15 1996-02-12 19:44:44 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -592,6 +592,7 @@ c------------------------------------
       common /ilepar/ lpartot,lpareal
 c------------------------------------
       common /pnl_nqrt/ ncall_pnl, nqrts_pnl
+      common /pnl008/ last_isupb,last_nparts
 c------------------------------------
       dimension basnuc(*)
 c------------------------------------
@@ -603,6 +604,9 @@ c------------------------------------
       ncall_pnl=0
       nqrts_pnl=0
 c
+      last_isupb=0
+      last_nparts=0
+c------------------------------------
       xbluse=0.d0
       nbluse=0
 c

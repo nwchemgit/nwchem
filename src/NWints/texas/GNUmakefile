@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 1996-01-23 00:26:51 d3e129 Exp $
+# $Id: GNUmakefile,v 1.18 1996-02-12 19:44:32 d3g681 Exp $
  
 ifeq ($(USE_TEXAS),YEP)
       LIB_DEFINES = -DUSE_TEXAS
@@ -8,16 +8,16 @@ ifeq ($(USE_TEXAS),YEP)
                  getmem.o\
                  amshift.o\
                  assemblx.o\
-            spec_block.o\
-            spec_calcint.o\
+                 spec_block.o\
+                 spec_calcint.o\
                  cshneg.o\
-               d_datlog.o\
-            spec_destiny.o\
+                 d_datlog.o\
+                 spec_destiny.o\
                  memoha.o\
                  pak.o\
                  precalc2.o\
                  prepint.o\
-           lab_reorder.o\
+                 lab_reorder.o\
                  rt123.o\
                  shells.o\
                  time.o\
@@ -25,7 +25,8 @@ ifeq ($(USE_TEXAS),YEP)
                  zeroint.o \
 		 missing.o \
 		 texas_stubs.o \
-                 uniq_pairs.o
+                 uniq_pairs.o \
+                 transfor.o
 else
       OBJ = texas_stubs.o
       OBJ_OPTIMIZE = 
