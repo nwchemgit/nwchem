@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.79 1996-07-02 19:23:17 d3g681 Exp $
+c     $Id: nwchem.F,v 1.80 1996-07-09 17:54:40 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -281,18 +281,10 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status 
-      logical  scf, task_check_sum, selci, eopt, rjhtest
-      external scf, task_check_sum, selci, eopt, rjhtest
-      logical rimp2, oimp2
-      external rimp2, oimp2
-      logical nwdft
-      external nwdft
-      logical nwargos
-      external nwargos
-      logical mp2_grad
-      external mp2_grad
-      logical cphf
-      external cphf
+      logical  scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
+      external scf, task_check_sum, selci, eopt, rjhtest, rimp2, oimp2
+      logical nwdft, nwargos, mp2_grad, cphf, ccsd, moints_full
+      external cphf, ccsd, moints_full
       parameter (ntasks = 27)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
@@ -352,8 +344,7 @@ c
 c     
 c     rtdbprint
 c     
- 30      if (.not. rtdb_print(rtdb, .true.))
-     $        call errquit('control: rtdb_print failed', 0)
+ 30      status = rtdb_print(rtdb, .true.)
          goto 1000
 c     
 c     scf ... eventually there will be no such task name
@@ -427,7 +418,7 @@ c
 c     
 c     CCSD
 c     
- 170     call ccsd(rtdb)
+ 170     status = ccsd(rtdb)
          goto 1000
 c     
 c     SCF frequencies by finite difference (in stepper)
@@ -453,7 +444,7 @@ c
 c     
 c     Four index
 c     
- 220     call moints_full(rtdb)
+ 220     status = moints_full(rtdb)
          goto 1000
 c
 c     Selected CI
