@@ -1,14 +1,14 @@
       subroutine ccsd_trpdrv(t1,buff,bufo,lbfo,bufv,lbfv,
      &                       f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &                       eccsdt,g_objo,g_objv,g_coul,g_exch,
-     &                       ncor,nocc,nvir,ndel,iprt,emp4,emp5,
+     &                       ncor,nocc,nvir,iprt,emp4,emp5,
      &                       oseg_lo,oseg_hi)
       implicit none
       double precision t1(*),buff(*),bufo(*),
      &                 bufv(*),f1n(*),f1t(*),f2n(*),
      &                 f2t(*),f3n(*),f3t(*),f4n(*),f4t(*),eorb(*),
      &                 emp4,emp5
-      integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,ndel,iprt,g_coul,
+      integer lbfo,lbfv,g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &        g_exch,oseg_lo,oseg_hi
 c
       double precision gmoint2,eaijk,eccsdt
@@ -129,7 +129,7 @@ c
            call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      &                     bufv(dint+ad1),bufv(dint+ad2),
      $                     t1(ad3),eorb,eaijk,emp4,emp5,
-     $                     ncor,nocc,nvir,ndel)
+     $                     ncor,nocc,nvir)
 c          write(6,2234)i,k,iam,a,j,emp4,emp5
 c 2234     format(' te1 iam aijk',5i5,2e15.5)
            if (i.ne.k)then
@@ -139,7 +139,7 @@ c 2234     format(' te1 iam aijk',5i5,2e15.5)
             call ccsd_tengy(f1t,f1n,f2t,f2n,f3t,f3n,f4t,f4n,
      &                      bufv(dint+ad1),bufv(dint+ad2),
      $                      t1(ad3),eorb,eaijk,emp4,emp5,
-     $                      ncor,nocc,nvir,ndel)
+     $                      ncor,nocc,nvir)
 c          write(6,3234)i,k,iam,a,j,emp4,emp5
 c 3234     format(' te2 iam aijk',5i5,2e15.5)
            endif
@@ -198,7 +198,7 @@ c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
 
       subroutine ccsd_dovvv(fintc,fintx,t2,f1,f2,f3,f4,nocc,nvir)
       implicit none
-      real*8 fintc(*),fintx(*),t2(*),f1(*),f2(*),f3(*),f4(*)
+      double precision fintc(*),fintx(*),t2(*),f1(*),f2(*),f3(*),f4(*)
       integer nocc,nvir
       double precision one
       data one/1.0d00/

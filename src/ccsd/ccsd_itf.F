@@ -1,11 +1,12 @@
-      subroutine ccsd_itf(basis,ncor,nocc,nvir,ndel,nbf,nsh,
+      subroutine ccsd_itf(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                    hiu,giu,habe,gabe,hia,ht1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_ht2,g_ncoul,g_nexch,tklst)
       implicit none
-      integer basis,ncor,nocc,nvir,ndel,nbf,nsh,
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_ht2
-      real*8 cmo(*),eorb(*),hiu(*),giu(*),habe(*),gabe(*),ht1(*),hia(*)
+      double precision cmo(*),eorb(*),hiu(*),giu(*),habe(*),gabe(*),
+     &                 ht1(*),hia(*)
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "rtdb.fh"
@@ -16,7 +17,7 @@ c
      &        g_ilo,g_ihi,a,i,j,b,ad1,ad2,lnoo,lnvv,
      &        l_t1,k_t1,l_sa,k_sa,l_sb,k_sb,lsab,
      &        ij,lnof,g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
-      real*8 tol2e
+      double precision tol2e
       logical stat
 c
       iam=ga_nodeid()
@@ -102,7 +103,7 @@ CRK       endif
 CRK     enddo
 CRK   enddo
 c
-      call ccsd_pampt3(basis,ncor,nocc,nvir,ndel,nbf,nsh,
+      call ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                 tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,hia,
      &                 dbl_mb(k_t1),ht1,idiis,g_nt2,g_nht2,
      &                 g_ncoul,g_nexch,tklst)

@@ -1,7 +1,7 @@
-      subroutine ccsd_mkt2(ncor,nocc,nvir,ndel,nbf,eorb,g_t2,
+      subroutine ccsd_mkt2(ncor,nocc,nvir,eorb,g_t2,
      $                     g_moint,t2,iprt)
       implicit none
-      integer ncor,nocc,nvir,ndel,nbf,g_t2,g_moint,iprt
+      integer ncor,nocc,nvir,g_t2,g_moint,iprt
       double precision eorb(*),t2(*)
 c
       integer nodes,iam

@@ -1,13 +1,13 @@
-      subroutine ccsd_sortmo(ncor,nocc,nvir,nbf,scr,
+      subroutine ccsd_sortmo(ncor,nocc,nvir,nact,nbf,scr,
      $                       lnobj,g_objv,g_coul,g_exch,g_ncoul,g_nexch,
      $                       iprt)
       implicit none
-      integer nocc,nvir,nbf,g_objv,g_coul,g_exch,g_ncoul,g_nexch,iprt,
-     $        lnobj,ncor
+      integer ncor,nocc,nvir,nact,nbf,g_objv,g_coul,g_exch,
+     $        g_ncoul,g_nexch,iprt,lnobj
       double precision scr(2*lnobj)
 c
       integer iam,ga_nodeid
-      integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av,ad1,ad2
+      integer ihi,ilo,jhi,jlo,icnt,ij,kl,i,j,k,l,a,b,av,ad1,ad2,ad3,ad4
       double precision xx
       double precision zip
       data zip/0.0d00/
@@ -78,21 +78,35 @@ c
         do j=1,i
           ij=ij+1
           if (ij.ge.ilo.and.ij.le.ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
             call ga_get(g_coul,1,nbf*nbf,ij,ij,scr,nbf*nbf)
-            call ga_put(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-     &                  scr,nbf)
-            call mxtrn(scr,scr(lnobj+1),nbf,nbf)
-            call ga_put(g_ncoul,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
-     &                  scr(lnobj+1),nbf)
+            do a=1,nact
+            do b=1,nact
+            ad3=(ncor+b-1)*nbf+ncor+a
+            ad4=(b-1)*nact+a
+            scr(lnobj+ad4)=scr(ad3)
+            enddo
+            enddo
+            call ga_put(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  scr(lnobj+1),nact)
+            call mxtrn(scr(lnobj+1),scr,nact,nact)
+            call ga_put(g_ncoul,ad1+1,ad1+nact,ad2+1,ad2+nact,
+     &                  scr,nact)
 c
             call ga_get(g_exch,1,nbf*nbf,ij,ij,scr,nbf*nbf)
-            call ga_put(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-     &                  scr,nbf)
-            call mxtrn(scr,scr(lnobj+1),nbf,nbf)
-            call ga_put(g_nexch,ad1+1,ad1+nbf,ad2+1,ad2+nbf,
-     &                  scr(lnobj+1),nbf)
+            do a=1,nact
+            do b=1,nact
+            ad3=(ncor+b-1)*nbf+ncor+a
+            ad4=(b-1)*nact+a
+            scr(lnobj+ad4)=scr(ad3)
+            enddo
+            enddo
+            call ga_put(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  scr(lnobj+1),nact)
+            call mxtrn(scr(lnobj+1),scr,nact,nact)
+            call ga_put(g_nexch,ad1+1,ad1+nact,ad2+1,ad2+nact,
+     &                  scr,nact)
           endif
         enddo
       enddo

@@ -1,8 +1,8 @@
-      subroutine ccsd_fsig1(av,bv,ncor,nocc,nvir,ndel,nbf,iprt,
+      subroutine ccsd_fsig1(av,bv,nocc,nvir,nbf,iprt,
      &                      t1,ht1,habe)
       implicit none
 c
-      integer av,bv,ncor,nocc,nvir,ndel,nbf,iprt
+      integer av,bv,nocc,nvir,nbf,iprt
 c
        double precision t1(nocc,nvir),ht1(nocc,nvir),habe(nvir,nvir)
 c

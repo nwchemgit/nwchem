@@ -1,9 +1,9 @@
-      subroutine ccsd_pampt3(basis,ncor,nocc,nvir,ndel,nbf,nsh,
+      subroutine ccsd_pampt3(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
       implicit none
-      integer basis,ncor,nocc,nvir,ndel,nsh,nbf,
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nht2,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
 
@@ -63,7 +63,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_t2pm ',0)
-      call ccsd_t2pm(basis,nocc,nvir,nbf,nsh,g_st2,g_nt2,cmo,
+      call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
      &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2))
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
@@ -90,7 +90,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_sxy ',0)
-      call ccsd_sxy(basis,ncor,nocc,nvir,nbf,nsh,g_st2,g_sht2,
+      call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
      &              mem2,max2e,dbl_mb(k_eri1),
@@ -116,20 +116,21 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0)
-      call ccsd_ht2pm(basis,nocc,nvir,nbf,nsh,g_sht2,g_nht2,cmo,
-     &                dbl_mb(k_sc1),dbl_mb(k_sc2),int_mb(k_offsh))
+      call ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
+     &                cmo,dbl_mb(k_sc1),dbl_mb(k_sc2),
+     &                int_mb(k_offsh))
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       stat=stat.and.ma_pop_stack(l_offsh)
 c ------------------------------------------------------------
 c other terms using B intermediate
 c ------------------------------------------------------------
-      lscr=nbf*nbf
+      lscr=nact*nact
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scre',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrf',l_sc4, k_sc4)
-      call ccsd_itm(ncor,ndel,nocc,nvir,nbf,hiu,giu,habe,gabe,hia,
+      call ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,hia,
      &              t1,ht1,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc1),dbl_mb(k_sc2),
      &              dbl_mb(k_sc3),dbl_mb(k_sc4),
@@ -168,10 +169,10 @@ c ------------------------------------------------------------
 c
       return
       end
-      subroutine ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nbf,
-     &                     nocc,ilo,ihi,klo,khi,jlo,llo)
+      subroutine ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi,jlo,llo)
       implicit none
-      integer nfj,nfl,nbf,nocc,ilo,ihi,klo,khi,jlo,llo
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,jlo,llo
       double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
      &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
      &                 snsi(nbf,nfj,nfl,nocc),
@@ -200,15 +201,15 @@ c
       return
       end
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
-     &                     nfi,nfk,nbf,nocc,
+     &                     nfi,nfk,ncor,nocc,nact,nbf,
      &                     ilo,ihi,klo,khi,offik,offki,
      &                     g_x,g_c)
       implicit none
-      integer lscr,nfi,nfk,nbf,nocc,ilo,ihi,klo,khi,
+      integer lscr,nfi,nfk,ncor,nocc,nact,nbf,ilo,ihi,klo,khi,
      &        offik,offki,g_x,g_c
       double precision snsi(nbf,nfi,nfk,nocc),
      &                 sisn(nbf,nfk,nfi,nocc),
-     &                 cmo(nbf,nocc),
+     &                 cmo(nbf,nbf),
      &                 scra(lscr),scrb(lscr)
 c lscr=max(maxbfsh*nocc*nbf,maxbfsh*maxbfsh*nbf)
 c
@@ -218,40 +219,40 @@ c
 c
       nfik=nfi*nfk
       do ii=1,nocc
-        call dgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
-     &             snsi(1,1,1,ii),nbf,0.0d00,scra,nbf)
+        call dgemm('t','n',nact,nfik,nbf,1.0d00,cmo(1,ncor+1),nbf,
+     &             snsi(1,1,1,ii),nbf,0.0d00,scra,nact)
         do jj=1,nocc
           do ik=1,nfik
-            scrb((jj-1)*nfik+ik)=scra((ik-1)*nbf+jj)
+            scrb((jj-1)*nfik+ik)=scra((ik-1)*nact+jj)
           enddo
         enddo
         ad1=offki
         ad2=(ii-1)*nocc
         call ga_put(g_x,ad1+1,ad1+nfik,ad2+1,ad2+nocc,scrb,nfik)
-        call dgemm('n','n',nbf*nfi,nocc,nfk,1.0d00,scra,nbf*nfi,
-     &               cmo(klo,1),nbf,0.0d00,scrb,nbf*nfi)
-        ad1=(ilo-1)*nbf
+        call dgemm('n','n',nact*nfi,nocc,nfk,1.0d00,scra,nact*nfi,
+     &               cmo(klo,ncor+1),nbf,0.0d00,scrb,nact*nfi)
+        ad1=(ilo-1)*nact
         ad2=(ii-1)*nocc
-        call ga_acc(g_c,ad1+1,ad1+nbf*nfi,ad2+1,ad2+nocc,scrb,
-     &              nbf*nfi,1.0d00)
+        call ga_acc(g_c,ad1+1,ad1+nact*nfi,ad2+1,ad2+nocc,scrb,
+     &              nact*nfi,1.0d00)
 c
         if (ilo.ne.klo)then
-          call dgemm('t','n',nbf,nfik,nbf,1.0d00,cmo,nbf,
-     &               sisn(1,1,1,ii),nbf,0.0d00,scra,nbf)
+          call dgemm('t','n',nact,nfik,nbf,1.0d00,cmo(1,ncor+1),nbf,
+     &               sisn(1,1,1,ii),nbf,0.0d00,scra,nact)
           do jj=1,nocc
             do ik=1,nfik
-              scrb((jj-1)*nfik+ik)=scra((ik-1)*nbf+jj)
+              scrb((jj-1)*nfik+ik)=scra((ik-1)*nact+jj)
             enddo
           enddo
           ad1=offik
           ad2=(ii-1)*nocc
           call ga_put(g_x,ad1+1,ad1+nfik,ad2+1,ad2+nocc,scrb,nfik)
-          call dgemm('n','n',nbf*nfk,nocc,nfi,1.0d00,scra,nbf*nfk,
-     &                 cmo(ilo,1),nbf,0.0d00,scrb,nbf*nfk)
-          ad1=(klo-1)*nbf
+          call dgemm('n','n',nact*nfk,nocc,nfi,1.0d00,scra,nact*nfk,
+     &                 cmo(ilo,ncor+1),nbf,0.0d00,scrb,nact*nfk)
+          ad1=(klo-1)*nact
           ad2=(ii-1)*nocc
-          call ga_acc(g_c,ad1+1,ad1+nbf*nfk,ad2+1,ad2+nocc,scrb,
-     &                nbf*nfk,1.0d00)
+          call ga_acc(g_c,ad1+1,ad1+nact*nfk,ad2+1,ad2+nocc,scrb,
+     &                nact*nfk,1.0d00)
         endif
       enddo
 c
@@ -259,11 +260,11 @@ c
 c
       return
       end     
-      subroutine ccsd_idx34(basis,cmo,scra,scrb,
-     &                      nbf,nsh,nocc,
+      subroutine ccsd_idx34(basis,cmo,scra,scrb,nsh,
+     &                      ncor,nocc,nact,nbf,
      &                      g_x,g_c)
       implicit none
-      integer basis,nbf,nsh,nocc,g_x,g_c
+      integer basis,nsh,ncor,nocc,nact,nbf,g_x,g_c
       double precision cmo(nbf,nbf),
      &                 scra(nbf*nbf),scrb(nbf*nbf)
 c
@@ -296,16 +297,16 @@ c // here
                 enddo
               enddo
             enddo
-            call dgemm('t','n',nbf,nbf,nbf,1.0d00,cmo,nbf,
-     &                 scrb,nbf,0.0d00,scra,nbf)
-            call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
-     &                 cmo,nbf,0.0d00,scrb,nbf)
-            call ga_put(g_x,1,nbf*nbf,ad2,ad2,scrb,nbf*nbf)
+            call dgemm('t','n',nact,nbf,nbf,1.0d00,cmo(1,ncor+1),nbf,
+     &                 scrb,nbf,0.0d00,scra,nact)
+            call dgemm('n','n',nact,nact,nbf,1.0d00,scra,nact,
+     &                 cmo(1,ncor+1),nbf,0.0d00,scrb,nact)
+            call ga_put(g_x,1,nact*nact,ad2,ad2,scrb,nact*nact)
 c
-            call ga_get(g_c,1,nbf*nbf,ad2,ad2,scra,nbf*nbf)
-            call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
-     &                 cmo,nbf,0.0d00,scrb,nbf)
-            call ga_put(g_c,1,nbf*nbf,ad2,ad2,scrb,nbf*nbf)
+            call ga_get(g_c,1,nact*nbf,ad2,ad2,scra,nact*nbf)
+            call dgemm('n','n',nact,nact,nbf,1.0d00,scra,nact,
+     &                 cmo(1,ncor+1),nbf,0.0d00,scrb,nact)
+            call ga_put(g_c,1,nact*nact,ad2,ad2,scrb,nact*nact)
           endif
 c end //
         enddo
@@ -316,10 +317,9 @@ c
       return
       end     
       subroutine t2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,eri2,
-     &                 g_st2,g_sht2,t2,ht2,lnoo,nocc,nbf)
+     &                 t2,ht2,lnoo,nocc)
       implicit none
-      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,lnoo,nocc,nbf,
-     &        g_st2,g_sht2
+      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,lnoo,nocc
       double precision eri1(llo:lhi,klo:khi,jlo:jhi,ilo:ihi),
      &                 eri2(jlo:jhi,klo:khi,llo:lhi,ilo:ihi),
      &                 t2(lnoo,klo:khi,ilo:ihi),

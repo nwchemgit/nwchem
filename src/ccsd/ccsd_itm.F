@@ -1,17 +1,17 @@
-      subroutine ccsd_itm(ncor,ndel,nocc,nvir,nbf,hiu,giu,habe,gabe,
+      subroutine ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,
      &                    hia,t1,ht1,
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
       implicit none
-      integer ncor,ndel,nocc,nvir,nbf,g_nt2,g_nht2,g_ncoul,g_nexch,
+      integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
       double precision hiu(nocc,nocc),giu(nocc,nocc),hia(nocc,nvir)
       double precision habe(nvir,nvir),gabe(nvir,nvir)
       double precision t1(nocc,nvir),ht1(nocc,nvir)
-      double precision scra(nbf*nbf),scrb(nbf*nbf),
-     &                 scrc(nbf,nbf),scrd(nbf,nbf),
-     &                 scre(nbf*nbf),scrf(nbf*nbf)
+      double precision scra(nact*nact),scrb(nact*nact),
+     &                 scrc(nact,nact),scrd(nact,nact),
+     &                 scre(nact*nact),scrf(nact*nact)
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -50,16 +50,16 @@ c
       call dfill(lnvv,0.0d00,habe,1)
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
-        ad1=(i-1)*nbf
+        ad1=(i-1)*nact
         if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           do j=1,nocc
-            ad2=(j-1)*nbf
+            ad2=(j-1)*nact
             if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
 c-----------------------------------------------------------------------
 c  S7
 c-----------------------------------------------------------------------
-            call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-     &                  scrc,nbf)
+            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  scrc,nact)
             ad3=(i-1)*nvir
             ad4=(j-1)*nvir
             call ga_get(g_nt2,ad4+1,ad4+nvir,ad3+1,ad3+nvir,
@@ -93,13 +93,13 @@ c
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            call ga_get(g_sht2,1,nbf*nbf,ij,ij,scre,nbf*nbf)
-            call dscal(nbf*nbf,2.0d00,scre,1)
+            call ga_get(g_sht2,1,nact*nact,ij,ij,scre,nact*nact)
+            call dscal(nact*nact,2.0d00,scre,1)
 c
 c H2
             do k=1,nocc
-                hiu(k,i)=hiu(k,i)+scre((k-1)*nbf+j)+scre((k-1)*nbf+j)
-     &                          -scre((j-1)*nbf+k)
+                hiu(k,i)=hiu(k,i)+scre((k-1)*nact+j)+scre((k-1)*nact+j)
+     &                          -scre((j-1)*nact+k)
             enddo
           endif
         enddo
@@ -115,15 +115,15 @@ c
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
 c
 c-----------------------------------------------------------------------
 c  A1, A2, A3 and A4 intermediates
 c-----------------------------------------------------------------------
 c
 c A1
-            call dfill(nbf*nbf,0.0d00,scra,1)
+            call dfill(nact*nact,0.0d00,scra,1)
             if (doa(1).eq.2)then
               call ga_get(g_nexch,ad2+1,ad2+nocc,ad1+1,ad1+nocc,
      &                    scrb,nocc)
@@ -132,14 +132,14 @@ c A1
 c---------------------------------------------------------
 c  S5, D1, D6 and D7 
 c---------------------------------------------------------
-            call ga_get(g_nexch,ad2+nocc+1,ad2+nbf,ad1+1,ad1+nbf,
+            call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+1,ad1+nact,
      &                  scre,nvir)
-            call dfill(nbf*nbf,0.0d00,scrf,1)
+            call dfill(nact*nact,0.0d00,scrf,1)
 c
 c D1,D7
             ad1=0
             do a=1,nvir
-              do b=nocc+1,nbf
+              do b=nocc+1,nact
                 ad1=ad1+1
                 scrf(ad1)=scrf(ad1)+0.5d00*scre((b-1)*nvir+a)
                 do k=1,nocc
@@ -149,64 +149,64 @@ c D1,D7
             enddo
 c
             ad1=(i-1)*nocc+j
-            call ga_get(g_c,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
-            call dcopy(nbf*nbf,scrb,1,scre,1)
+            call ga_get(g_c,1,nact*nact,ad1,ad1,scrb,nact*nact)
+            call dcopy(nact*nact,scrb,1,scre,1)
 c
 c H8
-            do a=nocc+1,nbf
-              hia(j,a-nocc)=hia(j,a-nocc)-scre((a-1)*nbf+i)
+            do a=nocc+1,nact
+              hia(j,a-nocc)=hia(j,a-nocc)-scre((a-1)*nact+i)
             enddo
 c
 c G4
             if (i.eq.j) then
-            do b=nocc+1,nbf
-            do a=nocc+1,nbf
-              gabe(a-nocc,b-nocc)=gabe(a-nocc,b-nocc)+scre((a-1)*nbf+b)
-     &                            +scre((a-1)*nbf+b)
+            do b=nocc+1,nact
+            do a=nocc+1,nact
+              gabe(a-nocc,b-nocc)=gabe(a-nocc,b-nocc)+scre((a-1)*nact+b)
+     &                            +scre((a-1)*nact+b)
             enddo
             enddo
             endif
 c
             ad1=(i-1)*nocc+j
-            call ga_get(g_x,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
-            call dcopy(nbf*nbf,scrb,1,scre,1)
+            call ga_get(g_x,1,nact*nact,ad1,ad1,scrb,nact*nact)
+            call dcopy(nact*nact,scrb,1,scre,1)
 c
 c H8
-            do a=nocc+1,nbf
-              hia(j,a-nocc)=hia(j,a-nocc)+scre((i-1)*nbf+a)
-     &                      +scre((i-1)*nbf+a)
+            do a=nocc+1,nact
+              hia(j,a-nocc)=hia(j,a-nocc)+scre((i-1)*nact+a)
+     &                      +scre((i-1)*nact+a)
             enddo
 c
 c S5
-            do a=nocc+1,nbf
-              ht1(j,a-nocc)=ht1(j,a-nocc)+scre((i-1)*nbf+a)
-     &                      +scre((i-1)*nbf+a)-scre((a-1)*nbf+i)
+            do a=nocc+1,nact
+              ht1(j,a-nocc)=ht1(j,a-nocc)+scre((i-1)*nact+a)
+     &                      +scre((i-1)*nact+a)-scre((a-1)*nact+i)
             enddo
 c
 c G2
             do k=1,nocc
-              giu(k,j)=giu(k,j)+scre((i-1)*nbf+k)
-     &                      +scre((i-1)*nbf+k)-scre((k-1)*nbf+i)
+              giu(k,j)=giu(k,j)+scre((i-1)*nact+k)
+     &                      +scre((i-1)*nact+k)-scre((k-1)*nact+i)
             enddo
 c
 c G4
             if (i.eq.j) then
-            do b=nocc+1,nbf
-            do a=nocc+1,nbf
-              gabe(a-nocc,b-nocc)=gabe(a-nocc,b-nocc)-scre((a-1)*nbf+b)
+            do b=nocc+1,nact
+            do a=nocc+1,nact
+              gabe(a-nocc,b-nocc)=gabe(a-nocc,b-nocc)-scre((a-1)*nact+b)
             enddo
             enddo
             endif
 c
 c D6,D7
             ad1=0
-            do a=nocc+1,nbf
-              do b=nocc+1,nbf
+            do a=nocc+1,nact
+              do b=nocc+1,nact
                 ad1=ad1+1
-                scrf(ad1)=scrf(ad1)+scre((b-1)*nbf+a)
+                scrf(ad1)=scrf(ad1)+scre((b-1)*nact+a)
                 do k=1,nocc
-                  scrf(ad1)=scrf(ad1)-scre((b-1)*nbf+k)*t1(k,a-nocc)
-                  scrf(ad1)=scrf(ad1)-scre((k-1)*nbf+a)*t1(k,b-nocc)
+                  scrf(ad1)=scrf(ad1)-scre((b-1)*nact+k)*t1(k,a-nocc)
+                  scrf(ad1)=scrf(ad1)-scre((k-1)*nact+a)*t1(k,b-nocc)
                 enddo
               enddo
             enddo
@@ -220,28 +220,28 @@ c
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                scra(ad1)=scra(ad1)+0.5d00*scrb((k-1)*nbf+l)
+                scra(ad1)=scra(ad1)+0.5d00*scrb((k-1)*nact+l)
               enddo
             enddo
             ad1=(j-1)*nocc+i
-            call ga_get(g_x,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
+            call ga_get(g_x,1,nact*nact,ad1,ad1,scrb,nact*nact)
             ad1=0
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                scra(ad1)=scra(ad1)+0.5d00*scrb((l-1)*nbf+k)
+                scra(ad1)=scra(ad1)+0.5d00*scrb((l-1)*nact+k)
               enddo
             enddo
             endif
 c
-            call ga_get(g_sht2,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
-            call dfill(nbf*nbf,0.0d00,scre,1)
-            call daxpy(nbf*nbf,2.0d00,scrb,1,scre,1)
+            call ga_get(g_sht2,1,nact*nact,ij,ij,scrb,nact*nact)
+            call dfill(nact*nact,0.0d00,scre,1)
+            call daxpy(nact*nact,2.0d00,scrb,1,scre,1)
 c
 c S6
-            do a=nocc+1,nbf
-              ht1(j,a-nocc)=ht1(j,a-nocc)+scre((i-1)*nbf+a)
-     &                      +scre((i-1)*nbf+a)-scre((a-1)*nbf+i)
+            do a=nocc+1,nact
+              ht1(j,a-nocc)=ht1(j,a-nocc)+scre((i-1)*nact+a)
+     &                      +scre((i-1)*nact+a)-scre((a-1)*nact+i)
             enddo
 c
 c A4
@@ -250,7 +250,7 @@ c A4
             do k=1,nocc
               do l=1,nocc
                 ad1=ad1+1
-                scra(ad1)=scra(ad1)+scrb((k-1)*nbf+l)
+                scra(ad1)=scra(ad1)+scrb((k-1)*nact+l)
               enddo
             enddo
             endif
@@ -261,10 +261,10 @@ c-----------------------------------------------------------------------
             if (dob(2).eq.2)then
             ad1=nocc+1
             call dgemm('n','n',nvir,nvir,nocc,1.0d00,scrb(ad1),
-     &                 nbf,t1,nocc,0.0d00,scra,nvir)
-            ad1=nocc*nbf+1
+     &                 nact,t1,nocc,0.0d00,scra,nvir)
+            ad1=nocc*nact+1
             call dgemm('t','n',nvir,nvir,nocc,1.0d00,t1,nocc,
-     &                 scrb(ad1),nbf,1.0d00,scra,nvir)
+     &                 scrb(ad1),nact,1.0d00,scra,nvir)
             ad1=(i-1)*nvir
             ad2=(j-1)*nvir
             call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -414,15 +414,15 @@ c-----------------------------------------------------------------------
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
 c
-            call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-     &                  scrd,nbf)
+            call ga_get(g_nexch,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                  scrd,nact)
             call dgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
-     &                 nbf,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nbf)
-            call daxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
-            call ga_acc(g_x,1,nbf*nbf,ij,ij,scrd,nbf*nbf,1.0d00)
+     &                 nact,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nact)
+            call daxpy(nact*nact,1.0d00,scrc,1,scrd,1)
+            call ga_acc(g_x,1,nact*nact,ij,ij,scrd,nact*nact,1.0d00)
           endif
         enddo
       enddo
@@ -432,14 +432,14 @@ c
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
-            call ga_get(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
-     &                    scrd,nbf)
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
+            call ga_get(g_ncoul,ad2+1,ad2+nact,ad1+1,ad1+nact,
+     &                    scrd,nact)
             call dgemm('n','n',nvir,nvir,nocc,-1.0d00,scrd(nocc+1,1),
-     &                 nbf,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nbf)
-            call daxpy(nbf*nbf,1.0d00,scrc,1,scrd,1)
-            call ga_acc(g_c,1,nbf*nbf,ij,ij,scrd,nbf*nbf,1.0d00)
+     &                 nact,t1,nocc,0.0d00,scrc(nocc+1,nocc+1),nact)
+            call daxpy(nact*nact,1.0d00,scrc,1,scrd,1)
+            call ga_acc(g_c,1,nact*nact,ij,ij,scrd,nact*nact,1.0d00)
 c
           endif
         enddo
@@ -487,11 +487,11 @@ c
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
             ad3=(i-1)*nvir
             ad4=(j-1)*nvir
-            call ga_get(g_nexch,ad2+nocc+1,ad2+nbf,ad1+nocc+1,ad1+nbf,
+            call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
      &                  scra,nvir)
             call ga_put(g_tmp,ad3+1,ad3+nvir,ad4+1,ad4+nvir,
      &                  scra,nvir)
@@ -512,12 +512,12 @@ c-----------------------------------------------------------------------
             ad2=(j-1)*nvir
             if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
               ij=(i-1)*nocc+j
-              call ga_get(g_c,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
+              call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
               ad3=0
-              do a=nocc+1,nbf
-                do b=nocc+1,nbf
+              do a=nocc+1,nact
+                do b=nocc+1,nact
                   ad3=ad3+1
-                  scra(ad3)=scrb((a-1)*nbf+b)
+                  scra(ad3)=scrb((a-1)*nact+b)
                 enddo
               enddo
               call ga_acc(g_tmp2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -581,18 +581,18 @@ c
         do j=1,nocc
           ij=(i-1)*nocc+j
           if (ij.ge.g_ilo.and.ij.le.g_ihi)then
-            ad1=(i-1)*nbf
-            ad2=(j-1)*nbf
-            call dfill(nbf*nbf,0.0d00,scra,1)
-              call ga_get(g_x,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
-              call daxpy(nbf*nbf,1.0d00,scrb,1,scra,1)
-              call ga_get(g_c,1,nbf*nbf,ij,ij,scrb,nbf*nbf)
-              call daxpy(nbf*nbf,-0.5d00,scrb,1,scra,1)
+            ad1=(i-1)*nact
+            ad2=(j-1)*nact
+            call dfill(nact*nact,0.0d00,scra,1)
+              call ga_get(g_x,1,nact*nact,ij,ij,scrb,nact*nact)
+              call daxpy(nact*nact,1.0d00,scrb,1,scra,1)
+              call ga_get(g_c,1,nact*nact,ij,ij,scrb,nact*nact)
+              call daxpy(nact*nact,-0.5d00,scrb,1,scra,1)
             ad1=0
-            do a=nocc+1,nbf
-              do b=nocc+1,nbf
+            do a=nocc+1,nact
+              do b=nocc+1,nact
                 ad1=ad1+1
-                scrb(ad1)=scra((a-1)*nbf+b)
+                scrb(ad1)=scra((a-1)*nact+b)
               enddo
             enddo
             ad1=(j-1)*nvir
@@ -634,14 +634,14 @@ c
 c
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
-        ad1=(i-1)*nbf
+        ad1=(i-1)*nact
         if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
           do j=1,nocc
-            ad2=(j-1)*nbf
+            ad2=(j-1)*nact
             if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
             ad3=(i-1)*nvir
             ad4=(j-1)*nvir
-            call ga_get(g_nexch,ad2+nocc+1,ad2+nbf,ad1+nocc+1,ad1+nbf,
+            call ga_get(g_nexch,ad2+nocc+1,ad2+nact,ad1+nocc+1,ad1+nact,
      &                  scra,nvir)
               do a=1,nvir
                 do b=1,nvir
@@ -705,7 +705,7 @@ c -- parallel task --
         inode=inode+1
         if (inode.eq.next)then
 c
-         call ccsd_fsig1(a,b,ncor,nocc,nvir,ndel,nbf,iprt,
+         call ccsd_fsig1(a,b,nocc,nvir,nact,iprt,
      $                   t1,ht1,habe)
          next=nxtval(nodes)
         endif

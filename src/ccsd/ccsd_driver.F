@@ -210,7 +210,7 @@ capr
       lnooo=lnoo*nocc_correl
       lnovv=lnvv*nocc_correl
 capr
-      lnof=nbf*nocc
+      lnof=nmo2*nocc
       lnobj=max(lnoov+lnoov+lnoov,nmo2*lnoo)
       lnobj=max(lnoov+lnoov+lnooo,lnobj)
       lnobj=max(lnobj,nbf*nocc)
@@ -411,7 +411,7 @@ c
 c
       status=status.and.ma_push_get(MT_DBL,2*lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
-      call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nbf,
+      call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nmo2,nbf,
      $                 dbl_mb(k_scr),lnobj,g_objv,g_coul,
      $                 g_exch,g_ncoul,g_nexch,iprt)
           status=status.and.ga_destroy(g_coul)
@@ -422,7 +422,7 @@ c
       status=ma_push_get(MT_DBL,(nbf*nbf),'movecs',l_mo,k_mo)
       if (.not.status)call errquit('movecs: failed to alloc', l_mo)
       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
-      call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nbf,nmo2,
+      call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nmo2,nbf,
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, RefEner,

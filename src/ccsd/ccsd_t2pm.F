@@ -1,7 +1,8 @@
-      subroutine ccsd_ht2pm(basis,nocc,nvir,nbf,nsh,g_sht2,g_nht2,cmo,
-     &                      scra,scrb,offsh)
+      subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
+     &                      g_nht2,cmo,scra,scrb,offsh)
       implicit none
-      integer basis,nocc,nvir,nbf,nsh,g_sht2,g_nht2,offsh(nsh,nsh)
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
+     &        offsh(nsh,nsh)
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
 
 #include "mafdecls.fh"
@@ -83,8 +84,8 @@ c ------------------------------------------------------------
 c - redefine g_sht2
       if (.not.ga_destroy(g_sht2))
      &    call errquit('ga_dest g_sht2 fail',0)
-      if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'sht2',
-     &                   nbf*nbf,1,g_sht2))
+      if (.not.ga_create(MT_DBL,nact*nact,lnoo,'sht2',
+     &                   nact*nact,1,g_sht2))
      &     call errquit('ga_create g_sht2 failed',0)
 
       call ga_distribution(g_nht2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -112,20 +113,20 @@ c - redefine g_sht2
                   enddo
                 enddo
               enddo
-              call dgemm('n','n',nbf,nbf,nbf,1.0d00,scra,nbf,
-     &                   cmo(1,1),nbf,0.0d00,scrb,nbf)
-              call dgemm('t','n',nbf,nbf,nbf,1.0d00,cmo(1,1),nbf,
-     &                   scrb,nbf,0.0d00,scra,nbf)
+              call dgemm('n','n',nbf,nact,nbf,1.0d00,scra,nbf,
+     &                   cmo(1,ncor+1),nbf,0.0d00,scrb,nbf)
+              call dgemm('t','n',nact,nact,nbf,1.0d00,cmo(1,ncor+1),nbf,
+     &                   scrb,nbf,0.0d00,scra,nact)
               ad3=(i-1)*nocc+j
-              call ga_put(g_sht2,1,nbf*nbf,ad3,ad3,
-     &                    scra,nbf*nbf)
+              call ga_put(g_sht2,1,nact*nact,ad3,ad3,
+     &                    scra,nact*nact)
 c
               if (dob(1).eq.2)then
                 ad3=0
-                do a=nocc+1,nbf
-                  do b=nocc+1,nbf
+                do a=nocc+1,nact
+                  do b=nocc+1,nact
                     ad3=ad3+1
-                    scrb(ad3)=scra((a-1)*nbf+b)
+                    scrb(ad3)=scra((a-1)*nact+b)
                   enddo
                 enddo
                 call ga_acc(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -143,10 +144,10 @@ c
 c
       return
       end
-      subroutine ccsd_t2pm(basis,nocc,nvir,nbf,nsh,g_st2,g_nt2,cmo,
+      subroutine ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
      &                     t1,scra,scrb)
       implicit none
-      integer basis,nocc,nvir,nbf,nsh,g_st2,g_nt2
+      integer basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf),
      &                 t1(nocc,nvir)
 #include "mafdecls.fh"
@@ -186,9 +187,9 @@ c
                 enddo
               enddo
               call dgemm('n','t',nvir,nbf,nvir,1.0d00,scra,nvir,
-     &                   cmo(1,nocc+1),nbf,0.0d00,scrb,nvir)
-              call dgemm('n','n',nbf,nbf,nvir,1.0d00,cmo(1,nocc+1),nbf,
-     &                   scrb,nvir,0.0d00,scra,nbf)
+     &                   cmo(1,ncor+nocc+1),nbf,0.0d00,scrb,nvir)
+              call dgemm('n','n',nbf,nbf,nvir,1.0d00,cmo(1,ncor+nocc+1),
+     &                   nbf,scrb,nvir,0.0d00,scra,nbf)
               ad3=0
               do ksh=1,nsh
                 if (.not. bas_cn2bfr(basis,ksh,klo,khi))
@@ -265,12 +266,13 @@ c
 c
       return
       end
-      subroutine ccsd_sxy(basis,ncor,nocc,nvir,nbf,nsh,g_st2,g_sht2,
-     &                    g_c,g_x,offsh,snsi,sisn,lssni,scre,
+      subroutine ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,
+     &                    g_sht2,g_c,g_x,offsh,snsi,sisn,lssni,scre,
      &                    mem2,max2e,eri1,eri2,t1,cmo,t1ao,scra,
      &                    scrb,lscr,tol2e,iprt,tklst)
       implicit none
-      integer basis,ncor,nocc,nvir,nbf,nsh,g_st2,g_sht2,g_c,g_x,lssni,
+      integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
+     &        g_c,g_x,lssni,
      &        mem2,max2e,lscr,iprt
       integer offsh(nsh,nsh),tklst(nsh*(nsh+1)/2,2)
       double precision tol2e,eri1(max2e),eri2(max2e),scre(mem2),
@@ -379,14 +381,13 @@ c
                     call dfill(lnijkl,0.0d00,eri2,1)
                   endif
                   call t2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,
-     &                       eri2,g_st2,g_sht2,scra,scrb,lnoo,nocc,
-     &                       nbf)
+     &                       eri2,scra,scrb,lnoo,nocc)
                   if (ish.eq.ksh)then
                     call dscal(lnijkl,0.5d00,eri1,1)
                     call dscal(lnijkl,0.5d00,eri2,1)
                   endif
-                  call ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nbf,
-     &                           nocc,ilo,ihi,klo,khi,jlo,llo)
+                  call ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                           nbf,ilo,ihi,klo,khi,jlo,llo)
                 endif
               enddo
             enddo
@@ -396,7 +397,7 @@ c
             offjl=offsh(jsh,lsh)
             offlj=offsh(lsh,jsh)
             call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
-     &                     nfj,nfl,nbf,nocc,jlo,jhi,llo,lhi,
+     &                     nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
      &                     offjl,offlj,g_x,g_c)
             next=nxtval(nodes)
           endif
@@ -405,7 +406,7 @@ c
       enddo
       next=nxtval(-nodes)
 c sync before 3 and 4 index transformation
-      call ccsd_idx34(basis,cmo,scra,scrb,nbf,nsh,nocc,
+      call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
      &                g_x,g_c)
 c
       call ga_sync()

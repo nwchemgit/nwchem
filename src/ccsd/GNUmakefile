@@ -28,7 +28,15 @@
 		qstat.o \
 		cputime.o \
 		rddcom.o \
-		ccsd_input.o
+		ccsd_input.o \
+		ccsd_graddrv.o \
+                ccsd_zvecs.o \
+                ccsd_zitf.o \
+		ccsd_pzamp.o \
+		ccsd_zsig1.o \
+		ccsd_zsig2.o \
+		ccsd_tzinta.o \
+		ccsd_tzintb.o
 
     LIBRARY = libccsd.a
 

@@ -2,7 +2,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 2.2 1996-12-09 20:13:12 gg502 Exp $
+c  $Id: moints_trp.F,v 2.3 1997-03-24 04:01:23 gg502 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -28,7 +28,7 @@ c
      $                        mo2_lo, mo2_hi,
      $                        g_coul, ocoul,
      $                        g_exch, oexch,
-     $                        blen, cmo, ncor, ndel, nocc, nvir)
+     $                        blen, cmo, ncor, nocc, nvir)
        implicit none
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -50,7 +50,7 @@ c
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
-       integer ncor, ndel, nocc, nvir
+       integer ncor, nocc, nvir
        double precision cmo(*)
 c
 c Local variables

@@ -1,10 +1,10 @@
-      subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nbf,nact,maxit,
+      subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,g_objv,
      &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom)
       implicit none
 c
-      integer basis,ncor,nocc,nvir,ndel,nbf,nact,mxov,maxit,convi,iprt,
+      integer basis,ncor,nocc,nvir,ndel,nact,nbf,mxov,maxit,convi,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
       double precision cmo(nbf,nbf),eorb(nbf)
       Double Precision RefEner
@@ -62,6 +62,16 @@ C
       Data Do_CCDen /.FALSE./
       Integer GA_Create_Atom_Blocked
       External GA_Create_Atom_Blocked
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+c gradient
+      integer l_z1
+      integer k_z1
+      integer g_ct2,g_z2,g_hz2
+      integer i,av,ilo,ihi,jlo,jhi,offt2,nvp1
+      Logical Do_Z
+      Data Do_Z /.FALSE./
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -157,7 +167,7 @@ c
      &                   mxvec*lnoov,1,g_ht2))
      &     call errquit('ga_create failed',0)
 c      
-      call ccsd_iterdrv2(basis,ncor,nocc,nvir,ndel,nbf,nact,nsh,
+      call ccsd_iterdrv2(basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
      &                  dbl_mb(k_t1),dbl_mb(k_t2),
      &                  dbl_mb(k_ht1),dbl_mb(k_ht2),
@@ -167,12 +177,93 @@ c
      &                  dbl_mb(k_bbkp),dbl_mb(k_bb),
      &                  g_t2,g_ht2,g_objv,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
-     &                  int_mb(k_tk))
+     &                  int_mb(k_tk),offt2,nvp1)
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CRK
+CRK   Gradient driver to go in here for development purposes 
+CRK 
+      If ( Do_Z) then
+         if (.not.ga_create(MT_DBL,lnoov,nvir+1,'g_ct2',
+     &      lnoov,1,g_ct2))
+     &      call errquit('ga_create failed',0)
+         call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
+         if (iam.eq.0)then
+            call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
+     $         dbl_mb(k_t1),lnov)
+            call ga_put(g_ct2,1,lnov,nvp1,nvp1,dbl_mb(k_t1),lnov)
+         endif
+         do av=1,nvir
+            if (av.ge.ilo.and.av.le.ihi)then
+               write(6,*)'offt2+1,offt2+lnoov',offt2+1,offt2+lnoov
+               call ga_get(g_t2,offt2+1,offt2+lnoov,av,av,
+     $            dbl_mb(k_scra),lnoov)
+               call ga_put(g_ct2,1,lnoov,av,av,dbl_mb(k_scra),lnoov)
+            endif
+         enddo
+c
+         if (iam.eq.0.and.iprt.gt.5)then
+            call ga_get(g_ct2,1,lnov,nvp1,nvp1,dbl_mb(k_t1),lnov)
+            print *,'starting t1 vector'
+            write(6,139)(dbl_mb(k_t1-1+i),i=1,lnov)
+            do av=1,nvir
+               call ga_get(g_ct2,1,lnoov,av,av,dbl_mb(k_scra),lnoov)
+               print *,'starting t2 for av ',av
+               write(6,139)(dbl_mb(k_scra-1+i),i=1,lnoov)
+ 139           format(4e14.4)
+            enddo
+         endif
+      EndIf
+c
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       if (.not. ga_destroy(g_ht2))
      &     call errquit('ga_destroy failed',0)
       if (.not. ga_destroy(g_t2))
      &     call errquit('ga_destroy failed',0)
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+c
+      If ( Do_Z) then
+         if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_z2',
+     &      mxvec*lnoov,1,g_z2))
+     &      call errquit('ga_create failed',0)
+         if (.not.ga_create(MT_DBL,mxvec*lnoov,nvir+1,'g_hz2',
+     &      mxvec*lnoov,1,g_hz2))
+     &      call errquit('ga_create failed',0)
+         stat=stat.and.ma_push_get(MT_DBL,lnov,'z1',l_z1,k_z1)
+         call ccsd_graddrv(basis,nsh,ncor,nocc,nvir,nact,nbf,
+     &      maxit,convi,iprt,cmo,eorb,dbl_mb(k_t1),
+     &      dbl_mb(k_ht1),dbl_mb(k_ht2),
+     &      dbl_mb(k_scra),dbl_mb(k_scrb),dbl_mb(k_z1),
+     &      dbl_mb(k_hiu),dbl_mb(k_hia),dbl_mb(k_habe),
+     &      dbl_mb(k_giu),dbl_mb(k_gabe),
+     &      dbl_mb(k_bbkp),dbl_mb(k_bb),
+     &      g_ct2,g_z2,g_hz2,g_objv,
+     &      mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
+     &      int_mb(k_tk))
+         if (.not. ga_destroy(g_hz2))
+     &      call errquit('ga_destroy failed',0)
+         if (.not. ga_destroy(g_z2))
+     &      call errquit('ga_destroy failed',0)
+      EndIf
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+c
       stat=.true.
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      If ( Do_Z ) then
+         stat=stat.and.ma_pop_stack(l_z1)
+      EndIf
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       stat=stat.and.ma_pop_stack(l_tk)
       stat=stat.and.ma_pop_stack(l_bb)
       stat=stat.and.ma_pop_stack(l_bbkp)
@@ -398,7 +489,7 @@ c
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
-     &      blen, cmo, ncor, ndel, nocc, nvir)
+     &      blen, cmo, ncor, nocc, nvir)
 c        print *,'call trpdrv ',npass
 c
          tx(2)=tcgtime()
@@ -407,7 +498,7 @@ c
      $      dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
      $      dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
      $      dbl_mb(k_f4t),eorb,eccsdt,g_objo,g_objv,
-     $      g_coul,g_exch,ncor,nocc,nvir,ndel,iprt,
+     $      g_coul,g_exch,ncor,nocc,nvir,iprt,
      $      empt(1),empt(2),oseg_lo,oseg_hi)
          tx(3)=tcgtime()
          if (iam.eq.0)write(6,*)'Time for integral evaluation pass ',

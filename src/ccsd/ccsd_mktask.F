@@ -24,7 +24,6 @@ c
       end
       subroutine isortx(ix,inc,n,indx)
       Implicit NONE
-c$$$      implicit real*8 (a-h,o-z)
       Integer Inc, N
       Integer IX(*),indx(*)
 c -- sort array ix in ascending/decending order and set up index
