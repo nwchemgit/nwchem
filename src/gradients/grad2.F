@@ -61,6 +61,14 @@ C             if (mod(ijatom, nproc) .eq. iproc) then
                 if (.not.status) 
      $              call errquit('grad2: error with bas_ce2cnr',0)
 
+                if (iab1f.le.0 .or. iab2f.le.0 .or. iab3f.le.0 .or.
+     $               iab4f.le.0) then
+c     
+c     At least one center has no functions on it ... next atom
+c
+                   goto 1010
+                endif
+
 C            get density matrix blocks
              call get_dens ( d_ij, d_kl, d_ik, d_jl, d_il, d_jk, ldim,
      $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
@@ -147,7 +155,7 @@ C---------------------------------------------------------------------
                     endif         !schwarz
  70               continue
  75             continue
-                next = nxtval(nproc)
+ 1010           next = nxtval(nproc)
               endif
 
                   endif
