@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.138 2004-04-21 20:09:52 d3j191 Exp $
+c $Id: sp_init.F,v 1.139 2004-04-21 22:52:34 d3j191 Exp $
 c
       implicit none
 c
@@ -2081,7 +2081,10 @@ c
 c
       nrempr=0
       if(nbget.ne.0.and.np.gt.1) then
-      nrempr=nbbl-nbbloc
+      nrempr=1
+      do 9 i=2,nbbl
+      if(lbbl(i,2).ne.lbbl(i-1,2)) nrempr=nrempr+1
+    9 continue
       call ga_igop(msp_29,nrempr,1,'max')
       nrempr=min(2*nrempr,nrempr+25)
       endif

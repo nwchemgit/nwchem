@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.92 2004-04-20 15:08:37 d3j191 Exp $
+c $Id: sp_main.F,v 1.93 2004-04-21 22:52:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1548,10 +1548,16 @@ c
       if(iwfr.eq.0) nwnew=0
       if(isfr.eq.0) nsnew=0
 c
-      if(nwstay+nwnew.gt.mwm)
-     + call md_abort('Travel: Increase mwm',nwstay+nwnew)
-      if(nsstay+nsnew.gt.msa)
-     + call md_abort('Travel: Increase msa',nsstay+nsnew)
+      if(nwstay+nwnew.gt.mwm) then
+      write(string,'(a,i7,a,i7)')
+     + 'Travel: mwm needs increase with ',nwnew,' to ',nwstay+nwnew
+      call md_abort(string,me)
+      endif
+      if(nsstay+nsnew.gt.msa) then
+      write(string,'(a,i7,a,i7)')
+     + 'Travel: msa needs increase with ',nsnew,' to ',nsstay+nsnew
+      call md_abort(string,me)
+      endif
 c
       lrec(i)=.true.
 c
