@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.39 2000-01-21 07:48:06 d3j191 Exp $
+c $Id: sp_main.F,v 1.40 2000-01-25 19:52:31 d3j191 Exp $
 c
       implicit none
 c
@@ -18,8 +18,13 @@ c
       integer i_qlst,l_qlst
       integer i,j,k
 c
+      if(iguide.gt.0) then
+      call sp_gagetixvf(node,iwl,int_mb(i_packw),xw,xwcr,vw,gw,numwm,
+     + isl,int_mb(i_pack),xs,vs,gs,numsa,int_mb(i_ipl))
+      else
       call sp_gagetixv(node,iwl,int_mb(i_packw),xw,xwcr,vw,numwm,
      + isl,int_mb(i_pack),xs,vs,numsa,int_mb(i_ipl))
+      endif
 c
       if(me.eq.node) then
       nwmloc=numwm
@@ -31,21 +36,6 @@ c
       if(.not.ma_pop_stack(l_qlst))
      + call errquit('Failed to deallocate memory for qlst',0)
       call sp_putix(me,iwl,xw,numwm,isl,xs,numsa)
-      endif
-c
-      if(iguide.gt.0) then
-      do 1 k=1,mwa
-      do 2 j=1,3
-      do 3 i=1,mwm
-      gw(i,j,k)=zero
-    3 continue
-    2 continue
-    1 continue
-      do 4 j=1,3
-      do 5 i=1,msa
-      gs(i,j)=zero
-    5 continue
-    4 continue
       endif
 c
       if(lpack) call sp_pack_init(isl,numsa,iwl,numwm)
@@ -539,6 +529,61 @@ c
       ih=il+numsa-1
       call ga_get(ga_s,il,ih,jl,jl+2,xs,msa)
       call ga_get(ga_s,il,ih,jl+3,jl+5,vs,msa)
+      endif
+c
+      return
+      end
+      subroutine sp_gagetixvf(node,iwl,iwlp,xw,xwcr,vw,fw,
+     + numwm,isl,islp,xs,vs,fs,numsa,ipl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+c
+      integer node,numwm,numsa
+      integer iwl(mwm,miw2),iwlp(mwm,npackw)
+      integer isl(msa,mis2),islp(msa,npack)
+      real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
+      real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 fw(mwm,3,mwa),fs(msa,3)
+      integer ipl(mbox,mip2)
+      integer il,ih,jl,jh,i,j
+c
+      call ga_distribution(ga_ip,node,il,ih,jl,jh)
+      call ga_get(ga_ip,il,ih,jl,jh,ipl,mbox)
+      numwm=ipl(1,2)
+      numsa=ipl(2,2)
+c
+      if(numwm.gt.0) then
+      call ga_distribution(ga_iw,node,il,ih,jl,jh)
+      if(npackw.eq.0) then
+      call ga_get(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)
+      else
+      call ga_get(ga_iw,il,il+numwm-1,jl,jl+npackw-1,iwlp,mwm)
+      call sp_unpackw(numwm,iwl,iwlp)
+      endif
+      call ga_distribution(ga_w,node,il,ih,jl,jh)
+      ih=il+numwm-1
+      call ga_get(ga_w,il,ih,jl,jl+3*mwa-1,xw,mwm)
+      call ga_get(ga_w,il,ih,jl+3*mwa,jl+6*mwa-1,vw,mwm)
+      call ga_get(ga_w,il,ih,jl+6*mwa,jl+6*mwa+2,xwcr,mwm)
+      call ga_get(ga_w,il,ih,jl+6*mwa+3,jl+9*mwa+2,fw,mwm)
+      endif
+c
+      if(numsa.gt.0) then
+      call ga_distribution(ga_is,node,il,ih,jl,jh)
+      if(npack.eq.0) then
+      call ga_get(ga_is,il,il+numsa-1,jl,jh,isl,msa)
+      else
+      call ga_get(ga_is,il,il+numsa-1,jl,jl+npack-1,islp,msa)
+      call sp_unpack(numsa,isl,islp)
+      endif
+      call ga_distribution(ga_s,node,il,ih,jl,jh)
+      ih=il+numsa-1
+      call ga_get(ga_s,il,ih,jl,jl+2,xs,msa)
+      call ga_get(ga_s,il,ih,jl+3,jl+5,vs,msa)
+      call ga_get(ga_s,il,ih,jl+9,jl+11,fs,msa)
       endif
 c
       return

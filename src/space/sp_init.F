@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.54 2000-01-25 00:17:51 d3j191 Exp $
+c $Id: sp_init.F,v 1.55 2000-01-25 19:52:31 d3j191 Exp $
 c
       implicit none
 c
@@ -99,18 +99,22 @@ c
      + call errquit('Failed to allocate x',0)
       if(.not.ma_push_get(mt_dbl,lenscr,'v',l_v,i_v))
      + call errquit('Failed to allocate v',0)
+      if(.not.ma_push_get(mt_dbl,lenscr,'f',l_f,i_f))
+     + call errquit('Failed to allocate f',0)
       if(.not.ma_push_get(mt_dbl,3*mwm*mwa,'r',l_r,i_r))
      + call errquit('Failed to allocate r',0)
       lenscr=max(miw2*mwm,mis2*msa)
       if(.not.ma_push_get(mt_int,lenscr,'i',l_i,i_i))
      + call errquit('Failed to allocate i',0)
       lenscr=ma_inquire_avail(mt_byte)/
-     + ((6*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
+     + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
      + call errquit('Failed to allocate bx',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
      + call errquit('Failed to allocate bv',0)
+      if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
+     + call errquit('Failed to allocate bf',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
      + call errquit('Failed to allocate br',0)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
@@ -121,10 +125,12 @@ c
       call ga_sync()
       call sp_rdrst(lfnrst,filrst,lfntop,filtop,
      + temp,tempw,temps,int_mb(i_ipl),
-     + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_r),int_mb(i_i),
-     + dbl_mb(i_x),dbl_mb(i_v),int_mb(i_i),
-     + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_br),int_mb(i_bi),lenscr,
-     + dbl_mb(i_bx),dbl_mb(i_bv),int_mb(i_bi),lenscr,int_mb(i_n),
+     + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),dbl_mb(i_r),int_mb(i_i),
+     + dbl_mb(i_x),dbl_mb(i_v),dbl_mb(i_f),int_mb(i_i),
+     + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_bf),dbl_mb(i_br),
+     + int_mb(i_bi),lenscr,
+     + dbl_mb(i_bx),dbl_mb(i_bv),dbl_mb(i_bf),int_mb(i_bi),
+     + lenscr,int_mb(i_n),
      + int_mb(i_iown),dbl_mb(i_boxs))
 c
       if(.not.ma_pop_stack(l_n))
@@ -133,6 +139,8 @@ c
      + call errquit('Failed to deallocate bi',0)
       if(.not.ma_pop_stack(l_br))
      + call errquit('Failed to deallocate br',0)
+      if(.not.ma_pop_stack(l_bf))
+     + call errquit('Failed to deallocate bf',0)
       if(.not.ma_pop_stack(l_bv))
      + call errquit('Failed to deallocate bv',0)
       if(.not.ma_pop_stack(l_bx))
@@ -141,6 +149,8 @@ c
      + call errquit('Failed to deallocate i',0)
       if(.not.ma_pop_stack(l_r))
      + call errquit('Failed to deallocate r',0)
+      if(.not.ma_pop_stack(l_f))
+     + call errquit('Failed to deallocate f',0)
       if(.not.ma_pop_stack(l_v))
      + call errquit('Failed to deallocate v',0)
       if(.not.ma_pop_stack(l_x))
@@ -448,8 +458,8 @@ c
       return
       end
       subroutine sp_rdrst(lfnrst,filrst,lfntop,filtop,
-     + temp,tempw,temps,ipl,xw,vw,xwcr,iwl,xs,vs,isl,
-     + bxw,bvw,brw,ibw,nw,bxs,bvs,ibs,ns,ndx,
+     + temp,tempw,temps,ipl,xw,vw,fw,xwcr,iwl,xs,vs,fs,isl,
+     + bxw,bvw,bfw,brw,ibw,nw,bxs,bvs,bfs,ibs,ns,ndx,
      + ibownr,boxsiz)
 c
       implicit none
@@ -466,8 +476,10 @@ c
       integer ipl(mbox,mip2),iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xs(msa,3),xwcr(mwm,3)
       real*8 vw(mwm,3,mwa),vs(msa,3)
+      real*8 fw(mwm,3,mwa),fs(msa,3)
       real*8 bxw(nw,3,mwa),bxs(ns,3),brw(nw,3)
       real*8 bvw(nw,3,mwa),bvs(ns,3)
+      real*8 bfw(nw,3,mwa),bfs(ns,3)
       integer ibw(nw,2),ibs(ns,mis2)
       real*8 boxsiz(maxbox,3)
       integer ndx(nw)
@@ -482,6 +494,8 @@ c
 c
       integer nat,nqt,naw,nbw,nhw,ndw,now,ntw,nnw,ipp,ips,ix
       real*8 boxi(3)
+      logical lforces
+c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       real*8 arg_nint
       external arg_nint
@@ -554,8 +568,8 @@ c
       read(lfnrst,1001,end=9997,err=9998) cdum
  1001 format(a1)
     1 continue
-      read(lfnrst,1016) nhist
- 1016 format(32x,i5)
+      read(lfnrst,1016) nhist,lforces
+ 1016 format(32x,i5,4x,l1)
       if(nhist.gt.0) then
       do 21 i=1,nhist
       read(lfnrst,1017) hist(i)
@@ -613,6 +627,9 @@ c
       read(lfnrst,1009,end=9997,err=9998)
      + ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
  1009 format(2x,6f13.8)
+      if(lforces) read(lfnrst,1109,end=9997,err=9998)
+     + ((bfw(i,j,k),j=1,3),k=1,nwa)
+ 1109 format(2x,6e13.6)
       read(lfnrst,1010,end=9997,err=9998) ibw(i,2),(brw(i,k),k=1,3)
  1010 format(i1,1x,3f13.8)
    44 continue
@@ -624,6 +641,11 @@ c
       cgx=cgx+bxw(i,1,k)
       cgy=cgy+bxw(i,2,k)
       cgz=cgz+bxw(i,3,k)
+      if(.not.lforces) then
+      bfw(i,1,k)=zero
+      bfw(i,2,k)=zero
+      bfw(i,3,k)=zero
+      endif
     6 continue
       ibx=0
       iby=0
@@ -689,6 +711,7 @@ c
       do 12 k=1,nwa
       xw(new,j,k)=bxw(i,j,k)
       vw(new,j,k)=bvw(i,j,k)
+      fw(new,j,k)=bfw(i,j,k)
    12 continue
       xwcr(new,j)=brw(i,j)
   124 continue
@@ -714,6 +737,7 @@ c
       call ga_put(ga_w,ilw,ihw,jlw,jlw+3*mwa-1,xw(1,1,1),mwm)
       call ga_put(ga_w,ilw,ihw,jlw+3*mwa,jlw+6*mwa-1,vw(1,1,1),mwm)
       call ga_put(ga_w,ilw,ihw,jlw+6*mwa,jlw+6*mwa+2,xwcr(1,1),mwm)
+      call ga_put(ga_w,ilw,ihw,jlw+6*mwa+3,jlw+9*mwa+2,fw(1,1,1),mwm)
       endif
 c
    10 continue
@@ -729,13 +753,22 @@ c
       nums=ns
       do 13 i=1,ncyc
       if(nsa-number.lt.nums) nums=nsa-number
+      do 113 k=1,nums
       read(lfnrst,1011,end=9997,err=9998)
-     + (ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),k=1,nums)
+     + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3)
  1011 format(i1,1x,6f13.8)
-      read(lfntop,2009,end=9897,err=9898) ((ibs(k,j),j=1,10),k=1,nums)
+      if(lforces) read(lfnrst,1111,end=9997,err=9998) (bfs(k,j),j=1,3)
+ 1111 format(2x,6e13.6)
+      read(lfntop,2009,end=9897,err=9898) (ibs(k,j),j=1,10)
  2009 format(16x,10i5)
+  113 continue
       do 14 k=1,nums
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
+      if(.not.lforces) then
+      bfs(k,1)=zero
+      bfs(k,2)=zero
+      bfs(k,3)=zero
+      endif
       ibx=0
       iby=0
       ibz=0
@@ -816,6 +849,9 @@ c
       vs(new,1)=bvs(k,1)
       vs(new,2)=bvs(k,2)
       vs(new,3)=bvs(k,3)
+      fs(new,1)=bfs(k,1)
+      fs(new,2)=bfs(k,2)
+      fs(new,3)=bfs(k,3)
       endif
    20 continue
 c
@@ -836,6 +872,7 @@ c
       ihs=ils+new-1
       call ga_put(ga_s,ils,ihs,jls,jls+2,xs(1,1),msa)
       call ga_put(ga_s,ils,ihs,jls+3,jls+5,vs(1,1),msa)
+      call ga_put(ga_s,ils,ihs,jls+9,jls+11,fs(1,1),msa)
       endif
 c
    19 continue
@@ -1619,7 +1656,7 @@ c
       return
       end
       subroutine sp_wrtrst(lfnrst,filrst,lveloc,
-     + pres,temp,tempw,temps,iwl,xw,vw,xwcr,isl,xs,vs)
+     + pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs)
 c
       implicit none
 c
@@ -1632,19 +1669,21 @@ c
       logical lveloc
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 pres,temp,tempw,temps
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3)
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
       character*10 hdate,htime
 c
       integer lenscr
 c
       lenscr=ma_inquire_avail(mt_byte)/
-     + ((6*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
+     + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
      + call errquit('Failed to allocate bx',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
      + call errquit('Failed to allocate bv',0)
+      if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
+     + call errquit('Failed to allocate bf',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
      + call errquit('Failed to allocate br',0)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
@@ -1653,9 +1692,10 @@ c
      + call errquit('Failed to allocate n',0)
 c
       call sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
-     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + iwl,int_mb(i_packw),xw,vw,fw,xwcr,isl,int_mb(i_pack),xs,vs,fs,
      + int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
-     + dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
+     + dbl_mb(i_bf),dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),
+     + dbl_mb(i_bv),dbl_mb(i_bf))
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -1663,6 +1703,8 @@ c
      + call errquit('Failed to deallocate bi',0)
       if(.not.ma_pop_stack(l_br))
      + call errquit('Failed to deallocate br',0)
+      if(.not.ma_pop_stack(l_bf))
+     + call errquit('Failed to deallocate bf',0)
       if(.not.ma_pop_stack(l_bv))
      + call errquit('Failed to deallocate bv',0)
       if(.not.ma_pop_stack(l_bx))
@@ -1671,8 +1713,8 @@ c
       return
       end
       subroutine sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
-     + iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,
-     + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
+     + iwl,iwlp,xw,vw,fw,xwcr,isl,islp,xs,vs,fs,
+     + ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
 c
       implicit none
 c
@@ -1686,17 +1728,20 @@ c
       real*8 pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
       integer iwlp(mwm,npackw),islp(msa,npack)
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3)
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
       integer ipl(mbox,mip2),ibw(nb),ibs(nb)
-      real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),brw(nb,3)
-      real*8 bxs(nb,3),bvs(nb,3)
+      real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),bfw(nb,3,mwa),brw(nb,3)
+      real*8 bxs(nb,3),bvs(nb,3),bfs(nb,3)
 c
       integer i,j,k,node,ncyc,icyc,numw,nums,number,nwmn,nsan
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
       integer ils,ihs,jls,jhs
       character*10 rdate,rtime
       integer idyn
+      logical lforces
+c
+      lforces=iguide.ne.0
 c
       if(me.eq.0) then
 c
@@ -1705,8 +1750,8 @@ c
       rewind(lfnrst)
       write(lfnrst,1000)
  1000 format('Restart file',/,' ',/,' ')
-      write(lfnrst,1001) 3.3,rdate,rtime,nhist
- 1001 format(f12.6,2a10,i5)
+      write(lfnrst,1001) 3.3,rdate,rtime,nhist,lforces
+ 1001 format(f12.6,2a10,i5,4x,l1)
       hist(nhist)(1:10)=rdate
       hist(nhist)(11:20)=rtime
       hist(nhist)(21:80)=project(1:60)
@@ -1745,6 +1790,8 @@ c
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
       if(lveloc)
      + call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
+      if(lforces)
+     + call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+6*mwa+3,jlw+9*mwa+2,fw,mwm)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+6*mwa,jlw+6*mwa+2,xwcr,mwm)
       do 3 i=1,nwmn
       j=iwl(i,lwgmn)-number
@@ -1756,6 +1803,11 @@ c
       bvw(j,1,k)=vw(i,1,k)
       bvw(j,2,k)=vw(i,2,k)
       bvw(j,3,k)=vw(i,3,k)
+      if(lforces) then
+      bfw(j,1,k)=fw(i,1,k)
+      bfw(j,2,k)=fw(i,2,k)
+      bfw(j,3,k)=fw(i,3,k)
+      endif
     4 continue
       brw(j,1)=xwcr(i,1)
       brw(j,2)=xwcr(i,2)
@@ -1772,6 +1824,8 @@ c
       write(lfnrst,1006) ((bxw(i,j,k),j=1,3),(zero,j=1,3),k=1,nwa)
       endif
  1006 format(2x,6f13.8)
+      if(lforces) write(lfnrst,1106) ((bfw(i,j,k),j=1,3),k=1,nwa)
+ 1106 format(2x,6e13.6)
       idyn=iand(ibw(i),3)
       write(lfnrst,1007) idyn,(brw(i,k),k=1,3)
  1007 format(i1,1x,3f13.8)
@@ -1800,6 +1854,7 @@ c
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lveloc) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
+      if(lforces) call ga_get(ga_s,ils,ils+nsan-1,jls+9,jls+11,fs,msa)
       do 8 i=1,nsan
       j=isl(i,lsgan)-number
       if(j.gt.0.and.j.le.nums) then
@@ -1809,6 +1864,11 @@ c
       bvs(j,1)=vs(i,1)
       bvs(j,2)=vs(i,2)
       bvs(j,3)=vs(i,3)
+      if(lforces) then
+      bfs(j,1)=fs(i,1)
+      bfs(j,2)=fs(i,2)
+      bfs(j,3)=fs(i,3)
+      endif
       ibs(j)=isl(i,lsdyn)
       endif
     8 continue
@@ -1822,6 +1882,8 @@ c
       write(lfnrst,1008) idyn,(bxs(i,j),j=1,3),(zero,j=1,3)
       endif
  1008 format(i1,1x,6f13.8)
+      if(lforces) write(lfnrst,1108) (bfs(i,j),j=1,3)
+ 1108 format(2x,3e13.6)
     9 continue
     6 continue
       endif

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.54 2000-01-24 23:15:53 d3j191 Exp $
+c $Id: md_main.F,v 1.55 2000-01-25 19:52:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1691,8 +1691,9 @@ c
       endif
 c
       call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_gw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs))
 c
       call md_wtrest(lfn)
 c

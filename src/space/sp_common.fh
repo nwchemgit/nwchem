@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.18 2000-01-21 17:32:14 d3j191 Exp $
+c $Id: sp_common.fh,v 1.19 2000-01-25 19:52:31 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -71,15 +71,15 @@ c
       integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
       integer i_ipl,l_ipl,i_jpl,l_jpl
       integer ga_ip,ga_iw,ga_w,ga_is,ga_s,ga_iwz,ga_isz
-      integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
+      integer i_x,l_x,i_v,l_v,i_f,l_f,i_r,l_r,i_i,l_i,i_bb,l_bb
       integer i_rng,l_rng,i_pack,l_pack,i_packw,l_packw
-      integer i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+      integer i_bx,l_bx,i_bv,l_bv,i_bf,l_bf,i_br,l_br,i_bi,l_bi,i_n,l_n
       common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
      + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
      + i_pack,l_pack,i_packw,l_packw,
      + ga_iwz,ga_isz,
      + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,i_rng,l_rng,
-     + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+     + i_bx,l_bx,i_bv,l_bv,i_bf,l_bf,i_br,l_br,i_bi,l_bi,i_n,l_n
 c
       real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
       real*8 bxmin,bymin,bzmin,tsyncp,factld,third
