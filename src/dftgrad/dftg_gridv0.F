@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.14 2003-06-09 20:32:43 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.15 2003-06-09 21:01:08 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.14 2003-06-09 20:32:43 edo Exp $
+c $Id: dftg_gridv0.F,v 1.15 2003-06-09 21:01:08 edo Exp $
 c     
       implicit none      
 c
@@ -435,6 +435,8 @@ c
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr,
      &                    dbl_mb(itau) )
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
+     .     errquit(' dftggridv0: xcrepclose failed ',0)
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1)
       if (do_hess .or. do_cpks_r) then
