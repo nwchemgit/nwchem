@@ -1,5 +1,5 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.8 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_1e1cpe.F,v 1.9 1999-10-26 22:21:44 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "nwc_const.fh"
@@ -68,7 +68,8 @@ c
      &         dbl_mb(mb_exndcf(i_icfp,ibas)),
      &         i_prim, i_gen, Li, i_cent,
      &         xyz_new_i,DCexp,DCcoeff, 1, 1, 0, i_cent,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &         coords(1,1,i_geom),charge(1,i_geom),
+     &         geom_invnucexp(1,i_geom),ncenter(i_geom),
 c............................. doS     doT     doV    canonical
      &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,
 c.............. dryrun

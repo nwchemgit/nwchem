@@ -1,5 +1,5 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_1eke.F,v 1.10 1999-10-26 22:21:44 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -102,7 +102,8 @@ c
      &         xyz_new,dbl_mb(mb_exndcf(j_iexp,jbas)),
      &         dbl_mb(mb_exndcf(j_icfp,jbas)),
      &         j_prim, j_gen, Lj, j_cent,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &         coords(1,1,i_geom),charge(1,i_geom),
+     &         geom_invnucexp(1,i_geom),ncenter(i_geom),
 c............................. doS    doT     doV     canonical
      &         scr,Ke,scr,lke,.false.,.true.,.false.,.false.,
 c.............. dryrun

@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_1epe.F,v 1.10 1999-10-26 22:21:44 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -101,7 +101,8 @@ c
      &         xyz_new_j,dbl_mb(mb_exndcf(j_iexp,jbas)),
      &         dbl_mb(mb_exndcf(j_icfp,jbas)),
      &         j_prim, j_gen, Lj, j_cent,
-     &         coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
+     &         coords(1,1,i_geom),charge(1,i_geom),
+     &         geom_invnucexp(1,i_geom),ncenter(i_geom),
 c............................. doS     doT     doV    canonical
      &         scr,scr,Pe,lpe,.false.,.false.,.true.,.false.,
 c.............. dryrun
