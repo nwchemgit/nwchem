@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.39 2001-02-22 19:08:04 edo Exp $
+* $Id: grid_file.F,v 1.40 2001-04-03 01:20:49 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -218,10 +218,11 @@ c
 #include "global.fh"
 #include "stdio.fh"
       logical okeep  ! [input] If true keep, otherwise delete
+      logical oprint
+      oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
       if (file_opened) then
-         if (oinfo .or. (util_print('iostats',print_high)
-     $           .and.ga_nodeid().eq.0)) 
+         if (oprint) 
      $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0)
@@ -248,7 +249,7 @@ c
       endif
 c
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
-         if (oinfo) then
+         if (oprint) then
             write(LuOut,1) n_rec_in_file
  1          format(/
      $           ' Parallel grid_pts file used',i8,' records'/)

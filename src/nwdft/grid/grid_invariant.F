@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.14 2001-01-16 01:59:21 edo Exp $
+c$Id: grid_invariant.F,v 1.15 2001-04-03 01:20:49 edo Exp $
 c
       implicit none
 c      
@@ -118,7 +118,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.14 2001-01-16 01:59:21 edo Exp $
+c$Id: grid_invariant.F,v 1.15 2001-04-03 01:20:49 edo Exp $
 c
       implicit none
 c
@@ -129,7 +129,7 @@ c
 
 c      
       double precision eps
-      parameter (eps = 1.d-16)
+      parameter (eps = 1.d-9)
       double precision coord(3,ncenters), charge(ncenters)
 c
 c     allocate space for M and T (rotational invariance; 
@@ -140,8 +140,8 @@ c
       double precision ztot, lramt,coss,dett
 c
       integer ictr, icart, jcart, info
-      double precision deter3
-      external deter3
+      double precision deter3,qin(3,3),ddiag,dasum
+      external deter3,dasum
       logical oprint
 c
       oprint=util_print('griddebug', print_high)
@@ -171,7 +171,6 @@ c
             tvec(icart) = tvec(icart)/ztot
             lramt=lramt+abs(tvec(icart))
          enddo
-         if(lramt*ztot.lt.eps) goto 111
       else
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  ',
@@ -214,9 +213,19 @@ c
 c
 c     diagonalize M
 c
+      call dcopy(9,qrot,1,qin,1)
       call dzero(eigs, 3)
       call dzero(work, 12)
       call dsyev('V', 'L', 3, qrot, 3, eigs, work, 12, info)
+      ddiag=abs(eigs(1)-qin(1,1))+abs(eigs(2)-qin(2,2))+
+     +     abs(eigs(3)-qin(3,3))
+      if(abs(ddiag).lt.eps) then
+         if(ga_nodeid().eq.0.and.oprint) then
+            write(LuOut,*) ' qrot input diag '
+         endif
+         call dfill(9,0d0,qrot,1)
+         goto 111
+      endif
       if (info.ne.0) then
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  failure in dsyev.'
