@@ -105,34 +105,53 @@ c
        integer nbf, noper
        double precision orbe(nbf), emp2, epair(*)
        integer g_k
-       integer l_scr,k_scr
-       integer i,j,ij,vstart
+       integer k_exch,ld_exch
+       integer i,j,ij,vstart,nn,nnt
+       integer ilo,ihi,jlo,jhi,my_id
+       integer g_epair
        double precision xx,denom
        logical status
        double precision moint_epair_eval_a
-
-       status = ma_push_get(MT_DBL,(nbf*nbf),'N2 scratch',l_scr,k_scr)
-       if (.not.(status)) call errquit('mp2: cannot allocate',0)
+       
+       nnt = (noper*(noper+1))/2
+       if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
+     $      errquit('moints_mp2_eval_a: cannot allocate',0)
+       nn = nbf*nbf
+       my_id = ga_nodeid()
+       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
        vstart = noper + 1
        do i=1,noper
          do j=1,i
            ij = (i*(i-1))/2 + j
-           denom = orbe(i) + orbe(j)
-           call ga_get(g_k,1,nbf*nbf,ij,ij,dbl_mb(k_scr),nbf)
-           xx = moint_epair_eval_a(nbf,vstart,dbl_mb(k_scr),orbe,denom)
-           if (i.eq.j) xx = xx/2.d0
-           emp2 = emp2 + xx
-           epair(ij) = xx
+           if ((ij.ge.jlo).and.(ij.le.jhi)) then
+             denom = orbe(i) + orbe(j)
+             call ga_access(g_k,1,nn,ij,ij,k_exch,ld_exch)
+             xx = moint_epair_eval_a(nbf,vstart,dbl_mb(k_exch),
+     $                               orbe,denom)
+             call ga_release(g_k,1,nn,ij,ij)
+             if (i.eq.j) xx = xx/2.d0
+             call ga_put(g_epair,ij,ij,1,1,xx,1)
+           endif
          enddo
        enddo
-       status = ma_pop_stack(l_scr)
-       if (.not.(status)) call errquit('mp2: pop stack failed',0)
+       call ga_sync()
+       emp2 = 0.d0
+       do ij=1,nnt
+         call ga_get(g_epair,ij,ij,1,1,xx,1)
+         epair(ij) = xx
+         emp2 = emp2 + xx
+       enddo
 
-       call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
-       write(6,901) emp2
- 901   format(//,10x,'MP2 correction:',f15.10,/)
-       write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
- 902   format(4(f10.4,1x,'[',2i3,']',2x))
+       if (.not.ga_destroy(g_epair)) call
+     $      errquit('moints_mp2_eval_a: cannot destroy global',0)
+
+       if (ga_nodeid().eq.0) then
+         call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
+         write(6,901) emp2
+ 901     format(//,10x,'MP2 correction:',f15.10,/)
+         write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
+ 902     format(4(f10.4,1x,'[',2i3,']',2x))
+       endif
          
        return
        end
