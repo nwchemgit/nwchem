@@ -127,3 +127,61 @@ occupation numbers from the orbital file modified according to the
 of two orbital files conflicts with the \verb+view+ option.
 $\alpha$ orbitals are always plotted unless \verb+Spin+ is set to
 \verb+beta+.
+
+\section{Examples}
+
+\subsection*{Charge Density}
+
+Example of charge density plot (with Gaussian Cube output):
+\begin{verbatim}
+start n2
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+end
+basis;  n library cc-pvdz;end
+scf
+vectors  output n2.movecs
+end
+dplot
+  TITLE;HOMO
+  vectors n2.movecs
+   LimitXYZ
+ -3.0 3.0 10  
+-3.0 3.0 10 
+-3.0  3.0  10
+  spin total
+  gaussian
+  output lumo.cube
+end
+task scf     
+task dplot
+\end{verbatim}
+
+\subsection*{Molecular Orbital}
+
+Example of orbital plot (with Insight II contour output):
+\begin{verbatim}
+start n2
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+end
+basis;  n library cc-pvdz;end
+scf
+vectors  output n2.movecs
+end
+dplot
+  TITLE;HOMO
+  vectors n2.movecs
+   LimitXYZ
+ -3.0 3.0 10  
+-3.0 3.0 10 
+-3.0  3.0  10
+  spin total
+  orbitals view; 1; 7
+  output homo.grd
+end
+task scf     
+task dplot
+\end{verbatim}
