@@ -218,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -559,7 +559,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -621,8 +621,87 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       return
       end
 
+      subroutine moints_trf1_new( nbf, qlo, qhi, mo1_lo, mo1_hi,
+     $     ilen, jlen, klo, khi, llo, lhi,
+     $     ssbb, ct, ssni, hlp )
+      implicit none
+      integer nbf, qlo, qhi, mo1_lo, mo1_hi
+      integer ilen, jlen, klo, khi, llo, lhi
+      double precision ssbb(llo:lhi,klo:khi,jlen,ilen)
+      double precision ct(qlo:qhi,nbf)
+      double precision ssni(nbf,jlen,ilen,mo1_lo:mo1_hi)
+*     double precision hlp(*)
+      double precision hlp(mo1_lo:mo1_hi,nbf)
+c     
+      double precision s
+c     
+      integer i, j, k, l, o
+c     
+      do i = 1, ilen
+         do j = 1, jlen
+c     
+            do k = klo, khi
+               do o = mo1_lo, mo1_hi
+                  hlp(o,k) = 0.0d0
+               enddo
+            enddo
+            if (klo.ne.llo) then
+               do l = llo, lhi
+                  do o = mo1_lo, mo1_hi
+                     hlp(o,l) = 0.0d0
+                  enddo
+               enddo
+            endif
+c     
+            do k = klo, khi
+               do l = llo, lhi
+                  s = ssbb(l,k,j,i)
+                  if (abs(s) .gt. 1d-12) then
+                     do o = mo1_lo, mo1_hi
+                        hlp(o,l) = hlp(o,l) + s*ct(o,k)
+                     enddo
+                     if (klo.ne.llo) then
+                        do o = mo1_lo, mo1_hi
+                           hlp(o,k) = hlp(o,k) + s*ct(o,l)
+                        enddo
+                     endif
+                  endif
+               enddo
+            enddo
+c     
+            do k = klo, khi
+               do o = mo1_lo, mo1_hi
+                  ssni(k,j,i,o) = ssni(k,j,i,o) + hlp(o,k)
+               enddo
+            enddo
+            if (klo.ne.llo) then
+               do l = llo, lhi
+                  do o = mo1_lo, mo1_hi
+                     ssni(l,j,i,o) = ssni(l,j,i,o) + hlp(o,l)
+                  enddo
+               enddo
+            endif
+         enddo
+      enddo
+c     
+      
+c$$$  nmo1 = mo1_hi - mo1_lo + 1
+c$$$  llen = lhi - llo + 1
+c$$$  klen = khi - klo + 1
+c$$$  kjilen = klen*jlen*ilen
+c$$$  ljilen = llen*jlen*ilen
+c$$$  
+c$$$  call dgemm( 't', 'n', kjilen, nmo1, llen, scale, ssbb, llen,
+c$$$  $            c(llo,mo1_lo), nbf, 0.d0, hlp, kjilen )
+c$$$  call moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo1,
+c$$$  $                      hlp, ssni )
+c$$$  call dgemm( 't', 'n', ljilen, nmo1, klen, scale, ssbbt, klen,
+c$$$  $            c(klo,mo1_lo), nbf, 0.d0, hlp, ljilen )
+c$$$  call moints_1idxpush( nbf, ilen, jlen, llo, lhi, nmo1,
+c$$$  $                      hlp, ssni )
 
-
+      return
+      end
 
 
 
@@ -637,8 +716,8 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
 
       
       subroutine moints_trf1( nbf, qlo, qhi, mo1_lo, mo1_hi,
-     $                        ilen, jlen, klo, khi, llo, lhi,
-     $                        scale, ssbb, ssbbt, c, ssni, hlp )
+     $     ilen, jlen, klo, khi, llo, lhi,
+     $     scale, ssbb, ssbbt, c, ssni, hlp )
       implicit none
       integer nbf, qlo, qhi, mo1_lo, mo1_hi
       integer ilen, jlen, klo, khi, llo, lhi
@@ -648,17 +727,15 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       double precision c(nbf,qlo:qhi)
       double precision ssni(nbf,jlen,ilen,mo1_lo:mo1_hi)
       double precision hlp(*)
-c
+c     
       integer nmo1, llen, klen, kjilen, ljilen
-c
-c
-c      
+c     
       nmo1 = mo1_hi - mo1_lo + 1
       llen = lhi - llo + 1
       klen = khi - klo + 1
       kjilen = klen*jlen*ilen
       ljilen = llen*jlen*ilen
-
+c     
       call dgemm( 't', 'n', kjilen, nmo1, llen, scale, ssbb, llen,
      $            c(llo,mo1_lo), nbf, 0.d0, hlp, kjilen )
       call moints_1idxpush( nbf, ilen, jlen, klo, khi, nmo1,
@@ -667,7 +744,7 @@ c
      $            c(klo,mo1_lo), nbf, 0.d0, hlp, ljilen )
       call moints_1idxpush( nbf, ilen, jlen, llo, lhi, nmo1,
      $                      hlp, ssni )
-
+c   
       return
       end
 
@@ -1129,7 +1206,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1173,7 +1250,7 @@ C$Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.30 1997-07-30 02:06:15 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.31 1997-08-08 06:29:41 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
