@@ -20,7 +20,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.6 1995-02-02 23:23:25 d3g681 Exp $
+C$Id: sym_nwc.F,v 1.7 1995-04-11 18:39:03 rg240 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -33,7 +33,7 @@ C$Id: sym_nwc.F,v 1.6 1995-02-02 23:23:25 d3g681 Exp $
       logical LResult, oprint
       integer geom,rtdb
       dimension cdist(3),cang(3)
-      external pertbl
+C      external pertbl
 c
 c--> parameters needed by sym chain
 c
