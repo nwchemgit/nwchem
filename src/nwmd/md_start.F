@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.112 2002-02-07 00:13:38 d3j191 Exp $
+c $Id: md_start.F,v 1.113 2002-02-07 18:42:27 d3j191 Exp $
 c
       implicit none
 c
@@ -1141,8 +1141,8 @@ c
       nkirk=0
       endif
 c
+      ivreas=nfgaus
       if(nfgaus.lt.0) nfgaus=-nfgaus
-      if(nfgaus.gt.0) ivreas=2
 c
 c     only 3D-periodic boundary systems can be at constant pressure
 c
@@ -1453,7 +1453,7 @@ c
       endif
 c
       if(ntype.ge.2) then
-      if(ivreas.gt.0) then
+      if(ivreas.ne.0) then
       write(lfnout,1022)
  1022 format(/,' Velocity reassignment temperature ',f12.6,' K')
       endif

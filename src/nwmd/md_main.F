@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.118 2002-02-07 00:13:37 d3j191 Exp $
+c $Id: md_main.F,v 1.119 2002-02-07 18:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -977,6 +977,14 @@ c
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
+c
+      lxw=frequency(mdstep,nfcoor)
+      lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
+      lxs=frequency(mdstep,nfscoo)
+      lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
+c
       call timer_stop(61)
 c
       call timer_start(15)
@@ -1231,6 +1239,7 @@ c
       call cf_gauss(tgauss,frgaus,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      if(ivreas.lt.0) nfgaus=0
       endif
 c
       lpair=lfirst.or.frequency(mdstep,nfpair)
@@ -1441,6 +1450,7 @@ c
       call cf_vscale(tgauss,nwmloc,nsaloc,
      + dbl_mb(i_vw),dbl_mb(i_vs),int_mb(i_iw+(lwdyn-1)*mwm),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa))
+      if(ivreas.lt.0) nfgaus=0
       endif
       call timer_stop(59)
       call timer_start(60)
@@ -2230,7 +2240,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.118 2002-02-07 00:13:37 d3j191 Exp $
+c $Id: md_main.F,v 1.119 2002-02-07 18:42:26 d3j191 Exp $
 c
       implicit none
 c
