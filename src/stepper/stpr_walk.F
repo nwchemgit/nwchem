@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c $Id: stpr_walk.F,v 1.8 1994-09-28 00:17:30 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.9 1994-11-08 07:13:24 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -217,4 +217,15 @@ c
       call ga_sync()
 c
       end
-      
+      subroutine stpr_walk_reset
+      implicit none
+c
+      integer iwctr, natom, icalc
+      COMMON / CFACE / IWCTR,NATOM,ICALC
+c
+      iwctr = 0
+      natom = 0
+      icalc = 0
+c
+      end
+
