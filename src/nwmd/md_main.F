@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.133 2002-06-18 18:53:21 d3j191 Exp $
+c $Id: md_main.F,v 1.134 2002-06-25 23:15:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1177,7 +1177,6 @@ c
       krun=0
       do 11 irun=1,mrun
       read(lfnmro,end=12,err=12) irunp,kequi,kdacq
-      print*,'MRO IRUNP=',irunp
       if(.not.prp_rdmri(lfnmro,ndec)) goto 12
       if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
@@ -1197,7 +1196,6 @@ c
 c
       do 13 irun=1,mrun
       read(lfnmri) irunp,kequi,kdacq
-      print*,'MRI IRUNP=',irunp
       if(.not.prp_rdmri(lfnmri,ndec))
      + call errquit('Error in mri file',0)
       if(.not.sp_rdmri(lfnmri,stime,pres,temp,tempw,temps,
@@ -1205,7 +1203,6 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))) 
      + call errquit('Error in mri file',0)
       read(lfnmro) irunp,kequi,kdacq
-      print*,'MRO IRUNP=',irunp
       if(.not.prp_rdmri(lfnmro,ndec))
      + call errquit('Error in mro file',0)
       if(.not.sp_rdmri(lfnmro,stime,pres,temp,tempw,temps,
@@ -1367,6 +1364,17 @@ c
     1 continue
 c
       call prp_mcti(npgdec)
+c
+      if(me.eq.0) then
+      if(nserie.eq.0) then
+      if(mropt.ge.2) then
+      close(unit=lfnmri,status='keep')
+      endif
+      close(unit=lfnmro,status='keep')
+      else
+      close(unit=lfnmro,status='keep')
+      endif
+      endif
 c
       return
 c
@@ -2444,7 +2452,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.133 2002-06-18 18:53:21 d3j191 Exp $
+c $Id: md_main.F,v 1.134 2002-06-25 23:15:01 d3j191 Exp $
 c
       implicit none
 c
