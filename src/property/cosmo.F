@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.3 2004-07-22 23:40:10 bert Exp $
+* $Id: cosmo.F,v 1.4 2004-07-23 10:58:09 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1645,7 +1645,7 @@ c
       integer basis
       integer geom, itype_wfn
       double precision ecos
-      integer vectors(2), itype_wfn, iter, nclosed(2), nopen(2)
+      integer vectors(2), iter, nclosed(2), nopen(2)
 
       logical dbug, out, some
       character*8 scfruntyp

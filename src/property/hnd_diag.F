@@ -1,12 +1,12 @@
       subroutine hnd_diag(vec,eig,ndim,order,righthand)
 c
-c $Id: hnd_diag.F,v 1.3 2004-07-22 23:40:10 bert Exp $
+c $Id: hnd_diag.F,v 1.4 2004-07-23 10:58:09 edo Exp $
 c
       implicit none
 c
+      integer ndim, i, j, jj
       double precision vec(ndim,ndim), eig(ndim)
       double precision test, t, zero, one, conv, xx
-      integer ndim, i, j, jj
       logical order, righthand
       data zero   /0.0d+00/
       data one    /1.0d+00/
