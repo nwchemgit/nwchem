@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.41 2004-04-22 07:21:04 edo Exp $
+c$Id: grid_quadvw.F,v 1.42 2004-05-12 19:37:19 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -94,7 +94,7 @@ c
      D     ddum1,
      L     ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,ldum1,
      I     idum1,idum1,idum1,idum1,
-     I     idum1,idum1)
+     I     idum1,idum1,idum1)
 
 c
       return
