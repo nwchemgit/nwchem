@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.10 2000-08-15 00:07:06 windus Exp $
+C $Id: twodd_cont.F,v 1.11 2000-08-22 17:27:47 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -222,7 +222,7 @@ c
       max1e = max1e/12
 c     max2e = max(max2e,1296*100)          ! 100 D quartets
       lbuf = max(max1e, max2e)
-      lscratch = 2*max(mscratch_1e, mscratch_2e)
+      lscratch = 4*max(mscratch_1e, mscratch_2e)
 C     one-electron contribution
 C     buffers for one electron integral derivatives
  
