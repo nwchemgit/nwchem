@@ -55,10 +55,21 @@ c
       call rdinput(rtdb, geom, AO_bas_han, 
      &             CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
 c     
-c-->
+c--> determine system type (molecule, polymer,surface,crystal)
 c     
-      call scfdriver(rtdb,  geom, AO_bas_han, 
-     &               CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
+      if(.not. geom_systype_get(geom,itype))
+     &    call errquit('nwdft: no system type',0)
+c
+      if(itype.eq.0) then
+        call scfdriver(rtdb,  geom, AO_bas_han, 
+     &       CD_bas_han, XC_bas_han, Int_MB(ickcon), 200)
+      elseif(itype.eq.3) then
+        if(.not. geom_ncent(geom,ncent))
+     &     call errquit('nwdft: ncent get failed',0)
+        call main3d(geom,rtdt,ncent)
+      else
+        call errquit('nwdft: problem with system type',0)
+      endif
 c
 c--> Clean-up memory.
 c
