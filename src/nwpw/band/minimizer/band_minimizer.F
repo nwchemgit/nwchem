@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.23 2003-06-26 23:34:11 bylaska Exp $
+* $Id: band_minimizer.F,v 1.24 2003-07-30 17:41:59 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -51,17 +51,17 @@
       logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
-      integer i,k,ia,nion,vers,nbrillioun
+      integer i,k,ia,nion,vers,nbrillioun,icharge
   
 
 
 *     **** external functions ****
 *     **** external functions ****
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      real*8      lattice_unitg,ion_amass
+      real*8      lattice_unitg,ion_amass,ion_TotalCharge
       character*2 ion_aname
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      external    lattice_unitg,ion_amass
+      external    lattice_unitg,ion_amass,ion_TotalCharge
       external    ion_aname
 
 
@@ -265,6 +265,12 @@
      >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
          end do
+
+
+         icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
+     >           + ion_TotalCharge()
+         write(luout,1159) icharge
+
 
          write(luout,1180)
          write(luout,1190) (I,ion_aname(I),
@@ -507,6 +513,7 @@
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.3 2002-05-03 19:44:02 bylaska Exp $
+* $Id: cpsi_new.F,v 1.4 2003-07-30 17:41:32 bylaska Exp $
 *
 
 *     ***********************************
@@ -65,7 +65,8 @@ c     external lcao_wvfnc
       mult    = control_multiplicity()
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
-      t = icharge - tcharge
+      t = icharge - tcharge   !*** total number of electrons ***
+
 
       if (ispin.eq.1) then
          ne(1) = t/2
