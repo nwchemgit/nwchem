@@ -5,6 +5,9 @@
 #  <pg511@pnl.gov> 
 #  Wed May  3 1995
 #  $Log: not supported by cvs2svn $
+#Revision 1.3  1995/07/07  19:41:44  pg511
+#typo
+#
 #Revision 1.2  1995/07/07  19:32:44  pg511
 #Works for SCF and DFT.
 #
@@ -41,13 +44,13 @@
     if ( /^\s*No\. of atoms\s*:\s*(\d+)/ ) {
 #     found DFT # of atoms
       $natoms = $1;
-      print "DFT Calculation Output   \$natoms: $natoms\n";
+      print "DFT Calculation Output  natoms: $natoms\n";
       last;
     }
     if ( /^\s*atoms\s*=\s*(\d+)/ ) {
 #     found SCF # of atoms
       $natoms = $1;
-      print "DFT Calculation Output   \$natoms: $natoms\n";
+      print "SCF Calculation Output  natoms: $natoms\n";
       last;
     }
   }
