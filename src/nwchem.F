@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.70 1996-03-11 18:17:28 d3e129 Exp $
+c     $Id: nwchem.F,v 1.71 1996-03-12 21:48:38 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -277,9 +277,9 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status 
-      logical scf, task_check_sum
-      external scf, task_check_sum
-      parameter (ntasks = 25)
+      logical  scf, task_check_sum, selci, eopt, rjhtest
+      external scf, task_check_sum, selci, eopt, rjhtest
+      parameter (ntasks = 26)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
      $     'raktest',           ! 2
@@ -305,7 +305,8 @@ c
      $     'fourindex',         ! 22
      $     'selci',             ! 23
      $     'dplot',             ! 24
-     $     'mp2_grad'           ! 25
+     $     'mp2_grad',          ! 25
+     $     'optimize'           ! 26
      $     /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -318,7 +319,7 @@ c
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10,  20,  30,  40,  50,  60,  70,  80,  90, 100, 
      $        110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
-     $        210, 220, 230, 240, 250) ind
+     $        210, 220, 230, 240, 250, 260) ind
 c     
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -326,7 +327,7 @@ c
 c     
 c     rjhtest
 c     
- 10      call rjhtest(rtdb)
+ 10      status = rjhtest(rtdb)
          goto 1000
 c     
 c     raktest
@@ -441,7 +442,7 @@ c
 c
 c     Selected CI
 c
- 230     call selci(rtdb)
+ 230     status = selci(rtdb)
          goto 1000
 c     
 c     Plot of the density matrix
@@ -452,6 +453,12 @@ c
 c     semi-direct mp2 energy and gradient module
 c     
  250     call mp2_grad(rtdb)
+         goto 1000
+c
+c     soon to be generic optimization interface
+c     currently just a hook for the energy optimization
+c
+ 260     status = eopt(rtdb)
          goto 1000
 c
       else
@@ -605,4 +612,3 @@ c
       call util_flush(6)
 c
       end
-
