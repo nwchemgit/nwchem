@@ -28,11 +28,10 @@ LIB_DEFINES =  -DDEBUG_PRINT
 #
 # Possible #defines
 #
-#              -DDEBUG_PRINT
-#              -DMOINTS_STATS
-#	       -DNOCOMMS
-#              -DBLOCK_TRANSF
-#              -DSIXFOLD
+#              -DDEBUG_PRINT          /* Debug printing routines */
+#              -DMOINTS_STATS         /* Include statistics gathering */
+#	       -DNOCOMMS              /* Turn off ALL communication calls */
+#              -DBLOCK_TRANSF         /* Use block-transfer for comms calls */
 #
 
 
@@ -42,7 +41,8 @@ include ../config/makelib.h
 #
 #
 #
-moints.o:	moints_stats.fh
+moints_2x.o:	moints_stats.fh
+moints_6x.o:	moints_stats.fh
 moints_stats.o:	moints_stats.fh
 
 

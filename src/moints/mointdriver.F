@@ -133,10 +133,10 @@ c
        occ_lo = occ_frozen + 1
        occ_hi = nocc
        nocc_correl = occ_hi - occ_lo + 1
-       vir_lo = nocc + 1
-       vir_hi = nbf - vir_frozen
-c$$$       vir_lo = 1
-c$$$       vir_hi = nbf
+c$$$       vir_lo = nocc + 1
+c$$$       vir_hi = nbf - vir_frozen
+       vir_lo = 1
+       vir_hi = nbf
        nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
        noper = occ_hi - occ_lo + 1
@@ -157,6 +157,7 @@ c
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
        max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
+C       MAX_NOPER = 10
        if (max_noper.gt.nocct) then
          noper =  (nocc_correl*(nocc_correl+1))/2
        else
@@ -279,10 +280,16 @@ c
              ii = ii + 1
            enddo
          enddo
-         write(6,997)
- 997     format(//,15x,'Pair Energies',/)
-         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
- 998     format(8f10.5)
+c
+c Print out pair energies
+c 
+c$$$         write(6,997)
+c$$$ 997     format(//,15x,'Pair Energies',/)
+c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+c$$$ 998     format(8f10.5)
+c
+c Print out total correlation correction
+c
          write(6,999) emp2
  999     format(//,15x,31('-'),
      $          /,15x,'MP2 Correction:',f16.10,

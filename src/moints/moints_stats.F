@@ -6,10 +6,13 @@
 #include "moints_stats.fh"       
        integer NSTATS
        integer MSG_MOINTS_STATS
-       parameter(NSTATS=15)
+       parameter(NSTATS=20)
        parameter(MSG_MOINTS_STATS=1963)
        double precision mv(NSTATS),amv(NSTATS)
-       integer i,npass,ntasks,num_nodes,nflop
+       integer i,npass,num_nodes,nflop
+       double precision taskavgJ, taskavgK, synchavg
+       double precision aggtasksJ, aggtasksK, aggsynch
+       integer nsynchs, ntasksJ, ntasksK
 
        num_nodes = ga_nnodes()
        npass = mi_npass
@@ -28,18 +31,38 @@
        mv(12) = mi_t34k
        mv(13) = mi_flop1
        mv(14) = mi_synch
-       mv(15) = mi_ntasks
+       mv(15) = mi_ntasksJ
+       mv(16) = mi_ntasksK
+       mv(17) = mi_aggtaskJ
+       mv(18) = mi_aggtaskK
+       mv(19) = mi_nsynchs
+       mv(20) = mi_aggsynch
 
        call ga_sync()
        call ga_dgop(MSG_MOINTS_STATS,mv,NSTATS,'+')
+       call ga_dgop((MSG_MOINTS_STATS+1),mi_maxsynch,1,'max')
+       call ga_dgop((MSG_MOINTS_STATS+2),mi_minsynch,1,'min')
+       call ga_dgop((MSG_MOINTS_STATS+3),mi_maxtaskJ,1,'max')
+       call ga_dgop((MSG_MOINTS_STATS+4),mi_mintaskJ,1,'min')
+       call ga_dgop((MSG_MOINTS_STATS+5),mi_maxtaskK,1,'max')
+       call ga_dgop((MSG_MOINTS_STATS+6),mi_mintaskK,1,'min')
        do i=1,NSTATS
          amv(i) = mv(i)/num_nodes
        enddo
-       ntasks = mv(15)
+
+       ntasksJ = mv(15)
+       ntasksK = mv(16)
+       aggtasksJ = mv(17)
+       aggtasksK = mv(18)
+       nsynchs = mv(19)
+       aggsynch = mv(20)
+       taskavgJ = aggtasksJ/ntasksJ
+       taskavgK = aggtasksK/ntasksK
+       synchavg = aggsynch/nsynchs
        nflop = mi_flop1
 
        if (algo.eq.'sixfold') then
-         if (ga_nodeid().eq.0) write(6,333) npass, ntasks,
+         if (ga_nodeid().eq.0) write(6,333) npass, (ntasksJ+ntasksK),
      $                mi_tint, mv(3), amv(3),
      $                mi_t1j, mv(5), amv(5),
      $                mi_t2j, mv(10), amv(10),
@@ -71,7 +94,7 @@
      $          /,5x,57('-'))
 
        else
-         if (ga_nodeid().eq.0) write(6,334) npass, ntasks,
+         if (ga_nodeid().eq.0) write(6,334) npass, (ntasksJ+ntasksK),
      $                mi_flop1, mv(13), amv(13),
      $                mi_tint, mv(3), amv(3),
      $                mi_t1, mv(4), amv(4),
@@ -104,6 +127,18 @@
      $          /,5x,'Total:',12x,3(3x,f10.2),
      $          /,5x,57('-'))
        endif
+       if (ga_nodeid().eq.0) then
+         write(6,933)  mi_maxsynch, mi_minsynch, synchavg,
+     $                 mi_maxtaskJ, mi_mintaskJ, taskavgJ,
+     $                 mi_maxtaskK, mi_mintaskK, taskavgK
+ 933     format(//,5x,57('-'),
+     $          /,21x,'max',12x,'min',12x,'avg',
+     $          /,5x,57('-'),
+     $          /,5x,'Synch:',5x,3(f10.4,5x),
+     $          /,5x,'J Task:',4x,3(f10.4,5x),
+     $          /,5x,'K Task:',4x,3(f10.4,5x),
+     $          /,5x,57('-'))
+       endif
        if (ga_nodeid().eq.0) call util_flush(6)
 
 #endif /* MOINTS_STATS */
@@ -133,17 +168,21 @@ c
        mi_t34k = 0.d0
        mi_flop1 = 0.d0
        mi_synch = 0.d0
-       mi_ntasks = 0.d0
+       mi_maxsynch = 0.d0
+       mi_minsynch = 1.d24
+       mi_aggsynch = 0.d0
+       mi_nsynchs = 0.d0
+       mi_maxtaskJ = 0.d0
+       mi_mintaskJ = 1.d24
+       mi_aggtaskJ = 0.d0
+       mi_maxtaskK = 0.d0
+       mi_mintaskK = 1.d24
+       mi_aggtaskK = 0.d0
+       mi_ntasksJ = 0.d0
+       mi_ntasksK = 0.d0
 
 #endif /* MOINTS_STATS */
        return
        end
-
-
-
-
-
-
-
 
 

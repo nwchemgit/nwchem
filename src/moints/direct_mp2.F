@@ -268,10 +268,10 @@ c
              ii = ii + 1
            enddo
          enddo
-         write(6,997)
- 997     format(//,15x,'MP2 Pair Energies',/)
-         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
- 998     format(8f10.5)
+c$$$         write(6,997)
+c$$$ 997     format(//,15x,'MP2 Pair Energies',/)
+c$$$         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
+c$$$ 998     format(8f10.5)
          write(6,999) emp2
  999     format(//,15x,31('-'),
      $          /,15x,'MP2 Correction:',f16.10,

@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.1 1995-01-26 07:44:06 rg240 Exp $
+c  $Id: moints_6x.F,v 1.2 1995-01-31 19:07:20 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -75,8 +75,10 @@ c
        double precision tol2e, scale, scale0, schw_ij
        double precision tz, thalf, tint, t1jidx, t2jidx, t1kidx, t2kidx
        double precision t34kidx, t34jidx, thalf0, ttotal, tsynch
+       double precision ttask, ttaskmaxJ, ttaskminJ, ttaskaggJ
+       double precision ttaskmaxK, ttaskminK, ttaskaggK
        double precision flop1, flop2k, flop2j
-       integer tottask
+       integer tottaskJ, tottaskK
        logical status
        logical oprint
 #ifdef MOINTS_STATS
@@ -156,17 +158,98 @@ c
        t2kidx = 0.d0
        t34jidx = 0.d0
        t34kidx = 0.d0
-       tsynch = 0.d0
-       tottask = 0
+       tottaskJ = 0
+       tottaskK = 0
+       ttaskmaxJ = 0.d0
+       ttaskminJ = 1.d24
+       ttaskaggJ = 0.d0
+       ttaskmaxK = 0.d0
+       ttaskminK = 1.d24
+       ttaskaggK = 0.d0
+       thalf0 = tcgtime()
+       ploop = 0
+       next = -1
+       if (ocoul) call ga_zero(g_coul)
+       if (oexch) call ga_zero(g_exch)
+c
+c  Exchange part
+c  Four fold shell loop
+c
+c
+       if (oexch) then
+         if (next.lt.0) next = nxtval(num_nodes)
+         do ish0=1,nsh
+           ish = int_mb(k_shmap+ish0-1)
+           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+           ilen = ibfhi - ibflo + 1
+           do jsh0=1,ish0
+             jsh = int_mb(k_shmap+jsh0-1)
+             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+             jlen = jbfhi - jbflo + 1
+             scale0 = 1.d0
+             if (ish.eq.jsh) scale0 = 0.5d0
+             if (next.eq.ploop) then
+               ttask = tcgtime()
+               tottaskK = tottaskK + 1
+               call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
+               do kb=1,nblk
+                 call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
+                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
+                 do lb=1,kb
+                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
+                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
+                   tz = tcgtime()
+                   scale = 1.d0
+                   if (kb.eq.lb) scale = 0.5d0
+                   call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
+     $                                  lshlo, lshhi, schw_ij, tol2e,
+     $                                  max2e, dbl_mb(k_eri), mem2,
+     $                                  dbl_mb(k_iscr), ilen, jlen,
+     $                                  kbflo, kbfhi, lbflo, lbfhi,
+     $                                  dbl_mb(k_ssbb),
+     $                                  dbl_mb(k_ssbbt) )
+                   tint = tint + tcgtime() - tz
+                   flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
+                   tz = tcgtime()
+                   call moints6x_trf1K( nbf, occ_start, mo1_hi, ilen,
+     $                                  jlen, kbflo, kbfhi, lbflo,
+     $                                  lbfhi, scale, dbl_mb(k_ssbb),
+     $                                  dbl_mb(k_ssbbt), dbl_mb(k_mo),
+     $                                  dbl_mb(k_ssni), dbl_mb(k_hlp))
+                   t1kidx = t1kidx + tcgtime() - tz
+                 enddo
+               enddo
+               tz = tcgtime()
+               call moints6x_trf2K( nbf, occ_start, mo1_lo, mo1_hi,
+     $                              ibflo, ibfhi, jbflo, jbfhi,
+     $                              dbl_mb(k_ssni),
+     $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
+     $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
+     $                              dbl_mb(k_mo), g_exch )
+               t2kidx = t2kidx + tcgtime() - tz
+               next = nxtval(num_nodes)
+               ttask = tcgtime() - ttask
+               ttaskmaxK = max(ttaskmaxK,ttask)
+               ttaskminK = min(ttaskminK,ttask)
+               ttaskaggK = ttaskaggK + ttask
+             endif
+             ploop = ploop + 1
+           enddo
+         enddo
+       endif
+c
+c
+c
+c$$$       call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
+c$$$     $                          nbf, g_exch)
+c
+
 c
 c  Coulomb part
 c  4-fold shell loop
 c
        if (ocoul) then
-         thalf0 = tcgtime()
-         call ga_zero(g_coul)
-         ploop = 0
-         next = nxtval(num_nodes)
+         if (next.lt.0) next = nxtval(num_nodes)
          do ish0=1,nsh
            ish = int_mb(k_shmap+ish0-1)
            status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
@@ -180,7 +263,8 @@ c
              if (ish.eq.jsh) scale = scale*0.5d0
              if (schw_ij*schwarz_max().ge.tol2e) then
                if (next.eq.ploop) then
-                 tottask = tottask + 1
+                 ttask = tcgtime()
+                 tottaskJ = tottaskJ + 1
                  n_ijni = ilen*jlen*nbf*nmo1
                  call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
                  do kb=1,nblk
@@ -230,15 +314,15 @@ c
      $                              g_coul )
                  t2jidx = t2jidx + tcgtime() - tz
                  next = nxtval(num_nodes)
+                 ttask = tcgtime() - ttask
+                 ttaskmaxJ = max(ttaskmaxJ,ttask)
+                 ttaskminJ = min(ttaskminJ,ttask)
+                 ttaskaggJ = ttaskaggJ + ttask
                endif
                ploop = ploop + 1
              endif
            enddo
          enddo
-         tsynch = tcgtime()
-         next = nxtval(-num_nodes)
-         tsynch = tcgtime() - tsynch
-         thalf = tcgtime() - thalf0
        endif
 c
 c
@@ -246,81 +330,15 @@ c$$$       if (ocoul) then
 c$$$         call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
 c$$$     $                            nbf, g_coul)
 c$$$       endif
+
+
 c
+c Synchronize
 c
-c
-c  Exchange part
-c  Four fold shell loop
-c
-c
-       if (oexch) then
-         thalf0 = tcgtime()
-         call ga_zero(g_exch)
-         ploop = 0
-         next = nxtval(num_nodes)
-         do ish0=1,nsh
-           ish = int_mb(k_shmap+ish0-1)
-           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-           ilen = ibfhi - ibflo + 1
-           do jsh0=1,ish0
-             jsh = int_mb(k_shmap+jsh0-1)
-             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
-             jlen = jbfhi - jbflo + 1
-             scale0 = 1.d0
-             if (ish.eq.jsh) scale0 = 0.5d0
-             if (next.eq.ploop) then
-               tottask = tottask + 1
-               call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
-               do kb=1,nblk
-                 call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
-                 do lb=1,kb
-                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-                   tz = tcgtime()
-                   scale = 1.d0
-                   if (kb.eq.lb) scale = 0.5d0
-                   call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
-     $                                  lshlo, lshhi, schw_ij, tol2e,
-     $                                  max2e, dbl_mb(k_eri), mem2,
-     $                                  dbl_mb(k_iscr), ilen, jlen,
-     $                                  kbflo, kbfhi, lbflo, lbfhi,
-     $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt) )
-                   tint = tint + tcgtime() - tz
-                   flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
-                   tz = tcgtime()
-                   call moints6x_trf1K( nbf, occ_start, mo1_hi, ilen,
-     $                                  jlen, kbflo, kbfhi, lbflo,
-     $                                  lbfhi, scale, dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt), dbl_mb(k_mo),
-     $                                  dbl_mb(k_ssni), dbl_mb(k_hlp))
-                   t1kidx = t1kidx + tcgtime() - tz
-                 enddo
-               enddo
-               tz = tcgtime()
-               call moints6x_trf2K( nbf, occ_start, mo1_lo, mo1_hi,
-     $                              ibflo, ibfhi, jbflo, jbfhi,
-     $                              dbl_mb(k_ssni),
-     $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
-     $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
-     $                              dbl_mb(k_mo), g_exch )
-               t2kidx = t2kidx + tcgtime() - tz
-               next = nxtval(num_nodes)
-             endif
-             ploop = ploop + 1
-           enddo
-         enddo
-         tz = tcgtime()
-         next = nxtval(-num_nodes)
-         tsynch = tsynch + tcgtime() - tz
-         thalf = thalf + tcgtime() - thalf0
-       endif
-c
-c
-c
-c$$$       call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                          nbf, g_exch)
+       tz = tcgtime()
+       next = nxtval(-num_nodes)
+       tsynch = tcgtime() - tz
+       thalf = tcgtime() - thalf0
 c
 c Clean-up
 c
@@ -356,7 +374,7 @@ c$$$     $                            nbf, g_exch)
      $                       dbl_mb(k_hlp) )
          t34kidx = tcgtime() - tz
 c$$$         call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                            nbf, g_exch)
+c$$$     $                            nmo2, g_exch)
        endif
 c
 c
@@ -411,8 +429,34 @@ c
        mi_t34j = mi_t34j + t34jidx
        mi_flop1 = mi_flop1 + flop1
        mi_synch = mi_synch + tsynch
-       mi_ntasks = mi_ntasks + tottask
+       mi_maxsynch = max(mi_maxsynch,tsynch)
+       mi_minsynch = min(mi_minsynch,tsynch)
+       mi_aggsynch = mi_aggsynch + tsynch
+       mi_nsynchs = mi_nsynchs + 1
+       if (ocoul) then
+         mi_maxtaskJ = max(mi_maxtaskJ,ttaskmaxJ)
+         mi_mintaskJ = min(mi_mintaskJ,ttaskminJ)
+         mi_aggtaskJ = mi_aggtaskJ + ttaskaggJ
+         mi_ntasksJ = mi_ntasksJ + tottaskJ
+       else
+         mi_maxtaskJ = 0.d0
+         mi_mintaskJ = 0.d0
+         mi_aggtaskJ = 0.d0
+         mi_ntasksJ = 1.d0
+       endif
+       if (oexch) then
+         mi_maxtaskK = max(mi_maxtaskK,ttaskmaxK)
+         mi_mintaskK = min(mi_mintaskK,ttaskminK)
+         mi_aggtaskK = mi_aggtaskK + ttaskaggK
+         mi_ntasksK = mi_ntasksK + tottaskK
+       else
+         mi_maxtaskK = 0.d0
+         mi_mintaskK = 0.d0
+         mi_aggtaskK = 0.d0
+         mi_ntasksK = 1.d0
+       endif
 #endif
+
 
        return
        end

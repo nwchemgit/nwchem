@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.1 1995-01-26 07:44:05 rg240 Exp $
+c  $Id: moints_2x.F,v 1.2 1995-01-31 19:07:18 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -72,6 +72,7 @@ c
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
+       double precision ttask, ttaskmax, ttaskmin, ttaskagg
        double precision flop1
        integer tottask
        logical status
@@ -158,6 +159,9 @@ c
        t3kidx = 0.d0
        t4kidx = 0.d0
        tottask = 0
+       ttaskmax = 0.d0
+       ttaskmin = 1.d24
+       ttaskagg = 0.d0
        if (oexch) call ga_zero(g_exch)
        if (ocoul) call ga_zero(g_coul)
        ploop = 0
@@ -178,8 +182,9 @@ c
            scale = 1.d0
            if (ish.eq.jsh) scale = scale*0.5d0
            if (schw_ij*schwarz_max().ge.tol2e) then
-	     tottask = tottask + 1
              if (next.eq.ploop) then
+               tottask = tottask + 1
+               ttask = tcgtime()
                n_ijni = ilen*jlen*nbf*nmo1
                call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
                do kb=1,nblk
@@ -251,6 +256,10 @@ c
                  t2jidx = t2jidx + tcgtime() - tz
                endif
                next = nxtval(num_nodes)
+               ttask = tcgtime() - ttask
+               ttaskmax = max(ttaskmax,ttask)
+               ttaskmin = min(ttaskmin,ttask)
+               ttaskagg = ttaskagg + ttask
              endif
              ploop = ploop + 1
            endif
@@ -359,7 +368,16 @@ c
        mi_t34j = mi_t34j + t34jidx
        mi_flop1 = mi_flop1 + flop1
        mi_synch = mi_synch + tsynch
-       mi_ntasks = mi_ntasks + tottask
+       mi_maxsynch = max(mi_maxsynch,tsynch)
+       mi_minsynch = min(mi_minsynch,tsynch)
+       mi_aggsynch = mi_aggsynch + tsynch
+       mi_nsynchs = mi_nsynchs + 1
+       mi_maxtaskJ = max(mi_maxtaskJ,ttaskmax)
+       mi_mintaskJ = min(mi_mintaskJ,ttaskmin)
+       mi_aggtaskJ = mi_aggtaskJ + ttaskagg
+       mi_ntasksJ = mi_ntasksJ + tottask
+       mi_ntasksK = 1.d0
+       mi_mintaskK = 0.d0
 #endif
 
        return

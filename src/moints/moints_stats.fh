@@ -16,7 +16,18 @@ c
        double precision mi_t34k
        double precision mi_flop1
        double precision mi_synch
-       double precision mi_ntasks
+       double precision mi_maxsynch
+       double precision mi_minsynch
+       double precision mi_aggsynch
+       double precision mi_nsynchs
+       double precision mi_maxtaskJ
+       double precision mi_mintaskJ
+       double precision mi_aggtaskJ
+       double precision mi_maxtaskK
+       double precision mi_mintaskK
+       double precision mi_aggtaskK
+       double precision mi_ntasksJ
+       double precision mi_ntasksK
 c
 c
 c
@@ -36,7 +47,18 @@ c
      $                     mi_t34k,
      $                     mi_flop1,
      $                     mi_synch,
-     $                     mi_ntasks
+     $                     mi_maxsynch,
+     $                     mi_minsynch,
+     $                     mi_aggsynch,
+     $                     mi_nsynchs,
+     $                     mi_maxtaskJ,
+     $                     mi_mintaskJ,
+     $                     mi_aggtaskJ,
+     $                     mi_maxtaskK,
+     $                     mi_mintaskK,
+     $                     mi_aggtaskK,
+     $                     mi_ntasksJ,
+     $                     mi_ntasksK
 c
 c
 c
