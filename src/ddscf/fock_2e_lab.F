@@ -1,5 +1,6 @@
       subroutine fock_init_cmul(idim,jdim,ldim)
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
       integer idim, jdim, ldim
 c
@@ -17,6 +18,7 @@ c
       end
       subroutine fock_init_rep_cmul(nbf)
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
       integer nbf
 c
@@ -37,9 +39,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -143,9 +146,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -215,9 +219,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -295,9 +300,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -381,9 +387,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -481,9 +488,10 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -568,9 +576,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -628,9 +637,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -696,9 +706,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -770,9 +781,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -848,9 +860,10 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -932,9 +945,10 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -1016,9 +1030,10 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -1079,9 +1094,10 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -1151,9 +1167,10 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -1232,9 +1249,10 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
@@ -1314,6 +1332,7 @@ c
       subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
@@ -1401,9 +1420,10 @@ c
 c$$$      subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
 c$$$     $     neri, labels, eri, dens, fock)
 c$$$c     
-c$$$c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c$$$c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c$$$c     
 c$$$      implicit none
+c$$$#include "nwc_const.fh"
 c$$$#include "cfockmul.fh"
 c$$$c     
 c$$$      integer nfock, nbf
@@ -1481,9 +1501,10 @@ c$$$      end
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
@@ -1537,9 +1558,10 @@ c
       subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
@@ -1603,9 +1625,10 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
@@ -1782,9 +1805,10 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
@@ -1941,9 +1965,10 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.11 1999-08-07 23:33:08 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
 c     
       implicit none
+#include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
       integer nfock, nbf
