@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.16 1996-10-01 18:49:52 d3e129 Exp $
+c $Id: basisP.F,v 1.17 1997-04-02 00:42:10 d3e129 Exp $
 #include "basP.fh"
       character *(*) msg
       integer i,j
@@ -80,7 +80,7 @@ c
       infbs_head(Head_ECP,bas) = 1
       end
 *.....................................................................
-      logical function ecp_set_num_elec(ecpid,tag,num_elec)
+      logical function ecp_set_num_elec(ecpid,tag,num_elec,stdtag)
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -93,6 +93,7 @@ c
       integer ecpid      ! [input] basis set handle
       character*16 tag   ! [input] tag to set number of electrons for
       integer num_elec   ! [input] number of electrons ecp replaces
+      character*(*) stdtag ! [input] name associated with ecp on tag
 c
 *local::
       integer ecp_indx
@@ -108,7 +109,7 @@ c
 c
 c     Make sure that the tag is in the list
 c
-      ecp_set_num_elec = bas_add_utag(ecpid, tag, itag)
+      ecp_set_num_elec = bas_add_utag(ecpid, tag, stdtag, itag)
       if (.not. ecp_set_num_elec) return
       infbs_tags(Tag_Nelec,itag,ecp_indx) = num_elec
 c
@@ -120,10 +121,8 @@ c
 #include "basP.fh"
 #include "stdio.fh"
 *functions::
-      logical ecp_check_handle, ecp_print
-      logical bas_add_utag
-      external ecp_check_handle, ecp_print
-      external bas_add_utag
+      logical ecp_check_handle
+      external ecp_check_handle
 *passed::
       integer ecpid      ! [input] basis set handle
       character*16 tag   ! [input] tag to set number of electrons for
@@ -155,180 +154,14 @@ c
 c
       end
 *.....................................................................
-      logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $     rex, expnt, coeffs, ldc, Is_ecp)
-      implicit none
-#include "mafdecls.fh"
-#include "basdeclsP.fh"
-#include "basP.fh"
-#include "bas_exndcf_dec.fh"
-      integer basis ! [input] basis handle
-      character*(*) tag ! [input] tag on which to add contraction
-      integer l_value ! [input] type of contraction (s, p, ..., sp)
-      integer ngen ! [input] no. of contractions
-      integer nprim ! [input] no. of primitives
-      integer ldc ! [input] leading dimension of coeffs
-      double precision expnt(nprim) ! [input] exponents
-      double precision coeffs(ldc, 1:*) ! [input] coefficients
-      double precision rex(nprim) ! [input] gaussian R exponents 
-*. . . . . . . . . . . . . . . . .          (offset by 2)
-      logical Is_ecp ! [input] flag saying if this is ecp
-c
-      integer size_add ! amount to be added to exndcf array
-      integer ind ! Index into basis function structures
-      integer free ! Free space pointer
-c
-      integer i, itag, jtag, iu_cont, ntags ! Locals
-      integer s_old, s_new, k_old, k_new, h_old, h_new
-c
-      logical bas_add_utag
-      external bas_add_utag
-c
-      logical bas_check_handle
-      external bas_check_handle
-c
-#include "bas_exndcf_sfn.fh"
-c     adds a new general contraction on the specified tag.  If the
-c     tag is not present it will also add that by calling bas_add_utag
-c      
-      bas_add_ucnt = bas_check_handle(basis,'bas_add_ucnt')
-      if (.not. bas_add_ucnt) return
-      ind = basis + BASIS_HANDLE_OFFSET
-c
-c     Make sure that the tag is in the list
-c
-      bas_add_ucnt = bas_add_utag(basis, tag, itag)
-      if (.not. bas_add_ucnt) return
-c
-c     Update header information about all unique contractions on all 
-c     tags.  Free points to next free word in the exndcf
-c
-*old: free = infbs_head(HEAD_NPRIM,ind)+infbs_head(HEAD_NCOEF,ind)+1
-      free = infbs_head(HEAD_EXCFPTR,ind) + 1
-      s_old = exndcf(SZ_exndcf,ind)
-      size_add = nprim*ngen + nprim
-      if (Is_ecp) size_add = size_add + nprim
-      if ((free+size_add-1) .gt. s_old) then
-        h_old = exndcf(H_exndcf,ind)
-        k_old = exndcf(K_exndcf,ind)
-        s_new = free+size_add-1
-        if (.not.ma_alloc_get(
-     &      mt_dbl,s_new,' input for basis heap ',
-     &      h_new, k_new)) then
-          write(6,*)'bas_add_ucnt: too many prims/coeffs'
-          write(6,*)' allocated size for input is :',
-     &        exndcf(SZ_exndcf,ind)
-          write(6,*)' size requested here         :',
-     &        (free+size_add-1)
-          bas_add_ucnt = .false.
-          return
-        endif
-        exndcf(H_exndcf,ind) = h_new
-        exndcf(K_exndcf,ind) = k_new
-        exndcf(SZ_exndcf,ind) = s_new
-        call dcopy(s_old,dbl_mb(k_old),1,dbl_mb(k_new),1)
-        if (.not.ma_free_heap(h_old)) call errquit
-     &      ('bas_add_ucnt: error freeing old exponents',911)
-      endif
-      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
-         write(6,*) 'bas_add_ucnt: too many contractions '
-         bas_add_ucnt = .false.
-         return
-      endif
-c         
-      if (Is_ecp) then
-        infbs_head(Head_Ecp,ind) = 1
-      else
-        infbs_head(Head_Ecp,ind) = 0
-      endif
-      infbs_head(HEAD_NCONT,ind) = infbs_head(HEAD_NCONT,ind) + 1
-      infbs_head(HEAD_NPRIM,ind) = infbs_head(HEAD_NPRIM,ind) + nprim
-      infbs_head(HEAD_NCOEF,ind) = infbs_head(HEAD_NCOEF,ind) +
-     $     ngen*nprim
-      infbs_head(HEAD_EXCFPTR,ind) =  infbs_head(HEAD_EXCFPTR,ind) +
-     &      size_add
-c
-      ntags = infbs_head(HEAD_NTAGS,ind)
-      if (itag .ne. ntags) then
-         do jtag = ntags, itag+1, -1
-c
-c     Shuffle data+pointers for following tags up one contraction
-c
-            do iu_cont = infbs_tags(TAG_LCONT,jtag,ind),
-     $           infbs_tags(TAG_FCONT,jtag,ind), -1
-               do i = 1, ndbs_ucont
-                  infbs_cont(i,iu_cont+1,ind) =
-     $                 infbs_cont(i,iu_cont,ind)
-               enddo
-            enddo
-c
-c     Increment first and last contractions on following tags
-c
-            infbs_tags(TAG_FCONT,jtag,ind) =
-     $           infbs_tags(TAG_FCONT,jtag,ind) + 1
-            infbs_tags(TAG_LCONT,jtag,ind) =
-     $           infbs_tags(TAG_LCONT,jtag,ind) + 1
-         enddo
-      endif
-c
-c     Increment basis info on this tag
-c
-      infbs_tags(TAG_NCONT,itag,ind) = infbs_tags(TAG_NCONT,itag,ind)
-     $     + 1
-      infbs_tags(TAG_NPRIM,itag,ind) = infbs_tags(TAG_NPRIM,itag,ind)
-     $     + nprim
-      infbs_tags(TAG_NCOEF,itag,ind) = infbs_tags(TAG_NCOEF,itag,ind)
-     $     + nprim*ngen
-      if (infbs_tags(TAG_FCONT,itag,ind).eq.0) then
-         if (itag .ne. ntags) call errquit
-     $        ('bas_add_ucnt: tag error', itag)
-         infbs_tags(TAG_FCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
-         infbs_tags(TAG_LCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
-      else
-         infbs_tags(TAG_LCONT,itag,ind) =
-     &      infbs_tags(TAG_LCONT,itag,ind) + 1
-      endif
-c
-*. . . . . . . . . . . . . . . . . . . . . ! Index of new contraction
-      iu_cont = infbs_tags(TAG_LCONT,itag,ind) 
-c
-      infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
-      infbs_cont(CONT_NPRIM,iu_cont,ind) = nprim
-      infbs_cont(CONT_NGEN, iu_cont,ind) = ngen
-      infbs_cont(CONT_TYPE, iu_cont,ind) = l_value
-      infbs_cont(CONT_IEXP, iu_cont,ind) = free
-      infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
-      if (Is_ecp) then
-        infbs_cont(Cont_Irexp, iu_cont, ind) =
-     &      free + nprim + nprim*ngen
-      else
-*. . . . . . . . . . . . . . . . . . ! point to exponents for saftey?
-        infbs_cont(Cont_Irexp, iu_cont,ind) = free 
-      endif
-c
-c     Copy real data over
-c
-      call dcopy(nprim, expnt, 1, dbl_mb(mb_exndcf(free,ind)), 1)
-      free = free + nprim
-      do i = 1, ngen
-         call dcopy
-     &      (nprim, coeffs(1,i), 1, dbl_mb(mb_exndcf(free,ind)), 1)
-         free = free + nprim
-      enddo
-      if (Is_ecp)
-     &    call dcopy(nprim, rex, 1, dbl_mb(mb_exndcf(free,ind)), 1)
-c
-c     Done
-c
-      end
-*.....................................................................
-      logical function bas_add_utag(basisin, tag, itag)
+      logical function bas_add_utag(basisin, tag, stdtag, itag)
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
 #include "inp.fh"
       integer basisin           ! [input] basis handle
       character*(*) tag         ! [input] name of tag
+      character*(*) stdtag      ! [input] name of basis set on tag
       integer itag              ! [output] index of tag
 c
       integer basis             ! [local] index into basis arrays
@@ -344,7 +177,12 @@ c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
       do itag = 1, infbs_head(HEAD_NTAGS,basis)
-         if (bs_tags(itag,basis) .eq. tag) return
+        if (bs_tags(itag,basis) .eq. tag) then
+          if (bs_stdname(itag,basis).eq.'unknown') then
+            bs_stdname(itag,basis) = stdtag
+          endif
+          return             
+        endif
       enddo
 c
 c     No match found ... append new tag to the list
@@ -358,6 +196,7 @@ c
 c
       infbs_head(HEAD_NTAGS,basis) = itag
       bs_tags(itag,basis) = tag
+      bs_stdname(itag,basis) = stdtag
 c
       end
 *.....................................................................
@@ -403,222 +242,6 @@ c
 00300   continue
       endif
 c     
-      end
-*.....................................................................
-      logical function bas_getu_coeff(basisin,icont,coeff)
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont 
-      double precision coeff(*)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-#include "bas_exndcf_sfn.fh"
-c
-      bas_getu_coeff = bas_check_handle(basisin,'bas_getu_coeff')
-      if (.not.bas_getu_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont  = icont
-c
-      bas_getu_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_getu_coeff)) then
-        write(6,*)' bas_getu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy ((myprim*mygen),
-     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1,coeff,1)
-c
-      bas_getu_coeff = .true.
-c
-      return
-      end
-*.....................................................................
-      logical function bas_getu_exponent(basisin,icont,exp)
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont 
-      double precision exp(*)
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c
-#include "bas_exndcf_sfn.fh"
-c
-      bas_getu_exponent =
-     &    bas_check_handle(basisin,'bas_getu_exponent')
-
-      if (.not.bas_getu_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont = icont
-
-      bas_getu_exponent = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_getu_exponent)) then
-        write(6,*)' bas_getu_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,basis)),1,exp,1)
-c
-      bas_getu_exponent = .true.
-c
-      return
-      end
-*.....................................................................
-      logical function bas_setu_coeff(basisin,icont,coeff,ncoeff)
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont, ncoeff
-      double precision coeff(ncoeff)
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c
-#include "bas_exndcf_sfn.fh"
-c
-      bas_setu_coeff = bas_check_handle(basisin,'bas_setu_coeff')
-      if (.not.bas_setu_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont  = icont
-c
-      bas_setu_coeff = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_setu_coeff)) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-c
-      bas_setu_coeff = ncoeff .eq. (myprim*mygen)
-      if(.not.bas_setu_coeff) then
-        write(6,*)' bas_setu_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
-     &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
-        return
-      endif
-      call dcopy(ncoeff,coeff,1,
-     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1)
-c
-      bas_setu_coeff = .true.
-c
-      return
-      end
-*.....................................................................
-      logical function bas_setu_exponent(basisin,icont,exp,nexp)
-      implicit none
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "mafdecls.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin, icont, nexp
-      double precision exp(nexp)
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c
-#include "bas_exndcf_sfn.fh"
-c
-      bas_setu_exponent =
-     &    bas_check_handle(basisin,'bas_setu_exponent')
-
-      if (.not.bas_setu_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      icontmax = infbs_head(HEAD_NCONT,basis)
-      myucont = icont
-
-      bas_setu_exponent = icont.gt.0.and.icont.le.icontmax
-      if (.not.(bas_setu_exponent)) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' contraction range for basis is 1:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      bas_setu_exponent = myprim.eq.nexp
-      if (.not.bas_setu_exponent) then
-        write(6,*)' bas_setu_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
-     &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
-        return
-      endif
-c
-      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,basis)),1)
-c
-      bas_setu_exponent = .true.
-c
-      return
       end
 *.....................................................................
       logical function bas_ucontinfo(basisin,icont,itype,
@@ -707,7 +330,7 @@ c
       data angular_bs /nbasis_bsmx*-565/
       data bas_norm_id /nbasis_bsmx*-565/
       data nbfmax_bs /nbasis_bsmx*-565/
-      data bsversion /3.01d00/
+      data bsversion /4.00d00/
 c     
       end
 *.....................................................................

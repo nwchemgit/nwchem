@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.8 1996-10-01 18:49:49 d3e129 Exp $
+c $Id: basP.fh,v 1.9 1997-04-02 00:42:06 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -202,8 +202,8 @@ c actual names are set to protect name space between the geom and
 c  basis objects
 c
 c offset for basis handle
-      integer BASIS_HANDLE_OFFSET
-      parameter (BASIS_HANDLE_OFFSET=((0-565)))
+      integer Basis_Handle_Offset
+      parameter (Basis_Handle_Offset=((0-565)))
 c
 c.. static dimension information for common blocks
 #include "bas_staticP.fh"
@@ -214,10 +214,11 @@ c leading dimensions of compressed arrays
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags
-      integer exndcf   ! now allocated on heap
+      character*80  bs_stdname
+      integer exndcf   ! now allocated on heap not a real array anymore
       integer infbs_head,infbs_tags,infbs_cont
 c.. incore sturctures
-      real*8 bsversion
+      double precision bsversion
       character*256 bs_trans,bs_names_rtdb, ecp_name_assoc
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
       integer angular_bs, nbfmax_bs,  bas_norm_id
@@ -228,6 +229,7 @@ c
       common /cbsdatac/
      &       bs_name(nbasis_bsmx),
      &       bs_tags(ntags_bsmx,nbasis_bsmx),
+     &       bs_stdname(ntags_bsmx,nbasis_bsmx),
 c......... above for each basis is stored ... below is in-core
      &       bs_trans(nbasis_bsmx),
      &       bs_names_rtdb(nbasis_rtdb_mx),

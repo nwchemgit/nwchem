@@ -1,11 +1,11 @@
-c $Id: bas_staticP.fh,v 1.7 1995-10-03 19:01:48 og845 Exp $
+c $Id: bas_staticP.fh,v 1.8 1997-04-02 00:42:07 d3e129 Exp $
 c:bas_staticP.fh
 c
 c Maximum parameter definitions for static "in-core" data structure
 c
       Integer nbasis_bsmx, ntags_bsmx, nucont_bsmx, mxbs_exndcf
       Integer nbasis_rtdb_mx
-      Parameter (nbasis_bsmx = 3)
+      Parameter (nbasis_bsmx = 4)
       Parameter (nbasis_rtdb_mx = 10*nbasis_bsmx)
       Parameter (ntags_bsmx = 20) 
 c.................................. assume average of 8 contractions per tag

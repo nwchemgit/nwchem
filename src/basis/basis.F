@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.58 1997-04-01 18:21:52 d3e129 Exp $
+c $Id: basis.F,v 1.59 1997-04-02 00:42:08 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -14,27 +14,48 @@ c
       integer mapidata, total4, total8
 c
 c.. character data 
-      cdata = 256*2*nbasis_bsmx + 256*nbasis_rtdb_mx
-      cdata = cdata + 16*ntags_bsmx*nbasis_bsmx 
+      cdata =         256*nbasis_bsmx            ! bs_name
+      cdata = cdata + 16*ntags_bsmx*nbasis_bsmx  ! bs_tags
+      cdata = cdata + 80*ntags_bsmx*nbasis_bsmx  ! bs_stdname
+      cdata = cdata + 256*nbasis_bsmx            ! bs_trans
+      cdata = cdata + 256*nbasis_rtdb_mx         ! bs_names_rtdb
+      cdata = cdata + 256*nbasis_bsmx            ! ecp_name_assoc
 c      
 c.. real data 
-c      rdata = mxbs_exndcf*nbasis_bsmx + 1
-      rdata =  1 
+      rdata =  1                   ! bsversion
       rdata = 8*rdata
 c
 c.. integer data in basis set object common
-      idata = 3*nbasis_bsmx
-      idata = idata + ndbs_head*nbasis_bsmx
-      idata = idata + ndbs_tags*ntags_bsmx*nbasis_bsmx
-      idata = idata + ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx
-      idata = idata + nbasis_bsmx*6 + 1   ! assume logical and integer same size
-      idata = idata + nbasis_rtdb_mx
+      idata =         3*nbasis_bsmx               ! exndcf
+      idata = idata + ndbs_head*nbasis_bsmx       ! infbs_head
+      idata = idata +
+     &    ndbs_tags*ntags_bsmx*nbasis_bsmx        ! infbs_tags
+      idata = idata +
+     &    ndbs_ucont*(nucont_bsmx+1)*nbasis_bsmx  ! infbs_cont
+      idata = idata + nbasis_bsmx                 ! len_bs_name
+      idata = idata + nbasis_bsmx                 ! len_bs_trans
+      idata = idata + nbasis_rtdb_mx              ! len_bs_rtdb
+      idata = idata + nbasis_bsmx                 ! bsactive (int==logical)
+      idata = idata + nbasis_bsmx                 ! bas_spherical (int==logical)
+      idata = idata + nbasis_bsmx                 ! bas_norm_id
+      idata = idata + nbasis_bsmx                 ! angular_bs
+      idata = idata + nbasis_bsmx                 ! nbfmax_bs
+      idata = idata + nbasis_bsmx                 ! ecp_handle_assoc
+      idata = idata + nbasis_bsmx                 ! ecp_parent_assoc
+      idata = idata + 1                           ! nbasis_rtdb
       idata = 4*idata
 c
 c.. integer data in the mapped object.  
-      mapidata =            5*3*nbasis_bsmx
-      mapidata = mapidata + 4*nbasis_bsmx
-      mapidata = 4*mapidata
+      mapidata =            3*nbasis_bsmx   ! ibs_cn2ucn
+      mapidata = mapidata + 3*nbasis_bsmx   ! ibs_cn2ce
+      mapidata = mapidata + 3*nbasis_bsmx   ! ibs_ce2uce
+      mapidata = mapidata + 3*nbasis_bsmx   ! ibs_cn2bfr
+      mapidata = mapidata + 3*nbasis_bsmx   ! ibs_ce2cnr
+      mapidata = mapidata + nbasis_bsmx     ! ncont_tot_gb
+      mapidata = mapidata + nbasis_bsmx     ! nprim_tot_gb
+      mapidata = mapidata + nbasis_bsmx     ! nbf_tot_gb
+      mapidata = mapidata + nbasis_bsmx     ! ibs_geom
+      mapidata = 4*mapidata 
 c
 c.. total space 
       total4 = idata + mapidata
@@ -162,7 +183,7 @@ c
 c Mark basis as active and return info
 c
       bsactive(basis) = .true.
-      basis = basis - BASIS_HANDLE_OFFSET 
+      basis = basis - Basis_Handle_Offset 
       bas_create = .true.
 c
 c debug print all basis sets that are active
@@ -221,7 +242,7 @@ c
       bas_do_destroy = bas_check_handle(basisin,'bas_do_destroy')
       if (.not. bas_do_destroy) return
 
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
 
       if(.not.gbs_map_clear(basisin)) then
         write(6,*)' error clearing map '
@@ -260,7 +281,7 @@ c:passed
 c::local
       integer basis
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       bas_check_handle = basis.gt.0 .and. basis.le.nbasis_bsmx
       if (bas_check_handle)
      &      bas_check_handle = bas_check_handle .and. bsactive(basis)
@@ -345,7 +366,7 @@ c
         return
       endif
 c
-      usebas = basis + BASIS_HANDLE_OFFSET
+      usebas = basis + Basis_Handle_Offset
 c     bs_name(usebas) = '321g:1-20'
 c
 c.. only h and o for now
@@ -369,7 +390,7 @@ c 1s on H
       a_cof (2) = 0.90469100d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load',.false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on H
@@ -380,7 +401,7 @@ c 2s on H
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on He
@@ -394,7 +415,7 @@ c 1s on He
       a_cof (2) =  0.89348300d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2s on He
@@ -405,7 +426,7 @@ c 2s on He
       a_cof (1) = 1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1s on O
@@ -421,7 +442,7 @@ c 1s on O
       a_cof (3) =    0.70765800d00  
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 1sp on O
@@ -436,7 +457,7 @@ c add s first
       a_cof (2) =    1.22156000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -450,7 +471,7 @@ c add p now
       a_cof (2) =   0.85395500d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &      ('bas_321g_load: bas_add_ucnt failed',911)
 c 2sp on O
@@ -463,7 +484,7 @@ c add s first
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 c add p now
@@ -475,7 +496,7 @@ c add p now
       a_cof (1) =  1.00000000d00
       a_status = bas_add_ucnt (basis,
      &    a_tag, a_lval, a_ngen, a_nprim, a_exp,
-     &    a_exp, a_cof, a_nprim, .false.)
+     &    a_exp, a_cof, a_nprim, 'bas_321g_load', .false.)
       if (.not. a_status) call errquit
      &    ('bas_321g_load: bas_add_ucnt failed',911)
 *_old_checking_code:      bs_tags(1,usebas) = 'H'
@@ -631,6 +652,105 @@ c
       return
       end
 *.....................................................................
+      logical function bas_summary_print(basisin)
+      implicit none
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "inp.fh"
+#include "ecp_decP.fh"
+c::-functions
+      logical bas_check_handle
+      external bas_check_handle
+      integer nbf_from_ucont
+      external nbf_from_ucont
+c::-passed
+      integer basisin ! [input] basis set handle
+c::-local
+      character*16 dum_tag
+      character*255 dum_stdtag
+      character*12 polynomial  ! string for spherical/cartesian
+      integer basis   ! lexical index
+      integer i_tag   ! loop counter
+      integer i_cont  ! loop counter
+      integer ip      ! loop counter
+      integer mytags  ! dummy 
+      integer myfcont ! loop range value (first)
+      integer mylcont ! loop range value (last)
+      integer mycont  ! number of contractions
+      integer mynbf   ! number of functions
+      integer itlen   ! length of tag
+      integer istlen  ! length of standard name 
+      integer itlenmax  ! maximum length of any tag
+      integer istlenmax ! maximum length of any basis name on a tag
+*
+#include "ecp_sfnP.fh"
+*
+      bas_summary_print =
+     &    bas_check_handle(basisin,'bas_summary_print')
+*
+      if (Is_ECP_in(basisin)) then
+        bas_summary_print = .true.
+        return
+      endif
+*
+      basis = basisin + Basis_Handle_Offset
+*      
+      if (bas_spherical(basis)) then
+         polynomial = ' (spherical)'
+      else
+         polynomial = ' (cartesian)'
+      endif
+      write(luout,'(/)')
+      write(luout,10000)
+     &    bs_name(basis)(1:inp_strlen(bs_name(basis))), 
+     &    bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
+     &    polynomial
+      mytags = infbs_head(Head_Ntags,basis)
+      itlenmax = 0 
+      istlenmax = 0
+      do i_tag = 1,mytags
+        itlen     = inp_strlen(bs_tags(i_tag,basis))
+        itlenmax  = max(itlenmax,itlen)
+        istlen    = inp_strlen(bs_stdname(i_tag,basis))
+        istlenmax = max(istlenmax,istlen)
+      enddo
+      do i_tag = 1,mytags
+        myfcont = infbs_tags(Tag_Fcont,i_tag,basis)
+        mylcont = infbs_tags(Tag_Lcont,i_tag,basis)
+        mycont  = mylcont - myfcont + 1
+        mynbf   = 0 
+        do i_cont = myfcont, mylcont
+          mynbf = mynbf + nbf_from_ucont(i_cont,basisin)
+        enddo
+        dum_tag = bs_tags(i_tag,basis)
+        itlen   = inp_strlen(dum_tag)
+        do ip = (itlen+1),itlenmax
+          dum_tag(ip:ip) = ' '
+        enddo
+        dum_stdtag = bs_stdname(i_tag,basis)
+        istlen = inp_strlen(dum_stdtag)
+        do ip = (istlen+1),istlenmax
+          dum_stdtag(ip:ip) = ' '
+        enddo
+        write(luout,10001)
+     &      dum_tag(1:itlenmax),
+     &      dum_stdtag(1:istlenmax),
+     &      mycont,
+     &      mynbf
+      enddo
+      write(luout,'(/)')
+      call util_flush(luout)
+      bas_summary_print = .true.
+*
+10000 format('  Summary:  Basis "',a,'" -> "',a,'"',a,/,
+     &       '            -----')
+10001 format(1x,a,' has a ',a,' basis set with',i4,
+     &    ' general contractions (shells) and',i4,' basis function(s).')
+*
+      end
+*.....................................................................
       logical function bas_print(basisin)
 c
 c routine to print unique basis information that is in core
@@ -679,7 +799,7 @@ c
       cltype(1)='SP'
       cltype(2)='SPD'
       bas_print = .true.
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
       bas_print = bas_check_handle(basisin,'bas_print')
       if (.not. bas_print) return
@@ -881,7 +1001,7 @@ c
       bas_rtdb_do_load = bas_check_handle(basisin,'bas_rtdb_do_load')
       if (.not.bas_rtdb_do_load) return
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
 c store geom tag with basis map info
 c
@@ -903,6 +1023,10 @@ c
       tmp(lentmp:) = ':bs_tags'
       rtdb_status = rtdb_status .and.
      &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_tags(1,basis))
+c
+      tmp(lentmp:) = ':bs_stdname'
+      rtdb_status = rtdb_status .and.
+     &       rtdb_cget(rtdb, tmp, ntags_bsmx, bs_stdname(1,basis))
 c
       tmp(lentmp:) = ':assoc ecp name'
       rtdb_status = rtdb_status .and.
@@ -1046,7 +1170,7 @@ c
 #include "bas_ibs_sfn.fh"
 #include "ecp_sfnP.fh"
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       geom  = ibs_geom(basis)
 c
 *debug:mem      do inode = 0,(ga_nnodes() - 1)
@@ -1450,7 +1574,7 @@ c:: statement functions
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
       if (.not. bas_rtdb_store) return
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
       if (Is_ECP(basis)) then
         size_ex = (2*infbs_head(HEAD_NPRIM,basis))+
@@ -1466,13 +1590,15 @@ c
      &    dbl_mb(mb_exndcf(1,basis)),
      $    infbs_head(HEAD_NTAGS,basis),
      $    infbs_head(HEAD_NCONT,basis), 
-     $    size_ex, ecp_name_assoc(basis))
+     $    size_ex,
+     &    bs_stdname(1,basis),
+     &    ecp_name_assoc(basis))
 c
       end
 *.....................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, 
      &       head_array, tags_array, ucont_array, excfin, ntagsin, 
-     &       nucontin, nexcf, ecp_name)
+     &       nucontin, nexcf, stdnamein, ecp_name)
       implicit none
 c
 c stores from argument data structures the basis set information to
@@ -1502,6 +1628,7 @@ c::: passed
       integer nucontin ! [input] number of unique contractions
       integer nexcf ! [input] number of exponents and 
       character*16 tagsin(ntagsin) ! [input] name of tags
+      character*80 stdnamein(ntagsin) ! [input] names of basis on a tag
       integer head_array(ndbs_head) ! [input] head data
       integer tags_array(ndbs_tags,ntagsin) ! [input] tag data
       integer ucont_array(ndbs_ucont,nucontin) ! [input] unique 
@@ -1530,6 +1657,9 @@ c
       status = status.and.bas_rtdb_add(rtdb,name)
       tmp(lentmp:) = ':bs_tags'
       status = status .and. rtdb_cput(rtdb,tmp,ntagsin,tagsin)
+
+      tmp(lentmp:) = ':bs_stdname'
+      status = status .and. rtdb_cput(rtdb,tmp,ntagsin,stdnamein)
       
       tmp(lentmp:) = ':assoc ecp name'
       status = status .and. rtdb_cput(rtdb,tmp,1,ecp_name)
@@ -1587,7 +1717,7 @@ c
         return
       endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       if (angular_bs(basis) .gt. -565) then
         high_angular = angular_bs(basis)
         bas_high_angular = .true.
@@ -1635,7 +1765,7 @@ c
         return
       endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c... clear old ibs_ce2uce if it exists
       if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_ce2uce(H_ibs,basis)
@@ -1719,7 +1849,7 @@ c::local
 c
 #include "bas_ibs_sfn.fh"
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
 c check geom and basis handles returns false if either is invalid
 c
@@ -1894,7 +2024,7 @@ c
       bas_print_all = .true.
       do 00100 basis=1,nbasis_bsmx
         if(bsactive(basis)) then
-          basin = basis - BASIS_HANDLE_OFFSET
+          basin = basis - Basis_Handle_Offset
           bas_print_all = bas_print_all .and. bas_print(basin)
         endif
 00100 continue
@@ -1956,7 +2086,7 @@ c
       bas_cn2ce = bas_check_handle(basisin,'bas_cn2ce')
       if(.not.bas_cn2ce) return
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       bas_cn2ce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2ce) then
         write(6,*)' bas_cn2ce: invalid contraction information '
@@ -1992,7 +2122,7 @@ c
       bas_cn2uce = bas_check_handle(basisin,'bas_cn2uce')
       if(.not.bas_cn2uce) return
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       bas_cn2uce = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2uce) then
         write(6,*)' bas_cn2uce: invalid contraction information '
@@ -2035,7 +2165,7 @@ c
       if(.not.bas_cn2bfr) return
 #endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       bas_cn2bfr = cont.ge.0 .and. cont.le.ncont_tot_gb(basis)
       if (.not.bas_cn2bfr) then
         write(6,*)' bas_cn2bfr: invalid contraction information '
@@ -2106,7 +2236,7 @@ c
       if(.not.bas_ce2cnr) return
 #endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       bas_ce2cnr = geom_ncent(ibs_geom(basis),nat)
       if (nat.eq.0.or..not.bas_ce2cnr) then
         bas_ce2cnr = .false.
@@ -2156,7 +2286,7 @@ c
       bas_bf2ce = bas_check_handle(basisin,'bas_bf2ce')
       if (.not. bas_bf2ce) return
 c
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
       bas_bf2ce = geom_ncent(ibs_geom(basis),nat)
       if (.not.bas_bf2ce .or. nat.le.0) then
         bas_bf2ce = .false.
@@ -2214,7 +2344,7 @@ c
         return
       endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
 c
 c... linear search through contractions
       cont = -1 
@@ -2249,7 +2379,7 @@ c
       bas_numbf = bas_check_handle(basisin,'bas_numbf')
       if (.not. bas_numbf) return
 
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
       nbf = nbf_tot_gb(basis)
       bas_numbf = .true.
       return
@@ -2277,7 +2407,7 @@ c
       bas_name = bas_check_handle(basisin,'bas_name')
       if (.not. bas_name) return
 c
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
 c
 *      lenofit = inp_strlen(bs_name(basis))
 *      basis_name(1:lenofit) = bs_name(basis)(1:lenofit)
@@ -2286,57 +2416,6 @@ c
       basis_name = bs_name(basis)
       trans_name = bs_trans(basis)
 c
-      end
-*.....................................................................
-      logical function bas_get_exponent(basisin,icont,exp)
-c
-c  returns the exponents of a given mapped contraction 
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_exndcf_dec.fh"
-#include "bas_ibs_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin         ! [input] basis set handle
-      integer icont           ! [input] mapped contraction index
-      double precision exp(*) ! [output] exponents
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      bas_get_exponent = bas_check_handle(basisin,'bas_get_exponent')
-      if (.not.bas_get_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-      icontmax = ncont_tot_gb(basis)
-      myucont = sf_ibs_cn2ucn(icont,basis)
-      bas_get_exponent = icont.ge.0.and.icont.le.icontmax
-      if (.not.(bas_get_exponent)) then
-        write(6,*)' bas_get_exponent: ERROR '
-        write(6,*)' contraction range for basis is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,basis)),1,exp,1)
-c
-      bas_get_exponent = .true.
-c
-      return
       end
 *.....................................................................
       logical function bas_cont_tag(basisin,icont,tagout)
@@ -2361,7 +2440,7 @@ c
       bas_cont_tag = bas_check_handle(basisin,'bas_cont_tag')
       if (.not.bas_cont_tag) return
 
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
       
       center = sf_ibs_cn2ce(icont,basis)
       ucenter = sf_ibs_ce2uce(center,basis)
@@ -2402,7 +2481,7 @@ c
       bas_continfo = bas_check_handle(basisin,'bas_continfo')
       if (.not.bas_continfo) return
 
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
 c
       icontmax = ncont_tot_gb(basis)
 c
@@ -2451,195 +2530,11 @@ c
       bas_numcont = bas_check_handle(basisin,'bas_numcont')
       if (.not.bas_numcont) return
 
-      basis = basisin + BASIS_HANDLE_OFFSET 
+      basis = basisin + Basis_Handle_Offset 
 
       numcont = ncont_tot_gb(basis)
 
       bas_numcont = .true.
-      return
-      end
-*.....................................................................
-      logical function bas_get_coeff(basisin,icont,coeff)
-c
-c returns the coefficients for the given mapped contraction
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_ibs_dec.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin            ! [input] basis set handle
-      integer icont              ! [input] mapped contraction index
-      double precision coeff(*)  ! [output] mapped contraction coeffs.
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      bas_get_coeff = bas_check_handle(basisin,'bas_get_coeff')
-      if (.not.bas_get_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = ncont_tot_gb(basis)
-      myucont = sf_ibs_cn2ucn(icont,basis)
-      bas_get_coeff = icont.ge.0.and.icont.le.icontmax
-      if (.not.(bas_get_coeff)) then
-        write(6,*)' bas_get_coeff: ERROR '
-        write(6,*)' contraction range for basis is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-      call dcopy((myprim*mygen),
-     &    dbl_mb(mb_exndcf(mycoeffptr,basis)),1,coeff,1)
-c
-      bas_get_coeff = .true.
-c
-      return
-      end
-*.....................................................................
-      logical function bas_set_exponent(basisin,icont,exp,nexp)
-c
-c sets the exponents to the input array for a given mapped contraction
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_ibs_dec.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin ! [input] basis set handle        
-      integer icont ! [input] mapped contraction index
-      integer nexp ! [input] number of exponents for contraction
-      double precision exp(nexp) ! [input] "new" exponents for 
-*. . . . . . . . . . . . . . . .            contraction    
-c::local
-      integer basis, myucont, icontmax
-      integer myprim,myexptr
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      bas_set_exponent = bas_check_handle(basisin,'bas_set_exponent')
-      if (.not.bas_set_exponent) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-
-      icontmax = ncont_tot_gb(basis)
-      myucont = sf_ibs_cn2ucn(icont,basis)
-
-      bas_set_exponent = icont.ge.0.and.icont.le.icontmax
-      if (.not.(bas_set_exponent)) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' contraction range for basis is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      bas_set_exponent = myprim.eq.nexp
-      if (.not.bas_set_exponent) then
-        write(6,*)' bas_set_exponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
-     &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
-        return
-      endif
-      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,basis)),1)
-c
-      bas_set_exponent = .true.
-c
-      return
-      end
-*.....................................................................
-      logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
-c
-c sets the coefficients of the given mapped contraction
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_ibs_dec.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical bas_check_handle
-      external bas_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer basisin ! [input] basis set handle                   
-      integer icont ! [input] mapped contraction index           
-      integer ncoeff ! [input] number of coeffs. for contraction
-      double precision coeff(ncoeff) ! [input] "new" coeffs. 
-*. . . . . . . . . . . . . . . . . .            for contraction    
-c::local
-      integer basis, myucont, icontmax
-      integer mycoeffptr, myprim, mygen
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      bas_set_coeff = bas_check_handle(basisin,'bas_set_coeff')
-      if (.not.bas_set_coeff) return
-
-      basis = basisin + BASIS_HANDLE_OFFSET 
-c
-      icontmax = ncont_tot_gb(basis)
-      myucont = sf_ibs_cn2ucn(icont,basis)
-
-      bas_set_coeff = icont.ge.0.and.icont.le.icontmax
-      if (.not.(bas_set_coeff)) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' contraction range for basis is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
-      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
-c
-      bas_set_coeff = ncoeff .eq. (myprim*mygen)
-      if(.not.bas_set_coeff) then
-        write(6,*)' bas_set_coeff: ERROR '
-        write(6,*)' input and stored number of coefficients ',
-     &         '(nprim*ngen) differ '
-        write(6,*)' input  nprim*ngen: ',ncoeff
-        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
-        return
-      endif
-      call dcopy(ncoeff,coeff,1,dbl_mb(mb_exndcf(mycoeffptr,basis)),1)
-c
-      bas_set_coeff = .true.
-c
       return
       end
 *.....................................................................
@@ -2669,7 +2564,7 @@ c
         return
       endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       if (nbfmax_bs(basis) .gt. -565) then
         nbf_max = nbfmax_bs(basis)
         bas_nbf_cn_max = .true.
@@ -2720,7 +2615,7 @@ c
         return
       endif
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
       bas_nbf_ce_max = geom_ncent(ibs_geom(basis),mynat)
       if (mynat.le.0.or. .not.bas_nbf_ce_max) then
@@ -2763,7 +2658,7 @@ c
       if (.not.bas_check_handle(basisin,'bas_geom'))
      & call errquit('bas_geom: handle invalid',911)
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
       geom = ibs_geom(basis)
       bas_geom = .true.
@@ -2779,7 +2674,7 @@ c
       integer basis
       integer nu_cont, iu_cont, my_prim, my_gen
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       if (.not.bsactive(basis)) call errquit
      &    ('bas_ncoef_cn_max: basis handle invalid',911)
       nu_cont = infbs_head(HEAD_NCONT,basis)
@@ -2803,7 +2698,7 @@ c
       integer basis
       integer nu_cont, iu_cont, my_prim
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       if (.not.bsactive(basis)) call errquit
      &    ('bas_nprim_cn_max: basis handle invalid',911)
       nu_cont = infbs_head(HEAD_NCONT,basis)
@@ -2825,7 +2720,7 @@ c
 c
       integer basis
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       norm_id = bas_norm_id(basis)
       bas_norm_get = norm_id.ge.BasNorm_lo.and.norm_id.le.BasNorm_hi
       end
@@ -2840,7 +2735,7 @@ c
 c
       integer basis
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
 c
       if (norm_id.ge.BasNorm_lo.and.norm_id.le.BasNorm_hi) then
         bas_norm_id(basis) = norm_id
@@ -2860,7 +2755,7 @@ c
 c
       integer basis, norm_id
 c
-      basis = basisin + BASIS_HANDLE_OFFSET
+      basis = basisin + Basis_Handle_Offset
       norm_id = bas_norm_id(basis)
       bas_norm_print = .true.
       if      (norm_id.eq.BasNorm_UN)  then
@@ -2878,121 +2773,6 @@ c
       endif
       end
 *.....................................................................
-      logical function ecp_get_rexponent(ecpin,icont,exp)
-c
-c returns the r-exponents of a given mapped contraction
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_exndcf_dec.fh"
-#include "bas_ibs_dec.fh"
-c::function
-      logical ecp_check_handle
-      external ecp_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer ecpin         ! [input] ecp set handle
-      integer icont           ! [input] mapped contraction index
-      double precision exp(*) ! [output] exponents
-c::local
-      integer ecp, myucont, icontmax
-      integer myprim,myexptr
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      ecp_get_rexponent = ecp_check_handle(ecpin,'ecp_get_rexponent')
-      if (.not.ecp_get_rexponent) return
-
-      ecp = ecpin + BASIS_HANDLE_OFFSET 
-      icontmax = ncont_tot_gb(ecp)
-      myucont = sf_ibs_cn2ucn(icont,ecp)
-      ecp_get_rexponent = icont.ge.0.and.icont.le.icontmax
-      if (.not.(ecp_get_rexponent)) then
-        write(6,*)' ecp_get_rexponent: ERROR '
-        write(6,*)' contraction range for ecp is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IREXP,myucont,ecp)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,ecp)
-      call dcopy(myprim,dbl_mb(mb_exndcf(myexptr,ecp)),1,exp,1)
-c
-      ecp_get_rexponent = .true.
-c
-      return
-      end
-      
-*.....................................................................
-      logical function ecp_set_rexponent(ecpin,icont,exp,nexp)
-c
-c sets the exponents to the input array for a given mapped contraction
-c
-      implicit none
-#include "mafdecls.fh"
-#include "basP.fh"
-#include "geobasmapP.fh"
-#include "basdeclsP.fh"
-#include "bas_ibs_dec.fh"
-#include "bas_exndcf_dec.fh"
-c::function
-      logical ecp_check_handle
-      external ecp_check_handle
-c:blas
-c     dcopy
-c::passed
-      integer ecpin ! [input] ecp set handle        
-      integer icont ! [input] mapped contraction index
-      integer nexp ! [input] number of exponents for contraction
-      double precision exp(nexp) ! [input] "new" r-exponents 
-*. . . . . . . . . . . . . . . .            for contraction    
-c::local
-      integer ecp, myucont, icontmax
-      integer myprim,myexptr
-c:: statement functions
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
-      ecp_set_rexponent = ecp_check_handle(ecpin,'ecp_set_rexponent')
-      if (.not.ecp_set_rexponent) return
-
-      ecp = ecpin + BASIS_HANDLE_OFFSET 
-
-      icontmax = ncont_tot_gb(ecp)
-      myucont = sf_ibs_cn2ucn(icont,ecp)
-
-      ecp_set_rexponent = icont.ge.0.and.icont.le.icontmax
-      if (.not.(ecp_set_rexponent)) then
-        write(6,*)' ecp_set_rexponent: ERROR '
-        write(6,*)' contraction range for ecp is 0:',
-     &         icontmax
-        write(6,*)' information requested for contraction:',icont
-        return
-      endif
-c
-      myexptr = infbs_cont(CONT_IEXP,myucont,ecp)
-      myprim  = infbs_cont(CONT_NPRIM,myucont,ecp)
-      ecp_set_rexponent = myprim.eq.nexp
-      if (.not.ecp_set_rexponent) then
-        write(6,*)' ecp_set_rexponent: ERROR '
-        write(6,*)' input and stored number of exponents ',
-     &         '(nprim) differ '
-        write(6,*)' input  nprim: ',nexp
-        write(6,*)' stored nprim: ',myprim
-        return
-      endif
-      call dcopy(nexp,exp,1,dbl_mb(mb_exndcf(myexptr,ecp)),1)
-c
-      ecp_set_rexponent = .true.
-c
-      return
-      end
       logical function ecp_print(ecpidin)
 c
 c routine to print unique ecpid information that is in core
@@ -3031,7 +2811,7 @@ c
       ctype(5) ='U-h'
       ctype(6) ='U-i'
       ecp_print = .true.
-      ecpid = ecpidin + BASIS_HANDLE_OFFSET
+      ecpid = ecpidin + Basis_Handle_Offset
 c
       ecp_print = ecp_check_handle(ecpidin,'ecp_print')
       if (.not. ecp_print) return
@@ -3114,7 +2894,7 @@ c
       integer basisin
       character*(*) ecp_name
 c
-      ecp_name_assoc((basisin+basis_handle_offset)) =
+      ecp_name_assoc((basisin+Basis_Handle_Offset)) =
      &    ecp_name
       bas_set_ecp_name = .true.
       end
@@ -3126,7 +2906,7 @@ c
       character*(*) ecp_name
 c
       ecp_name =
-     &    ecp_name_assoc((basisin+basis_handle_offset)) 
+     &    ecp_name_assoc((basisin+Basis_Handle_Offset)) 
       bas_get_ecp_name = .true.
       end
 *.....................................................................
@@ -3136,7 +2916,7 @@ c
       integer basisin
       integer ecp_handle
 c
-      ecp_handle_assoc((basisin+basis_handle_offset)) =
+      ecp_handle_assoc((basisin+Basis_Handle_Offset)) =
      &    ecp_handle
       bas_set_ecp_handle = .true.
       end
@@ -3148,7 +2928,7 @@ c
       integer ecp_handle
 c
       ecp_handle =
-     &    ecp_handle_assoc((basisin+basis_handle_offset)) 
+     &    ecp_handle_assoc((basisin+Basis_Handle_Offset)) 
       if (ecp_handle.ne.0) then
         bas_get_ecp_handle = .true.
       else
@@ -3171,7 +2951,7 @@ c
       if (.not.ecp_check_handle(ecp_handle,'ecp_set_parent_handle'))
      &      call errquit
      &      ('ecp_set_parent_handle: ecp_handle invalid',911)
-      ecp_parent_assoc(ecp_handle+basis_handle_offset) =
+      ecp_parent_assoc(ecp_handle+Basis_Handle_Offset) =
      &      basis_handle
       ecp_set_parent_handle = .true.
       end
@@ -3188,7 +2968,7 @@ c
       if (.not.ecp_check_handle(ecp_handle,'ecp_get_parent_handle'))
      &      call errquit
      &      ('ecp_get_parent_handle: ecp_handle invalid',911)
-      basis_handle = ecp_parent_assoc(ecp_handle+basis_handle_offset)
+      basis_handle = ecp_parent_assoc(ecp_handle+Basis_Handle_Offset)
       if (basis_handle.ne.0) then
         ecp_get_parent_handle = .true.
       else
@@ -3316,7 +3096,7 @@ c
 c
       bas_match_tags = .false.
 c
-      basis = basisin+basis_handle_offset
+      basis = basisin+Basis_Handle_Offset
 c
       gstring = tag_from_geom               !  copy tag to work on it
 c

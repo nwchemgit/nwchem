@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.16 1997-02-17 17:50:16 d3g681 Exp $
+c $Id: bas.fh,v 1.17 1997-04-02 00:42:05 d3e129 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -8,6 +8,7 @@ c
       logical bas_check_handle   
       logical bas_321g_load      
       logical bas_print          
+      logical bas_summary_print          
       logical bas_rtdb_load      
       logical bas_rtdb_store     
       logical bas_rtdb_do_store  
@@ -67,6 +68,7 @@ c
       external bas_check_handle   
       external bas_321g_load      
       external bas_print          
+      external bas_summary_print          
       external bas_rtdb_load      
       external bas_rtdb_store     
       external bas_rtdb_do_store  

@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.29 1997-03-30 22:34:05 d3g681 Exp $
+c $Id: bas_input.F,v 1.30 1997-04-02 00:42:07 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -40,7 +40,7 @@ c::passed
       integer rtdb              ! [input] handle to database
 c::local
       integer nopt
-      parameter (nopt = 9)
+      parameter (nopt = 10)
       character*10 opts(nopt)
       integer num_main_dir
       parameter (num_main_dir=2)     ! basis or ecp
@@ -53,7 +53,7 @@ c::local
       external bas_add_ucnt_init, bas_set_spherical
       data main_directives /'basis','ecp  '/
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
-     $     'library', 'file', 'print', 'noprint', 'ecpset'/
+     $     'library', 'file', 'print', 'noprint', 'ecpset', 'version'/
 c
       ecpname = '                                                '
 c
@@ -100,7 +100,7 @@ c
             goto 10
          endif
 c
-         goto (100, 200, 300, 400, 500, 600, 700, 800, 900) ind
+         goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000) ind
          goto 10000
 c
 c     spherical
@@ -153,6 +153,13 @@ c
          endif
          goto 10
 c
+c print basis version info
+c
+01000    continue
+         if (.not.bas_version()) call errquit
+     &       ('bas_input: bas_version failed ',911)
+         goto 10
+c
       endif
 c
 c     Now check reality against input
@@ -200,6 +207,8 @@ c
          if (.not. bas_print(basis))
      $        call errquit('bas_input: print failed', 0)
       endif
+      if (.not.bas_summary_print(basis))
+     &    call errquit('bas_input: summary print failed',911)
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
      $     ('bas_input: failed to store basis', 0)
@@ -331,7 +340,7 @@ c
 *debug:               write(6,*)' basis    = ',basis
 *debug:               write(6,*)' tag      = ',tag
 *debug:               write(6,*)' num_elec = ',num_elec
-               if (.not.ecp_set_num_elec(basis,tag,num_elec))
+               if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
      &             call errquit
      &             ('bas_input_body: ecp_set_num_elec failed',911)
 *. . . . no more input allowed on line so no goto 22 structure needed?
@@ -354,7 +363,7 @@ c
 c     Fall thru to here to read in a set of contraction coefficients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    oIs_ecp)
+     &    'user specified', oIs_ecp)
 c
 c     Have already read in the next line ... parse it
 c
@@ -381,7 +390,7 @@ c
 c
       end
 *.....................................................................
-      subroutine bas_input_cont(basis, osegment, tag, l_value,
+      subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag,
      &    oIs_ecp)
       implicit none
 #include "stdio.fh"
@@ -394,8 +403,9 @@ c::functions
 c
       integer basis             ! [input] basis set handle
       logical osegment          ! [input] segment the basis set?
-      character*16 tag          ! [input]
-      integer l_value           ! [input]
+      character*16 tag          ! [input] tag string
+      integer l_value           ! [input] l value of contraction
+      character*(*) stdtag      ! [input] standard name
       logical oIs_ecp            ! [input] is this an ecp basis
 c
       integer ngen, iprim, nprim, i, j, nptmp
@@ -520,16 +530,19 @@ c     simple shell or all ecp shells
             enddo
             status = status .and.
      $          bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
-     $          rex_tmp, etmp, ctmp, prim_max,  oIs_ecp)
+     $          rex_tmp, etmp, ctmp, prim_max,
+     &          stdtag, oIs_ecp)
           enddo
         else
 c     sp shell
           status = status .and.
      $        bas_add_ucnt(basis, tag, 0, 1, nprim, 
-     $        rex, expnt, coeff(1,1), prim_max, oIs_ecp)
+     $        rex, expnt, coeff(1,1), prim_max,
+     &        stdtag, oIs_ecp)
           status = status .and.
      $        bas_add_ucnt(basis, tag, 1, 1, nprim, 
-     $        rex, expnt, coeff(1,2), prim_max, oIs_ecp)
+     $        rex, expnt, coeff(1,2), prim_max,
+     &        stdtag, oIs_ecp)
         endif
       else
 c     
@@ -537,7 +550,8 @@ c     Add as a single general contraction or sp shell
 c     
         status = status .and.
      $      bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
-     $      rex, expnt, coeff, prim_max, oIs_ecp)
+     $      rex, expnt, coeff, prim_max,
+     &      stdtag, oIs_ecp)
       endif
       if (.not. status) call errquit
      $        ('bas_input_cont: bas_add_ucnt failed!!', 0)
@@ -675,7 +689,8 @@ c
 c
 c     Have tag and l_value ... read in the contraction coeffcients
 c
-      call bas_input_cont(basis, osegment, tag, l_value, oIs_ecp)
+      call bas_input_cont(basis, osegment, tag, l_value,
+     &    standard, oIs_ecp)
       goto 20
 c
  9000 close(33)
