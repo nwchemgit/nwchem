@@ -1,8 +1,8 @@
-c $Id: int_1epvpe.F,v 1.1 1999-11-02 19:38:40 bert Exp $
+c $Id: int_1epvpe.F,v 1.2 1999-12-30 22:18:36 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1epvpe}
-c:tex-This routine computes the 1 electron double derivative kinetic energy integrals pVp, ($T$).:
+c:tex-This routine computes the 1 electron double derivative potential energy integrals pVp :
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
@@ -150,7 +150,7 @@ c       call errquit('int_1epvpe: could not do hnd, dyall integrals',
 c    &                0)
 c     endif
 c
-*     Ke now has the cartesian integral block  (jlo:jhi,ilo:ihi)
+*     pvpe now has the cartesian integral block  (jlo:jhi,ilo:ihi)
 *      
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
       if (.not.any_spherical) return

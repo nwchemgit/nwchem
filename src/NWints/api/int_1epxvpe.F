@@ -1,8 +1,8 @@
-c $Id: int_1epxvpe.F,v 1.1 1999-12-08 01:14:54 bert Exp $
+c $Id: int_1epxvpe.F,v 1.2 1999-12-30 22:19:28 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1epxvpe}
-c:tex-This routine computes the 1 electron double derivative kinetic energy integrals pxVp, ($T$).:
+c:tex-This routine computes the 1 electron double derivative potential energy integrals pxVp.
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
