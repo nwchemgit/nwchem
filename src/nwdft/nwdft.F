@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.39 1999-02-10 20:11:58 d3g681 Exp $
+C$Id: nwdft.F,v 1.40 1999-02-14 04:46:24 d3g681 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -150,7 +150,7 @@ c
 c     terminate integrals 
 c     
       call int_terminate
-      call int_app_unset_no_texas(rtdb)
+      if (i3 .gt. 1) call int_app_unset_no_texas(rtdb)
 c
 c     Go here if already converged
 c
