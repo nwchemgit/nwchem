@@ -50,10 +50,10 @@ c
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if (inp_compare(.false.,'loose', field)) then
-         gmax_tol = 0.0045d0    !10*default
-         grms_tol = 0.0030d0    !10*default
-         xmax_tol = 0.0054d0    !30*default
-         xrms_tol = 0.0036d0    !30*default
+         gmax_tol = 0.0045d0    ! default*10
+         grms_tol = 0.0030d0    ! default*10
+         xmax_tol = 0.0180d0    ! default*10
+         xrms_tol = 0.0120d0    ! default*10
          if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
          if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
@@ -66,8 +66,8 @@ c
       else if (inp_compare(.false.,'default', field)) then
          gmax_tol = 0.00045d0
          grms_tol = 0.00030d0
-         xmax_tol = 0.00018d0
-         xrms_tol = 0.00012d0
+         xmax_tol = 0.00180d0
+         xrms_tol = 0.00120d0
          if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
          if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
@@ -78,10 +78,10 @@ c
      $        call errquit('driver_input: rtdb put failed',0)
 c
       else if (inp_compare(.false.,'tight', field)) then
-         gmax_tol = 0.000015d0
-         grms_tol = 0.00001d0
-         xmax_tol = 0.00006d0
-         xrms_tol = 0.00004d0
+         gmax_tol = 0.000015d0  ! default / 30
+         grms_tol = 0.00001d0   ! default / 30
+         xmax_tol = 0.00006d0   ! default / 30
+         xrms_tol = 0.00004d0   ! default / 30
          if (.not. rtdb_put(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $        call errquit('driver_input: rtdb put failed',0)
          if (.not. rtdb_put(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))

@@ -306,6 +306,7 @@ c
 c
       old_hessian=.false.
       if(inhess.ne.1) call driver_opt_check_hess(nvar, old_hessian)
+      if (oprint) write(6,*)
       if (old_hessian) then
          if (oprint) write(6,*) 'Using old Hessian from',
      $        ' previous optimization'
@@ -317,7 +318,7 @@ c
      $        ' calculation'
          goto 999
       else
-         if (oprint) write(6,*) ' Using diagonal initial Hessian '
+         if (oprint) write(6,*) 'Using diagonal initial Hessian '
       endif
 c
       if (.not. zcoord) then
@@ -2344,7 +2345,10 @@ c     Default first step is uphill ... makes most sense if we have
 c     just done a constrained optimization.  Screen out just the
 c     largest few components.
 c
-            tmp1 = abs(pg(idamax(nvar,pg,1))) / 3d0
+c     Screening with just /3d0 fails for Claisen rearrangement 
+c     case in peng & schelgel using some coord systems.
+c
+            tmp1 = abs(pg(idamax(nvar,pg,1))) / 10d0
             do i = 1, nvar
                saddir(i) = 0d0
                if (abs(pg(i)) .gt. tmp1) saddir(i) = pg(i)
@@ -2385,7 +2389,7 @@ c
          endif
 c     
          ntest = nvar
-         if (omatchneg .and. (negeig.gt.0) .and. (evalp.lt.0d0)) then
+         if (omatchneg .and. (negeig.gt.1) .and. (evalp.lt.0d0)) then
             if (oprint) write(6,*) 
      $           'Maximum overlap only with negative modes'
             ntest = negeig
@@ -2434,12 +2438,17 @@ c
       if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)) 
      $     call errquit('driver_sad_search_dir: rtdb?',0)
 c     
+c     First step might be uphill or along a variable.  Otherwise
+c     we take the approx. augmented newton step forcing uphill
+c     motion along the identified mode.
+c
       if (moddir .gt. 0) then
 c     
 c     Form the step applying trust radius on each mode.
 c     Augmented Hessian step is similar to replacing
 c     eigenvalue e(i) with (e(i) + gv(i)**2/e(i))
 c     
+         call dfill(nvar, 0d0, dv, 1)
          do i = 1, nvar
             if (i .eq. moddir) then
                if (e(i) .ge. 0d0) then ! +ve curvature ... fixed step uphill
