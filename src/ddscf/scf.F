@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.27 1995-05-22 22:28:30 vg038 Exp $
+C$Id: scf.F,v 1.28 1995-05-24 17:46:27 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -27,7 +27,7 @@ c
       logical oprint
       character*255 name
 c
-      integer natoms
+      integer natoms, Nff
       logical rohf, uhf, riscf_init
       external rohf, uhf, riscf_init
 c
@@ -65,12 +65,13 @@ c
          if (.not. geom_ncent(geom, natoms)) call errquit
      $        ('scf: geom_ncent failed', 0)
 c
-         write(6,1) trans(1:inp_strlen(trans)), nbf, natoms,
-     $        nclosed, nopen, nelec, nalpha, nbeta, charge,
-     $        scftype,
-     $        movecs_in(1:inp_strlen(movecs_in)),
-     $        movecs_out(1:inp_strlen(movecs_out)), oskel
- 1       format(/
+         if ( nriscf.eq.0 ) then
+           write(6,1) trans(1:inp_strlen(trans)), nbf, natoms,
+     $          nclosed, nopen, nelec, nalpha, nbeta, charge,
+     $          scftype,
+     $          movecs_in(1:inp_strlen(movecs_in)),
+     $          movecs_out(1:inp_strlen(movecs_out)), oskel
+ 1         format(/
      $        '  ao basis        = "',a,'"'/
      $        '  functions       = ', i5/
      $        '  atoms           = ', i5/
@@ -84,6 +85,29 @@ c
      $        '  input vectors   = ', a/
      $        '  output vectors  = ', a/
      $        '  use symmetry    = ', l1/)
+         else
+           status = bas_numbf (riscf_basis, Nff)
+           write(6,2) trans(1:inp_strlen(trans)), nbf, Nff, natoms,
+     $          nclosed, nopen, nelec, nalpha, nbeta, charge,
+     $          scftype,
+     $          movecs_in(1:inp_strlen(movecs_in)),
+     $          movecs_out(1:inp_strlen(movecs_out))
+ 2         format(/
+     $        '  ao basis        = "',a,'"'/
+     $        '  functions       = ', i5//
+     $        '  riscf basis',       /
+     $        '  functions       = ', i5//
+     $        '  atoms           = ', i5/
+     $        '  closed shells   = ', i5/
+     $        '  open shells     = ', i5/
+     $        '  total electrons = ', i5/
+     $        '  alpha electrons = ', i5/
+     $        '  beta  electrons = ', i5/
+     $        '  charge          = ', f6.2//
+     $        '  wavefunction    = ', a/
+     $        '  input vectors   = ', a/
+     $        '  output vectors  = ', a)
+         endif
          call util_flush(6)
       endif
 c
