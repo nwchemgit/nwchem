@@ -28,6 +28,8 @@ c
      $     ps_vcoul)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:bld12', pstat_qstat, 0, junk,
      $     ps_bld12)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:ssw', pstat_qstat, 0, junk,
+     $     ps_ssw)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:diis', pstat_qstat, 0, junk,
      $     ps_diis)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fockb', pstat_qstat, 0, junk,
@@ -69,6 +71,7 @@ c
          if (.not. pstat_free(ps_vcoul))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_scfdft))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_bld12))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_ssw))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_dft))call errquit('dft_pstat?', 0,0)
 c
       endif
