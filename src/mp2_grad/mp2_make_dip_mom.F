@@ -1,7 +1,7 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 *
-* $Id: mp2_make_dip_mom.F,v 1.6 1997-03-27 08:49:56 d3e129 Exp $
+* $Id: mp2_make_dip_mom.F,v 1.7 1997-04-11 18:41:14 d3g681 Exp $
 *
       implicit none
 #include "util.fh"
@@ -102,7 +102,7 @@ c
 c
       if (.not. rtdb_put(rtdb,'mp2:dipole',mt_dbl,3,ndip))
      $     call errquit('mp2_dipole: database is corrupt',0)
-      call ecce_print1('total dipole', mt_dbl, ndip, 1)
+      call ecce_print1('total dipole', mt_dbl, ndip, 3)
 c
       end
 
