@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.4 1999-06-16 00:10:14 d3e129 Exp $
+C     $Id: rohf_diis.F,v 1.5 2000-05-07 05:33:33 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -47,6 +47,13 @@ c     Functions
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked, ga_iter_lsolve
+c
+c     cosmo code
+c
+      logical odbug
+      logical ocosmo
+      logical osome
+      double precision ecosmo
 c     
       vlen = crohf_vlen
       aoff = nclosed + 1
@@ -121,6 +128,24 @@ c
       ndiis = 0
       call ga_zero(g_err)
       do iter=1,maxiter
+c
+c     ----- cosmo charges and energy contribution -----
+c
+        if(ga_nodeid().eq.0) then
+           if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+              if(ocosmo) then
+                 odbug=.false.
+                 if(odbug) then
+                    osome=.true.
+                 else
+                    osome=.false.
+                 endif
+                 call cosmo_charges(rtdb,basis,ecosmo,osome)
+              endif
+           endif
+        endif
+        call ga_sync()
+c
         call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad)
         gnorm = sqrt(ga_ddot(g_grad, g_grad))
         converged = (gnorm.lt.gnorm_tol)
