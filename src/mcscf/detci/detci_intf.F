@@ -991,9 +991,9 @@ c
       integer ij, rij, kl, rkl
       integer ijsym, ijklsym, nmixed
       double precision TOL
-      data TOL/1.d-9/
 #include "symmdef.fh"
 #include "symmmul.fh"
+      data TOL/1.d-9/
 c      
       nmixed = 0
       do i=1,norb
