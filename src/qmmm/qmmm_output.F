@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.8 2004-12-01 18:31:01 marat Exp $
+c $Id: qmmm_output.F,v 1.9 2005-01-12 19:51:30 edo Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -12,28 +12,29 @@ c
 #include "rtdb.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "stdio.fh"
 
       character*48 string
 
       if(ga_nodeid().eq.0) then
       
         string = "     NWChem QM/MM Interface Module"
-        call banner(6, 
+        call banner(luout, 
      >      string,
      >      "*", .true. , .false., .true.)
         string = " "
-        call banner(6, 
+        call banner(luout, 
      >      string,
      >      "*", .false., .false., .true.)
 
         string = "     Developed Marat Valiev 2004"
-        call banner(6, 
+        call banner(luout, 
      >      string,
      >      "*", .false., .true., .true.)
         
+        call util_flush(luout)
       end if
       
-      call util_flush(6)
 
       end
 
@@ -46,6 +47,7 @@ c
 #include "qmmm_params.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "stdio.fh"
 
       integer irtdb
 c
@@ -91,40 +93,42 @@ c
 
       if(.not.qmmm_master()) return
 
-      call util_print_centered(6,"QM/MM Interface Parameters",32,.true.)
+      call util_print_centered(luout,
+     A     "QM/MM Interface Parameters",32,.true.)
 
       tag = "qmmm:uqmatm"
-      write(6,20) "reference energy",tag,eatoms
+      write(luout,20) "reference energy",tag,eatoms
 
       tag = "qmmm:fixlinks"
-      write(6,21) "fixed link bonds",tag,fixlinks
+      write(luout,21) "fixed link bonds",tag,fixlinks
 
 
       tag ="qmmm:fixqm" 
-      write(6,21) "fixed qm region",tag,fixqm
+      write(luout,21) "fixed qm region",tag,fixqm
 
       tag ="qmmm:bq_exclude" 
       if(bq_exclude.eq.qmmm_hydrogen) then
-        write(6,22) "excluded bq's",tag,"hydrogens bonded to link atoms"
+        write(luout,22) "excluded bq's",tag,
+     V        "hydrogens bonded to link atoms"
       else if(bq_exclude.eq.qmmm_all_atoms) then
-        write(6,22) "excluded bq's",tag,"all"
+        write(luout,22) "excluded bq's",tag,"all"
       else if(bq_exclude.eq.qmmm_no_atoms) then
-        write(6,22) "excluded bq's",tag,"none"
+        write(luout,22) "excluded bq's",tag,"none"
       else
         call errquit(pname//'invalid bq_exclude',0,RTDB_ERR)
       end if
       
       tag ="qmmm:linkatm" 
       if(linkatm.eq.qmmm_hydrogen) then
-        write(6,22) "link atom type",tag,"hydrogens"
+        write(luout,22) "link atom type",tag,"hydrogens"
       else if(linkatm.eq.qmmm_halogen) then
-        write(6,22) "link atom type",tag,"halogens"
+        write(luout,22) "link atom type",tag,"halogens"
       else
         call errquit(pname//'invalid link atom type',0,RTDB_ERR)
       end if
 
       tag ="qmmm:optimization"
-      write(6,22) "optimization region",tag,optimization
+      write(luout,22) "optimization region",tag,optimization
 
 
 20    FORMAT(A,T24,A,T46,F12.6)
