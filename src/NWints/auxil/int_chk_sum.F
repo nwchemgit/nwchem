@@ -1,5 +1,5 @@
       subroutine int_chk_sum(rtdb,basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.14 1995-01-18 00:27:20 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.15 1995-05-12 08:08:05 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -34,7 +34,6 @@ c
       integer plevel
 c
       integer me, nproc, idoit
-      double precision x1, x2, x3
 c      
       data debug /.false./
       data plevel /0/
@@ -115,9 +114,12 @@ c
         do 00200 j = 1,i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
-            call int_1eov(basisin,i,basisin,j,
-     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
-            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*            call int_1eov(basisin,i,basisin,j,
+*     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+*     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            call int_l1eov(basisin,i,basisin,j,1.0d-08,
      &          int_mb(i_ilab),int_mb(i_jlab),memb,
      &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
             if(print_ints.and.me.eq.0)
@@ -151,9 +153,12 @@ c
         do 00201 j = 1,i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
-            call int_1eke(basisin,i,basisin,j,
-     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
-            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*            call int_1eke(basisin,i,basisin,j,
+*     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+*     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            call int_l1eke(basisin,i,basisin,j,1.0d-08,
      &          int_mb(i_ilab),int_mb(i_jlab),memb,
      &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
             if(print_ints.and.me.eq.0)
@@ -186,9 +191,12 @@ c
         do 00202 j = 1,i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
-            call int_1epe(basisin,i,basisin,j,
-     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
-            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*            call int_1epe(basisin,i,basisin,j,
+*     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+*     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            call int_l1epe(basisin,i,basisin,j,1.0d-08,
      &          int_mb(i_ilab),int_mb(i_jlab),memb,
      &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
             if(print_ints.and.me.eq.0)
@@ -221,9 +229,12 @@ c
         do 00203 j = 1,i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
-            call int_1eh1(basisin,i,basisin,j,
-     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
-            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*            call int_1eh1(basisin,i,basisin,j,
+*     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+*     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+*     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            call int_l1eh1(basisin,i,basisin,j,1.0d-08,
      &          int_mb(i_ilab),int_mb(i_jlab),memb,
      &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
             if(print_ints.and.me.eq.0)
@@ -264,8 +275,8 @@ c
             do 04000 l = 1, lend
               idoit = idoit + 1
               if(mod(idoit,nproc).eq.0) then
-                call int_2e4c(basisin,i,j,basisin,k,l,
-     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*                call int_2e4c(basisin,i,j,basisin,k,l,
+*     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
                 call int_l2e4c(basisin,i,j,basisin,k,l,
      &              1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
      &              int_mb(i_ilab),int_mb(i_jlab),
@@ -306,8 +317,8 @@ c
           do 03001 k = 1, j
             idoit = idoit + 1
             if(mod(idoit,nproc).eq.0) then
-              call int_2e3c(basisin,i,basisin,j,k,
-     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
+*              call int_2e3c(basisin,i,basisin,j,k,
+*     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
               call int_l2e3c(basisin,i,basisin,j,k,
      &            1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
      &            int_mb(i_ilab),int_mb(i_jlab),
@@ -347,11 +358,8 @@ c
         do 02002 j = 1, i
           idoit = idoit + 1
           if(mod(idoit,nproc).eq.0) then
-            call int_2e2c(basisin,i,basisin,j,
-     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
-            x1 = dbl_mb(imemb)
-            x2 = dbl_mb(imemb+1)
-            x3 = dbl_mb(imemb+2)
+*            call int_2e2c(basisin,i,basisin,j,
+*     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
             call int_l2e2c(basisin,i,basisin,j,
      &          1.0d-08,memb,dbl_mb(imemb),numleft,
      &          int_mb(i_ilab),int_mb(i_jlab),
@@ -384,34 +392,6 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &       call errquit('int_chk_sum: error poping memory stack',0)
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
-      call ga_sync()
       call ga_sync()
       call ga_sync()
       end
