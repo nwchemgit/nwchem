@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1996-01-17 22:03:55 d3e129 Exp $
+# $Id: GNUmakefile,v 1.20 1996-03-14 08:02:51 rg240 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
@@ -10,6 +10,7 @@
                    hferi.o hfkei.o hfmke.o hfmkr.o \
                    hfnai.o hfset.o igamma.o hf_print.o \
                    hfreord_pq.o hf1_tran.o
+   USES_BLAS     = hf2oi.f hfkei.f hfnai.f
 
   LIB_TARGETS = showxyz showxyz.o
   LIBRARY = libnwints.a
