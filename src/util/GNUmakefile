@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.111 2000-02-08 23:07:39 bjohnson Exp $
+# $Id: GNUmakefile,v 1.112 2000-05-10 22:55:39 edo Exp $
 
 include ../config/makefile.h
 
@@ -37,6 +37,9 @@ endif
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
   LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+endif
+ifeq ($(TARGET),IBM64)
+  EXTRA_OBJ = ibm_cputime.o
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS))
