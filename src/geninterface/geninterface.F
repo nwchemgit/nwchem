@@ -1,10 +1,10 @@
 C
-C $Id: geninterface.F,v 1.9 2003-11-12 20:22:49 yuri Exp $
+C $Id: geninterface.F,v 1.10 2004-04-30 18:12:23 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
       Subroutine initialize_qm(theory, basis, natom, 
-     $    coordinates, labels, charge, printName)
+     $    coordinates, labels, charge, printName, stack, heap, global)
 
       implicit none
 
@@ -48,6 +48,10 @@ C      call flush(6)
 C YA: Broadcast charge
       call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
       call ga_brdcst(MT_BYTE, printName, 256, 0)
+C PA Broadcast Memory parameters
+      call ga_brdcst(MT_INT, stack, mitob(1), 0) 
+      call ga_brdcst(MT_INT, heap, mitob(1), 0)
+      call ga_brdcst(MT_INT, global, mitob(1), 0)
 
       numatoms = natom
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
@@ -71,14 +75,14 @@ C  Set up memory environment
 !      call input_mem_size(stack, heap, global, overify, ohardfail)
 
 C YA: Hardwire memory limits assuming total equal 1800.0 Mbytes
-       stack = 58982399
-       heap = 58982386
-       global = 117964800
+c       stack = 58982399
+c       heap = 58982386
+c       global = 117964800
 
        overify = .true.
        ohardfail = .true.
-       write (6,*) 'stack=',stack,' heap=',heap,' global=',global,
-     *            ' overify=', overify,' ohardfail=',ohardfail
+c       write (6,*) 'stack=',stack,' heap=',heap,' global=',global,
+c     *            ' overify=', overify,' ohardfail=',ohardfail
 !      call ga_initialize()
       if ( ga_uses_ma() ) then
         if (.not.ma_init(mt_dbl, stack, heap+global))
@@ -134,14 +138,14 @@ C  Process charge and put into rtdb
 
 C  Process print type and put into rtdb
 
-      write (6,*) 'printName=',printName, ga_nodeid()
+c      write (6,*) 'printName=',printName, ga_nodeid()
 C      i = rtdb_parallel(0)
 C      if (ga_nodeid().eq.0) then
        if (.not. setPrint(printName))
      $     call errquit('initialize_qm: setPrint failed', 555)
 C      end if
 C      i = rtdb_parallel(i)
-      write (6,*) 'after printName=',printName, ga_nodeid()
+c      write (6,*) 'after printName=',printName, ga_nodeid()
 
 C  Process molecule input and put into rtdb
 
@@ -150,7 +154,7 @@ C  Process molecule input and put into rtdb
      $     ('initialize_qm:setInitCoordinates failed',555)
 
 c      initialize_qm = .true.
-       write(6,*)'Initalize called'
+c       write(6,*)'Initalize called'
       return
       end
 C
@@ -280,7 +284,7 @@ C
      $     call errquit
      $     ('setInitCoordinates:: failed getting user scale',0)
 
-      write(6,*) 'numatoms is in setCoordinates', numatoms
+c      write(6,*) 'numatoms is in setCoordinates', numatoms
       call flush(6)
       if (scale.ne.1.0d0) 
      $   call dscal(3*numatoms, scale, coords, 1)
@@ -295,7 +299,7 @@ C
       if (.not.geom_destroy(geom))
      $      call errquit('setCoordinates: geom_destroy failed',555,0)
 
-      write(6,*) 'numatoms at end of setCoordinates', numatoms
+c      write(6,*) 'numatoms at end of setCoordinates', numatoms
       call flush(6)
       setCoordinates = .true.
 
