@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.15 1997-02-17 07:12:29 d3h449 Exp $
+c     $Id: dft_input.F,v 1.16 1997-02-17 17:58:32 d3g681 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -53,8 +53,8 @@ c
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      $     call errquit('dft_input: unknown directive', 0)
 c     
-      write(6,*)' test = ',test     
-      write(6,*)' ind = ',ind     
+*      write(6,*)' test = ',test     
+*      write(6,*)' ind = ',ind     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 9999) ind
