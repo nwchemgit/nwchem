@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.32 1995-10-10 06:11:13 d3g681 Exp $
+C$Id: scf.F,v 1.33 1995-10-17 05:53:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -97,7 +97,7 @@ c
      $        '  output vectors  = ', a/
      $        '  use symmetry    = ', l1/
      $        '  symmetry adapt  = ', l1/)
-         if (oadapt) then
+         if (oadapt .and. util_print('basis sym', print_default)) then
             call sym_bas_irreps(basis, .true., nbf_per_ir)
          endif
          call util_flush(6)
