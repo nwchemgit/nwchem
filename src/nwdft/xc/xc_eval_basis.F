@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.1 2000-10-13 21:40:38 bjohnson Exp $
+c     $Id: xc_eval_basis.F,v 1.2 2001-03-24 01:11:09 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -413,7 +413,7 @@ c
      &     fac1(Dx:Dz), fac2(Dxx:Dzz), fac3(Dxxx:Dzzz)
 c
       external nang_cart, nang_cart_tot
-      integer nang_cart, nang_cart_tot
+      integer nang_cart, nang_cart_tot,nxyz(3)
 c
       if (maxl .eq. 0) then
          return
@@ -562,8 +562,6 @@ c     set the 0th angular function to 1
 
          do l = gen_l, maxl
 
-c     Evaluate the remaining cartesian functions
-
             nl  = nang_cart(l)
             nl1 = nang_cart(l-1)
             i1s = nang_cart_tot(l-1)
@@ -571,6 +569,9 @@ c     Evaluate the remaining cartesian functions
             iy  = nl - 1
             nx  = nang_cart(l-2)
             nxy = nl1 - nx - 1
+            if(.not.spherical) then
+c     Evaluate the remaining cartesian functions
+
             do n = 1, nq
                i1 = i1s
 c
@@ -593,6 +594,28 @@ c
                   ang(n,i1+ix) = x*ang(n,i1)
                enddo
             enddo
+         else
+            nl1 = nang_cart_tot(l-1)
+            do i=1,((l+1)*(l+2))/2
+               call getNxyz(l,i,Nxyz)
+               do n = 1,nq
+
+               x = q(1,n) - ctr(1)
+               y = q(2,n) - ctr(2)
+               z = q(3,n) - ctr(3)
+
+               ang(n,nl1+i) = x**nxyz(1)*y**nxyz(2)*z**nxyz(3)
+              enddo
+            enddo
+         endif
+#ifdef DEBUG
+         write(0,*) 'l l1l*l ',l,nl1,l*l
+         do i=1,((l+1)*(l+2))/2
+            do n=1,nq
+               write(0,*) ' cart l q a ',i,n,ang(n,nl1+i)
+            enddo
+         enddo
+#endif
 
 c     Construct cartesian angular derivatives if needed
 c     Only need to evaluate the nonzero terms - everything has been
@@ -711,6 +734,13 @@ c     Allocate scratch space for transformation
                call spcart_a_s(ang(1,nl1),dbl_mb(iscr),nq,l,
      &              1,.false.,.false.)
                call dcopy(nq*(2*l+1),dbl_mb(iscr),1,ang(1,nl),1)
+#ifdef DEBUG
+               do i=0,2*l
+                  do n=1,nq
+                     write(0,*) ' sphe l q a ',i,n,ang(i,nl+n)
+                  enddo
+               enddo
+#endif
                if (l .lt. gen_l) goto 100
 
                if (maxder .ge. 1) then
