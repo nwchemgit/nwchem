@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.16 2002-08-16 00:39:53 edo Exp $
+c$Id: grid_invariant.F,v 1.17 2002-12-18 01:06:49 edo Exp $
 c
       implicit none
 c      
@@ -38,7 +38,6 @@ c
 c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
-      oprint_grid = util_print('griddebug', print_debug)
 c
 c     Define the rotation matrix that will be used to ensure that the quadrature
 c     grid is rotationally invariant.
@@ -118,7 +117,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.16 2002-08-16 00:39:53 edo Exp $
+c$Id: grid_invariant.F,v 1.17 2002-12-18 01:06:49 edo Exp $
 c
       implicit none
 c
@@ -139,12 +138,13 @@ c
       double precision tvec(3), ramt(3), ramtm(3,3), eigs(3), work(12)
       double precision ztot, lramt,coss,dett
 c
-      integer ictr, icart, jcart, info
-      double precision deter3,qin(3,3),ddiag,dasum
+      integer ictr, icart, jcart
+      double precision deter3,qin(3,3),ddiag,dasum,
+     ,     valratio
       external deter3,dasum
       logical oprint
 c
-      oprint=util_print('griddebug', print_high)
+      oprint=util_print('quadrature', print_high)
       call dcopy(9,0d0,0,qrot, 1)
       call dcopy(3,0d0,0,tvec, 1)
 c
@@ -210,13 +210,29 @@ c
             enddo
          enddo
       enddo
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(LuOut,*)' nuclear charge qrot: '
+         call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+      endif
+      valratio=abs(qrot(1,2)+qrot(1,3)+qrot(2,3))/
+     /     (qrot(1,1)+qrot(2,2)+qrot(3,3))
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(LuOut,*)' ratio offdiag/diag ',valratio
+      endif
+      if(valratio.lt.1d-3) then
+         if(ga_nodeid().eq.0.and.oprint) then
+            write(luout,*)
+         endif
+         call dfill(9,0d0,qrot,1)
+         goto 111
+      endif
 c
 c     diagonalize M
 c
       call dcopy(9,qrot,1,qin,1)
       call dcopy(12,0d0,0,work, 1)
       call dcopy(3,0d0,0,eigs, 1)
-      call dsyev('V', 'L', 3, qrot, 3, eigs, work, 12, info)
+      call util_jacobi(3, qrot,3, eigs)
       ddiag=abs(eigs(1)-qin(1,1))+abs(eigs(2)-qin(2,2))+
      +     abs(eigs(3)-qin(3,3))
       if(abs(ddiag).lt.eps) then
@@ -226,15 +242,13 @@ c
          call dfill(9,0d0,qrot,1)
          goto 111
       endif
-      if (info.ne.0) then
-         write(LuOut,*)
-         write(LuOut,*) 'grid_invariant:  failure in dsyev.'
-         call errquit('Exiting in grid_invariant.',5)
-      endif
       dett=deter3(qrot)
       coss=(qrot(1,1)+qrot(2,2)+qrot(3,3)-1d0)*.5d0
       if ((dett-coss*coss).lt.0) then
          if(ga_nodeid().eq.0.and.oprint) then
+            write(LuOut,*)'wqrot: '
+            call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+         
             write(LuOut,*) ' WARNING: nonsense rotational matrix'
             write(LuOut,*) ' cosine      ',coss
             write(LuOut,*) ' sine square ',dett-coss*coss
