@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.123 1999-07-14 00:28:58 d3e129 Exp $
+C     $Id: geom_input.F,v 1.124 1999-07-20 17:32:13 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -677,6 +677,13 @@ c
 #include "geomP.fh"
       integer geom
       logical oprint
+      logical geom_get_user_scale
+      double precision scale, bohr
+      parameter (bohr=0.52917715d+00) !!!!!!!!!!!!!!!!!!!!!!!!!
+c
+      if (.not. geom_get_user_scale(geom, scale))
+     $     call errquit('geom_autoz_input: scale?',0)
+      scale = scale * bohr
 c
       call hnd_autoz_input(
      $     zmt_ijbond(1,1,geom),
@@ -701,7 +708,7 @@ c
      $     zmt_ijklnb_frz(1,geom),
      $     max_zcoord,
      $     zmt_cvr_scaling(geom),
-     $     zmt_maxtor(geom), oprint)
+     $     zmt_maxtor(geom), oprint, scale)
 c     
       end
       subroutine hnd_autoz_input(
@@ -709,10 +716,11 @@ c
      $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
      $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
      $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz,
-     $     max_zcoord, cvr_scaling,maxtor,oprint)
+     $     max_zcoord, cvr_scaling,maxtor,oprint,scale)
       implicit none
 #include "inp.fh"
 c
+      double precision scale    ! user units to AU to angstrom
       double precision cvr_scaling
       double precision cvr_factor
       parameter (cvr_factor=1.2d+00)
@@ -800,6 +808,7 @@ c
          call geom_autoz_input_varinfo
      $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
      $        nuser,fff)
+         if (fff.ne.' ') ijbond_val(nbond) = ijbond_val(nbond)*scale
          if (oprint) write(6,2) ijbond(1,nbond), ijbond(2,nbond),
      $        fff, ijbond_nam(nbond), ijbond_frz(nbond)
       else if(inp_compare(.false.,'ijkang',field) .or.
@@ -1186,7 +1195,8 @@ c
 c
       write(6,11) zmt_source(geom)(1:inp_strlen(zmt_source(geom)))
  11   format(//32x,'Z-matrix (',a,')',/
-     $         32x,'-------- ')
+     $         32x,'-------- ',/,/,
+     $     ' Units are Angstrom for bonds and degrees for angles')
 c
       if (zmt_nzfrz(geom) .gt. 0) write(6,12)
  12   format(/'  Constants are marked with an asterisk (*).')
