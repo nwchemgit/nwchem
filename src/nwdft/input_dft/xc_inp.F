@@ -36,30 +36,30 @@ c     becke97-1
 c     cpbe96
 c     xpbe96
 c     
-      integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs = 23)
+      integer num_dirs, ind, mlen, iline, n,numfunc
+      parameter (num_dirs = 24,numfunc=16)
       character*10 dirs(num_dirs)
       character*255 test
 c
 c     Define logical flags for local (l) and nonlocal (nl)
 c     parts of exchange-correlation functionals.
 c
-      logical  lcfac(15),  lxfac(15), ck_local
-      logical nlcfac(15), nlxfac(15)
-      logical xccomb(15)
+      logical  lcfac(numfunc),  lxfac(numfunc), ck_local
+      logical nlcfac(numfunc), nlxfac(numfunc)
+      logical xccomb(numfunc)
 c
 c     XC functionals coefficients
 c     
-      double precision cfac(15),xfac(15)
+      double precision cfac(numfunc),xfac(numfunc)
       data dirs /'acm', 'b3lyp', 'beckehandh', 'HFexch', 'becke88',  
      &           'lyp', 'perdew81', 'perdew86', 'perdew91', 'pw91lda', 
-     &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 'vwn_5',
-     &           'vwn_1_rpa','hcth','becke97','becke97-1',
-     &           'cpbe96','xpbe96','gill96'/
+     &           'slater', 'vwn_1', 'vwn_2', 'vwn_3', 'vwn_4', 
+     &           'vwn_5','vwn_1_rpa','hcth','becke97','becke97-1',
+     &           'cpbe96','xpbe96','gill96','xperdew91'/
 c
 c     Only these few arrays are initialized (not defaults).
 c
-      do iline = 1, 15
+      do iline = 1, 16
           xfac(iline)=0.d0
           cfac(iline)=0.d0
          lcfac(iline)=.false.
@@ -82,7 +82,7 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
-     ,      2100,2200,2300, 1999) ind
+     ,      2100,2200,2300, 2400, 1999) ind
       call errquit('xc_inp: unimplemented directive', ind)
 c     
 c     acm; adiabatic connection method
@@ -733,6 +733,36 @@ c
          xfac(8) = 1.0d0
       endif
        goto 10
+c     
+c     xperdew91; Perdew '91 functional for exchange
+c     
+ 2400  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(6,*)' xperdew91 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(6,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(9) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(9) = .true.
+            nlxfac(9) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(9) = .true.
+         nlxfac(9) = .true.
+      endif
+      if (.not. inp_f(xfac(8))) then
+         xfac(9) = 1.0d0
+      endif
+       goto 10
  1999 continue
 c
 c     Check nonlocal functionals: perdew86 and perdew91 to
@@ -741,7 +771,7 @@ c     functional.  If not, set appropriately.
 c
       ck_local = .false.
       if(nlcfac(4).or.nlcfac(5).or.nlcfac(12))then
-        do n = 1, 15
+        do n = 1, numfunc
            if(lcfac(n))ck_local = .true.
         enddo
 c
@@ -780,41 +810,41 @@ c
 c     
 c    
 c      write(*,*) ' lcfac '
-c      write(*,*) (lcfac(iline),iline=1,15) 
+c      write(*,*) (lcfac(iline),iline=1,numfunc) 
 c      write(*,*) ' nlcfac '
-c      write(*,*) (nlcfac(iline),iline=1,15) 
+c      write(*,*) (nlcfac(iline),iline=1,numfunc) 
 c      write(*,*) ' lxfac '
-c      write(*,*) (lxfac(iline),iline=1,15) 
+c      write(*,*) (lxfac(iline),iline=1,numfunc) 
 c      write(*,*) ' nlxfac '
-c      write(*,*) (nlxfac(iline),iline=1,15) 
+c      write(*,*) (nlxfac(iline),iline=1,numfunc) 
 c      write(*,*) ' xccomb '
-c      write(*,*) (xccomb(iline),iline=1,15) 
+c      write(*,*) (xccomb(iline),iline=1,numfunc) 
 c      write(*,*) ' cfac '
-c      write(*,*) (cfac(iline),iline=1,15) 
+c      write(*,*) (cfac(iline),iline=1,numfunc) 
 c      write(*,*) ' xfac '
-c      write(*,*) (xfac(iline),iline=1,15) 
+c      write(*,*) (xfac(iline),iline=1,numfunc) 
 c
 c     No alternative but to dump all array's associated
 c     with type of XC into rtdb (whether specified or not).
 c     
 c>>>  place logical XC parameters in rtdb
 c
-      if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 15, lcfac))
+      if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, numfunc, lcfac))
      &   call errquit('xc_inp: rtdb_put failed', 1)
-      if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, 15, nlcfac))
+      if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, numfunc, nlcfac))
      &   call errquit('xc_inp: rtdb_put failed', 2)
-      if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 15, lxfac))
+      if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, numfunc, lxfac))
      &   call errquit('xc_inp: rtdb_put failed', 3)
-      if (.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, 15, nlxfac))
+      if (.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, numfunc, nlxfac))
      &   call errquit('xc_inp: rtdb_put failed', 4)
-      if (.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, 15, xccomb))
+      if (.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, numfunc, xccomb))
      &   call errquit('xc_inp: rtdb_put failed', 5)
 c     
 c>>>  place real XC parameters in rtdb
 c     
-      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 15, cfac))
+      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, numfunc, cfac))
      &   call errquit('xc_inp: rtdb_put failed', 6)
-      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 15, xfac))
+      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
      &   call errquit('xc_inp: rtdb_put failed', 7)
       return
 c     
@@ -839,7 +869,8 @@ c
      &       /,' [becke97-1] ',
      &       /,' [cpbe96 nonlocal rval]',
      &       /,' [xpbe96] ',
-     &       /,' [gill96] ')
+     &       /,' [gill96] ',
+     &       /,' [xperdew91] ')
       call util_flush(6)
       call errquit('xc_input: invalid format', 0)
 c     

@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.33 1999-06-16 00:59:56 edo Exp $
+c     $Id: grad_force.F,v 1.34 1999-06-17 18:28:55 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -132,10 +132,10 @@ c
 
 *     Stuff for DFT
 
-      integer ipol, lenxfac, noc(2)
-      parameter (lenxfac = 15)
+      integer ipol, numfunc, noc(2)
+      parameter (numfunc = 16)
       logical oskel, omp2, odft, ocdfit, status,lsmear
-      double precision xfac(15), jfac, kfac
+      double precision xfac(numfunc), jfac, kfac
 
       nproc = ga_nnodes()
 
@@ -175,7 +175,7 @@ C     get SCF MO vectors for density
      $        call errquit('gradients: DFT MO vectors not defined',0)
          if (.not. rtdb_get(rtdb, 'dft:cdfit', mt_log, 1, ocdfit))
      $        ocdfit = .false.
-         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, lenxfac, xfac))
+         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
      $        call errquit('gradients: xfac not in rtdb ', 0)
          if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      $        ipol = 1

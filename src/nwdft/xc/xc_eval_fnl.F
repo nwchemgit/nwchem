@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.10 1999-06-09 23:59:22 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.11 1999-06-17 18:24:17 edo Exp $
 c
       implicit none
 c
@@ -236,6 +236,15 @@ c
       if (abs(xfac(8)).gt.eps)then
          if (.not. do_2nd) then
             call xc_gill96(tol_rho, xfac(8), lxfac(8), nlxfac(8), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+      endif
+      if (abs(xfac(9)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpw91(tol_rho, xfac(9), lxfac(9), nlxfac(9), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else

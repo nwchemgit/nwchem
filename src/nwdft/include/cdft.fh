@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.28 1999-05-12 22:02:01 edo Exp $
+C$Id: cdft.fh,v 1.29 1999-06-17 18:24:52 edo Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -33,7 +33,7 @@ c
      &     nbf_cd, nbf_cd_mxprim, nbf_cd_mxang, nbf_cd_mxcont, 
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
-     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
+     &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,numfunc,
 c
 c     old common handles 
 c
@@ -41,6 +41,7 @@ c
      ,     lrchi,irchi,lrdelchi,irdelchi,
      , g_cdinv, g_2ceri
 c
+      parameter(numfunc=16)
       character*255 movecs_in, movecs_out
       character*8 movecs_guess
       common /cdft/
@@ -48,14 +49,15 @@ c
 c     Doubles
 c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cfac(15), xfac(15),
+     &     rcharge, rscale, cfac(numfunc), xfac(numfunc),
      &     tol_rho, radius, rm, hl_tol, e_conv, d_conv, g_conv,
 c
 c     Logicals
 c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
-     &     XCFIT, CDFIT, store_wght, ldelley, lcfac(15), nlcfac(15),
-     &     lxfac(15), nlxfac(15), xccomb(15), levelshift, damp, diis, 
+     &     XCFIT, CDFIT, store_wght, ldelley, lcfac(numfunc), 
+     ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
+     ,     xccomb(numfunc), levelshift, damp, diis, 
      &     direct, oskel, oadapt,
 c
 c     Integers
