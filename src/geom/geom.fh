@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.20 1996-10-01 18:50:50 d3e129 Exp $
+C$Id: geom.fh,v 1.21 1996-10-22 15:43:14 d3g681 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -60,6 +60,8 @@ c
       logical geom_coords_ecp
       logical geom_any_ecp
       logical geom_ecp_center_list
+c
+      logical geom_nuc_dipole
 c
       external geom_check_handle
       external geom_check_cent
@@ -123,4 +125,6 @@ c
       external geom_coords_ecp
       external geom_any_ecp
       external geom_ecp_center_list
+c
+      external geom_nuc_dipole
 c
