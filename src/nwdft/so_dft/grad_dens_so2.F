@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff)
 
-c     $Id: grad_dens_so2.F,v 1.1 2000-05-01 05:36:24 zzhang Exp $
+c     $Id: grad_dens_so2.F,v 1.2 2000-05-24 22:39:32 zzhang Exp $
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)
@@ -74,44 +74,52 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
       if (.not. movecs_read_so(movecs, occ, evals, g_vecs)) 
      $     call errquit('grad_dens_so: could not read mo vectors', 110)
 c
-      if (scftype .eq. 'UHF') then
-         nocc = 2*nclosed + nopen 
-         status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
-     &                   g_densso(1))
-         if (.not. status) then
-            if (ga_nodeid() .eq. 0) then
-               write(6,*) ' grad_dens_so: ', 'DenMx Re'
-               call util_flush(6)
-            endif
-            call ga_sync()
-            call errquit('grad_dens_so: ga_create ', 0)
+      nocc = 2*nclosed + nopen 
+      status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
+     &     g_densso(1))
+      if (.not. status) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*) ' grad_dens_so: ', 'DenMx Re'
+            call util_flush(6)
          endif
-         status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
-     &        g_densso(2))
-         if (.not. status) then
-            if (ga_nodeid() .eq. 0) then
-               write(6,*) ' grad_dens_so: ', 'DenMx Im'
-               call util_flush(6)
-            endif
-            call ga_sync()
-            call errquit('grad_dens_so: ga_create ', 0)
-         endif
-C     density matrix
-         call dft_densm_so(g_densso,g_vecs,nbf,nocc)
-         call ga_dens_aabbi(g_dens(3), g_densso, nbf)
-         call ga_dens_abri(g_dens(5), g_densso, nbf)
          call ga_sync()
-      end if
-         
+         call errquit('grad_dens_so: ga_create ', 0)
+      endif
+      status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
+     &     g_densso(2))
+      if (.not. status) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*) ' grad_dens_so: ', 'DenMx Im'
+            call util_flush(6)
+         endif
+         call ga_sync()
+         call errquit('grad_dens_so: ga_create ', 0)
+      endif
+C     density matrix
+c
+      call dft_densm_so(g_densso,g_vecs,nbf,nocc)
+c
+      call ga_dens_aabbi(g_dens(3), g_densso, nbf)
+      call ga_dens_abbar(g_dens(5), g_densso, nbf)
+      call ga_dens_abbai(g_dens(7), g_densso, nbf)
+c
+      call ga_add(one, g_dens(3), one, g_dens(4), g_dens(3))
+      call ga_scale(g_dens(4), 2.0d0)
+      call ga_add(one, g_dens(3), mone, g_dens(4), g_dens(4))
+c
+      call ga_add(one, g_dens(5), one, g_dens(6), g_dens(5))
+      call ga_scale(g_dens(6), 2.0d0)
+      call ga_add(one, g_dens(5), mone, g_dens(6), g_dens(6))
+c
+      call ga_add(one, g_dens(7), one, g_dens(8), g_dens(7))
+      call ga_scale(g_dens(8), 2.0d0)
+      call ga_add(one, g_dens(7), mone, g_dens(8), g_dens(8))
+      call ga_sync()
 c     
-
       status = ga_destroy ( g_vecs(1) )
-      if ( scftype .eq. 'UHF' ) then
-         status = ga_destroy ( g_vecs(2) )
-      end if
+      status = ga_destroy ( g_vecs(2) )
       status = ga_destroy ( g_densso(1) )
       status = ga_destroy ( g_densso(2) )
-
       return
       end
 
