@@ -1,4 +1,4 @@
-// $Id: Graph.java,v 1.2 1999-09-20 22:02:14 d3j191 Exp $
+// $Id: Graph.java,v 1.3 2000-09-26 18:52:13 d3j191 Exp $
 import ptolemy.plot.*;
 import java.awt.*;
 import java.util.*;
@@ -44,4 +44,8 @@ public class Graph extends Plot{
     _yBottom = Double.MAX_VALUE;
   }
 
+    public void fixRange(double xmin, double xmax, double ymin, double ymax){
+	setXRange(xmin,xmax);
+	setYRange(ymin,ymax);
+    }
 }

@@ -20,8 +20,18 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
 
     JLabel systemLabel = new JLabel();
     JButton doneButton = new JButton("done");
+    JButton clearButton = new JButton("clear");
     
     double time,rms1,rms2;
+
+    int numset = 0;
+    int numres = 0;
+    int currentSelection;
+    int frame=0;
+    
+    DefaultListModel resList = new DefaultListModel();
+    JList rList = new JList(resList);
+    JScrollPane resPane = new JScrollPane(rList);
     
     public nwchem_Rama(){
 	
@@ -53,39 +63,43 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
 	addComponent(header,systemLabel,2,0,10,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	systemLabel.setForeground(Color.black);
+
+	addComponent(header,resPane,21,3,3,1,1,10,
+		     GridBagConstraints.NONE,GridBagConstraints.WEST);
+       	rList.addMouseListener(this);
+
+	addComponent(header,clearButton,21,4,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
+	clearButton.addActionListener(new ActionListener(){
+		public void actionPerformed(ActionEvent e){ 
+		    for(int i=0; i<numset; i++){ramPlot.removeSet(i);}; numset=0; ramPlot.repaint(); }});
 	
-	addComponent(header,doneButton,0,0,1,1,1,1,
+	addComponent(header,doneButton,21,5,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
-
-	ramPlot.setTitle("Ramachandran");
-	ramPlot.setSize(700,700);
-	addComponent(header,ramPlot,0,1,20,10,10,10,
-		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 	    String card;
-            int nump=0;
-	    boolean first=true;
-	    double phi, psi;
-	    ramPlot.setMarksStyle("points");
-	    while((card=br.readLine()) != null){
-		time=Double.valueOf(card.substring(1,12)).doubleValue();
+	    card=br.readLine();
+	    card=br.readLine();
+	    while(!card.startsWith("      0")){
+		frame=Integer.parseInt(card.substring(1,7).trim());
+		resList.addElement("Residue "+frame);
 		card=br.readLine();
-                first=true;
-		while(!card.startsWith("      0")){
-		    phi=Double.valueOf(card.substring(11,22)).doubleValue();
-		    psi=Double.valueOf(card.substring(23,34)).doubleValue();
-		    ramPlot.addData(nump,phi,psi,false,false); first=false;
-		    card=br.readLine();
-                    first=false;
-		};
-	    ramPlot.fillPlot();
-	    nump++;
 	    };
+	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
+
+	rList.setVisibleRowCount(15);
+
+	ramPlot.setTitle("Ramachandran");
+	ramPlot.setSize(600,600);
+        ramPlot.init();
+	ramPlot.fixRange(-3.1415,3.1415,-3.1415,3.1415);
+	addComponent(header,ramPlot,0,1,20,10,10,10,
+		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 
 	
 	setLocation(25,225);	
@@ -93,6 +107,38 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
 	setVisible(true);
 
     }
+
+    void plot_single(int ndx){
+	try{
+	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
+	    String card;
+	    boolean first=true;
+	    double phi, psi, phi0, psi0;
+	    phi0=0.0;
+	    psi0=0.0;
+	    while((card=br.readLine()) != null){
+		time=Double.valueOf(card.substring(1,12)).doubleValue();
+		card=br.readLine();
+		frame=1;
+		while(!card.startsWith("      0")){
+		    if(frame==ndx){
+			phi=Double.valueOf(card.substring(11,22)).doubleValue();
+			psi=Double.valueOf(card.substring(23,34)).doubleValue();
+                        if(!first){
+			    if(Math.abs(phi0-phi)>3.14){first=true;};
+			    if(Math.abs(psi0-psi)>3.14){first=true;};
+			};
+			ramPlot.addData(numset,phi,psi,!first,false); first=false;
+			phi0=phi; psi0=psi;
+		    };
+		    card=br.readLine(); frame++;
+		};
+	    };
+	    //	    ramPlot.fillPlot();
+	    numset++;
+	    br.close();
+	} catch(Exception ee) {ee.printStackTrace();};
+    };
 
     void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
 			  int wx, int wy){
@@ -150,6 +196,12 @@ class nwchem_Rama extends JFrame implements ActionListener, ChangeListener, Wind
     public void mousePressed(MouseEvent mouse){}
 
     public void mouseReleased(MouseEvent mouse){
+	if(mouse.getModifiers()==MouseEvent.BUTTON1_MASK){
+	    if(mouse.getSource()==rList){
+		currentSelection=rList.getSelectedIndex()+1;
+		plot_single(currentSelection);
+	    };
+	};
     }
 
     public void mouseEntered(MouseEvent mouse){

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2000-09-15 07:35:40 d3j191 Exp $
+# $Id: GNUmakefile,v 1.15 2000-09-26 18:52:13 d3j191 Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -31,6 +31,7 @@ classes:
 	-test -d $(CLASSDIR) || $(MKDIR) -p $(CLASSDIR) 
 	$(MAKE) $(OBJ_CLASS)
 	-mv *.class $(CLASSDIR)
+	-chmod a+rx $(CLASSDIR)/*
 
 javacheck:	whichjava.class
 	java whichjava || exit 911
