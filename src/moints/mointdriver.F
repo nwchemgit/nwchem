@@ -26,10 +26,11 @@ c
        integer mo_indx2_lo, mo_indx2_hi, nmo2
        integer noper, nvir
        integer g_coul, g_exch
-       logical oexch,ocoul
+       logical oexch,ocoul,oprint
        double precision emp2
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.false.,.true./
+       data oexch,ocoul/.true.,.true./
+       data oprint/.true./
 c
 c
 c
@@ -80,11 +81,29 @@ c
 C       if (nact.le.0) return
 c
 c
+c Find MO vector filename in the database.
+c
+c
+       if (.not.rtdb_cget(rtdb,'moints:input vectors',1,movecs_in))
+     $      then
+         if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
+     $        movecs_in = 'movecs'
+       endif
+       if (ga_nodeid().eq.0) then
+         write(6,912) movecs_in
+ 912     format(10x,'MO coefficients read from:',a20)
+         call util_flush(6)
+       endif
+c
+c
 c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
-     $      basis_vecs, nbf_vecs, nsets, nmo, 2)) return
-       if (nbf.ne.nbf_vecs) return
+     $    basis_vecs, nbf_vecs, nsets, nmo, 2))
+     $    call errquit('mointdriver: cannot read MO vectors header',0)
+       if (nbf.ne.nbf_vecs)
+     $    call errquit(
+     $    'mointdriver: number of basis fun does not match input',0)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
@@ -137,7 +156,10 @@ c
        call moints_build_JK(rtdb,basis,
      $                      mo_indx_lo,mo_indx_hi,
      $                      mo_indx2_lo,mo_indx2_hi,
-     $                      g_vecs,g_coul,ocoul,g_exch,oexch)
+     $                      g_vecs,
+     $                      g_coul,ocoul,
+     $                      g_exch,oexch,
+     $                      oprint)
 
 C       call moints_print_opermatrix(noper,nmo2,g_coul)
 c
