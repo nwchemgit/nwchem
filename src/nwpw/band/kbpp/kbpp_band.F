@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.2 2002-01-04 23:19:59 bylaska Exp $
+* $Id: kbpp_band.F,v 1.3 2002-01-04 23:40:20 bylaska Exp $
 *
 
 *     **************************************
@@ -88,6 +88,8 @@
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,lmax1,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp1,mitob(msglen),MASTER)
       msglen = lmax0+1
       call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
       msglen = 1

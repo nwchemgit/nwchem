@@ -8,7 +8,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
 *
-* $Id: kbppv3.F,v 1.4 2002-01-04 23:20:01 bylaska Exp $
+* $Id: kbppv3.F,v 1.5 2002-01-04 23:40:20 bylaska Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -82,6 +82,9 @@
       call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
       call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
       call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,lmax1,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp1,mitob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,rlocal1,mdtob(msglen),MASTER)
       msglen = lmax0+1
       call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
       msglen = 1
