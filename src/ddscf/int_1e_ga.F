@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.25 2000-04-19 18:20:48 zzhang Exp $
+C$Id: int_1e_ga.F,v 1.26 2000-05-20 22:21:55 mdupuis Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -52,6 +52,8 @@ c
          type = 4
       else if (inp_compare(.false., integ_type, 'so'))then 
          type = 5 
+      else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
+         type = 6 
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -134,6 +136,8 @@ c
          type = 4
       else if (inp_compare(.false., integ_type, 'so'))then 
          type = 5 
+      else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
+         type = 6 
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -217,6 +221,9 @@ c
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 5) then 
                      call intso_1e (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 6) then 
+                     call int_1epe (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type)

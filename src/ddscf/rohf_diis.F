@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.9 2000-05-20 19:53:34 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.10 2000-05-20 22:21:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -50,6 +50,7 @@ c
 c
 c     cosmo code
 c
+      integer g_cos1e
       logical odbug
       logical ocosmo
       logical osome
@@ -139,7 +140,47 @@ c
               else
                  osome=.false.
               endif
+              odbug=odbug.and.ga_nodeid().eq.0
+              osome=osome.and.ga_nodeid().eq.0
+c
               call cosmo_charges(rtdb,basis,ecosmo,iter,osome)
+c
+              odbug=.false.
+              osome=.false.
+           endif
+        endif
+        call ga_sync()
+c
+c     ----- cosmo 1-electron potential operator -----
+c
+        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+           if(ocosmo) then
+              g_cos1e  = ga_create_atom_blocked(geom, basis, 
+     $                                         'rohf_diis_solve:cos1e')
+c
+              odbug=.true.
+              if(odbug) then
+                 osome=.true.
+              else
+                 osome=.false.
+              endif
+              odbug=odbug.and.ga_nodeid().eq.0
+              osome=osome.and.ga_nodeid().eq.0
+c
+              if(odbug) then
+                 write(6,*) 'cos1e-pot ... try g_over'
+                 call ga_zero(g_over)
+                 call int_1e_ga(basis,basis,g_over,'overlap',.false.)
+                 write(6,*) 'cos1e-pot ... try g-cos1e'
+              endif
+c
+              call ga_zero(g_cos1e)
+c             call int_1e_ga(basis,basis,g_cos1e,'cos_chg_pot',.false.)
+              odbug=.false.
+              osome=.false.
+c
+              if (.not. ga_destroy(g_cos1e)) call errquit
+     $           ('rohf_diis_solve: ga_destroy cos1e', 0)
            endif
         endif
         call ga_sync()
@@ -151,8 +192,10 @@ c
         if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
            if(ocosmo) then
               energy=energy+ecosmo
+c
               osome=.true.
               osome=osome.and.ga_nodeid().eq.0 
+              osome=.false.
               if(osome) then
                  write(6,9999) (energy-ecosmo),ecosmo,energy
  9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
