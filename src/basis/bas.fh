@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.4 1994-04-22 02:05:18 d3g681 Exp $
+c $Id: bas.fh,v 1.5 1994-05-16 23:25:47 d3e129 Exp $
 c:bas.fh
 c
       logical bas_version        
@@ -22,6 +22,7 @@ c
       logical bas_ce2bfr         
       logical bas_ce2cnr         
       logical bas_numbf          
+      logical bas_name
 c
       logical bas_get_exponent   
       logical bas_continfo       
@@ -51,7 +52,8 @@ c
       external bas_ce2cnr         
       external bas_ce2bfr         
       external bas_numbf          
-c
+      external bas_name
+c 
       external bas_get_exponent   
       external bas_continfo       
       external bas_numcont        

@@ -1,20 +1,702 @@
-These are probably the ONLY user visible routines
+Basis Set Object/Application Programmer's Interface (API)
+Rick A. Kendall and Robert J. Harrison (March/April 1994)
 
+The basis set objects are designed to be versatile and allow storage
+of only the unique information of a given basis set.  The basis set
+for a given tag is stored in a linearized data structure.  The only
+way an application can get basis set is with a valid basis set handle
+and a valid and loaded geometry object and handle.  The basis set
+object is responsible for building the mapping arrays required by the
+application and the basis set API.
 
+The externalized interface is a series of logical functions defined
+in the "bas.fh" include file.  These functions are described below.  
 
-      logical bas_create         
-      logical bas_destroy        
-      logical bas_check_handle   
-      logical bas_print          
-      logical bas_rtdb_load      
-      logical bas_cn2ce          
-      logical bas_cn2bfr         
-      logical bas_ce2cnr         
-      logical bas_ce2bfr
-      logical bas_numbf          
+logical function bas_version()
+description: diagnostic routine that prints the the version number of
+             the basis set object and information about the storage in
+             the internal basis set data structures.
+input: none
+output: none
+return: true if no errors occur.
+
+logical function bas_create(basis, name)
+description: function to create a valid basis set handle
+input:  name [char*(*)] basis set name.
+output: basis [integer] valid basis set handle.
+return: true if a handle can be created. 
+        false if any error occurs.
+
+logical function bas_destroy(basis)
+description: destroys the internal basis set data structures for a
+             valid basis set handle.
+input:  basis [integer] basis set handle 
+output: none
+return: true if handle is destroyed and data structures are cleared.
+        false if any error occurs.
+
+logical function bas_check_handle(basis,msg)
+description: routine to check to see if the basis set handle is valid
+input: basis [integer] basis set handle
+       msg [char*(*)] message to be used to inform the application
+       where an invalid handle occured.  msg is not printed if the
+       handle is valid. 
+output: none
+return: true if handle is valid.
+        false if any error occurs.
+
+logical function bas_print(basis)
+description:  funtion that prints the in-core basis set information
+              to stdout
+input: basis [integer] basis set handle.
+output: none
+return: true if printing works.
+        false if any error occurs.
+
+logical function bas_rtdb_load(rtdb, geom, basis, name)
+description: routine to read in the basis set information from the
+             rtdb and build mapping arrays from the chemical system
+             defined by the geometry object to unique tag
+             information stored in-core.
+input: rtdb [integer] rtdb handle
+       geom [integer] geometry object handle
+       basis [integer] basis set handle
+       name [char*(*)] basis set name.
+output: none
+return: true if mapping arrays can be formed and basis set
+        information is on the rtdb.
+        false if any error occurs.
+
+logical function bas_rtdb_store(rtdb, name, basis)
+description: function to store basis set information to the given
+             rtdb using the internal ("friends") data structures.
+             For example if you load a basis set from the rtdb and
+             modify the exponents or coeficients you can store this
+             basis set back to the rtdb without using the argument
+             based interface.
+input: rtdb [integer] rtdb handle
+       name [char*(*)] name of the basis set as it is put on the
+            rtdb.
+       basis [integer] basis set handle.
+output: none
+return: true if rtdb store operation is successful.
+        false if any error occurs.
+
+logical function bas_high_angular(basis,high_angular)
+description:  function to retrieve or calculate high angular momentum
+              of the given basis set. 
+input: basis [integer] basis set handle
+output: high_angular [integer] l-value of highest angular momentum.
+        Note: sp and spd functions are folded to p or d. 
+return: true if l-value can be calculated or retrieved.  
+        false if any error occurs.
+
+logical function gbs_map_print(basis)
+description: function that prints the mapping information between the
+        geometry and basis objects. 
+input: basis [integer] basis set handle
+output: none
+return: true if no errors found.
+        false if any error occurs.
+
+logical function bas_print_all()
+description: routine to print information about all in-basis sets
+        that are active.  
+input: none
+output: none
+return: true if printing of basis sets is completed.  
+        false if any error occurs.
+
+description:
+input:
+output:
+return:
+        false if any error occurs.
+
+description:
+input:
+output:
+return:
+        false if any error occurs.
+C        1         2         3         4         5         6         7
+C234567890123456789012345678901234567890123456789012345678901234567890
+      logical function bas_cn2ce(basisin,cont,center)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, cont, center
+c::local
+      integer basis
 c
-      logical bas_get_exponent   
-      logical bas_continfo       
-      logical bas_numcont        
-      logical bas_get_coeff      
+      bas_cn2ce = bas_check_handle(basisin)
+      if(.not.bas_cn2ce) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      bas_cn2ce = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
+      if (.not.bas_cn2ce) then
+        write(6,*)' bas_cn2ce: invalid contraction information '
+        write(6,*)' contraction range is 1:',ncont_tot_gb(basis)
+        write(6,*)' input contraction was: ',cont
+        return
+      endif
+      center = ibs_cn2ce(cont,basis)
+c
+      return
+      end
+      logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, cont, ifirst, ilast
+c::local 
+      integer basis
+c
+      bas_cn2bfr = bas_check_handle(basisin)
+      if(.not.bas_cn2bfr) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      bas_cn2bfr = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
+      if (.not.bas_cn2bfr) then
+        write(6,*)' bas_cn2bfr: invalid contraction information '
+        write(6,*)' contraction range is 1:',ncont_tot_gb(basis)
+        write(6,*)' input contraction was: ',cont
+        return
+      endif
+c
+      ifirst = ibs_cn2bfr(1,cont,basis)
+      ilast  = ibs_cn2bfr(2,cont,basis)
+c
+      return
+      end
+      logical function bas_ce2cnr(basisin,center,ifirst,ilast)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "geom.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, center, ifirst, ilast
+c::local 
+      integer basis, nat
+c
+      bas_ce2cnr = bas_check_handle(basisin)
+      if(.not.bas_ce2cnr) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      bas_ce2cnr = geom_ncent(ibs_geom(basis),nat)
+      if (nat.eq.0.or..not.bas_ce2cnr) then
+        write(6,*)' bas_ce2cnr: ERROR '
+        write(6,*)' number of centers is zero or weird'
+        write(6,*)' nat = ',nat
+c..... add diagnostics later
+        return
+      endif
 
+      bas_ce2cnr = center.gt.0 .and. center.le.nat
+      if (.not.bas_ce2cnr) then
+        write(6,*)' bas_ce2cnr: invalid center information '
+        write(6,*)' contraction range is 1:',nat
+        write(6,*)' input contraction was: ',center
+        return
+      endif
+c
+      ifirst = ibs_ce2cnr(1, center, basis)
+      ilast  = ibs_ce2cnr(2, center, basis)
+c
+      return
+      end
+      logical function bas_get_exponent(basisin,icont,exp)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont 
+      double precision exp(*)
+c::local
+      integer basis, myucont, icontmax
+      integer myprim,myexptr
+c
+      bas_get_exponent = bas_check_handle(basisin,'bas_get_exponent')
+      if (.not.bas_get_exponent) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+      bas_get_exponent = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_get_exponent)) then
+        write(6,*)' bas_get_exponent: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      call dcopy(myprim,exndcf(myexptr,basis),1,exp,1)
+c
+      bas_get_exponent = .true.
+c
+      return
+      end
+c
+      logical function bas_continfo(basisin,icont,
+     &       nprimo,ngeno,sphcart)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin, icont, nprimo, ngeno, sphcart
+c::local
+      integer basis,myucont,icontmax
+c
+      nprimo = -123
+      ngeno  = -456
+      sphcart = -789
+c
+      bas_continfo = bas_check_handle(basisin,'bas_continfo')
+      if (.not.bas_continfo) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = ncont_tot_gb(basis)
+c
+      if (.not.(icont.gt.0.and.icont.le.icontmax)) then
+        write(6,*)' bas_continfo: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        bas_continfo = .false.
+        return
+      endif
+c
+      myucont = ibs_cn2ucn(icont,basis)
+c... no spherical yet 3/94 only cart. 
+      sphcart = 0
+      nprimo  = infbs_cont(CONT_NPRIM,myucont,basis)
+      ngeno   = infbs_cont(CONT_NGEN,myucont,basis)
+      bas_continfo=.true.
+      return
+      end
+c
+      logical function bas_numcont(basisin,numcont)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin,numcont
+c::local
+      integer basis
+c
+      numcont = -6589
+      bas_numcont = bas_check_handle(basisin,'bas_numcont')
+      if (.not.bas_numcont) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+
+      numcont = ncont_tot_gb(basis)
+
+      bas_numcont = .true.
+      return
+      end
+c
+      logical function bas_numbf(basisin,nbf)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer basisin,nbf
+c::local
+      integer basis
+c
+      nbf = -6589
+      bas_numbf = bas_check_handle(basisin,'bas_numbf')
+      if (.not. bas_numbf) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+      nbf = nbf_tot_gb(basis)
+      bas_numbf = .true.
+      return
+      end
+c      
+      logical function bas_get_coeff(basisin,icont,coeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont 
+      double precision coeff(*)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_get_coeff = bas_check_handle(basisin,'bas_get_coeff')
+      if (.not.bas_get_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+      bas_get_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_get_coeff)) then
+        write(6,*)' bas_get_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+      call dcopy((myprim*mygen),exndcf(mycoeffptr,basis),1,coeff,1)
+c
+      bas_get_coeff = .true.
+c
+      return
+      end
+      logical function bas_set_exponent(basisin,icont,exp,nexp)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, nexp
+      double precision exp(nexp)
+c::local
+      integer basis, myucont, icontmax
+      integer myprim,myexptr
+c
+      bas_set_exponent = bas_check_handle(basisin,'bas_set_exponent')
+      if (.not.bas_set_exponent) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+
+      bas_set_exponent = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_set_exponent)) then
+        write(6,*)' bas_set_exponent: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      myexptr = infbs_cont(CONT_IEXP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      bas_set_exponent = myprim.eq.nexp
+      if (.not.bas_set_exponent) then
+        write(6,*)' bas_set_exponent: ERROR '
+        write(6,*)' input and stored number of exponents ',
+     &         '(nprim) differ '
+        write(6,*)' input  nprim: ',nexp
+        write(6,*)' stored nprim: ',myprim
+        return
+      endif
+      call dcopy(nexp,exp,1,exndcf(myexptr,basis),1)
+c
+      bas_set_exponent = .true.
+c
+      return
+      end
+c
+      logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "basdeclsP.fh"
+c::function
+      logical bas_check_handle
+      external bas_check_handle
+c:blas
+c     dcopy
+c::passed
+      integer basisin, icont, ncoeff
+      double precision coeff(ncoeff)
+c::local
+      integer basis, myucont, icontmax
+      integer mycoeffptr, myprim, mygen
+c
+      bas_set_coeff = bas_check_handle(basisin,'bas_set_coeff')
+      if (.not.bas_set_coeff) return
+
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      icontmax = ncont_tot_gb(basis)
+      myucont = ibs_cn2ucn(icont,basis)
+
+      bas_set_coeff = icont.gt.0.and.icont.le.icontmax
+      if (.not.(bas_set_coeff)) then
+        write(6,*)' bas_set_coeff: ERROR '
+        write(6,*)' contraction range for basis is 1:',
+     &         icontmax
+        write(6,*)' information requested for contraction:',icont
+        return
+      endif
+c
+      mycoeffptr = infbs_cont(CONT_ICFP,myucont,basis)
+      myprim  = infbs_cont(CONT_NPRIM,myucont,basis)
+      mygen   = infbs_cont(CONT_NGEN,myucont,basis)
+c
+      bas_set_coeff = ncoeff .eq. (myprim*mygen)
+      if(.not.bas_set_coeff) then
+        write(6,*)' bas_set_coeff: ERROR '
+        write(6,*)' input and stored number of coefficients ',
+     &         '(nprim*ngen) differ '
+        write(6,*)' input  nprim*ngen: ',ncoeff
+        write(6,*)' stored nprim*ngen: ',(myprim*mygen)
+        return
+      endif
+      call dcopy(ncoeff,coeff,1,exndcf(mycoeffptr,basis),1)
+c
+      bas_set_coeff = .true.
+c
+      return
+      end
+c:: private functions used by friend functions.  
+c:: these that do need to be moved to basisP.F
+bas_rtdb_do_store()
+gbs_map_clear()
+c::private documentation
+logical function bas_rtdb_do_store(rtdb, name, tagsin, head_array,
+&       tags_array, ucont_array, excfin, ntagsin, nucontin,
+&       nexcf)
+description: argument based interface to store basis set information
+             in arrays that are of the same structure as the internal
+             basis set object routines.  
+input: rtdb [integer] rtdb handle
+       name [char*(*)] name of the basis set
+       tagsin [char*16(ntagsin)] array of names for tags 
+       head_array [integer(ndbs_head)] array that holds the header
+                  information of the basis set object data structure.
+       tags_array [integer(ndbs_tags,ntagsin)] array that holds the
+                  tag information for each tag in the basis set.
+       ucont_array [integer(ndbs_ucont,nucontin)] array that holds
+                   the unique contraction information for all
+                   contractions in the basis set.
+       excfin [double precision] linear array of exponents and contraction
+              coefficients.
+       ntagsin [integer] number of tags passed in.
+       nucontin [integer] the number of unique contractions in the
+                basis set.  
+       nexcf [integer] number of exponents and contraction coefficients.
+output: none
+return: true if information is stored properly on the rtdb.
+        false if any error occurs.
+      logical function gbs_map_clear(basisin)
+      implicit none
+#include "basP.fh"
+#include "geobasmapP.fh"
+c
+c routine to clear online map information and basis information
+c
+c::functions
+      logical bas_check_handle
+      external bas_check_handle
+c:util
+c     ifill      
+c::passed
+      integer basisin
+c::local
+      integer basis
+
+      gbs_map_clear = bas_check_handle(basisin,"gbs_map_clear")
+      if (.not. gbs_map_clear ) then
+        write(6,*) ' basis handle not valid '
+        return
+      endif
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      call ifill(ncont_mx,0,ibs_cn2ucn(1,basis),1)
+      call ifill(ncont_mx,0,ibs_cn2ce(1,basis),1)
+      call ifill(2*ncont_mx,0,ibs_cn2bfr(1,1,basis),1)
+      call ifill(nat_mx,0,ibs_ce2uce(1,basis),1)
+      call ifill(2*nat_mx,0,ibs_ce2cnr(1,1,basis),1)
+      ncont_tot_gb(basis) = 0
+      nprim_tot_gb(basis) = 0
+      nbf_tot_gb(basis)   = 0
+c
+      angular_bs(basis) = -565
+c
+      gbs_map_clear = .true.
+      return
+      end
+      logical function bas_rtdb_out(rtdb)
+      implicit none
+#include "basP.fh"
+#include "rtdb.fh"
+#include "mafdecls.h"
+c     
+c::passed
+      integer rtdb
+c     
+c     output to rtdb info about known basis sets
+c     
+      bas_rtdb_out  =
+     &     rtdb_par_put(rtdb, 'basis:nbasis',
+     &       MT_INT, 1, nbasis_rtdb)
+     &     .and.
+     &     rtdb_par_cput(rtdb, 'basis:names', nbasis_rtdb,
+     &       bs_names_rtdb)
+      if (.not. bas_rtdb_out) 
+     &     write(6,*) ' bas_rtdb_out: rtdb is corrupt '
+c     
+      end
+      logical function bas_rtdb_add(rtdb, name)
+      implicit none
+#include "basP.fh"
+#include "rtdb.fh"
+#include "mafdecls.h"
+#include "inp.fh"
+c     
+      integer rtdb              ! [input]
+      character*(*) name        ! [input]
+      integer basis
+      logical status
+      integer ln
+      logical bas_rtdb_in, bas_rtdb_out
+      external bas_rtdb_in, bas_rtdb_out
+c     
+c     See if name is on the rtdb already
+c     
+      ln = inp_strlen(name)
+      status = bas_rtdb_in(rtdb)
+      bas_rtdb_add = .true.
+      do 00100 basis = 1, nbasis_rtdb
+        if (name(1:ln) .eq.
+     &         bs_names_rtdb(basis)(1:len_bs_rtdb(basis))) return
+00100 continue
+c     
+c     Name is not present ... add and rewrite info
+c     
+      if (nbasis_rtdb .eq. nbasis_rtdb_mx) then
+         write(6,*) ' bas_rtdb_add: too many basetries on rtdb ', name
+         bas_rtdb_add = .false.
+         return
+      endif
+      nbasis_rtdb = nbasis_rtdb + 1
+      bs_names_rtdb(nbasis_rtdb) = name
+      len_bs_rtdb(nbasis_rtdb) = ln
+c     
+      bas_rtdb_add = bas_rtdb_out(rtdb)
+      if (.not. bas_rtdb_add) then
+         write(6,*) ' bas_rtdb_add: rtdb error adding ', name(1:ln)
+         return
+      endif
+c     
+      bas_rtdb_add = .true.
+c     
+      end
+      subroutine bas_err_info(info)
+      implicit none
+#include "basP.fh"
+c     
+      character*(*) info        ! [input]
+      integer bas,basin
+      integer nbas
+      logical status
+c     
+c     For internal use of the basis set routines only: print out
+c     info of known basis sets to aid in diagnosing a problem
+c     
+c::function
+      logical bas_print
+      external bas_print
+c
+      nbas = 0
+      do 00100 bas = 1, nbasis_bsmx
+        if (bsactive(bas)) nbas = nbas + 1
+00100 continue
+      write(6,'(1x,a,a,i2)')
+     &       info, ': open basis sets:',nbas
+c
+      nbas = 0
+      do 00200 bas = 1, nbasis_bsmx
+        if (bsactive(bas)) then
+          basin = bas - BASIS_HANDLE_OFFSET
+          status = bas_print(basin)
+        endif
+00200 continue
+c
+      if (nbasis_rtdb .gt. 0) then
+        write(6,'(1x,a,a,i3)')
+     &         info,': basis sets in current rtdb ',nbasis_rtdb
+        do 00300 bas = 1, nbasis_rtdb
+          write(6,'(1x,a,1x,i3,3x,a,1x,a)')
+     &           'number:',bas,
+     &           'basis set name:',
+     &           bs_names_rtdb(bas)(1:len_bs_rtdb(bas))
+00300   continue
+      endif
+c     
+      end
+      logical function bas_rtdb_in(rtdb)
+      implicit none
+#include "basP.fh"
+#include "rtdb.fh"
+#include "mafdecls.h"
+#include "inp.fh"
+c     
+      integer rtdb              ! [input]
+      integer bas
+c     
+c     load in info about known basis sets ... this is more
+c     for diagnostic and debugging purposes
+c     
+      bas_rtdb_in = .false.
+      nbasis_rtdb = 0
+      if (rtdb_par_get(rtdb, 'basis:nbasis', MT_INT, 1, nbasis_rtdb))
+     $     then
+        if (.not. rtdb_par_cget(rtdb,'basis:names', nbasis_rtdb_mx,
+     $        bs_names_rtdb)) then
+          write(6,*) 'bas_rtdb_in: rtdb corrupt'
+        else
+          do 00100 bas = 1, nbasis_rtdb
+            len_bs_rtdb(bas) = inp_strlen(bs_names_rtdb(bas))
+00100     continue
+          bas_rtdb_in = .true.
+        endif
+      endif
+c     
+      return
+      end

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.12 1994-05-05 17:44:40 d3e129 Exp $
+c $Id: basis.F,v 1.13 1994-05-16 23:25:50 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1299,6 +1299,33 @@ c
       nbf = nbf_tot_gb(basis)
       bas_numbf = .true.
       return
+      end
+      logical function bas_name(basisin,basis_name,trans_name)
+      implicit none
+#include "basP.fh"      
+#include "inp.fh"
+c::functions
+c inp_strlen() from inp
+      logical bas_check_handle
+      external bas_check_handle
+c::passed
+      integer       basisin    ! [input] basis set handle
+      character*(*) basis_name ! [output] basis set name when loaded
+      character*(*) trans_name ! [output] basis set name in context when loaded
+c::local
+      integer basis   ! actual offset into basis arrays
+      integer lenofit ! length of name
+c
+      bas_name = bas_check_handle(basisin,'bas_name')
+      if (.not. bas_name) return
+c
+      basis = basisin + BASIS_HANDLE_OFFSET 
+c
+      lenofit = inp_strlen(bs_name(basis))
+      basis_name(1:lenofit) = bs_name(basis)(1:lenofit)
+      lenofit = inp_strlen(bs_trans(basis))
+      basis_name(1:lenofit) = bs_trans(basis)(1:lenofit)
+c
       end
       logical function bas_get_exponent(basisin,icont,exp)
       implicit none

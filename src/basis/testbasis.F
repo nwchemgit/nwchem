@@ -1,11 +1,12 @@
       program testbasis
-c $Id: testbasis.F,v 1.4 1994-05-03 00:19:25 d3g681 Exp $
+c $Id: testbasis.F,v 1.5 1994-05-16 23:25:53 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
 #include "rtdb.fh"
 #include "mafdecls.h"
 #include "geom.fh"
+#include "inp.fh"
 c
 c::friends functions
       logical bas_ucontinfo
@@ -21,6 +22,7 @@ c::friends functions
 c
       integer rtdb, geom, basis, ngen,nprim, iang
       integer ncenters, sphcart, i,j
+      character*256 namename, nametrans
       character*16 drivtags(20)
       double precision coords(3,20), charge(20)
       double precision exp(400), coeff(400)
@@ -155,6 +157,16 @@ c
       status = bas_high_angular(basis,iang)
       write(6,*)' high angular momentum ', iang
       status = bas_version()
+      namename = ' '
+      nametrans = ' '
+      status = bas_name(basis,namename, nametrans)
+      write(6,*)' handle         :  ',basis, status
+      i = inp_strlen(namename)
+      write(6,'(a,a,a)')' name           : <',
+     &       namename(1:i),'>'
+      i = inp_strlen(nametrans)
+      write(6,*)' translated name: <',
+     &       nametrans(1:i),'>'
       stop ' testbasis done '
       end
 
