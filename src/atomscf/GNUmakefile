@@ -1,11 +1,10 @@
-# $Id: GNUmakefile,v 1.5 1995-03-16 23:50:24 rg240 Exp $
+# $Id: GNUmakefile,v 1.6 1995-03-31 01:32:19 d3g681 Exp $
 
-          OBJ = orderd.o 
-#
-# KSR optimize barfs on orderd.F !?
-#
+# optimization breaks on the SGITFP ... there's no point
+# optimizing this stuff anyway.
 
- OBJ_OPTIMIZE = atcond.o \
+          OBJ = orderd.o \
+                atcond.o \
                 denat.o \
 		hamild.o \
 		outpud.o \
