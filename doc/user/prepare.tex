@@ -528,11 +528,27 @@ format. The \verb+solute+ option instructs to write out the coordinates
 for solute and all, or if specified the first \verb+nsolvent+, crystal solvent 
 molecules only.
 If no format is specified, it will be derived from the extension of the
-filename. Recognized extensions are rst, rst\_old (read only), pdb and xyz
-(write only).
+filename. Recognized extensions are rst, rst\_old (read only), pdb, xyz
+(write only) and pov (write only).
 Reading and then writing the same restart file will cause the
 sub-block size information to be lost. If this information needs to be
 retained a shell copy command needs to be used.
+
+\begin{verbatim}
+scale <real scale default -1.0>
+\end{verbatim}
+
+This directive scales the volume and coordinates written to povray files.
+A negative value of scale (default) scales the coordinates to lie
+in [-1:1].
+
+\begin{verbatim}
+cpk [<real cpk default 1.0>]
+\end{verbatim}
+
+This directive causes povray files to contain cpk model output. The
+optional value is used to scale the atomic radii. A neagtive value
+of cpk resets the rendering to stick.
 
 \begin{verbatim}
 center
