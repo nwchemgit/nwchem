@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.12 1999-01-27 18:18:01 d3j191 Exp $
+c $Id: esp_out.F,v 1.13 1999-06-23 16:37:38 d3j191 Exp $
 c
       implicit none
 c
@@ -114,17 +114,6 @@ c
      + call errquit('esp_out: geom_rtdb_store failed',9999)
       endif
     3 continue
-c
-      if(me.eq.0) then
-      call util_file_name('grid',.false.,.false.,grdfil)
-      open(unit=lfngrd,file=grdfil,form='formatted',status='unknown')
-      rewind(lfngrd)
-      write(lfngrd,'(i10)') ngrid
-      do 10 i=1,ngrid
-      write(lfngrd,'(4f20.10)') (g(j,i),j=1,3),v(i)
-   10 continue
-      close(unit=lfngrd)
-      endif
 c
       return
       end
