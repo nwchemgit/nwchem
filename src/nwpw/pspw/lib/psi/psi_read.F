@@ -1,3 +1,7 @@
+*
+* $Id: psi_read.F,v 1.4 2002-01-25 17:15:06 bylaska Exp $
+*
+
 #define TCGMSG
 *     ***********************************
 *     *             			*
@@ -6,9 +10,6 @@
 *     ***********************************
 
       subroutine psi_read(ispin,ne,psi2)
-*
-* $Id: psi_read.F,v 1.3 2002-01-25 16:24:38 bylaska Exp $
-*
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
