@@ -1,0 +1,19 @@
+c
+c     Common supporting files for triples files.
+c
+c     Initialized by rjh_init_file_info and rjh_integ_write, and
+c     tidied by rjh_tidy_file_info.
+c
+c     Used by get_cct.
+c
+      integer maxfile           ! Max no. of files
+      parameter (maxfile = 16)
+      integer fds               ! EAF file descriptor, -1 if not open
+      character*16 stubs
+      character*255 filenames   ! Actual physical file name
+      
+c      
+      common / rjhfileinfo/ fds(maxfile)
+      common /crjhfileinfo/ stubs(maxfile), filenames(maxfile)
+c
+      
