@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.41 2001-12-17 04:00:29 d3j191 Exp $
+c $Id: prp_init.F,v 1.42 2002-01-16 06:37:12 d3j191 Exp $
 c
       implicit none
 c
@@ -140,7 +140,8 @@ c
       pronam( 39)='Free energy perturbation 2                  kJ/mol'
       pronam( 40)='Derivative free energy wrt lambda           kJ/mol'
       lp(40)=ntype.eq.3
-      pronam( 41)='H*dH/dL                                (kJ/mol)**2'
+      pronam( 41)='Bias corrected derivative                   kJ/mol'
+      lp(41)=(ntype.eq.3).and.(nbias.gt.0)
       pronam( 42)='Boltzmann probability factor                      '
       pronam( 43)='System dipole moment                       e30 C m'
       pronam( 44)='Displacement by pressure scaling                nm'

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.63 2002-01-15 23:03:43 d3j191 Exp $
+c $Id: prp_main.F,v 1.64 2002-01-16 06:37:12 d3j191 Exp $
 c
       implicit none
 c
@@ -340,6 +340,7 @@ c
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
       p(51)=exp(-p(50)/(rgas*temp))
+      if(nbias.gt.0) p(41)=p(40)*p(51)
       endif
 c
       if(nwm.gt.0) then
@@ -631,18 +632,18 @@ c
       integer ndec
 c
       call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),
-     + psumt(16),psumt(38),psumt(39),psumt(51))
+     + psumt(16),psumt(38),psumt(39),psumt(51),psumt(41))
 c
       return
       end
       subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,taver,
-     + ep2ave,ep3ave,ebias)
+     + ep2ave,ep3ave,ebias,dfbias)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave,ebias
+      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave,ebias,dfbias
       integer i,ndec
 c
       if(me.eq.0) then
@@ -654,8 +655,8 @@ c
       write(lfngib,1002) (dfr(i),i=1,nda)
  1002 format(4e20.12)
       write(lfngib,1003) nsumt,taver/dble(nsumt),
-     + ep2ave/dble(nsumt),ep3ave/dble(nsumt)
- 1003 format(i10,3e20.12)
+     + ep2ave/dble(nsumt),ep3ave/dble(nsumt),dfbias/ebias
+ 1003 format(i10,/,4e20.12)
       endif
       if(ndec.gt.0) call cf_wrtgib(lfngib)
 c
@@ -699,8 +700,8 @@ c
       character*10 pdate,ptime
       integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
-      real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias
-      real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias
+      real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias,dfbias
+      real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias,freeb
 c
       gbias=zero
 c
@@ -751,6 +752,7 @@ c
       rewind(lfngib)
 c
       freeti=zero
+      freeb=zero
       errti=zero
       drftti=zero
       etp=zero
@@ -775,8 +777,8 @@ c
  2001 format(4e20.12)
       read(lfngib,2002) (dfr(j),j=1,nda)
  2002 format(4e20.12)
-      read(lfngib,2003) number,taver,ep2ave,ep3ave
- 2003 format(i10,3e20.12)
+      read(lfngib,2003) number,taver,ep2ave,ep3ave,dfbias
+ 2003 format(i10,/,4e20.12)
       if(nbias.gt.0) gbias=-rgas*taver*log(ebias)
       if(ndec.gt.0) call cf_rdgib(lfngib,dec,dlambd/dble(ndec))
 c
@@ -792,11 +794,12 @@ c
      + dfree,ddrft,dsterr,dcerr,ratio)
 c
       freeti=freeti+dfree*dlambd
+      freeb=freeb+dfree*dfbias
       errti=errti+(dcerr*dlambd)**2
       drftti=drftti+ddrft*dlambd
 c
       write(lfnout,1004) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
-     + slambd,freeti,sqrt(errti),drftti/tstep,freeti-gbias,ratio
+     + slambd,freeti,sqrt(errti),drftti/tstep,freeb,ratio
  1004 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f12.3,f10.5)
 c
       elseif(k.eq.2) then
