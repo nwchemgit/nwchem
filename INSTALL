@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.32 2000-12-01 03:35:03 edo Exp $
+$Id: INSTALL,v 1.33 2000-12-04 18:13:11 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -113,21 +113,18 @@ BASIC BUILD INSTRUCTIONS:
     NWCHEM_TARGET  Platform       Checked    OS/Version    Precision 
     -----------------------------------------------------------------
     SOLARIS        Sun             ***      Solaris 2.X    double
-    IBM            IBM RS/6000     ***      AIX 3.X 4.X    double
-    DECOSF         DEC AXP         ***      Dig.Unix 4.0   double
-    SGI_N32        SGI 64 bit os   ***      IRIX           double 
+    IBM            IBM RS/6000     ***      AIX 4.X        double
+    DECOSF         DEC AXP         ***      Tru64 4.0-5.0  double
+    SGI_N32        SGI 64 bit os   ***      IRIX 6.5       double 
                    using 32 ints			       
-    SGI            SGI 32 bit os    *       IRIX 5.X 6.X   double
-    SGITFP         SGI 64 bit os    *       IRIX           double
+    SGITFP         SGI 64 bit os   ***      IRIX 6.5       double
     CRAY-T3D       Cray T3D                 UNICOS         single
     CRAY-T3E       Cray T3E        ***      UNICOS         single
     LAPI           IBM SP          ***      AIX/LAPI       double
-    LINUX          Intel x86       ***      Slackware 4.0  double
-                   Intel x86       ***      RedHat 5.2-6.2 double
-                   PowerPC         ***      RedHat 6.0     double
-    LINUX64        Alpha            *       RedHat 6.2     double
-    HPUX           HP               *       HPUX 11.0      double
-    CYGNUS         Intel x86        *       Windows98/NT   double
+    LINUX          Intel x86       ***      RedHat 5.2-6.2 double
+                   PowerPC         **       RedHat 6.0     double
+    LINUX64        Alpha           **       RedHat 6.2     double
+    HPUX           HP              **       HPUX 11.0      double
     WIN32          Intel x86        *       Windows98/NT   double
     -----------------------------------------------------------------
    *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
@@ -157,10 +154,12 @@ BASIC BUILD INSTRUCTIONS:
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
                    Power Mac       POWERPC
 
-    LINUX using the Portland Group Compiler, pgf77, is available.  Simply
-          set your environment as above and use "make FC=pgf77" in the
-          instructions below and the makefile system will take care of 
-          changing options/flags etc.  
+    LINUX using the Portland Group Compiler, pgf77, is available.  
+          However, NWChem development is under the GNU suite of
+          compilers and so the pgf77 version is far from being
+          optimal. Simply set your environment as above and 
+          use "make FC=pgf77" in the instructions below and the 
+          makefile system will take care of changing options/flags etc.  
 
 5) Configure to build the modules you need.  As a first shot you might
    wnat to build everything (i.e. "all"), and if you start running out of 
