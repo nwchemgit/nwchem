@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.17 1998-09-11 15:14:38 d3j191 Exp $
+c $Id: pre_input.F,v 1.18 1998-09-11 20:47:34 d3j191 Exp $
 c
       implicit none
 c
@@ -26,6 +26,7 @@ c
       character*4  cnoe(2)
       character*11 cfix
       real*8 rfix
+      character*1 altloc,chain
 c
       logical ltouch,lrdcoo,lslvnt,needwt
 c
@@ -50,6 +51,8 @@ c
       sysnam=' '
       slvnam='HOH'
       slvmdl='spce      '
+      altloc='A'
+      chain='A'
       newtop=0
       newseq=0
       newrst=0
@@ -198,6 +201,24 @@ c
       goto 20
       endif
       endif
+      endif
+c
+c     alternate location
+c     ------------------
+c
+      if(inp_compare(.false.,'altloc',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: altloc',9999)
+      altloc=item(1:1)
+      goto 2
+      endif
+c
+c     chain
+c     -----
+c
+      if(inp_compare(.false.,'chain',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
+      chain=item(1:1)
+      goto 2
       endif
 c
 c     topology
@@ -603,6 +624,16 @@ c
 c
       if(source(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:source',1,source))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
+      if(altloc(1:1).ne.'A') then
+      if(.not.rtdb_cput(irtdb,'prep:altloc',1,altloc))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+c
+      if(chain(1:1).ne.'A') then
+      if(.not.rtdb_cput(irtdb,'prep:chain',1,chain))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c

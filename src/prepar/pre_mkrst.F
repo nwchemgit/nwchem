@@ -1,8 +1,9 @@
       logical function pre_mkrst(irtdb,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
-     + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
+     + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
+     + chain)
 c
-c $Id: pre_mkrst.F,v 1.20 1998-09-11 15:14:39 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.21 1998-09-11 20:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -26,6 +27,7 @@ c
       character*10 slvmdl
       character*3 slvnam
       character*80 source,card,cfix
+      character*1 altloc,chain
 c
       integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
       integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
@@ -240,7 +242,8 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
+     + chain))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)

@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam)
 c
-c $Id: pre_wrtpdb.F,v 1.2 1998-09-11 15:14:41 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.3 1998-09-11 20:47:38 d3j191 Exp $
 c
       implicit none
 c
@@ -41,9 +41,9 @@ c
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
-      write(lfnpdb,1001) i,csa(i)(11:14),csa(i)(1:4),
+      write(lfnpdb,1001) i,csa(i)(11:14),csa(i)(1:3),
      + isgm(i),(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
- 1001 format('ATOM',i7,1x,a4,1x,a4,i5,4x,3f8.3,6x,f6.2,4x,a2)
+ 1001 format('ATOM',i7,1x,a3,2x,a4,i5,4x,3f8.3,6x,f6.2,4x,a2)
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
 c

@@ -1,8 +1,8 @@
       logical function pre_pdbseq(iunit,filnam,lfnout,
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
-     + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
+     + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.10 1998-07-14 15:47:29 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.11 1998-09-11 20:47:36 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -32,6 +32,7 @@ c
       character*3 namslv
       real*8 xatm(3,matm)
       character*255 filnam
+      character*1 altloc,chain
 c
       character*80 card
       integer length,mdl,iseq,isgm,i,j,k,nchain,iatm
@@ -115,7 +116,7 @@ c
       nssb=nssb+1
       if(nssb.gt.mssb) call errquit('increase mssb',9999)
       read(card,2007) lssb(1,nssb),lssb(2,nssb)
- 2007 format(16x,i4,9x,i4)
+ 2007 format(17x,i4,10x,i4)
       goto 1
       endif
 c
@@ -126,7 +127,7 @@ c
       if(nlnk.gt.mlnk) call errquit('pdbseq: increase mlnk',9999)
       read(card,2011)
      + clnk(1,nlnk),llnk(1,nlnk),clnk(2,nlnk),llnk(2,nlnk)
- 2011 format(6x,a4,6x,i4,17x,a4,6x,i4)
+ 2011 format(12x,a4,6x,i4,17x,a4,6x,i4)
       llnk(3,nlnk)=0
       llnk(4,nlnk)=0
       goto 1
@@ -135,6 +136,10 @@ c
 c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
+      if(card(17:17).ne.' '.and.
+     + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if(card(22:22).ne.' '.and.
+     + card(22:22).ne.chain.and.chain.ne.'*') goto 1
       if(mdl.eq.model) then
       read(card(23:26),1003) i
  1003 format(i4)

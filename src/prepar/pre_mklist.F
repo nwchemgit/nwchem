@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.13 1998-08-18 16:45:46 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.14 1998-09-11 20:47:35 d3j191 Exp $
 c
       implicit none
 c
@@ -104,6 +104,10 @@ c
       endif
     5 continue
 c
+      if(util_print('where',print_debug)) then
+      write(lfnout,1204) (j,(lseq(i,j),i=1,4),j=1,nseq)
+ 1204 format('lseq',i5,':',4i5)
+      endif
       do 8 i=1,nlnk
       isgm=0
       jsgm=0
@@ -111,6 +115,11 @@ c
       if(lseq(1,j).eq.llnk(1,i)) isgm=j
       if(lseq(1,j).eq.llnk(2,i)) jsgm=j
     9 continue
+      if(util_print('where',print_debug)) then
+      write(lfnout,1205) i,llnk(1,i),llnk(2,i),isgm,jsgm,
+     + lseq(1,isgm),lseq(1,jsgm)
+ 1205 format(' Link ',7i5)
+      endif
       if(isgm.eq.0.or.jsgm.eq.0)
      + call errquit('error 1 in pre_mklist',9999)
       link1=0
@@ -146,8 +155,12 @@ c
       nb=nbnd
       do 12 i=1,natm
       if(latm(3,i).gt.0) then
-      if(lmat(latm(3,i),latm(5,i)).eq.0)
-     + call errquit('error 5 in pre_mklist',9999)
+      if(lmat(latm(3,i),latm(5,i)).eq.0) then
+      write(lfnout,1101) i,latm(3,i),latm(5,i),
+     + (catm(j,i),j=1,4),lmat(latm(3,i),latm(5,i))
+ 1101 format(' Problem with bond between atoms ',3i5,4a6,' and ',i5)
+      call errquit('error 5 in pre_mklist',9999)
+      endif
       if(i.lt.lmat(latm(3,i),latm(5,i))) then
       nbnd=nbnd+1
       if(nbnd.gt.mbnd) call errquit('increase mbnd',9999)

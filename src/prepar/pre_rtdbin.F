@@ -1,8 +1,9 @@
       logical function pre_rtdbin(irtdb,ffield,
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
-     + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale)
+     + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale,
+     + altloc,chain)
 c
-c $Id: pre_rtdbin.F,v 1.10 1998-09-11 15:14:40 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.11 1998-09-11 20:47:37 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -23,6 +24,7 @@ c
       integer newtop,newseq,newrst,icount
       integer len,ndx,mgrid,mnoe,maxscf
       real*8 gdist,qscale
+      character*1 altloc,chain
 c
       character*255 key,value
 c
@@ -68,6 +70,9 @@ c
       if(.not.rtdb_get(irtdb,'prep:maxscf',mt_int,1,maxscf)) maxscf=20
       if(.not.rtdb_get(irtdb,'prep:qscale',mt_dbl,1,qscale))
      + qscale=1.2d0
+c
+      if(.not.rtdb_cget(irtdb,'prep:altloc',1,altloc)) altloc='A'
+      if(.not.rtdb_cget(irtdb,'prep:chain',1,chain)) chain='A'
 c
       if(slvnam.eq.'HOH'.and.slvmdl(1:1).eq.' ') slvmdl='spce      '
 c

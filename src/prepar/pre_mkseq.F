@@ -1,9 +1,9 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale)
+     + qscale,altloc,chain)
 c
-c $Id: pre_mkseq.F,v 1.18 1998-08-24 17:28:13 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.19 1998-09-11 20:47:35 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -49,6 +49,7 @@ c
       character*3 slvnam
       character*80 source
       character*10 slvmdl
+      character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
       integer igeom,numslv
@@ -158,7 +159,7 @@ c
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,
-     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,altloc,chain))
      + call errquit('pre_pdbseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2000) filpdb(1:index(filpdb,' ')-1)

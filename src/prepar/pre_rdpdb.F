@@ -1,8 +1,8 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain)
 c
-c $Id: pre_rdpdb.F,v 1.9 1998-09-11 15:14:40 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.10 1998-09-11 20:47:36 d3j191 Exp $
 c
       implicit none
 c
@@ -18,6 +18,7 @@ c
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
       character*3 namslv
       integer iwater
+      character*1 altloc,chain
 c
       character*6 name1,name2
       character*80 card
@@ -27,6 +28,7 @@ c
       character*4 nama
       character*6 hdr
       logical lsolut
+      character*1 alocal,achain
 c
       lnames=lnams
       iw=0
@@ -88,8 +90,11 @@ c
 c
       if(card(1:4).ne.'ATOM'.and.card(1:6).ne.'HETATM') goto 100
 c
-      read(card,1001,end=9999,err=9999) hdr,nama,namr,num,x,y,z
- 1001 format(a6,6x,a4,1x,a3,2x,i4,4x,3f8.3)
+      read(card,1001,end=9999,err=9999) hdr,nama,alocal,namr,achain,num,
+     + x,y,z
+ 1001 format(a6,6x,a4,a1,a3,1x,a1,i4,4x,3f8.3)
+      if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
+      if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100
 c
       if(card(1:6).eq.'HETATM'.and.card(18:20).eq.namslv) lsolut=.false.
 c

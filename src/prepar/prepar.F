@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.20 1998-09-11 15:14:41 d3j191 Exp $
+c $Id: prepar.F,v 1.21 1998-09-11 20:47:38 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -45,6 +45,7 @@ c
       character*10 slvmdl
       character*3 slvnam
       character*80 source
+      character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod
@@ -103,7 +104,7 @@ c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,icount,mgrid,
-     + gdist,mnoe,maxscf,qscale))
+     + gdist,mnoe,maxscf,qscale,altloc,chain))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
@@ -211,7 +212,7 @@ c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
-     + qscale))
+     + qscale,altloc,chain))
      + call errquit('pre_mkseq failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2009) filseq(1:index(filseq,' ')-1)
@@ -271,7 +272,7 @@ c     ---------------------
 c
       if(.not.pre_mkrst(irtdb,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
-     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe))
+     + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue

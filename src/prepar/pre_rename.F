@@ -1,7 +1,7 @@
       logical function pre_rename(lfnout,ffield,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: pre_rename.F,v 1.4 1998-06-08 23:29:37 d3j191 Exp $
+c $Id: pre_rename.F,v 1.5 1998-09-11 20:47:37 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -35,10 +35,13 @@ c
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   '.and.
      + latm(5,i).eq.3) cseq(2,latm(1,i))(1:3)='CYX'
     2 continue
+      do 3 i=1,nseq
+      if(cseq(2,i)(1:3).eq.'HIS') cseq(2,i)(1:3)='HID'
+    3 continue
       endif
 c
       if(ffield(1:5).eq.'charm') then
-      do 3 i=1,natm
+      do 4 i=1,natm
       if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HD1  ')
      + cseq(2,latm(1,i))(1:3)='HSD'
       if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HE2  ')
@@ -49,7 +52,7 @@ c
      + cseq(2,latm(1,i))(1:3)='HSP'
       if(cseq(2,latm(1,i))(1:3).eq.'CYS'.and.catm(2,i).eq.' SG   '.and.
      + latm(5,i).eq.3) cseq(2,latm(1,i))(1:3)='CYX'
-    3 continue
+    4 continue
       endif
 c
       if(util_print('connectivity',print_high)) then
@@ -63,7 +66,7 @@ c
      + '                 PDB   top    PDB    top     ',/)
       k=natm/2
       if(natm.gt.2*k) k=k+1
-      do 4 i=1,k
+      do 6 i=1,k
       l=i+k
       if(l.le.natm) then
       write(lfnout,1001) i,latm(1,i),(cseq(j,latm(1,i)),j=1,2),
@@ -75,7 +78,7 @@ c
      + (catm(j,i),j=1,2),latm(5,i)
       endif
  1001 format(2(i8,i6,2(1x,a5),2(1x,a6),i5,3x))
-    4 continue
+    6 continue
       write(lfnout,1002)
  1002 format(' ')
       endif

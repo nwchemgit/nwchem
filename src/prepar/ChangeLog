@@ -81,3 +81,7 @@ Aug 24 1998	 Add OH charge separation
 Aug 26 1998	 Bug fix in pre_rdrst.F
 Aug 28 1998	 Write out segment charges when writing topology file
 Sep 11 1998	 Fix bugs in crystalwater coordinate from pdb
+		 Fixes in PDB format statements
+		 Allow choice of alternate location and chain id
+		 Disallow bonds to Na, Mg, K and Ca
+		 Default HIS to HID for amber when reading PDB without hydrogens

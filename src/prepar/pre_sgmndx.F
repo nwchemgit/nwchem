@@ -1,7 +1,7 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_sgmndx.F,v 1.7 1998-06-08 23:29:38 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.8 1998-09-11 20:47:37 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -68,7 +68,7 @@ c
       csgm(lseq(2,i))=cseq(2,i)
       lsgm(1,lseq(2,i))=lsgm(1,lseq(2,i))+1
       if(lsgm(1,lseq(2,i)).eq.1) then
-      csgm(lseq(2,i))=cseq(1,i)
+      csgm(lseq(2,i))=cseq(2,i)
       lsgm(3,lseq(2,i))=lseq(3,i+1)-lseq(3,i)
       endif
     2 continue
