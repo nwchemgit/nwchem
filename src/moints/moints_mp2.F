@@ -49,7 +49,7 @@ c
        if (ihi.eq.(nbf*nbf)) then
          ndim = nocc+nvir
          vstart = nocc
-       else if (ihi.eq.(nvir*nvir)) then
+       else if ((ihi.eq.(nvir*nvir)).or.(ihi.eq.(nvir*nbf))) then
          ndim = nvir
          vstart = 0
        else if (ihi.ne.-1) then
@@ -102,6 +102,93 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
 
 
 
+       subroutine moints_e2pair( nocc, ostart, occ_lo, occ_hi,
+     $                           nvir, g_k, orbe, g_epair )
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+       integer nocc, ostart, occ_lo, occ_hi, nvir
+       double precision orbe(*)
+       integer g_k, g_epair
+       integer k_exch,ld_exch
+       integer ii,i,jj,j,ij,vstart,nnt,nbf,ndim,ij0,ofroz
+       integer ilo,ihi,jlo,jhi,my_id
+       integer ooff
+       double precision xx,denom
+       double precision moint_epair_eval
+c$$$       DOUBLE PRECISION CRAP(1000)
+c$$$       INTEGER III,JJJ
+
+       ofroz = ostart - 1
+       ooff = ((occ_lo-ofroz)*(occ_lo-ofroz-1))/2
+       nnt = ((occ_hi-ofroz)*(occ_hi-ofroz+1))/2 - ooff
+       nbf = nocc + nvir
+       my_id = ga_nodeid()
+       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
+
+c
+c Check if this node has any data
+c
+       if ((ilo.ne.1).and.(ihi.ne.-1)) call 
+     $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
+c
+c Set to handle different exchange matrix sizes
+c
+       if (ihi.eq.(nbf*nbf)) then
+         ndim = nbf
+         vstart = nocc
+       else if ((ihi.eq.(nvir*nvir)).or.(ihi.eq.(nvir*nbf))) then
+         ndim = nvir
+         vstart = 0
+       else if (ihi.ne.-1) then
+         call errquit('moints_mp2_eval: odd exchange matrix size',0)
+       endif
+c
+c Loop over occupied orbital pairs
+c
+       do i=occ_lo,occ_hi
+         ii = i - ofroz
+         do j=ostart,i
+           jj = j - ofroz
+           ij0 = (ii*(ii-1))/2 + jj
+           ij = ij0 - ooff
+           if ((ij.ge.jlo).and.(ij.le.jhi)) then
+             denom = orbe(i) + orbe(j)
+             call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
+             xx = moint_epair_eval(ndim,vstart,nocc,nvir,
+     $                             dbl_mb(k_exch),orbe,denom)
+             call ga_release(g_k,1,ihi,ij,ij)
+             if (i.eq.j) xx = xx/2.d0
+             call ga_put(g_epair,1,1,ij0,ij0,xx,1)
+           endif
+         enddo
+       enddo
+       call ga_sync()
+
+c$$$c
+c$$$c *DEBUG*
+c$$$c Print out current set of pair energies
+c$$$c
+c$$$       iii = 0
+c$$$       if (ga_nodeid().eq.0) then
+c$$$         do i=occ_lo,occ_hi
+c$$$  	   ii = i - ofroz
+c$$$           do j=ostart,i
+c$$$             jj = j - ofroz
+c$$$             ij0 = (ii*(ii-1))/2 + jj
+c$$$             call ga_get(g_epair,1,1,ij0,ij0,xx,1)
+c$$$             iii = iii + 1
+c$$$             crap(iii) = xx
+c$$$           enddo
+c$$$         enddo
+c$$$         write(6,883) (crap(jjj),jjj=1,iii)
+c$$$ 883     format(8f10.5)
+c$$$       endif
+         
+       return
+       end
+
+
 
        double precision function moint_epair_eval( ndim, vstart, nocc,
      $                                          nvir, xk, orbe, denom )
@@ -123,7 +210,6 @@ C 902     format(4(f13.8,1x,'(',2i3,')',2x))
        moint_epair_eval = xx
        return
        end
-
 
 
 

@@ -1,0 +1,43 @@
+c
+c
+c
+       double precision mi_npass
+       double precision mi_ttotal
+       double precision mi_thalf
+       double precision mi_tint
+       double precision mi_t1
+       double precision mi_t1j
+       double precision mi_t1k
+       double precision mi_t2k
+       double precision mi_t3k
+       double precision mi_t4k
+       double precision mi_t2j
+       double precision mi_t34j
+       double precision mi_t34k
+       double precision mi_flop1
+       double precision mi_synch
+       double precision mi_ntasks
+c
+c
+c
+       common/moints_stats/
+     $                     mi_npass,
+     $                     mi_ttotal,
+     $                     mi_thalf,
+     $                     mi_tint,
+     $                     mi_t1,
+     $                     mi_t1j,
+     $                     mi_t1k,
+     $                     mi_t2k,
+     $                     mi_t3k,
+     $                     mi_t4k,
+     $                     mi_t2j,
+     $                     mi_t34j,
+     $                     mi_t34k,
+     $                     mi_flop1,
+     $                     mi_synch,
+     $                     mi_ntasks
+c
+c
+c
+

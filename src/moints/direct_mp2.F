@@ -1,22 +1,23 @@
-       subroutine moint_driver( rtdb, geom, basis, movecs_in )
+       subroutine direct_mp2(rtdb)
        implicit none
 #include "mafdecls.fh"
-#include "global.fh"
 #include "tcgmsg.fh"
+#include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "schwarz.fh"
 #include "context.fh"
 c
 c
 c
        integer rtdb                        ! [input] database handle
+c
+c
+c
        integer geom, basis
+       logical status
+       character*255 title
        character*255 movecs_in
-c
-c
-c
        character*255 title_vecs, basis_vecs
        double precision nuclear_charge, charge
        integer nbf_vecs, nsets
@@ -26,22 +27,18 @@ c
        integer nbf, nsh, nelec, nact, nocc, nopen, nvir, nocc_correl
        integer occ_frozen, occ_lo, occ_hi
        integer vir_frozen, vir_lo, vir_hi, nmo, nmo2
-       integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
-       integer noper_core
+       integer noper, oseg_lo, oseg_hi, npass, blen, nocct
        integer g_coul, g_exch, g_epair
-       integer i,j,ij
-       integer ii
-       logical oexch,ocoul,oprint,status,ohalf
+       integer i, j, ij, ii
+       logical oprint,status
        double precision emp2, e2pair
-       double precision tpass
+       double precision tpass, ttotal
        character*7 algo
 c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
        data oprint/.true./
-       data ohalf/.false./
        data algo/'twofold'/
        data charge/0.d0/
 c
@@ -60,15 +57,36 @@ c
 c
 c
 c
+       if (.not. context_push('direct_mp2'))
+     $      call errquit('direct_mp2: context_push failed',0)
+       ttotal = tcgtime()
+       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+c
+c Memory settings
+c
        status = ma_set_hard_fail(.true.)
        status = ma_set_auto_verify(.true.)
 c
-c
-       status = geom_nuc_charge(geom, nuclear_charge)
-       status = status.and.bas_numbf(basis, nbf)
-       status = status.and.bas_numcont(basis,nsh)
-       if (.not. status)
-     $   call errquit('moint_driver: failed to get info', 0)
+c Extract high level info from the data-base setting defaults
+c     
+       if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $      title = ' '
+       if (.not. geom_create(geom, 'geometry'))
+     $      call errquit('direct_mp2: geom_create?', 0)
+       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     $      call errquit('direct_mp2: no geometry ', 0)
+       if (.not. bas_create(basis, 'mo basis'))
+     $      call errquit('direct_mp2: bas_create?', 0)
+       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
+     $      call errquit('direct_mp2: no mo basis ', 0)
+       if (.not. context_rtdb_match(rtdb, 'input mo vector file',
+     $      movecs_in)) movecs_in = 'movecs'
+       if (.not. geom_nuc_charge(geom, nuclear_charge))
+     $      call errquit('direct_mp2: no nuclear charge?', 0)
+       if (.not. bas_numbf(basis, nbf))
+     $      call errquit('direct_mp2: cannot get basis info',0)
+       if (.not. bas_numcont(basis,nsh))
+     $      call errquit('direct_mp2: cannot get basis info',0)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -112,14 +130,14 @@ c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, nbf_vecs, nsets, nmo, 2))
-     $    call errquit('mointdriver: cannot read MO vectors header',0)
+     $    call errquit('direct_mp2: cannot read MO vectors header',0)
        if (nbf.ne.nbf_vecs)
      $    call errquit(
-     $    'mointdriver: number of basis fun does not match input',0)
+     $    'direct_mp2: number of basis fun does not match input',0)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
-     $      errquit('mointdriver: cannot read MO vectors',0)
+     $      errquit('direct_mp2: cannot read MO vectors',0)
 c
 c Get frozen core & virtual offsets
 c
@@ -135,11 +153,8 @@ c
        nocc_correl = occ_hi - occ_lo + 1
        vir_lo = nocc + 1
        vir_hi = nbf - vir_frozen
-c$$$       vir_lo = 1
-c$$$       vir_hi = nbf
        nvir = nbf - nocc
        nmo2 = vir_hi - vir_lo + 1
-       noper = occ_hi - occ_lo + 1
 c
 c Get Block-length
 c
@@ -155,74 +170,48 @@ c
 c Maximum number of operator matrices we can allocate
 c
        nocct = (nocc_correl*(nocc_correl+1))/2
-       if ((ocoul).and.(oexch)) nocct = 2*nocct
-       max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
-       if (max_noper.gt.nocct) then
-         noper =  (nocc_correl*(nocc_correl+1))/2
+       noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
+       if (noper.gt.nocct) noper = nocct
+c
+c Allocate operator matrix
+c
+       if (algo.eq.'twofold') then
+         g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
        else
-         if ((ocoul).and.(oexch)) then
-           noper = max_noper/2
-         else
-           noper = max_noper
-         endif
-       endif
-       noper_core = noper
-       if ((ocoul).and.(oexch)) noper_core = noper*2
-c
-c Allocate operator matrices
-c
-       if (ocoul)
-     $      g_coul = ga_create_Jblocked(noper,nbf,'Coulomb oper')
-       if (oexch) then
-         if ((algo.eq.'twofold').and.(.not.(ohalf))) then
-           g_exch = ga_create_Kblocked(noper,nbf,nmo2,'X oper')
-         else
-           g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
-         endif
+         g_exch = ga_create_Kblocked(noper,nbf,nbf,'X oper')
        endif
 c
 c Allocate pair energy array
 c
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
      $      'epair',1,1,g_epair))
-     $      call errquit('cannot create epair array',0)
+     $      call errquit('direct_mp2:cannot create epair array',0)
 c
 c Print info
 c
        if (ga_nodeid().eq.0) then
          write(6,*)
          write(6,*)
-         call util_print_centered(6,'Four-Index Transformation',
-     $                            30,.true.)
-         write(6,966) nbf,nsh,nocc,nocc_correl,blen,occ_lo,occ_hi,
-     $                vir_lo,vir_hi,movecs_in, noper_core
- 966     format(10x,'Number of basis functions:',10x,i5,/,
-     $        10x,'Number of shells:',19x,i5,/,
-     $        10x,'Number of occupied orbitals:',8x,i5,/,
-     $        10x,'Number of occ. correlated orbitals:',1x,i5,/,
+         call util_print_centered(6,'Direct MP2', 30, .true. )
+         write(6,966) nbf, nsh, blen, occ_lo, occ_hi,
+     $                vir_lo, vir_hi, movecs_in, noper
+ 966     format(
+     $        10x,'Basis functions:',20x,i5,/,
+     $        10x,'Shells:',29x,i5,/,
      $        10x,'Block length:',23x,i5,/,
-     $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
-     $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
+     $        10x,'Active occupied range:',11x,i3,1x,'-',i3,/,
+     $        10x,'Active virtual range:',12x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Number of operator matrices in core:',i5)
+     $        10x,'Operator matrices in core:',10x,i5,/)
          call util_flush(6)
-         if (ohalf) then
-           write(6,957) 
- 957       format(10x,'Half-transformed integrals produced')
-         else
-           write(6,958)
- 958       format(10x,'Half-transformed integrals not produced')
-         endif
        endif
 c
 c Clear 4-index statistics
 c
        call moints_stats_clear()
-
 c
 c Loop over segments of occupied orbitals
 c
-       if (ga_nodeid().eq.0) write(6,*)
        npass = 0
        oseg_hi = occ_lo - 1
  22    continue
@@ -231,17 +220,18 @@ c
        oseg_lo = oseg_hi + 1
        oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
 c
-c  J & K build routines
+c J & K build routines: two algorithm choices
 c
        if (algo.eq.'sixfold') then
          call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
-     $                        g_coul, ocoul, g_exch, oexch,
+     $                        g_coul, .false., g_exch, .true.,
      $                        blen )
        else
-         call moints_build_2x(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
+         call moints_build_2x(basis,  .false., occ_lo,
+     $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
-     $                        g_coul, ocoul, g_exch, oexch,
+     $                        g_coul, .false., g_exch, .true.,
      $                        blen )
        endif
 c
@@ -264,7 +254,7 @@ c
 c
 c Evaluate mp2 correction from pair energies
 c
-       if ((oexch).and.ga_nodeid().eq.0) then
+       if (ga_nodeid().eq.0) then
          npairs = (nocc_correl*(nocc_correl+1))/2
          status = ma_push_get(MT_DBL, npairs, 'Pair energies',
      $                        l_epair, k_epair)
@@ -280,7 +270,7 @@ c
            enddo
          enddo
          write(6,997)
- 997     format(//,15x,'Pair Energies',/)
+ 997     format(//,15x,'MP2 Pair Energies',/)
          write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
  998     format(8f10.5)
          write(6,999) emp2
@@ -290,53 +280,26 @@ c
          status = ma_pop_stack(l_epair)
        endif
        call ga_sync()
+       ttotal = tcgtime() - ttotal
+       if (ga_nodeid().eq.0) write(6,823) ttotal
+ 823   format('Total MP2 time:',5x,f10.2)
 c
-c
+c Cleanup
 c
        status = ga_destroy(g_epair)
-       if (ocoul) status = ga_destroy(g_coul)
-       if (oexch) status = ga_destroy(g_exch)
+       status = ga_destroy(g_exch)
        status = ma_pop_stack(l_evals)
-c
-c
-c
-c
        call schwarz_tidy()
        status = status.and.ma_pop_stack(l_occ)
-       if (.not.status) call errquit('moints: cannot pop stack?',0)
+       if (.not.status) call errquit('direct_mp2: cannot pop stack?',0)
        status = ga_destroy(g_vecs)
+       status = geom_destroy(geom)
+       if (.not. context_pop('direct_mp2'))
+     $     call errquit('context_pop failed',0)
 c
 c
 c
        return
        end
 
-
-
-
-
-
-
-
-
-
-
-       integer function moints_occrange( noper, ostart, ilo, ohi )
-       implicit none
-       integer noper, ostart, ilo, ohi
-       integer trioff, i, ihi, ii
-       integer ofroz
-
-       ofroz = ostart - 1
-       ihi = 0
-       trioff = ((ilo-ofroz)*(ilo-ofroz-1))/2
-       do i=ilo,ohi
-         ii = ((i-ofroz)*(i-ofroz+1))/2
-         if ((ii-trioff).le.noper) ihi = i
-       enddo
-       if (ihi.eq.0)
-     $   call errquit('moints_occrange: not enough memory to do MP2',0)
-       moints_occrange = ihi
-       return
-       end
 
