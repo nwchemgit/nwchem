@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.10 2002-01-10 00:28:29 edo Exp $
+c $Id: psp_generator_input.F,v 1.11 2002-01-14 21:41:11 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -47,6 +47,8 @@ c
       real*8  v_eig(NMAX)
       real*8  v_rcut(NMAX)
       real*8  r_semicore
+      integer lmax00,locp00
+      real*8  rlocal00
 
       character lmax
       integer h,i,j,k,debug
@@ -381,7 +383,21 @@ c
       k = index(pseudopotential_filename,' ') -1
 
       debug = 1
+      lmax00   = -1
+      if (lmax.eq.'s') lmax00 = 0
+      if (lmax.eq.'p') lmax00 = 1
+      if (lmax.eq.'d') lmax00 = 2
+      if (lmax.eq.'f') lmax00 = 3
+      if (lmax.eq.'g') lmax00 = 4
+      if (lmax.eq.'S') lmax00 = 0
+      if (lmax.eq.'P') lmax00 = 1
+      if (lmax.eq.'D') lmax00 = 2
+      if (lmax.eq.'F') lmax00 = 3
+      if (lmax.eq.'G') lmax00 = 4
+      locp00   = -1
+      rlocal00 = 1.0d0
       call pspsolve(debug,
+     >              lmax00,locp00,rlocal00,
      >              sdir_name(1:h),   h,
      >              dir_name(1:i),    i,
      >              pspgenerator(1:j),j,
