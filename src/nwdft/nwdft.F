@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.14 1995-03-01 23:09:08 d3e863 Exp $
+C$Id: nwdft.F,v 1.15 1995-04-26 03:47:18 og845 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult,converged
       logical ok,CDFIT,XCFIT
@@ -20,7 +20,7 @@ c
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
-#include "io.fh"
+#include "stdio.fh"
 c     
 c>>>  includes added on addition of NWdft to nwchem
 c     
@@ -33,10 +33,6 @@ c>>>
 c     
 
       iproc  = ga_nodeid()
-C
-C	assign stdout to unit 6
-C
-      lwr=6
 c
 c     Push context down to DFT (copied from scf.F)
 c
@@ -67,7 +63,7 @@ c
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
-           call main3d(geom,rtdt,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
+        call main3d(geom,rtdt,ncent,AO_bas_han,CD_bas_han,XC_bas_han)
       else
         call errquit('nwdft: problem with system type',0)
       endif
@@ -105,7 +101,7 @@ c
 c
 c--> Flush ouput buffer.
 c
-      if(iproc.eq.0) call flush(lwr)
+      if(iproc.eq.0) call flush(LuOut)
 
       nwdft = .true.
       if (.not. context_pop('dft')) 
@@ -114,12 +110,3 @@ c
       return
       end
  
-
-
-
-
-
-
-
-
-
