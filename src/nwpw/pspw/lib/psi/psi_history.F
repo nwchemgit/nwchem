@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.1 2001-12-31 22:53:00 bylaska Exp $
+* $Id: psi_history.F,v 1.2 2002-01-01 01:19:49 bylaska Exp $
 *
 
 *     *******************************
@@ -104,11 +104,11 @@
 *     **** external functions ****
       integer  psi_history_size,psi_history_pointer_start
       integer  ion_nion
-      real*8   ion_rion,dsum
+      real*8   ion_rion
        
       external psi_history_size,psi_history_pointer_start
       external ion_nion
-      external ion_rion,dsum
+      external ion_rion
 
       call Parallel_taskid(taskid)
       size = psi_history_size()
@@ -188,9 +188,13 @@
 
 *     **** solve Mx=b ****
       call dgesv((size-1),1,M,5,ipiv,coef,(size-1),info)
-      if ((info.ne.0).or.(dabs(dsum((size-1),coef,1)).gt.100.0d0)) then
+      if (info.ne.0) then
         call dcopy((size-1),0.0d0,0,coef,1)
       end if
+      do i=1,size-1
+        if (dabs(coef(i)) .gt.100.0d0) 
+     >    call dcopy((size-1),0.0d0,0,coef,1)
+      end do
 
       value = MA_pop_stack(gion(2))
       value = value.and.MA_pop_stack(rion2(2))
