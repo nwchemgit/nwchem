@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.8 1998-10-21 18:56:55 og845 Exp $
+c$Id: xc_hcth.F,v 1.9 1998-10-21 23:31:21 og845 Exp $
 c
       Implicit none
 c
@@ -69,9 +69,9 @@ c
         enddo
       else
         do n=1,nq
+          if(rho(n,1).gt.tol_rho) then
           rhoa=rho(n,2)
           rhob=rho(n,3)
-          if(rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then
             za=0.d0
             gammaval=delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
@@ -802,30 +802,26 @@ Cfah construction of the F_xc itself
 Cfah -------------------------------
         IF (rhoa.GT.tol_rho) THEN
           F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
-          if(abs(u_caa).gt.0.d0)F_xc(n*3+2) = e_caa*u_caa**n*c_naa
         ENDIF
+          if(abs(u_caa).gt.0.d0)F_xc(n*3+2) = e_caa*u_caa**n*c_naa
 
         IF (rhob.GT.tol_rho) THEN
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
+        ENDIF
           if(abs(u_cbb).gt.0.d0)
      .         F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
-        ENDIF
 
-        IF (rhoa.GT.tol_rho .AND. rhob.GT.tol_rho) THEN
           if(abs(u_cab).gt.0.d0)F_xc(n*3+3) = e_cab*u_cab**n*c_nab
-        ENDIF
 
 Cfah       print*, 'in deriv:', e_cab, u_cab, c_nab
 
 Cfah    First Derivatives
 Cfah ---------------------
 
-        if(za.gt.tol_rho) 
-     *       dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
-        dF_xa(2) = 0 
-        if(za.gt.tol_rho) 
-     *        dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
-        dF_xa(4) = 0 
+        if(za.gt.tol_rho)then 
+            dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
+            dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
+          endif
 
         if(zb.gt.tol_rho) then
              dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
