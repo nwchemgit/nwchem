@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: pre_sgmndx.F,v 1.11 2001-11-06 06:15:21 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.12 2001-11-28 15:19:48 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -141,6 +141,7 @@ c
       endif
     9 continue
 c
+c     check the contributed dbase directory
 c
       if(len_q.gt.0) then
       filnam=dir_q(1:len_q)//csgm(i)(1:length)//'.sgm '
@@ -150,7 +151,7 @@ c
       close(iunit)
       goto 15
    10 continue
-      filnam=dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
+      filnam=dir_q(1:len_q)//csgm(i)(1:length)//'.frg '
       open(iunit,file=filnam(1:index(filnam,' ')-1),form='formatted',
      + status='old',err=11)
       lsgm(2,i)=-3

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.44 2001-11-21 21:39:30 d3j191 Exp $
+c $Id: prepar.F,v 1.45 2001-11-28 15:19:48 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -199,8 +199,8 @@ c
      + ' File name standard parameters',t40,a,/)
  2002 format(' Directory extensions files',t40,a,/,
      + ' File name extensions parameters',t40,a,/)
- 2003 format(' Directory QA test files',t40,a,/,
-     + ' File name QA test parameters',t40,a,/)
+ 2003 format(' Directory contributed files',t40,a,/,
+     + ' File name contributed parameters',t40,a,/)
  2004 format(' Directory user preferences files',t40,a,/,
      + ' File name user preference parameters',t40,a,/)
  2005 format(' Directory temporary files',t40,a,/,
