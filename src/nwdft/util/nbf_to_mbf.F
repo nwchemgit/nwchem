@@ -4,7 +4,7 @@
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
-      parameter(acc_gauss=15.)
+      parameter(acc_gauss=20.)
       integer basis_hand, geom_hand
 
       Logical LResult
