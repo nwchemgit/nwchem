@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.4 2001-10-24 21:36:56 windus Exp $
+c $Id: ga_it2.F,v 1.5 2002-02-22 01:52:50 edo Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -629,7 +629,9 @@ c
 c
       do i = 0, nsing-1
          if (dbl_mb(k_val+i) .lt. tol) then
-            write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
+            if (ga_nodeid() .eq. 0) then
+              write(6,*) ' neglecting ', i+1, dbl_mb(k_val+i)
+            endif
             dbl_mb(k_val+i) = 0.0d0
          else
             dbl_mb(k_val+i) = 1.0d0/dbl_mb(k_val+i)
