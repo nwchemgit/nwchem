@@ -1,5 +1,5 @@
       subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.15 2002-07-03 19:44:57 d3k958 Exp $
+C$Id: movecs_proj.F,v 1.16 2002-07-03 20:56:20 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -35,7 +35,7 @@ c     !! THE RESULTING MOS WILL NOT BE ORTHONORMAL
 c
       integer iset ! [in] 1 = alpha 2 =beta
       integer basis_handles(2)
-      integer old_nbf, old_nsets, old_nmo, file_nbf
+      integer old_nbf, old_nsets, old_nmo(2), file_nbf
       integer g_old_vecs
       integer g_over
       integer g_mix
@@ -85,7 +85,7 @@ c
      $     call errquit('movecs_project: int_normalize failed', 0)
       if (.not. movecs_read_header(old_filename, old_title,
      $     basis_name_from_file, old_scftype, 
-     $     file_nbf, old_nsets, old_nmo, 1)) 
+     $     file_nbf, old_nsets, old_nmo, 2)) 
      $     call errquit
      $     ('movecs_project: failed to read old header', 0)
 c
@@ -106,7 +106,7 @@ c
 c
 *ga:1:0
 c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
-      if (.not. ga_create(mt_dbl, old_nbf, old_nmo, 'Old vectors',
+      if (.not. ga_create(mt_dbl, old_nbf, old_nmo(1), 'Old vectors',
      $     0, 0, g_old_vecs)) call errquit
      $     ('movecs_project: failed creating old vectors', 0)
       if (.not. ma_push_get(mt_dbl, old_nbf, 'Old occ',
@@ -126,7 +126,7 @@ c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
      $        old_title(1:inp_strlen(old_title)),
      $        old_nbf,
      $        old_nsets,
-     $        old_nmo,
+     $        old_nmo(1),
      $        old_basis_name(1:inp_strlen(old_basis_name)),
      $        basis_name_from_file(1:inp_strlen(basis_name_from_file))
  1       format(/
@@ -160,7 +160,7 @@ c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
      $     ('movecs_project: create mixed overlap', 0)
 *ga:1:0
 c      if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
-      if (.not. ga_create(mt_dbl, nbf, old_nmo, 'Temp',
+      if (.not. ga_create(mt_dbl, nbf, old_nmo(1), 'Temp',
      $     0, 0, g_mix)) call errquit
      $     ('movecs_project: create temp', 0)
       call ga_zero(g_mix)
@@ -184,7 +184,7 @@ c      if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
 *
 
 c      call ga_dgemm('n','n',nbf,old_nbf,old_nbf,one,g_over,
-      call ga_dgemm('n','n',nbf,old_nmo,old_nbf,one,g_over,
+      call ga_dgemm('n','n',nbf,old_nmo(1),old_nbf,one,g_over,
      $     g_old_vecs,zero,g_mix)
       if (.not. ga_destroy(g_over)) call errquit
      $     ('movecs project: ga_destroy?', 0)
@@ -216,8 +216,8 @@ c      call ga_dgemm('n','n',nbf,old_nbf,old_nbf,one,g_over,
 *      endif
 *      call ga_sync
 *
-      if (old_nmo.gt.nmo) old_nmo = nmo
-      call ga_dgemm('n','n',nbf,old_nmo,nbf,one,g_over,g_mix,
+      if (old_nmo(1).gt.nmo) old_nmo(1) = nmo
+      call ga_dgemm('n','n',nbf,old_nmo(1),nbf,one,g_over,g_mix,
      $     zero,g_vecs(iset))
       if (.not. ga_destroy(g_over)) call errquit
      $     ('movecs project: ga_destroy?', 0)
