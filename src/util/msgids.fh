@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.13 1995-05-15 17:00:44 d3e129 Exp $
+C$Id: msgids.fh,v 1.14 1995-06-19 18:23:55 og845 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -44,6 +44,7 @@ C
       Integer Msg_UHF
       Integer Msg_gen_at_nat, Msg_gen_at_restart
       Integer Msg_gen_at_iatom, Msg_gen_at_ixyz
+      Integer Msg_dftg_cdf,Msg_schw2,Msg_schw3
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -153,3 +154,9 @@ C
       Parameter (Msg_gen_at_restart = MSG_Ftn_Base - 78)
       Parameter (Msg_gen_at_iatom   = MSG_Ftn_Base - 79)
       Parameter (Msg_gen_at_ixyz    = MSG_Ftn_Base - 80)
+C
+      Parameter (Msg_dftg_cdf       = MSG_Ftn_Base - 81)
+C
+      Parameter (Msg_schw2    = MSG_Ftn_Base - 82)  ! DFT: no. of  schwarz blocks
+      Parameter (Msg_schw3    = MSG_Ftn_Base - 83)  ! DFT: no. of  schwarz blocks
+
