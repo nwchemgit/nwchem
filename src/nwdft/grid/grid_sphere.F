@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.16 2001-11-09 02:18:02 edo Exp $
+c$Id: grid_sphere.F,v 1.17 2002-04-04 17:39:17 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -193,53 +193,53 @@ c
       onxyz2=nxyz*0.5d0
       if(mod(nxyz,2).eq.0) then
          if(nx.le.nxyz2) then
-            rmax=rmax+((onxyz2-onx)+1d0)**2
-            rmin=rmin+(onxyz2-onx)**2
+            rmax=rmax+((onxyz2-onx)+1d0)*((onxyz2-onx)+1d0)
+            rmin=rmin+(onxyz2-onx)*(onxyz2-onx)
          elseif(nx.gt.nxyz2) then
-            rmax=rmax+(onx-onxyz2)**2
-            rmin=rmin+(onx-nxyz2-1d0)**2
+            rmax=rmax+(onx-onxyz2)*(onx-onxyz2)
+            rmin=rmin+(onx-nxyz2-1d0)*(onx-nxyz2-1d0)
          endif
          if(ny.le.nxyz2) then
-            rmax=rmax+((onxyz2-ony)+1d0)**2
-            rmin=rmin+(onxyz2-ony)**2
+            rmax=rmax+((onxyz2-ony)+1d0)*((onxyz2-ony)+1d0)
+            rmin=rmin+(onxyz2-ony)*(onxyz2-ony)
          elseif(ny.gt.nxyz2) then
-            rmax=rmax+(ony-onxyz2)**2
-            rmin=rmin+(ony-nxyz2-1d0)**2
+            rmax=rmax+(ony-onxyz2)*(ony-onxyz2)
+            rmin=rmin+(ony-nxyz2-1d0)*(ony-nxyz2-1d0)
          endif
          if(nz.le.nxyz2) then
-            rmax=rmax+((onxyz2-onz)+1d0)**2
-            rmin=rmin+(onxyz2-onz)**2
+            rmax=rmax+((onxyz2-onz)+1d0)*((onxyz2-onz)+1d0)
+            rmin=rmin+(onxyz2-onz)*(onxyz2-onz)
          elseif(nz.gt.nxyz2) then
-            rmax=rmax+(onz-onxyz2)**2
-            rmin=rmin+(onz-nxyz2-1d0)**2
+            rmax=rmax+(onz-onxyz2)*(onz-onxyz2)
+            rmin=rmin+(onz-nxyz2-1d0)*(onz-nxyz2-1d0)
          endif
       else
          if(nx.le.nxyz2) then
-            rmax=rmax+((onxyz2-onx)+1d0)**2
-            rmin=rmin+(onxyz2-onx)**2
+            rmax=rmax+((onxyz2-onx)+1d0)*((onxyz2-onx)+1d0)
+            rmin=rmin+(onxyz2-onx)*(onxyz2-onx)
          elseif(nx.eq.int(onxyz2+0.5d0)) then
             rmax=rmax+.25d0
          elseif(nx.gt.nxyz2) then
-            rmax=rmax+(onx-onxyz2)**2
-            rmin=rmin+(onx-onxyz2-1d0)**2
+            rmax=rmax+(onx-onxyz2)*(onx-onxyz2)
+            rmin=rmin+(onx-onxyz2-1d0)*(onx-onxyz2-1d0)
          endif
          if(ny.le.nxyz2) then
-            rmax=rmax+((onxyz2-ony)+1d0)**2
-            rmin=rmin+(onxyz2-ony)**2
+            rmax=rmax+((onxyz2-ony)+1d0)*((onxyz2-ony)+1d0)
+            rmin=rmin+(onxyz2-ony)*(onxyz2-ony)
          elseif(ny.eq.int(onxyz2+0.5d0)) then
             rmax=rmax+.25d0
          elseif(ny.gt.nxyz2) then
-            rmax=rmax+(ony-onxyz2)**2
-            rmin=rmin+(ony-onxyz2-1d0)**2
+            rmax=rmax+(ony-onxyz2)*(ony-onxyz2)
+            rmin=rmin+(ony-onxyz2-1d0)*(ony-onxyz2-1d0)
          endif
          if(nz.le.nxyz2) then
-            rmax=rmax+((onxyz2-onz)+1d0)**2
-            rmin=rmin+(onxyz2-onz)**2
+            rmax=rmax+((onxyz2-onz)+1d0)*((onxyz2-onz)+1d0)
+            rmin=rmin+(onxyz2-onz)*(onxyz2-onz)
          elseif(nz.eq.int(onxyz2+0.5d0)) then
             rmax=rmax+.25d0
          elseif(nz.gt.nxyz2) then
-            rmax=rmax+(onz-onxyz2)**2
-            rmin=rmin+(onz-onxyz2-1d0)**2
+            rmax=rmax+(onz-onxyz2)*(onz-onxyz2)
+            rmin=rmin+(onz-onxyz2-1d0)*(onz-onxyz2-1d0)
          endif
       endif
       rmax=sqrt(rmax)*ll

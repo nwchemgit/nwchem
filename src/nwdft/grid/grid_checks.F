@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.16 2001-03-12 15:22:09 bjohnson Exp $
+c$Id: grid_checks.F,v 1.17 2002-04-04 17:39:17 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -34,9 +34,9 @@ c
       jtype=iatype(ibt)
       same_ctr=iat.eq.ibt
       if(nrad(itype).eq.0.or.nrad(jtype).eq.0) return
-      rij=sqrt((xa(1)-xb(1))**2+
-     .     (xa(2)-xb(2))**2+
-     .     (xa(3)-xb(3))**2)
+      rij=sqrt((xa(1)-xb(1))*(xa(1)-xb(1))+
+     .     (xa(2)-xb(2))*(xa(2)-xb(2))+
+     .     (xa(3)-xb(3))*(xa(3)-xb(3)))
       pi=dacos(-1d0)
       niter=0
 c

@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.6 2000-06-08 02:06:28 edo Exp $
+c$Id: grid_setang.F,v 1.7 2002-04-04 17:39:17 edo Exp $
 c
       implicit none
 c      
@@ -49,7 +49,8 @@ c
      &                    awghts(1,iang))
 c
             do 200 n = 1, ntheta(iang)
-               sintheta(n,iang) = sqrt(1.D0 - costheta(n,iang)**2)
+               sintheta(n,iang) = sqrt(1.D0 -
+     .            costheta(n,iang)*costheta(n,iang))
   200       continue
 c
 c           Define the Gauss-Chebyshev points and weights for the phi integration.

@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.40 2001-12-21 23:08:19 edo Exp $
+c$Id: grid_rtrunc.F,v 1.41 2002-04-04 17:39:17 edo Exp $
 c
       implicit none
 c      
@@ -310,9 +310,13 @@ c
 c
 c     bit to add from gaussian product formula
 c               
-              rrr=   sqrt((coord(1,iat)-coord(1,jat))**2+
-     .              (coord(2,iat)-coord(2,jat))**2+
-     .              (coord(3,iat)-coord(3,jat))**2)
+              rrr=   sqrt(
+     .             (coord(1,iat)-coord(1,jat))*
+     .             (coord(1,iat)-coord(1,jat))+
+     .              (coord(2,iat)-coord(2,jat))*
+     .              (coord(2,iat)-coord(2,jat))+
+     .              (coord(3,iat)-coord(3,jat))*
+     .              (coord(3,iat)-coord(3,jat)))
                shift_2g=rrr*exp_iat/
      /              (exp_iat+minexp(jat))
 c               if(shift_2g.gt.1e-12) shift_2g=shift_2g*2d0

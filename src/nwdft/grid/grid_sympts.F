@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.18 2001-12-14 20:27:04 edo Exp $
+c$Id: grid_sympts.F,v 1.19 2002-04-04 17:39:17 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -292,7 +292,7 @@ c
          x1=ops(1,h,1)*x(1)+ops(1,h,2)*x(2)+ops(1,h,3)*x(3)-x(1)
          y1=ops(2,h,1)*x(1)+ops(2,h,2)*x(2)+ops(2,h,3)*x(3)-x(2)
          z1=ops(3,h,1)*x(1)+ops(3,h,2)*x(2)+ops(3,h,3)*x(3)-x(3)
-         ddd=x1**2+y1**2+z1**2
+         ddd=x1*x1+y1*y1+z1*z1
          if(ddd.lt.1d-10) then
             nops_out=nops_out+1
             gops(1,nops_out,1)=ops(1,h,1)
