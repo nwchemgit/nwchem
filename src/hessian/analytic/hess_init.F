@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.20 2001-10-02 21:52:34 windus Exp $
+C $Id: hess_init.F,v 1.21 2001-10-02 23:50:25 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -201,10 +201,12 @@ c
       chunk(1) = dims(1)
       chunk(2) = -1
       chunk(3) = -1
-      if (.not. nga_create (MT_DBL, 3, dims, chunk, g_rhs))
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS RHS',chunk, 
+     &     g_rhs))
      &   call errquit('hess_init: could not allocate g_rhs',555)
       call ga_zero(g_rhs)
-      if (.not. nga_create (MT_DBL, 3, dims, chunk, g_rhs_xc))
+      if (.not. nga_create (MT_DBL, 3, dims, 'DFT CPKS RHS',chunk, 
+     &     g_rhs_xc))
      &   call errquit('hess_init: could not allocate g_rhs_xc',555)
       call ga_zero(g_rhs_xc)
 c
