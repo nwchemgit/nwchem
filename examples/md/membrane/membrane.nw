@@ -1,0 +1,139 @@
+start .membrane_example
+
+# Generate the topology file and restart file for a monomer
+# Add three biasing potential to force the monomer molecule
+# to align in the z-direction
+
+prepare
+ system mono_em
+ new_top new_seq
+ select 1  1:_NZ 1:_C2 1:_P 2:_C1
+ select 2  2:_C5 3:_C1 3:_C3 3:_C5 3:_C7
+ select 3  2:_C3 4:_C1 4:_C3 4:_C5
+ pmf zalign 1  1.0E06 1.0E06
+ pmf zalign 2  1.0E06 1.0E06
+ pmf zalign 3  1.0E06 1.0E06
+ new_rst
+end
+
+task prepare
+
+# Minimize the structure with the biasing potentials
+
+md
+ system mono_em
+ sd 1000
+ pmf
+end
+
+task md optimize
+
+# Generate a membrane by duplication of the monomer four times
+# in the x and three fimes in the y direction. Duplicate in the
+# z direction in inverted position. Make sure anu atoms from
+# different molecules are separated at least 0.3 nm in the 
+# x and y plane. A 0.0 nm separation is used between the inverted
+# copies.
+
+prepare
+ system mono_em
+ read mono_em.qrs
+ repeat invert 4 3 -2 0.3 0.0
+ write mem.pdb
+end
+
+task prepare
+
+# Generate a topology file and restart file for the membrane.
+# add three biasing potential to force each monomer molecule
+# to align in the z-direction. Also align the LPO:_C2 atoms
+# from each molecule in the top layer and in the inverted
+# bottom layer in the x-y plane.
+
+prepare
+ system mem_em
+ new_top new_seq
+ new_rst
+ select 1  1:_NZ 1:_C2 1:_P 2:_C1
+ select 2  2:_C5 3:_C1 3:_C3 3:_C5 3:_C7
+ select 3  2:_C3 4:_C1 4:_C3 4:_C5
+ select 4  2:_C2 6:_C2 10:_C2 14:_C2 18:_C2 22:_C2 26:_C2 30:_C2 34:_C2 38:_C2 42:_C2 46:_C2
+ select 5 50:_C2 54:_C2 58:_C2 62:_C2 66:_C2 70:_C2 74:_C2 78:_C2 82:_C2 86:_C2 90:_C2 94:_C2
+ pmf all zalign 1  1.0E05 1.0E06
+ pmf all zalign 2  1.0E05 1.0E06
+ pmf all zalign 3  1.0E05 1.0E06
+ pmf xyplane 4 1.0E05 1.0E06
+ pmf xyplane 5 1.0E05 1.0E06
+ periodic
+ box -1.0 -1.0 12.0
+ write mem_em.rst
+ write mem_em.pdb
+end
+
+task prepare
+
+# Optimize the membrane subject to the biasing potentials
+
+md
+ system mem_em
+ sd 200
+ msa 4000
+ pmf
+end
+
+task md optimize
+
+# Generate a PDB file for visual inspection of the structure
+
+prepare
+ system mem_em
+ read mem_em.qrs
+ write mem_md.pdb
+end
+
+task prepare
+
+# Copy the optimized structure to a restart file for the initial MD
+
+task shell "cp mem_em.qrs mem_md.rst"
+
+# Perform an initial MD simulation with anisotropic pressure
+# scaling in the x and y dimensions only
+
+md
+ system mem_md
+ equil 0 data 10000
+ record rest 1000 prop 10
+ print step 1 stat 10
+ isotherm 100.0
+ isobar anisotropic xy
+ msa 4000
+ pmf
+end
+
+task md dynamics
+
+# Generate a PDB file for visual inspection of the structure
+
+prepare
+ system mem_md
+ read mem_md.rst
+ write mem_md000.pdb
+end
+
+task prepare
+
+# Solvate this membrane, making sure that no water molecules
+# end up in the lipid area 
+
+prepare
+ system mem_solvate
+ read mem_md.rst
+ box -0.1 -0.1 7.0
+ solvate 0.0 box
+ remove solvent inside z -2.0 2.0
+ write mem_md001.pdb
+ write mem_md001.rst
+end
+
+task prepare
