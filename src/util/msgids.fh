@@ -137,6 +137,7 @@ c
       integer msg_riscf_free
 c
       integer msg_grad_xc
+      integer msg_max_3c_incore
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -361,3 +362,6 @@ C
 c
       parameter (msg_grad_xc=msg_ftn_base-202) !  dftgrad: dftg_force
       parameter (msg_riscf_free=msg_ftn_base-203) !  dftgrad: dftg_force
+c     
+      parameter (msg_max_3c_incore = msg_ftn_base - 204) ! dft: igop on iwhat_max
+c     
