@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.35 2003-04-07 21:29:49 edo Exp $
+# $Id: doqmtests,v 1.36 2003-04-11 01:37:00 edo Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o #pyqa
@@ -45,6 +45,7 @@ runtests.unix tddft_h2o
 runtests.unix tddft_n2+
 runtests.unix tce_h2o
 runtests.unix oniom1
+runtests.unix c60_ecp
 #---   long  may not run on workstations
 runtests.unix aump2 
 runtests.unix n2_ccsd 
