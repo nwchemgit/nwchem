@@ -1,7 +1,7 @@
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc, 
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: grad1.F,v 1.11 1995-11-07 19:59:59 vg038 Exp $
+c$Id: grad1.F,v 1.12 1995-11-13 16:56:38 d3g681 Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 
@@ -12,7 +12,6 @@ C     one electron contribution to RHF, ROHF and UHF gradients
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
-#include "tcgmsg.fh"
 #include "sym.fh"
 
 C-------------------------parameters--------------------------------
@@ -51,6 +50,10 @@ C-------------------------local variables--------------------------
 
       character*16 name
 
+      integer nxtask, task_size
+      external nxtask
+
+      task_size = 1
       iproc = ga_nodeid()
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 
@@ -59,7 +62,7 @@ C-------------------------local variables--------------------------
       call hf_print_set(1)
 
       ijatom = -1
-      next = nxtval(nproc)
+      next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
         do 80, iat2 = 1, iat1
 
@@ -178,12 +181,12 @@ C               no forces between point charges (for John Nicholas)
               endif
             endif
 
-            next = nxtval(nproc)
+            next = nxtask(nproc,task_size)
           endif
 
  80     continue
  90   continue
-      next = nxtval(-nproc)
+      next = nxtask(-nproc,task_size)
 
       return
       end

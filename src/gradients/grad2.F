@@ -3,14 +3,13 @@
      $                  frc, g_dens, ldim,
      $                  basis, nproc, nat, scr, lscr, buf, lbuf, tol2e,
      $                  s34, oactive, oskel, scftype)
-c$Id: grad2.F,v 1.14 1995-11-07 20:00:02 vg038 Exp $
+c$Id: grad2.F,v 1.15 1995-11-13 16:56:39 d3g681 Exp $
 
       implicit none
 
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 
@@ -51,6 +50,9 @@ C-------------------------local variables-----------------------------
      $     itop3, itop4, if1, il1, if2, il2, if3, il3, if4, il4,
      $     ip1, ip2, ip3, ip4, nshbfp, nshbfq, Nint
 
+      integer nxtask, task_size
+      external nxtask
+
       dimension idatom(4)
 
       double precision dE, den2, q4, q2, s12, half, quart, eigh, sixh
@@ -76,8 +78,10 @@ C-------------------------local variables-----------------------------
 
       q4 = 1.0d0                ! If not using symmetry
 
+      call fock_2e_est_task(geom, oskel, tol2e, task_size)
+
       ijatom = -1
-      next = nxtval(nproc)
+      next = nxtask(nproc,task_size)
       do 95, iat3 = nat, 1, -1
 #if defined(REPORT_LOOP)        
         if(ga_nodeid().eq.0) then
@@ -325,7 +329,7 @@ C---------------------------------------------------------------------
                     endif         !schwarz
  70               continue
  75             continue
-                next = nxtval(nproc)
+                next = nxtask(nproc,task_size)
               endif ! next
 
  1020             continue
@@ -335,7 +339,7 @@ C---------------------------------------------------------------------
  85       continue
  90     continue
  95   continue
-      next = nxtval(-nproc)
+      next = nxtask(-nproc,task_size)
       return
       end
 
