@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.118 2004-04-06 16:18:30 d3j191 Exp $
+c $Id: pre_input.F,v 1.119 2004-04-07 14:46:13 d3j191 Exp $
 c
       implicit none
 c
@@ -293,7 +293,8 @@ c
       itopol=1
       goto 2
       endif
-      if(inp_compare(.false.,'free',item)) then
+      if(inp_compare(.false.,'free',item).or.
+     + inp_compare(.false.,'mcti',item)) then
       itopol=2
       goto 2
       endif
