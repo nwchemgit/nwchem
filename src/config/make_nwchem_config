@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.125 2000-07-25 18:05:34 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.126 2000-08-01 19:53:15 d3g681 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -282,7 +282,7 @@ else
 	echo $(STUBROUTINES)  >> $@ 
 endif
 ifeq ($(CONFIG_LIBS),)
-	echo "No extra configuration libraries where added " >> $@
+	echo "No extra configuration libraries were added " >> $@
 else
 	echo "These libraries were added as at configuration time as "
 	echo "extras over the default libraries for the given target"
