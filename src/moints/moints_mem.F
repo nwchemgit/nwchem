@@ -6,7 +6,7 @@ c
 c
        integer function moints_numoper( basis, algo, nbf, nocc,
      $                                  nvir, blen, oprint )
-C$Id: moints_mem.F,v 1.3 1995-04-19 00:43:35 rg240 Exp $
+C$Id: moints_mem.F,v 1.4 1995-08-07 05:33:36 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -22,6 +22,7 @@ c
        integer max2e, mem2, maxbfsh, bsize, mem_req
        integer mem_avail, mem_min_local, noper_node, noper
        integer mem_int, mem_mo, mem_blk, mem_buf1, mem_buf2
+       integer gmem_max
 c
 c
 c
@@ -54,16 +55,28 @@ c
 c 10% safety margin
 c
        mem_req = mem_req*1.1
-c
-c
-c
        if (mem_req.gt.mem_min_local)
      $   call errquit(
      $   'not enough local memory to do transformation',mem_req)
-       noper_node = (mem_min_local-mem_req)/(nbf*nbf)
+c
+c Reconcile local and global memory requirements
+c
        noper = (nocc*(nocc+1))/2
-       moints_numoper = ga_nnodes()*noper_node
-
+       if (ga_uses_ma()) then
+         noper_node = (mem_min_local-mem_req)/(nbf*nbf)
+         moints_numoper = ga_nnodes()*noper_node
+       else
+         gmem_max = ga_memory_avail()
+         if (gmem_max.gt.0) then
+           moints_numoper = gmem_max/(8*nbf*nbf)
+           noper_node = moints_numoper/ga_nnodes()
+         else
+           call errquit('cannot determine transformation GA',0)
+         endif
+       endif
+c
+c Printout
+c
        if (ga_nodeid().eq.0.and.oprint) write(6,933) mem_int,
      $                                    mem_mo,
      $                                    mem_blk,
