@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.4 1995-01-12 18:44:48 pg511 Exp $
+# $Id: make_nwchem_config,v 1.5 1995-01-24 03:12:16 pg511 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -60,8 +60,8 @@ endif
 
 MODULES := $(patsubst develop,develop rimp2,$(MODULES) )
 
-MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
-MODULES := $(patsubst graddft,graddft gradients ddscf,$(MODULES) )
+MODULES := $(patsubst stepper,stepper gradients graddft,$(MODULES) )
+MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
 
@@ -107,7 +107,7 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad,dft_grad_top,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad, dft_grad_top grad_dft nwdft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest,$(STUBROUTINES) )
