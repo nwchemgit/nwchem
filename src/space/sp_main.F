@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.47 2000-03-18 00:01:14 d3j191 Exp $
+c $Id: sp_main.F,v 1.48 2000-04-11 15:21:10 d3j191 Exp $
 c
       implicit none
 c
@@ -1867,7 +1867,7 @@ c
       end
       subroutine sp_getxpbl(ibbl,lhandl,local,
      + iwl,xw,pw,pwp,iwfr,iwto,jwfr,jwto,
-     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself)
+     + isl,xs,ps,psp,isfr,isto,jsfr,jsto,lself,lpbcs)
 c
       implicit none
 c
@@ -1880,12 +1880,14 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 pw(mwm,3,mwa,2),ps(msa,3,2)
       real*8 pwp(mwm,3,mwa,2,2),psp(msa,3,2,2)
-      logical lself,local
+      logical lself,local,lpbcs
 c
       call sp_gtxpbl(ibbl,lhandl,local,
      + iwl,int_mb(i_packw),xw,pw,pwp,iwfr,iwto,jwfr,jwto,
      + isl,int_mb(i_pack),xs,ps,psp,isfr,isto,jsfr,jsto,
      + int_mb(i_bb),int_mb(i_ipl),int_mb(i_jpl),lself,.true.)
+c
+      lpbcs=lpbc9
 c
       return
       end
