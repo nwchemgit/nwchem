@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.436 2003-12-17 22:24:23 mhackler Exp $
+# $Id: makefile.h,v 1.437 2003-12-31 02:14:28 nwchem Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1146,6 +1146,50 @@ endif
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
 endif
+endif
+ifeq ($(TARGET),MACX)
+#
+# DEC AXP OSF1
+#
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+
+    CORE_SUBDIRS_EXTRA = blas lapack
+#                  NICE = nice
+#                SHELL := $(NICE) /bin/sh
+                    FC = g77
+
+
+               INSTALL = @echo nwchem is built
+               RANLIB = ranlib
+             MAKEFLAGS = -j 1 --no-print-directory
+
+
+             DEFINES = -DMACX  #-DPARALLEL_DIAG
+             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
+# this are for PowerPC
+    ifeq ($(FC),xlf)
+      FOPTIONS  = -q32  -qextname -qfixed -qnosave -qsmallstack  -qalign=4k
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap
+      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto
+      FDEBUG= -O2 -g
+      EXPLICITF = TRUE
+      DEFINES  +=   -DXLFLINUX
+      CPP=/usr/bin/cpp  -P -C -traditional
+      FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+    else
+      FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
+      FOPTIMIZE  = -g -O2
+    endif
+    ifeq ($(CC),xlc)
+      COPTIONS  +=  -q32 -qlanglvl=extended
+    else
+      COPTIONS   = -Wall
+      COPTIMIZE  = -g -O2
+    endif
+#    LDOPTIONS += -v
+  EXTRA_LIBS += -lm  /usr/lib/libgcc.a
+
 endif
 
 

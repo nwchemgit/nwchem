@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.104 2003-11-17 01:31:51 edo Exp $
+# $Id: DEFS,v 1.105 2003-12-31 02:14:32 nwchem Exp $
 #
 #======================================================================
 #
@@ -488,6 +488,23 @@ peigs_FC += -O4  -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF -tune host -
      peigs_CC  += -DSTD_INT
      peigs_FC  += -DSTD_INT
   endif
+endif
+
+ifeq ($(peigs_TARGET),MACX)
+#MACOSX
+peigs_CPU  = RS6000
+peigs_COMM = TCGMSG
+peigs_CODEOBJ = DBLE
+peigs_CC += -DSTD_DBL -DSTD_INT
+peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+peigs_CPP += -DSTD_INT -DSTD_DBL -P
+#peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
+-D${peigs_TARGET_definition}
+    ifeq ($(FC),xlf)
+      peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
+      -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
+    endif
 endif
 
 ifeq ($(peigs_TARGET),LINUX64)

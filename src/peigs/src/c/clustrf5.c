@@ -1,5 +1,5 @@
 /*
- $Id: clustrf5.c,v 1.15 2000-10-25 17:43:52 d3g270 Exp $
+ $Id: clustrf5.c,v 1.16 2003-12-31 02:14:32 nwchem Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -81,7 +81,7 @@
  */
 
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include "globalp.c.h"
