@@ -1,6 +1,6 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad,
      &                       convggm, convgg, convge )
-c     $Id: stpr_output.F,v 1.10 1998-04-21 06:57:29 mdupuis Exp $
+c     $Id: stpr_output.F,v 1.11 1999-01-15 19:51:50 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "mafdecls.fh"
@@ -9,10 +9,12 @@ c     $Id: stpr_output.F,v 1.10 1998-04-21 06:57:29 mdupuis Exp $
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / SWITCH / SECO, SWSEC, SWFIR
-      double precision mxgrad, grad_max, grad_norm, stepmax, stepnorm
+      double precision mxgrad, stepmax, stepnorm
       double precision convggm, convgg, convge
       DIMENSION STEP(NAT3),
      &     COORD(3,NATOM)
+      double precision grad_max, grad_norm 
+      external grad_max, grad_norm
 c
       oprint_info = util_print('information',print_default)
 c
