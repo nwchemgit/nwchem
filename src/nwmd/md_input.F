@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.18 2000-05-17 21:08:09 d3j191 Exp $
+c $Id: md_input.F,v 1.19 2000-05-19 16:56:31 d3j191 Exp $
 c
       implicit none
 c
@@ -1090,6 +1090,10 @@ c
       endif
       if(inp_compare(.false.,'average',item)) then
       itload=2
+      goto 700
+      endif
+      if(inp_compare(.false.,'average',item)) then
+      itload=3
       goto 700
       endif
       if(inp_compare(.false.,'size',item)) then

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.85 2000-05-18 21:11:38 d3j191 Exp $
+c $Id: md_main.F,v 1.86 2000-05-19 16:56:32 d3j191 Exp $
 c
       implicit none
 c
@@ -1193,10 +1193,13 @@ c
       syntim=timer_wall(4)
       elseif(itload.eq.1) then
       syntim=timer_wall_minimum(4)
+      elseif(itload.eq.2) then
+      syntim=timer_wall_average(4)
       else
       syntim=timer_wall_average(4)
+      if(me.eq.0) syntim=timer_wall_minimum(4)
       endif
-      if(me.eq.0) then
+      if(me.eq.0.and.(nfcoor.gt.nfpair.and.nfcoor.lt.np)) then
       if(corrio.ge.syntim) then
       syntim=zero
       else
@@ -2041,7 +2044,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.85 2000-05-18 21:11:38 d3j191 Exp $
+c $Id: md_main.F,v 1.86 2000-05-19 16:56:32 d3j191 Exp $
 c
       implicit none
 c
