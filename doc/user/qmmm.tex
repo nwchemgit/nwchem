@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.6 1997-06-27 08:58:35 d3e129 Exp $
+% $Id: qmmm.tex,v 1.7 2000-05-03 19:37:59 d3j191 Exp $
 
 \label{sec:qmmm}
 
@@ -17,20 +17,20 @@ appropriate results\footnote{c.f., Singh and Kollman, J. Comp. Chem.
   Vol. 7, pp 119-185 (1995); and M. A. Thompson and G. K. Schenter, J.
   Phys. Chem {\bf 99} 6374 (1995) }.
 
-The QM/MM module in NWChem is driven by the molecular dynamics module
-(nwARGOS).  This module currently works for any QM method that has
+The QM/MM module in NWChem is driven by the molecular dynamics module.
+This module currently works for any QM method that has
 analytic gradients\footnote{The QM/MM method will work with numerical
   gradients available in NWChem, but it is expected that the
   performance will not allow any substantive simulations}.  The input
 for this requires the definition of chemical system via the same
-interface that is used by the nwARGOS module (c.f. Section
-\ref{sec:nwARGOS}).  The extensions to this interface include the
+interface that is used by the MD module (c.f. Section
+\ref{sec:nwmd}).  The extensions to this interface include the
 definition of ``Quantum'' atoms and ``Link'' where appropriate.  The
 QM information must be present in the traditional NWChem input deck
 except for the geometry\footnote{Any geometry information in the
   traditional form will be ignored}.  The geometrical information will
-be constructed automatically by nwARGOS.  For dynamics and free energy
-simulations the input is again identical to that for nwARGOS with
+be constructed automatically by nwmd.  For dynamics and free energy
+simulations the input is again identical to that for nwmd with
 limitations on the kinds of simulations that can be done.
 
 The QM/MM module is invoked with the task directive where the
@@ -38,7 +38,7 @@ The QM/MM module is invoked with the task directive where the
 directive are energy, optimize, and dynamics.
 
 \begin{verbatim}
-  TASK QMMM (energy || optimize || dynamics)
+  TASK QMMM (energy | optimize | dynamics)
 \end{verbatim}
 
 Tasks \verb+gradient+, \verb+saddle+, \verb+frequencies+ and
@@ -80,5 +80,5 @@ There is no default for this and the input {\bf must} be present for a
 QM/MM simulation.  
 
 All other parameters that control the QM/MM simulation are set via the
-input to nwARGOS (see chapter \ref{sec:nwARGOS}).
+input to nwmd (see chapter \ref{sec:nwmd}).
 
