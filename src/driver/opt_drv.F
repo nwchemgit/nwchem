@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.35 1997-07-02 17:06:14 mdupuis Exp $
+C$Id: opt_drv.F,v 1.36 1997-07-02 20:21:56 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
