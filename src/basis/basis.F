@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.72 1997-10-23 01:03:37 d3e129 Exp $
+c $Id: basis.F,v 1.73 1997-11-07 12:47:15 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1293,6 +1293,8 @@ c.... set flag if any sp (spd,spdf) shells are present
       if(.not. Is_ECP(basis)) then
         do i = 1,(infbs_head(Head_Ncont,basis))
           if (.not.bas_any_sp_shell(basis)) then
+            my_gen  = infbs_cont(Cont_Ngen,i,basis)
+            my_type = infbs_cont(Cont_Type,i,basis)
             if (my_type.lt.0) then
               if (my_gen.ne.2) then
                 write(luout,*)' sp shell with n_gen = ',my_gen
