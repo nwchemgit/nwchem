@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.5 1999-09-20 20:14:54 d3j191 Exp $
+c $Id: cf_shake.F,v 1.6 1999-10-08 18:27:28 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -356,7 +356,7 @@ c
       do 18 iwb=1,nwb
       iwa=ibnd(iwb,1)
       jwa=ibnd(iwb,2)
-      cdwb2=bnd(iwb,1,3)-bnd(iwb,1,1)
+      cdwb3=bnd(iwb,1,3)-bnd(iwb,1,1)
       do 19 iwm=1,nwmloc
       ydif1=yw(iwm,1,iwa)-yw(iwm,1,jwa)
       ydif2=yw(iwm,2,iwa)-yw(iwm,2,jwa)
