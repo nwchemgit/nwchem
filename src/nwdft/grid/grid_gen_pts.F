@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.3 1999-06-14 22:39:21 d3h449 Exp $
+c$Id: grid_gen_pts.F,v 1.4 1999-06-14 22:58:51 d3h449 Exp $
 c
       implicit none
 c      
@@ -19,8 +19,8 @@ c
       logical leb
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       integer mxnrad, nqlen, lqs, iqs
-      integer lwqbuf, iwqbuf, laqbuf, iaqbuf
-      integer write_quad_buf_size, ang_quad_buf_size
+      integer laqbuf, iaqbuf
+      integer ang_quad_buf_size
 c
 c     Need coordinates of all atoms.     
 c
@@ -59,14 +59,6 @@ c
 c     The points (rotationally invariant if desired) are generated and written to disk
 c     with fixed number of points (buffer size).
 c
-      write_quad_buf_size = 10000 ! this number should be determined by mem constraints
-c
-c     store x, y, z, and w
-c
-      if (.not.MA_Push_get(MT_dbl, 4*write_quad_buf_size,
-     &                     'quad pts write buffer', lwqbuf, iwqbuf))
-     &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
-c
 c     buffer size needed to hold largest angular quadrature is nqmax
 c
       ang_quad_buf_size = nqmax
@@ -74,10 +66,8 @@ c
       if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
      &                     'ang quad pts buffer', laqbuf, iaqbuf))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
-         write(6,*)' ang_quad_buf_size = ', ang_quad_buf_size
-         call dfill(dbl_mb(iaqbuf), 0.0d0, 4*ang_quad_buf_size, 1)
+c
       call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
-     &                dbl_mb(iwqbuf), write_quad_buf_size,
      &                dbl_mb(iaqbuf), ang_quad_buf_size)
 c
 c     try to balance the number of tasks on each node
@@ -85,8 +75,6 @@ c
       call grid_file_balance()
 c
       if (.not. MA_Pop_Stack(laqbuf))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
-      if (.not. MA_Pop_Stack(lwqbuf))
      &   call errquit('grid_gen_pts: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lqs))
      &   call errquit('grid_gen_pts: pop stack failed.',0)

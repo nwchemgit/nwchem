@@ -1,20 +1,16 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
-     &                      wqbuf, npts_per_task,
      &                      aqbuf, npts_per_ang)
 c
-c$Id: grid_tasks.F,v 1.6 1999-06-14 22:39:27 d3h449 Exp $
+c$Id: grid_tasks.F,v 1.7 1999-06-14 22:58:51 d3h449 Exp $
 c
       implicit none
 c
-c     npts_per_task = target grid points per task
-c
-      integer rtdb, qsh, nqlen, npts_per_task, npts_per_ang
+      integer rtdb, qsh, nqlen, npts_per_ang
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
-      double precision coord, wqbuf, aqbuf, rad
+      double precision coord, aqbuf, rad
       dimension coord(3,ncenters)
       dimension qsh(3,nqlen)
-      dimension wqbuf(4,npts_per_task)
       dimension aqbuf(4,npts_per_ang)
 c
 #include "cdft.fh"
@@ -30,9 +26,6 @@ c
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,n1,n2,nproc
-Clrchi,irchi,lrdelchi,irdelchi,
-c     ,     lrchi_loc,irchi_loc,lrde_loc,irde_loc
-c      integer nest_tsk,nrchi_task
       integer nxtask
       external nxtask
       logical leb,lssw
@@ -51,7 +44,6 @@ c
 c     Open grid pts file
 c
       call grid_packing_info
-c      nrchi_task=1
 c
 c     temp set gridfilename to gridpts
 c
@@ -104,33 +96,6 @@ C      call a_dist(coord, Dbl_MB(iRij), ncenters)
      &   call errquit('grid_tasks: cannot allocate rq',0)
       if (.not.MA_Push_get(mt_dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_tasks: cannot allocate rq',4)
-c
-c     estimate of ntask/node
-c
-c      nproc=ga_nnodes()
-cc
-cc     is this too conservative or WRONG?
-cc
-c      nest_tsk=ncenters*1.2*nqshells/nproc
-cc
-cc     allocate rchi
-cc
-c      if (.not.MA_alloc_Get(MT_Dbl,nest_tsk,'rchi_atom',
-c     &     lrchi,irchi))
-c     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
-cc
-c      if (.not.MA_alloc_Get(MT_Dbl,nest_tsk,'rdchi_atom',
-c     &     lrdelchi,irdelchi))
-c     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
-c      if (.not.MA_Push_Get(MT_Dbl,ncenters,'rchi_atom',
-c     &     lrchi_loc,irchi_loc))
-c     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
-cc
-c      if (.not.MA_Push_Get(MT_Dbl,ncenters,'rdchi_atom',
-c     &     lrde_loc,irde_loc))
-c     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
-c      call dfill(nest_tsk, 0.0d0, dbl_mb(irchi), 1)
-c      call dfill(nest_tsk, 0.0d0, dbl_mb(irdelchi), 1)
 c      
       nproc=ga_nnodes()
 c
@@ -174,19 +139,6 @@ c
 c        now pack this aqbuf into the write buffer (write and update task counter as needed)
 c
          call grid_file_write(npts_iqsh, ictr, rad, aqbuf)
-cc
-cc     compute rchi and store it in memory
-cc
-cc coord redefined in setspac?
-cc     WARNING: grid_rchi reorders aqbuf from (4,*) to (3,*)
-cc
-c         call grid_rchi(nrchi_task,npts_per_task,
-c     ,        npts_iqsh,ictr, ncenters,
-c     ,        dbl_mb(irchi),dbl_mb(irdelchi), 
-c     ,        dbl_mb(irchi_loc),dbl_mb(irde_loc), 
-c     ,        rad, aqbuf, coord, 
-c     ,        dbl_mb(iexpo), dbl_mb(irq),dbl_mb(irij))
-c
 c
          n1 = n1 + 1
          n2 = nxtask(nproc,1)
@@ -205,28 +157,10 @@ c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf)
-c      call grid_rchi(nrchi_task,npts_per_task,
-c     ,     0,ictr, ncenters,
-c     ,     dbl_mb(irchi),dbl_mb(irdelchi), 
-c     ,     dbl_mb(irchi_loc),dbl_mb(irde_loc), 
-c     ,     rad, aqbuf, coord, 
-c     ,     dbl_mb(iexpo), dbl_mb(irq),dbl_mb(irij))
-      write(6,*)' n_tot_tasks = ', n_tot_tasks
-c  
-c      if (.not. grid_file_close(.true.))
-c     $   call errquit('grid_tasks: closing gridpts?', 0)
-c
+c      write(6,*)' n_tot_tasks = ', n_tot_tasks
 c
 c     clean up
 c
-c      if (.not. MA_Pop_Stack(lrde_loc))
-c     &   call errquit('grid_tasks: pop stack failed.',0)
-c      if (.not. MA_Pop_Stack(lrchi_loc))
-c     &   call errquit('grid_tasks: pop stack failed.',0)
-cc      if (.not. MA_Pop_Stack(lrdelchi))
-cc     &   call errquit('grid_tasks: pop stack failed.',0)
-cc      if (.not. MA_Pop_Stack(lrchi))
-cc     &   call errquit('grid_tasks: pop stack failed.',0)
       if (.not. MA_Pop_Stack(lexpo))
      &   call errquit('grid_tasks: pop stack failed.',1)
       if (.not. MA_Pop_Stack(lp))
