@@ -6,7 +6,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.18 2004-01-02 23:25:07 edo Exp $
+C$Id: xc_replicated.F,v 1.19 2004-11-03 00:25:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -149,7 +149,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.18 2004-01-02 23:25:07 edo Exp $
+C$Id: xc_replicated.F,v 1.19 2004-11-03 00:25:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -159,6 +159,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "dftpara.fh"
+#include "dftps.fh"
       integer g_vxc(2),ipol,nbf_ao
       logical dograd ! true if just gradient (not energy)
 c
@@ -172,8 +173,12 @@ c
          do i = 1, ipol
             if(.not.dograd) then
                if(dorepxc) then
+      if (odftps) call pstat_on(ps_xmrge)
                   call ga_merge_mirrored(k_repxc(i))
+      if (odftps) call pstat_off(ps_xmrge)
+      if (odftps) call pstat_on(ps_xcopy)
                   call ga_copy(k_repxc(i),g_vxc(i))
+      if (odftps) call pstat_off(ps_xcopy)
                   if (.not.ga_destroy(k_repxc(i)))
      &              call errquit('xc_rep_close: cannot gadestr',i,
      &       GA_ERR)
