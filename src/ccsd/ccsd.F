@@ -26,6 +26,8 @@ c
 c
 c     Extract high level info from the data-base setting defaults
 c
+C ADRIAN
+C
 c ------OLD CCSD CODE
 c
 c$$$      do_old=.false.
