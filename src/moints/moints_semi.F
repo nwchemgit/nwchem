@@ -1,6 +1,5 @@
 c
-c
-c  $Id: moints_semi.F,v 1.1 1995-10-17 16:39:09 rg240 Exp $
+c  $Id: moints_semi.F,v 1.2 1995-10-18 22:28:41 rg240 Exp $
 c
 c  This routine writes or returns
 c  half-transformed integrals
@@ -11,8 +10,9 @@ c
      $                         olo, ohi, vlo, vhi, g_movecs )
        implicit none
 #include "tcgmsg.fh"
-#include "global.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "sym.fh"
 #include "bas.fh"
 c
        integer basis                          ! [input]  Basis handle
@@ -22,9 +22,6 @@ c
        integer olo, ohi                       ! [input]  Occupied Index range for this segment
        integer vlo, vhi                       ! [input]  Virtual Index range
        integer g_movecs                       ! [input]  MO coefficients
-c
-       integer junit, kunit
-       parameter(junit=10,kunit=11)
 c
        integer l_gmap, k_gmap
        integer l_shmap, k_shmap
@@ -41,9 +38,17 @@ c
        integer g_jbuf
        integer g_kbuf
        logical status
+       logical osym
        double precision tsemi
        character*256 fname
-       data blksiz/16/                         ! Affects performance only
+#ifdef CRAY-T3D
+       double precision kunit, junit
+#else
+       integer junit, kunit
+       data junit,kunit/10,11/
+#endif
+       data blksiz/16/                              ! Affects performance only
+       data osym/.false./
 c
        integer moints_numgr
        integer moints_lmem
@@ -152,8 +157,12 @@ c
        vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
        if (oexch) then
-         call moints_localfname( 'KHalf', fname, len )          
+         call moints_localfname( 'KHalf', fname, len, kunit )
+#ifdef CRAY-T3D
+         call wopen(kunit, 2, 0, ierr )
+#else
          call wopen(kunit, fname, len, 1, 0, ierr )
+#endif
          vtmp(3) = balo
          vtmp(4) = bahi
          call putwa( kunit, vtmp, 1,
@@ -163,8 +172,12 @@ c
      $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        endif
        if (ocoul) then
-         call moints_localfname( 'JHalf', fname, len )          
+         call moints_localfname( 'JHalf', fname, len, junit )
+#ifdef CRAY-T3D
+         call wopen( junit, 1, 0, ierr )
+#else
          call wopen(junit, fname, len, 1, 0, ierr )
+#endif
          vtmp(3) = bilo
          vtmp(4) = bihi
          call putwa( junit, vtmp, 1,
@@ -180,6 +193,7 @@ c  Call the real stuff
 c
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                     olo, ohi, vlo, vhi, ocoul, oexch,
+     $                     osym, kunit, junit,
      $                     int_mb(k_shmap), blksiz, ngrp,
      $                     int_mb(k_gmap), int_mb(k_gloc),
      $                     nnbf, int_mb(k_iopass), int_mb(k_rlen),
@@ -197,18 +211,27 @@ c
      $     call errquit('moints: failed to pop', l_gmap)
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap)
-       if ((ocoul).and.(.not. ga_destroy(g_jbuf)))
+
+       if (ocoul) then
+         if (.not. ga_destroy(g_jbuf))
      $     call errquit('moints: failed to destroy g_jbuf',g_jbuf)
-       if ((oexch).and.(.not. ga_destroy(g_kbuf)))
+       endif
+
+       if (oexch) then
+         if (.not. ga_destroy(g_kbuf))
      $     call errquit('moints: failed to destroy g_kbuf',g_kbuf)
+       endif
 c
-       if (oexch) call wclose(kunit, ierr )
-       if (ocoul) call wclose(junit, ierr )
+       if (oexch) call wclose( kunit, ierr )
+       if (ocoul) call wclose( junit, ierr )
 c
        call ga_sync()
        tsemi = tcgtime() - tsemi
-       if (ga_nodeid().eq.0) write(6,881) tsemi
- 881   format(/,'Time for semi-direct half-transformation:',f12.3)
+       if (ga_nodeid().eq.0) then
+         write(6,881) tsemi
+ 881     format(/,'Time for semi-direct half-transformation:',f12.3)
+         call util_flush(6)
+       endif
        return
        end
        
@@ -227,6 +250,7 @@ c
 c
        subroutine moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                           olo, ohi, vlo, vhi, ocoul, oexch,
+     $                           osym, kunit, junit,
      $                           shmap, blksiz, ngrp, gmap,
      $                           gloc, nnbf, iopass, rlen,
      $                           g_movecs, g_jbuf, g_kbuf )
@@ -250,6 +274,12 @@ c
        integer vlo, vhi                       ! 2nd Pair Index range
        logical ocoul                          ! Toggle Coulomb
        logical oexch                          ! Toggle exchange
+       logical osym                           ! Toggle symmetry
+#ifdef CRAY-T3D
+       double precision junit, kunit          ! Unit numbers for IO
+#else
+       integer junit, kunit                   ! Unit numbers for IO
+#endif
        integer shmap(nsh)                     ! Map for shells
        integer blksiz                         ! Blocksize
        integer ngrp                           ! Number of groups of shells
@@ -261,9 +291,6 @@ c
        integer g_movecs                       ! MO coefficients
        integer g_jbuf                         ! Buffer for half-trans Coulomb
        integer g_kbuf                         ! Buffer for half-trans exchange
-c
-       integer junit, kunit
-       parameter(junit=10,kunit=11)
 c
 c Local variables
 c
@@ -282,7 +309,7 @@ c
        integer bsize
        integer mem2, max2e, jopass, iocnt
        integer num_nodes, ploop, next
-       double precision tol2e, scale, schw_ij
+       double precision scale, schw_ij
        double precision tpass
        logical status
 c
@@ -367,8 +394,8 @@ c
                  tpass = tcgtime() - tpass
                  write(6,901) ga_nodeid(), next, iopass(next), jopass,
      $                        rlen(jopass), tpass
- 901             format('Me:',i5,5x,'Next:',i5,5x,'IOPass(next):',i5,5x,
-     $                  'Pass:',i5,5x,'Length:',i6, 5x,'Time:',f12.3)
+ 901             format('Me:',i5,2x,'Next:',i5,2x,'IOPass:',i5,2x,
+     $                  'Pass:',i5,2x,'Length:',i6,2x,'Time:',f10.3)
 	         CALL UTIL_FLUSH(6)
                  iocnt = iocnt + rlen(jopass)
                  jopass = jopass + 1
@@ -389,7 +416,7 @@ c
      $                               max2e, dbl_mb(k_eri), mem2,
      $                               dbl_mb(k_iscr), ilen, jlen,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb) )
+     $                               dbl_mb(k_ssbb), osym )
                    if (lb.ne.kb) then
                      call moints_blktr( ilen, jlen, kblen, lblen,
      $                                  dbl_mb(k_ssbb),
@@ -445,8 +472,11 @@ c
        tpass = tcgtime() - tpass
        write(6,901) ga_nodeid(), next, iopass(next), jopass,
      $              rlen(jopass), tpass
-       CALL UTIL_FLUSH(6)
        next = nxtval(-num_nodes)
+       CALL GA_SYNC()
+       CALL UTIL_FLUSH(6)
+       PRINT*,'ME:',GA_NODEID(),' End AO integral loop and final write'
+       CALL UTIL_FLUSH(6)
 c
 c Clean-up
 c
@@ -607,7 +637,11 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#ifdef CRAY-T3D
+      double precision munit
+#else
       integer munit
+#endif
       integer olo, ohi, plo, phi
       integer nnbf, iocnt, rlen
       integer g_buf
@@ -620,9 +654,6 @@ c
       np = phi - plo + 1
       myid = ga_nodeid()
       call ga_distribution(g_buf, myid, rlo, rhi, clo, chi )
-c$$$      WRITE(6,922) GA_NODEID()
-c$$$ 922  FORMAT(' $$$$ WR_BUF:',I5)
-c$$$      CALL UTIL_FLUSH(6)
       do o=olo,ohi
         do p=plo,phi
           po = (p-plo)*nocc + o - olo + 1
@@ -729,9 +760,6 @@ c
       double precision c(nbf,nbf)
       double precision orbe(nbf)
 c
-      integer kunit
-      parameter(kunit=11)
-c
       integer nocc, nvir, nnbf, ioff, v, o, balo, bahi, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       integer j, jj, vvlo, vvhi, k_local, ld, myid
@@ -739,16 +767,25 @@ c
       integer g_exch
       double precision tmp2
       INTEGER G_PAIR, IJ, NNOCC
-      character*255 fname
+      character*256 fname
+#ifdef CRAY-T3D
+      double precision kunit
+#else      
+      integer kunit
+      data kunit/11/
+#endif
       double precision xx, denom, e2
       logical status
       double precision moints_epair_eval
       external moints_epair_eval
 
       tmp2 = tcgtime()
-      call moints_localfname( 'KHalf', fname, len )          
+      call moints_localfname( 'KHalf', fname, len, kunit )
+#ifdef CRAY-T3D
+      call wopen(kunit, 2, 0, itmp )
+#else
       call wopen(kunit, fname, len, 1, 0, itmp )
-c$$$      PRINT*,'Start readintK',itmp
+#endif
       myid = ga_nodeid()
       e2 = 0.d0
       nocc = ohi - olo + 1
@@ -992,7 +1029,11 @@ c
 
       subroutine moints_rdhfint( munit, vlo, vhi, o, v, nnbf, ioff, t )
       implicit none
+#ifdef CRAY-T3D
+      double precision munit
+#else
       integer munit
+#endif
       integer vlo, vhi, o, v, nnbf, ioff
       double precision t(nnbf)
       integer faddr, nvir, ierr
@@ -1011,10 +1052,16 @@ c
 
       subroutine moints_vrange( munit, balo, bahi, nnbf, ioff )
       implicit none
+#include "global.fh"
 #include "mafdecls.fh"
+#ifdef CRAY_T3D
+      double precision munit
+#else
       integer munit
+#endif
       integer balo, bahi, nnbf, ioff
-      integer vtmp(10), i, ierr
+      integer vtmp(10), ierr
+C      INTEGER I
 
       call getwa( munit, vtmp, 1,
      $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
@@ -1023,9 +1070,15 @@ c
       balo = vtmp(3)
       bahi = vtmp(4)
 
-c$$$      PRINT*,'READING BACK INITIAL PARAMETERS'
-c$$$      WRITE(6,771) (VTMP(I),I=1,10)
-c$$$ 771  FORMAT(16I4)
+c$$$      PRINT*,'ME: ',GA_NODEID(),' ERROR:',IERR
+c$$$      CALL UTIL_FLUSH(6)
+c$$$      IF (GA_NODEID().EQ.0) THEN
+c$$$        PRINT*,'READ BACK INITIAL PARAMETERS'
+c$$$        WRITE(6,771) (VTMP(I),I=1,10)
+c$$$ 771    FORMAT(16I4)
+c$$$        CALL UTIL_FLUSH(6)
+c$$$      ENDIF
+c$$$      CALL GA_SYNC()
 
       return
       end
@@ -1034,9 +1087,14 @@ c$$$ 771  FORMAT(16I4)
       subroutine moints_getscattv( munit, nnbf, v )
       implicit none
 #include "mafdecls.fh"
+#ifdef CRAY-T3D
+      double precision munit
+#else
       integer munit
+#endif
       integer nnbf, v(*)
-      integer itmp, ierr, i
+      integer itmp, ierr
+C      INTEGER I
       
       itmp = nnbf+mod(nnbf,2)
       call getwa( munit, v,
@@ -1102,12 +1160,44 @@ c
 
 
 
-       subroutine moints_localfname( prefix, fname, len )
+#ifdef CRAY-T3D
+       subroutine moints_localfname( prefix, fname, len, unit )
        implicit none
 #include "global.fh"       
        character*(*) prefix
        character*(*) fname
        integer len
+       double precision unit
+c
+       integer plen, i, ii, jj
+       character*8 fdummy
+       double precision fdble
+       equivalence (fdummy,fdble)
+
+       plen = 4
+       do i=1,plen
+          fdummy(i:i) = prefix(i:i)
+       enddo
+       fdummy(plen+1:plen+1) = '.'
+       jj = ga_nodeid()
+       do i=1,3
+          ii = jj/(10**(3-i))
+          fdummy(plen+i+1:plen+i+1) = char(ichar('0')+ii)
+          jj = jj - ii*(10**(3-i))
+       enddo
+       unit = fdble
+       return
+       end
+
+#else
+       subroutine moints_localfname( prefix, fname, len, unit )
+       implicit none
+#include "global.fh"       
+       character*(*) prefix
+       character*(*) fname
+       integer len
+       double precision unit
+
        integer plen, i, ii, jj
        integer inp_strlen
        external inp_strlen
@@ -1126,4 +1216,4 @@ c
        len = inp_strlen( fname )
        return
        end
-       
+#endif

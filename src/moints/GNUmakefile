@@ -1,7 +1,6 @@
-#$Id: GNUmakefile,v 1.35 1995-10-17 17:04:18 rg240 Exp $
+#$Id: GNUmakefile,v 1.36 1995-10-18 22:28:39 rg240 Exp $
 
         OBJ = atwtest.o \
-	      crayio.o \
 	      direct_mp2.o \
 	      ga_create_JKblocked.o \
 	      ga_check_JKblocked.o \
@@ -13,6 +12,10 @@
 	      moints_mp2.o \
 	      moints_semi.o \
 	      moints_stats.o 
+
+ifneq ($(TARGET),CRAY-T3D)
+        OBJ += crayio.o
+endif
 
 OBJ_OPTIMIZE = \
 	      moints_2x.o \

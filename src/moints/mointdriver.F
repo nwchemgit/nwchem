@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.33 1995-10-17 08:54:13 d3g681 Exp $
+C$Id: mointdriver.F,v 1.34 1995-10-18 22:28:40 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -367,6 +367,7 @@ c
 c
 c
 c
+       call int_terminate()
        call util_print_pop()
 c
        return

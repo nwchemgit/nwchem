@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.13 1995-08-07 16:37:17 rg240 Exp $
+C$Id: direct_mp2.F,v 1.14 1995-10-18 22:28:37 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -349,6 +349,7 @@ c
        if (.not.status) call errquit('direct_mp2: cannot pop stack?',0)
        status = ga_destroy(g_vecs)
        status = geom_destroy(geom)
+       call int_terminate()
 c
 c Pop context
 c
