@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.11 2000-02-20 16:05:14 d3j191 Exp $
+c $Id: pre_rename.F,v 1.12 2000-03-03 18:31:36 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -11,7 +11,7 @@ c
 #include "util.fh"
 c
       integer lfnout,lfnmod
-      character*255 filmod
+      character*255 filmod,string
       character*80 ffield,card
       integer mseq,nseq,matm,natm,mlnk,nlnk,icyren
       integer lseq(4,mseq),latm(5,matm)
@@ -126,7 +126,12 @@ c
       if(lseq(1,k).eq.j) then
       write(lfnout,1004) j,cseq(2,k),card(i+1:i+5)
  1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
+      i=index(cseq(2,k),'_')
+      if(i.eq.3) then
+      cseq(2,k)=card(i+1:i+3)//cseq(2,k)(4:5)
+      else
       cseq(2,k)=card(i+1:i+5)
+      endif
       endif
     6 continue
       endif
