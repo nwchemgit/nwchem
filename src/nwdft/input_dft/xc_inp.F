@@ -41,10 +41,14 @@ c     xmpw91
 c     ft97
 c     xpkzb99 => 3600
 c     cpkzb99 => 3650
+c     xtpss03 => 4100
+c     ctpss03 => 4150
+
+
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 48,numfunc=30)
+      parameter (num_dirs = 50,numfunc=30)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -69,7 +73,8 @@ c
      ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx','optc','becke97-2','mpw91',
      ,     'ft97','xft97','cft97',
-     &     'xpkzb99','mpw1k', 'cpkzb99','hcth407p'/
+     &     'xpkzb99','mpw1k','cpkzb99','hcth407p','xtpss03',
+     &     'ctpss03'/
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -100,7 +105,7 @@ c
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
-     &  3600,4000, 3650, 3110,
+     &  3600,4000, 3650, 3110,4100,4150,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -1146,6 +1151,114 @@ c
       goto 10
 
 
+c     
+c     xtpss03  metaGGA functional for EXCHANGE
+c     
+ 4100 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xtpss "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using only slater exchange. '
+            call errquit(' xc_inp - functional description ',0,0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            write(LuOut,*)' xtpss "nonlocal" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without nonlocal descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+
+
+c            nlxfac(21) = .true.
+
+
+         else
+c
+c  assume total wanted but total is all that is allowed for metaGGAs
+c
+            lxfac(21) = .true.
+            nlxfac(21) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(21) = .true.
+         nlxfac(21) = .true.
+      endif
+      if (.not. inp_f(xfac(21))) then
+         xfac(21) = 1.0d0
+      endif
+       goto 10
+
+
+
+
+c     TPSS  metaGGA functional for CORRELATION
+c     default local functional (PW91 LDA) 
+c     and PBE96  is set in tpss03.F code
+c     LOCAL part is always false
+ 4150 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' ctpss03 is a nonlocal functional;',
+c     &                ' "local" descriptor is ignored. '     
+
+
+
+            write(LuOut,*)' ctpss "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+              
+c
+c
+c
+            lcfac(27) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'ctpss03 is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '     
+            nlcfac(27) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(27) = .false.
+            nlcfac(27) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(27) = .false.
+         nlcfac(27) = .true.
+      endif
+            write(LuOut,*)'ctpss03 uses PBE COR and PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '     
+
+      if (.not. inp_f(cfac(27))) then
+         cfac(27) = 1.0d0
+      endif            
+c
+      goto 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 c     
 c     gill96; Gill '96 functional for exchange
@@ -1334,7 +1447,9 @@ c
      &       /,' [cft97]',
      &       /,' [xpkzb99]',
      &       /,' [cpkzb99]',
-     &       /,' [hcth407p]')
+     &       /,' [hcth407p]',
+     &       /,' [xtpss03]',
+     &       /,' [ctpss03]')
  
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0, INPUT_ERR)
