@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.6 2000-08-08 20:46:07 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.7 2000-08-23 00:54:17 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -185,8 +185,6 @@ c
 c     
 c     Get blocks of the one-particle densities
 c     
-                     write(6,*) 'before the grad_get_dens_all call'
-                     call flush(6)
                      call grad_get_dens_all(omp2,ouhf,orohf,
      $                    d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk,
      $                    d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
@@ -201,8 +199,6 @@ c
      $                    kbflo, kbfhi, lbflo, lbfhi, 
      $                    ibflo_prev, jbflo_prev, kbflo_prev,
      $                    g_dens, ogso)
-                     write(6,*) 'after the grad_get_dens_all call'
-                     call flush(6)
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
@@ -338,37 +334,39 @@ c
                            j = labels(integ,2)
                            k = labels(integ,3)
                            l = labels(integ,4)
-c     write(6,*) ' b ' ,i,j,k,l
+      write(6,*) ' b ' ,i,j,k,l
                            atoms(1) = bftoat(i)
                            atoms(2) = bftoat(j)
                            atoms(3) = bftoat(k)
                            atoms(4) = bftoat(l)
-c     write(6,*) ' a ' ,atoms
+      write(6,*) ' a ' ,atoms
                            i = rbfmap(i) - ibflo + 1
                            j = rbfmap(j) - jbflo + 1
                            k = rbfmap(k) - kbflo + 1
                            l = rbfmap(l) - lbflo + 1
-c     write(6,*) ' c ', i,j,k,l
+      write(6,*) ' c ', i,j,k,l
                            p = pdm2d(l,k,j,i)
-c     write(6,*) ' p ', p
+      write(6,*) ' p ', p
                            do iiat1 = 1, 4
                            iat1 = atoms(iiat1)
                            do iiat2 = iiat1, 4
                               iat2 = atoms(iiat2)
                            if ((iiat1.eq.iiat2).or.
      $                       (iat1.ne.iat2)) then
-                           do icart2 = 1, 3
+                           do icart1 = 1, 3
                               itemp = 1
-                              if (iiat2.eq.iiat1) itemp = icart2
+                              if (iiat2.eq.iiat1) itemp = icart1
 c                             if (iat2.eq.iat1) itemp = icart2
-                              do icart1 = itemp, 3
+                              do icart2 = itemp, 3
                               val = p*eri(ibuf)
                               if ((iat1.eq.iat2).and.
      $                          (icart1.eq.icart2)) val = val * half
-c     write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
-c     write(6,*) 'val is ',val
-c     write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
-c     call flush(6)
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      write(6,*) 'icart1,iat1,icart2,iat2 ',icart1,iat1,icart2,iat2
+      call flush(6)
+      endif
                               Hxy(icart1,iat1,icart2,iat2) =  
      $                             Hxy(icart1,iat1,icart2,iat2) + 
      $                             val
@@ -380,27 +378,57 @@ c     call flush(6)
                            end do
                            else
                              val = p*eri(ibuf)*2.0d+00
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(1,iat1,1,iat1) = Hxy(1,iat1,1,iat1)
      $                         + val
                              val = p*(eri(ibuf+1) + eri(ibuf+3))
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(1,iat1,2,iat1) = Hxy(1,iat1,2,iat1)
      $                         + val
                              Hxy(2,iat1,1,iat1) = Hxy(2,iat1,1,iat1)
      $                         + val
                              val = p*(eri(ibuf+2) + eri(ibuf+6))
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(1,iat1,3,iat1) = Hxy(1,iat1,3,iat1)
      $                         + val
                              Hxy(3,iat1,1,iat1) = Hxy(3,iat1,1,iat1)
      $                         + val
                              val = p*eri(ibuf+4)*2.0d+00
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(2,iat1,2,iat1) = Hxy(2,iat1,2,iat1)
      $                         + val
                              val = p*(eri(ibuf+5) + eri(ibuf+7))
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(2,iat1,3,iat1) = Hxy(2,iat1,3,iat1)
      $                         + val
                              Hxy(3,iat1,2,iat1) = Hxy(3,iat1,2,iat1)
      $                         + val
                              val = p *eri(ibuf+8)*2.0d+00
+      if (abs(val).gt. 1.0d+00) then
+      write(6,*) 'p and eri is ',p,eri(ibuf),ibuf
+      write(6,*) 'val is ',val
+      call flush(6)
+      endif
                              Hxy(3,iat1,3,iat1) = Hxy(3,iat1,3,iat1)
      $                         + val
                              ibuf = ibuf + 9
@@ -409,6 +437,8 @@ c     call flush(6)
                            end do
                         end do    ! 1 to nint
                      end if
+                     if (omore) write(6,*) 'going back for more ints'
+                     call flush(6)
                      if (omore) goto 10
 c     
                      next = nxtask(nproc,task_size)
