@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.6 1998-04-17 23:32:32 gg502 Exp $
+C$Id: open_3ci.F,v 1.7 2000-05-05 21:28:27 edo Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -84,7 +84,7 @@ C
 C     Compute the record size in appropriate units for OPEN and for
 C     user output, in bytes.
 C
-#if defined(SGITFP) || defined(DECOSF)
+#if defined(SGITFP) || defined(DECOSF) ||defined(SOLARIS64)
 C
 C     When integers are forced to 64 bits with "-i8", record lengths
 C     are unaffected, consequently the MT_DAFRecL is twice too large.
