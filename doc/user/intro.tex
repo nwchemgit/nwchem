@@ -146,7 +146,7 @@ sample inputs (Sections \ref{sec:simplesample}, \ref{sec:realsample})
 and the input syntax specification (Section \ref{sec:syntax}).
 
 All input is free format, and directives or blocks of module-specific
-directives can appear in any order with the exception of the
+directives can appear in any order, with the exception of the
 \verb+TASK+ directive (see sections \ref{sec:inputstructure} and
 \ref{sec:task}) which is used to invoke an NWChem module.  Case is
 ignored except for actual data (e.g., names/tags of centers, titles).
@@ -357,8 +357,9 @@ scratch directory (see Section \ref{sec:dirs}), as long as they use
 different names in this field.
 
 As in the first sample problem, the geometry is given in cartesian
-coordinates.  In this case, however, the units are specified as
-{\AA}ngstr{\o}m instead of the default atomic units.  The {\tt CHARGE}
+coordinates.  In this case, the units are specified as
+{\AA}ngstr{\o}m.  (Since this is the default, explicit specification of the
+units is not actually necessary, however.)  The {\tt CHARGE}
 directive defines the total charge of the system.  This calculation is
 to be done on an ion with charge +1.  Note that this is a top-level
 directive, independent of other input blocks.
@@ -369,7 +370,7 @@ serve as a helpful mnemonic for later reference in subsequent input
 directives.
 
 The multiple lines of the first {\tt SCF} directive in the {\tt scf
-  \ldots end} block specify details about the scf calculation to be
+  \ldots end} block specify details about the SCF calculation to be
 performed.  For open-shell systems, the spin multiplicity has to be
 specified (using {\tt doublet} in this case), or it defaults to {\tt
   singlet}.  Unrestricted Hartree-Fock is chosen here (by specifying
@@ -377,7 +378,7 @@ the keyword {\tt uhf}), rather than the default high-spin ROHF.  This
 is necessary for the subsequent MP2 calculation, because only UMP2 is
 available for open-shell systems currently (see Section
 \ref{sec:functionality}).  The print level is set to {\tt low} to
-reduce the output from the scf module to a minimum during the geometry
+reduce the output from the SCF module to a minimum during the geometry
 optimization.
 
 For this calculation, the gradient convergence threshold for the
@@ -396,13 +397,13 @@ orbital (MO) methods look for the \verb+"ao basis"+ in which to expand the
 MOs.    In the previous example with the nitrogen molecule, it was not 
 necessary to use the \verb+SET+ directive in this manner, since the 
 \verb+BASIS+ directive used the default name (which is \verb+"ao basis"+).
-An alternative approach that could have been used here which avoids the 
+An alternative approach that could have been used here, which avoids the 
 necessity of assigning the basis set name using the
-\verb+SET+ directive would be to defer definition of the property basis
+\verb+SET+ directive, would be to defer definition of the property basis
 until after the first SCF calculation is complete. 
 
 All input up to this point affects only the settings in the run-time
-database.  The program takes its information from this data base, so
+database.  The program takes its information from this database, so
 the sequence of directives up to the first \verb+TASK+ directive is
 irrelevant.  An exchange of order of the different blocks or
 directives would not affect the result.  The {\tt TASK} directive,
@@ -427,59 +428,13 @@ guess vectors are reset to be the atomic guess, since the STO3G
 vectors are not appropriate (see Section \ref{sec:vectors} for
 details on the different possible starting guesses).
 
-The convergence threshold for the geometry optimization
-module is reset to $10^{-4}$.  This is
-acceptable because the initial optimization only serves to provide a
-starting guess.  Increasing the trust radius (using the \verb+TRUST+
-directive) beyond the default of $0.1$ makes the optimization more
-efficient (though less robust in hard to converge cases).
-
-The final step in setting up the input for the SCF calculation is to
-specify that the \verb+"starting basis"+ should be used.  This is
-accomplished by means of the \verb+SET+ directive, which specifies that 
-the \verb+"ao basis"+ is the \verb+"starting basis"+.  All molecular
-orbital (MO) methods look for the \verb+"ao basis"+ in which to expand the
-MOs.    In the previous example with the nitrogen molecule, it was not 
-necessary to use the \verb+SET+ directive in this manner, since the 
-\verb+BASIS+ directive used the default name (which is \verb+"ao basis"+).
-An alternative approach that could have been used here which avoids the 
-necessity of assigning the basis set name using the
-\verb+set+ directive would be to defer definition of the property basis
-until after the first SCF calculation is complete. 
-
-All input up to this point affects only the settings in the run-time
-database.  The program takes its information from this data base, so
-the sequence of directives up to the first \verb+TASK+ directive is
-irrelevant.  An exchange of order of the different blocks or
-directives would not affect the result.  The {\tt TASK} directive,
-however, must be specified last of all in the list of input directives
-for a given problem.  The {\tt TASK} directive invokes the program and
-directs the code to perform the specified calculation using the
-parameters set in the previous directives. In this case, the first
-task is an SCF calculation with geometry optimization, specified with
-the input {\tt scf} and {\tt optimize}.  (See Section \ref{sec:task}
-for a list of available tasks and operations.)
-
-After the completetion of any task, settings in the database are used
-in subsequent tasks without change, unless they are overridden by new
-input directives.  In this example, there are several important
-changes between the first task (\verb+TASK scf optimize+) and the
-second task (\verb+TASK mp2 optimize+).  The {\tt "ao basis"} is set
-to a better basis (i.e., {\tt "property basis"}) using the \verb+SET+
-directive.  The SCF output is completely discarded (as a result of the
-{\tt print none} input in the {\tt scf} directive), which means that
-no output will be produced unless an error occurs.  The SCF starting
-guess vectors are reset to be the atomic guess, since the STO3G
-vectors are not appropriate (see Section \ref{sec:vectors} for
-details on the different possible starting guesses).
-
-The convergence threshold for the geometry optimization
-module is reset to  $1.0^{-6}$, a value smaller than the default of
-$1.0^{-4}$.  The default is appropriate for determination of the
+The convergence threshold for the geometry optimization module is reset 
+to  $10^{-6}$ for the second task, a value which is smaller than 
+the default of $10^{-4}$.  The default is appropriate for determination of the
 optimized geometry and minimum energy, but a higher accuracy is
-required for subsequent computation of the frequencies.  The second
-{\tt TASK} directive invokes an MP2 optimization, instead of the scf
-optimization.
+required in this task, for use in the subsequent computation of the 
+frequencies.  The second {\tt TASK} directive invokes an MP2 
+optimization, instead of the SCF optimization.
 
 % There is currently no input block for the MP2 gradients, so parameters
 % for this module have to be set in the database via the {\tt set}
@@ -539,7 +494,7 @@ These same five lines could be entered on a single line, as
 \begin{verbatim}
   geometry; O 0 0 0; H 0 1.430 1.107; H 0 -1.430 1.107; end
 \end{verbatim}
-This is one physical input line comprises five logical
+This one physical input line comprises five logical
 input lines.  Each logical or physical input line must be no longer
 than 1023 characters.  Data is read until an end-of-file is detected,
 or until an \verb+EOF+ directive is encountered\footnote{The
@@ -548,7 +503,7 @@ or until an \verb+EOF+ directive is encountered\footnote{The
   allows unused input to be left in the same file.}.
 
 Directives consist of a directive name, keywords, and optional input,
-and may contain of one line or many.  Simple directives consist of a
+and may contain one line or many.  Simple directives consist of a
 single line of input with one or more fields.  Compound directives can
 have multiple input lines, and can also include other optional simple
 and compound directives.  A compound directive is terminated with an
@@ -585,7 +540,7 @@ be enclosed in quotes)
 \item \verb+||+ separate exclusive options/parameters/formats
 \item \verb+[ ]+ enclose optional entries with a default value
 \item \verb+< >+ enclose a type, a name of a value to be specified,
-      and a default value if any.
+      and a default value, if any.
 
 \item \verb+\+ is used to concatenate lines in a description (NOTE: within 
 a string, the \verb+\+ causes the preceeding character (including a blank) 
@@ -741,9 +696,9 @@ of elements in the array, and enters the array into the database.
 
 Much of the data stored in the database is internally managed by
 NWChem and should not be modified by the user.  However, other data,
-including some NWChem input options, may be freely modified.  
+including some NWChem input options, can be freely modified.  
 
-Objects are built in the database by storing the associated data as
+Objects are built in the database by storing associated data as
 multiple entries using an internally consistent naming convention.
 This data is exclusively managed by the subroutines (or methods) that
 are associated with the object.  Currently, the code has two main
@@ -807,17 +762,18 @@ to the specifically named objects.  (Refer to Section
 directive.)
 
 Unless a specific name is defined for the geometry object in the
-database (such as the name \verb+"test water geometry"+ shown in the
+database (such as the name \verb+"test geom"+ shown in the
 example), the object in the database is assigned the default name of
 \verb+geometry+.  This is the geometry object name that computational
 modules will look for when executing a calculation.  The {\tt SET}
 directive can be used in the input to force a module (or modules) to
-look for a geometry object with a different name than \verb+geometry+
+look for a geometry object with a name other than \verb+geometry+
 for a particular task.  For example, to specify use of the 
-\verb+"test water geometry"+ example above one would specify
+\verb+"test geom"+ object in the example above, the \verb+SET+
+directive is as follows;
 
 \begin{verbatim}
-  set geometry "test water geometry"
+  set geometry "test geom"
 \end{verbatim}
 
 NWChem will automatically check for such indirections when loading
@@ -836,7 +792,7 @@ using the default name \verb+"ao basis"+.
 The database is persistent, meaning that all input data and results
 that are not destroyed in the course of execution are permanently
 stored.  These data are therefore available to subsequent tasks or
-jobs.  This makes the input for restart jobs very simple since only
+jobs.  This makes the input for restart jobs very simple, since only
 new or changed data must be provided.  It also makes the behavior of
 successive restart jobs {\em identical} to that of multiple tasks
 within one job.  
