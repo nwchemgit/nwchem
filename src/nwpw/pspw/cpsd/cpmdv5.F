@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.28 2003-08-02 13:38:34 bylaska Exp $
+* $Id: cpmdv5.F,v 1.29 2003-08-03 01:31:19 bylaska Exp $
 *
 
 ***********************************************************************
@@ -83,7 +83,7 @@
       real*8  emotion_time_shift
       integer i,j,k,ia,n,nn
       integer ii,jj,index
-      integer icount,it_in,it_out
+      integer icount,it_in,it_out,icount_shift
       real*8 w,sumall
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2)
       integer nfft3
@@ -507,12 +507,16 @@
       if (taskid.eq.MASTER) then
 
          emotion_time_shift = 0.0d0
+         icount_shift       = 0
          inquire(file=full_filename,exist=found)
          if (found) then
            open(unit=31,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-           read(31,*,end=100) emotion_time_shift
+           read(31,*,end=100) emotion_time_shift,w,sum
+           E(25) = E(25) + sum                          !*** take care of running sums ***
+           E(26) = E(26) + sum*sum
+           icount_shift = icount_shift + 1
            end do
   100      continue
          else
@@ -602,8 +606,8 @@
            call util_flush(6)
 
 *          **** write out EMOTION data ****
-           eave = E(25)/dble(icount)
-           evar = E(26)/dble(icount)
+           eave = E(25)/dble(icount+icount_shift)
+           evar = E(26)/dble(icount+icount_shift)
            evar = evar - eave*eave
            if (control_Nose()) then
              write(31,1311) icount*it_in*dt + emotion_time_shift,
