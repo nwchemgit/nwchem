@@ -1,237 +1,128 @@
-      subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.24 1996-07-17 16:32:16 d3g681 Exp $
+      logical function input_parse(rtdb)
+C     $Id: input_parse.F,v 1.25 1996-07-26 16:30:15 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
 #include "global.fh"
 #include "rtdb.fh"
 c     
-c     Read the input looking for high-level directives or names
-c     of known modules.  Once all the input has been read attempt
-c     to provide sensible defaults for anything that is missing.
-c     
-      integer ind               ! Index of matched directive
-      integer num_dirs          ! No. of known directives
-      logical status, echo
-      parameter (num_dirs = 50)
-      character*16 dirs(num_dirs)
+c     All processes call this routine.  Only process 0 actually reads the 
+c     input.  All other processes skip to the end of the routine
+c     to wait in the broadcast of the return value.
+c
+c     Process 0 reads input until a task directive is encountered.
+c     After this is read (by task_input) process 0 branches to the 
+c     broadcast at the end and all processes return a value of TRUE.  
+c     Otherwise FALSE is returned by all processes.
+c
+      logical status
+      integer found_task
       character*255 test
-      data dirs /
-     $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
-     $     'task',     'time',     'set'     , 'enter',    'stop',
-     $     'title',    'start',    'restart' , 'stepper',  'echo',
-     $     'charge',   'dft',      'md',       'gradient', 'ccsd',
-     $     'print',    'noprint',  'unset',    'mcscf',    'plnwv',
-     $     'dplot',    'property', 'speech',   'scratch_dir', 
-     $     'permanent_dir',
-     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
-     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
-     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv',
-     $     'xxxxt',    'xxxxint',  'xxxxt',    'xxxxf',    'xxxxv' /
-      data echo /.false./
+c
+      found_task = 0            ! 0=false, 1=true
+c
+      if (ga_nodeid() .eq. 0) then
 c     
-c     Only process 0 is involved here
-c     
-      if (ga_nodeid() .ne. 0) return
-c     
-      call util_print_centered(6, 'NWCHEM Input Module', 40, .true.)
-      write(6,*)
-      write(6,*)
+         write(6,*)
+         write(6,*)
+         call util_print_centered(6, 'NWCHEM Input Module', 40, .true.)
+         write(6,*)
+         write(6,*)
 c     
 c     Do data base operations in sequential mode
 c     
-      status = rtdb_parallel(.false.)
+         status = rtdb_parallel(.false.)
 c     
 c     While (input is available)
 c     
-      rewind 5
-      call inp_init(5, 6)
- 10   if (inp_read()) then
-         if (.not. inp_a(test))
-     $        call errquit('input_parse: failed to read keyword', 0)
-         if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
-            write(6,*) ' Skipping unknown directive '
-            call inp_outrec()
-            goto 10
-         endif
+ 10      if (inp_read()) then
+            if (.not. inp_a(test))
+     $           call errquit('input_parse: failed to read keyword', 0)
+            call inp_prev_field
 c     
-         call inp_prev_field
-         goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
-     $        2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800,
-     $        2900, 3000) ind
-         call errquit('input_parse: unimplemented directive', ind)
-c     
-c     Memory ... already handled by input_mem_size() but will soon
-c     want to do this in a context specific fashion
-c     
- 100     goto 10
-c     
-c     RTDB ... already handled by input_rtdb_name()
-c     
- 200     goto 10
-c     
-c     Geometry
-c     
- 300     call geom_input(rtdb)
-         goto 10
-c     
-c     Basis
-c     
- 400     call bas_input(rtdb)
-         goto 10
-c     
-c     SCF
-c     
- 500     call scf_input(rtdb)
-         goto 10
-c     
-c     Task
-c     
- 600     call task_input(rtdb)
-         goto 10
-c     
-c     Time
-c     
- 700     call input_time(rtdb)
-         goto 10
-c     
-c     Set
-c     
- 800     call input_set(rtdb)
-         goto 10
-c     
-c     Enter ... behave as if we just hit end of input
-c     
- 900     goto 99999
-c     
-c     Stop ... literally just stop ... well allow for parallel world
-c     
- 1000    call errquit('input_parse: STOP', 0)
-         goto 10                ! Not executed
-c     
-c     Title
-c     
- 1100    call input_title(rtdb)
-         goto 10
-c     
-c     Start ... already digested by input_start_opt
-c     
- 1200    goto 10
-c     
-c     Restart ... already digested by input_start_opt
-c     
- 1300    goto 10
-c     
-c     Stepper
-c     
- 1400    call stepper_input(rtdb)
-         goto 10
-c     
-c     Echo
-c     
- 1500    echo = .true.
-         goto 10
-c     
-c     Charge
-c     
- 1600    call input_charge(rtdb)
-         goto 10
-c     
-c     Dft
-c     
- 1700    call dft_input(rtdb)
-         goto 10
-c     
-c     MD
-c     
- 1800    call md_input(rtdb)
-         goto 10
-c     
-c     Gradients
-c     
- 1900    call gradients_input(rtdb)
-         goto 10
-c     
-c     CCSD
-c     
- 2000    call ccsd_input(rtdb)
-         goto 10
-c     
-c     Print and noprint
-c     
- 2100    continue
- 2200    continue
-         call util_print_input(rtdb,' ')
-         goto 10
+            if (inp_compare(.false.,test,'task')) then
+               call task_input(rtdb)
+               found_task = 1
+               goto 9999
+            else if (inp_compare(.false.,test,'geometry')) then
+               call geom_input(rtdb)
+            else if (inp_compare(.false.,test,'basis')) then
+               call bas_input(rtdb)
+            else if (inp_compare(.false.,test,'scf')) then
+               call scf_input(rtdb)
+            else if (inp_compare(.false.,test,'time')) then
+               call input_time(rtdb)
+            else if (inp_compare(.false.,test,'set')) then
+               call input_set(rtdb)
+            else if (inp_compare(.false.,test,'stop')) then
+               call errquit('input_parse: STOP', 0)
+            else if (inp_compare(.false.,test,'title')) then
+               call input_title(rtdb)
+            else if (inp_compare(.false.,test,'stepper')) then
+               call stepper_input(rtdb)
+            else if (inp_compare(.false.,test,'charge')) then
+               call input_charge(rtdb)
+            else if (inp_compare(.false.,test,'dft')) then
+               call dft_input(rtdb)
+            else if (inp_compare(.false.,test,'md')) then
+               call md_input(rtdb)
+            else if (inp_compare(.false.,test,'gradient')) then
+               call gradients_input(rtdb)
+            else if (inp_compare(.false.,test,'ccsd')) then
+               call ccsd_input(rtdb)
+            else if (inp_compare(.false.,test,'print')) then
+               call util_print_input(rtdb,' ')
+            else if (inp_compare(.false.,test,'noprint')) then
+               call util_print_input(rtdb,' ')
+            else if (inp_compare(.false.,test,'set')) then
+               call input_set(rtdb)
+            else if (inp_compare(.false.,test,'unset')) then
+               call input_unset(rtdb)
+            else if (inp_compare(.false.,test,'mcscf')) then
+               call mcscf_input(rtdb)
+            else if (inp_compare(.false.,test,'plnwv')) then
+               call plnwv_input(rtdb)
+            else if (inp_compare(.false.,test,'dplot')) then
+               call dplot_input(rtdb)
+            else if (inp_compare(.false.,test,'property')) then
+               call prop_input(rtdb)
+            else if (inp_compare(.false.,test,'speech')) then
+               call speech_input(rtdb)
 c
-c     unset <name>
+c     INSERT NEW ELSE IF CLAUSES HERE
 c
- 2300    call input_unset(rtdb)
-         goto 10
+            else if (inp_compare(.false.,test,'memory')) then
+               continue         ! Already digested by input_mem_size
+            else if (inp_compare(.false.,test,'start')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'restart')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'echo')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'scratch_dir')) then
+               continue         ! Already digested by input_file_info
+            else if (inp_compare(.false.,test,'permanent_dir')) then
+               continue         ! Already digested by input_file_info
+            else
+               write(6,*) ' Skipping unknown directive '
+               call inp_outrec()
+            endif
 c
-c     MCSCF
-c
- 2400    call mcscf_input(rtdb)
-         goto 10
-c
-c     PLNWV
-c
- 2500    call plnwv_input(rtdb)
-         goto 10
-c
-c     DPlot
-c
- 2600    call dplot_input(rtdb)
-         goto 10
-c
-c     Property
-c
- 2700    call prop_input(rtdb)
-         goto 10
-c
-c     Speech
-c
- 2800    call speech_input(rtdb)
-         goto 10
-c
-c     Scratch_dir and permanent_dir already processed
-c
- 2900    goto 10
- 3000    goto 10
+            goto 10 
+         endif                  ! End while
+ 9999    status = rtdb_parallel(.true.) ! Restore parallel access to db
+      endif                     ! End node zero only
 c     
-      endif
-c     
-99999 continue
-c     
-c     echo input deck if requested
-c     
-      if (echo) call input_echo(5,6)
-c     
-c     All input is exhausted.  Now apply defaults for everything that
-c     is missing from the input if is a startup calculation
-c     
-      call input_defaults(rtdb)
-c     
-c     Try and verify anything not checked so far
-c     
-      call input_verify
-c     
-c     Done
-c     
-      status = rtdb_parallel(.true.) ! Restore parallel access to db
+c     Global sum of integer variable for simple broadcast
+c
+      call ga_sync()
+      call ga_igop(33,found_task,1,'+')
+      input_parse = (found_task .eq. 1)
 c     
       end
       subroutine input_time(rtdb)
       implicit none
       integer rtdb
-      end
-      subroutine input_defaults(rtdb)
-      implicit none
-      integer rtdb
-      end
-      subroutine input_verify
-      implicit none
       end
       subroutine input_charge(rtdb)
       implicit none
