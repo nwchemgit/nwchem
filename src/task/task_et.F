@@ -7,11 +7,6 @@
 #include "global.fh"
       integer rtdb
 c
-c  11/26/01 DMAS: this was a copy of task_energy.F 
-c  changed 'energy' tasks to 'et', changed 'energy' variable to 'Vba',
-c  removed ONIOM stuff, and references to theory. 
-c  Also removed 'rtdb_clean' subroutine, and added task_et.o to GNUMakefile.
-c
       logical status
       double precision cpu, wall, Vba
       logical task_et_doit
@@ -20,9 +15,9 @@ c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
-      call util_flush(6)
+
       status = task_et_doit(rtdb,Vba)
-      call util_flush(6)
+c
       if (.not. rtdb_put(rtdb, 'task:et', mt_dbl, 1, Vba))
      $     call errquit('task_et: failed storing Vba',0)
 c
@@ -55,7 +50,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.11 2002-01-09 20:07:09 edo Exp $
+* $Id: task_et.F,v 1.12 2002-02-20 18:38:43 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
