@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.45 1999-11-02 22:21:37 bert Exp $
+c $Id: int_init.F,v 1.46 1999-11-11 00:39:58 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -224,8 +224,10 @@ c            3. Complete spin-free Douglas-Kroll (i.e. including pxVp)
 c
       if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
      $    doug_kroll = .false.
-      if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
-     $   form_type)) form_type = 1
+      if (doug_kroll) then
+         if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
+     $      dk_form_type)) dk_form_type = 2
+      endif
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
