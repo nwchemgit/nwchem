@@ -6,6 +6,9 @@ c
 
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
+*
+* $Id: detci_intf.F,v 1.24 1997-11-04 09:59:51 d3e129 Exp $
+*
       implicit none
 c
 #include "mafdecls.fh"

@@ -5,6 +5,9 @@ c
      $                          nact, nsym, orbsym, e0, eps, g_h,
      $                          g_coul, citol, ociread, oprint,
      $                          ociprint, dm1, dm2, eci )
+*
+* $Id: mcscf_ci.F,v 1.23 1997-11-04 09:59:41 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -29,6 +29,9 @@ c$$$      endif
 c$$$c
 c$$$      end
       subroutine hnd_rdfree(ir, string, ierr)
+*
+* $Id: hnd_rdfree.F,v 1.3 1997-11-04 10:02:28 d3e129 Exp $
+*
       implicit none
 #include "inp.fh"
       integer ir                ! [input] IGNORED

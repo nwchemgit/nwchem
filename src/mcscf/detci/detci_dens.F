@@ -1,6 +1,9 @@
       subroutine detci_onepdm( norb, nsym, nela, nelb, nstra, nstrb,
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
+*
+* $Id: detci_dens.F,v 1.9 1997-11-04 09:59:50 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -4,6 +4,9 @@
      $                             g_exch, oexch,
      $                             g_int1t,
      $                             blen )
+*
+* $Id: moints_ccsd.F,v 1.10 1997-11-04 09:58:03 d3e129 Exp $
+*
       implicit none
 #include "tcgmsg.fh"
 #include "global.fh"

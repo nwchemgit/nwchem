@@ -1,4 +1,7 @@
       subroutine ga_reorder(g_a, orow, rmap, ocol, cmap)
+*
+* $Id: ga_reorder.F,v 1.3 1997-11-04 10:03:25 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

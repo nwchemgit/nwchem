@@ -1,7 +1,6 @@
-c
-c
-c
-c
+*
+* $Id: mcscf_ohvao.F,v 1.7 1997-11-04 09:59:45 d3e129 Exp $
+*
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
      $                               tol2e, oskel, dm1, g_movecs,
      $                               g_x, g_tmp, g_ax )

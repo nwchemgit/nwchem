@@ -1,6 +1,9 @@
        subroutine mcscf_hdiag( nbf, nclosed, nact, pflg, dm1, dm2,
      $                         g_coul, g_exch, g_ifock,
      $                         g_afock, g_gfock, g_hdiag )
+*
+* $Id: mcscf_hdiag.F,v 1.7 1997-11-04 09:59:44 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

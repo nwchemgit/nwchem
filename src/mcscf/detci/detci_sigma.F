@@ -9,6 +9,9 @@ c
      $     osym, ijmap, exa, exb,
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
+*
+* $Id: detci_sigma.F,v 1.16 1997-11-04 09:59:52 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

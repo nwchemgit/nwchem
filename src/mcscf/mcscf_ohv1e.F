@@ -9,6 +9,9 @@ c
      $                            lshift, dm1, g_ifock, g_afock,
      $                            g_gfock, g_tmp1, g_tmp2, g_tmp3,
      $                            g_x, g_ax )
+*
+* $Id: mcscf_ohv1e.F,v 1.4 1997-11-04 09:59:44 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

@@ -2,6 +2,9 @@
      $                         tol2e, oskel, pflg, lshift, dm1, dm2,
      $                         g_movecs, g_ifock, g_afock, g_gfock,
      $                         g_coul, g_exch, g_x, g_ax )
+*
+* $Id: mcscf_ohv.F,v 1.4 1997-11-04 09:59:44 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

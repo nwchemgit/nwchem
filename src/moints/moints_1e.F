@@ -1,4 +1,7 @@
       subroutine moints_1e( nbf, basis, g_movecs, g_onel )
+*
+* $Id: moints_1e.F,v 1.2 1997-11-04 09:58:01 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,1 +1,4 @@
+*
+* $Id: symmdef.fh,v 1.2 1997-11-04 09:59:53 d3e129 Exp $
+*
       integer MULX, imul, jmul

@@ -11,6 +11,9 @@ c
       subroutine mcscf_b( geom, basis, nbf, nclosed, nact, orbsym,
      $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
+*
+* $Id: mcscf_b.F,v 1.7 1997-11-04 09:59:41 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"      

@@ -1,5 +1,7 @@
       subroutine geom_1d(geom,c2au)
-c
+*
+* $Id: geom_1d.F,v 1.3 1997-11-04 10:04:22 d3e129 Exp $
+*
       implicit none
 #include "inp.fh"
 #include "geom.fh"

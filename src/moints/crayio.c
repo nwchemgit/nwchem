@@ -1,3 +1,7 @@
+/*
+ $Id: crayio.c,v 1.3 1997-11-04 09:58:01 d3e129 Exp $
+ */
+
 /* Simulate the cray 64 bit word addressable I/O routines and
    allow for large buffering in core.
 

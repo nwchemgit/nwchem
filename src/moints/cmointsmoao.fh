@@ -1,6 +1,6 @@
-c
-c
-c     
+*
+* $Id: cmointsmoao.fh,v 1.7 1997-11-04 09:58:01 d3e129 Exp $
+*
       integer moao_ipass                                ! count of passes
       double precision moao_fptr                        ! current file pointer
       integer moao_fd                                   ! file descriptor

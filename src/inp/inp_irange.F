@@ -1,4 +1,7 @@
       logical function inp_irange(JFirst, JLast, JStride)
+*
+* $Id: inp_irange.F,v 1.5 1997-11-04 10:02:28 d3e129 Exp $
+*
       implicit none
 #include "inpP.fh"
       integer n, ifact, ist, nstrt, i, j

@@ -1,4 +1,7 @@
        subroutine moints_op_print(ostart,olo,ohi,nbf,g_a)
+*
+* $Id: moints_dbg.F,v 1.13 1997-11-04 09:58:03 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"       

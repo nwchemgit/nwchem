@@ -8,6 +8,9 @@ c
       subroutine hmat( nbf, nclosed, nact, orlen, dm1, dm2,
      $                 g_ifock, g_afock, g_gfock,
      $                 g_coul, g_exch, h )
+*
+* $Id: hmat.F,v 1.6 1997-11-04 09:59:38 d3e129 Exp $
+*
       implicit none
       integer nbf, nclosed, nact, orlen
       double precision dm1(nact,nact)

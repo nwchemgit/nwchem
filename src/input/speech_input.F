@@ -1,4 +1,7 @@
       subroutine speech_input(rtdb)
+*
+* $Id: speech_input.F,v 1.2 1997-11-04 10:01:45 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

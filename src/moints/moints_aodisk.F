@@ -1,4 +1,6 @@
-
+*
+* $Id: moints_aodisk.F,v 1.19 1997-11-04 09:58:02 d3e129 Exp $
+*
 c
 c  Set of routines to cache AO integrals for the 4-index
 c  module using exclusive-access local disk storage.

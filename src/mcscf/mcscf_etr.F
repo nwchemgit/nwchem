@@ -6,6 +6,9 @@ c
        subroutine mcscf_etrace( geom, basis, nbf, nclosed, nact,
      $                          oact, oskel, tol2e, dm1, dm2,
      $                          g_movecs, g_coul, eone, etwo, ecore )
+*
+* $Id: mcscf_etr.F,v 1.6 1997-11-04 09:59:42 d3e129 Exp $
+*
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

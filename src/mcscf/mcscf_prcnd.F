@@ -5,6 +5,9 @@
      $                           g_coul, g_exch, g_movecs,
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
+*
+* $Id: mcscf_prcnd.F,v 1.9 1997-11-04 09:59:46 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

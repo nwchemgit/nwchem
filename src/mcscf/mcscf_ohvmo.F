@@ -1,6 +1,9 @@
        subroutine mcscf_hessv_2e_mo( nbf, nclosed, nact,
      $                               dm2, g_coul, g_exch,
      $                               g_x, g_ax )
+*
+* $Id: mcscf_ohvmo.F,v 1.3 1997-11-04 09:59:45 d3e129 Exp $
+*
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

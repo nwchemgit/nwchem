@@ -5,6 +5,9 @@ C     in the "core" in a system
 C
 C SYNOPSIS
       Logical Function Geom_Num_Core(Geom, NCore)
+*
+* $Id: geom_numcore.F,v 1.2 1997-11-04 10:04:23 d3e129 Exp $
+*
       Implicit NONE
       Integer Geom     ! [in]  Geometry handle
       Integer NCore    ! [out] Number of orbitals considered core

@@ -5,6 +5,9 @@ c
        subroutine mcscf_fdiff_grad( geom, basis, nbf, nclosed, nact,
      $                              oskel, tol2e, dm1, dm2, g_movecs,
      $                              g_coul, g_grad )
+*
+* $Id: mcscf_fdiff.F,v 1.10 1997-11-04 09:59:43 d3e129 Exp $
+*
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -12,6 +12,9 @@ c
 c
        subroutine mcscf_fcore( basis, nbf, nclosed, nact,
      $                         g_movecs, g_coul, g_exch, g_fcore )
+*
+* $Id: mcscf_fcore.F,v 1.6 1997-11-04 09:59:43 d3e129 Exp $
+*
        implicit none
 #include "mafdecls.fh"       
 #include "global.fh"

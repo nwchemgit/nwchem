@@ -1,4 +1,7 @@
       subroutine geom_print_rtdb_ecce(rtdb)
+*
+* $Id: geom_print_ecce.F,v 1.3 1997-11-04 10:04:24 d3e129 Exp $
+*
 #include "geom.fh"
       integer rtdb, geom
 c

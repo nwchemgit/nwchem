@@ -18,6 +18,9 @@ c
 c
       subroutine detci_vatable( norb, nel, nsym, osym,
      $                          vtxtab, arctab )
+*
+* $Id: detci_aux.F,v 1.13 1997-11-04 09:59:49 d3e129 Exp $
+*
       implicit none
 #include "detciP.fh"
       integer norb

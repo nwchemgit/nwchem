@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.27 1997-11-04 09:59:53 d3e129 Exp $
+#
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
 	      	detci_dens.o \

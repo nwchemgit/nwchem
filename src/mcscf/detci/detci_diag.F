@@ -4,6 +4,9 @@ c  3-term recursion
 c
       subroutine detci_dvddiag( mxv, precon, maxiter, tol, oprint,
      $                          g_x, g_x0, g_q, g_s, g_s0, g_sq, e )
+*
+* $Id: detci_diag.F,v 1.11 1997-11-04 09:59:50 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "util.fh"

@@ -8,6 +8,9 @@ c
       subroutine detci_spadpt( norb, nsym, nela, nelb, nstra, nstrb,
      $                         osym, ataba, atabb, nexa, nexb,
      $                         exa, exb, g_civec, g_pvec )
+*
+* $Id: detci_spin.F,v 1.7 1997-11-04 09:59:52 d3e129 Exp $
+*
       implicit none
 #include "global.fh"
 #include "detciP.fh"

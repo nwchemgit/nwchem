@@ -1,4 +1,7 @@
       logical function mcscf( rtdb )
+*
+* $Id: mcscf.F,v 1.57 1997-11-04 09:59:40 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

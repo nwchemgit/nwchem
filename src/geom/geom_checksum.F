@@ -1,4 +1,7 @@
       logical function geom_checksum(geom, sum)
+*
+* $Id: geom_checksum.F,v 1.2 1997-11-04 10:04:23 d3e129 Exp $
+*
       implicit none
 #include "geomP.fh"
 #include "mafdecls.fh"

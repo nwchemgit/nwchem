@@ -1,4 +1,7 @@
       subroutine hv_write(lun,ix,len,x)
+*
+* $Id: mcscf_debug.F,v 1.11 1997-11-04 09:59:42 d3e129 Exp $
+*
       implicit none
       integer lun, ix, len
       double precision x(len)
