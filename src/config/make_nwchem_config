@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.49 1996-10-19 00:08:55 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.50 1996-10-19 23:55:29 d3g681 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -27,9 +27,9 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmd argos
 
-EXP_all = $(filter-out mp2_grad gapss oimp2 ideaz scfaux cphf plane_wave,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out gapss oimp2 ideaz scfaux plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 \
-	stepper ccsd vib mcscf property dftgrad selci dplot 
+	stepper ccsd vib mcscf property dftgrad selci dplot mp2_grad
 #plane_wave ... broken? RJH
 #cphf mp2_grad ... not yet ... RJH
 EXP_argos = nwaprep nwargos
